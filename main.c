@@ -1375,6 +1375,12 @@ main(argc, argv)
 				(void) process_ptyinfo(0);
 # endif	/* defined(HASPTYEPT) */
 
+			/*
+			 * Process INET socket endpoints.
+			 */
+			    if (Lp->ept & EPT_NETS)
+				(void) process_netsinfo(0);
+
 		    }
 		/*
 		 * In a second pass, look for unselected endpoint files,
@@ -1404,6 +1410,12 @@ main(argc, argv)
 			    if (Lp->ept & EPT_PTY_END)
 				(void) process_ptyinfo(1);
 # endif	/* defined(HASPTYEPT) */
+
+			/*
+			 * Process INET socket endpoints.
+			 */
+			    if (Lp->ept & EPT_NETS_END)
+				(void) process_netsinfo(1);
 
 		    }
 		    Lf = lf;
@@ -1447,6 +1459,8 @@ main(argc, argv)
 # if	defined(HASPTYEPT)
 		(void) clear_ptyinfo();
 # endif	/* defined(HASPTYEPT) */
+
+		(void) clear_netsinfo();
 #endif	/* defined(HASEPTOPTS) */
 
 		if (rc) {

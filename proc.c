@@ -940,6 +940,15 @@ link_lfile()
 	    }
 # endif	/* defined(HASPTYEPT) */
 
+/*
+ * Process locally used INET socket endpoint files the same way by clearing the
+ * SENETSINFO flag and setting the EPT_NETS flag, letting a later call to
+ * process_netsinfo() set selection flags.
+ */
+	    if (Lf->sf & SELNETSINFO) {
+		Lp->ept |= EPT_NETS;
+		Lf->sf &= ~SELNETSINFO;
+	    }
 	}
 #endif	/* defined(HASEPTOPTS) */
 

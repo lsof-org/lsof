@@ -92,6 +92,8 @@ struct l_dev {
 #define	CHEND_UXS	0x04		/* UNIX socket endpoint ID */
 #  endif	/* defined(HASUXSOCKEPT) */
 
+#define	CHEND_NETS	0x08		/* INET socket endpoint ID */
+
 #define	EPT_PIPE	0x01		/* process has pipe file */
 #define	EPT_PIPE_END	0x02		/* process has pipe end point file */
 #define	EPT_PTY		0x04		/* process has a pseudoterminal file */
@@ -103,6 +105,10 @@ struct l_dev {
 #define	EPT_UXS_END	0x20		/* process has a UNIX socket end point
 					 * file */
 #  endif	/* defined(HASUXSOCKEPT) */
+
+#define	EPT_NETS	0x40		/* process has a INET socket file */
+#define	EPT_NETS_END	0x80		/* process has a INET socket end point
+					 * file */
 # endif	/* defined(HASEPTOPTS) */
 
 
@@ -514,6 +520,9 @@ extern int ZoneColW;
 					 * cleared in link_lfile() */
 #define	SELPTYINFO	0x20000		/* selected for pseudoterminal info;
 					 * cleared in link_lfile() */
+#define	SELNETSINFO	0x40000		/* selected for INET socket info;
+					 * cleared in link_lfile() */
+
 #define	SELALL		(SELCMD|SELCNTX|SELFD|SELNA|SELNET|SELNM|SELNFS|SELPID|SELUID|SELUNX|SELZONE|SELTASK)
 #define	SELPROC		(SELCMD|SELCNTX|SELPGID|SELPID|SELUID|SELZONE|SELTASK)
 					/* process selecters */
