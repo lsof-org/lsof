@@ -40,6 +40,7 @@ static char *rcsid = "$Id: proc.c,v 1.50 2018/02/14 14:20:14 abe Exp $";
 
 #if	defined(HASEPTOPTS)
 _PROTOTYPE(static void prt_pinfo,(pxinfo_t *pp, int ps));
+_PROTOTYPE(static void prt_psxmqinfo,(pxinfo_t *pp, int ps));
 #endif  /* defined(HASEPTOPTS) */
 #if	defined(HASPTYEPT)
 _PROTOTYPE(static void prt_ptyinfo,(pxinfo_t *pp, int prt_edev, int ps));
@@ -916,6 +917,16 @@ link_lfile()
 		Lf->sf &= ~SELPINFO;
 	    }
 
+/*
+ * Process posix mq endpoint files the same way by clearing the
+ * SELPSXMQINFO flag and setting the EPT_PSXMQ flag, letting a later call to
+ * process_psxmqinfo() set selection flags.
+ */
+	    if (Lf->sf & SELPSXMQINFO) {
+		Lp->ept |= EPT_PSXMQ;
+		Lf->sf &= ~SELPSXMQINFO;
+	    }
+
 # if	defined(HASUXSOCKEPT)
 /*
  * Process UNIX socket endpoint files the same way by clearing the SELUXINFO
@@ -1071,6 +1082,112 @@ prt_pinfo(pp, ps)
 	*/
 	    ef->chend = CHEND_PIPE;
 	    ep->ept |= EPT_PIPE_END;
+	}
+}
+
+
+/*
+ * process_psxmqinfo() -- posix mq info, adding it to selected files and
+ *		          selecting posix mq end files (if requested)
+ */
+
+void
+process_psxmqinfo(f)
+	int f;				/* function:
+					 *     0 == process selected posix mq
+					 *     1 == process end point
+					 */
+{
+	pxinfo_t *pp;			/* previous posix mq info */
+
+	if (!FeptE)
+	    return;
+	for (Lf = Lp->file; Lf; Lf = Lf->next) {
+	    if (Lf->dev != MqueueDev)
+		continue;
+	    pp = (pxinfo_t *)NULL;
+	    switch(f) {
+	    case 0:
+
+	    /*
+	     * Process already selected posix mq file.
+	     */
+		if (is_file_sel(Lp, Lf)) {
+
+		/*
+		 * This file has been selected by some criterion other than
+		 * its being a posix mq.  Look up the posix mq's endpoints.
+		 */
+		    do {
+			if ((pp = find_psxmqinfo(Lp->pid, Lf, pp))) {
+
+			/*
+			 * This posix mq endpoint is linked to the selected posix mq
+			 * file.  Add its PID and FD to the name column
+			 * addition.
+			 */
+			    prt_psxmqinfo(pp, (FeptE == 2));
+			    pp = pp->next;
+			}
+		    } while (pp);
+		}
+		break;
+	    case 1:
+		if (!is_file_sel(Lp, Lf) && (Lf->chend & CHEND_PSXMQ)) {
+
+		/*
+		 * This is an unselected end point file.  Select it and add
+		 * its end point information to its name column addition.
+		 */
+		    Lf->sf = Selflags;
+		    Lp->pss |= PS_SEC;
+		    do {
+		      if ((pp = find_psxmqinfo(Lp->pid, Lf, pp))) {
+			    prt_psxmqinfo(pp, 0);
+			    pp = pp->next;
+			}
+		    } while (pp);
+		}
+		break;
+	    }
+	}
+}
+
+
+/*
+ * prt_psxmqinfo() -- print posix mq information
+ */
+
+static void
+prt_psxmqinfo(pp, ps)
+	pxinfo_t *pp;			/* peer info */
+	int ps;				/* processing status:
+					 *    0 == process immediately
+					 *    1 == process later */
+{
+	struct lproc *ep;		/* posix mq endpoint process */
+	struct lfile *ef;		/* posix mq endpoint file */
+	int i;				/* temporary index */
+	char nma[1024];			/* name addition buffer */
+
+	ep = &Lproc[pp->lpx];
+	ef = pp->lf;
+	for (i = 0; i < (FDLEN - 1); i++) {
+	    if (ef->fd[i] != ' ')
+		break;
+	}
+	(void) snpf(nma, sizeof(nma) - 1, "%d,%.*s,%s%c",
+	    ep->pid, CmdLim, ep->cmd, &ef->fd[i],
+	    ef->access);
+	(void) add_nma(nma, strlen(nma));
+	if (ps) {
+
+	/*
+	* Endpoint files have been selected, so mark this
+	* one for selection later. Set the type to posix mq.
+	*/
+	    ef->chend = CHEND_PSXMQ;
+	    ep->ept |= EPT_PSXMQ_END;
 	}
 }
 #endif	/* defined(HASEPTOPTS) */

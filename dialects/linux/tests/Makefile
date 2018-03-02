@@ -1,4 +1,5 @@
 HELPERS = \
+	mq_fork \
 	mq_open \
 	pipe \
 	pty \
@@ -22,4 +23,6 @@ clean:
 # -lrt must be at the end of the command line.
 #
 mq_open: mq_open.o
+	$(CC) $(CFLAGS) -o $@ $< -lrt
+mq_fork: mq_fork.o
 	$(CC) $(CFLAGS) -o $@ $< -lrt

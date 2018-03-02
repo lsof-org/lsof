@@ -114,6 +114,9 @@ _PROTOTYPE(extern void find_ch_ino,(void));
 _PROTOTYPE(extern void clear_pinfo,(void));
 _PROTOTYPE(extern pxinfo_t *find_pepti,(int pid, struct lfile *lf, pxinfo_t *pp));
 _PROTOTYPE(extern void process_pinfo,(int f));
+_PROTOTYPE(extern void clear_psxmqinfo,(void));
+_PROTOTYPE(extern pxinfo_t *find_psxmqinfo,(int pid, struct lfile *lf, pxinfo_t *pp));
+_PROTOTYPE(extern void process_psxmqinfo,(int f));
 #  if	defined(HASUXSOCKEPT)
 _PROTOTYPE(extern void clear_uxsinfo,(void));
 _PROTOTYPE(extern struct uxsin *find_uxsepti,(struct lfile *lf));

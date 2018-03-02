@@ -1354,6 +1354,11 @@ main(argc, argv)
 			 */
 			    if (Lp->pss && (Lp->ept & EPT_PIPE))
 				(void) process_pinfo(0);
+			/*
+			 * Process POSIX MQ endpoints.
+			 */
+			    if (Lp->ept & EPT_PSXMQ)
+			      (void) process_psxmqinfo(0);
 
 # if	defined(HASUXSOCKEPT)
 			/*
@@ -1394,6 +1399,11 @@ main(argc, argv)
 			 */
 			    if (Lp->ept & EPT_PIPE_END)
 				(void) process_pinfo(1);
+			/*
+			 * Process POSIX MQ endpoints.
+			 */
+			    if (Lp->ept & EPT_PSXMQ_END)
+			      (void) process_psxmqinfo(1);
 
 # if	defined(HASUXSOCKEPT)
 			/*
@@ -1451,6 +1461,8 @@ main(argc, argv)
 
 #if	defined(HASEPTOPTS)
 		(void) clear_pinfo();
+
+		(void) clear_psxmqinfo();
 
 # if	defined(HASUXSOCKEPT)
 		(void) clear_uxsinfo();
