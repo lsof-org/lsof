@@ -4921,6 +4921,8 @@ July 14, 2018
 		Fix a potential memory leak.
 		[linux] use tirpc for rpc if libc doesn't provide rpc.h.
 		Fix a typo in man page.
+		[linux] fix memory leaks detected by valgrind about unix
+		endpoint information.
 
 Masatake YAMATO <yamato@redhat.com>, a member of lsof-org
 May 6, 2019
