@@ -2,6 +2,8 @@ HELPERS = \
 	pipe \
 	pty \
 	\
+	open_with_flags \
+	\
 	$(NULL)
 
 CFLAGS  = -g -Wall -std=c99
