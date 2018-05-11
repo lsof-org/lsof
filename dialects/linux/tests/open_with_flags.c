@@ -15,6 +15,8 @@ struct {
 } table [] = {
 	{ "path", O_PATH },
 	{ "cx",   O_CLOEXEC },
+	{ "tmpf", O_TMPFILE },
+	{ "rdwr", O_RDWR },
 };
 
 #define TABLELEN sizeof(table)/sizeof(table[0])
