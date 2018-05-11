@@ -14,6 +14,7 @@ struct {
 	int flag;
 } table [] = {
 	{ "path", O_PATH },
+	{ "cx",   O_CLOEXEC },
 };
 
 #define TABLELEN sizeof(table)/sizeof(table[0])
