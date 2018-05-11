@@ -161,6 +161,7 @@ struct l_dev {
 #define	FF_NOTOSTOP	"NOTO"
 #define	FF_NSHARE	"NSH"
 #define	FF_OLRMIRROR	"OLRM"
+#define	FF_PATH		"PATH"
 #define	FF_POSIX_AIO	"PAIO"
 #define	FF_POSIX_PIPE	"PP"
 #define	FF_RAIOSIG	"RAIO"
