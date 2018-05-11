@@ -109,6 +109,10 @@ struct pff_tab Pff_tab[] = {
 	{ (long)O_PATH,	FF_PATH	},
 #endif	/* defined(O_PATH) */
 
+#if	defined(O_TMPFILE)
+	{ (long)O_TMPFILE,	FF_TMPFILE	},
+#endif	/* defined(O_TMPFILE) */
+
 	{ (long)0,		NULL		}
 };
 
