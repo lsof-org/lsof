@@ -4923,6 +4923,7 @@ July 14, 2018
 		Fix a typo in man page.
 		[linux] fix memory leaks detected by valgrind about unix
 		endpoint information.
+		Update the description about -fg and -fG options on linux.
 
 Masatake YAMATO <yamato@redhat.com>, a member of lsof-org
 May 6, 2019
