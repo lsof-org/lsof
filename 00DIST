@@ -4919,6 +4919,7 @@ July 14, 2018
 		[freebsd] Made FreeBSD 13 adjustment.
 		[darwin] Fix a typo causing a build error.
 		Fix a potential memory leak.
+		[linux] use tirpc for rpc if libc doesn't provide rpc.h.
 
 Masatake YAMATO <yamato@redhat.com>, a member of lsof-org
 May 6, 2019

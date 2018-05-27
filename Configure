@@ -2954,8 +2954,14 @@ return(0); }
 
     # Test for <rpc/rpc.h>.
 
-    if ! test -r ${LSOF_INCLUDE}/rpc/rpc.h	# {
+    if test -r ${LSOF_INCLUDE}/rpc/rpc.h	# {
     then
+      :	# Do nothing
+    elif test -r ${LSOF_INCLUDE}/tirpc/rpc/rpc.h
+    then
+      LSOF_DINC="${LSOF_DINC} -I${LSOF_INCLUDE}/tirpc"
+      LSOF_CFGL="${LSOF_CFGL} -ltirpc"
+    else
       LSOF_CFGF="$LSOF_CFGF -DHASNORPC_H"
     fi	# }
 
