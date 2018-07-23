@@ -1,0 +1,181 @@
+head	1.7;
+access;
+symbols;
+locks; strict;
+
+
+1.7
+date	2013.01.02.17.09.12;	author abe;	state Exp;
+branches;
+next	1.6;
+
+1.6
+date	2002.04.22.12.26.38;	author abe;	state Exp;
+branches;
+next	1.5;
+
+1.5
+date	98.05.11.06.52.08;	author abe;	state Exp;
+branches;
+next	1.4;
+
+1.4
+date	97.10.24.08.30.27;	author abe;	state Exp;
+branches;
+next	1.3;
+
+1.3
+date	97.06.20.08.39.58;	author abe;	state Exp;
+branches;
+next	1.2;
+
+1.2
+date	97.04.03.07.02.12;	author abe;	state Exp;
+branches;
+next	1.1;
+
+1.1
+date	97.02.24.07.21.50;	author abe;	state Exp;
+branches;
+next	;
+
+
+desc
+@Lsof version 4
+@
+
+
+1.7
+log
+@Revision 4.87
+@
+text
+@Now that you have the lsof distribution, I suggest:
+
+*  If you're unfamiliar with lsof, read 00README for information on
+   Configuring and building lsof, 00QUICKSTART for tips on using lsof.
+
+   If you're too impatient for that, do this:
+
+      $ ./Configure <put your UNIX dialect's abbreviation here>
+        (Do the inventory step, as you prefer.)
+        (Do the customization step, as you prefer.)
+      $ make
+      $ ./lsof -h
+
+   To get a list of UNIX dialect abbreviations:
+
+      $ Configure -h
+
+   Please don't be impatient -- read the documentation first.
+
+*  Read the current distribution's details in 00DIST.  (The
+   ChangeLog file points to 00DIST.)
+
+*  If you want technical details, read 00DCACHE and 00PORTING.
+
+*  If you want to cross-configure, read 00XCONFIG.
+
+*  Use the test suite, described in 00TEST, by:
+
+	$ cd tests
+	$ make
+
+   and possibly:
+
+	$ make opt
+
+*  If you're having trouble, read 00FAQ.  (Please read 00FAQ before
+   you send a bug report.)
+
+*  Lsof contributors may find their names in 00CREDITS.  (Thanks, again.)
+
+*  Read the lsof.man page file.  Its nroff source is in lsof.8.
+
+*  Consider subscribing to the lsof-l mailing list -- read 00LSOF-L
+   for details.
+
+
+Vic Abell <abe@@purdue.edu>
+January 2, 2013
+@
+
+
+1.6
+log
+@Revision 4.63
+@
+text
+@d20 2
+a21 1
+*  Read the current distribution's details in 00DIST.
+d48 1
+a48 1
+April 19, 2002
+@
+
+
+1.5
+log
+@Revision 4.32
+@
+text
+@d26 9
+d47 1
+a47 1
+May 11, 1998
+@
+
+
+1.4
+log
+@Revision 4.18
+@
+text
+@d6 14
+d33 1
+a33 1
+*  Consider subscribing to the lsof-l LISTSERV -- read 00LSOF-L
+d38 1
+a38 1
+October 24, 1997
+@
+
+
+1.3
+log
+@Revision 4.12
+@
+text
+@d19 2
+d22 1
+d24 1
+a24 1
+June 20, 1997
+@
+
+
+1.2
+log
+@Correct typo.
+@
+text
+@d10 2
+d21 1
+a21 1
+April 3, 1997
+@
+
+
+1.1
+log
+@Initial revision
+@
+text
+@d13 1
+a13 1
+*  Lsof contributors may find their names in 00CREDIST.  (Thanks, again.)
+d19 1
+a19 1
+February 24, 1997
+@

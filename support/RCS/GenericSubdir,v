@@ -1,0 +1,474 @@
+head	1.17;
+access;
+symbols;
+locks; strict;
+comment	@# @;
+
+
+1.17
+date	2013.01.02.17.05.43;	author abe;	state Exp;
+branches;
+next	1.16;
+
+1.16
+date	2008.04.15.13.25.26;	author abe;	state Exp;
+branches;
+next	1.15;
+
+1.15
+date	2003.10.31.11.58.33;	author abe;	state Exp;
+branches;
+next	1.14;
+
+1.14
+date	2002.04.22.12.44.21;	author abe;	state Exp;
+branches;
+next	1.13;
+
+1.13
+date	2002.03.07.21.44.20;	author abe;	state Exp;
+branches;
+next	1.12;
+
+1.12
+date	2001.11.07.15.44.03;	author abe;	state Exp;
+branches;
+next	1.11;
+
+1.11
+date	2001.02.14.18.51.11;	author abe;	state Exp;
+branches;
+next	1.10;
+
+1.10
+date	99.05.04.08.23.19;	author abe;	state Exp;
+branches;
+next	1.9;
+
+1.9
+date	98.02.16.08.08.35;	author abe;	state Exp;
+branches;
+next	1.8;
+
+1.8
+date	97.12.30.08.17.34;	author abe;	state Exp;
+branches;
+next	1.7;
+
+1.7
+date	97.10.23.17.30.59;	author abe;	state Exp;
+branches;
+next	1.6;
+
+1.6
+date	97.07.22.10.54.13;	author abe;	state Exp;
+branches;
+next	1.5;
+
+1.5
+date	97.07.03.10.17.04;	author abe;	state Exp;
+branches;
+next	1.4;
+
+1.4
+date	97.06.23.09.43.09;	author abe;	state Exp;
+branches;
+next	1.3;
+
+1.3
+date	97.06.08.08.27.46;	author abe;	state Exp;
+branches;
+next	1.2;
+
+1.2
+date	97.06.06.08.07.18;	author abe;	state Exp;
+branches;
+next	1.1;
+
+1.1
+date	97.02.24.16.57.36;	author abe;	state Exp;
+branches;
+next	;
+
+
+desc
+@Lsof version 4
+@
+
+
+1.17
+log
+@Revision 4.87
+@
+text
+@#!/bin/ksh
+#
+# GenericSubdir -- create generic lsof 4.x distribution subdirectory
+#
+# Usage: GenericSubdir <dialect> [<suffix>]
+#
+#	<dialect>	dialect's subdirectory name
+#
+#	[<suffix>]	optional suffix for version number
+
+cd $HOME/src/lsof4
+
+# Get version number.
+
+V=`sed '/VN/s/.ds VN \(.*\)/\1/' version`
+if test $? -ne 0
+then
+  echo $V
+  exit 1
+fi
+
+# Handle arguments.
+
+if test $# -lt 1 -o $# -gt 2
+then
+  echo "Usage: <dialect> [<suffix>]"
+  exit 1
+fi
+DIALECT=$1
+if test $# -eq 2
+then
+  V=${V}$2
+fi
+
+# Set variable names.
+
+DIR=lsof_${V}.${DIALECT}
+F="00.README.FIRST 00CREDITS 00DCACHE 00DIALECTS 00DIST 00FAQ 00LSOF-L 00PORTING 00QUICKSTART 00README 00TEST 00XCONFIG AFSConfig ChangeLog Configure Customize Inventory arg.c lsof_fields.h lsof.h main.c misc.c node.c print.c proc.c proto.h regex.h store.c usage.c util.c version"
+MS=Lsof.8
+MD=lsof.8
+MF=lsof.man
+
+# Prepare for premature exit.
+
+trap 'rm -rf $DIR; exit' 1 2 3 15
+
+# Make a temporary directory and copy the relevant files to it.
+
+rm -rf $DIR
+mkdir $DIR
+echo "Copying:\c"
+for i in $F
+do
+  echo " $i\c"
+  cp -r $i $DIR
+done
+echo " ... done"
+echo "Copying lib ...\c"
+cp -r lib $DIR/lib
+echo " done"
+echo "Removing extraneous stuff from lib ...\c"
+rm -rf $DIR/lib/RCS $DIR/lib/OLD $DIR/lib/NEW
+rm -rf $DIR/lib/Makefile $DIR/lib/*.[oa]
+echo " done"
+mkdir $DIR/dialects
+echo "Copying dialects/${DIALECT} ...\c"
+cp -r dialects/${DIALECT} $DIR/dialects
+echo " done"
+echo "Removing extraneous stuff from dialects/${DIALECT} ...\c"
+rm -rf $DIR/dialects/${DIALECT}/distfile.kvm
+rm -rf $DIR/dialects/${DIALECT}/Makefile.LOCAL
+find ${DIR}/dialects -name OLD -exec rm -rf {} \; > /dev/null 2>&1
+find ${DIR}/dialects -name NEW -exec rm -rf {} \; > /dev/null 2>&1
+find ${DIR}/dialects -name support -exec rm -rf {} \; > /dev/null 2>&1
+find ${DIR}/dialects -name RCS -exec rm -rf {} \; > /dev/null 2>&1
+echo " done"
+echo "Copying scripts ...\c"
+cp -r scripts $DIR
+echo " done"
+echo "Removing extraneous stuff from scripts ...\c"
+rm -rf $DIR/scripts/NEW $DIR/scripts/OLD $DIR/scripts/RCS
+echo " done"
+echo "Copying tests ...\c"
+cp -r tests $DIR
+echo " done"
+echo "Removing extraneous stuff from tests ...\c"
+rm -rf $DIR/tests/NEW $DIR/tests/OLD $DIR/tests/RCS $DIR/tests/*.o
+rm -rf $DIR/tests/00README
+rm -rf $DIR/tests/config.* $DIR/tests/LTbasic $DIR/tests/LTbigf
+rm -rf $DIR/tests/LTdnlc $DIR/tests/LTlock $DIR/tests/LTnfs
+rm -rf $DIR/tests/LTnlink $DIR/tests/LTsock $DIR/tests/LTszoff
+rm -rf $DIR/tests/LTunix
+echo " done"
+echo "Producing $MD and $MF ...\c"
+soelim < $MS > $DIR/$MD
+nroff -man $MS | colcrt - | cat -s > $DIR/$MF
+echo " done"
+echo "Producing 00MANIFEST ...\c"
+(cd $DIR; ls -FR > 00MANIFEST)
+echo " done"
+@
+
+
+1.16
+log
+@Revision 4.79
+@
+text
+@d38 1
+a38 1
+F="00.README.FIRST 00CREDITS 00DCACHE 00DIALECTS 00DIST 00FAQ 00LSOF-L 00PORTING 00QUICKSTART 00README 00TEST 00XCONFIG AFSConfig Configure Customize Inventory arg.c lsof_fields.h lsof.h main.c misc.c node.c print.c proc.c proto.h regex.h store.c usage.c util.c version"
+@
+
+
+1.15
+log
+@Convert BSD echo to SYSV echo.
+@
+text
+@d38 1
+a38 1
+F="00.README.FIRST 00CREDITS 00DCACHE 00DIALECTS 00DIST 00FAQ 00LSOF-L 00PORTING 00QUICKSTART 00README 00TEST 00XCONFIG AFSConfig Configure Customize Inventory arg.c lsof_fields.h lsof.h main.c misc.c node.c print.c proc.c proto.h regex.h store.c usage.c version"
+@
+
+
+1.14
+log
+@Revision 4.63
+@
+text
+@d51 1
+a51 1
+echo -n "Copying: "
+d54 1
+a54 1
+  echo -n " "$i
+d58 1
+a58 1
+echo -n "Copying lib ..."
+d61 1
+a61 1
+echo -n "Removing extraneous stuff from lib ..."
+d66 1
+a66 1
+echo -n "Copying dialects/${DIALECT} ..."
+d69 1
+a69 1
+echo -n "Removing extraneous stuff from dialects/${DIALECT} ..."
+d77 1
+a77 1
+echo -n "Copying scripts ..."
+d80 1
+a80 1
+echo -n "Removing extraneous stuff from scripts ..."
+d83 1
+a83 1
+echo -n "Copying tests ..."
+d86 1
+a86 1
+echo -n "Removing extraneous stuff from tests ..."
+d94 1
+a94 1
+echo -n "Producing $MD and $MF ..."
+d98 1
+a98 1
+echo -n "Producing 00MANIFEST ..."
+@
+
+
+1.13
+log
+@Use find to locate subdirectories that should be deleted.
+@
+text
+@d38 1
+a38 1
+F="00.README.FIRST 00CREDITS 00DCACHE 00DIALECTS 00DIST 00FAQ 00LSOF-L 00PORTING 00QUICKSTART 00README 00XCONFIG AFSConfig Configure Customize Inventory arg.c lsof_fields.h lsof.h main.c misc.c node.c print.c proc.c proto.h regex.h store.c usage.c version"
+d72 4
+a75 4
+find ${DIR}/dialects -name OLD -exec rm -rf {} \;
+find ${DIR}/dialects -name NEW -exec rm -rf {} \;
+find ${DIR}/dialects -name support -exec rm -rf {} \;
+find ${DIR}/dialects -name RCS -exec rm -rf {} \;
+d82 11
+@
+
+
+1.12
+log
+@Revision 4.60
+@
+text
+@d72 4
+a75 11
+rm -rf $DIR/dialects/*/*/*/OLD
+rm -rf $DIR/dialects/*/*/OLD
+rm -rf $DIR/dialects/*/OLD
+rm -rf $DIR/dialects/*/*/*/NEW
+rm -rf $DIR/dialects/*/*/NEW
+rm -rf $DIR/dialects/*/NEW
+rm -rf $DIR/dialects/*/*/support
+rm -rf $DIR/dialects/*/support
+rm -rf $DIR/dialects/*/*/*/RCS
+rm -rf $DIR/dialects/*/*/RCS
+rm -rf $DIR/dialects/*/RCS
+@
+
+
+1.11
+log
+@Add regex.h
+@
+text
+@d71 1
+a71 1
+rm -rf $DIR/dialects/${DIALECT}/Makefile.PUCC
+@
+
+
+1.10
+log
+@Clean out dialects subdirectories
+@
+text
+@d38 1
+a38 1
+F="00.README.FIRST 00CREDITS 00DCACHE 00DIALECTS 00DIST 00FAQ 00LSOF-L 00PORTING 00QUICKSTART 00README 00XCONFIG AFSConfig Configure Customize Inventory arg.c lsof_fields.h lsof.h main.c misc.c node.c print.c proc.c proto.h store.c usage.c version"
+@
+
+
+1.9
+log
+@Add usage.c
+@
+text
+@d72 2
+d75 2
+a76 1
+rm -rf $DIR/dialects/*/*/OLD
+d78 1
+a78 1
+rm -rf $DIR/dialects/*/*/NEW
+d80 2
+a81 1
+rm -rf $DIR/dialects/*/*/support
+a82 1
+rm -rf $DIR/dialects/*/*/RCS
+@
+
+
+1.8
+log
+@Adjust dialect subdirectory cleanup to cope with new Linux organization.
+@
+text
+@d38 1
+a38 1
+F="00.README.FIRST 00CREDITS 00DCACHE 00DIALECTS 00DIST 00FAQ 00LSOF-L 00PORTING 00QUICKSTART 00README 00XCONFIG AFSConfig Configure Customize Inventory arg.c lsof_fields.h lsof.h main.c misc.c node.c print.c proc.c proto.h store.c version"
+@
+
+
+1.7
+log
+@Add LSOF-L.
+@
+text
+@d73 1
+d75 1
+d77 1
+d79 1
+@
+
+
+1.6
+log
+@Revision 4.14
+Add 00DIALECTS.
+@
+text
+@d38 1
+a38 1
+F="00.README.FIRST 00CREDITS 00DCACHE 00DIALECTS 00DIST 00FAQ 00PORTING 00QUICKSTART 00README 00XCONFIG AFSConfig Configure Customize Inventory arg.c lsof_fields.h lsof.h main.c misc.c node.c print.c proc.c proto.h store.c version"
+@
+
+
+1.5
+log
+@Improve status messages.
+@
+text
+@d38 1
+a38 1
+F="00.README.FIRST 00CREDITS 00DCACHE 00DIST 00FAQ 00PORTING 00QUICKSTART 00README 00XCONFIG AFSConfig Configure Customize Inventory arg.c lsof_fields.h lsof.h main.c misc.c node.c print.c proc.c proto.h store.c version"
+@
+
+
+1.4
+log
+@Copy 00XCONFIG.
+@
+text
+@d58 1
+a58 1
+echo -n "Copying lib"
+d60 2
+a61 2
+echo " ... done"
+echo -n "Removing extraneous stuff from lib"
+d64 1
+a64 1
+echo " ... done"
+d66 1
+a66 1
+echo -n "Copying dialects/${DIALECT}"
+d68 2
+a69 2
+echo " ... done"
+echo -n "Removing extraneous stuff from dialects/${DIALECT}"
+d76 2
+a77 2
+echo " ... done"
+echo -n "Copying scripts"
+d79 2
+a80 2
+echo " ... done"
+echo -n "Removing extraneous stuff from scripts"
+d82 2
+a83 2
+echo " ... done"
+echo -n "Producing $MD and $MF"
+d86 2
+a87 2
+echo " ... done"
+echo -n "Producing 00MANIFEST"
+d89 1
+a89 1
+echo " ... done"
+@
+
+
+1.3
+log
+@Improve progress message.
+@
+text
+@d38 1
+a38 1
+F="00.README.FIRST 00CREDITS 00DCACHE 00DIST 00FAQ 00PORTING 00QUICKSTART 00README AFSConfig Configure Customize Inventory arg.c lsof_fields.h lsof.h main.c misc.c node.c print.c proc.c proto.h store.c version"
+@
+
+
+1.2
+log
+@Remove lib/NEW
+@
+text
+@d69 1
+a69 1
+echo -n "Removing extraneous stuff from dialects"
+@
+
+
+1.1
+log
+@Initial revision
+@
+text
+@d62 1
+a62 1
+rm -rf $DIR/lib/RCS $DIR/lib/OLD
+@

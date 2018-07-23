@@ -1,0 +1,152 @@
+head     1.1;
+branch   ;
+access   ;
+symbols  ;
+locks    ; strict;
+comment  @ * @;
+
+
+1.1
+date     97.02.24.07.29.43;  author abe;  state Exp;
+branches ;
+next     ;
+
+
+desc
+@Lsof version 4
+@
+
+
+
+1.1
+log
+@Initial revision
+@
+text
+@/*
+ * prtf.c -- print_file() function for lsof library
+ */
+
+
+/*
+ * Copyright 1997 Purdue Research Foundation, West Lafayette, Indiana
+ * 47907.  All rights reserved.
+ *
+ * Written by Victor A. Abell
+ *
+ * This software is not subject to any license of the American Telephone
+ * and Telegraph Company or the Regents of the University of California.
+ *
+ * Permission is granted to anyone to use this software for any purpose on
+ * any computer system, and to alter it and redistribute it freely, subject
+ * to the following restrictions:
+ *
+ * 1. Neither the authors nor Purdue University are responsible for any
+ *    consequences of the use of this software.
+ *
+ * 2. The origin of this software must not be misrepresented, either by
+ *    explicit claim or by omission.  Credit to the authors and Purdue
+ *    University must appear in documentation and sources.
+ *
+ * 3. Altered versions must be plainly marked as such, and must not be
+ *    misrepresented as being the original software.
+ *
+ * 4. This notice may not be removed or altered.
+ */
+
+
+#include "../machine.h"
+
+#if	defined(USE_LIB_PRINT_FILE)
+
+# if	!defined(lint)
+static char copyright[] =
+"@@(#) Copyright 1997 Purdue Research Foundation.\nAll rights reserved.\n";
+static char *rcsid = "$Id$";
+# endif	/* !defined(lint) */
+
+#include "../lsof.h"
+
+
+/*
+ * print_file() - print file
+ */
+
+void
+print_file()
+{
+	char buf[16];
+
+	if (Hdr == 0) {
+	    (void) printf(
+		"COMMAND     PID%s%s     USER   FD   TYPE     DEVICE ",
+		Fpgrp ? "   PGRP" : "",
+
+#if	defined(HASPPID)
+		Fppid ? "   PPID" : ""
+#else	/* !defined(HASPPID) */
+		""
+#endif	/* defined(HASPPID) */
+
+	    );
+	    (void) printf("%10s", Foffset ? "OFFSET"
+					  : Fsize ? "SIZE"
+						  : "SIZE/OFF");
+	    (void) puts("      INODE NAME");
+	    Hdr++;
+	}
+	(void) printf("%-*.*s%6d", CMDL, CMDL,
+	    Lp->cmd ? Lp->cmd : "(unknown)", Lp->pid);
+	if (Fpgrp)
+	    printf(" %6d", Lp->pgrp);
+
+#if	defined(HASPPID)
+	if (Fppid)
+	    printf(" %6d", Lp->ppid);
+#endif	/* defined(HASPPID) */
+
+	(void) printf(" %8.8s %4s%c%c %4.4s ",
+			printuid((UID_ARG)Lp->uid, NULL),
+			Lf->fd,
+			Lf->access,
+			Lf->lock,
+			Lf->type
+		);
+	if (Lf->dev_def)
+		(void) printf(" %4d,%4d ", major(Lf->dev), minor(Lf->dev));
+	else {
+		if (Lf->dev_ch) {
+			(void) fputs(Lf->dev_ch, stdout);
+			putchar(' ');
+		} else
+			(void) fputs("           ", stdout);
+	}
+	if (Lf->sz_def)
+		(void) printf("%10lu", Lf->sz);
+	else if (Lf->off_def) {
+		if (Lf->off < 100000000l) {
+			(void) sprintf(buf, "0t%ld", Lf->off);
+			(void) printf("%10.10s", buf);
+		} else
+			(void) printf("%#10x", (Lf->off & 0xffffffff));
+	} else
+		(void) fputs("          ", stdout);
+	switch (Lf->inp_ty) {
+	case 1:
+		(void) printf(" %10lu ", Lf->inode);
+		break;
+	case 2:
+		if (Lf->iproto[0] == '\0')
+			(void) fputs("            ", stdout);
+		else
+			(void) printf(" %10.10s ", Lf->iproto);
+		break;
+	default:
+		(void) fputs("            ", stdout);
+	}
+	printname(1);
+}
+#else	/* !defined(USE_LIB_PRINT_FILE) */
+static char d1[] = "d"; static char *d2 = d1;
+#endif	/* defined(USE_LIB_PRINT_FILE) */
+@

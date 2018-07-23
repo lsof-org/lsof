@@ -1,0 +1,45 @@
+#!/bin/sh
+#
+# lsofbinary <version> -- update lsof_<version> binary and associated info
+
+if test $# -ne 1
+then
+  echo "Usage: lsofbinary <version>"
+  exit 1
+fi
+
+if test ! -r lsof_$1
+then
+  echo lsof_$1 not found
+  exit 1
+fi
+
+rm -f CHECKSUMS lsof_${1}.asc
+chmod 755 lsof_$1
+
+gzip lsof_$1
+gpg -o lsof_${1}.sig -b lsof_${1}.gz
+chmod 644 *.asc
+
+echo "" > CHECKSUMS
+md5 lsof_${1}.gz | sed 's/MD5 /	MD5:	/' >> CHECKSUMS
+echo "	sum:	\c" >> CHECKSUMS
+sum lsof_${1}.gz | sed "s/\$/	lsof_${1}.gz/" >> CHECKSUMS
+cat >> CHECKSUMS << ENDTEXT
+
+You may need to use sum's -r option (or cksum -o1) to get a matching
+result.  Even then the block count may not match, depending on the
+block size your sum (or cksum) program reports.  The sum program
+that generated the above value considers block size to be 1,024.
+
+The most reliable authentication method is to use GPG with the detached
+certificate in lsof_${1}.sig -- e.g.,
+
+        \$ gpg --verify lsof_${1}.sig lsof_${1}.gz
+
+Victor A. Abell
+ENDTEXT
+
+date >> CHECKSUMS
+ls -l
+cat CHECKSUMS

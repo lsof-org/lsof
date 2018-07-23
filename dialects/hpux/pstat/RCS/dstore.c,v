@@ -1,0 +1,215 @@
+head	1.4;
+access;
+symbols;
+locks; strict;
+comment	@ * @;
+
+
+1.4
+date	2004.10.17.21.58.08;	author abe;	state Exp;
+branches;
+next	1.3;
+
+1.3
+date	2000.05.24.11.43.14;	author abe;	state Exp;
+branches;
+next	1.2;
+
+1.2
+date	99.07.06.07.12.19;	author abe;	state Exp;
+branches;
+next	1.1;
+
+1.1
+date	99.05.25.13.05.21;	author abe;	state Exp;
+branches;
+next	;
+
+
+desc
+@Pstat-based HP-UX lsof 
+@
+
+
+1.4
+log
+@Revision 4.73
+@
+text
+@/*
+ * dstore.c - pstat-based HP-UX global storage for lsof
+ */
+
+
+/*
+ * Copyright 1999 Purdue Research Foundation, West Lafayette, Indiana
+ * 47907.  All rights reserved.
+ *
+ * Written by Victor A. Abell
+ *
+ * This software is not subject to any license of the American Telephone
+ * and Telegraph Company or the Regents of the University of California.
+ *
+ * Permission is granted to anyone to use this software for any purpose on
+ * any computer system, and to alter it and redistribute it freely, subject
+ * to the following restrictions:
+ *
+ * 1. Neither the authors nor Purdue University are responsible for any
+ *    consequences of the use of this software.
+ *
+ * 2. The origin of this software must not be misrepresented, either by
+ *    explicit claim or by omission.  Credit to the authors and Purdue
+ *    University must appear in documentation and sources.
+ *
+ * 3. Altered versions must be plainly marked as such, and must not be
+ *    misrepresented as being the original software.
+ *
+ * 4. This notice may not be removed or altered.
+ */
+
+#ifndef lint
+static char copyright[] =
+"@@(#) Copyright 1999 Purdue Research Foundation.\nAll rights reserved.\n";
+static char *rcsid = "$Id";
+#endif
+
+
+#include "lsof.h"
+
+
+/*
+ * Global storage definitions
+ */
+
+_T_LONG_T CloneMaj;			/* clone major device number */
+int HasNFS = -1;			/* NFS-mounted file system status:
+					 *    -1: not yet tested;
+					 *     0: tested and none mounted;
+					 *     1: tested and some mounted */
+int HaveCloneMaj = 0;			/* CloneMaj status */
+
+#if	defined(HASFSTRUCT)
+/*
+ * Pff_tab[] - table for printing file flags
+ */
+
+struct pff_tab Pff_tab[] = {
+	{ (long)PS_FRDONLY,	FF_READ		},
+	{ (long)PS_FWRONLY,	FF_WRITE	},
+	{ (long)PS_FAPPEND,	FF_APPEND	},
+	{ (long)PS_FNODELY,	FF_NDELAY	},
+	{ (long)PS_FNBLOCK,	FF_NBLOCK	},
+	{ (long)PS_FSYNC,	FF_SYNC		},
+	{ (long)PS_FDSYNC,	FF_DSYNC	},
+	{ (long)PS_FRSYNC,	FF_RSYNC	},
+	{ (long)PS_FLGFILE,	FF_LARGEFILE	},
+	{ (long)0,		NULL		}
+};
+
+
+/*
+ * Pof_tab[] - table for print process open file flags
+ */
+
+struct pff_tab Pof_tab[] = {
+	{ (long)PS_FEXCLOS,	POF_CLOEXEC	},
+	{ (long)0,		NULL		}
+};
+#endif	/* defined(HASFSTRUCT) */
+@
+
+
+1.3
+log
+@Update for pstat.
+@
+text
+@d47 4
+a50 1
+int HasNFS = 0;				/* has mounted NFS file system */
+@
+
+
+1.2
+log
+@Waiting for more pstat info
+@
+text
+@d46 1
+a46 2
+char **Fsinfo = (char **)NULL;		/* file system information */
+int Fsinfomax = 0;			/* maximum file system type */
+d48 1
+d56 9
+a64 34
+	{ (long)FREAD,		FF_READ		},
+	{ (long)FWRITE,		FF_WRITE	},
+	{ (long)FNDELAY,	FF_NDELAY	},
+	{ (long)FAPPEND,	FF_APPEND	},
+	{ (long)FMARK,		FF_MARK		},
+	{ (long)FDEFER,		FF_DEFER	},
+	{ (long)FNBLOCK,	FF_NBLOCK	},
+	{ (long)FNOCTTY,	FF_NOCTTY	},
+
+# if	defined(FSYNC)
+	{ (long)FSYNC,		FF_SYNC		},
+# else	/* !defined(FSYNC) */
+#  if	defined(O_SYNC)
+	{ (long)O_SYNC,		FF_SYNC		},
+#  endif	/* defined(O_SYNC) */
+# endif	/* defined(FSYNC) */
+
+# if	defined(FCOPYAVOID)
+	{ (long)FCOPYAVOID,	FF_COPYAVOID	},
+# endif	/* defined(FCOPYAVOID) */
+
+# if	defined(FPOSIX_AIO)
+	{ (long)FPOSIX_AIO,	FF_POSIX_AIO	},
+# endif	/* defined(FPOSIX_AIO) */
+
+# if	defined(FLARGEFILE)
+	{ (long)FLARGEFILE,	FF_LARGEFILE	},
+# else	/* !defined(FLARGEFILE) */
+#  if	HPUXV>=1100
+	{ (long)0x800,		FF_LARGEFILE	},
+#  endif	/* HPUXV>=1100 */
+# endif	/* defined(FLARGEFILE) */
+
+	{ (long)0x100,		FF_KERNEL	},
+a72 7
+# if	HPUXV>=1020
+#define	UF_EXCLOSE	0x1
+#define	UF_MAPPED	0x2
+#define	UF_FDLOCK	0x4
+#define	UF_INUSE	0x8
+# endif	/* HPUXV>=1020 */
+
+d74 1
+a74 17
+
+# if	defined(UF_EXCLOSE)
+	{ (long)UF_EXCLOSE,		POF_CLOEXEC	},
+# endif	/* defined(UF_EXCLOSE) */
+
+# if	defined(UF_MAPPED)
+	{ (long)UF_MAPPED,		POF_MAPPED	},
+# endif	/* defined(UF_MAPPED) */
+
+# if	defined(UF_FDLOCK)
+	{ (long)UF_FDLOCK,		POF_FDLOCK	},
+# endif	/* defined(UF_FDLOCK) */
+
+# if	defined(UF_INUSE)
+	{ (long)UF_INUSE,		POF_INUSE	},
+# endif	/* defined(UF_INUSE) */
+
+@
+
+
+1.1
+log
+@Initial revision
+@
+text
+@d48 1
+@

@@ -1,0 +1,19 @@
+#!/bin/sh
+#
+# Compare lsof sources
+
+A=$HOME/src/lsof-Apple/lib
+S=$HOME/src/lsof4/lib
+
+cd $S
+echo "==== $S ===="
+for i in *.[ch] Makefile.skel
+do
+  echo "*** $i ***"
+  if test -r $A/$i
+  then
+    diff -c $A/$i $i
+  else
+    echo "!!!! $i doesn't exist in $A !!!!"
+  fi
+done

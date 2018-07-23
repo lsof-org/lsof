@@ -1,0 +1,26 @@
+$NetBSD: patch-ab,v 1.34 2005/03/19 19:47:33 atatat Exp $
+
+Fix build on 3.99.x current.
+
+--- Configure.orig	2005-01-17 08:24:32.000000000 -0500
++++ Configure
+@@ -2355,6 +2355,10 @@ return(0); }
+ 	echo "!!!WARNING!!!  Unsupported NetBSD version: $LSOF_VSTR"
+ 	echo "!!!WARNING!!!  Configuring for NetBSD 2.0"
+ 	;;
++      3.99.*)
++	LSOF_TSTBIGF=" "
++	LSOF_VERS="3099000"
++	;;
+       *)
+ 	echo "Unknown NetBSD release: $LSOF_VSTR"
+ 	echo Assuming NetBSD 1.6
+@@ -2368,6 +2372,8 @@ return(0); }
+     case $LSOF_VERS in	# {
+     1002000|1003000|1004000|1005000|1006000|2000000|2099009|2099010|2099011)
+       ;;
++    3099000)
++      ;;
+     *)
+       echo "Unknown NetBSD version: $LSOF_VERS"
+       rm -f $LSOF_HLP

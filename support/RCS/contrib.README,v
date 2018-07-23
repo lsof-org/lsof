@@ -1,0 +1,34 @@
+head     1.1;
+branch   ;
+access   ;
+symbols  ;
+locks    ; strict;
+comment  @@;
+
+
+1.1
+date     97.02.24.16.56.34;  author abe;  state Exp;
+branches ;
+next     ;
+
+
+desc
+@Lsof version 4
+@
+
+
+
+1.1
+log
+@Initial revision
+@
+text
+@
+		    pub/tools/unix/lsof/contrib
+
+This subdirectory contains user-contributed patches, sources, and
+subdirectories for porting lsof to other Unix dialects.
+
+Vic Abell
+February 20, 1997
+@

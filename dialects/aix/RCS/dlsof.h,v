@@ -1,0 +1,1347 @@
+head	1.32;
+access;
+symbols;
+locks; strict;
+comment	@ * @;
+
+
+1.32
+date	2006.03.27.23.09.21;	author abe;	state Exp;
+branches;
+next	1.31;
+
+1.31
+date	2005.08.08.19.46.38;	author abe;	state Exp;
+branches;
+next	1.30;
+
+1.30
+date	2005.05.11.12.50.46;	author abe;	state Exp;
+branches;
+next	1.29;
+
+1.29
+date	2003.03.21.17.41.02;	author abe;	state Exp;
+branches;
+next	1.28;
+
+1.28
+date	2002.04.23.01.04.01;	author abe;	state Exp;
+branches;
+next	1.27;
+
+1.27
+date	2002.04.19.12.07.33;	author abe;	state Exp;
+branches;
+next	1.26;
+
+1.26
+date	2002.01.18.20.57.04;	author abe;	state Exp;
+branches;
+next	1.25;
+
+1.25
+date	2001.08.14.12.27.01;	author abe;	state Exp;
+branches;
+next	1.24;
+
+1.24
+date	2001.07.18.14.01.27;	author abe;	state Exp;
+branches;
+next	1.23;
+
+1.23
+date	2001.02.13.02.04.06;	author abe;	state Exp;
+branches;
+next	1.22;
+
+1.22
+date	2000.12.04.14.19.38;	author abe;	state Exp;
+branches;
+next	1.21;
+
+1.21
+date	2000.11.09.18.02.47;	author abe;	state Exp;
+branches;
+next	1.20;
+
+1.20
+date	2000.07.31.11.44.02;	author abe;	state Exp;
+branches;
+next	1.19;
+
+1.19
+date	2000.05.31.13.00.19;	author abe;	state Exp;
+branches;
+next	1.18;
+
+1.18
+date	2000.03.14.20.34.27;	author abe;	state Exp;
+branches;
+next	1.17;
+
+1.17
+date	100.01.14.09.00.40;	author abe;	state Exp;
+branches;
+next	1.16;
+
+1.16
+date	99.01.25.06.54.03;	author abe;	state Exp;
+branches;
+next	1.15;
+
+1.15
+date	98.06.22.07.44.11;	author abe;	state Exp;
+branches;
+next	1.14;
+
+1.14
+date	98.05.10.16.58.39;	author abe;	state Exp;
+branches;
+next	1.13;
+
+1.13
+date	98.05.04.07.38.32;	author abe;	state Exp;
+branches;
+next	1.12;
+
+1.12
+date	98.04.29.13.25.02;	author abe;	state Exp;
+branches;
+next	1.11;
+
+1.11
+date	98.03.26.06.55.00;	author abe;	state Exp;
+branches;
+next	1.10;
+
+1.10
+date	98.03.23.15.32.52;	author abe;	state Exp;
+branches;
+next	1.9;
+
+1.9
+date	98.03.10.16.23.55;	author abe;	state Exp;
+branches;
+next	1.8;
+
+1.8
+date	98.03.06.08.04.29;	author abe;	state Exp;
+branches;
+next	1.7;
+
+1.7
+date	98.02.13.12.42.49;	author abe;	state Exp;
+branches;
+next	1.6;
+
+1.6
+date	97.12.11.15.56.19;	author abe;	state Exp;
+branches;
+next	1.5;
+
+1.5
+date	97.10.23.12.09.16;	author abe;	state Exp;
+branches;
+next	1.4;
+
+1.4
+date	97.08.15.08.16.36;	author abe;	state Exp;
+branches;
+next	1.3;
+
+1.3
+date	97.06.12.18.43.57;	author abe;	state Exp;
+branches;
+next	1.2;
+
+1.2
+date	97.04.15.10.36.19;	author abe;	state Exp;
+branches;
+next	1.1;
+
+1.1
+date	97.02.24.07.30.48;	author abe;	state Exp;
+branches;
+next	;
+
+
+desc
+@Lsof version 4
+@
+
+
+1.32
+log
+@Revision 4.77
+@
+text
+@/*
+ * dlsof.h - AIX header file for lsof
+ */
+
+
+/*
+ * Copyright 1994 Purdue Research Foundation, West Lafayette, Indiana
+ * 47907.  All rights reserved.
+ *
+ * Written by Victor A. Abell
+ *
+ * This software is not subject to any license of the American Telephone
+ * and Telegraph Company or the Regents of the University of California.
+ *
+ * Permission is granted to anyone to use this software for any purpose on
+ * any computer system, and to alter it and redistribute it freely, subject
+ * to the following restrictions:
+ *
+ * 1. Neither the authors nor Purdue University are responsible for any
+ *    consequences of the use of this software.
+ *
+ * 2. The origin of this software must not be misrepresented, either by
+ *    explicit claim or by omission.  Credit to the authors and Purdue
+ *    University must appear in documentation and sources.
+ *
+ * 3. Altered versions must be plainly marked as such, and must not be
+ *    misrepresented as being the original software.
+ *
+ * 4. This notice may not be removed or altered.
+ */
+
+
+/*
+ * $Id: dlsof.h,v 1.31 2005/08/08 19:46:38 abe Exp abe $
+ */
+
+
+#if	!defined(AIX_LSOF_H)
+#define	AIX_LSOF_H	1
+
+/*
+ * AIXA stands for AIX architecure.  It is given these values in the
+ * aix stanza of the lsof Configure script:
+ *
+ *     0	The AIX version is < 5, or the AIX architecture is power and
+ *		the kernel bit size is 32.
+ *
+ *     1	The AIX version is >= 5, the AIX architecture is Power, and
+ *		the kernel bit size is 64.
+ *
+ *     2	The AIX version is > 5 and the architecture is IA64.
+ */
+
+# if	AIXA>1
+#include <nlist.h>
+# endif	/* AIXA>1 */
+
+#include <stdlib.h>
+#include <string.h>
+#include <dirent.h>
+#include <setjmp.h>
+#include <unistd.h>
+
+# if	!defined(_KERNEL)
+#define _KERNEL	1
+# endif	/* !defined(_KERNEL) */
+
+#include <sys/vnode.h>
+#include <sys/file.h>
+#include <procinfo.h>		/* <procinfo.h> #includes <sys/user.h> */
+#define p_pid	pi_pid
+#define	p_pgid	pi_pgrp
+#define	p_ppid	pi_ppid
+
+# if	AIXV<4300
+#define p_stat	pi_stat
+# else	/* AIXV>=4300 */
+#define	p_stat	pi_state
+#include <sys/systemcfg.h>
+# endif	/* AIXV<4300 */
+
+#define p_uid	pi_uid
+#undef	sleep
+#undef	_KERNEL
+
+# if	AIXA>1
+#define	_NET_NET_MALLOC		/* to keep <sys/mbuf.h> from #include'ing
+				 * <sys/ppda.h>, which is missing from
+				 * ia64 AIX 5L */
+# endif	/* AIXA>1 */
+
+#include <sys/mbuf.h>
+#include <sys/mntctl.h>
+#include <sys/protosw.h>
+#include <sys/socket.h>
+#include <sys/socketvar.h>
+
+# if	AIXV>=4140
+#include <sys/stream.h>
+# endif	/* AIXV>=4140 */
+
+#include <sys/sysmacros.h>
+#include <sys/un.h>
+#include <sys/unpcb.h>
+
+# if	defined(HASKERNIDCK) && AIXV>=5000
+#include <sys/utsname.h>
+# endif	/* defined(HASKERNIDCK) && AIXV>=5000 */
+
+#include <netinet/in.h>
+#include <net/route.h>
+#include <net/raw_cb.h>
+
+# if	AIXV>=4100
+#include <netinet/ip.h>
+# endif	/* AIXV>=4100 */
+
+#include <netinet/in_pcb.h>
+#include <netinet/ip_var.h>
+#include <netinet/tcp.h>
+#include <netinet/tcpip.h>
+#include <netinet/tcp_fsm.h>
+#include <netinet/tcp_timer.h>
+#include <netinet/tcp_var.h>
+#include <sys/vattr.h>
+#include <sys/statfs.h>
+
+#include <rpc/rpc.h>
+#include <rpc/pmap_prot.h>
+
+# if	defined(HAS_AFS)
+#define	__XDR_INCLUDE__
+# endif	/* defined(HAS_AFS) */
+
+#include <sys/vfs.h>
+#include <sys/vmount.h>
+
+# if	defined(HAS_SANFS) && !defined(MNT_SANFS)
+#define	MNT_SANFS	20
+# endif	/* defined(HAS_SANFS) && !defined(MNT_SANFS) */
+
+# if	AIXV>=4100
+#  if	AIXV>=4110
+#undef	u
+#undef	u_comm
+#undef	u_cdir
+#undef	u_rdir
+#undef	u_maxofile
+#undef	u_ufd
+#undef	u_loader
+#  endif	/* AIXV>=4110 */
+
+#define	u_comm		U_comm
+#define	u_cdir		U_cdir
+#define	u_rdir		U_rdir
+#define	u_maxofile	U_maxofile
+#define	u_ufd		U_ufd
+#define	u_loader	U_loader
+# endif	/* AIXV>=4100 */
+
+#  if	AIXV>=3200
+#include <sys/specnode.h>
+#  endif	/* AIXV>=3200 */
+
+/*
+ * AIX doesn't supply cdrnode.h.
+ */
+
+struct cdrnode {
+	caddr_t		f1[4];
+	struct gnode	f2;
+	dev_t		f3;
+	ino_t		cn_inumber;	/* inode number */
+	caddr_t		f4;
+	cnt_t		f5[2];
+	u_short		f6;
+	uint		f7[2];
+	uchar		f8[3];
+	off_t		cn_size;	/* size of file in bytes */
+};
+
+# if	defined(HAS_AFS)
+
+/*
+ *  Avoid typdef conflicts in <afs/stds.h>.
+ */
+
+#  if	defined(HASINT16TYPE)
+#define	int16	AFS_int16
+#  endif	/* defined(HASINT16TYPE */
+#  if	defined(HASUINT16TYPE)
+#define	u_int16	AFS_u_int16
+#  endif	/* defined(HASUINT16TYPE */
+#  if	defined(HASINT32TYPE)
+#define int32	AFS_int32
+#  endif	/* defined(HASINT32TYPE) */
+
+#include <afs/stds.h>
+#include <afs/param.h>
+#include <afs/afsint.h>
+#include <afs/vldbint.h>
+# endif	/* defined(HAS_AFS) */
+
+
+/*
+ * Miscellaneous definitions.
+ */
+
+# if	defined(HAS_AFS)
+#define	AFSAPATHDEF	"/usr/vice/etc/dkload/???"
+#define	AFSDEV		1	/* AFS "fake" device number */
+
+#  if	!defined(MNT_AFS)
+#define	MNT_AFS		AFS_MOUNT_AFS
+#  endif	/* !defined(MNT_AFS) */
+# endif	/* defined(HAS_AFS) */
+
+#define	COMP_P		const void
+#define DEVINCR		1024	/* device table malloc() increment */
+
+# if	AIXV<4200
+typedef	off_t		KA_T;
+# else	/* AIXV>=4200 */
+#  if	AIXA<1
+typedef	unsigned int	KA_T;
+#  else	/* AIXA>=1 */
+typedef u_longlong_t	KA_T;
+#define	GET_MAJ_DEV(d)	(ISDEVNO64(d) ? major64(d) : major(d & ~SDEV_REMOTE))
+#define	GET_MIN_DEV(d)	(ISDEVNO64(d) ? (minor64(d) & ~SDEV_REMOTE) : minor(d))
+#define	KA_T_FMT_X	"%#llx"
+#  endif	/* AIXA<1 */
+# endif	/* AIXV<4200 */
+
+#define KMEM		"/dev/kmem"
+
+# if	defined(HASSTAT64)
+#define	fstat		fstat64
+#define	lstat		lstat64
+#define	stat		stat64
+# endif	/* defined(HASSTAT64) */
+
+#define MALLOC_P	char
+#define FREE_P		MALLOC_P
+#define MALLOC_S	size_t
+#define	MAXSYSCMDL	MAXCOMLEN	/* max system command name length */
+#define	N_UNIX		"/unix"
+#define QSORT_P		void
+#define	READLEN_T	size_t
+#define STRNCPY_L	size_t
+
+# if	AIXV>=4200
+#define	SZOFFTYPE	unsigned long long
+				/* size and offset type definition */
+#define	SZOFFPSPEC	"ll"	/* SZOFFTYPE print specification modifier */
+# endif	/* AIXV>=4200 */
+
+#define U_SIZE		sizeof(struct user)
+
+
+/*
+ * Name list (Nl[]) indexes
+ */
+
+#define	X_UADDR		0
+#define	X_NL_NUM	1
+
+
+/*
+ * Definition for ckfa.c
+ */
+
+#define	CKFA_MPXCHAN	1
+
+
+/*
+ * Definitions for dvch.c
+ */
+
+# if	AIXV>=4140
+#define	DCACHE_CLONE	rw_clone_sect	/* clone function for read_dcache */
+#define	DCACHE_CLR	clr_sect	/* function to clear clone and
+					 * pseudo caches when reading the
+					 * device cache file fails */
+# endif	/* AIXV>=4140 */
+
+
+/*
+ * Definitions for enter_dir()
+ */
+
+#define	DIRTYPE	dirent
+#define	HASDNAMLEN	1
+
+
+# if	defined(HAS_AFS)
+/*
+ * AFS name list (AFSnl[]) indexes
+ */
+
+#define	X_AFS_FID	0
+#define	X_AFS_VOL	1
+#define	X_AFSNL_NUM	2
+# endif	/* defined(HAS_AFS) */
+
+
+# if	AIXV>=4140
+/*
+ * Local clone information
+ */
+
+struct clone {
+	struct l_dev cd;		/* device, inode, name, verify status */
+	struct clone *next;		/* next entry */
+};
+extern struct clone *Clone;
+extern int CloneMaj;
+extern int ClonePtc;
+#endif	/* AIXV>=4140 */
+
+
+/*
+ * Local inode information
+ */
+
+struct l_ino {
+	dev_t dev;			/* device */
+	long nlink;			/* link count */
+	INODETYPE number;		/* inode number */
+	SZOFFTYPE size;			/* file size */
+	unsigned char dev_def;		/* link count is defined */
+	unsigned char nlink_def;	/* link count is defined */
+	unsigned char number_def;	/* number is defined */
+	unsigned char size_def;		/* size is defined */
+};
+
+
+/*
+ * Local vfs information
+ */
+
+struct l_vfs {
+	KA_T addr;			/* kernel address */
+	dev_t dev;			/* device */
+	char *dir;			/* mounted directory */
+	char *fsname;			/* file system name */
+	int vmt_flags;			/* vmount flags */
+	int vmt_gfstype;		/* vmount gfs type */
+	struct l_vfs *next;		/* forward link */
+};
+extern struct l_vfs *Lvfs;
+
+
+/*
+ * Local mount information
+ */
+
+struct mounts {
+        char *dir;              	/* directory (mounted on) */
+	char *fsname;           	/* file system
+					 * (symbolic links unresolved) */
+	char *fsnmres;           	/* file system
+					 * (symbolic links resolved) */
+        dev_t dev;              	/* directory st_dev */
+	dev_t rdev;			/* directory st_rdev */
+	INODETYPE inode;		/* directory st_ino */
+	u_short mode;			/* directory st_mode */
+	u_short fs_mode;		/* file system st_mode */
+
+# if	defined(HASFSTYPE)
+	int fstype;			/* fs type */
+# endif	/* defined(HASFSTYPE) */
+
+        struct mounts *next;    	/* forward link */
+};
+extern struct mounts *Mtab;
+
+
+/*
+ * Search file information
+ */
+
+struct sfile {
+	char *aname;			/* file name argument */
+	char *name;			/* file name (after readlink()) */
+	char *devnm;			/* device name (optional) */
+	dev_t dev;			/* device */
+	dev_t rdev;			/* raw device */
+	chan_t ch;			/* channel (last path component,
+					 * (if numeric) */
+	u_short mode;			/* S_IFMT mode bits from stat() */
+	int type;			/* file type: 0 = file system
+				 	 *	      1 = regular file */
+	INODETYPE i;			/* inode number */
+	int f;				/* file found flag */
+	struct sfile *next;		/* forward link */
+};
+
+
+/*
+ * Miscellaneous external definitions
+ */
+
+# if	defined(HAS_AFS)
+extern struct nlist AFSnl[];	/* AFS kernel symbol name list table */
+
+#  if	defined(HASAOPT)
+extern char *AFSApath;		/* alternate AFS name list path (from -a) */
+#  endif	/* defined(HASAOPT) */
+
+extern KA_T AFSVfsp;		/* AFS struct vfs kernel pointer */
+# endif	/* defined(HAS_AFS) */
+
+extern int Kd;
+extern int Km;
+extern struct nlist Nl[];
+
+# if	defined(TCPSTATES) && AIXV<=3250
+/*
+ * For AIX 3.2.5 and below, there is no header file with the  definition
+ * of tcpstates[], needed by ptti.c's print_tcptpi() function.
+ */
+
+static char *tcpstates[] = {
+	"CLOSED",       "LISTEN",       "SYN_SENT",     "SYN_RCVD",
+	"ESTABLISHED",  "CLOSE_WAIT",   "FIN_WAIT_1",   "CLOSING",
+	"LAST_ACK",     "FIN_WAIT_2",   "TIME_WAIT"
+};
+# endif	/* defined(TCPSTATES) && AIXV<=3250 */
+
+
+# if	AIXA>1
+/*
+ * This AIX 5 or above ia64 hack prevents the loader from linking lsof's
+ * kread() in preference to the kread() that read() uses.  The very existence
+ * of a system kread() is an unwarrranted invasion of user name space!
+ */
+
+#define	kread	lsof_kread		/* avoid conflict with the kread()
+					 * in libc.so */
+# endif	/* AIXA>1 */
+
+#endif	/* AIX_LSOF_H */
+@
+
+
+1.31
+log
+@Revision 4.76
+@
+text
+@d34 1
+a34 1
+ * $Id: dlsof.h,v 1.30 2005/05/11 12:50:46 abe Exp abe $
+d245 1
+@
+
+
+1.30
+log
+@Revision 4.75
+@
+text
+@d34 1
+a34 1
+ * $Id: dlsof.h,v 1.29 2003/03/21 17:41:02 abe Exp abe $
+d327 1
+a327 1
+	ino_t number;			/* inode number */
+d364 1
+a364 1
+	ino_t inode;			/* directory st_ino */
+d392 1
+a392 1
+	ino_t i;			/* inode number */
+@
+
+
+1.29
+log
+@Revision 4.67
+@
+text
+@d34 1
+a34 1
+ * $Id: dlsof.h,v 1.28 2002/04/23 01:04:01 abe Exp abe $
+d138 4
+@
+
+
+1.28
+log
+@Revision 4.63
+@
+text
+@d34 1
+a34 1
+ * $Id: dlsof.h,v 1.27 2002/04/19 12:07:33 abe Exp abe $
+a54 14
+/*
+ * !!!WARNING!!!     !!!WARNING!!!   !!!WARNING!!!   !!!WARNING!!!
+ *
+ * The following two ugly ia64 AIX 5L hacks prevent the inclusion of
+ * <jfs/ino.h> and <jfs/inode.h> by the chain that begins with the innocent
+ * inclusion of <procinfo.h>.  The JFS file system is deprecated in ia64 AIX
+ * 5L and no header file in /usr/include should include header files from
+ * /usr/include/jfs, but as of AIX 5L Beta 3, <sys/inode.h> still did.
+ *
+ * !!!WARNING!!!     !!!WARNING!!!   !!!WARNING!!!   !!!WARNING!!!
+*/
+#define	_H_JFS_INO	/* !!! WARNING!!! */
+#define	_H_JFS_INODE	/* !!! WARNING!!! */
+
+d106 3
+a108 3
+# if	AIXA>1
+#include <j2/j2_inode.h>
+# endif	/* AIXA>1 */
+d314 16
+@
+
+
+1.27
+log
+@Revision 4.63
+@
+text
+@d34 1
+a34 1
+ * $Id: dlsof.h,v 1.26 2002/01/18 20:57:04 abe Exp abe $
+d247 1
+@
+
+
+1.26
+log
+@Revision 4.61
+@
+text
+@d34 1
+a34 1
+ * $Id: dlsof.h,v 1.25 2001/08/14 12:27:01 abe Exp abe $
+d238 2
+a239 2
+#define	GET_MAJ_DEV	major64
+#define	GET_MIN_DEV	minor64
+@
+
+
+1.25
+log
+@Revision 4.58
+@
+text
+@d34 1
+a34 1
+ * $Id: dlsof.h,v 1.24 2001/07/18 14:01:27 abe Exp abe $
+a40 1
+# if	AIXA>=1
+d42 14
+d70 1
+a70 1
+# endif	/* AIXA>=1 */
+d93 1
+d100 1
+a100 1
+# if	AIXA>=1
+d104 1
+a104 1
+# endif	/* AIXA>=1 */
+d120 1
+a120 1
+# if	AIXA>=1
+d122 1
+a122 1
+# endif	/* AIXA>=1 */
+d423 1
+a423 1
+# if	AIXA>=1
+d425 3
+a427 4
+ * This AIX 5L or above ia64 (aka Monterey) hack prevents the loader from
+ * linking lsof's kread() in preference to the kread() that read() uses.
+ * The very existence of a system kread() is an unwarrranted invasion of
+ * user name space!
+d432 1
+a432 1
+# endif	/* AIXA>=1 */
+@
+
+
+1.24
+log
+@Revision 4.57
+@
+text
+@d34 1
+a34 1
+ * $Id: dlsof.h,v 1.23 2001/02/13 02:04:06 abe Exp abe $
+d67 1
+a67 1
+# endif
+d97 5
+d224 2
+@
+
+
+1.23
+log
+@Revision 4.55
+@
+text
+@d34 1
+a34 1
+ * $Id: dlsof.h,v 1.22 2000/12/04 14:19:38 abe Exp abe $
+d41 1
+a41 1
+# if	AIXV>=5199
+d57 1
+a57 1
+# endif	/* AIXV>=5199 */
+d86 1
+a86 1
+# if	AIXV>=5199
+d90 1
+a90 1
+# endif	/* AIXV>=5199 */
+d101 1
+a101 1
+# if	AIXV>=5199
+d103 1
+a103 1
+# endif	/* AIXV>=5199 */
+d215 1
+a215 1
+#  if	AIXV<5199
+d217 1
+a217 1
+#  else	/* AIXV>=5199 */
+d220 1
+a220 1
+#  endif	/* AIXV<5199 */
+d402 1
+a402 1
+# if	AIXV>=5199
+d404 4
+a407 3
+ * This AIX 5L ia64 (aka Monterey) hack prevents the loader from linking lsof's
+ * kread() in preference to the kread() that read() uses.  The very existence
+ * of a system kread() is an unwarrranted invasion of user name space!
+d412 1
+a412 1
+# endif	/* AIXV>=5199 */
+@
+
+
+1.22
+log
+@Revision 4.53
+@
+text
+@d34 1
+a34 1
+ * $Id: dlsof.h,v 1.21 2000/11/09 18:02:47 abe Exp $
+d73 1
+a73 1
+#define	p_pgrp	pi_pgrp
+@
+
+
+1.21
+log
+@Revision 4.52
+@
+text
+@d34 1
+a34 1
+ * $Id: dlsof.h,v 1.20 2000/07/31 11:44:02 abe Exp abe $
+d41 1
+a41 1
+# if	AIXV>=5000
+d45 5
+a49 5
+ * The following two ugly hacks prevent the inclusion of <jfs/ino.h> and
+ * <jfs/inode.h> by the chain that begins with the innocent inclusion of
+ * <procinfo.h>.  The JFS file system is deprecated and no header file
+ * in /usr/include should include header files from /usr/include/jfs,
+ * but as of AIX5L Beta 3, <sys/inode.h> still did.
+d57 1
+a57 1
+# endif	/* AIXV>=5000 */
+d86 1
+a86 1
+# if	AIXV>=5000
+d89 2
+a90 2
+				 * AIX >= 5 */
+# endif	/* AIXV>=5000 */
+d101 1
+a101 1
+# if	AIXV>=5000
+d103 1
+a103 1
+# endif	/* AIXV>=5000 */
+d215 1
+a215 1
+#  if	AIXV<5000
+d217 1
+a217 1
+#  else	/* AIXV>=5000 */
+d220 1
+a220 1
+#  endif	/* AIXV<5000 */
+d358 1
+d402 1
+a402 1
+# if	AIXV>=5000
+d404 1
+a404 1
+ * This AIX 5 (aka Monterey) hack prevents the loader from linking lsof's
+d411 1
+a411 1
+# endif	/* AIXV>=5000 */
+@
+
+
+1.20
+log
+@Revision 4.51
+Add 64 bit rnode structure definition.
+@
+text
+@d34 1
+a34 1
+ * $Id: dlsof.h,v 1.19 2000/05/31 13:00:19 abe Exp abe $
+d41 18
+d86 6
+d100 5
+a151 38
+# if	defined(HAS_NFS)
+#  if	AIXV<4210
+#include <nfs/rnode.h>
+#  else	/* AIXV>=4210 */
+/*
+ * Private rnode struct definition for AIX 4.2.1 and above
+ *
+ * The rnode struct IBM ships in <nfs/rnode.h> doesn't match the one
+ * the kernel uses.  The kernel's rnode struct definition comes from
+ * <oncplus/nfs/rnode.h>, a header file IBM does not ship with AIX.
+ *
+ * The rnode64 struct is for AIX 4.3.3 and above whose "width" is 64.
+ * (See dnode.c for the method used to determine width.)
+ */
+
+struct rnode {
+	caddr_t	r_d1[11];		/* dummies; links? */
+	struct vnode r_vnode;		/* vnode for remote file */
+	struct gnode r_gnode;		/* gnode for remote file */
+	caddr_t r_d2[29];		/* dummies; rnode elements? */
+	off_t r_size;			/* client's view of file size (long)*/
+	struct vattr r_attr;		/* cached vnode attributes */
+};
+
+#   if	AIXV>=4330
+#include <sys/systemcfg.h>
+struct rnode64 {
+	caddr_t	r_d1[11];		/* dummies; links? */
+	struct vnode r_vnode;		/* vnode for remote file */
+	struct gnode r_gnode;		/* gnode for remote file */
+	caddr_t r_d2[26];		/* dummies; rnode elements? */
+	off_t r_size;			/* client's view of file size (long)*/
+	struct vattr r_attr;		/* cached vnode attributes */
+};
+#   endif	/* AIXV>=4330 */
+#  endif	/* AIXV<4210 */
+# endif	/* defined(HAS_NFS) && AIXV<4210 */
+
+a172 42
+
+/*
+ * AIX doesn't supply ld_data.h.
+ */
+
+struct le {				/* loader entry */
+
+	struct le *next;		/* next entry pointer */
+
+# if	AIXV<4300
+	ushort dummy1;
+	ushort dummy2;
+	uint dummy3;
+	struct file *fp;		/* file table entry pointer */
+
+#  if	AIXV>=4110
+	int ft;				/* file type indicator */
+	unsigned dummy4;
+	char *dummy5;
+	unsigned dummy6;
+	char *dummy7[3];
+	char *nm;			/* name */
+#  endif	/* AIXV>=4110 */
+# else	/* AIXV>=4300 */
+	uint flags;
+	struct file *fp;		/* file table entry pointer */
+	char *nm;			/* name */
+# endif	/* AIXV<4300 */
+
+};
+
+# if	AIXV>=4300
+/*
+ * The elements of interest from the AIX >= 4.3 loader anchor structure.
+ */
+struct la {			/* loader anchor */
+
+    struct le *list;
+    struct le *exec;
+};
+# endif	/* AIXV>=4300 */
+
+d215 1
+d217 4
+d232 1
+a232 1
+#define MALLOC_S	unsigned
+d235 1
+a235 1
+#define	READLEN_T	unsigned
+a246 1
+# if	AIXV>=4110
+a247 13
+ * readx() definitions for AIX 4.1.1 and above.
+ */
+
+#define	LIBMASK		0xf0000000		/* library table mask */
+#define	LIBNMCOMP	0xd0000000		/* library table name has
+						 * multiple components */
+#define	LIBNMLN		40			/* maximum library table name
+						 * length */
+#define	RDXMASK		0x0fffffff		/* kreadx() address mask */
+# endif	/* AIXV>=4110 */
+
+
+/*
+d339 5
+d399 12
+@
+
+
+1.19
+log
+@Revision 4.50
+@
+text
+@d34 1
+a34 1
+ * $Id: dlsof.h,v 1.18 2000/03/14 20:34:27 abe Exp abe $
+d133 3
+d142 4
+d147 6
+a152 3
+#  if	AIXV<4330
+	caddr_t r_d2[29];		/* dummies; rnode elements? */
+#  else	/* AIXV>=4330 */
+a153 2
+#  endif	/* AIXV<4330 */
+
+d157 1
+@
+
+
+1.18
+log
+@Revision 4.49
+Adjust for machines with > 2GB RAM.
+@
+text
+@d34 1
+a34 1
+ * $Id: dlsof.h,v 1.17 10/.0/.1 .0:.0:.4 abe Exp Locker: abe $
+d261 6
+@
+
+
+1.17
+log
+@Revision 4.48
+AFS and NFS updates.
+@
+text
+@d34 1
+a34 1
+ * $Id: dlsof.h,v 1.16 99/01/25 06:54:03 abe Exp Locker: abe $
+d253 2
+d256 4
+@
+
+
+1.16
+log
+@Revision 4.40
+@
+text
+@d34 1
+a34 1
+ * $Id: dlsof.h,v 1.15 98/06/22 07:44:11 abe Exp Locker: abe $
+d139 2
+d142 4
+d216 15
+d414 1
+a414 1
+KA_T AFSVfsp;			/* AFS struct vfs kernel pointer */
+@
+
+
+1.15
+log
+@Revision 4.34
+Move <afs/afs.h> #include and its setup to dnode1.c.
+@
+text
+@d34 1
+a34 1
+ * $Id: dlsof.h,v 1.14 98/05/10 16:58:39 abe Exp Locker: abe $
+d274 1
+a274 1
+ * Define for ckfa.c
+d284 1
+a284 1
+#if	AIXV>=4140
+d289 9
+a297 1
+#endif	/* AIXV>=4140 */
+@
+
+
+1.14
+log
+@Revision 4.32
+Invent <oncplus/nfs/rnode.h> rnode struct.
+@
+text
+@d34 1
+a34 1
+ * $Id: dlsof.h,v 1.13 98/05/04 07:38:32 abe Exp Locker: abe $
+a213 22
+
+
+/*
+ * This is an emulation of the afs_rwlock_t definition that appears in
+ * the AFS sources in afs/lock.h.
+ */
+
+struct afs_lock {
+
+#  if	HAS_AFS<304
+    unsigned long d1[4];
+#  else	/* HAS_AFS>=304 */
+    unsigned long d1[6];
+#  endif	/* HAS_AFS<304 */
+
+};
+typedef struct afs_lock afs_lock_t;
+typedef struct afs_lock afs_rwlock_t;
+
+#define	KERNEL
+#include <afs/afs.h>
+#undef	KERNEL
+@
+
+
+1.13
+log
+@Revision 4.32
+@
+text
+@d34 1
+a34 1
+ * $Id: dlsof.h,v 1.12 98/04/29 13:25:02 abe Exp Locker: abe $
+d124 1
+d126 19
+a144 1
+# endif	/* defined(HAS_NFS) */
+@
+
+
+1.12
+log
+@Revision 4.32
+@
+text
+@d34 1
+a34 1
+ * $Id: dlsof.h,v 1.11 98/03/26 06:55:00 abe Exp Locker: abe $
+d57 2
+d60 4
+d148 1
+d153 2
+a154 1
+struct le {
+d156 2
+d163 1
+a163 1
+# if	AIXV>=4110
+d170 6
+a175 1
+# endif	/* AIXV>=4110 */
+d179 11
+a240 1
+#define PROCSIZE	sizeof(struct procinfo)
+@
+
+
+1.11
+log
+@Revision 4.29
+Enable 3.2.5 use.
+@
+text
+@d34 1
+a34 1
+ * $Id: dlsof.h,v 1.10 98/03/23 15:32:52 abe Exp Locker: abe $
+d209 1
+a209 1
+#define	KA_T		off_t
+@
+
+
+1.10
+log
+@Revision 4.29
+Add comment that <procinfo.h> #includes <sys/user.h>.
+@
+text
+@d34 1
+a34 1
+ * $Id: dlsof.h,v 1.9 98/03/10 16:23:55 abe Exp Locker: abe $
+d369 13
+@
+
+
+1.9
+log
+@Revision 4.28
+AFS fixes
+@
+text
+@d34 1
+a34 1
+ * $Id: dlsof.h,v 1.8 98/03/06 08:04:29 abe Exp Locker: abe $
+d53 1
+a53 1
+#include <procinfo.h>
+@
+
+
+1.8
+log
+@Revision 4.27
+@
+text
+@d34 1
+a34 1
+ * $Id: dlsof.h,v 1.7 98/02/13 12:42:49 abe Exp Locker: abe $
+d90 5
+@
+
+
+1.7
+log
+@Revision 4.26
+@
+text
+@d34 1
+a34 1
+ * $Id: dlsof.h,v 1.6 97/12/11 15:56:19 abe Exp Locker: abe $
+d296 1
+a296 1
+	struct vfs *addr;		/* kernel address */
+d358 1
+a358 1
+extern struct vfs *AFSVfsp;	/* AFS struct vfs kernel pointer */
+@
+
+
+1.6
+log
+@Revision 4.22
+#Include RPC header files.
+@
+text
+@d34 1
+a34 1
+ * $Id: dlsof.h,v 1.5 97/10/23 12:09:16 abe Exp Locker: abe $
+d312 10
+a321 5
+        dev_t dev;              	/* st_dev */
+        char *dir;              	/* directory */
+        char *fsname;           	/* file system */
+	ino_t inode;			/* st_ino */
+	u_short mode;			/* st_mode */
+a322 1
+	dev_t rdev;			/* st_rdev */
+@
+
+
+1.5
+log
+@Revision 4.18
+@
+text
+@d34 1
+a34 1
+ * $Id: dlsof.h,v 1.4 97/08/15 08:16:36 abe Exp Locker: abe $
+d87 3
+@
+
+
+1.4
+log
+@Revision 4.15
+@
+text
+@d34 1
+a34 1
+ * $Id: dlsof.h,v 1.3 97/06/12 18:43:57 abe Exp Locker: abe $
+d211 7
+@
+
+
+1.3
+log
+@Revsion 4.11
+Make NFS support conditional on HAS_NFS.
+@
+text
+@d34 1
+a34 1
+ * $Id: dlsof.h,v 1.2 97/04/15 10:36:19 abe Exp Locker: abe $
+d79 6
+@
+
+
+1.2
+log
+@Revision 4.04
+@
+text
+@d34 1
+a34 1
+ * $Id: dlsof.h,v 1.1 97/02/24 07:30:48 abe Exp Locker: abe $
+d103 1
+d105 1
+@
+
+
+1.1
+log
+@Initial revision
+@
+text
+@d34 1
+a34 1
+ * $Id: dlsof.h,v 1.18 97/01/17 09:12:58 abe Exp $
+d264 1
+a264 3
+	unsigned long ino;		/* inode number */
+	char *nm;			/* device name */
+	dev_t rdev;			/* device number */
+@

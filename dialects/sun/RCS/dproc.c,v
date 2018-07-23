@@ -1,0 +1,4594 @@
+head	1.36;
+access;
+symbols;
+locks; strict;
+comment	@ * @;
+
+
+1.36
+date	2010.01.18.19.03.54;	author abe;	state Exp;
+branches;
+next	1.35;
+
+1.35
+date	2009.03.25.19.22.16;	author abe;	state Exp;
+branches;
+next	1.34;
+
+1.34
+date	2008.10.21.16.16.42;	author abe;	state Exp;
+branches;
+next	1.33;
+
+1.33
+date	2008.04.15.13.32.58;	author abe;	state Exp;
+branches;
+next	1.32;
+
+1.32
+date	2005.08.08.19.55.41;	author abe;	state Exp;
+branches;
+next	1.31;
+
+1.31
+date	2005.05.11.12.54.26;	author abe;	state Exp;
+branches;
+next	1.30;
+
+1.30
+date	2004.12.30.18.42.59;	author abe;	state Exp;
+branches;
+next	1.29;
+
+1.29
+date	2004.11.01.13.46.34;	author abe;	state Exp;
+branches;
+next	1.28;
+
+1.28
+date	2004.03.10.23.53.41;	author abe;	state Exp;
+branches;
+next	1.27;
+
+1.27
+date	2003.10.13.13.30.04;	author abe;	state Exp;
+branches;
+next	1.26;
+
+1.26
+date	2003.07.01.21.23.51;	author abe;	state Exp;
+branches;
+next	1.25;
+
+1.25
+date	2002.10.08.20.17.30;	author abe;	state Exp;
+branches;
+next	1.24;
+
+1.24
+date	2002.06.17.01.42.31;	author abe;	state Exp;
+branches;
+next	1.23;
+
+1.23
+date	2001.07.05.12.26.57;	author abe;	state Exp;
+branches;
+next	1.22;
+
+1.22
+date	2001.03.19.12.21.51;	author abe;	state Exp;
+branches;
+next	1.21;
+
+1.21
+date	2001.02.13.14.19.10;	author abe;	state Exp;
+branches;
+next	1.20;
+
+1.20
+date	2000.12.04.14.35.13;	author abe;	state Exp;
+branches;
+next	1.19;
+
+1.19
+date	2000.11.03.18.35.16;	author abe;	state Exp;
+branches;
+next	1.18;
+
+1.18
+date	2000.08.01.15.17.31;	author abe;	state Exp;
+branches;
+next	1.17;
+
+1.17
+date	2000.05.31.13.11.44;	author abe;	state Exp;
+branches;
+next	1.16;
+
+1.16
+date	99.10.22.08.23.48;	author abe;	state Exp;
+branches;
+next	1.15;
+
+1.15
+date	99.07.19.14.04.21;	author abe;	state Exp;
+branches;
+next	1.14;
+
+1.14
+date	99.06.22.08.09.31;	author abe;	state Exp;
+branches;
+next	1.13;
+
+1.13
+date	99.05.17.13.20.01;	author abe;	state Exp;
+branches;
+next	1.12;
+
+1.12
+date	99.05.09.14.56.55;	author abe;	state Exp;
+branches;
+next	1.11;
+
+1.11
+date	98.11.23.07.40.41;	author abe;	state Exp;
+branches;
+next	1.10;
+
+1.10
+date	98.08.18.08.07.56;	author abe;	state Exp;
+branches;
+next	1.9;
+
+1.9
+date	98.06.25.07.03.32;	author abe;	state Exp;
+branches;
+next	1.8;
+
+1.8
+date	98.06.22.14.47.35;	author abe;	state Exp;
+branches;
+next	1.7;
+
+1.7
+date	98.04.21.10.04.30;	author abe;	state Exp;
+branches;
+next	1.6;
+
+1.6
+date	98.04.03.13.23.44;	author abe;	state Exp;
+branches;
+next	1.5;
+
+1.5
+date	98.03.26.07.49.24;	author abe;	state Exp;
+branches;
+next	1.4;
+
+1.4
+date	98.03.06.08.38.36;	author abe;	state Exp;
+branches;
+next	1.3;
+
+1.3
+date	97.10.24.07.56.16;	author abe;	state Exp;
+branches;
+next	1.2;
+
+1.2
+date	97.04.15.10.48.06;	author abe;	state Exp;
+branches;
+next	1.1;
+
+1.1
+date	97.02.24.07.47.10;	author abe;	state Exp;
+branches;
+next	;
+
+
+desc
+@Lsof version 4
+@
+
+
+1.36
+log
+@Revision 4.83
+@
+text
+@/*
+ * dproc.c - Solaris lsof functions for accessing process information
+ */
+
+
+/*
+ * Copyright 1994 Purdue Research Foundation, West Lafayette, Indiana
+ * 47907.  All rights reserved.
+ *
+ * Written by Victor A. Abell
+ *
+ * This software is not subject to any license of the American Telephone
+ * and Telegraph Company or the Regents of the University of California.
+ *
+ * Permission is granted to anyone to use this software for any purpose on
+ * any computer system, and to alter it and redistribute it freely, subject
+ * to the following restrictions:
+ *
+ * 1. Neither the authors nor Purdue University are responsible for any
+ *    consequences of the use of this software.
+ *
+ * 2. The origin of this software must not be misrepresented, either by
+ *    explicit claim or by omission.  Credit to the authors and Purdue
+ *    University must appear in documentation and sources.
+ *
+ * 3. Altered versions must be plainly marked as such, and must not be
+ *    misrepresented as being the original software.
+ *
+ * 4. This notice may not be removed or altered.
+ */
+
+#ifndef lint
+static char copyright[] =
+"@@(#) Copyright 1994 Purdue Research Foundation.\nAll rights reserved.\n";
+static char *rcsid = "$Id: dproc.c,v 1.35 2009/03/25 19:22:16 abe Exp abe $";
+#endif
+
+#include "lsof.h"
+
+#if	solaris<20500
+#include "kernelbase.h"
+#endif	/* solaris<20500 */
+
+#if	defined(HAS_CRED_IMPL_H)
+# if	solaris>=110000
+#define	_KERNEL
+# endif	/* solaris>=110000 */
+
+#include <sys/cred_impl.h>
+
+# if	solaris>=110000
+#undef	_KERNEL
+# endif	/* solaris>=110000 */
+#endif	/* defined(HAS_CRED_IMPL_H) */
+
+
+/*
+ * Local definitions
+ */
+
+#if	defined(__sparc) || defined(__sparcv9)
+#define	ARCH64B	"sparcv9"
+#else	/* !defined(__sparc) && !defined(__sparcv9) */
+# if	defined(__i386) || defined(__amd64)
+#define	ARCH64B	"amd64"
+# endif	/* defined(__i386) || defined(__amd64) */
+#endif	/* defined(__sparc) || defined(__sparcv9) */
+
+#if	solaris>=20501
+#define	KVMHASHBN	8192		/* KVM hash bucket count -- MUST BE
+					 * A POWER OF 2!!! */
+#define	HASHKVM(va)	((int)((va * 31415) >> 3) & (KVMHASHBN-1))
+					/* virtual address hash function */
+
+# if	solaris<70000
+#define	KAERR	(u_longlong_t)-1	/* kvm_physaddr() error return */
+#define	KBUFT	char			/* kernel read buffer type */
+#define	KPHYS	u_longlong_t		/* kernel physical address type */
+#define	KVIRT	u_int			/* kernel virtual address type */
+# else	/* solaris>=70000 */
+#define	KAERR	(uint64_t)-1		/* kvm_physaddr() error return */
+#define	KBUFT	void			/* kernel read buffer type */
+#define	KPHYS	uint64_t		/* kernel physical address type */
+#define	KVIRT	uintptr_t		/* kernel virtual address type */
+# endif	/* solaris<70000 */
+#endif	/* solaris>=20501 */
+
+
+/*
+ * Local structures
+ */
+
+#if	solaris>=20501
+typedef struct kvmhash {
+	KVIRT vpa;			/* virtual page address */
+	KPHYS pa;			/* physical address */
+	struct kvmhash *nxt;		/* next virtual address */
+} kvmhash_t;
+#endif	/* solaris>=20501 */
+
+
+/*
+ * Local variables
+ */
+
+#if	solaris>=20501
+static struct as *Kas = (struct as *)NULL;
+					/* pointer to kernel's address space
+					 * map in kernel virtual memory */
+static kvmhash_t **KVMhb = (kvmhash_t **)NULL;
+					/* KVM hash buckets */
+static int PageSz = 0;			/* page size */
+static int PSMask = 0;			/* page size mask */
+static int PSShft = 0;			/* page size shift */
+
+# if	solaris<70000
+static struct as Kam;			/* kernel's address space map */
+static int Kmd = -1;			/* memory device file descriptor */
+# endif	/* solaris<70000 */
+#endif	/* solaris>=20501 */
+
+#if	solaris>=20500
+static KA_T Kb = (KA_T)NULL;		/* KERNELBASE for Solaris 2.5 */
+#endif	/* solaris>=20500 */
+
+static int Np;				/* number of P[], Pgid[] and Pid[]
+					 * entries  */
+static int Npa = 0;			/* number of P[], Pgid[] and Pid[]
+					 * entries for which space has been
+					 * allocated */
+static struct proc *P = NULL;		/* local proc structure table */
+static int *Pgid = NULL;		/* process group IDs for P[] entries */
+static int *Pid = NULL;			/* PIDs for P[] entries */
+static KA_T PrAct = (KA_T)NULL;		/* kernel's *practive address */
+static gid_t Savedgid;			/* saved (effective) GID */
+static KA_T Sgvops;			/* [_]segvn_ops address */
+static int Switchgid = 0;		/* must switch GIDs for kvm_open() */
+
+#if	defined(HASZONES)
+static znhash_t **ZoneNm = (znhash_t **)NULL;
+					/* zone names hash buckets */
+#endif	/* defined(HASZONES) */
+
+
+/*
+ * Local function prototypes
+ */
+
+_PROTOTYPE(static void get_kernel_access,(void));
+_PROTOTYPE(static void process_text,(KA_T pa));
+_PROTOTYPE(static void read_proc,(void));
+_PROTOTYPE(static void readfsinfo,(void));
+
+#if	solaris>=20501
+_PROTOTYPE(static void readkam,(KA_T addr));
+#endif	/* solaris>=20501 */
+
+#if	solaris>=20501 && solaris<70000
+_PROTOTYPE(extern u_longlong_t kvm_physaddr,(kvm_t *, struct as *, u_int));
+#endif	/* solaris>=20501 && solaris<70000 */
+
+#if	defined(HASZONES)
+_PROTOTYPE(static int hash_zn,(char *zn));
+#endif	/* defined(HASZONES) */
+
+
+
+/*
+ * close_kvm() - close kernel virtual memory access
+ */
+
+void
+close_kvm()
+{
+	if (!Kd)
+	    return;
+	if (Kd) {
+	    if (kvm_close(Kd) != 0) {
+		(void) fprintf(stderr, "%s: kvm_close failed\n", Pn);
+		Exit(1);
+	    }
+	    Kd = (kvm_t *)NULL;
+	}
+
+#if	solaris>=20501 && solaris<70000
+	if (Kmd >= 0) {
+	    (void) close(Kmd);
+	    Kmd = -1;
+	}
+#endif	/* solaris>=20501 && solaris<70000 */
+
+}
+
+
+/*
+ * gather_proc_info() - gather process information
+ */
+
+void
+gather_proc_info()
+{
+	short cckreg;			/* conditional status of regular file
+					 * checking:
+					 *     0 = unconditionally check
+					 *     1 = conditionally check */
+	short ckscko;			/* socket file only checking status:
+					 *     0 = none
+					 *     1 = check only socket files,
+					 *	   including TCP and UDP
+					 *	   streams with eXPORT data,
+					 *	   where supported */
+	static int ft = 1;
+	int i, j;
+	struct proc *p;
+	int pgid, pid, px;
+	long pofv;
+	short pss, sf;
+	struct user *u;
+	uid_t uid;
+
+#if	solaris>=20400
+	int k;
+
+# if	!defined(NFPCHUNK)
+#define	uf_ofile	uf_file
+#define	uf_pofile	uf_flag
+#define	u_flist		u_finfo.fi_list
+#define	u_nofiles	u_finfo.fi_nfiles
+#define	NFPREAD		64
+# else	/* defined(NFPCHUNK) */
+#define	NFPREAD		NFPCHUNK
+# endif	/* !defined(NFPCHUNK) */
+	uf_entry_t uf[NFPREAD];
+#endif	/* solaris>=20400 */
+#if	solaris>=20500
+	struct cred pc;
+#endif	/* solaris>=20500 */
+
+#if	defined(HASZONES)
+	struct zone z;
+	int zh;
+	char zn[ZONENAME_MAX + 1];
+	znhash_t *zp, *zpn;
+#endif	/* defined(HASZONES) */
+
+	if (ft) {
+/*
+ * Do first-time only operations.
+ */
+	/*
+	 * Get the segment vnodeops address.
+	 */
+	    if (get_Nl_value("sgvops", Drive_Nl, &Sgvops) < 0)
+		Sgvops = (KA_T)NULL;
+	    ft = 0;
+	} else if (!HasALLKMEM) {
+
+	/*
+	 * If not the first time and the ALLKMEM device isn't available, it is
+	 * necessary to close and reopen the KVM device, so that kvm_open()
+	 * will acquire a fresh address for the head of the linked list process
+	 * table.
+	 */
+	    close_kvm();
+	    open_kvm();
+
+#if	solaris>=20501
+	/*
+	 * If not the first time and the ALLKMEM device isn't available,
+	 * re-read the kernel's address space map.
+	 */
+	    readkam((KA_T)NULL);
+#endif	/* solaris>=20501 */
+
+	}
+/*
+ * Define socket and regular file conditional processing flags.
+ *
+ * If only socket files have been selected, or socket files have been
+ * selected, ANDed with other selection options, enable the skipping of
+ * regular files.
+ *
+ * If socket files and some process options have been selected, enable
+ * conditional skipping of regular file; i.e., regular files will be skipped
+ * unless they belong to a process selected by one of the specified options.
+ */
+	if (Selflags & SELNW) {
+
+	/*
+	 * Some network files selection options have been specified.
+	 */
+	    if (Fand || !(Selflags & ~SELNW)) {
+
+	    /*
+	     * Selection ANDing or only network file options have been
+	     * specified, so set unconditional skipping of regular files
+	     * and socket file only checking.
+	     */
+		cckreg = 0;
+		ckscko = 1;
+	    } else {
+
+	    /*
+	     * If ORed file selection options have been specified, or no
+	     * ORed process selection options have been specified, enable
+	     * unconditional file checking and clear socket file only
+	     * checking.
+	     *
+	     * If only ORed process selection options have been specified,
+	     * enable conditional file skipping and socket file only checking.
+	     */
+		if ((Selflags & SELFILE) || !(Selflags & SELPROC))
+		    cckreg = ckscko = 0;
+		else
+		    cckreg = ckscko = 1;
+	    }
+	} else {
+
+	/*
+	 * No network file selection options were specified.  Enable
+	 * unconditional file checking and clear socket file only checking.
+	 */
+	    cckreg = ckscko = 0;
+	}
+/*
+ * Read the process table.
+ */
+	read_proc();
+/*
+ * Loop through processes.
+ */
+	for (p = P, px = 0; px < Np; p++, px++) {
+
+	/*
+	 * Get the process ID.
+	 */
+
+	    if (Fpgid)
+		pgid = Pgid[px];
+	    else
+		pgid = 0;
+	    pid = Pid[px];
+
+#if solaris<20500
+	    uid = p->p_uid;
+#else	/* solaris >=20500 */
+	/*
+	 * Read credentials for Solaris 2.5 and above process.
+	 */
+	    if (kread((KA_T)p->p_cred, (char *)&pc, sizeof(pc)))
+		continue;
+	    uid = pc.cr_uid;
+#endif	/* solaris<20500 */
+
+	/*
+	 * See if the process is excluded.
+	 */
+	    if  (is_proc_excl(pid, pgid, (UID_ARG)uid, &pss, &sf))
+		continue;
+
+#if	defined(HASZONES)
+	/*
+	 * If the -z (zone) option was specified, get the zone name.
+	 */
+	    if (Fzone) {
+		zn[0] = zn[sizeof(zn) - 1] = '\0';
+		if (p->p_zone
+		&& !kread((KA_T)p->p_zone, (char *)&z, sizeof(z)))
+		{
+		    if (!z.zone_name
+		    ||  kread((KA_T)z.zone_name, (char *)&zn, sizeof(zn) - 1))
+			zn[0] = '\0';
+		}
+	    }
+#endif	/* defined(HASZONES) */
+
+	/*
+	 * Get the user area associated with the process.
+	 */
+	    u = &p->p_user;
+	/*
+	 * Allocate a local process structure and start filling it.
+	 */
+	    if (is_cmd_excl(u->u_comm, &pss, &sf))
+		continue;
+	    if (cckreg) {
+
+	    /*
+	     * If conditional checking of regular files is enabled, enable
+	     * socket file only checking, based on the process' selection
+	     * status.
+	     */
+		ckscko = (sf & SELPROC) ? 0 : 1;
+	    }
+	    alloc_lproc(pid, pgid, (int)p->p_ppid, (UID_ARG)uid, u->u_comm,
+		(int)pss, (int)sf);
+	    Plf = (struct lfile *)NULL;
+
+#if	defined(HASZONES)
+	/*
+	 * If zone processing is enabled and requested, and if there is a zone
+	 * name:
+	 *
+	 *	o Skip processes excluded by zone name.
+	 *	o Save zone name.
+	 */
+	    if (Fzone && zn[0]) {
+		zh = hash_zn(zn);
+		if (ZoneArg) {
+
+		/*
+		 * See if zone name excludes the process.
+		 */
+		    for (zp = ZoneArg[zh]; zp; zp = zp->next) {
+			if (!strcmp(zn, zp->zn))
+			    break;
+		    }
+		    if (!zp)
+			continue;
+		    zp->f = 1;
+		    Lp->pss |= PS_PRI;
+		    Lp->sf |= SELZONE;
+		}
+	    /*
+	     * Make sure the zone name is cached, then save a pointer to it in
+	     * the local proc structure.
+	     */
+		if (!ZoneNm) {
+		    if (!(ZoneNm = (znhash_t **)calloc(HASHZONE,
+					        sizeof(znhash_t *))))
+		    {
+			(void) fprintf(stderr,
+			    "%s: no space for zone name hash\n", Pn);
+			Exit(1);
+		    }
+		}
+		for (zp = ZoneNm[zh]; zp; zp = zp->next) {
+		    if (!strcmp(zn, zp->zn))
+			break;
+		}
+		if (!zp) {
+
+		/*
+		 * The zone name isn't cached, so cache it.
+		 */
+		    if (!(zp = (znhash_t *)malloc((MALLOC_S)sizeof(znhash_t))))
+		    {
+			(void) fprintf(stderr,
+			    "%s: no zone name cache space: %s\n", Pn, zn);
+			Exit(1);
+		    }
+		    if (!(zp->zn = mkstrcpy(zn, (MALLOC_S *)NULL))) {
+			(void) fprintf(stderr,
+			    "%s: no zone name space at PID %d: %s\n",
+			    Pn, (int)Lp->pid, zn);
+			Exit(1);
+		    }
+		    zp->next = ZoneNm[zh];
+		    ZoneNm[zh] = zp;
+		}
+		Lp->zn = zp->zn;
+	    }
+#endif	/* defined(HASZONES) */
+
+	/*
+	 * Save file count.
+	 */
+	    Unof = u->u_nofiles;
+	/*
+	 * Save current working directory information.
+	 */
+	    if (!ckscko && u->u_cdir) {
+		alloc_lfile(CWD, -1);
+
+#if	defined(FILEPTR)
+		FILEPTR = (struct file *)NULL;
+#endif	/* defined(FILEPTR) */
+
+		process_node((KA_T)u->u_cdir);
+		if (Lf->sf)
+		    link_lfile();
+	    }
+	/*
+	 * Save root directory information.
+	 */
+	    if (!ckscko && u->u_rdir) {
+		alloc_lfile(RTD, -1);
+
+#if	defined(FILEPTR)
+		FILEPTR = (struct file *)NULL;
+#endif	/* defined(FILEPTR) */
+
+		process_node((KA_T)u->u_rdir);
+		if (Lf->sf)
+		    link_lfile();
+	    }
+	/*
+	 * Save information on text files.
+	 */
+	    if (!ckscko && p->p_as && Sgvops) {
+
+#if	defined(FILEPTR)
+		FILEPTR = (struct file *)NULL;
+#endif	/* defined(FILEPTR) */
+
+		process_text((KA_T)p->p_as);
+	    }
+	/*
+	 * Save information on file descriptors.
+	 *
+	 * Under Solaris the file pointers are stored in dynamically-linked
+	 * ufchunk structures, each containing NFPREAD file pointers.  The
+	 * first ufchunk structure is in the user area.
+	 *
+	 * Under Solaris 2.4 the file pointers are in a dynamically allocated,
+	 * contiguous memory block.
+	 */
+
+#if	solaris<20400
+	    for (i = 0, j = 0; i < u->u_nofiles; i++) {
+		if (++j > NFPCHUNK) {
+		    if (!u->u_flist.uf_next)
+			break;
+		    if (kread((KA_T)u->u_flist.uf_next,
+			(char *)&u->u_flist, sizeof(struct ufchunk)))
+			    break;
+		    j = 1;
+		}
+		if (!u->u_flist.uf_ofile[j-1])
+#else	/* solaris>=20400 */
+	    for (i = 0, j = NFPREAD; i < u->u_nofiles; i++) {
+		if (++j > NFPREAD) {
+		    k = u->u_nofiles - i;
+		    if (k > NFPREAD)
+			k = NFPREAD;
+		    if (kread((KA_T)((unsigned long)u->u_flist +
+				     i * sizeof(uf_entry_t)),
+				     (char*)&uf, k * sizeof(uf_entry_t)))
+		    {
+			break;
+		    }
+		    j = 1;
+		}
+		if (!uf[j-1].uf_ofile)
+#endif	/* solaris<20400 */
+
+		    continue;
+		alloc_lfile((char *)NULL, i);
+
+#if	solaris<20400
+		pofv = (long)u->u_flist.uf_pofile[j-1];
+		process_file((KA_T)u->u_flist.uf_ofile[j-1]);
+#else	/* solaris>=20400 */
+		pofv = uf[j-1].uf_pofile;
+		process_file((KA_T)uf[j-1].uf_ofile);
+#endif	/* solaris <20400 */
+
+		if (Lf->sf) {
+
+#if	defined(HASFSTRUCT)
+		    if (Fsv & FSV_FG)
+			Lf->pof = pofv;
+#endif	/* defined(HASFSTRUCT) */
+
+		    link_lfile();
+		}
+	    }
+	/*
+	 * Examine results.
+	 */
+	    if (examine_lproc())
+		return;
+	}
+}
+
+
+/*
+ * get_kernel_access() - access the required information in the kernel
+ */
+
+static void
+get_kernel_access()
+{
+	int i;
+	struct stat sb;
+	KA_T v;
+
+#if	defined(HAS_AFS)
+	struct nlist *nl = (struct nlist *)NULL;
+#endif	/* defined(HAS_AFS) */
+
+/*
+ * Check the Solaris or SunOS version number; check the SunOS architecture.
+ */
+	(void) ckkv("Solaris", LSOF_VSTR, (char *)NULL, (char *)NULL);
+
+#if	solaris>=70000
+/*
+ * Compare the Solaris 7 and above lsof compilation bit size with the kernel
+ * bit size.
+ *
+ * Quit on a mismatch.
+ */
+	{
+	    char *cp, isa[1024];
+	    short kbits = 32;
+
+# if	defined(_LP64)
+	    short xkbits = 64;
+# else	/* !defined(_LP64) */
+	    short xkbits = 32;
+# endif	/* defined(_LP64) */
+
+	    if (sysinfo(SI_ISALIST, isa, (long)sizeof(isa)) < 0) {
+		(void) fprintf(stderr, "%s: can't get ISA list: %s\n",
+		    Pn, strerror(errno));
+		Exit(1);
+	    }
+	    for (cp = isa; *cp;) {
+		if (strncmp(cp, ARCH64B, strlen(ARCH64B)) == 0) {
+		    kbits = 64;
+		    break;
+		}
+		if (!(cp = strchr(cp, ' ')))
+		    break;
+		cp++;
+	    }
+	    if (kbits != xkbits) {
+		(void) fprintf(stderr,
+		    "%s: FATAL: lsof was compiled for a %d bit kernel,\n",
+		    Pn, (int)xkbits);
+		(void) fprintf(stderr,
+		    "      but this machine has booted a %d bit kernel.\n",
+		    (int)kbits);
+		Exit(1);
+	    }
+	}
+#endif	/* solaris>=70000 */
+
+/*
+ * Get kernel symbols.
+ */
+	if (Nmlst && !is_readable(Nmlst, 1))
+	    Exit(1);
+	(void) build_Nl(Drive_Nl);
+
+#if	defined(HAS_AFS)
+	if (!Nmlst) {
+
+	/*
+	 * If AFS is defined and we're getting kernel symbol values from
+	 * from N_UNIX, make a copy of Nl[] for possible use with the AFS
+	 * modload file.
+	 */
+	    if (!(nl = (struct nlist *)malloc(Nll))) {
+		(void) fprintf(stderr, "%s: no space (%d) for Nl[] copy\n",
+		    Pn, Nll);
+		Exit(1);
+	    }
+	    (void) memcpy((void *)nl, (void *)Nl, (size_t)Nll);
+	}
+#endif	/* defined(HAS_AFS) */
+
+	if (nlist(Nmlst ? Nmlst : N_UNIX, Nl) < 0) {
+	    (void) fprintf(stderr, "%s: can't read namelist from %s\n",
+		Pn, Nmlst ? Nmlst : N_UNIX);
+	    Exit(1);
+	}
+
+#if	defined(HAS_AFS)
+	if (nl) {
+
+	/*
+	 * If AFS is defined and we're getting kernel symbol values from
+	 * N_UNIX, and if any X_AFS_* symbols isn't there, see if it is in the
+	 * the AFS modload file.  Make sure that other symbols that appear in
+	 * both name list files have the same values.
+	 */
+	    if ((get_Nl_value("arFID", Drive_Nl, &v) >= 0 && !v)
+	    ||  (get_Nl_value("avops", Drive_Nl, &v) >= 0 && !v)
+	    ||  (get_Nl_value("avol",  Drive_Nl, &v) >= 0 && !v))
+		(void) ckAFSsym(nl);
+	    (void) free((MALLOC_P *)nl);
+	}
+#endif	/* defined(HAS_AFS) */
+
+/*
+ * Determine the availability of the ALLKMEM device.  If it is available, the
+ * active processes will be gathered directly from the active process chain.
+ *
+ * If ALLKMEM isn't available, the active processes will be gathered via the
+ * kvm_*proc() functions.
+ */
+	if (statsafely(ALLKMEM, &sb) == 0)
+	    HasALLKMEM = 1;
+
+#if	defined(HASVXFSUTIL)
+/*
+ * If the VXFS utility library is being used, attempt to get the VXFS inode
+ * offsets before setgid permission is surrendered.
+ */
+	if (access_vxfs_ioffsets() && !Fwarn) {
+
+	/*
+	 * Warn that the VxFS offsets are unavailable.
+	 */
+	    (void) fprintf(stderr,
+		"%s: WARNING: vxfsu_get_ioffsets() returned an error.\n", Pn);
+	    (void) fprintf(stderr,
+		"%s: WARNING: Thus, no vx_inode information is available\n",
+		Pn);
+	    (void) fprintf(stderr,
+		"%s: WARNING: for display or selection of VxFS files.\n", Pn);
+	}
+#endif	/* defined(HASVXFSUTIL) */
+
+#if	defined(WILLDROPGID)
+/*
+ * If Solaris kernel memory is coming from KMEM, the process is willing to
+ * surrender GID permission, and the ALLKMEM device is not available, set up
+ * for GID switching after the first call to open_kvm().
+ */
+	if (!Memory && !HasALLKMEM) {
+	    Savedgid = getegid();
+	    if (Setgid)
+		Switchgid = 1;
+	}
+/*
+ * If kernel memory isn't coming from KMEM, drop setgid permission
+ * before attempting to open the (Memory) file.
+ */
+	if (Memory)
+	    (void) dropgid();
+#else	/* !defined(WILLDROPGID) */
+/*
+ * See if the non-KMEM memory file is readable.
+ */
+	if (Memory && !is_readable(Memory, 1))
+	    Exit(1);
+#endif	/* defined(WILLDROPGID) */
+
+/*
+ * Open access to kernel memory.
+ */
+	open_kvm();
+
+#if	solaris>=20500
+/*
+ * Get the kernel's KERNELBASE value for Solaris 2.5 and above.
+ */
+	v = (KA_T)0;
+	if (get_Nl_value("kbase", Drive_Nl, &v) < 0 || !v
+	||  kread((KA_T)v, (char *)&Kb, sizeof(Kb))) {
+	    (void) fprintf(stderr,
+		"%s: can't read kernel base address from %s\n",
+		Pn, print_kptr(v, (char *)NULL, 0));
+	    Exit(1);
+	}
+#endif	/* solaris>=20500 */
+
+/*
+ * Get the Solaris clone major device number, if possible.
+ */
+	v = (KA_T)0;
+	if ((get_Nl_value("clmaj", Drive_Nl, &v) < 0) || !v) {
+	   if (get_Nl_value("clmaj_alt", Drive_Nl, &v) < 0)
+		v = (KA_T)0;
+	}
+	if (v && kread((KA_T)v, (char *)&CloneMaj, sizeof(CloneMaj)) == 0)
+	    HaveCloneMaj = 1;
+/*
+ * If the ALLKMEM device is available, check for the address of the kernel's
+ * active process chain.  If it's not available, clear the ALLKMEM status.
+ */
+	if (HasALLKMEM) {
+	   if ((get_Nl_value("pract", Drive_Nl, &PrAct) < 0) || !PrAct)
+		HasALLKMEM = 0;
+	}
+
+#if	solaris>=20501
+/*
+ * If the ALLKMEM device isn't available, get the kernel's virtual to physical
+ * map structure for Solaris 2.5.1 and above.
+ */
+	if (!HasALLKMEM) {
+	    if (get_Nl_value("kasp", Drive_Nl, &v) >= 0 && v) {
+		PageSz = getpagesize();
+		PSMask = PageSz - 1;
+		for (i = 1, PSShft = 0; i < PageSz; i <<= 1, PSShft++)
+		    ;
+		(void) readkam(v);
+	    }
+	}
+#endif	/* solaris>=20501 */
+
+#if	defined(WILLDROPGID)
+/*
+ * If the ALLKMEM device is available -- i.e., we're not using the kvm_*proc()
+ * functions to read proc structures -- and if we're willing to drop setgid
+ * permission, do so.
+ */
+	if (HasALLKMEM)
+	    (void) dropgid();
+#endif	/* defined(WILLDROPGID) */
+
+}
+
+
+#if	defined(HASZONES)
+/*
+ * enter_zone_arg() - enter zone name argument
+ */
+
+int
+enter_zone_arg(zn)
+	char *zn;				/* zone name */
+{
+	int zh;
+	znhash_t *zp, *zpn;
+/*
+ * Allocate zone argument hash space, as required.
+ */
+	if (!ZoneArg) {
+	    if (!(ZoneArg = (znhash_t **)calloc(HASHZONE, sizeof(znhash_t *))))
+	    {
+		(void) fprintf(stderr, "%s: no space for zone arg hash\n", Pn);
+		Exit(1);
+	    }
+	}
+/*
+ * Hash the zone name and search the argument hash.
+ */
+	zh = hash_zn(zn);
+	for (zp = ZoneArg[zh]; zp; zp = zp->next) {
+	    if (!strcmp(zp->zn, zn))
+		break;
+	}
+	if (zp)	{
+
+	/*
+	 * Process a duplicate.
+	 */
+	    if (!Fwarn)
+		(void) fprintf(stderr, "%s: duplicate zone name: %s\n", Pn, zn);
+	    return(1);
+	}
+/*
+ * Create a new hash entry and link it to its bucket.
+ */
+	if (!(zpn = (znhash_t *)malloc((MALLOC_S)sizeof(znhash_t)))) {
+	    (void) fprintf(stderr, "%s no hash space for zone: %s\n", Pn, zn);
+	    Exit(1);
+	}
+	zpn->f = 0;
+	zpn->zn = zn;
+	zpn->next = ZoneArg[zh];
+	ZoneArg[zh] = zpn;
+	return(0);
+}
+
+
+/*
+ * hash_zn() - hash zone name
+ */
+
+static int
+hash_zn(zn)
+	char *zn;				/* zone name */
+{
+	register int i, h;
+	size_t l;
+
+	if (!(l = strlen(zn)))
+	    return(0);
+	if (l == 1)
+	    return((int)*zn & (HASHZONE - 1));
+	for (i = h = 0; i < (int)(l - 1); i++) {
+	    h ^= ((int)zn[i] * (int)zn[i+1]) << ((i*3)%13);
+	}
+	return(h & (HASHZONE - 1));
+}
+#endif	/* defined(HASZONES) */
+
+
+/*
+ * initialize() - perform all initialization
+ */
+
+void
+initialize()
+{
+	get_kernel_access();
+/*
+ * Read Solaris file system information and construct the clone table.
+ *
+ * The clone table is needed to identify sockets.
+ */
+	readfsinfo();
+
+#if	defined(HASDCACHE)
+	readdev(0);
+#else	/* !defined(HASDCACHE) */
+	read_clone();
+#endif	/*defined(HASDCACHE) */
+
+}
+
+
+/*
+ * kread() - read from kernel memory
+ */
+
+int
+kread(addr, buf, len)
+	KA_T addr;			/* kernel memory address */
+	char *buf;			/* buffer to receive data */
+	READLEN_T len;			/* length to read */
+{
+	register int br;
+/*
+ * Because lsof reads kernel data and follows pointers found there at a
+ * rate considerably slower than the kernel, lsof sometimes acquires
+ * invalid pointers.  If the invalid pointers are fed to kvm_[k]read(),
+ * a segmentation violation may result, so legal kernel addresses are
+ * limited by the value of the KERNELBASE symbol (Kb value from the
+ * kernel's _kernelbase variable for Solaris 2.5 and above).
+ */
+
+#if	solaris>=20500
+#define	KVMREAD	kvm_kread
+	if (addr < Kb)
+#else	/* solaris<20500 */
+#define	KVMREAD kvm_read
+	if (addr < (KA_T)KERNELBASE)
+#endif	/* solaris>=20500 */
+
+	    return(1);
+
+#if	solaris>=20501
+
+/*
+ * Do extra address checking for Solaris above 2.5 when the ALLKMEM device
+ * isn't available.
+ *
+ * Make sure the virtual address represents real physical memory by testing
+ * it with kvm_physaddr().
+ *
+ * For Solaris below 7 read the kernel data with llseek() and read().  For
+ * Solaris 7 and above use kvm_pread().
+ */
+	if (Kas && !HasALLKMEM) {
+
+# if	solaris>20501
+	    register int b2r;
+	    register char *bp;
+# endif	/* solaris>20501 */
+
+	    register int h, ip, tb;
+	    register kvmhash_t *kp;
+	    KPHYS pa;
+	    register KVIRT va, vpa;
+
+# if	solaris<20600
+	    for (tb = 0, va = (KVIRT)addr;
+		 tb < len;
+		 tb += br, va += (KVIRT)br)
+# else	/* solaris>=20600 */
+	    for (bp = buf, tb = 0, va = (KVIRT)addr;
+		 tb < len;
+		 bp += br, tb += br, va += (KVIRT)br)
+# endif	/* solaris<20600 */
+
+	    {
+		vpa = (va & (KVIRT)~PSMask) >> PSShft;
+		ip = (int)(va & (KVIRT)PSMask);
+		h = HASHKVM(vpa);
+		for (kp = KVMhb[h]; kp; kp = kp->nxt) {
+		    if (kp->vpa == vpa) {
+			pa = kp->pa;
+			break;
+		    }
+		}
+		if (!kp) {
+		    if ((pa = kvm_physaddr(Kd, Kas, va)) == KAERR)
+			return(1);
+		    if (!(kp = (kvmhash_t *)malloc(sizeof(kvmhash_t)))) {
+			(void) fprintf(stderr, "%s: no kvmhash_t space\n", Pn);
+			Exit(1);
+		    }
+		    kp->nxt = KVMhb[h];
+		    pa = kp->pa = (pa & ~(KPHYS)PSMask);
+		    kp->vpa = vpa;
+		    KVMhb[h] = kp;
+		}
+
+# if	solaris<20600
+		br = (int)(len - tb);
+		if ((ip + br) > PageSz)
+		    br = PageSz - ip;
+# else	/* solaris>=20600 */
+		b2r = (int)(len - tb);
+		if ((ip + b2r) > PageSz)
+		    b2r = PageSz - ip;
+		pa |= (KPHYS)ip;
+
+#  if	solaris<70000
+		if (llseek(Kmd, (offset_t)pa, SEEK_SET) == (offset_t)-1)
+		    return(1);
+		if ((br = (int)read(Kmd, (void *)bp, (size_t)b2r)) <= 0)
+		    return(1);
+#  else	/* solaris>=70000 */
+		if ((br = kvm_pread(Kd, pa, (void *)bp, (size_t)b2r)) <= 0)
+		    return(1);
+#  endif	/* solaris<70000 */
+# endif	/* solaris<20600 */
+
+	    }
+
+# if	solaris>=20600
+	    return(0);
+# endif	/* solaris>=20600 */
+
+	}
+#endif	/* solaris>=20501 */
+
+/*
+ * Use kvm_read for Solaris < 2.5; use kvm_kread() Solaris >= 2.5.
+ */
+	br = KVMREAD(Kd, (u_long)addr, buf, len);
+	return(((READLEN_T)br == len) ? 0 : 1);
+}
+
+
+/*
+ * open_kvm() - open kernel virtual memory access
+ */
+
+void
+open_kvm()
+{
+	if (Kd)
+	    return;
+
+#if	defined(WILLDROPGID)
+/*
+ * If this Solaris process began with setgid permission and its been
+ * surrendered, regain it.
+ */
+	(void) restoregid();
+#endif	/* defined(WILLDROPGID) */
+
+	if (!(Kd = kvm_open(Nmlst, Memory, NULL, O_RDONLY, Pn))) {
+	    (void) fprintf(stderr,
+		"%s: kvm_open(namelist=%s, corefile=%s): %s\n",
+		Pn,
+		Nmlst ? Nmlst : "default",
+		Memory  ? Memory  : "default",
+		strerror(errno));
+	    Exit(1);
+	}
+
+#if	solaris>=20501 && solaris<70000
+	if ((Kmd = open((Memory ? Memory : KMEM), O_RDONLY)) < 0) {
+	    (void) fprintf(stderr, "%s: open(\"/dev/mem\"): %s\n", Pn, 
+		strerror(errno));
+	    Exit(1);
+	}
+#endif	/* solaris>=20501 && solaris<70000 */
+
+#if	defined(WILLDROPGID)
+/*
+ * If this process has setgid permission, and is willing to surrender it,
+ * do so.
+ */
+	(void) dropgid();
+/*
+ * If this Solaris process must switch GIDs, enable switching after the
+ * first call to this function.
+ */
+	if (Switchgid == 1)
+	    Switchgid = 2;
+#endif	/* define(WILLDROPGID) */
+
+}
+
+
+/*
+ * process_text() - process text access information
+ */
+
+#if	solaris>=90000
+#include <sys/avl.h>
+
+/*
+ * Avl trees are implemented as follows: types in AVL trees contain an
+ * avl_node_t.  These avl_nodes connect to other avl nodes embedded in
+ * objects of the same type.  The avl_tree contains knowledge about the
+ * size of the structure and the offset of the AVL node in the object
+ * so we can convert between AVL nodes and (in this case) struct seg. 
+ *
+ * This code was provided by Casper Dik <Casper.Dik@@holland.sun.com>.
+ */
+
+#define READ_AVL_NODE(n,o,s) \
+	if (kread((KA_T)AVL_NODE2DATA(n, o), (char*) s, sizeof(*s))) \
+		return -1
+
+static int
+get_first_seg(avl_tree_t *av, struct seg *s)
+{
+	avl_node_t *node = av->avl_root;
+	size_t off = av->avl_offset;
+	int count = 0;
+
+	while (node != NULL && ++count < MAXSEGS * 2) {
+	    READ_AVL_NODE(node, off, s);
+	    node = s->s_tree.avl_child[0];
+	    if (node == NULL)
+		return 0;
+	}
+	return -1;
+}
+
+static int
+get_next_seg(avl_tree_t *av, struct seg *s)
+{
+	avl_node_t *node = &s->s_tree;
+	size_t off = av->avl_offset;
+	int count = 0;
+
+	if (node->avl_child[1]) {
+	    /*
+	     * Has right child, go all the way to the leftmost child of
+	     * the right child.
+	     */
+	    READ_AVL_NODE(node->avl_child[1], off, s);
+	    while (node->avl_child[0] != NULL && ++count < 2 * MAXSEGS)
+		 READ_AVL_NODE(node->avl_child[0],off,s);
+	    if (count < 2 * MAXSEGS)
+		return 0;
+	} else {
+	    /*
+	     * No right child, go up until we find a node we're not a right
+	     * child of.
+	     */
+	    for (;count < 2 * MAXSEGS; count++) {
+		int index = AVL_XCHILD(node);
+		avl_node_t *parent = AVL_XPARENT(node);
+
+		if (parent == NULL)
+		    return -1;
+
+		READ_AVL_NODE(parent, off, s);
+
+		if (index == 0)
+		    return 0;
+	    }
+	}
+	return -1;
+}
+
+static void
+process_text(pa)
+	KA_T pa;			/* address space description pointer */
+{
+	struct as as;
+	int i, j, k;
+	struct seg s;
+	struct segvn_data vn;
+	avl_tree_t *avtp;
+	KA_T v[MAXSEGS];
+/*
+ * Get address space description.
+ */
+	if (kread((KA_T)pa, (char *)&as, sizeof(as))) {
+	    alloc_lfile(" txt", -1);
+	    (void) snpf(Namech, Namechl, "can't read text segment list (%s)",
+		print_kptr(pa, (char *)NULL, 0));
+	    enter_nm(Namech);
+	    if (Lf->sf)
+		link_lfile();
+	    return;
+	}
+/*
+ * Loop through the segments.  The loop should stop when the segment
+ * pointer returns to its starting point, but just in case, it's stopped
+ * when MAXSEGS unique segments have been recorded or 2*MAXSEGS segments
+ * have been examined.
+ */
+	for (avtp = &as.a_segtree, i = j = 0;
+	     (i < MAXSEGS) && (j < 2*MAXSEGS);
+	     j++)
+	{
+	    if (j ? get_next_seg(avtp, &s) : get_first_seg(avtp, &s))
+		break;
+	    if ((KA_T)s.s_ops == Sgvops && s.s_data) {
+		if (kread((KA_T)s.s_data, (char *)&vn, sizeof(vn)))
+		    break;
+		if (vn.vp) {
+			
+		/*
+		 * This is a virtual node segment.
+		 *
+		 * If its vnode pointer has not been seen already, record the
+		 * vnode pointer and process the vnode.
+		 */
+		    for (k = 0; k < i; k++) {
+			if (v[k] == (KA_T)vn.vp)
+			    break;
+		    }
+		    if (k >= i) {
+			v[i++] = (KA_T)vn.vp;
+			alloc_lfile(" txt", -1);
+
+# if	defined(FILEPTR)
+			FILEPTR = (struct file *)NULL;
+# endif	/* defined(FILEPTR) */
+
+			process_node((KA_T)vn.vp);
+			if (Lf->sf)
+			    link_lfile();
+		    }
+		}
+	    }
+	}
+}
+
+#else	/* solaris<90000 */
+
+# if	solaris>=20400
+#define S_NEXT s_next.list
+# else	/* solaris<20400 */
+#define S_NEXT s_next
+# endif	/* solaris>=20400 */
+
+static void
+process_text(pa)
+	KA_T pa;			/* address space description pointer */
+{
+	struct as as;
+	int i, j, k;
+	struct seg s;
+	struct segvn_data vn;
+	KA_T v[MAXSEGS];
+/*
+ * Get address space description.
+ */
+	if (kread((KA_T)pa, (char *)&as, sizeof(as))) {
+	    alloc_lfile(" txt", -1);
+	    (void) snpf(Namech, Namechl, "can't read text segment list (%s)",
+		print_kptr(pa, (char *)NULL, 0));
+	    enter_nm(Namech);
+	    if (Lf->sf)
+		link_lfile();
+	    return;
+	}
+/*
+ * Loop through the segments.  The loop should stop when the segment
+ * pointer returns to its starting point, but just in case, it's stopped
+ * when MAXSEGS unique segments have been recorded or 2*MAXSEGS segments
+ * have been examined.
+ */
+	for (s.s_next = as.a_segs, i = j = 0;
+	     i < MAXSEGS && j < 2*MAXSEGS;
+	     j++)
+	{
+	    if (!s.S_NEXT
+	    ||  kread((KA_T)s.S_NEXT, (char *)&s, sizeof(s)))
+		break;
+	    if ((KA_T)s.s_ops == Sgvops && s.s_data) {
+		if (kread((KA_T)s.s_data, (char *)&vn, sizeof(vn)))
+		    break;
+		if (vn.vp) {
+			
+		/*
+		 * This is a virtual node segment.
+		 *
+		 * If its vnode pointer has not been seen already, record the
+		 * vnode pointer and process the vnode.
+		 */
+		    for (k = 0; k < i; k++) {
+			if (v[k] == (KA_T)vn.vp)
+			    break;
+		    }
+		    if (k >= i) {
+			v[i++] = (KA_T)vn.vp;
+			alloc_lfile(" txt", -1);
+
+# if	defined(FILEPTR)
+			FILEPTR = (struct file *)NULL;
+# endif	/* defined(FILEPTR) */
+
+			process_node((KA_T)vn.vp);
+			if (Lf->sf)
+			    link_lfile();
+		    }
+		}
+	    }
+	/*
+	 * Follow the segment link to the starting point in the address
+	 * space description.  (The i and j counters place an absolute
+	 * limit on the loop.)
+	 */
+
+# if	solaris<20400
+	    if (s.s_next == as.a_segs)
+# else	/* solaris>=20400 */
+	    if (s.s_next.list == as.a_segs.list)
+# endif	/* solaris<20400 */
+
+		break;
+	}
+}
+#endif  /* solaris>=90000 */
+
+
+/*
+ * readfsinfo() - read file system information
+ */
+
+static void
+readfsinfo()
+{
+	char buf[FSTYPSZ+1];
+	int i, len;
+
+	if ((Fsinfomax = sysfs(GETNFSTYP)) == -1) {
+	    (void) fprintf(stderr, "%s: sysfs(GETNFSTYP) error: %s\n",
+		Pn, strerror(errno));
+	    Exit(1);
+	} 
+	if (Fsinfomax == 0)
+		return;
+	if (!(Fsinfo = (char **)malloc((MALLOC_S)(Fsinfomax * sizeof(char *)))))
+	{
+	    (void) fprintf(stderr, "%s: no space for sysfs info\n", Pn);
+	    Exit(1);
+	}
+	for (i = 1; i <= Fsinfomax; i++) {
+	    if (sysfs(GETFSTYP, i, buf) == -1) {
+		(void) fprintf(stderr, "%s: sysfs(GETFSTYP) error: %s\n",
+		    Pn, strerror(errno));
+		Exit(1);
+	    }
+	    if (buf[0] == '\0') {
+		Fsinfo[i-1] = "";
+		continue;
+	    }
+	    buf[FSTYPSZ] = '\0';
+	    len = strlen(buf) + 1;
+	    if (!(Fsinfo[i-1] = (char *)malloc((MALLOC_S)len))) {
+		(void) fprintf(stderr,
+		    "%s: no space for file system entry %s\n", Pn, buf);
+		Exit(1);
+	    }
+	    (void) snpf(Fsinfo[i-1], len, "%s", buf);
+
+# if	defined(HAS_AFS)
+	    if (strcasecmp(buf, "afs") == 0)
+		AFSfstype = i;
+# endif	/* defined(HAS_AFS) */
+
+	}
+}
+
+
+#if	solaris>=20501
+/*
+ * readkam() - read kernel's address map structure
+ */
+
+static void
+readkam(addr)
+	KA_T addr;			/* kernel virtual address */
+{
+	register int i;
+	register kvmhash_t *kp, *kpp;
+	static KA_T kas = (KA_T)NULL;
+
+	if (addr)
+	    kas = addr;
+	Kas = (struct as *)NULL;
+
+#if	solaris<70000
+	if (kas && !kread(kas, (char *)&Kam, sizeof(Kam)))
+	    Kas = (KA_T)&Kam;
+#else	/* solaris>=70000 */
+	Kas = (struct as *)kas;
+#endif	/* solaris<70000 */
+
+	if (Kas) {
+	    if (!KVMhb) {
+		if (!(KVMhb = (kvmhash_t **)calloc(KVMHASHBN,
+						   sizeof(kvmhash_t *))))
+		{
+		     (void) fprintf(stderr,
+			"%s: no space (%d) for KVM hash buckets\n",
+			Pn, (int)(KVMHASHBN * sizeof(kvmhash_t *)));
+		    Exit(1);
+		}
+	    } else if (!addr) {
+		for (i = 0; i < KVMHASHBN; i++) {
+		    if ((kp = KVMhb[i])) {
+			while (kp) {
+			    kpp = kp->nxt;
+			    (void) free((void *)kp);
+			    kp = kpp;
+			}
+			KVMhb[i] = (kvmhash_t *)NULL;
+		    }
+		}
+	    }
+	}
+}
+#endif	/* solaris>=20501 */
+
+
+/*
+ * read_proc() - read proc structures
+ *
+ * As a side-effect, Kd is set by a call to kvm_open().
+ */
+
+static void
+read_proc()
+{
+	int ct, ctl, knp, n, try;
+	MALLOC_S len;
+	struct proc *p;
+	KA_T pa, paf, pan;
+	struct pid pg, pids;
+/*
+ * Try PROCTRYLM times to read a valid proc table.
+ */
+	for (try = 0; try < PROCTRYLM; try++) {
+
+	/*
+	 * Get a proc structure count estimate.
+	 */
+	    if (get_Nl_value("nproc", Drive_Nl, &pa) < 0 || !pa
+	    ||  kread(pa, (char *)&knp, sizeof(knp))
+	    ||  knp < 1)
+		knp = PROCDFLT;
+	/*
+	 * Pre-allocate space, as required.
+	 */
+	    n = knp + PROCDFLT/4;
+	    if (n > Npa) {
+
+	    /*
+	     * Allocate proc structure space.
+	     */
+		len = (n * sizeof(struct proc));
+		if (P)
+		    P = (struct proc *)realloc((MALLOC_P *)P, len);
+		else
+		    P = (struct proc *)malloc(len);
+		if (!P) {
+		    (void) fprintf(stderr, "%s: no proc table space\n", Pn);
+		    Exit(1);
+		}
+	    /*
+	     * Pre-allocate PGID and PID number space.
+	     */
+		len = (MALLOC_S)(n * sizeof(int));
+		if (Fpgid) {
+		    if (Pgid)
+			Pgid = (int *)realloc((MALLOC_P *)Pgid, len);
+		    else
+			Pgid = (int *)malloc(len);
+		    if (!Pgid) {
+			(void) fprintf(stderr, "%s: no PGID table space\n", Pn);
+			Exit(1);
+		    }
+		}
+		if (Pid)
+		    Pid = (int *)realloc((MALLOC_P *)Pid, len);
+		else
+		    Pid = (int *)malloc(len);
+		if (!Pid) {
+		    (void) fprintf(stderr, "%s: no PID table space\n", Pn);
+		    Exit(1);
+		}
+		Npa = n;
+	    }
+	    if (HasALLKMEM) {
+
+	    /*
+	     * Prepare for a proc table scan via direct reading of the active
+	     * chain.
+	     */
+		if (!PrAct || kread(PrAct, (char *)&paf, sizeof(pa))) {
+		    (void) fprintf(stderr, "%s: can't read practive from %s\n",
+			Pn, print_kptr(PrAct, (char *)NULL, 0));
+		    Exit(1);
+		}
+		ct = 1;
+		ctl = knp << 3;
+		pan = paf;
+		pa = (KA_T)NULL;
+	    } else {
+
+	    /*
+	     * Prepare for a proc table scan via the kvm_*proc() functions.
+	     */
+		if (kvm_setproc(Kd) != 0) {
+		    (void) fprintf(stderr, "%s: kvm_setproc: %s\n", Pn,
+			strerror(errno));
+		    Exit(1);
+		}
+	    }
+	/*
+	 * Accumulate proc structures.
+	 */
+	    Np = 0;
+	    for (;;) {
+		if (Np >= Npa) {
+
+		/*
+		 * Expand the local proc table.
+		 */
+		    Npa += PROCDFLT/2;
+		    len = (MALLOC_S)(Npa * sizeof(struct proc));
+		    if (!(P = (struct proc *)realloc((MALLOC_P *)P, len))) {
+			(void) fprintf(stderr,
+			    "%s: no more (%d) proc space\n", Pn, Npa);
+			Exit(1);
+		    }
+		/*
+		 * Expand the PGID and PID tables.
+		 */
+		    len = (MALLOC_S)(Npa * sizeof(int));
+		    if (Fpgid) {
+			if (!(Pgid = (int *)realloc((MALLOC_P *)Pgid, len))) {
+			    (void) fprintf(stderr,
+				"%s: no more (%d) PGID space\n", Pn, Npa);
+			    Exit(1);
+			}
+		    }
+		    if (!(Pid = (int *)realloc((MALLOC_P *)Pid, len))) {
+			(void) fprintf(stderr,
+			    "%s: no more (%d) PID space\n", Pn, Npa);
+			Exit(1);
+		    }
+		}
+	    /*
+	     * Read the next proc structure.
+	     */
+		if (HasALLKMEM) {
+
+		/*
+		 * If the ALLKMEM device exists, read proc structures directly
+		 * from the active chain.
+		 */
+		    if (!pa)
+			pa = paf;
+		    else {
+			pa = pan;
+			if ((pan == paf) || (++ct > ctl))
+			   break;
+		    }
+		    if (!pa)
+			break;
+		    p = (struct proc *)&P[Np];
+		    if (kread(pa, (char *)p, sizeof(struct proc)))
+			break;
+		    pan = (KA_T)p->p_next;
+		} else {
+
+		/*
+		 * If the ALLKMEM device doesn't exist, read proc structures
+		 * via kbm_getproc().
+		 */
+		    if (!(p = kvm_nextproc(Kd)))
+			break;
+		}
+	    /*
+	     * Check process status.
+	     */
+		if (p->p_stat == 0 || p->p_stat == SZOMB)
+		    continue;
+
+#if	solaris >=20500
+		/*
+		 * Check Solaris 2.5 and above p_cred pointer.
+		 */
+	    	    if (!p->p_cred)
+			continue;
+#endif	/* solaris >=20500 */
+
+		/*
+		 * Read Solaris PGID and PID numbers.
+		 */
+		if (Fpgid) {
+		    if (!p->p_pgidp
+		    ||  kread((KA_T)p->p_pgidp, (char *)&pg, sizeof(pg)))
+			continue;
+		}
+		if (!p->p_pidp
+		||  kread((KA_T)p->p_pidp, (char *)&pids, sizeof(pids)))
+		    continue;
+	    /*
+	     * Save the PGID and PID numbers in local tables.
+	     */
+		if (Fpgid)
+		    Pgid[Np] = (int)pg.pid_id;
+		Pid[Np] = (int)pids.pid_id;
+	    /*
+	     * If the proc structure came from kvm_getproc(), save it in the
+	     * local table.
+	     */
+		if (!HasALLKMEM)
+		    P[Np] = *p;
+		Np++;
+	    }
+	/*
+	 * If not enough processes were saved in the local table, try again.
+	 *
+	 * If the ALLKMEM device isn't available, it is necessary to close and
+	 * reopen the KVM device, so that kvm_open() will acquire a fresh
+	 * address for the head of the linked list process table.
+	 */
+	    if (Np >= PROCMIN)
+		break;
+	    if (!HasALLKMEM) {
+		close_kvm();
+		open_kvm();
+	    }
+	}
+/*
+ * Quit if no proc structures were stored in the local table.
+ */
+	if (try >= PROCTRYLM) {
+	    (void) fprintf(stderr, "%s: can't read proc table\n", Pn);
+	    Exit(1);
+	}
+	if (Np < Npa && !RptTm) {
+
+	/*
+	 * Reduce the local proc structure table size to its minimum if
+	 * not in repeat mode.
+	 */
+	    len = (MALLOC_S)(Np * sizeof(struct proc));
+	    if (!(P = (struct proc *)realloc((MALLOC_P *)P, len))) {
+		(void) fprintf(stderr, "%s: can't reduce proc table to %d\n",
+		    Pn, Np);
+		Exit(1);
+	    }
+	/*
+	 * Reduce the Solaris PGID and PID tables to their minimum if
+	 * not in repeat mode.
+	 */
+	    len = (MALLOC_S)(Np * sizeof(int));
+	    if (Fpgid) {
+		if (!(Pgid = (int *)realloc((MALLOC_P *)Pgid, len))) {
+		    (void) fprintf(stderr,
+			"%s: can't reduce PGID table to %d\n", Pn, Np);
+		    Exit(1);
+		}
+	    }
+	    if (!(Pid = (int *)realloc((MALLOC_P *)Pid, len))) {
+		(void) fprintf(stderr,
+		    "%s: can't reduce PID table to %d\n", Pn, Np);
+		Exit(1);
+	    }
+	    Npa = Np;
+	}
+}
+
+
+#if	defined(WILLDROPGID)
+/*
+ * restoregid() -- restore setgid permission, as required
+ */
+
+void
+restoregid()
+{
+	if (Switchgid == 2 && !Setgid) {
+	    if (setgid(Savedgid) != 0) {
+		(void) fprintf(stderr,
+		    "%s: can't set effective GID to %d: %s\n",
+		    Pn, (int)Savedgid, strerror(errno));
+		Exit(1);
+	    }
+	    Setgid = 1;
+	}
+}
+#endif	/* defined(WILLDROPGID) */
+
+
+#if	defined(HASNCACHE) && solaris>=90000
+
+
+/*
+ * Local static values
+ */
+
+static int Mhl;				/* local name cache hash mask */
+static int Nhl = 0;			/* size of local name cache hash
+					 * pointer table */
+struct l_nch {
+	KA_T vp;			/* vnode address */
+	KA_T dp;			/* parent vnode address */
+	struct l_nch *pa;		/* parent Ncache address */
+	char *nm;			/* name */
+	int nl;				/* name length */
+};
+
+static struct l_nch *Ncache = (struct l_nch *)NULL;
+					/* the local name cache */
+static struct l_nch **Nchash = (struct l_nch **)NULL;
+					/* Ncache hash pointers */
+static int Ncfirst = 1;			/* first-call status */
+static KA_T NegVN = (KA_T)NULL;		/* negative vnode address */
+static int Nla = 0;			/* entries allocated to Ncache[] */
+static int Nlu = 0;			/* entries used in Ncache[] */
+
+_PROTOTYPE(static struct l_nch *ncache_addr,(KA_T v));
+
+#define ncachehash(v)		Nchash+((((int)(v)>>2)*31415)&Mhl)
+
+_PROTOTYPE(static int ncache_isroot,(KA_T va, char *cp));
+
+#define	LNCHINCRSZ	64	/* local size increment */
+#define	XNC		15	/* extra name characters to read beyond those
+				 * in name[] of the ncache_t structure -- this
+				 * is an efficiency hint and MUST BE AT LEAST
+				 * ONE. */
+
+
+/*
+ * ncache_addr() - look up a node's local ncache address
+ */
+
+static struct l_nch *
+
+ncache_addr(v)
+	KA_T v;					/* vnode's address */
+{
+	struct l_nch **hp;
+
+	for (hp = ncachehash(v); *hp; hp++) {
+	    if ((*hp)->vp == v)
+		return(*hp);
+	}
+	return((struct l_nch *)NULL);
+}
+
+
+/*
+ * ncache_isroot() - is head of name cache path a file system root?
+ */
+
+static int
+ncache_isroot(va, cp)
+	KA_T va;			/* kernel vnode address */
+	char *cp;			/* partial path */
+{
+	char buf[MAXPATHLEN];
+	int i;
+	MALLOC_S len;
+	struct mounts *mtp;
+	struct stat sb;
+	struct vnode v;
+	static int vca = 0;
+	static int vcn = 0;
+	static KA_T *vc = (KA_T *)NULL;
+
+	if (!va)
+	    return(0);
+/*
+ * Search the root vnode cache.
+ */
+	for (i = 0; i < vcn; i++) {
+	    if (va == vc[i])
+		return(1);
+	}
+/*
+ * Read the vnode and see if it's a VDIR node with the VROOT flag set.  If
+ * it is, then the path is complete.
+ *
+ * If it isn't, and if the file has an inode number, search the mount table
+ * and see if the file system's inode number is known.  If it is, form the
+ * possible full path, safely stat() it, and see if it's inode number matches
+ * the one we have for this file.  If it does, then the path is complete.
+ */
+	if (kread((KA_T)va, (char *)&v, sizeof(v))
+	||  v.v_type != VDIR || !(v.v_flag & VROOT)) {
+
+	/*
+	 * The vnode tests failed.  Try the inode tests.
+	 */
+	    if (Lf->inp_ty != 1 || !Lf->inode
+	    ||  !Lf->fsdir || (len = strlen(Lf->fsdir)) < 1)
+		return(0);
+	    if ((len + 1 + strlen(cp) + 1) > sizeof(buf))
+		return(0);
+	    for (mtp = readmnt(); mtp; mtp = mtp->next) {
+		if (!mtp->dir || !mtp->inode)
+		    continue;
+		if (strcmp(Lf->fsdir, mtp->dir) == 0)
+		    break;
+	    }
+	    if (!mtp)
+		return(0);
+	    (void) strcpy(buf, Lf->fsdir);
+	    if (buf[len - 1] != '/')
+		buf[len++] = '/';
+	    (void) strcpy(&buf[len], cp);
+	    if (statsafely(buf, &sb) != 0
+	    ||  (INODETYPE)sb.st_ino != Lf->inode)
+		return(0);
+	}
+/*
+ * Add the vnode address to the root vnode cache.
+ */
+	if (vcn >= vca) {
+	    vca += 10;
+	    len = (MALLOC_S)(vca * sizeof(KA_T));
+	    if (!vc)
+		vc = (KA_T *)malloc(len);
+	    else
+		vc = (KA_T *)realloc(vc, len);
+	    if (!vc) {
+		(void) fprintf(stderr, "%s: no space for root vnode table\n",
+		    Pn);
+		Exit(1);
+	    }
+	}
+	vc[vcn++] = va;
+	return(1);
+}
+
+
+/*
+ * ncache_load() - load the kernel's name cache
+ */
+
+void
+ncache_load()
+{
+	char *cp;
+	struct l_nch **hp, *lc;
+	int h, i, len, n, xl;
+	static int iNch = 0;
+	nc_hash_t *kh;
+	static KA_T kha = (KA_T)NULL;
+	static nc_hash_t *khl = (nc_hash_t *)NULL;
+	KA_T kn;
+	static ncache_t *nc = (ncache_t *)NULL;
+	static int Nch = 0;
+	static int nmo = 0;
+	KA_T v;
+	static int xn = 0;
+
+	if (!Fncache)
+	    return;
+	if (Ncfirst) {
+
+	/*
+	 * Do startup (first-time) functions.
+	 */
+	    Ncfirst = 0;
+	/*
+	 * Establish DNLC hash size.
+	 */
+	    v = (KA_T)0;
+	    if (get_Nl_value(X_NCSIZE, (struct drive_Nl *)NULL, &v) < 0
+	    ||  !v
+	    ||  kread((KA_T)v, (char *)&Nch, sizeof(Nch)))
+	    {
+		if (!Fwarn)
+		    (void) fprintf(stderr,
+			"%s: WARNING: can't read DNLC hash size: %s\n",
+			Pn, print_kptr(v, (char *)NULL, 0));
+		iNch = Nch = 0;
+		return;
+	    }
+	    if ((iNch = Nch) < 1) {
+		if (!Fwarn)
+		    (void) fprintf(stderr,
+			"%s: WARNING: DNLC hash size: %d\n", Pn, Nch);
+		iNch = Nch = 0;
+		return;
+	    }
+	/*
+	 * Get negative vnode address.
+	 */
+	    if (get_Nl_value(NCACHE_NEGVN, (struct drive_Nl *)NULL, &NegVN)
+	    < 0)
+		NegVN = (KA_T)NULL;
+	/*
+	 * Establish DNLC hash address.
+	 */
+	    v = (KA_T)0;
+	    if (get_Nl_value(X_NCACHE,(struct drive_Nl *)NULL,(KA_T *)&v) < 0
+	    || !v
+	    || kread(v, (char *)&kha, sizeof(kha))
+	    || !kha
+	    ) {
+		if (!Fwarn)
+		    (void) fprintf(stderr,
+			"%s: WARNING: no DNLC hash address\n", Pn);
+		iNch = Nch = 0;
+		return;
+	    }
+	/*
+	 * Allocate space for a local copy of the kernel's hash table.
+	 */
+	    len = Nch * sizeof(nc_hash_t);
+	    if (!(khl = (nc_hash_t *)malloc((MALLOC_S)len))) {
+		(void) fprintf(stderr,
+		    "%s: can't allocate DNLC hash space: %d\n", Pn, len);
+		Exit(1);
+	    }
+	/*
+	 * Allocate space for a kernel DNLC entry, plus additional name space
+	 * for efficiency.
+	 */
+	    xn = XNC;
+	    if (!(nc = (ncache_t *)malloc((MALLOC_S)(sizeof(ncache_t) + XNC))))
+	    {
+		(void) fprintf(stderr,
+		    "%s: can't allocate DNLC ncache_t space\n", Pn);
+		Exit(1);
+	    }
+	    nmo = offsetof(struct ncache, name);
+	/*
+	 * Allocate estimated space for the local cache, based on the
+	 * hash table count and the current average hash length.
+	 */
+	    v = (KA_T)0;
+	    if ((get_Nl_value("hshav", (struct drive_Nl *)NULL, (KA_T *)&v) < 0)
+	    || !v
+	    || kread(v, (char *)&i, sizeof(i))
+	    || (i < 1)
+	    ) {
+		i = 16;
+		if (!Fwarn) {
+		    (void) fprintf(stderr,
+			"%s: can't read DNLC average hash bucket size,", Pn);
+		    (void) fprintf(stderr, " using %d\n", i);
+		}
+	    }
+	    Nla = Nch * i;
+	    if (!(Ncache = (struct l_nch *)calloc(Nla, sizeof(struct l_nch)))) {
+
+no_local_space:
+
+		(void) fprintf(stderr,
+		    "%s: no space for %d byte local name cache\n", Pn, len);
+		Exit(1);
+	    }
+	} else {
+
+	/*
+	 * Do setup for repeat calls.
+	 */
+	    if (!iNch || !Nla || !Ncache)
+		return;
+	    if (Nchash) {
+		(void) free((FREE_P *)Nchash);
+		Nchash = (struct l_nch **)NULL;
+	    }
+	    if (Ncache && Nlu) {
+
+	    /*
+	     * Free space malloc'd to names in local name cache.
+	     */
+	        for (i = 0, lc = Ncache; i < Nlu; i++, lc++) {
+		    if (lc->nm) {
+			(void) free((FREE_P *)lc->nm);
+			lc->nm = (char *)NULL;
+		    }
+	        }
+	    }
+	    Nch = iNch;
+	    Nlu = 0;
+	}
+/*
+ * Read the kernel's DNLC hash.
+ */
+	if (kread(kha, (char *)khl, (Nch * sizeof(nc_hash_t)))) {
+	    if (!Fwarn)
+		(void) fprintf(stderr,
+		    "%s: WARNING: can't read DNLC hash: %s\n",
+		    Pn, print_kptr(kha, (char *)NULL, 0));
+	    iNch = Nch = 0;
+	    return;
+	}
+/*
+ * Build a local copy of the kernel name cache.
+ */
+	for (i = n = 0, kh = khl, lc = Ncache; i < Nch; i++, kh++) {
+
+	/*
+	 * Skip empty hash buckets.
+	 */
+	    if (!kh->hash_next || ((KA_T)kh->hash_next == kha))
+		continue;
+	/*
+	 * Process a hash bucket.
+	 */
+	    for (kn = (KA_T)kh->hash_next, h = 0;
+		 kn && (h < Nch) && (!h || (h && kn != (KA_T)kh->hash_next));
+		 kn = (KA_T)nc->hash_next, h++)
+	    {
+		if (kread(kn, (char *)nc, sizeof(ncache_t) + XNC))
+		    break;
+		if (!nc->vp || (len = (int)nc->namlen) < 1)
+		    continue;
+		if (NegVN && ((KA_T)nc->vp == NegVN))
+		    continue;
+		if ((len < 3) && (nc->name[0] == '.')) {
+		    if ((len < 2) || (nc->name[1] == '.'))
+			continue;
+		}
+	    /*
+	     * If not all the name has been read, read the rest of it,
+	     * allocating more space at the end of the ncache structure as
+	     * required.
+	     */
+		if (len > (XNC + 1)) {
+		    if (len > (xn + 1)) {
+			while (len > (xn + 1))
+			    xn = xn + xn;
+			xn = ((xn + 7) & ~7) - 1;
+			if (!(nc = (ncache_t *)realloc((MALLOC_P *)nc,
+					(sizeof(ncache_t) + xn)))
+			) {
+			    (void) fprintf(stderr,
+				"%s: can't extend DNLC ncache_t buffer\n", Pn);
+			    Exit(1);
+			}
+		    }
+		    cp = &nc->name[XNC + 1];
+		    v = (KA_T)((char *)kn + nmo + XNC + 1);
+		    xl = len - XNC - 1;
+		    if (kread(v, cp, xl))
+			continue;
+		}
+	    /*
+	     * Allocate space for the name in the local name cache entry.
+	     */
+		if (!(cp = (char *)malloc(len + 1))) {
+		    (void) fprintf(stderr,
+			"%s: can't allocate %d bytes for name cache name\n",
+			Pn, len + 1);
+		    Exit(1);
+		}
+		(void) strncpy(cp, nc->name, len);
+		cp[len] = '\0';
+	    /*
+	     * Make sure there is space for another local name cache entry.
+	     * If not, allocate twice as many entries.
+	     */
+		if (n >= Nla) {
+		    Nla = Nla + Nla;
+		    if (!(Ncache = (struct l_nch *)realloc(Ncache,
+				   (MALLOC_S)(Nla * sizeof(struct l_nch))))
+		    ) {
+			(void) fprintf(stderr,
+			    "%s: can't enlarge local name cache\n", Pn);
+			Exit(1);
+		    }
+		    lc = &Ncache[n];
+		}
+	    /*
+	     * Complete the local cache entry.
+	     */
+		lc->vp = (KA_T)nc->vp;
+		lc->dp = (KA_T)nc->dp;
+		lc->pa = (struct l_nch *)NULL;
+		lc->nm = cp;
+		lc->nl = len;
+		lc++;
+		n++;
+	    }
+	}
+/*
+ * Reduce memory usage, as required.
+ */
+	if ((Nlu = n) < 1) {
+
+	/*
+	 * No DNLC entries were located, an unexpected result.
+	 */
+	    if (!RptTm && Ncache) {
+
+	    /*
+	     * If not in repeat mode, free the space that has been malloc'd
+	     * to the local name cache.
+	     */
+		(void) free((FREE_P *)Ncache);
+	 	Ncache = (struct l_nch *)NULL;
+		Nla = Nlu = 0;
+	    }
+	/*
+	 * Issue a warning and disable furthe DNLC processing.
+	 */
+	    if (!Fwarn)
+		(void) fprintf(stderr,
+		    "%s: WARNING: unusable local name cache size: %d\n", Pn, n);
+	    iNch = Nch = 0;
+	    return;
+	}
+	if ((Nlu < Nla) && !RptTm) {
+	    len = Nlu * sizeof(struct l_nch);
+	    if (!(Ncache = (struct l_nch *)realloc(Ncache, len)))
+		goto no_local_space;
+	    Nla = Nlu;
+	}
+/*
+ * Build a hash table to locate Ncache entries.
+ */
+	for (Nhl = 1; Nhl < Nlu; Nhl <<= 1)
+	    ;
+	Nhl <<= 1;
+	Mhl = Nhl - 1;
+	if (!(Nchash = (struct l_nch **)calloc(Nhl + Nlu,
+					sizeof(struct l_nch *))))
+	{
+	    (void) fprintf(stderr,
+		"%s: no space for %d name cache hash pointers\n",
+		Pn, Nhl + Nlu);
+	    Exit(1);
+	}
+	for (i = 0, lc = Ncache; i < Nlu; i++, lc++) {
+	    for (hp = ncachehash(lc->vp), h = 1; *hp; hp++) {
+		if ((*hp)->vp == lc->vp && strcmp((*hp)->nm, lc->nm) == 0
+		&&  (*hp)->dp == lc->dp
+		) {
+		    h = 0;
+		    break;
+		}
+	    }
+	    if (h)
+		*hp = lc;
+	}
+/*
+ * Make a final pass through the local cache and convert parent vnode
+ * addresses to local name cache pointers.
+ */
+	for (i = 0, lc = Ncache; i < Nlu; i++, lc++) {
+	    if (!lc->dp)
+		continue;
+	     if (NegVN && (lc->dp == NegVN)) {
+		lc->pa = (struct l_nch *)NULL;
+		continue;
+	     }
+	    lc->pa = ncache_addr(lc->dp);
+	}
+}
+
+
+/*
+ * ncache_lookup() - look up a node's name in the kernel's name cache
+ */
+
+char *
+ncache_lookup(buf, blen, fp)
+	char *buf;			/* receiving name buffer */
+	int blen;			/* receiving buffer length */
+	int *fp;			/* full path reply */
+{
+	char *cp = buf;
+	struct l_nch *lc;
+	struct mounts *mtp;
+	int nl, rlen;
+
+	*cp = '\0';
+	*fp = 0;
+
+# if	defined(HASFSINO)
+/*
+ * If the entry has an inode number that matches the inode number of the
+ * file system mount point, return an empty path reply.  That tells the
+ * caller to print the file system mount point name only.
+ */
+	if (Lf->inp_ty == 1 && Lf->fs_ino && Lf->inode == Lf->fs_ino)
+	    return(cp);
+# endif	/* defined(HASFSINO) */
+
+/*
+ * Look up the name cache entry for the node address.
+ */
+	if (!Nlu || !(lc = ncache_addr(Lf->na))) {
+
+	/*
+	 * If the node has no cache entry, see if it's the mount
+	 * point of a known file system.
+	 */
+	    if (!Lf->fsdir || !Lf->dev_def || Lf->inp_ty != 1)
+		return((char *)NULL);
+	    for (mtp = readmnt(); mtp; mtp = mtp->next) {
+		if (!mtp->dir || !mtp->inode)
+		    continue;
+		if (Lf->dev == mtp->dev
+		&&  mtp->inode == Lf->inode
+		&&  strcmp(mtp->dir, Lf->fsdir) == 0)
+		    return(cp);
+	    }
+	    return((char *)NULL);
+	}
+/*
+ * Begin the path assembly.
+ */
+	if ((nl = lc->nl) > (blen - 1))
+	    return((char *)NULL);
+	cp = buf + blen - nl - 1;
+	rlen = blen - nl - 1;
+	(void) strcpy(cp, lc->nm);
+/*
+ * Look up the name cache entries that are parents of the node address.
+ * Quit when:
+ *
+ *	there's no parent;
+ *	the name is too large to fit in the receiving buffer.
+ */
+	for (;;) {
+	    if (!lc->pa) {
+		if (ncache_isroot(lc->dp, cp))
+		    *fp = 1;
+		break;
+	    }
+	    lc = lc->pa;
+	    if (((nl = lc->nl) + 1) > rlen)
+		break;
+	    *(cp - 1) = '/';
+	    cp--;
+	    rlen--;
+	    (void) strncpy((cp - nl), lc->nm, nl);
+	    cp -= nl;
+	    rlen -= nl;
+	}
+	return(cp);
+}
+#endif	/* defined(HASNCACHE) && solaris>=90000 */
+@
+
+
+1.35
+log
+@Revision 4.82
+@
+text
+@d35 1
+a35 1
+static char *rcsid = "$Id: dproc.c,v 1.34 2008/10/21 16:16:42 abe Exp abe $";
+d45 4
+d50 4
+@
+
+
+1.34
+log
+@Revision 4.81
+@
+text
+@d35 1
+a35 1
+static char *rcsid = "$Id: dproc.c,v 1.33 2008/04/15 13:32:58 abe Exp abe $";
+d399 1
+a399 1
+	    if (!ckscko && Fzone && zn[0]) {
+d757 5
+a761 2
+	if (get_Nl_value("clmaj", Drive_Nl, &v) >= 0 && v
+	&&  kread((KA_T)v, (char *)&CloneMaj, sizeof(CloneMaj)) == 0)
+@
+
+
+1.33
+log
+@Revision 4.79
+@
+text
+@d35 1
+a35 1
+static char *rcsid = "$Id: dproc.c,v 1.32 2005/08/08 19:55:41 abe Exp abe $";
+d194 10
+d238 1
+d242 3
+a244 1
+	if (ft) {
+d269 49
+d378 9
+d399 1
+a399 1
+	    if (Fzone && zn[0]) {
+d464 1
+a464 1
+	    if (u->u_cdir) {
+d478 1
+a478 1
+	    if (u->u_rdir) {
+d492 1
+a492 1
+	    if (p->p_as && Sgvops) {
+d694 13
+a706 1
+	(void) access_vxfs_ioffsets();
+@
+
+
+1.32
+log
+@Revision 4.76
+@
+text
+@d35 1
+a35 1
+static char *rcsid = "$Id: dproc.c,v 1.31 2005/05/11 12:54:26 abe Exp abe $";
+d618 8
+@
+
+
+1.31
+log
+@Revision 4.75
+@
+text
+@d35 1
+a35 1
+static char *rcsid = "$Id: dproc.c,v 1.30 2004/12/30 18:42:59 abe Exp abe $";
+a122 1
+static KA_T Nproc = 0;			/* kernel's nproc address */
+a193 1
+	MALLOC_S bc;
+a220 6
+#if	defined(HASFSTRUCT)
+	static int npofb = 0;
+	char *pofp;
+	static char *pofb = (char *)NULL;
+#endif	/* defined(HASFSTRUCT) */
+
+a504 1
+	char er[64];
+d1065 1
+a1065 1
+	int i, j, k, l;
+d1085 2
+a1086 1
+ * when MAXSEGS have been recorded or 2*MAXSEGS have been examined.
+d1088 5
+a1092 4
+	avtp = &as.a_segtree;
+
+	for (i = j = k = 0; i < MAXSEGS && j < 2*MAXSEGS; j++) {
+	    if (j == 0 ? get_first_seg(avtp, &s) : get_next_seg(avtp, &s))
+a1093 1
+		
+d1102 2
+a1103 2
+		 * If its vnode pointer has not been seen already,
+		 * print its information.
+d1105 2
+a1106 2
+		    for (l = 0; l < k; l++) {
+			if (v[l] == (KA_T)vn.vp)
+d1109 2
+a1110 1
+		    if (l >= k) {
+d1118 1
+a1118 1
+			if (Lf->sf) {
+a1119 3
+			    i++;
+			}
+			v[k++] = (KA_T)vn.vp;
+d1139 1
+a1139 1
+	int i, j, k, l;
+d1158 2
+a1159 1
+ * when MAXSEGS have been recorded or 2*MAXSEGS have been examined.
+d1161 4
+a1164 2
+	s.s_next = as.a_segs;
+	for (i = j = k = 0; i < MAXSEGS && j < 2*MAXSEGS; j++) {
+d1176 2
+a1177 2
+		 * If its vnode pointer has not been seen already,
+		 * print its information.
+d1179 2
+a1180 2
+		    for (l = 0; l < k; l++) {
+			if (v[l] == (KA_T)vn.vp)
+d1183 2
+a1184 1
+		    if (l >= k) {
+d1192 1
+a1192 1
+			if (Lf->sf) {
+a1193 3
+			    i++;
+			}
+			v[k++] = (KA_T)vn.vp;
+a1276 1
+	size_t sz;
+d1296 1
+a1296 1
+			Pn, (KVMHASHBN * sizeof(kvmhash_t *)));
+d1392 1
+a1392 1
+			print_kptr(PrAct, (char *)NULL, 0));
+d1710 1
+a1710 1
+	    ||  (unsigned long)sb.st_ino != Lf->inode)
+a1749 1
+	ncache_t ncc;
+d1962 1
+a1962 1
+			    "%s: can't enlarge local name cache: %s\n", Pn);
+d2098 1
+a2098 1
+		&&  (unsigned long)mtp->inode == Lf->inode
+@
+
+
+1.30
+log
+@Revision 4.74
+@
+text
+@d35 1
+a35 1
+static char *rcsid = "$Id: dproc.c,v 1.29 2004/11/01 13:46:34 abe Exp abe $";
+d960 2
+a961 1
+	    (void) fprintf(stderr, "%s: kvm_open (namelist=%s, core=%s): %s\n",
+@
+
+
+1.29
+log
+@Revision 4.74
+/dev/allkmem correction
+@
+text
+@d35 1
+a35 1
+static char *rcsid = "$Id: dproc.c,v 1.28 2004/03/10 23:53:41 abe Exp abe $";
+d53 8
+d550 1
+a550 1
+		if (strncmp(cp, "sparcv9", strlen("sparcv9")) == 0) {
+@
+
+
+1.28
+log
+@Revision 4.71
+@
+text
+@d35 1
+a35 1
+static char *rcsid = "$Id: dproc.c,v 1.27 2003/10/13 13:30:04 abe Exp abe $";
+d235 1
+a235 1
+	}
+d237 9
+a246 2
+	else
+
+d251 1
+a251 2
+	    if (!HasALLKMEM)
+		readkam((KA_T)NULL);
+d254 1
+d256 1
+a256 7
+ * Read the linked-list process table.
+ *
+ * If the system doesn't have the ALLKMEM device, it is necessary to use the
+ * KVM library to read the process table.  Since kvm_open() acquires the head
+ * of the linked list, it is necssary to call close_kvm() first, so that the
+ * read_proc() function's open_kvm() call will cause kvm_open() to acquire a
+ * new active chain head address.
+a257 2
+	if (!HasALLKMEM)
+	    close_kvm();
+a1404 1
+		open_kvm();
+d1517 4
+d1524 1
+a1524 1
+	    if (!HasALLKMEM)
+d1526 2
+@
+
+
+1.27
+log
+@Revision 4.69
+Solaris 10 port
+@
+text
+@d35 1
+a35 1
+static char *rcsid = "$Id: dproc.c,v 1.26 2003/07/01 21:23:51 abe Exp abe $";
+d110 1
+a110 3
+static int Knp = PROCDFLT;		/* numer of proc structures known
+					 * to the kernel */
+static int Np;				/* number of P[], Pgid[], and Pid[]
+d112 4
+a116 1
+static KA_T Sgvops;			/* [_]segvn_ops address */
+d119 1
+d121 1
+d124 4
+d129 1
+d147 3
+d152 1
+d221 7
+d241 2
+a242 1
+	 * If not the first time, re-read the kernel's address space map.
+d244 2
+a245 1
+	    readkam((KA_T)NULL);
+d249 1
+a249 1
+ * Read the process table.
+d251 5
+a255 8
+ * The Solaris process table is a linked list whose head pointer is acquired
+ * by open_kvm()'s call to kvm_open().  For Solaris close_kvm() is called so
+ * the process table head pointer can be re-acquired by a call to open_kvm()
+ * immediately before the actual reading of the process table.
+ *
+ * Since the SunOS 4.1.x process table is sequential, there's no worry about
+ * a stale or incorrect list head pointer.  Thus no close_kvm() is needed.
+ * A kvm_setproc() call is sufficient.
+d257 2
+a258 1
+	close_kvm();
+d291 2
+d294 15
+d320 2
+d323 65
+d508 1
+d610 10
+d622 3
+a624 3
+ * If Solaris kernel memory is coming from KMEM, and the process is willing
+ * to surrender GID permission, set up for GID switching after the first
+ * call to open_kvm().
+d626 1
+a626 1
+	if (!Memory) {
+a648 7
+/*
+ * Get a proc structure count estimate.
+ */
+	if (get_Nl_value("nproc", Drive_Nl, &v) < 0 || !v
+	||  kread((KA_T)v, (char *)&Knp, sizeof(Knp))
+	||  Knp < 1)
+	    Knp = PROCDFLT;
+d671 8
+d682 2
+a683 2
+ * Get the kernel's virtual to physical map structure for Solaris 2.5.1 and
+ * above.
+d685 8
+a692 6
+	if (get_Nl_value("kasp", Drive_Nl, &v) >= 0 && v) {
+	    PageSz = getpagesize();
+	    PSMask = PageSz - 1;
+	    for (i = 1, PSShft = 0; i < PageSz; i <<= 1, PSShft++)
+		;
+	    (void) readkam(v);
+d696 10
+d709 1
+d711 75
+d839 1
+a839 2
+#if	solaris>=100000
+# if	solaris>=20501
+d842 2
+a843 1
+ * Do extra address checking for Solaris above 2.5 and below 10.
+d851 1
+a851 1
+	if (Kas) {
+d853 1
+a853 1
+#  if	solaris>20501
+d856 1
+a856 1
+#  endif	/* solaris>20501 */
+d863 1
+a863 1
+#  if	solaris<20600
+d867 1
+a867 1
+#  else	/* solaris>=20600 */
+d871 1
+a871 1
+#  endif	/* solaris<20600 */
+d896 1
+a896 1
+#  if	solaris<20600
+d900 1
+a900 1
+#  else	/* solaris>=20600 */
+d906 1
+a906 1
+#   if	solaris<70000
+d911 1
+a911 1
+#   else	/* solaris>=70000 */
+d914 2
+a915 2
+#   endif	/* solaris<70000 */
+#  endif	/* solaris<20600 */
+d919 1
+a919 1
+#  if	solaris>=20600
+d921 1
+a921 1
+#  endif	/* solaris>=20600 */
+d924 1
+a924 2
+# endif	/* solaris>=20501 */
+#endif	/* solaris<100000 */
+d1327 1
+a1328 2
+	static int sz = 0;
+	int try;
+d1330 1
+d1338 1
+a1338 1
+	 * Pre-allocate proc structure space.
+d1340 19
+a1358 4
+	    if (sz == 0) {
+		sz = Knp + PROCDFLT/4;
+		len = (sz * sizeof(struct proc));
+		if (!(P = (struct proc *)malloc(len))) {
+d1362 4
+a1365 4
+	/*
+	 * Pre-allocate space for Solaris PGID and PID numbers.
+	 */
+		len = (MALLOC_S)(sz * sizeof(int));
+d1367 5
+a1371 1
+		    if (!(Pgid = (int *)malloc(len))) {
+d1376 5
+a1380 1
+		if (!(Pid = (int *)malloc(len))) {
+d1384 1
+d1386 26
+a1411 8
+	/*
+	 * Prepare for a proc table scan.
+	 */
+	    open_kvm();
+	    if (kvm_setproc(Kd) != 0) {
+		(void) fprintf(stderr, "%s: kvm_setproc: %s\n", Pn,
+		    strerror(errno));
+		Exit(1);
+d1417 64
+a1480 1
+	    while ((p = kvm_nextproc(Kd))) {
+a1502 29
+		if (Np >= sz) {
+
+		/*
+		 * Expand the local proc table.
+		 */
+		    sz += PROCDFLT/2;
+		    len = (MALLOC_S)(sz * sizeof(struct proc));
+		    if (!(P = (struct proc *)realloc((MALLOC_P *)P, len))) {
+			(void) fprintf(stderr,
+			    "%s: no more (%d) proc space\n", Pn, sz);
+			Exit(1);
+		    }
+		/*
+		 * Expand the Solaris PGID and PID tables.
+		 */
+		    len = (MALLOC_S)(sz * sizeof(int));
+		    if (Fpgid) {
+			if (!(Pgid = (int *)realloc((MALLOC_P *)Pgid, len))) {
+			    (void) fprintf(stderr,
+				"%s: no more (%d) PGID space\n", Pn, sz);
+			    Exit(1);
+			}
+		    }
+		    if (!(Pid = (int *)realloc((MALLOC_P *)Pid, len))) {
+			(void) fprintf(stderr,
+			    "%s: no more (%d) PID space\n", Pn, sz);
+			Exit(1);
+		    }
+		}
+d1504 1
+a1504 2
+	     * Save the Solaris PGID and PID numbers in
+	     * local tables.
+d1510 2
+a1511 1
+	     * Save the proc structure in a local table.
+d1513 3
+a1515 1
+		P[Np++] = *p;
+d1522 2
+a1523 1
+	    close_kvm();
+d1532 1
+a1532 1
+	if (Np < sz && !RptTm) {
+d1561 1
+@
+
+
+1.26
+log
+@Correct spelling error in comment.
+@
+text
+@d35 1
+a35 1
+static char *rcsid = "$Id: dproc.c,v 1.25 2002/10/08 20:17:30 abe Exp abe $";
+d44 3
+d48 1
+d418 3
+a420 1
+ * Compare the Solaris 7 lsof compilation bit size with the kernel bit size.
+d636 2
+a637 1
+#if	solaris>=20501
+d640 2
+d650 1
+a650 1
+# if	solaris>20501
+d653 1
+a653 1
+# endif	/* solaris>20501 */
+d660 1
+a660 1
+# if	solaris<20600
+d664 1
+a664 1
+# else	/* solaris>=20600 */
+d668 1
+a668 1
+# endif	/* solaris<20600 */
+d693 1
+a693 1
+# if	solaris<20600
+d697 1
+a697 1
+# else	/* solaris>=20600 */
+d703 1
+a703 1
+#  if	solaris<70000
+d708 1
+a708 1
+#  else	/* solaris>=70000 */
+d711 2
+a712 2
+#  endif	/* solaris<70000 */
+# endif	/* solaris<20600 */
+d716 1
+a716 1
+# if	solaris>=20600
+d718 1
+a718 1
+# endif	/* solaris>=20600 */
+d721 2
+a722 1
+#endif	/* solaris>=20501 */
+@
+
+
+1.25
+log
+@Revision 4.65
+@
+text
+@d2 1
+a2 1
+ * dproc.c - Solaris lsof functions for accessing process infomation
+d35 1
+a35 1
+static char *rcsid = "$Id: dproc.c,v 1.24 2002/06/17 01:42:31 abe Exp abe $";
+@
+
+
+1.24
+log
+@Revision 4.64
+@
+text
+@d35 1
+a35 1
+static char *rcsid = "$Id: dproc.c,v 1.23 2001/07/05 12:26:57 abe Exp abe $";
+d740 1
+a740 1
+	if (!(Kd = kvm_open(Nmlst, Memory, NULL, O_RDONLY, NULL))) {
+@
+
+
+1.23
+log
+@Revision 4.57
+@
+text
+@d35 1
+a35 1
+static char *rcsid = "$Id: dproc.c,v 1.22 2001/03/19 12:21:51 abe Exp abe $";
+d281 4
+d1293 551
+@
+
+
+1.22
+log
+@Correct error message arguments.
+@
+text
+@d35 1
+a35 1
+static char *rcsid = "$Id: dproc.c,v 1.21 2001/02/13 14:19:10 abe Exp abe $";
+d733 1
+a733 9
+	if (Switchgid == 2 && !Setgid) {
+	    if (setgid(Savedgid) != 0) {
+		(void) fprintf(stderr,
+		    "%s: can't set effective GID to %d: %s\n",
+		    Pn, (int)Savedgid, strerror(errno));
+		Exit(1);
+	    }
+	    Setgid = 1;
+	}
+d1268 21
+@
+
+
+1.21
+log
+@Revision 4.55
+@
+text
+@d35 1
+a35 1
+static char *rcsid = "$Id: dproc.c,v 1.20 2000/12/04 14:35:13 abe Exp abe $";
+d1090 1
+a1090 1
+			(KVMHASHBN * sizeof(kvmhash_t *)), Pn);
+@
+
+
+1.20
+log
+@Revision 4.53
+@
+text
+@d35 1
+a35 1
+static char *rcsid = "$Id: dproc.c,v 1.19 2000/11/03 18:35:16 abe Exp abe $";
+d108 1
+a108 1
+static int Np;				/* number of P[], Pgrp[], and Pid[]
+d112 1
+a113 1
+static int *Pgrp = NULL;		/* process group IDs for P[] entries */
+d175 1
+a175 1
+	int pgrp, pid, px;
+d246 2
+a247 2
+	    if (Fpgrp)
+		pgrp = Pgrp[px];
+d249 1
+a249 1
+		pgrp = 0;
+d266 1
+a266 1
+	    if  (is_proc_excl(pid, pgrp, (UID_ARG)uid, &pss, &sf))
+d277 1
+a277 1
+	    alloc_lproc(pid, pgrp, (int)p->p_ppid, (UID_ARG)uid, u->u_comm,
+d1140 1
+a1140 1
+	 * Pre-allocate space for Solaris PGRP and PID numbers.
+d1143 3
+a1145 3
+		if (Fpgrp) {
+		    if (!(Pgrp = (int *)malloc(len))) {
+			(void) fprintf(stderr, "%s: no PGRP table space\n", Pn);
+d1180 1
+a1180 1
+		 * Read Solaris PGRP and PID numbers.
+d1182 1
+a1182 1
+		if (Fpgrp) {
+d1203 1
+a1203 1
+		 * Expand the Solaris PGRP and PID tables.
+d1206 2
+a1207 2
+		    if (Fpgrp) {
+			if (!(Pgrp = (int *)realloc((MALLOC_P *)Pgrp, len))) {
+d1209 1
+a1209 1
+				"%s: no more (%d) PGRP space\n", Pn, sz);
+d1220 1
+a1220 1
+	     * Save the Solaris PGRP and PID numbers in
+d1223 2
+a1224 2
+		if (Fpgrp)
+		    Pgrp[Np] = (int)pg.pid_id;
+d1258 1
+a1258 1
+	 * Reduce the Solaris PGRP and PID tables to their minimum if
+d1262 2
+a1263 2
+	    if (Fpgrp) {
+		if (!(Pgrp = (int *)realloc((MALLOC_P *)Pgrp, len))) {
+d1265 1
+a1265 1
+			"%s: can't reduce PGRP table to %d\n", Pn, Np);
+@
+
+
+1.19
+log
+@Revision 4.52
+@
+text
+@d2 1
+a2 1
+ * dproc.c - SunOS (Solaris 1.x and 2.x)  process access functions for lsof
+d35 1
+a35 1
+static char *rcsid = "$Id: dproc.c,v 1.18 2000/08/01 15:17:31 abe Exp abe $";
+d40 1
+a40 1
+#if	defined(solaris) && solaris<20500
+d42 1
+a42 1
+#endif	/* defined(solaris) && solaris<20500 */
+d49 1
+a49 1
+#if	defined(solaris) && solaris>=20501
+d66 1
+a66 1
+#endif	/* defined(solaris) && solaris>=20501 */
+d73 1
+a73 1
+#if	defined(solaris) && solaris>=20501
+d79 1
+a79 1
+#endif	/* defined(solaris) && solaris>=20501 */
+d86 1
+a86 1
+#if	defined(solaris) && solaris>=20501
+d99 2
+a100 2
+#endif	/* solaris<70000 */
+#endif	/* defined(solaris) && solaris>=20501 */
+d102 1
+a102 1
+#if	defined(solaris) && solaris>=20500
+d104 1
+a104 1
+#endif	/* defined(solaris) && solaris>=20500 */
+a111 2
+
+#if	defined(solaris)
+a115 1
+#endif	/* defined(solaris) */
+a124 2
+
+#if	defined(solaris)
+d127 1
+a127 1
+# if	solaris>=20501
+d129 1
+a129 1
+# endif	/* solaris>=20501 */
+d133 1
+a133 2
+# endif	/* solaris>=20501 && solaris<70000 */
+#endif	/* defined(solaris) */
+d154 1
+a154 1
+#if	defined(solaris) && solaris>=20501 && solaris<70000
+d159 1
+a159 1
+#endif	/* defined(solaris) && solaris>=20501 && solaris<70000 */
+d181 1
+a181 2
+#if	defined(solaris)
+# if	solaris>=20400
+d184 1
+a184 1
+#  if	!defined(NFPCHUNK)
+d190 1
+a190 1
+#  else	/* defined(NFPCHUNK) */
+d192 1
+a192 1
+#  endif	/* !defined(NFPCHUNK) */
+d194 2
+a195 2
+# endif	/* solaris>=20400 */
+# if	solaris>=20500
+d197 1
+a197 8
+# endif	/* solaris>=20500 */
+#else	/* !solaris */
+	struct ucwd cd;
+	int dl, nf;
+	struct file **uf;
+	static int xnf = 0;
+	struct file **xuf = (struct file **)NULL;
+#endif	/* solaris */
+d214 1
+a214 1
+#if	defined(solaris) && solaris>=20501
+d221 1
+a221 1
+#endif	/* defined(solaris) && solaris>=20501 */
+a234 2
+
+#if	defined(solaris)
+a235 2
+#endif	/* defined(solaris) */
+
+a245 1
+#if	defined(solaris)
+d251 2
+a252 1
+# if solaris<20500
+d254 1
+a254 1
+# else	/* solaris >=20500 */
+d261 1
+a261 6
+# endif	/* solaris<20500 */
+#else	/* !defined(solaris) */
+	    pgrp = (int)p->p_pgrp;
+	    pid = p->p_pid;
+	    uid = p->p_suid ? p->p_suid : p->p_uid;
+#endif	/* defined(solaris) */
+a270 2
+
+#if	defined(solaris)
+a271 5
+#else	/* !defined(solaris) */
+	    if (!(u = kvm_getu(Kd, p)))
+		continue;
+#endif	/* defined(solaris) */
+
+a279 2
+
+#if	!defined(solaris)
+a280 30
+	 * Read the SunOS current working directory and root directory
+	 * paths.
+	 */
+	    *Cwd = *Rtd = '\0';
+	    if (u->u_cwd && !kread((KA_T)u->u_cwd, (char *)&cd, sizeof(cd))) {
+		if (cd.cw_dir) {
+		    dl = (int)((char *)u->u_cwd + cd.cw_len - cd.cw_dir);
+		    if (dl >= Namechl)
+			dl = Namechl - 1;
+		    if (dl < 2 || kread((KA_T)cd.cw_dir, Cwd, dl))
+			*Cwd = '\0';
+		    else
+			Cwd[dl] = '\0';
+		}
+		if (cd.cw_root) {
+		    if (cd.cw_dir >= cd.cw_root)
+			dl = (int)(cd.cw_dir - cd.cw_root);
+		    else
+			dl = (int)((char *)u->u_cwd + cd.cw_len - cd.cw_root);
+			if (dl >= Namechl)
+			    dl = Namechl - 1;
+			if (dl < 2 || kread((KA_T)cd.cw_root, Rtd, dl))
+			    *Rtd = '\0';
+			else
+			    Rtd[dl] = '\0';
+		}
+	    }
+#endif	/* ! solaris */
+
+	/*
+d321 1
+a321 4
+	 */
+
+#if	defined(solaris)
+	/*
+d329 2
+a330 1
+# if	solaris<20400
+d341 1
+a341 1
+# else	/* solaris>=20400 */
+d356 1
+a356 2
+# endif	/* solaris<20400 */
+#else	/* !solaris */
+a357 60
+	/*
+	 * Under SunOS 4.1.[123], the file pointers may be located in the
+	 * user structure or in a separately allocated area.  Determine
+	 * which is the case and read the pointers.
+	 */
+	    if ((KA_T)u->u_ofile
+		== ((KA_T)&u->u_ofile_arr[0] - (KA_T)&u
+		+ (KA_T)p->p_uarea))
+	    {
+		nf = NOFILE_IN_U;
+		pofp = &u->u_pofile_arr[0];
+		uf = &u->u_ofile_arr[0];
+	    } else {
+		nf = u->u_lastfile + 1;
+		bc = (MALLOC_S)(nf * sizeof(struct file *));
+		if (bc >xnf) {
+		    if (!xuf)
+			xuf = (struct file **)malloc(bc);
+		    else
+			xuf = (struct file **)realloc((MALLOC_P *)xuf, bc);
+		    if (!xuf) {
+			(void) fprintf(stderr,
+			    "%s: PID %d: no file * space\n", Pn, Lp->pid);
+			Exit(1);
+		    }
+		    xnf = bc;
+		}
+		if (kread((KA_T)u->u_ofile, (char *)xuf, (int)bc))
+		    nf = 0;
+		uf = xuf;
+
+# if	defined(HASFSTRUCT)
+		if (Fsv & FSV_FG) {
+		    bc = (MALLOC_S)nf;
+		    if (bc > npofb) {
+			if (!pofb)
+			    pofb = (char *)malloc(bc);
+			else
+			    pofb = (char *)realloc((MALLOC_P *)pofb, bc);
+			if (!pofb) {
+			    (void) fprintf(stderr,
+				"%s: PID %d: no pofile space\n", Pn, Lp->pid);
+			    Exit(1);
+			}
+			npofb = bc;
+		    }
+		    if (!u->u_pofile
+		    ||  kread((KA_T)u->u_pofile, pofb, bc))
+			zeromem(pofb, bc);
+		    pofp = pofb;
+		} else
+		    pofp = (char *)NULL;
+# endif	/* defined(HASFSTRUCT) */
+
+	    }
+	    *Cwd = *Rtd = '\0';
+	    for (i = 0; i < nf; i++) {
+		if (!uf[i])
+#endif	/* solaris */
+
+d361 1
+a361 2
+#if	defined(solaris)
+# if	solaris<20400
+d364 1
+a364 1
+# else	/* solaris>=20400 */
+d367 1
+a367 5
+# endif	/* solaris <20400 */
+#else	/* !solaris */
+		pofv = pofp ? pofp[i] : 0l;
+		process_file((KA_T)uf[i]);
+#endif	/* solaris */
+d406 1
+a406 1
+	(void) ckkv(
+d408 1
+a408 9
+#if	defined(solaris)
+		    "Solaris", LSOF_VSTR, (char *)NULL, (char *)NULL
+#else	/* !defined(solaris) */
+		    "SunOS", LSOF_VSTR, (char *)NULL, LSOF_ARCH
+#endif	/* defined(solaris) */
+
+	);
+
+#if	defined(solaris) && solaris>=70000
+d447 1
+a447 1
+#endif	/* defined(solaris) && solaris>=70000 */
+a468 2
+
+# if	defined(solaris)
+a469 4
+# else	/* !defined(solaris) */
+	    (void) memcpy((char *)nl, (char *)Nl, (int)Nll);
+# endif	/* defined(solaris) */
+
+a496 2
+
+# if	defined(solaris)
+a506 2
+# endif	/* defined(solaris) */
+
+d533 1
+a533 2
+#if	defined(solaris)
+# if	solaris>=20500
+d545 1
+a545 1
+# endif	/* solaris>=20500 */
+a553 1
+#endif	/* defined(solaris) */
+d555 1
+a555 1
+#if	defined(solaris) && solaris>=20501
+d567 1
+a567 1
+#endif	/* defined(solaris) && solaris>=20501 */
+a579 2
+
+#if	defined(solaris)
+d587 1
+a587 1
+# if	defined(HASDCACHE)
+d589 1
+a589 1
+# else	/* !defined(HASDCACHE) */
+d591 1
+a591 16
+# endif	/*defined(HASDCACHE) */
+#else	/* !defined(solaris) */
+/*
+ * Create current working and root directory buffers.
+ */
+	if ((Cwd = (char *)malloc(MAXPATHLEN)) == NULL) {
+	    (void) fprintf(stderr, "%s: no space for cwd buffer\n", Pn);
+	    Exit(1);
+	}
+	if ((Rtd = (char *)malloc(MAXPATHLEN)) == NULL) {
+	    (void) fprintf(stderr, "%s: no space for root directory buffer\n",
+		Pn);
+	    Exit(1);
+	}
+	*Cwd = *Rtd = '\0';
+#endif	/* solaris */
+d616 1
+a616 1
+#if	defined(solaris) && solaris>=20500
+d619 2
+a620 2
+#else	/* !defined(solaris) || solaris<20500 */
+#define	KVMREAD	kvm_read
+d622 1
+a622 1
+#endif	/* defined(solaris) && solaris>=20500 */
+d626 1
+a626 1
+#if	defined(solaris) && solaris>=20501
+d708 1
+a708 1
+#endif	/* defined(solaris) && solaris>=20501 */
+d728 1
+a728 1
+#if	defined(solaris) && defined(WILLDROPGID)
+d742 1
+a742 1
+#endif	/* defined(solaris) && defined(WILLDROPGID) */
+d753 1
+a753 1
+#if	defined(solaris) && solaris>=20501 && solaris<70000
+d759 1
+a759 1
+#endif	/* defined(solaris) && solaris>=20501 && solaris<70000 */
+a766 2
+
+# if	defined(solaris)
+a772 1
+# endif	/* defined(solaris) */
+d782 1
+a782 1
+#if	defined(solaris) && solaris>=90000
+d920 1
+a920 1
+#else	/* !defined(solaris) || solaris<90000 */
+d922 1
+a922 1
+# if	defined(solaris) && solaris>=20400
+d924 1
+a924 1
+# else	/* !defined(solaris) || solaris<20400 */
+d926 1
+a926 1
+# endif	/* defined(solaris) && solaris>=20400 */
+d996 1
+a996 1
+# if	!defined(solaris) || solaris<20400
+d1000 1
+a1000 1
+# endif	/* !defined(solaris) && solaris<20400 */
+d1005 1
+a1005 1
+#endif  /* defined(solaris) && solaris>=90000 */
+a1007 1
+#if	defined(solaris)
+d1058 1
+a1058 1
+# if	solaris>=20501
+d1076 1
+a1076 1
+# if	solaris<70000
+d1079 1
+a1079 1
+# else	/* solaris>=70000 */
+d1081 1
+a1081 1
+# endif	/* solaris<70000 */
+d1107 1
+a1107 2
+# endif	/* solaris>=20501 */
+#endif	/* solaris */
+a1122 2
+
+#if	defined(solaris)
+a1123 2
+#endif	/* defined(solaris) */
+
+a1138 2
+
+#if	defined(solaris)
+a1152 2
+#endif	/* defined(solaris) */
+
+d1171 1
+a1171 2
+#if	defined(solaris)
+# if	solaris >=20500
+d1177 1
+a1177 1
+# endif	/* solaris >=20500 */
+a1189 2
+#endif	/* defined(solaris) */
+
+a1201 2
+
+#if	defined(solaris)
+a1217 2
+#endif	/* defined(solaris) */
+
+a1218 2
+
+#if	defined(solaris)
+a1225 2
+#endif	/* defined(solaris) */
+
+a1235 2
+
+#if	defined(solaris)
+a1236 2
+#endif	/* defined(solaris) */
+
+a1256 2
+
+#if	defined(solaris)
+a1273 2
+#endif	/* defined(solaris) */
+
+@
+
+
+1.18
+log
+@Revision 4.51
+Convert to snpf().
+@
+text
+@d35 1
+a35 1
+static char *rcsid = "$Id: dproc.c,v 1.17 2000/05/31 13:11:44 abe Exp abe $";
+a124 1
+_PROTOTYPE(static void close_kvm,(void));
+a125 1
+_PROTOTYPE(static void open_kvm,(void));
+d147 1
+a147 1
+static void
+d238 10
+a247 1
+ * Read kernel name cache and process table.
+d250 1
+a250 6
+#if	defined(HASNCACHE)
+# if	defined(solaris)
+	open_kvm();
+# endif	/* defined(solaris) */
+	ncache_load();
+# if	defined(solaris)
+d252 1
+a252 2
+# endif	/* defined(solaris) */
+#endif	/* defined(HASNCACHE) */
+a718 14
+#if	defined(solaris)
+/*
+ * The Solaris process table is a linked list whose head pointer is acquired
+ * by open_kvm()'s call to kvm_open().  We call close_kvm() here so that the
+ * process table head pointer can be re-acquired by a call to open_kvm()
+ * immediately before the actual reading of the process table.
+ *
+ * Since the SunOS 4.1.x process table is sequential, we need not worry
+ * about a stale or incorrect list head pointer.  Thus we don't have to call
+ * close_kvm().  Instead, we call kvm_setproc() each time we read it.
+ */
+	close_kvm();
+#endif	/* defined(solaris) */
+
+d889 1
+a889 1
+static void
+d952 141
+a1092 1
+#if	defined(solaris) && solaris>=20400
+d1094 1
+a1094 1
+#else	/* !defined(solaris) || solaris<20400 */
+d1096 1
+a1096 1
+#endif	/* defined(solaris) && solaris>=20400 */
+d1147 1
+a1147 1
+#if	defined(FILEPTR)
+d1149 1
+a1149 1
+#endif	/* defined(FILEPTR) */
+d1166 1
+a1166 1
+#if	!defined(solaris) || solaris<20400
+d1168 1
+a1168 1
+#else	/* solaris>=20400 */
+d1170 1
+a1170 1
+#endif	/* !defined(solaris) && solaris<20400 */
+d1175 1
+@
+
+
+1.17
+log
+@Revision 4.50
+Add additional kernel address filtering.  Add support for
+post Solaris 8 negative vnode caching in the DNLC.
+@
+text
+@d35 1
+a35 1
+static char *rcsid = "$Id: dproc.c,v 1.16 1999/10/22 08:23:48 abe Exp abe $";
+d319 2
+a320 2
+		    if (dl >= MAXPATHLEN)
+			dl = MAXPATHLEN - 1;
+d331 2
+a332 2
+			if (dl >= MAXPATHLEN)
+			    dl = MAXPATHLEN - 1;
+d690 1
+a690 1
+		Pn, print_kptr(v, (char *)NULL));
+d985 2
+a986 2
+	    (void) sprintf(Namech, "can't read text segment list (%s)",
+		print_kptr(pa, (char *)NULL));
+d1059 1
+a1059 1
+	int i;
+d1084 2
+a1085 1
+	    if (!(Fsinfo[i-1] = (char *)malloc((MALLOC_S)(strlen(buf) + 1)))) {
+d1090 1
+a1090 1
+	    (void) strcpy(Fsinfo[i-1], buf);
+@
+
+
+1.16
+log
+@Revision 4.46
+@
+text
+@d35 1
+a35 1
+static char *rcsid = "$Id: dproc.c,v 1.15 99/07/19 14:04:21 abe Exp Locker: abe $";
+d49 53
+d103 1
+a103 1
+KA_T Kb = (KA_T)NULL;			/* KERNELBASE for Solaris 2.5 */
+d121 4
+d133 8
+d154 6
+a159 3
+	if (kvm_close(Kd) != 0) {
+	    (void) fprintf(stderr, "%s: kvm_close failed\n", Pn);
+	    Exit(1);
+d161 8
+a168 1
+	Kd = (kvm_t *)NULL;
+d180 1
+a180 1
+	int ft = 1;
+d229 10
+d525 1
+a525 1
+	int l;
+d693 1
+a693 1
+# endif	/* solaris >=20500 */
+d702 3
+d706 14
+d786 1
+a786 1
+	int br;
+d804 89
+a892 1
+		return(1);
+d894 1
+a894 1
+	return((br == len) ? 0 : 1);
+d933 8
+d1098 52
+@
+
+
+1.15
+log
+@Revision 4.45
+Pick some lint.
+@
+text
+@d35 1
+a35 1
+static char *rcsid = "$Id: dproc.c,v 1.14 99/06/22 08:09:31 abe Exp Locker: abe $";
+d117 11
+a127 1
+	uf_entry_t uf[NFPCHUNK];
+d302 1
+a302 1
+	 * ufchunk structures, each containing NFPCHUNK file pointers.  The
+d320 2
+a321 2
+	    for (i = 0, j = NFPCHUNK; i < u->u_nofiles; i++) {
+		if (++j > NFPCHUNK) {
+d323 2
+a324 2
+		    if (k > NFPCHUNK)
+			k = NFPCHUNK;
+@
+
+
+1.14
+log
+@Revision 4.44
+@
+text
+@d35 1
+a35 1
+static char *rcsid = "$Id: dproc.c,v 1.13 99/05/17 13:20:01 abe Exp Locker: abe $";
+d452 1
+a452 1
+ * Compare the lsof compilation bit size with the kernel bit size.
+d459 3
+a461 3
+#  if	defined(_LP64)
+	    int xkbits = 64;
+#  else	/* !defined(_LP64) */
+d463 1
+a463 1
+#  endif	/* defined(_LP64) */
+d482 1
+a482 1
+		    Pn, xkbits);
+d485 1
+a485 1
+		    kbits);
+@
+
+
+1.13
+log
+@Revision 4.44
+Handle pofile access better.
+@
+text
+@d35 1
+a35 1
+static char *rcsid = "$Id: dproc.c,v 1.12 99/05/09 14:56:55 abe Exp Locker: abe $";
+d770 1
+a770 5
+	union segdata {
+	    struct segvn_data vn;
+	    struct segdev_data dev;
+	    struct segmap_data map;
+	} sd;
+d795 1
+a795 1
+		if (kread((KA_T)s.s_data, (char *)&sd, sizeof(sd)))
+d797 1
+a797 1
+		if (sd.vn.vp) {
+d806 1
+a806 1
+			if (v[l] == (KA_T)sd.vn.vp)
+d816 1
+a816 1
+			process_node((KA_T)sd.vn.vp);
+d821 1
+a821 1
+			v[k++] = (KA_T)sd.vn.vp;
+@
+
+
+1.12
+log
+@Revision 4.43
+@
+text
+@d35 1
+a35 1
+static char *rcsid = "$Id: dproc.c,v 1.11 98/11/23 07:40:41 abe Exp Locker: abe $";
+a130 3
+# if	defined(solaris)
+	long pof;
+# else	/* !defined(solaris) */
+d132 1
+a132 1
+	char *pof;
+a133 1
+# endif	/* defined(solaris) */
+d337 1
+a337 1
+		pof = &u->u_pofile_arr[0];
+d376 3
+a378 2
+		    pof = pofb;
+		}
+d399 1
+a399 1
+		pofv = pof[i];
+@
+
+
+1.11
+log
+@Revision 4.38
+@
+text
+@d35 1
+a35 1
+static char *rcsid = "$Id: dproc.c,v 1.10 98/08/18 08:07:56 abe Exp Locker: abe $";
+d104 1
+d109 1
+a125 1
+	unsigned ui;
+d130 10
+d341 1
+d345 9
+a353 6
+		ui = nf * sizeof(struct file *);
+		if (!xuf) {
+		    xnf = nf;
+		    if (!(xuf = (struct file **)malloc(ui))) {
+			(void) fprintf(stderr, "%s: PID %d, malloc file[]\n",
+			    Pn, Lp->pid);
+d356 1
+a356 7
+		} else if (nf > xnf) {
+		    xnf = nf;
+		    if (!(xuf = (struct file **)realloc((MALLOC_P *)xuf, ui))) {
+			(void) fprintf(stderr, "%s: PID %d, realloc file[]\n",
+			     Pn, Lp->pid);
+			Exit(1);
+		    }
+d358 1
+a358 1
+		if (kread((KA_T)u->u_ofile, (char *)xuf, (int)ui))
+d361 23
+d389 1
+d395 1
+d398 1
+d402 1
+d406 7
+a412 1
+		if (Lf->sf)
+d414 1
+@
+
+
+1.10
+log
+@Revision 4.37
+@
+text
+@d35 1
+a35 1
+static char *rcsid = "$Id: dproc.c,v 1.9 98/06/25 07:03:32 abe Exp Locker: abe $";
+d410 1
+a410 1
+#if	defined(solaris) && solaris>=20700
+d449 1
+a449 1
+#endif	/* defined(solaris) && solaris>=20700 */
+@
+
+
+1.9
+log
+@Revision 4.34
+Check version and architecture (SunOS only).
+@
+text
+@d35 1
+a35 1
+static char *rcsid = "$Id: dproc.c,v 1.8 98/06/22 14:47:35 abe Exp Locker: abe $";
+d175 1
+a175 1
+	    uid = pc.cr_ruid;
+d180 1
+a180 1
+	    uid = p->p_uid;
+@
+
+
+1.8
+log
+@Revision 4.34
+Check build version against run version.
+@
+text
+@d35 1
+a35 1
+static char *rcsid = "$Id: dproc.c,v 1.7 98/04/21 10:04:30 abe Exp Locker: abe $";
+d389 2
+a396 1
+#if	defined(solaris)
+d398 1
+a398 2
+ * Get the Solaris version number; compare it to the version for which
+ * this binary was built; quit if the two don't match.
+d400 1
+a400 4
+	{
+	    char cv[64];
+	    int l;
+	    struct utsname u;
+d402 4
+a405 19
+	    (void)sprintf(cv, "%d.%d", (solaris / 10000) + 3, 
+		(solaris % 1000) / 100);
+	    if (solaris % 100) {
+		if ((l = strlen(cv)) < 32)
+		    (void) sprintf(&cv[l], ".%d", solaris % 100);
+	    }
+	    if (uname(&u) < 0) {
+		(void) fprintf(stderr, "%s: uname: %s\n", Pn, strerror(errno));
+		Exit(1);
+	    }
+	    if (strcmp(cv, u.release)) {
+		(void) fprintf(stderr,
+		    "%s: FATAL: this binary was compiled for release %s;\n",
+			Pn, cv);
+		(void) fprintf(stderr,
+		    "             it won't work on release %s.\n", u.release);
+		Exit(1);
+	    }
+	}
+d407 2
+@
+
+
+1.7
+log
+@Revision 4.31
+Add Solaris 2.7 support.
+@
+text
+@d35 1
+a35 1
+static char *rcsid = "$Id: dproc.c,v 1.6 98/04/03 13:23:44 abe Exp Locker: abe $";
+d394 31
+@
+
+
+1.6
+log
+@Revision 4.29
+Support AFS under Solaris 2.5.1 and 2.6.
+@
+text
+@d35 1
+a35 1
+static char *rcsid = "$Id: dproc.c,v 1.5 98/03/26 07:49:24 abe Exp Locker: abe $";
+d50 1
+a50 1
+KA_T Kb = 0l;				/* KERNELBASE for Solaris 2.5 */
+d173 1
+a173 2
+	    if (!p->p_cred
+	    ||  kread((KA_T)p->p_cred, (char *)&pc, sizeof(pc)))
+d395 1
+d397 40
+d623 1
+a623 1
+ * invalid pointers.  If the invalid pointers are fed to kvm_read(),
+d630 1
+d633 1
+d638 1
+a638 1
+	br = kvm_read(Kd, (u_long)addr, buf, len);
+d912 8
+@
+
+
+1.5
+log
+@Revision 4.29
+Make AFS support changes.
+@
+text
+@d35 1
+a35 1
+static char *rcsid = "$Id: dproc.c,v 1.4 98/03/06 08:38:36 abe Exp Locker: abe $";
+d392 1
+a392 1
+#if	defined(HAS_AFS) && (!defined(solaris) || solaris<20500)
+d394 1
+a394 1
+#endif	/* defined(HAS_AFS) && (!defined(solaris) || solaris<20500) */
+d403 1
+a403 1
+#if	defined(HAS_AFS) && (!defined(solaris) || solaris<20500)
+d424 1
+a424 1
+#endif	/* defined(HAS_AFS) && (!defined(solaris) || solaris<20500) */
+d432 1
+a432 1
+#if	defined(HAS_AFS) && (!defined(solaris) || solaris<20500)
+d447 1
+a447 1
+#endif	/* defined(HAS_AFS) && (!defined(solaris) || solaris<20500) */
+@
+
+
+1.4
+log
+@Revision 4.27
+@
+text
+@d35 1
+a35 1
+static char *rcsid = "$Id: dproc.c,v 1.3 97/10/24 07:56:16 abe Exp Locker: abe $";
+d392 1
+a392 1
+#if	defined(HAS_AFS)
+d394 1
+a394 1
+#endif	/* defined(HAS_AFS) */
+d403 1
+a403 1
+#if	defined(HAS_AFS)
+d424 1
+a424 1
+#endif	/* defined(HAS_AFS) */
+d432 1
+a432 1
+#if	defined(HAS_AFS)
+d447 1
+a447 1
+#endif	/* defined(HAS_AFS) */
+@
+
+
+1.3
+log
+@Revision 4.18
+@
+text
+@d35 1
+a35 1
+static char *rcsid = "$Id: dproc.c,v 1.2 97/04/15 10:48:06 abe Exp Locker: abe $";
+d50 1
+a50 1
+u_long Kb = 0l;				/* KERNELBASE for Solaris 2.5 */
+d58 1
+a58 1
+static unsigned long Sgvops;		/* [_]segvn_ops address */
+d71 1
+a71 1
+_PROTOTYPE(static void process_text,(struct as *pa));
+d87 2
+a88 2
+	if (Kd == NULL)
+		return;
+d90 2
+a91 2
+		(void) fprintf(stderr, "%s: kvm_close failed\n", Pn);
+		Exit(1);
+d93 1
+a93 1
+	Kd = NULL;
+d126 1
+a126 1
+	static struct file **xuf = NULL;
+d134 1
+a134 1
+		Sgvops = (unsigned long)0;
+d162 5
+a166 5
+		if (Fpgrp)
+			pgrp = Pgrp[px];
+		else
+			pgrp = 0;
+		pid = Pid[px];
+d168 1
+a168 1
+		uid = p->p_uid;
+d173 4
+a176 4
+		if ( ! p->p_cred
+		||  kread((KA_T)p->p_cred, (char *)&pc, sizeof(pc)))
+			continue;
+		uid = pc.cr_ruid;
+d179 3
+a181 3
+		pgrp = (int)p->p_pgrp;
+		pid = p->p_pid;
+		uid = p->p_uid;
+d187 2
+a188 2
+		if  (is_proc_excl(pid, pgrp, (UID_ARG)uid, &pss, &sf))
+			continue;
+d194 1
+a194 1
+		u = &p->p_user;
+d196 2
+a197 2
+		if ((u = kvm_getu(Kd, p)) == NULL)
+			continue;
+d203 5
+a207 5
+		if (is_cmd_excl(u->u_comm, &pss, &sf))
+			continue;
+		alloc_lproc(pid, pgrp, (int)p->p_ppid, (UID_ARG)uid, u->u_comm,
+			(int)pss, (int)sf);
+		Plf = NULL;
+d214 10
+a223 26
+		*Cwd = *Rtd = '\0';
+		if (u->u_cwd && kread((KA_T)u->u_cwd, (char *)&cd, sizeof(cd))
+		== 0) {
+			if (cd.cw_dir) {
+				dl = (int)((char *)u->u_cwd + cd.cw_len
+				   - cd.cw_dir);
+				if (dl >= MAXPATHLEN)
+					dl = MAXPATHLEN - 1;
+				if (dl < 2 || kread((KA_T)cd.cw_dir, Cwd, dl))
+					*Cwd = '\0';
+				else
+					Cwd[dl] = '\0';
+			}
+			if (cd.cw_root) {
+				if (cd.cw_dir >= cd.cw_root)
+					dl = (int)(cd.cw_dir - cd.cw_root);
+				else
+					dl = (int)((char *)u->u_cwd + cd.cw_len
+					   - cd.cw_root);
+				if (dl >= MAXPATHLEN)
+					dl = MAXPATHLEN - 1;
+				if (dl < 2 || kread((KA_T)cd.cw_root, Rtd, dl))
+					*Rtd = '\0';
+				else
+					Rtd[dl] = '\0';
+			}
+d225 13
+d243 2
+a244 2
+		if (u->u_cdir) {
+			alloc_lfile(CWD, -1);
+d247 1
+a247 1
+			FILEPTR = (struct file *)NULL;
+d250 4
+a253 4
+			process_node((caddr_t)u->u_cdir);
+			if (Lf->sf)
+				link_lfile();
+		}
+d257 2
+a258 2
+		if (u->u_rdir) {
+			alloc_lfile(RTD, -1);
+d261 1
+a261 1
+			FILEPTR = (struct file *)NULL;
+d264 4
+a267 4
+			process_node((caddr_t)u->u_rdir);
+			if (Lf->sf)
+				link_lfile();
+		}
+d271 1
+a271 1
+		if (p->p_as && Sgvops) {
+d274 1
+a274 1
+			FILEPTR = (struct file *)NULL;
+d277 2
+a278 2
+			process_text(p->p_as);
+		}
+d293 10
+a302 10
+		for (i = 0, j = 0; i < u->u_nofiles; i++) {
+		    if (++j > NFPCHUNK) {
+			if ( ! u->u_flist.uf_next)
+				break;
+			if (kread((KA_T)u->u_flist.uf_next,
+			    (char *)&u->u_flist, sizeof(struct ufchunk)))
+				break;
+			j = 1;
+		    }
+		    if (u->u_flist.uf_ofile[j-1] == NULL)
+d304 10
+a313 10
+		for (i = 0, j = NFPCHUNK; i < u->u_nofiles; i++) {
+		    if (++j > NFPCHUNK) {
+			k = u->u_nofiles - i;
+			if (k > NFPCHUNK)
+			    k = NFPCHUNK;
+			if (kread((KA_T)((unsigned long)u->u_flist +
+					i * sizeof(uf_entry_t)),
+			    (char*)&uf, k * sizeof(uf_entry_t)))
+				    break;
+			j = 1;
+d315 3
+a317 1
+		    if (uf[j-1].uf_ofile == NULL)
+d326 23
+a348 31
+		if ((caddr_t)u->u_ofile
+		== ((caddr_t)&u->u_ofile_arr[0] - (caddr_t)&u
+		+ (caddr_t)p->p_uarea)) {
+			nf = NOFILE_IN_U;
+			uf = &u->u_ofile_arr[0];
+		} else {
+			nf = u->u_lastfile + 1;
+			ui = nf * sizeof(struct file);
+			if (xuf == NULL) {
+				xnf = nf;
+				if ((xuf = (struct file **)malloc(ui))
+				== NULL) {
+					(void) fprintf(stderr,
+						"%s: PID %d, malloc file[]\n",
+						Pn, Lp->pid);
+					Exit(1);
+				}
+			} else if (nf > xnf) {
+				xnf = nf;
+				if ((xuf = (struct file **)realloc(
+					   (MALLOC_P *)xuf, ui))
+				== NULL) {
+					(void) fprintf(stderr,
+						"%s: PID %d, realloc file[]\n",
+						Pn, Lp->pid);
+					Exit(1);
+				}
+			}
+			if (kread((KA_T)u->u_ofile, (char *)xuf, (int)ui))
+				nf = 0;
+			uf = xuf;
+d350 7
+a356 3
+		*Cwd = *Rtd = '\0';
+		for (i = 0; i < nf; i++) {
+			if (!uf[i])
+d358 2
+a359 2
+				continue;
+			alloc_lfile(NULL, i);
+d363 1
+a363 1
+			process_file(u->u_flist.uf_ofile[j-1]);
+d365 1
+a365 1
+			process_file(uf[j-1].uf_ofile);
+d368 1
+a368 1
+			process_file(uf[i]);
+d371 3
+a373 3
+			if (Lf->sf)
+				link_lfile();
+		}
+d377 2
+a378 2
+		if (examine_lproc())
+			return;
+d390 1
+a390 1
+	unsigned long v;
+d400 1
+a400 1
+		Exit(1);
+d411 5
+a415 6
+		if (!(nl = (struct nlist *)malloc(Nll))) {
+			(void) fprintf(stderr,
+				"%s: no space (%d) for Nl[] copy\n",
+				Pn, Nll);
+			Exit(1);
+		}
+d418 1
+a418 1
+		(void) memcpy((void *)nl, (void *)Nl, (size_t)Nll);
+d420 1
+a420 1
+		(void) memcpy((char *)nl, (char *)Nl, (int)Nll);
+d427 3
+a429 3
+		(void) fprintf(stderr, "%s: can't read namelist from %s\n",
+			Pn, Nmlst ? Nmlst : N_UNIX);
+		Exit(1);
+d441 5
+a445 5
+		if ((get_Nl_value("arFID", Drive_Nl, &v) >= 0 && !v)
+		||  (get_Nl_value("avops", Drive_Nl, &v) >= 0 && !v)
+		||  (get_Nl_value("avol",  Drive_Nl, &v) >= 0 && !v))
+			(void) ckAFSsym(nl);
+		(void) free((MALLOC_P *)nl);
+d458 3
+a460 3
+		Savedgid = getegid();
+		if (Setgid)
+			Switchgid = 1;
+d469 1
+a469 1
+		(void) dropgid();
+d475 1
+a475 1
+		Exit(1);
+d488 1
+a488 1
+		Knp = PROCDFLT;
+d495 1
+a495 1
+	v = (unsigned long)0;
+d498 4
+a501 4
+		(void) fprintf(stderr,
+			"%s: can't read kernel base address from %#lx\n",
+			Pn, v);
+		Exit(1);
+d504 1
+d508 1
+a508 1
+	v = (unsigned long)0;
+d511 1
+a511 3
+	{
+		HaveCloneMaj = 1;
+	}
+d555 2
+a556 2
+		(void) fprintf(stderr, "%s: no space for cwd buffer\n", Pn);
+		Exit(1);
+d559 3
+a561 3
+		(void) fprintf(stderr,
+			"%s: no space for root directory buffer\n", Pn);
+		Exit(1);
+d590 1
+a590 1
+	if ((u_long)addr < Kb)
+d592 1
+a592 1
+	if ((u_long)addr < (u_long)KERNELBASE)
+d608 2
+a609 2
+	if (Kd != NULL)
+		return;
+d617 7
+a623 7
+		if (setgid(Savedgid) != 0) {
+			(void) fprintf(stderr,
+				"%s: can't set effective GID to %d: %s\n",
+				Pn, (int)Savedgid, strerror(errno));
+			Exit(1);
+		}
+		Setgid = 1;
+d627 7
+a633 8
+	if ((Kd = kvm_open(Nmlst, Memory, NULL, O_RDONLY, NULL)) == NULL) {
+		(void) fprintf(stderr,
+			"%s: kvm_open (namelist=%s, core=%s): %s\n",
+			Pn,
+			Nmlst ? Nmlst : "default",
+			Memory  ? Memory  : "default",
+			strerror(errno));
+		Exit(1);
+d649 1
+a649 1
+		Switchgid = 2;
+d668 1
+a668 1
+	struct as *pa;			/* address space description pointer */
+d674 3
+a676 3
+		struct segvn_data vn;
+		struct segdev_data dev;
+		struct segmap_data map;
+d678 1
+a678 1
+	struct vnode *v[MAXSEGS];
+d684 2
+a685 2
+	    (void) sprintf(Namech, "can't read text segment list (%#lx)",
+		(unsigned long)pa);
+d698 7
+a704 7
+		if (s.S_NEXT == NULL
+		||  kread((KA_T)s.S_NEXT, (char *)&s, sizeof(s)))
+			break;
+		if ((unsigned long)s.s_ops == Sgvops && s.s_data) {
+			if (kread((KA_T)s.s_data, (char *)&sd, sizeof(sd)))
+				break;
+			if (sd.vn.vp) {
+d706 12
+a717 12
+			/*
+			 * This is a virtual node segment.
+			 *
+			 * If its vnode pointer has not been seen already,
+			 * print its information.
+			 */
+				for (l = 0; l < k; l++) {
+					if (v[l] == sd.vn.vp)
+						break;
+				}
+				if (l >= k) {
+					alloc_lfile(" txt", -1);
+d720 1
+a720 1
+					FILEPTR = (struct file *)NULL;
+d723 4
+a726 7
+					process_node((caddr_t)sd.vn.vp);
+					if (Lf->sf) {
+						link_lfile();
+						i++;
+					}
+					v[k++] = sd.vn.vp;
+				}
+d728 2
+d731 1
+d739 1
+a739 1
+		if (s.s_next == as.a_segs)
+d741 1
+a741 1
+		if (s.s_next.list == as.a_segs.list)
+d744 1
+a744 1
+			break;
+d761 3
+a763 3
+		(void) fprintf(stderr, "%s: sysfs(GETNFSTYP) error: %s\n",
+			Pn, strerror(errno));
+		Exit(1);
+d767 4
+a770 4
+	if ((Fsinfo = (char **)malloc((MALLOC_S)(Fsinfomax * sizeof(char *))))
+	== NULL) {
+		(void) fprintf(stderr, "%s: no space for sysfs info\n", Pn);
+		Exit(1);
+d773 16
+a788 19
+		if (sysfs(GETFSTYP, i, buf) == -1) {
+			(void) fprintf(stderr,
+				"%s: sysfs(GETFSTYP) error: %s\n",
+				Pn, strerror(errno));
+			Exit(1);
+		}
+		if (buf[0] == '\0') {
+			Fsinfo[i-1] = "";
+			continue;
+		}
+		buf[FSTYPSZ] = '\0';
+		if ((Fsinfo[i-1] = (char *)malloc((MALLOC_S)(strlen(buf) + 1)))
+		== NULL) {
+			(void) fprintf(stderr,
+				"%s: no space for file system entry %s\n",
+				Pn, buf);
+			Exit(1);
+		}
+		(void) strcpy(Fsinfo[i-1], buf);
+d791 2
+a792 2
+		if (strcasecmp(buf, "afs") == 0)
+			AFSfstype = i;
+d829 1
+a829 1
+		if ((P = (struct proc *)malloc(len)) == (struct proc *)NULL) {
+d840 1
+a840 1
+		    if ((Pgrp = (int *)malloc(len)) == (int *)NULL) {
+d845 1
+a845 1
+		if ((Pid = (int *)malloc(len)) == (int *)NULL) {
+a851 1
+
+d865 1
+a865 1
+	    while ((p = kvm_nextproc(Kd)) != NULL) {
+d874 1
+a874 1
+		    if (p->p_pgidp == NULL
+d878 1
+a878 1
+		if (p->p_pidp == NULL
+d890 1
+a890 2
+		    if ((P = (struct proc *)realloc((MALLOC_P *)P, len))
+		    == NULL) {
+d902 1
+a902 2
+			if ((Pgrp = (int *)realloc((MALLOC_P *)Pgrp, len))
+			== NULL) {
+d908 1
+a908 2
+		    if ((Pid = (int *)realloc((MALLOC_P *)Pid, len))
+		    == NULL) {
+d923 2
+a924 2
+		    Pgrp[Np] = (int) pg.pid_id;
+		Pid[Np] = (int) pids.pid_id;
+d957 1
+a957 1
+	    if ((P = (struct proc *)realloc((MALLOC_P *)P, len)) == NULL) {
+d970 1
+a970 1
+		if ((Pgrp = (int *)realloc((MALLOC_P *)Pgrp, len)) == NULL) {
+d976 1
+a976 1
+	    if ((Pid = (int *)realloc((MALLOC_P *)Pid, len)) == NULL) {
+@
+
+
+1.2
+log
+@Revision 4.04
+@
+text
+@d35 1
+a35 1
+static char *rcsid = "$Id: dproc.c,v 1.1 97/02/24 07:47:10 abe Exp Locker: abe $";
+d627 1
+a627 1
+				Pn, Savedgid, strerror(errno));
+d692 2
+a693 1
+	    (void) sprintf(Namech, "can't read text segment list (%#x)", pa);
+@
+
+
+1.1
+log
+@Initial revision
+@
+text
+@d35 1
+a35 1
+static char *rcsid = "$Id: dproc.c,v 1.28 97/01/17 09:27:21 abe Exp $";
+d553 1
+a553 1
+	readdev();
+@

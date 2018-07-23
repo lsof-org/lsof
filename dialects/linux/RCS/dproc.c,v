@@ -1,0 +1,4116 @@
+head	1.31;
+access;
+symbols;
+locks; strict;
+comment	@ * @;
+
+
+1.31
+date	2018.03.26.21.52.29;	author abe;	state Exp;
+branches;
+next	1.30;
+
+1.30
+date	2018.02.14.14.26.38;	author abe;	state Exp;
+branches;
+next	1.29;
+
+1.29
+date	2015.07.07.19.46.33;	author abe;	state Exp;
+branches;
+next	1.28;
+
+1.28
+date	2014.10.13.22.25.58;	author abe;	state Exp;
+branches;
+next	1.27;
+
+1.27
+date	2013.01.02.17.02.36;	author abe;	state Exp;
+branches;
+next	1.26;
+
+1.26
+date	2012.04.10.16.39.50;	author abe;	state Exp;
+branches;
+next	1.25;
+
+1.25
+date	2011.09.07.19.07.45;	author abe;	state Exp;
+branches;
+next	1.24;
+
+1.24
+date	2011.08.07.22.53.13;	author abe;	state Exp;
+branches;
+next	1.23;
+
+1.23
+date	2010.07.29.16.04.52;	author abe;	state Exp;
+branches;
+next	1.22;
+
+1.22
+date	2008.10.21.16.17.21;	author abe;	state Exp;
+branches;
+next	1.21;
+
+1.21
+date	2008.04.15.13.32.26;	author abe;	state Exp;
+branches;
+next	1.20;
+
+1.20
+date	2007.04.24.16.20.53;	author abe;	state Exp;
+branches;
+next	1.19;
+
+1.19
+date	2006.08.25.03.52.35;	author abe;	state Exp;
+branches;
+next	1.18;
+
+1.18
+date	2005.08.29.10.23.33;	author abe;	state Exp;
+branches;
+next	1.17;
+
+1.17
+date	2005.08.08.19.52.33;	author abe;	state Exp;
+branches;
+next	1.16;
+
+1.16
+date	2005.05.11.12.53.27;	author abe;	state Exp;
+branches;
+next	1.15;
+
+1.15
+date	2004.07.06.19.19.44;	author abe;	state Exp;
+branches;
+next	1.14;
+
+1.14
+date	2003.06.13.09.52.21;	author abe;	state Exp;
+branches;
+next	1.13;
+
+1.13
+date	2001.10.17.19.17.48;	author abe;	state Exp;
+branches;
+next	1.12;
+
+1.12
+date	2001.10.05.17.48.32;	author abe;	state Exp;
+branches;
+next	1.11;
+
+1.11
+date	2001.02.13.13.56.07;	author abe;	state Exp;
+branches;
+next	1.10;
+
+1.10
+date	2001.01.22.12.04.21;	author abe;	state Exp;
+branches;
+next	1.9;
+
+1.9
+date	2000.08.01.15.42.52;	author abe;	state Exp;
+branches;
+next	1.8;
+
+1.8
+date	99.03.29.07.17.49;	author abe;	state Exp;
+branches;
+next	1.7;
+
+1.7
+date	99.01.25.07.06.30;	author abe;	state Exp;
+branches;
+next	1.6;
+
+1.6
+date	98.06.29.15.38.09;	author abe;	state Exp;
+branches;
+next	1.5;
+
+1.5
+date	98.03.18.15.34.53;	author abe;	state Exp;
+branches;
+next	1.4;
+
+1.4
+date	98.01.20.09.12.59;	author abe;	state Exp;
+branches;
+next	1.3;
+
+1.3
+date	98.01.16.14.30.53;	author abe;	state Exp;
+branches;
+next	1.2;
+
+1.2
+date	98.01.15.09.18.21;	author abe;	state Exp;
+branches;
+next	1.1;
+
+1.1
+date	97.12.30.08.15.31;	author abe;	state Exp;
+branches;
+next	;
+
+
+desc
+@/proc-based Linux lsof dialect sources
+@
+
+
+1.31
+log
+@Revision 4.91
+@
+text
+@/*
+ * dproc.c - Linux process access functions for /proc-based lsof
+ */
+
+
+/*
+ * Copyright 1997 Purdue Research Foundation, West Lafayette, Indiana
+ * 47907.  All rights reserved.
+ *
+ * Written by Victor A. Abell
+ *
+ * This software is not subject to any license of the American Telephone
+ * and Telegraph Company or the Regents of the University of California.
+ *
+ * Permission is granted to anyone to use this software for any purpose on
+ * any computer system, and to alter it and redistribute it freely, subject
+ * to the following restrictions:
+ *
+ * 1. Neither the authors nor Purdue University are responsible for any
+ *    consequences of the use of this software.
+ *
+ * 2. The origin of this software must not be misrepresented, either by
+ *    explicit claim or by omission.  Credit to the authors and Purdue
+ *    University must appear in documentation and sources.
+ *
+ * 3. Altered versions must be plainly marked as such, and must not be
+ *    misrepresented as being the original software.
+ *
+ * 4. This notice may not be removed or altered.
+ */
+
+#ifndef lint
+static char copyright[] =
+"@@(#) Copyright 1997 Purdue Research Foundation.\nAll rights reserved.\n";
+static char *rcsid = "$Id: dproc.c,v 1.30 2018/02/14 14:26:38 abe Exp abe $";
+#endif
+
+#include "lsof.h"
+
+
+/*
+ * Local definitions
+ */
+
+#define	FDINFO_FLAGS		1	/* fdinfo flags available */
+#define	FDINFO_POS		2	/* fdinfo position available */
+
+#if	defined(HASEPTOPTS) && defined(HASPTYEPT)
+#define FDINFO_TTY_INDEX	4	/* fdinfo tty-index available */
+#endif	/* defined(HASEPTOPTS) && defined(HASPTYEPT) */
+
+#if	defined(HASEPTOPTS) && defined(HASPTYEPT)
+#define FDINFO_ALL		(FDINFO_FLAGS | FDINFO_POS | FDINFO_TTY_INDEX)
+#else   /* !(defined(HASEPTOPTS) && defined(HASPTYEPT)) */
+#define FDINFO_ALL		(FDINFO_FLAGS | FDINFO_POS )
+#endif	/* defined(HASEPTOPTS) && defined(HASPTYEPT) */
+
+#define	LSTAT_TEST_FILE		"/"
+#define LSTAT_TEST_SEEK		1
+
+#if	!defined(ULLONG_MAX)
+#define	ULLONG_MAX		18446744073709551615ULL
+#endif	/* !defined(ULLONG_MAX) */
+
+
+/*
+ * Local structures
+ */
+
+struct l_fdinfo {
+	int flags;			/* flags: line value */
+	off_t pos;			/* pos: line value */
+
+#if	defined(HASEPTOPTS) && defined(HASPTYEPT)
+	int tty_index;			/* pty line index */
+#endif	/* defined(HASEPTOPTS) && defined(HASPTYEPT) */
+
+};
+
+
+/*
+ * Local variables
+ */
+
+static short Cckreg;			/* conditional status of regular file
+					 * checking:
+					 *     0 = unconditionally check
+					 *     1 = conditionally check */
+static short Ckscko;			/* socket file only checking status:
+					 *     0 = none
+					 *     1 = check only socket files */
+
+
+/*
+ * Local function prototypes
+ */
+
+_PROTOTYPE(static MALLOC_S alloc_cbf,(MALLOC_S len, char **cbf, MALLOC_S cbfa));
+_PROTOTYPE(static int get_fdinfo,(char *p, int msk, struct l_fdinfo *fi));
+_PROTOTYPE(static int getlinksrc,(char *ln, char *src, int srcl, char **rest));
+_PROTOTYPE(static int isefsys,(char *path, char *type, int l,
+			       efsys_list_t **rep, struct lfile **lfr));
+_PROTOTYPE(static int nm2id,(char *nm, int *id, int *idl));
+_PROTOTYPE(static int read_id_stat,(char *p, int id, char **cmd, int *ppid,
+				    int *pgid));
+_PROTOTYPE(static void process_proc_map,(char *p, struct stat *s, int ss));
+_PROTOTYPE(static int process_id,(char *idp, int idpl, char *cmd, UID_ARG uid,
+				  int pid, int ppid, int pgid, int tid,
+				  char *tcmd));
+_PROTOTYPE(static int statEx,(char *p, struct stat *s, int *ss));
+ 
+
+#if	defined(HASSELINUX)
+_PROTOTYPE(static int cmp_cntx_eq,(char *pcntx, char *ucntx));
+
+
+#include <fnmatch.h>
+
+
+/*
+ * cmp_cntx_eq -- compare program and user security contexts
+ */
+
+static int
+cmp_cntx_eq(pcntx, ucntx)
+	char *pcntx;			       /* program context */
+	char *ucntx;			       /* user supplied context */
+{
+	return !fnmatch(ucntx, pcntx, 0);
+}
+
+
+/*
+ * enter_cntx_arg() - enter name ecurity context argument
+ */
+
+int
+enter_cntx_arg(cntx)
+	char *cntx;			       /* context */
+{
+	cntxlist_t *cntxp;
+/*
+ * Search the argument list for a duplicate.
+ */
+	for (cntxp = CntxArg; cntxp; cntxp = cntxp->next) {
+	    if (!strcmp(cntxp->cntx, cntx)) {
+		if (!Fwarn) {
+		    (void) fprintf(stderr, "%s: duplicate context: %s\n",
+			Pn, cntx);
+		}
+		return(1);
+	    }
+	}
+/*
+ * Create and link a new context argument list entry.
+ */
+	if (!(cntxp = (cntxlist_t *)malloc((MALLOC_S)sizeof(cntxlist_t)))) {
+	    (void) fprintf(stderr, "%s: no space for context: %s\n", Pn, cntx);
+	    Exit(1);
+	}
+	cntxp->f = 0;
+	cntxp->cntx = cntx;
+	cntxp->next = CntxArg;
+	CntxArg = cntxp;
+	return(0);
+}
+#endif	/* defined(HASSELINUX) */
+
+
+/*
+ * alloc_cbf() -- allocate a command buffer
+ */
+
+static MALLOC_S
+alloc_cbf(len, cbf, cbfa)
+	MALLOC_S len;				/* required length */
+	char **cbf;				/* current buffer */
+	MALLOC_S cbfa;				/* current buffer allocation */
+{
+	if (*cbf)
+	    *cbf = (char *)realloc((MALLOC_P *)*cbf, len);
+	else
+	    *cbf = (char *)malloc(len);
+	if (!*cbf) {
+	    (void) fprintf(stderr,
+		"%s: can't allocate command %d bytes\n", Pn, (int)len);
+	     Exit(1);
+	}
+	return(len);
+}
+
+
+/*
+ * gather_proc_info() -- gather process information
+ */
+
+void
+gather_proc_info()
+{
+	char *cmd, *tcmd;
+	char cmdbuf[MAXPATHLEN];
+	struct dirent *dp;
+	unsigned char ht, pidts;
+	int n, nl, pgid, pid, ppid, prv, rv, tid, tpgid, tppid, tx;
+	static char *path = (char *)NULL;
+	static int pathl = 0;
+	static char *pidpath = (char *)NULL;
+	static MALLOC_S pidpathl = 0;
+	static MALLOC_S pidx = 0;
+	static DIR *ps = (DIR *)NULL;
+	struct stat sb;
+	static char *taskpath = (char *)NULL;
+	static int taskpathl = 0;
+	static char *tidpath = (char *)NULL;
+	static int tidpathl = 0;
+	DIR *ts;
+	UID_ARG uid;
+
+/*
+ * Do one-time setup.
+ */
+	if (!pidpath) {
+	    pidx = strlen(PROCFS) + 1;
+	    pidpathl = pidx + 64 + 1;	/* 64 is growth room */
+	    if (!(pidpath = (char *)malloc(pidpathl))) {
+		(void) fprintf(stderr,
+		    "%s: can't allocate %d bytes for \"%s/\"<pid>\n",
+		    Pn, (int)pidpathl, PROCFS);
+		Exit(1);
+	    }
+	    (void) snpf(pidpath, pidpathl, "%s/", PROCFS);
+	}
+/*
+ * Get lock and net information.
+ */
+	(void) make_proc_path(pidpath, pidx, &path, &pathl, "locks");
+	(void) get_locks(path);
+	(void) make_proc_path(pidpath, pidx, &path, &pathl, "net/");
+	(void) set_net_paths(path, strlen(path));
+/*
+ * If only socket files have been selected, or socket files have been selected
+ * ANDed with other selection options, enable the skipping of regular files.
+ *
+ * If socket files and some process options have been selected, enable
+ * conditional skipping of regular file; i.e., regular files will be skipped
+ * unless they belong to a process selected by one of the specified options.
+ */
+	if (Selflags & SELNW) {
+
+	/*
+	 * Some network files selection options have been specified.
+	 */
+	    if (Fand || !(Selflags & ~SELNW)) {
+
+	    /*
+	     * Selection ANDing or only network file options have been
+	     * specified, so set unconditional skipping of regular files
+	     * and socket file only checking.
+	     */
+		Cckreg = 0;
+		Ckscko = 1;
+	    } else {
+
+	    /*
+	     * If ORed file selection options have been specified, or no ORed
+	     * process selection options have been specified, enable
+	     * unconditional file checking and clear socket file only checking.
+	     *
+	     * If only ORed process selection options have been specified,
+	     * enable conditional file skipping and socket file only checking.
+	     */
+		if ((Selflags & SELFILE) || !(Selflags & SelProc))
+		    Cckreg = Ckscko = 0;
+		else
+		    Cckreg = Ckscko = 1;
+	    }
+	} else {
+
+	/*
+	 * No network file selection options were specified.  Enable
+	 * unconditional file checking and clear socket file only checking.
+	 */
+	    Cckreg = Ckscko = 0;
+	}
+/*
+ * Read /proc, looking for PID directories.  Open each one and
+ * gather its process and file information.
+ */
+	if (!ps) {
+	    if (!(ps = opendir(PROCFS))) {
+		(void) fprintf(stderr, "%s: can't open %s\n", Pn, PROCFS);
+		Exit(1);
+	    }
+	} else
+	    (void) rewinddir(ps);
+	while ((dp = readdir(ps))) {
+	    if (nm2id(dp->d_name, &pid, &n))
+		continue;
+	/*
+	 * Build path to PID's directory.
+	 */
+	    if ((pidx + n + 1 + 1) > pidpathl) {
+		pidpathl = pidx + n + 1 + 1 + 64;
+		if (!(pidpath = (char *)realloc((MALLOC_P *)pidpath, pidpathl)))
+		{
+		    (void) fprintf(stderr,
+			"%s: can't allocate %d bytes for \"%s/%s/\"\n",
+			Pn, (int)pidpathl, PROCFS, dp->d_name);
+		    Exit(1);
+		}
+	    }
+	    (void) snpf(pidpath + pidx, pidpathl - pidx, "%s/", dp->d_name);
+	    n += (pidx + 1);
+	/*
+	 * Process the PID's stat info.
+	 */
+	    if (stat(pidpath, &sb))
+		continue;
+	    uid = (UID_ARG)sb.st_uid;
+	    ht = pidts = 0;
+	/*
+	 * Get the PID's command name.
+	 */
+	    (void) make_proc_path(pidpath, n, &path, &pathl, "stat");
+	    if ((prv = read_id_stat(path, pid, &cmd, &ppid, &pgid)) < 0) 
+		cmd = "(unknown)";
+
+#if	defined(HASTASKS)
+	/*
+	 * Task reporting has been selected, so save the process' command
+	 * string, so that task processing won't change it in the buffer of
+	 * read_id_stat().
+	 *
+	 * Check the tasks of the process first, so that the "-p<PID> -aK"
+	 * options work properly.
+	 */
+	    else if (!IgnTasks && (Selflags & SELTASK)) {
+		strncpy(cmdbuf, cmd, sizeof(cmdbuf) - 1);
+		cmdbuf[sizeof(cmdbuf) - 1] = '\0';
+		cmd = cmdbuf;
+		(void) make_proc_path(pidpath, n, &taskpath, &taskpathl,
+				      "task");
+		tx = n + 4;
+		if ((ts = opendir(taskpath))) {
+
+		/*
+		 * Process the PID's tasks.  Record the open files of those
+		 * whose TIDs do not match the PID and which are themselves
+		 * not zombies.
+		 */
+		    while ((dp = readdir(ts))) {
+
+		    /*
+		     * Get the task ID.  Skip the task if its ID matches the
+		     * process PID.
+		     */
+			if (nm2id(dp->d_name, &tid, &nl))
+			    continue;
+			if  (tid == pid) {
+			    pidts = 1;
+			    continue;
+			}
+		    /*
+		     * Form the path for the TID.
+		     */
+			if ((tx + 1 + nl + 1 + 4) > tidpathl) {
+			    tidpathl = tx + 1 + n + 1 + 4 + 64;
+			    if (tidpath)
+				tidpath = (char *)realloc((MALLOC_P *)tidpath,
+							  tidpathl);
+			    else
+				tidpath = (char *)malloc((MALLOC_S)tidpathl);
+			    if (!tidpath) {
+				(void) fprintf(stderr,
+				    "%s: can't allocate %d task bytes", Pn,
+				    tidpathl);
+				(void) fprintf(stderr, " for \"%s/%s/stat\"\n",
+				    taskpath, dp->d_name);
+				Exit(1);
+			    }
+			}
+			(void) snpf(tidpath, tidpathl, "%s/%s/stat", taskpath,
+			    dp->d_name);
+		    /*
+		     * Check the task state.
+		     */
+			rv = read_id_stat(tidpath, tid, &tcmd, &tppid,
+					  &tpgid);
+			if ((rv < 0) || (rv == 1))
+			    continue;
+		    /*
+		     * Attempt to record the task.
+		     */
+			if (!process_id(tidpath, (tx + 1 + nl+ 1), cmd, uid,
+					pid, tppid, tpgid, tid, tcmd))
+			{
+			    ht = 1;
+			}
+		    }
+		    (void) closedir(ts);
+		}
+	    }
+#endif	/* defined(HASTASKS) */
+
+	/*
+	 * If the main process is a task and task selection has been specified
+	 * along with option ANDing, enter the main process temporarily as a
+	 * task, so that the "-aK" option set lists the main process along
+	 * with its tasks.
+	 */
+	    if ((prv >= 0) && (prv != 1)) {
+		tid = (Fand && ht && pidts && !IgnTasks && (Selflags & SELTASK))
+		    ? pid : 0;
+		if ((!process_id(pidpath, n, cmd, uid, pid, ppid, pgid, tid,
+				 (char *)NULL))
+		&&  tid)
+		{
+		    Lp->tid = 0;
+		}
+	    }
+	}
+}
+
+
+/*
+ * get_fdinfo() - get values from /proc/<PID>fdinfo/FD
+ */
+
+static int
+get_fdinfo(p, msk, fi)
+	char *p;			/* path to fdinfo file */
+	int msk;			/* mask for information type: e.g.,
+					 * the FDINFO_* definition */
+	struct l_fdinfo *fi;		/* pointer to local fdinfo values
+					 * return structure */
+{
+	char buf[MAXPATHLEN + 1], *ep, **fp;
+	FILE *fs;
+	int rv = 0;
+	unsigned long ul;
+	unsigned long long ull;
+/*
+ * Signal no values returned (0) if no fdinfo pointer was provided or if the
+ * fdinfo path can't be opened.
+ */
+	if (!fi)
+	    return(0);
+
+#if	defined(HASEPTOPTS) && defined(HASPTYEPT)
+	fi->tty_index = -1;
+#endif	/* defined(HASEPTOPTS) && defined(HASPTYEPT) */
+
+	if (!p || !*p || !(fs = fopen(p, "r")))
+	    return(0);
+/*
+ * Read the fdinfo file.
+ */
+	while (fgets(buf, sizeof(buf), fs)) {
+	    if (get_fields(buf, (char *)NULL, &fp, (int *)NULL, 0) < 2)
+		continue;
+	    if (!fp[0] || !*fp[0] || !fp[1] || !*fp[1])
+		continue;
+	    if (!strcmp(fp[0], "flags:")) {
+
+	    /*
+	     * Process a "flags:" line.
+	     */
+		ep = (char *)NULL;
+		if ((ul = strtoul(fp[1], &ep, 0)) == ULONG_MAX
+		||  !ep || *ep)
+		    continue;
+		fi->flags = (unsigned int)ul;
+		if ((rv |= FDINFO_FLAGS) == msk)
+		    break;
+	    } else if (!strcmp(fp[0], "pos:")) {
+
+	    /*
+	     * Process a "pos:" line.
+	     */
+		ep = (char *)NULL;
+		if ((ull = strtoull(fp[1], &ep, 0)) == ULLONG_MAX
+		||  !ep || *ep)
+		    continue;
+		fi->pos = (off_t)ull;
+		if ((rv |= FDINFO_POS) == FDINFO_ALL)
+		    break;
+
+#if	defined(HASEPTOPTS) && defined(HASPTYEPT)
+	    } else if (!strcmp(fp[0], "tty-index:")) {
+
+	    /*
+	     * Process a "tty-index:" line.
+	     */
+		ep = (char *)NULL;
+		if ((ul = strtoul(fp[1], &ep, 0)) == ULONG_MAX
+		||  !ep || *ep)
+		     continue;
+		fi->tty_index = (int)ul;
+		if (fi->tty_index < 0) {
+
+		/*
+		 * Oops! If integer overflow occurred, reset the field.
+		 */
+		     fi->tty_index = -1;
+		}
+		if ((rv |= FDINFO_TTY_INDEX) == msk)
+ 		    break;
+#endif	/* defined(HASEPTOPTS) && defined(HASPTYEPT) */
+
+	    }
+	}
+	fclose(fs);
+/*
+ * Signal via the return value what information was obtained. (0 == none)
+ */
+	return(rv);
+}
+
+
+/*
+ * getlinksrc() - get the source path name for the /proc/<PID>/fd/<FD> link
+ */
+
+
+static int
+getlinksrc(ln, src, srcl, rest)
+	char *ln;			/* link path */
+	char *src;			/* link source path return address */
+	int srcl;			/* length of src[] */
+	char **rest;			/* pointer to what follows the ':' in
+					 * the link source path (NULL if no
+					 * return requested) */
+{
+	char *cp;
+	int ll;
+
+	if (rest)
+	    *rest = (char *)NULL;
+	if ((ll = readlink(ln, src, srcl - 1)) < 1
+	||  ll >= srcl)
+	    return(-1);
+	src[ll] = '\0';
+	if (*src == '/')
+	    return(ll);
+	if ((cp = strchr(src, ':'))) {
+	    *cp = '\0';
+	    ll = strlen(src);
+	    if (rest)
+		*rest = cp + 1;
+	}
+	return(ll);
+}
+
+
+/*
+ * initialize() - perform all initialization
+ */
+
+void
+initialize()
+{
+	int fd;
+	struct l_fdinfo fi;
+	char path[MAXPATHLEN];
+	struct stat sb;
+/*
+ * Test for -i and -X option conflict.
+ */
+	if (Fxopt && (Fnet || Nwad)) {
+	    (void) fprintf(stderr, "%s: -i is useless when -X is specified.\n",
+		Pn);
+	    usage(1, 0, 0);
+	}
+/*
+ * Open LSTAT_TEST_FILE and seek to byte LSTAT_TEST_SEEK, then lstat the
+ * /proc/<PID>/fd/<FD> for LSTAT_TEST_FILE to see what position is reported.
+ * If the result is LSTAT_TEST_SEEK, enable offset reporting.
+ *
+ * If the result isn't LSTAT_TEST_SEEK, next check the fdinfo file for the
+ * open LSTAT_TEST_FILE file descriptor.  If it exists and contains a "pos:"
+ * value, and if the value is LSTAT_TEST_SEEK, enable offset reporting.
+ */
+	if ((fd = open(LSTAT_TEST_FILE, O_RDONLY)) >= 0) {
+	    if (lseek(fd, (off_t)LSTAT_TEST_SEEK, SEEK_SET)
+	    == (off_t)LSTAT_TEST_SEEK) {
+		(void) snpf(path, sizeof(path), "%s/%d/fd/%d", PROCFS, Mypid,
+			    fd);
+		if (!lstat(path, &sb)) {
+		    if (sb.st_size == (off_t)LSTAT_TEST_SEEK)
+			OffType = 1;
+		}
+	    }
+	    if (!OffType) {
+		(void) snpf(path, sizeof(path), "%s/%d/fdinfo/%d", PROCFS,
+			    Mypid, fd);
+		if (get_fdinfo(path, FDINFO_POS, &fi) & FDINFO_POS) {
+		    if (fi.pos == (off_t)LSTAT_TEST_SEEK)
+			OffType = 2;
+		}
+	    }
+	    (void) close(fd);
+	}
+	if (!OffType) {
+	    if (Foffset && !Fwarn)
+		(void) fprintf(stderr,
+		    "%s: WARNING: can't report offset; disregarding -o.\n",
+		    Pn);
+	    Foffset = 0;
+	    Fsize = 1;
+	}
+	if (Fsv && (OffType != 2)) {
+	    if (!Fwarn && FsvByf)
+		(void) fprintf(stderr,
+		    "%s: WARNING: can't report file flags; disregarding +f.\n",
+		    Pn);
+	    Fsv = 0;
+	}
+/*
+ * Make sure the local mount info table is loaded if doing anything other
+ * than just Internet lookups.  (HasNFS is defined during the loading of the
+ * local mount table.)
+ */
+	if (Selinet == 0)
+	    (void) readmnt();
+}
+
+
+/*
+ * make_proc_path() - make a path in a /proc directory
+ *
+ * entry:
+ *	pp = pointer to /proc prefix
+ *	lp = length of prefix
+ *	np = pointer to malloc'd buffer to receive new file's path
+ *	nl = length of new file path buffer
+ *	sf = new path's suffix
+ *
+ * return: length of new path
+ *	np = updated with new path
+ *	nl = updated with new path length
+ */
+
+int
+make_proc_path(pp, pl, np, nl, sf)
+	char *pp;			/* path prefix -- e.g., /proc/<pid>/ */
+	int pl;				/* strlen(pp) */
+	char **np;			/* malloc'd receiving buffer */
+	int *nl;			/* strlen(*np) */
+	char *sf;			/* suffix of new path */
+{
+	char *cp;
+	MALLOC_S rl, sl;
+
+	sl = strlen(sf);
+	if ((rl = pl + sl + 1) > *nl) {
+	    if ((cp = *np))
+		cp = (char *)realloc((MALLOC_P *)cp, rl);
+	    else
+		cp = (char *)malloc(rl);
+	    if (!cp) {
+		(void) fprintf(stderr,
+		    "%s: can't allocate %d bytes for %s%s\n",
+		    Pn, (int)rl, pp, sf);
+		Exit(1);
+	    }
+	    *nl = rl;
+	    *np = cp;
+	}
+	(void) snpf(*np, *nl, "%s", pp);
+	(void) snpf(*np + pl, *nl - pl, "%s", sf);
+	return(rl - 1);
+}
+
+
+/*
+ * isefsys() -- is path on a file system exempted with -e
+ *
+ * Note: alloc_lfile() must have been called in advance.
+ */
+
+static int
+isefsys(path, type, l, rep, lfr)
+	char *path;			/* path to file */
+	char *type;			/* unknown file type */
+	int l;				/* link request: 0 = report
+					 *               1 = link */
+	efsys_list_t **rep;		/* returned Efsysl pointer, if not
+					 * NULL */
+	struct lfile **lfr;		/* allocated struct lfile pointer */
+{
+	efsys_list_t *ep;
+	int ds, len;
+	struct mounts *mp;
+	char nmabuf[MAXPATHLEN + 1];
+
+	len = (int) strlen(path);
+	for (ep = Efsysl; ep; ep = ep->next) {
+
+	/*
+	 * Look for a matching exempt file system path at the beginning of
+	 * the file path.
+	 */
+	    if (ep->pathl > len)
+		continue;
+	    if (strncmp(ep->path, path, ep->pathl))
+		continue;
+	/*
+	 * If only reporting, return information as requested.
+	 */
+	    if (!l) {
+		if (rep)
+		    *rep = ep;
+		return(0);
+	    }
+	/*
+	 * Process an exempt file.
+	 */
+	    ds = 0;
+	    if ((mp = ep->mp)) {
+		if (mp->ds & SB_DEV) {
+		    Lf->dev = mp->dev;
+		    ds = Lf->dev_def = 1;
+		}
+		if (mp->ds & SB_RDEV) {
+		    Lf->rdev = mp->rdev;
+		    ds = Lf->rdev_def = 1;
+		}
+	    }
+	    if (!ds)
+		(void) enter_dev_ch("UNKNOWN");
+	    Lf->ntype = N_UNKN;
+	    (void) snpf(Lf->type, sizeof(Lf->type), "%s",
+			(type ? type : "UNKN"));
+	    (void) enter_nm(path);
+	    (void) snpf(nmabuf, sizeof(nmabuf), "(%ce %s)",
+		ep->rdlnk ? '+' : '-', ep->path);
+	    nmabuf[sizeof(nmabuf) - 1] = '\0';
+	    (void) add_nma(nmabuf, strlen(nmabuf));
+	    if (Lf->sf) {
+		if (lfr)
+		    *lfr = Lf;
+		link_lfile();
+	    } else if (lfr)
+		*lfr = (struct lfile *)NULL;
+	    return(0);
+	}
+	return(1);
+}
+
+
+/*
+ * nm2id() - convert a name to an integer ID
+ */
+
+static int
+nm2id(nm, id, idl)
+	char *nm;			/* pointer to name */
+	int *id;			/* pointer to ID receiver */
+	int *idl;			/* pointer to ID length receiver */
+{
+	register int tid, tidl;
+
+	for (*id = *idl = tid = tidl = 0; *nm; nm++) {
+
+#if	defined(__STDC__)	/* { */
+	    if (!isdigit((unsigned char)*nm))
+#else	/* !defined(__STDC__)	   } { */
+	    if (!isascii(*nm) || !isdigit((unsigned char)*cp))
+#endif	/* defined(__STDC__)	   } */
+
+		{
+		    return(1);
+		}
+		tid = tid * 10 + (int)(*nm - '0');
+		tidl++;
+	}
+	*id = tid;
+	*idl = tidl;
+	return(0);
+}
+
+
+/*
+ * open_proc_stream() -- open a /proc stream
+ */
+
+FILE *
+open_proc_stream(p, m, buf, sz, act)
+	char *p;			/* pointer to path to open */
+	char *m;			/* pointer to mode -- e.g., "r" */
+	char **buf;			/* pointer tp setvbuf() address
+					 * (NULL if none) */
+	size_t *sz;			/* setvbuf() size (0 if none or if
+					 * getpagesize() desired */
+	int act;			/* fopen() failure action:
+					 *     0 : return (FILE *)NULL
+					 *   <>0 : fprintf() an error message
+					 *         and Exit(1)
+					 */
+{
+	FILE *fs;			/* opened stream */
+	static size_t psz = (size_t)0;	/* page size */
+	size_t tsz;			/* temporary size */
+/*
+ * Open the stream.
+ */
+	if (!(fs = fopen(p, m))) {
+	    if (!act)
+		return((FILE *)NULL);
+	    (void) fprintf(stderr, "%s: can't fopen(%s, \"%s\"): %s\n",
+		Pn, p, m, strerror(errno));
+	    Exit(1);
+	}
+/*
+ * Return the stream if no buffer change is required.
+ */
+	if (!buf)
+	    return(fs);
+/*
+ * Determine the buffer size required.
+ */
+	if (!(tsz = *sz)) {
+	    if (!psz)
+		psz = getpagesize();
+	    tsz = psz;
+	}
+/*
+ * Allocate a buffer for the stream, as required.
+ */
+	if (!*buf) {
+	    if (!(*buf = (char *)malloc((MALLOC_S)tsz))) {
+		(void) fprintf(stderr,
+		    "%s: can't allocate %d bytes for %s stream buffer\n",
+		    Pn, (int)tsz, p);
+		Exit(1);
+	    }
+	    *sz = tsz;
+	}
+/*
+ * Assign the buffer to the stream.
+ */
+	if (setvbuf(fs, *buf, _IOFBF, tsz)) {
+	    (void) fprintf(stderr, "%s: setvbuf(%s)=%d failure: %s\n",
+		Pn, p, (int)tsz, strerror(errno));
+	    Exit(1);
+	}
+	return(fs);
+}
+
+
+/*
+ * process_id - process ID: PID or LWP
+ *
+ * return:  0 == ID processed
+ *          1 == ID not processed
+ */
+
+static int
+process_id(idp, idpl, cmd, uid, pid, ppid, pgid, tid, tcmd)
+	char *idp;			/* pointer to ID's path */
+	int idpl;			/* pointer to ID's path length */
+	char *cmd;			/* pointer to ID's command */
+	UID_ARG uid;			/* ID's UID */
+	int pid;			/* ID's PID */
+	int ppid;			/* parent PID */
+	int pgid;			/* parent GID */
+	int tid;			/* task ID, if non-zero */
+	char *tcmd;			/* task command, if non-NULL) */
+{
+	int av = 0;
+	static char *dpath = (char *)NULL;
+	static int dpathl = 0;
+	short efs, enls, enss, lnk, oty, pn, pss, sf;
+	int fd, i, ls, n, ss, sv;
+	struct l_fdinfo fi;
+	DIR *fdp;
+	struct dirent *fp;
+	static char *ipath = (char *)NULL;
+	static int ipathl = 0;
+	int j = 0;
+	struct lfile *lfr;
+	struct stat lsb, sb;
+	char nmabuf[MAXPATHLEN + 1], pbuf[MAXPATHLEN + 1];
+	static char *path = (char *)NULL;
+	static int pathl = 0;
+	static char *pathi = (char *)NULL;
+	static int pathil = 0;
+	char *rest;
+	int txts = 0;
+
+#if	defined(HASSELINUX)
+	cntxlist_t *cntxp;
+#endif	/* defined(HASSELINUX) */
+
+/*
+ * See if process is excluded.
+ */
+	if (is_proc_excl(pid, pgid, uid, &pss, &sf, tid)
+	||  is_cmd_excl(cmd, &pss, &sf))
+	{
+
+#if	defined(HASEPTOPTS)
+	    if (!FeptE)
+		return(1);
+#else	/* !defined(HASEPTOPTS) */
+	    return(1);
+#endif	/* defined(HASEPTOPTS) */
+
+	}
+	if (Cckreg && !FeptE) {
+
+	/*
+	 * If conditional checking of regular files is enabled, enable
+	 * socket file only checking, based on the process' selection
+	 * status.
+	 */
+	    Ckscko = (sf & SelProc) ? 0 : 1;
+	}
+	alloc_lproc(pid, pgid, ppid, uid, cmd, (int)pss, (int)sf);
+	Plf = (struct lfile *)NULL;
+
+#if	defined(HASTASKS)
+/*
+ * Enter task information.
+ */
+	Lp->tid = tid;
+	if (tid && tcmd) {
+	    if (!(Lp->tcmd = mkstrcpy(tcmd, (MALLOC_S *)NULL))) {
+		(void) fprintf(stderr,
+		    "%s: PID %d, TID %d, no space for task name: ",
+		    Pn, pid, tid);
+		safestrprt(tcmd, stderr, 1);
+		Exit(1);
+	    }
+	}
+#endif	/* defined(HASTASKS) */
+
+/*
+ * Process the ID's current working directory info.
+ */
+	efs = 0;
+	if (!Ckscko) {
+	    (void) make_proc_path(idp, idpl, &path, &pathl, "cwd");
+	    alloc_lfile(CWD, -1);
+	    if (getlinksrc(path, pbuf, sizeof(pbuf), (char **)NULL) < 1) {
+		if (!Fwarn) {
+		    zeromem((char *)&sb, sizeof(sb));
+		    lnk = ss = 0;
+		    (void) snpf(nmabuf, sizeof(nmabuf), "(readlink: %s)",
+			strerror(errno));
+		    nmabuf[sizeof(nmabuf) - 1] = '\0';
+		    (void) add_nma(nmabuf, strlen(nmabuf));
+		    pn = 1;
+		} else
+		    pn = 0;
+	    } else {
+		lnk = pn = 1;
+		if (Efsysl && !isefsys(pbuf, "UNKNcwd", 1, NULL, &lfr)) {
+		    efs = 1;
+		    pn = 0;
+		} else {
+		    ss = SB_ALL;
+		    if (HasNFS) {
+			if ((sv = statsafely(path, &sb)))
+			sv = statEx(pbuf, &sb, &ss);
+		    } else
+			sv = stat(path, &sb);
+		    if (sv) {
+			ss = 0;
+			if (!Fwarn) {
+			    (void) snpf(nmabuf, sizeof(nmabuf), "(stat: %s)",
+				strerror(errno));
+			    nmabuf[sizeof(nmabuf) - 1] = '\0';
+			    (void) add_nma(nmabuf, strlen(nmabuf));
+			}
+		    }
+		}
+	    }
+	    if (pn) {
+		(void) process_proc_node(lnk ? pbuf : path,
+					 path, &sb, ss,
+					 (struct stat *)NULL, 0);
+		if (Lf->sf)
+		    link_lfile();
+	    }
+	}
+/*
+ * Process the ID's root directory info.
+ */
+	lnk = ss = 0;
+	if (!Ckscko) {
+	    (void) make_proc_path(idp, idpl, &path, &pathl, "root");
+	    alloc_lfile(RTD, -1);
+	    if (getlinksrc(path, pbuf, sizeof(pbuf), (char **)NULL) < 1) {
+		if (!Fwarn) {
+		    zeromem((char *)&sb, sizeof(sb));
+		    (void) snpf(nmabuf, sizeof(nmabuf), "(readlink: %s)",
+			strerror(errno));
+		    nmabuf[sizeof(nmabuf) - 1] = '\0';
+		    (void) add_nma(nmabuf, strlen(nmabuf));
+		    pn = 1;
+		} else
+		    pn = 0;
+	    } else {
+		lnk = pn = 1;
+		if (Efsysl && !isefsys(pbuf, "UNKNrtd", 1, NULL, NULL))
+		    pn = 0;
+		else {
+		    ss = SB_ALL;
+		    if (HasNFS) {
+			if ((sv = statsafely(path, &sb)))
+			    sv = statEx(pbuf, &sb, &ss);
+		    } else
+			sv = stat(path, &sb);
+		    if (sv) {
+			ss = 0;
+			if (!Fwarn) {
+			    (void) snpf(nmabuf, sizeof(nmabuf), "(stat: %s)",
+				strerror(errno));
+			    nmabuf[sizeof(nmabuf) - 1] = '\0';
+			    (void) add_nma(nmabuf, strlen(nmabuf));
+			}
+		    }
+		}
+	    }
+	    if (pn) {
+		(void) process_proc_node(lnk ? pbuf : path,
+					 path, &sb, ss,
+					 (struct stat *)NULL, 0);
+		if (Lf->sf)
+		    link_lfile();
+	    }
+	}
+/*
+ * Process the ID's execution info.
+ */
+	lnk = ss = txts = 0;
+	if (!Ckscko) {
+	    (void) make_proc_path(idp, idpl, &path, &pathl, "exe");
+	    alloc_lfile("txt", -1);
+	    if (getlinksrc(path, pbuf, sizeof(pbuf), (char **)NULL) < 1) {
+		zeromem((void *)&sb, sizeof(sb));
+		if (!Fwarn) {
+		    if ((errno != ENOENT) || uid) {
+			(void) snpf(nmabuf, sizeof(nmabuf), "(readlink: %s)",
+			    strerror(errno));
+			nmabuf[sizeof(nmabuf) - 1] = '\0';
+			(void) add_nma(nmabuf, strlen(nmabuf));
+		    }
+		    pn = 1;
+		} else
+		    pn = 0;
+	    } else {
+		lnk = pn = 1;
+		if (Efsysl && !isefsys(pbuf, "UNKNtxt", 1, NULL, NULL))
+		    pn = 0;
+		else {
+		    ss = SB_ALL;
+		    if (HasNFS) {
+			if ((sv = statsafely(path, &sb))) {
+			    sv = statEx(pbuf, &sb,  &ss);
+			    if (!sv && (ss & SB_DEV) && (ss & SB_INO))
+				txts = 1;
+			}
+		    } else
+			sv = stat(path, &sb);
+		    if (sv) {
+			ss = 0;
+			if (!Fwarn) {
+			    (void) snpf(nmabuf, sizeof(nmabuf), "(stat: %s)",
+				strerror(errno));
+			    nmabuf[sizeof(nmabuf) - 1] = '\0';
+			    (void) add_nma(nmabuf, strlen(nmabuf));
+			}
+		    } else
+			txts = 1;
+		}
+	    }
+	    if (pn) {
+		(void) process_proc_node(lnk ? pbuf : path,
+					 path, &sb, ss,
+					 (struct stat *)NULL, 0);
+		if (Lf->sf)
+		    link_lfile();
+	    }
+	}
+/*
+ * Process the ID's memory map info.
+ */
+	if (!Ckscko) {
+	    (void) make_proc_path(idp, idpl, &path, &pathl, "maps");
+	    (void) process_proc_map(path, txts ? &sb : (struct stat *)NULL,
+				    txts ? ss : 0);
+	}
+
+#if	defined(HASSELINUX)
+/*
+ * Process the PID's SELinux context.
+ */
+	if (Fcntx) {
+
+	/*
+	 * If the -Z (cntx) option was specified, match the valid contexts.
+	 */
+	    errno = 0;
+	    if (getpidcon(pid, &Lp->cntx) == -1) {
+		Lp->cntx = (char *)NULL;
+		if (!Fwarn) {
+		    (void) snpf(nmabuf, sizeof(nmabuf),
+			"(getpidcon: %s)", strerror(errno));
+		    if (!(Lp->cntx = strdup(nmabuf))) {
+			(void) fprintf(stderr,
+			    "%s: no context error space: PID %ld",
+			    Pn, (long)Lp->pid);
+			Exit(1);
+		    }
+		}
+	    } else if (CntxArg) {
+
+	    /*
+	     * See if context includes the process.
+	     */
+		for (cntxp = CntxArg; cntxp; cntxp = cntxp->next) {
+		    if (cmp_cntx_eq(Lp->cntx, cntxp->cntx)) {
+			cntxp->f = 1;
+			Lp->pss |= PS_PRI;
+			Lp->sf |= SELCNTX;
+			break;
+		    }
+		}
+	    }
+	}
+#endif	/* defined(HASSELINUX) */
+
+/*
+ * Process the ID's file descriptor directory.
+ */
+	if ((i = make_proc_path(idp, idpl, &dpath, &dpathl, "fd/")) < 3)
+	    return(0);
+	dpath[i - 1] = '\0';
+	if ((OffType == 2)
+	&&  ((j = make_proc_path(idp, idpl, &ipath, &ipathl, "fdinfo/")) >= 7))
+	    oty = 1;
+	else
+	    oty = 0;
+	if (!(fdp = opendir(dpath))) {
+	    if (!Fwarn) {
+		(void) snpf(nmabuf, sizeof(nmabuf), "%s (opendir: %s)",
+		    dpath, strerror(errno));
+		alloc_lfile("NOFD", -1);
+		nmabuf[sizeof(nmabuf) - 1] = '\0';
+		(void) add_nma(nmabuf, strlen(nmabuf));
+		link_lfile();
+	    }
+	    return(0);
+	}
+	dpath[i - 1] = '/';
+	while ((fp = readdir(fdp))) {
+	    if (nm2id(fp->d_name, &fd, &n))
+		continue;
+	    (void) make_proc_path(dpath, i, &path, &pathl, fp->d_name);
+	    (void) alloc_lfile((char *)NULL, fd);
+	    if (getlinksrc(path, pbuf, sizeof(pbuf), &rest) < 1) {
+		zeromem((char *)&sb, sizeof(sb));
+		lnk = ss = 0;
+		if (!Fwarn) {
+		    (void) snpf(nmabuf, sizeof(nmabuf), "(readlink: %s)",
+			strerror(errno));
+		    nmabuf[sizeof(nmabuf) - 1] = '\0';
+		    (void) add_nma(nmabuf, strlen(nmabuf));
+		    pn = 1;
+		} else
+		    pn = 0;
+	    } else {
+		lnk = 1;
+		if (Efsysl && !isefsys(pbuf, "UNKNfd", 1, NULL, &lfr)) {
+		    efs = 1;
+		    pn = 0;
+		} else {
+		    if (HasNFS) {
+			if (lstatsafely(path, &lsb)) {
+			    (void) statEx(pbuf, &lsb, &ls);
+			    enls = errno;
+			} else {
+			    enls = 0;
+			    ls = SB_ALL;
+			}
+			if (statsafely(path, &sb)) {
+			    (void) statEx(pbuf, &sb, &ss);
+			    enss = errno;
+			} else {
+			    enss = 0;
+			    ss = SB_ALL;
+			}
+		    } else {
+			ls = lstat(path, &lsb) ? 0 : SB_ALL;
+			enls = errno;
+			ss = stat(path, &sb) ? 0 : SB_ALL;
+			enss = errno;
+		    }
+		    if (!ls && !Fwarn) {
+			(void) snpf(nmabuf, sizeof(nmabuf), "lstat: %s)",
+			    strerror(enls));
+			nmabuf[sizeof(nmabuf) - 1] = '\0';
+			(void) add_nma(nmabuf, strlen(nmabuf));
+		    }
+		    if (!ss && !Fwarn) {
+			(void) snpf(nmabuf, sizeof(nmabuf), "(stat: %s)",
+			    strerror(enss));
+			nmabuf[sizeof(nmabuf) - 1] = '\0';
+			(void) add_nma(nmabuf, strlen(nmabuf));
+		    }
+		    if (Ckscko) {
+			if ((ss & SB_MODE)
+			&&  ((sb.st_mode & S_IFMT) == S_IFSOCK))
+			{
+			    pn = 1;
+			} else
+			    pn = 0;
+		    } else
+			pn = 1;
+		}
+	    }
+	    if (pn || (efs && lfr && oty)) {
+		if (oty) {
+		    (void) make_proc_path(ipath, j, &pathi, &pathil,
+					  fp->d_name);
+		    if ((av = get_fdinfo(pathi,FDINFO_ALL,&fi)) & FDINFO_POS) {
+			if (efs) {
+			    if (Foffset) {
+				lfr->off = (SZOFFTYPE)fi.pos;
+				lfr->off_def = 1;
+			    }
+			} else {
+			    ls |= SB_SIZE;
+			    lsb.st_size = fi.pos;
+			}
+		    } else
+			ls &= ~SB_SIZE;
+
+#if	!defined(HASNOFSFLAGS)
+		    if ((av & FDINFO_FLAGS) && (Fsv & FSV_FG)) {
+			if (efs) {
+			    lfr->ffg = (long)fi.flags;
+			    lfr->fsv |= FSV_FG;
+			} else {
+			    Lf->ffg = (long)fi.flags;
+			    Lf->fsv |= FSV_FG;
+			}
+		     }
+# endif	/* !defined(HASNOFSFLAGS) */
+
+		}
+		if (pn) {
+		    process_proc_node(lnk ? pbuf : path, path, &sb, ss, &lsb,
+				      ls);
+		    if ((Lf->ntype == N_ANON_INODE) && rest && *rest)
+			enter_nm(rest);
+
+#if	defined(HASEPTOPTS) && defined(HASPTYEPT)
+		    else if (FeptE
+			 &&  Lf->rdev_def
+			 &&  is_pty_ptmx(Lf->rdev)
+			 &&  (av & FDINFO_TTY_INDEX)
+		    ) {
+			    enter_ptmxi(fi.tty_index);
+			    Lf->tty_index = fi.tty_index;
+			    Lf->sf |= SELPTYINFO;
+		    }
+#endif	/* defined(HASEPTOPTS) && defined(HASPTYEPT) */
+
+		    if (Lf->sf)
+			link_lfile();
+		}
+	    }
+	}
+	(void) closedir(fdp);
+	return(0);
+}
+
+
+/*
+ * process_proc_map() - process the memory map of a process
+ */
+
+static void
+process_proc_map(p, s, ss)
+	char *p;			/* path to process maps file */
+	struct stat *s;			/* executing text file state buffer */
+	int ss;				/* *s status -- i.e., SB_* values */
+{
+	char buf[MAXPATHLEN + 1], *ep, fmtbuf[32], **fp, nmabuf[MAXPATHLEN + 1];
+	dev_t dev;
+	int ds, efs, en, i, mss, nf, sv;
+	int eb = 6;
+	INODETYPE inode;
+	MALLOC_S len;
+	long maj, min;
+	FILE *ms;
+	int ns = 0;
+	struct stat sb;
+	struct saved_map {
+	    dev_t dev;
+	    INODETYPE inode;
+	};
+	static struct saved_map *sm = (struct saved_map *)NULL;
+	efsys_list_t *rep;
+	static int sma = 0;
+	static char *vbuf = (char *)NULL;
+	static size_t vsz = (size_t)0;
+/*
+ * Open the /proc/<pid>/maps file, assign a page size buffer to its stream,
+ * and read it/
+ */
+	if (!(ms = open_proc_stream(p, "r", &vbuf, &vsz, 0)))
+	    return;
+	while (fgets(buf, sizeof(buf), ms)) {
+	    if ((nf = get_fields(buf, ":", &fp, &eb, 1)) < 7)
+		continue;			/* not enough fields */
+	    if (!fp[6] || !*fp[6])
+		continue;			/* no path name */
+	/*
+	 * See if the path ends in " (deleted)".  If it does, strip the
+	 * " (deleted)" characters and remember that they were there.
+	 */
+	    if (((ds = (int)strlen(fp[6])) > 10)
+	    &&  !strcmp(fp[6] + ds - 10, " (deleted)"))
+	    {
+		*(fp[6] + ds - 10) = '\0';
+	    } else
+		ds = 0;
+	/*
+	 * Assemble the major and minor device numbers.
+	 */
+	    ep = (char *)NULL;
+	    if (!fp[3] || !*fp[3]
+	    ||  (maj = strtol(fp[3], &ep, 16)) == LONG_MIN || maj == LONG_MAX
+	    ||  !ep || *ep)
+		continue;
+	    ep = (char *)NULL;
+	    if (!fp[4] || !*fp[4]
+	    ||  (min = strtol(fp[4], &ep, 16)) == LONG_MIN || min == LONG_MAX
+	    ||  !ep || *ep)
+		continue;
+	/*
+	 * Assemble the device and inode numbers.  If they are both zero, skip
+	 * the entry.
+	 */
+	    dev = (dev_t)makedev((int)maj, (int)min);
+	    if (!fp[5] || !*fp[5])
+		continue;
+	    ep = (char *)NULL;
+	    if ((inode = strtoull(fp[5], &ep, 0)) == ULLONG_MAX
+	    ||  !ep || *ep)
+		continue;
+	    if (!dev && !inode)
+		continue;
+	/*
+	 * See if the device + inode pair match that of the executable.
+	 * If they do, skip this map entry.
+	 */
+	    if (s && (ss & SB_DEV) && (ss & SB_INO)
+	    &&  (dev == s->st_dev) && (inode == (INODETYPE)s->st_ino))
+		continue;
+	/*
+	 * See if this device + inode pair has already been processed as
+	 * a map entry.
+	 */
+	    for (i = 0; i < ns; i++) {
+		if (dev == sm[i].dev && inode == sm[i].inode)
+		    break;
+	    }
+	    if (i < ns)
+		continue;
+	/*
+	 * Record the processing of this map entry's device and inode pair.
+	 */
+	    if (ns >= sma) {
+		sma += 10;
+		len = (MALLOC_S)(sma * sizeof(struct saved_map));
+		if (sm)
+		    sm = (struct saved_map *)realloc(sm, len);
+		else
+		    sm = (struct saved_map *)malloc(len);
+		if (!sm) {
+		    (void) fprintf(stderr,
+			"%s: can't allocate %d bytes for saved maps, PID %d\n",
+			Pn, (int)len, Lp->pid);
+		    Exit(1);
+		}
+	    }
+	    sm[ns].dev = dev;
+	    sm[ns++].inode = inode;
+	/*
+	 * Allocate space for the mapped file, then get stat(2) information
+	 * for it.  Skip the stat(2) operation if this is on an exempt file
+	 * system.
+	 */
+	    alloc_lfile("mem", -1);
+	    if (Efsysl && !isefsys(fp[6], (char *)NULL, 0, &rep, NULL))
+		efs = sv = 1;
+	    else
+		efs = 0;
+	    if (!efs) {
+		if (HasNFS)
+		    sv = statsafely(fp[6], &sb);
+		else
+		    sv = stat(fp[6], &sb);
+	    }
+	    if (sv || efs) {
+		en = errno;
+	    /*
+	     * Applying stat(2) to the file was not possible (file is on an
+	     * exempt file system) or stat(2) failed, so manufacture a partial
+	     * stat(2) reply from the process' maps file entry.
+	     *
+	     * If the file has been deleted, reset its type to "DEL";
+	     * otherwise generate a stat() error name addition.
+	     */
+		zeromem((char *)&sb, sizeof(sb));
+		sb.st_dev = dev;
+		sb.st_ino = (ino_t)inode;
+		sb.st_mode = S_IFREG;
+		mss = SB_DEV | SB_INO | SB_MODE;
+		if (ds)
+		    alloc_lfile("DEL", -1);
+		else if (!efs && !Fwarn) {
+		    (void) snpf(nmabuf, sizeof(nmabuf), "(stat: %s)",
+			strerror(en));
+		    nmabuf[sizeof(nmabuf) - 1] = '\0';
+		    (void) add_nma(nmabuf, strlen(nmabuf));
+		}
+	    } else if ((sb.st_dev != dev) || ((INODETYPE)sb.st_ino != inode)) {
+
+	    /*
+	     * The stat(2) device and inode numbers don't match those obtained
+	     * from the process' maps file.
+	     *
+	     * If the file has been deleted, reset its type to "DEL"; otherwise
+	     * generate inconsistency name additions.
+	     *
+	     * Manufacture a partial stat(2) reply from the maps file
+	     * information.
+	     */
+		if (ds)
+		    alloc_lfile("DEL", -1);
+		else if (!Fwarn) {
+		    char *sep;
+
+		    if (sb.st_dev != dev) {
+			(void) snpf(nmabuf, sizeof(nmabuf),
+			    "(path dev=%d,%d%s",
+			    GET_MAJ_DEV(sb.st_dev), GET_MIN_DEV(sb.st_dev),
+			    ((INODETYPE)sb.st_ino == inode) ? ")" : ",");
+			nmabuf[sizeof(nmabuf) - 1] = '\0';
+			(void) add_nma(nmabuf, strlen(nmabuf));
+			sep = "";
+		    } else
+			sep = "(path ";
+		    if ((INODETYPE)sb.st_ino != inode) {
+			(void) snpf(fmtbuf, sizeof(fmtbuf), "%%sinode=%s)",
+			    InodeFmt_d);
+			(void) snpf(nmabuf, sizeof(nmabuf), fmtbuf,
+			    sep, (INODETYPE)sb.st_ino);
+			nmabuf[sizeof(nmabuf) - 1] = '\0';
+			(void) add_nma(nmabuf, strlen(nmabuf));
+		    }
+		}
+		zeromem((char *)&sb, sizeof(sb));
+		sb.st_dev = dev;
+		sb.st_ino = (ino_t)inode;
+		sb.st_mode = S_IFREG;
+		mss = SB_DEV | SB_INO | SB_MODE;
+	    } else
+		mss = SB_ALL;
+	/*
+	 * Record the file's information.
+	 */
+	    if (!efs)
+		process_proc_node(fp[6], fp[6], &sb, mss, (struct stat *)NULL,
+				  0);
+	    else {
+
+	    /*
+	     * If this file is on an exempt file system, complete the lfile
+	     * structure, but change its type and add the exemption note to
+	     * the NAME column.
+	     */
+		Lf->dev = sb.st_dev;
+		Lf->inode = (ino_t)sb.st_ino;
+		Lf->dev_def = Lf->inp_ty = 1;
+		(void) enter_nm(fp[6]);
+		(void) snpf(Lf->type, sizeof(Lf->type), "%s",
+			    (ds ? "UNKNdel" : "UNKNmem"));
+		(void) snpf(nmabuf, sizeof(nmabuf), "(%ce %s)",
+		    rep->rdlnk ? '+' : '-', rep->path);
+		nmabuf[sizeof(nmabuf) - 1] = '\0';
+		(void) add_nma(nmabuf, strlen(nmabuf));
+	    }
+	    if (Lf->sf)
+		link_lfile();
+	}
+	(void) fclose(ms);
+}
+
+
+/*
+ * read_id_stat() - read ID (PID or LWP ID) status
+ *
+ * return: -1 == ID is unavailable
+ *          0 == ID OK
+ *          1 == ID is a zombie
+ *	    2 == ID is a thread
+ */
+
+static int
+read_id_stat(p, id, cmd, ppid, pgid)
+	char *p;			/* path to status file */
+	int id;				/* ID: PID or LWP */
+	char **cmd;			/* malloc'd command name */
+	int *ppid;			/* returned parent PID for PID type */
+	int *pgid;			/* returned process group ID for PID
+					 * type */
+{
+	char buf[MAXPATHLEN], *cp, *cp1, **fp;
+	int ch, cx, es, nf, pc;
+	static char *cbf = (char *)NULL;
+	static MALLOC_S cbfa = 0;
+	FILE *fs;
+	static char *vbuf = (char *)NULL;
+	static size_t vsz = (size_t)0;
+/*
+ * Open the stat file path, assign a page size buffer to its stream,
+ * and read the file's first line.
+ */
+	if (!(fs = open_proc_stream(p, "r", &vbuf, &vsz, 0)))
+	    return(-1);
+	if (!(cp = fgets(buf, sizeof(buf), fs))) {
+
+read_id_stat_exit:
+
+	    (void) fclose(fs);
+	    return(-1);
+	}
+/*
+ * Skip to the first field, and make sure it is a matching ID.
+ */
+	cp1 = cp;
+	while (*cp && (*cp != ' ') && (*cp != '\t'))
+	    cp++;
+	if (*cp)
+	    *cp = '\0';
+	if (atoi(cp1) != id)
+	    goto read_id_stat_exit;
+/*
+ * The second field should contain the command, enclosed in parentheses.
+ * If it also has embedded '\n' characters, replace them with '?' characters,
+ * accumulating command characters until a closing parentheses appears.
+ *
+ */
+	for (++cp; *cp && (*cp == ' '); cp++)
+		;
+	if (!cp || (*cp != '('))
+	    goto read_id_stat_exit;
+	cp++;
+	pc = 1;			/* start the parenthesis balance count at 1 */
+/*
+ * Enter the command characters safely.  Supply them from the initial read
+ * of the stat file line, a '\n' if the initial read didn't yield a ')'
+ * command closure, or by reading the rest of the command a character at
+ * a time from the stat file.  Count embedded '(' characters and balance
+ * them with embedded ')' characters.  The opening '(' starts the balance
+ * count at one.
+ */
+	for (cx = es = 0;;) {
+	    if (!es)
+		ch = *cp++;
+	    else {
+		if ((ch = fgetc(fs)) == EOF)
+		    goto read_id_stat_exit;
+	    }
+	    if (ch == '(')		/* a '(' advances the balance count */
+		pc++;
+	    if (ch == ')') {
+	    
+	    /*
+	     * Balance parentheses when a closure is encountered.  When
+	     * they are balanced, this is the end of the command.
+	     */
+		pc--;
+		if (!pc)
+		    break;
+	    }
+	    if ((cx + 2) > cbfa)
+		cbfa = alloc_cbf((cx + 2), &cbf, cbfa);
+	    cbf[cx] = ch;
+	    cx++;
+	    cbf[cx] = '\0';
+	    if (!es && !*cp)
+		es = 1;		/* Switch to fgetc() when a '\0' appears. */
+	}
+	*cmd = cbf;
+/*
+ * Read the remainder of the stat line if it was necessary to read command
+ * characters individually from the stat file.
+ *
+ * Separate the reminder into fields.
+ */
+	if (es)
+	    cp = fgets(buf, sizeof(buf), fs);
+	(void) fclose(fs);
+	if (!cp || !*cp)
+	    return(-1);
+	if ((nf = get_fields(cp, (char *)NULL, &fp, (int *)NULL, 0)) < 3)
+	    return(-1);
+/*
+ * Convert and return parent process (fourth field) and process group (fifth
+ * field) IDs.
+ */
+	if (fp[1] && *fp[1])
+	    *ppid = atoi(fp[1]);
+	else
+	    return(-1);
+	if (fp[2] && *fp[2])
+	    *pgid = atoi(fp[2]);
+	else
+	    return(-1);
+/*
+ * Check the state in the third field.  If it is 'Z', return that indication.
+ */
+	if (fp[0] && !strcmp(fp[0], "Z"))
+	    return(1);
+	else if (fp[0] && !strcmp(fp[0], "T"))
+	    return(2);
+	return(0);
+}
+
+
+/*
+ * statEx() - extended stat() to get device numbers when a "safe" stat has
+ *	      failed and the system has an NFS mount
+ *
+ * Note: this function was suggested by Paul Szabo as a way to get device
+ *       numbers for NFS files when an NFS mount point has the root_squash
+ *       option set.  In that case, even if lsof is setuid(root), the identity
+ *	 of its requests to stat() NFS files lose root permission and may fail.
+ *
+ *	 This function should be used only when links have been successfully
+ *	 resolved in the /proc path by getlinksrc().
+ */
+
+static int
+statEx(p, s, ss)
+	char *p;			/* file path */
+	struct stat *s;			/* stat() result -- NULL if none
+					 * wanted */
+	int *ss;			/* stat() status --  SB_* values */
+{
+	static size_t ca = 0;
+	static char *cb = NULL;
+	char *cp;
+	int ensv = ENOENT;
+	struct stat sb;
+	int st = 0;
+	size_t sz;
+/*
+ * Make a copy of the path.
+ */
+	sz = strlen(p);
+	if ((sz + 1) > ca) {
+	    if (cb)
+		cb = (char *)realloc((MALLOC_P *)cb, sz + 1);
+	    else
+		cb = (char *)malloc(sz + 1);
+	    if (!cb) {
+		(void) fprintf(stderr,
+		    "%s: PID %ld: no statEx path space: %s\n",
+		    Pn, (long)Lp->pid, p);
+		Exit(1);
+	    }
+	    ca = sz + 1;
+	}
+	(void) strcpy(cb, p);
+/*
+ * Trim trailing leaves from the end of the path one at a time and do a safe
+ * stat() on each trimmed result.  Stop when a safe stat() succeeds or doesn't
+ * fail because of EACCES or EPERM.
+ */
+	for (cp = strrchr(cb, '/'); cp && (cp != cb);) {
+	    *cp = '\0';
+	    if (!statsafely(cb, &sb)) {
+		st = 1;
+		break;
+	    }
+	    ensv = errno;
+	    if ((ensv != EACCES) && (ensv != EPERM))
+		break;
+	    cp = strrchr(cb, '/');
+	}
+/*
+ * If a stat() on a trimmed result succeeded, form partial results containing
+ * only the device and raw device numbers.
+ */
+	zeromem((char *)s, sizeof(struct stat));
+	if (st) {
+	    errno = 0;
+	    s->st_dev = sb.st_dev;
+	    s->st_rdev = sb.st_rdev;
+	    *ss = SB_DEV | SB_RDEV;
+	    return(0);
+	}
+	errno = ensv;
+	*ss = 0;
+	return(1);
+}
+@
+
+
+1.30
+log
+@Revision 4.90
+@
+text
+@d35 1
+a35 1
+static char *rcsid = "$Id: dproc.c,v 1.29 2015/07/07 19:46:33 abe Exp abe $";
+d1261 2
+a1262 1
+		    else if (Lf->rdev_def
+@
+
+
+1.29
+log
+@Revision 4.89
+@
+text
+@d35 1
+a35 1
+static char *rcsid = "$Id: dproc.c,v 1.28 2014/10/13 22:25:58 abe Exp abe $";
+d47 11
+a57 1
+#define FDINFO_ALL		(FDINFO_FLAGS | FDINFO_POS)
+d73 5
+d99 1
+a99 1
+_PROTOTYPE(static int get_fdinfo,(char *p, struct l_fdinfo *fi));
+d108 2
+a109 1
+				  int pid, int ppid, int pgid, int tid));
+d201 1
+d204 1
+a204 1
+	int n, nl, pgid, pid, ppid, rv, tid, tpgid, tppid, tx;
+d272 1
+a272 1
+		if ((Selflags & SELFILE) || !(Selflags & SELPROC))
+d321 6
+d330 6
+a335 2
+	 * If task reporting is selected, check the tasks of the process first,
+	 * so that the "-p<PID> -aK" options work properly.
+d337 4
+a340 1
+	    if ((Selflags & SELTASK)) {
+d394 2
+a395 2
+			if (!process_id(tidpath, (tx + 1 + nl+ 1), tcmd, uid,
+					pid, tppid, tpgid, tid))
+d408 1
+a408 1
+	 * task,  so that the "-aK" option set lists the main process along
+d411 5
+a415 6
+	    (void) make_proc_path(pidpath, n, &path, &pathl, "stat");
+	    if (((rv = read_id_stat(path, pid, &cmd, &ppid, &pgid)) >= 0) 
+	    &&   (rv != 1))
+	    {
+		tid = (Fand && ht && pidts && (Selflags & SELTASK)) ? pid : 0;
+		if ((!process_id(pidpath, n, cmd, uid, pid, ppid, pgid, tid))
+d430 1
+a430 1
+get_fdinfo(p, fi)
+d432 2
+d448 5
+d473 1
+a473 1
+		if ((rv |= FDINFO_FLAGS) == FDINFO_ALL)
+d487 23
+d596 1
+a596 1
+		if (get_fdinfo(path, &fi) & FDINFO_POS) {
+d859 1
+a859 1
+process_id(idp, idpl, cmd, uid, pid, ppid, pgid, tid)
+d868 1
+d870 1
+a870 1
+	int av;
+d917 1
+a917 1
+	    Ckscko = (sf & SELPROC) ? 0 : 1;
+a919 1
+	Lp->tid = tid;
+d921 2
+d924 15
+d1228 1
+a1228 1
+		    if ((av = get_fdinfo(pathi, &fi)) & FDINFO_POS) {
+d1259 12
+d1525 1
+a1525 1
+	int ch, cx, es, nf;
+d1565 1
+d1570 3
+a1572 1
+ * a time from the stat file.
+d1581 12
+a1592 2
+	    if (ch == ')')		/* ')' closes the command */
+		break;
+@
+
+
+1.28
+log
+@Revision 4.88
+@
+text
+@d35 1
+a35 1
+static char *rcsid = "$Id: dproc.c,v 1.27 2013/01/02 17:02:36 abe Exp abe $";
+d843 1
+a843 1
+	    if (!FpipeE)
+d850 1
+a850 1
+	if (Cckreg && !FpipeE) {
+d871 1
+a871 1
+		    (void) memset((void *)&sb, 0, sizeof(sb));
+d920 1
+a920 1
+		    (void) memset((void *)&sb, 0, sizeof(sb));
+d966 1
+a966 1
+		(void) memset((void *)&sb, 0, sizeof(sb));
+d1088 1
+a1088 1
+		(void) memset((void *)&sb, 0, sizeof(sb));
+d1328 2
+a1329 2
+	     * If the file has been deleted, reset its type to "DEL"; otherwise
+	     * generate a stat() error name addition.
+d1331 1
+a1331 1
+		(void) memset((void *)&sb, 0, sizeof(sb));
+d1380 1
+a1380 1
+		(void) memset((void *)&sb, 0, sizeof(sb));
+a1440 1
+	MALLOC_S nl;
+d1602 1
+a1602 1
+	memset((void *)s, 0, sizeof(struct stat));
+@
+
+
+1.27
+log
+@Revision 4.87
+@
+text
+@d35 1
+a35 1
+static char *rcsid = "$Id: dproc.c,v 1.26 2012/04/10 16:39:50 abe Exp abe $";
+d83 1
+d89 2
+a90 2
+_PROTOTYPE(static int read_id_stat,(int ty, char *p, int id, char **cmd,
+				    int *ppid, int *pgid));
+d155 23
+d357 1
+a357 1
+			rv = read_id_stat(1, tidpath, tid, &tcmd, &tppid,
+d382 1
+a382 1
+	    if (((rv = read_id_stat(0, path, pid, &cmd, &ppid, &pgid)) >= 0) 
+d840 6
+d847 1
+a847 1
+	if (Cckreg) {
+d849 3
+d865 1
+a868 1
+	    efs = 0;
+d914 1
+a920 1
+		    lnk = ss = 0;
+d961 1
+a962 1
+	    txts = 0;
+a966 1
+		lnk = ss = 0;
+d1428 1
+a1428 2
+read_id_stat(ty, p, id, cmd, ppid, pgid)
+	int ty;				/* type: 0 == PID, 1 == LWP */
+d1437 1
+d1441 1
+a1441 2
+	MALLOC_S len;
+	int nf;
+d1450 5
+a1454 3
+	cp = fgets(buf, sizeof(buf), fs);
+	(void) fclose(fs);
+	if (!cp)
+d1456 1
+d1458 1
+a1458 2
+ * Separate the line into fields on white space separators.  Expect five fields
+ * for a PID type and three for an LWP type.
+d1460 7
+a1466 5
+	if ((nf = get_fields(buf, (char *)NULL, &fp, (int *)NULL, 0))
+	<  (ty ? 5 : 3))
+	{
+	    return(-1);
+	}
+d1468 4
+a1471 2
+ * Convert the first field to an integer; its conversion must match the
+ * ID argument.
+d1473 5
+a1477 2
+	if (!fp[0] || (atoi(fp[0]) != id))
+	    return(-1);
+d1479 4
+a1482 3
+ * Get the command name from the second field.  Strip a starting '(' and
+ * an ending ')'.  Allocate space to hold the result and return the space
+ * pointer.
+d1484 16
+a1499 18
+	if (!(cp = fp[1]))
+	    return(-1);
+	if (cp && *cp == '(')
+	    cp++;
+	if ((cp1 = strrchr(cp, ')')))
+	    *cp1 = '\0';
+	if ((len = strlen(cp) + 1) > cbfa) {
+	     cbfa = len;
+	     if (cbf)
+		cbf = (char *)realloc((MALLOC_P *)cbf, cbfa);
+	     else
+		cbf = (char *)malloc(cbfa);
+	     if (!cbf) {
+		(void) fprintf(stderr,
+		    "%s: can't allocate %d bytes for command \"%s\"\n",
+		    Pn, (int)cbfa, cp);
+		Exit(1);
+	     }
+a1500 1
+	(void) snpf(cbf, len, "%s", cp);
+d1503 13
+d1519 2
+a1520 2
+	if (fp[3] && *fp[3])
+	    *ppid = atoi(fp[3]);
+d1523 2
+a1524 2
+	if (fp[4] && *fp[4])
+	    *pgid = atoi(fp[4]);
+d1530 1
+a1530 1
+	if (fp[2] && !strcmp(fp[2], "Z"))
+d1532 1
+a1532 1
+	else if (fp[2] && !strcmp(fp[2], "T"))
+@
+
+
+1.26
+log
+@Revision 4.86
+@
+text
+@d35 1
+a35 1
+static char *rcsid = "$Id: dproc.c,v 1.25 2011/09/07 19:07:45 abe Exp abe $";
+d84 1
+a84 1
+_PROTOTYPE(static int getlinksrc,(char *ln, char *src, int srcl));
+d443 1
+a443 1
+getlinksrc(ln, src, srcl)
+d447 3
+d454 2
+d465 2
+d804 1
+d836 1
+a836 1
+	    if (getlinksrc(path, pbuf, sizeof(pbuf)) < 1) {
+d872 1
+a872 1
+					 &sb, ss,
+d884 1
+a884 1
+	    if (getlinksrc(path, pbuf, sizeof(pbuf)) < 1) {
+d919 1
+a919 1
+					 &sb, ss,
+d932 1
+a932 1
+	    if (getlinksrc(path, pbuf, sizeof(pbuf)) < 1) {
+d973 1
+a973 1
+					 &sb, ss,
+d1055 1
+a1055 1
+	    if (getlinksrc(path, pbuf, sizeof(pbuf)) < 1) {
+d1147 4
+a1150 1
+		    process_proc_node(lnk ? pbuf : path, &sb, ss, &lsb, ls);
+d1359 2
+a1360 1
+		process_proc_node(fp[6], &sb, mss, (struct stat *)NULL, 0);
+@
+
+
+1.25
+log
+@Revision 4.58: +|-e aoption addition
+@
+text
+@d35 1
+a35 1
+static char *rcsid = "$Id: dproc.c,v 1.24 2011/08/07 22:53:13 abe Exp abe $";
+d782 1
+a782 1
+	short efs, enls, enss, lnk, oty, pn, pss, sf, tsf;
+a1166 1
+	struct mounts *mp;
+d1295 1
+a1295 1
+		else if (!efs) {
+@
+
+
+1.24
+log
+@Revision 4.85, part 1
+@
+text
+@d35 1
+a35 1
+static char *rcsid = "$Id: dproc.c,v 1.23 2010/07/29 16:04:52 abe Exp abe $";
+d85 2
+d586 76
+d782 1
+a782 1
+	short enls, enss, lnk, oty, pn, pss, sf, tsf;
+d790 1
+d827 1
+d841 7
+a847 3
+		ss = SB_ALL;
+		if (HasNFS) {
+		    if ((sv = statsafely(path, &sb)))
+d849 10
+a858 9
+		} else
+		    sv = stat(path, &sb);
+		if (sv) {
+		    ss = 0;
+		    if (!Fwarn) {
+			(void) snpf(nmabuf, sizeof(nmabuf), "(stat: %s)",
+			    strerror(errno));
+			nmabuf[sizeof(nmabuf) - 1] = '\0';
+			(void) add_nma(nmabuf, strlen(nmabuf));
+d889 17
+a905 13
+		ss = SB_ALL;
+		if (HasNFS) {
+		    if ((sv = statsafely(path, &sb)))
+			sv = statEx(pbuf, &sb, &ss);
+		} else
+		    sv = stat(path, &sb);
+		if (sv) {
+		    ss = 0;
+		    if (!Fwarn) {
+			(void) snpf(nmabuf, sizeof(nmabuf), "(stat: %s)",
+			    strerror(errno));
+			nmabuf[sizeof(nmabuf) - 1] = '\0';
+			(void) add_nma(nmabuf, strlen(nmabuf));
+d921 1
+d939 23
+a961 19
+		ss = SB_ALL;
+		if (HasNFS) {
+		    if ((sv = statsafely(path, &sb))) {
+			sv = statEx(pbuf, &sb,  &ss);
+			if (!sv && (ss & SB_DEV) && (ss & SB_INO))
+			    txts = 1;
+		    }
+		} else
+		    sv = stat(path, &sb);
+		if (sv) {
+		    ss = 0;
+		    if (!Fwarn) {
+			(void) snpf(nmabuf, sizeof(nmabuf), "(stat: %s)",
+			    strerror(errno));
+			nmabuf[sizeof(nmabuf) - 1] = '\0';
+			(void) add_nma(nmabuf, strlen(nmabuf));
+		    }
+		} else
+		    txts = 1;
+d1060 19
+a1078 4
+		if (HasNFS) {
+		    if (lstatsafely(path, &lsb)) {
+			(void) statEx(pbuf, &lsb, &ls);
+		        enls = errno;
+d1080 3
+a1082 5
+			enls = 0;
+			ls = SB_ALL;
+		    }
+		    if (statsafely(path, &sb)) {
+			(void) statEx(pbuf, &sb, &ss);
+a1083 3
+		    } else {
+			enss = 0;
+			ss = SB_ALL;
+d1085 21
+a1105 5
+		} else {
+		    ls = lstat(path, &lsb) ? 0 : SB_ALL;
+		    enls = errno;
+		    ss = stat(path, &sb) ? 0 : SB_ALL;
+		    enss = errno;
+a1106 19
+		if (!ls && !Fwarn) {
+		    (void) snpf(nmabuf, sizeof(nmabuf), "lstat: %s)",
+			strerror(enls));
+		    nmabuf[sizeof(nmabuf) - 1] = '\0';
+		    (void) add_nma(nmabuf, strlen(nmabuf));
+		}
+		if (!ss && !Fwarn) {
+		    (void) snpf(nmabuf, sizeof(nmabuf), "(stat: %s)",
+			strerror(enss));
+		    nmabuf[sizeof(nmabuf) - 1] = '\0';
+		    (void) add_nma(nmabuf, strlen(nmabuf));
+		}
+		if (Ckscko) {
+		    if ((ss & SB_MODE) && ((sb.st_mode & S_IFMT) == S_IFSOCK))
+			pn = 1;
+		    else
+			pn = 0;
+		} else
+		    pn = 1;
+d1108 1
+a1108 1
+	    if (pn) {
+d1113 9
+a1121 2
+			ls |= SB_SIZE;
+			lsb.st_size = fi.pos;
+d1127 7
+a1133 2
+			Lf->ffg = (long)fi.flags;
+			Lf->fsv |= FSV_FG;
+d1138 5
+a1142 4
+		process_proc_node(lnk ? pbuf : path,
+				  &sb, ss, &lsb, ls);
+		if (Lf->sf)
+		    link_lfile();
+d1162 1
+a1162 1
+	int ds, en, i, mss, nf, sv;
+d1167 1
+d1176 1
+d1265 2
+a1266 1
+	 * for it.
+d1269 11
+a1279 5
+	    if (HasNFS) {
+		sv = statsafely(fp[6], &sb);
+	    } else
+		sv = stat(fp[6], &sb);
+	    if (sv) {
+d1282 2
+a1283 1
+	     * Applying stat(2) to the file failed, so manufacture a partial
+d1296 1
+a1296 1
+		else {
+d1348 20
+a1367 1
+	    process_proc_node(fp[6], &sb, mss, (struct stat *)NULL, 0);
+@
+
+
+1.23
+log
+@Revision 4.84
+@
+text
+@d35 1
+a35 1
+static char *rcsid = "$Id: dproc.c,v 1.22 2008/10/21 16:17:21 abe Exp abe $";
+d185 1
+a185 1
+		    Pn, pidpathl, PROCFS);
+d265 1
+a265 1
+			Pn, pidpathl, PROCFS, dp->d_name);
+d571 1
+a571 1
+		    Pn, rl, pp, sf);
+d1141 1
+a1141 1
+			Pn, len, Lp->pid);
+d1304 1
+a1304 1
+		    Pn, cbfa, cp);
+d1379 1
+a1379 1
+ * Trim trailing leaves from the end of the path one at a time and do s safe
+@
+
+
+1.22
+log
+@Revision 4.81
+@
+text
+@d35 1
+a35 1
+static char *rcsid = "$Id: dproc.c,v 1.21 2008/04/15 13:32:26 abe Exp abe $";
+d90 1
+a90 1
+				  int pid, int ppid, int pgid));
+d158 1
+a158 1
+	char *cmd;
+d160 2
+a161 4
+	struct stat sb;
+	int lwp, n, nl, pgid, pid, ppid, rv, tx;
+	static char *lwppath = (char *)NULL;
+	static int lwppathl = 0;
+d168 1
+d171 2
+d277 3
+d281 2
+a282 1
+	 * Process the PID's process information.
+d284 5
+a288 14
+	    (void) make_proc_path(pidpath, n, &path, &pathl, "stat");
+	    rv = read_id_stat(0, path, pid, &cmd, &ppid, &pgid);
+	    if (rv == 1)
+		continue;
+	    else if (rv == 0) {
+		(void) process_id(pidpath, n, cmd, uid, pid, ppid, pgid);
+		continue;
+	    }
+	/*
+	 * The process is a zombie.  Check for a non-zombie task.
+	 */
+	    (void) make_proc_path(pidpath, n, &taskpath, &taskpathl, "task");
+	    tx = n + 4;
+	    if ((ts = opendir(taskpath))) {
+a289 7
+	    /*
+	     * Process the PID's tasks (lightweight processes.)  Record the
+	     * open files of the first one whose LWP ID does not match the PID
+	     * and which is not a itself a zombie.
+	     */
+		while ((dp = readdir(ts))) {
+
+d291 3
+a293 2
+		 * Get the LWP ID.  Skip the task if its LWP ID matches the
+		 * process PID.
+d295 11
+a305 26
+		    if (nm2id(dp->d_name, &lwp, &nl))
+			continue;
+		    if  (lwp == pid)
+			continue;
+		/*
+		 * Check the LWP state.
+		 */
+		    if (read_id_stat(1, path, lwp, &cmd, &ppid, &pgid))
+			continue;
+		/*
+		 * Attempt to record the LWP.
+		 */
+		    if ((tx + 1 + nl + 1) > lwppathl) {
+			lwppathl = tx + 1 + n + 1 + 64;
+			if (lwppath)
+			    lwppath = (char *)realloc((MALLOC_P *)lwppath,
+						      lwppathl);
+			else
+			    lwppath = (char *)malloc((MALLOC_S)lwppathl);
+			if (!lwppath) {
+			    (void) fprintf(stderr,
+				"%s: can't allocate %d task bytes", Pn,
+				lwppathl);
+			    (void) fprintf(stderr,
+				" for \"%s/%s/\"\n", taskpath, dp->d_name);
+			    Exit(1);
+d307 36
+d344 1
+a344 7
+		    (void) snpf(lwppath, lwppathl, "%s/%s/", taskpath,
+			dp->d_name);
+		    if (!process_id(lwppath, (tx + 1 + nl+ 1), cmd, uid, pid,
+				    ppid, pgid))
+		    {
+			break;
+		    }
+a345 1
+		(void) closedir(ts);
+d347 19
+d691 1
+a691 1
+process_id(idp, idpl, cmd, uid, pid, ppid, pgid)
+d699 1
+d704 1
+a704 1
+	short enls, enss, lnk, oty, pn, pss, sf;
+d727 1
+a727 1
+	if (is_proc_excl(pid, pgid, uid, &pss, &sf)
+d740 1
+d1235 1
+a1235 1
+ * return: -1 == ID is a zombie
+d1237 2
+a1238 1
+ *          1 == ID unavailable
+d1264 1
+a1264 1
+	    return(1);
+d1268 1
+a1268 1
+	    return(1);
+d1276 1
+a1276 1
+	    return(1);
+d1283 1
+a1283 1
+	    return(1);
+d1290 1
+a1290 1
+	    return(1);
+d1311 2
+a1312 2
+ * If the type is PID, convert and return parent process (fourth field)
+ * and process group (fifth field) IDs.
+d1314 8
+a1321 10
+	if (!ty) {
+	    if (fp[3] && *fp[3])
+		*ppid = atoi(fp[3]);
+	    else
+		return(1);
+	    if (fp[4] && *fp[4])
+		*pgid = atoi(fp[4]);
+	    else
+		return(1);
+	}
+d1325 5
+a1329 1
+	return((fp[2] && !strcmp(fp[2], "Z")) ? -1 : 0);
+@
+
+
+1.21
+log
+@Revision 4.79
+@
+text
+@d35 1
+a35 1
+static char *rcsid = "$Id: dproc.c,v 1.20 2007/04/24 16:20:53 abe Exp abe $";
+d70 7
+a76 2
+short Cscko, Scko;			/* socket processing options */
+struct lproc *PLp;			/* process' Lp */
+d213 2
+a214 1
+	     * specified, so set unconditional skipping of regular files.
+d216 2
+a217 2
+		Cscko = 0;
+		Scko = 1;
+d222 2
+a223 2
+	     * process options have been specified, enable unconditional file
+	     * processing.
+d226 1
+a226 1
+	     * enable conditional file skipping.
+d229 1
+a229 1
+		    Cscko = Scko = 0;
+d231 1
+a231 1
+		    Cscko = Scko = 1;
+d237 1
+a237 1
+	 * unconditional file processing.
+d239 1
+a239 1
+	    Cscko = Scko = 0;
+d706 8
+a713 8
+/*
+ * Set the socket processing options.
+ */
+	if (Cscko) {
+	    if (sf & SELPROC)
+		Scko = 0;
+	    else
+		Scko = 1;
+d720 4
+a723 23
+	(void) make_proc_path(idp, idpl, &path, &pathl, "cwd");
+	alloc_lfile(CWD, -1);
+	if (getlinksrc(path, pbuf, sizeof(pbuf)) < 1) {
+	    if (!Fwarn) {
+		(void) memset((void *)&sb, 0, sizeof(sb));
+		lnk = ss = 0;
+		(void) snpf(nmabuf, sizeof(nmabuf), "(readlink: %s)",
+		    strerror(errno));
+		nmabuf[sizeof(nmabuf) - 1] = '\0';
+		(void) add_nma(nmabuf, strlen(nmabuf));
+		pn = 1;
+	    } else
+		pn = 0;
+	} else {
+	    lnk = 1;
+	    ss = SB_ALL;
+	    if (HasNFS) {
+		if ((sv = statsafely(path, &sb)))
+		    sv = statEx(pbuf, &sb, &ss);
+	    } else
+		sv = stat(path, &sb);
+	    if (sv) {
+		ss = 0;
+d725 3
+a727 1
+		    (void) snpf(nmabuf, sizeof(nmabuf), "(stat: %s)",
+d731 19
+d752 7
+a758 7
+	    if (Scko) {
+		if ((ss & SB_MODE) && ((sb.st_mode & S_IFMT) == S_IFSOCK))
+		    pn = 1;
+		else
+		    pn = 0;
+	    } else
+		pn = 1;
+a759 7
+	if (pn) {
+	    (void) process_proc_node(lnk ? pbuf : path,
+				     &sb, ss,
+				     (struct stat *)NULL, 0);
+	    if (Lf->sf)
+		link_lfile();
+	}
+d763 4
+a766 23
+	(void) make_proc_path(idp, idpl, &path, &pathl, "root");
+	alloc_lfile(RTD, -1);
+	if (getlinksrc(path, pbuf, sizeof(pbuf)) < 1) {
+	    if (!Fwarn) {
+		(void) memset((void *)&sb, 0, sizeof(sb));
+		lnk = ss = 0;
+		(void) snpf(nmabuf, sizeof(nmabuf), "(readlink: %s)",
+		    strerror(errno));
+		nmabuf[sizeof(nmabuf) - 1] = '\0';
+		(void) add_nma(nmabuf, strlen(nmabuf));
+		pn = 1;
+	    } else
+		pn = 0;
+	} else {
+	    lnk = 1;
+	    ss = SB_ALL;
+	    if (HasNFS) {
+		if ((sv = statsafely(path, &sb)))
+		    sv = statEx(pbuf, &sb, &ss);
+	    } else
+		sv = stat(path, &sb);
+	    if (sv) {
+		ss = 0;
+d768 3
+a770 1
+		    (void) snpf(nmabuf, sizeof(nmabuf), "(stat: %s)",
+d774 19
+d795 7
+a801 7
+	    if (Scko) {
+		if ((ss & SB_MODE) && ((sb.st_mode & S_IFMT) == S_IFSOCK))
+		    pn = 1;
+		else
+		    pn = 0;
+	    } else
+		pn = 1;
+a802 7
+	if (pn) {
+	    (void) process_proc_node(lnk ? pbuf : path,
+				     &sb, ss,
+				     (struct stat *)NULL, 0);
+	    if (Lf->sf)
+		link_lfile();
+	}
+d806 6
+a811 28
+	(void) make_proc_path(idp, idpl, &path, &pathl, "exe");
+	alloc_lfile("txt", -1);
+	if (getlinksrc(path, pbuf, sizeof(pbuf)) < 1) {
+	    (void) memset((void *)&sb, 0, sizeof(sb));
+	    lnk = ss = 0;
+	    if (!Fwarn) {
+		if ((errno != ENOENT) || uid) {
+		    (void) snpf(nmabuf, sizeof(nmabuf), "(readlink: %s)",
+			strerror(errno));
+		    nmabuf[sizeof(nmabuf) - 1] = '\0';
+		    (void) add_nma(nmabuf, strlen(nmabuf));
+		}
+		pn = 1;
+	    } else
+		pn = 0;
+	 } else {
+	    lnk = 1;
+	    ss = SB_ALL;
+	    if (HasNFS) {
+		if ((sv = statsafely(path, &sb))) {
+		    sv = statEx(pbuf, &sb,  &ss);
+		    if (!sv && (ss & SB_DEV) && (ss & SB_INO))
+			txts = 1;
+		}
+	    } else
+		sv = stat(path, &sb);
+	    if (sv) {
+		ss = 0;
+d813 6
+a818 9
+		    (void) snpf(nmabuf, sizeof(nmabuf), "(stat: %s)",
+			strerror(errno));
+		    nmabuf[sizeof(nmabuf) - 1] = '\0';
+		    (void) add_nma(nmabuf, strlen(nmabuf));
+		}
+	    } else
+		txts = 1;
+	    if (Scko) {
+		if ((ss & SB_MODE) && ((sb.st_mode & S_IFMT) == S_IFSOCK))
+d820 1
+a820 1
+		else
+d822 23
+a844 4
+	    } else
+		pn = 1;
+	}
+	if (pn) {
+d850 1
+d855 1
+a855 1
+	if (!Scko) {
+d974 1
+a974 1
+		if (Scko) {
+@
+
+
+1.20
+log
+@Revision 4.78
+@
+text
+@d35 1
+a35 1
+static char *rcsid = "$Id: dproc.c,v 1.19 2006/08/25 03:52:35 abe Exp abe $";
+a38 4
+ 
+#if	defined(HASSELINUX)
+#include <selinux/selinux.h>
+#endif	/* defined(HASSELINUX) */
+d45 3
+d51 3
+d55 1
+d57 1
+a57 1
+ * Local variables
+d60 4
+a63 2
+#if	defined(HASSELINUX)
+static cntxlist_t **CntxNm = (cntxlist_t **)NULL;
+a64 1
+#endif	/* defined(HASSELINUX) */
+d66 4
+d78 2
+a79 1
+_PROTOTYPE(static int getlinksrc,(char *ln, char *src, int srcl, short *slash));
+d166 1
+a166 1
+	static MALLOC_S taskpathl = 0;
+d342 65
+d412 1
+a412 1
+getlinksrc(ln, src, srcl, slash)
+a415 2
+	short *slash;			/* leading slash flag: 0 = not present
+					 *		       1 = present */
+a419 1
+	*slash = 0;
+d424 1
+a424 2
+	if (*src == '/') {
+	    *slash = 1;
+a425 1
+	}
+d442 1
+a442 1
+	int off = 0;
+d456 5
+a460 1
+ * If the result isn't LSTAT_TEST_SEEK, disable offset * reporting.
+d469 1
+a469 1
+			off = 1;
+d472 8
+d482 1
+a482 1
+	if (!off) {
+d490 7
+d587 68
+d671 1
+d674 1
+a674 1
+	short enls, enss, lnk, pn, pss, sf, slash;
+d676 1
+d679 3
+d686 2
+d706 1
+d716 1
+a716 1
+	if (getlinksrc(path, pbuf, sizeof(pbuf), &slash) < 1) {
+d729 13
+a741 16
+	    if ((Scko && !slash) || !Scko) {
+		pn = 1;
+		ss = SB_ALL;
+		if (HasNFS) {
+		    if ((sv = statsafely(path, &sb)))
+			sv = statEx(pbuf, &sb, &ss);
+		} else
+		    sv = stat(path, &sb);
+		if (sv) {
+		    ss = 0;
+		    if (!Fwarn) {
+			(void) snpf(nmabuf, sizeof(nmabuf), "(stat: %s)",
+			    strerror(errno));
+			nmabuf[sizeof(nmabuf) - 1] = '\0';
+			(void) add_nma(nmabuf, strlen(nmabuf));
+		    }
+d743 6
+d750 1
+a750 1
+		pn = 0;
+d764 1
+a764 1
+	if (getlinksrc(path, pbuf, sizeof(pbuf), &slash) < 1) {
+d777 21
+a797 1
+	    if ((Scko && !slash) || !Scko) {
+a798 17
+		if (HasNFS) {
+		    if ((sv = statsafely(path, &sb)))
+			sv = statEx(pbuf, &sb, &ss);
+		} else
+		    sv = stat(path, &sb);
+		if (sv) {
+		    ss = 0;
+		    if (!Fwarn) {
+			(void) snpf(nmabuf, sizeof(nmabuf), "(stat: %s)",
+			    strerror(errno));
+			nmabuf[sizeof(nmabuf) - 1] = '\0';
+			(void) add_nma(nmabuf, strlen(nmabuf));
+		    }
+		} else
+		    ss = SB_ALL;
+	    } else
+		pn = 0;
+d812 1
+a812 1
+	if (getlinksrc(path, pbuf, sizeof(pbuf), &slash) < 1) {
+d827 6
+a832 21
+	    if ((Scko && !slash) || !Scko) {
+		pn = 1;
+		if (HasNFS) {
+		    if ((sv = statsafely(path, &sb))) {
+			sv = statEx(pbuf, &sb,  &ss);
+			if (!sv && (ss & SB_DEV) && (ss & SB_INO))
+			    txts = 1;
+		    }
+		} else
+			sv = stat(path, &sb);
+		if (sv) {
+		    ss = 0;
+		    if (!Fwarn) {
+			(void) snpf(nmabuf, sizeof(nmabuf), "(stat: %s)",
+			    strerror(errno));
+			nmabuf[sizeof(nmabuf) - 1] = '\0';
+			(void) add_nma(nmabuf, strlen(nmabuf));
+		    }
+		} else {
+		    ss = SB_ALL;
+		    txts = 1;
+d835 18
+a852 1
+		pn = 0;
+d884 1
+a884 1
+			"(getpidcon: %s)\n", strerror(errno));
+d915 5
+d937 1
+a937 1
+	    if (getlinksrc(path, pbuf, sizeof(pbuf), &slash) < 1) {
+d950 6
+a955 7
+		if ((Scko && !slash) || !Scko) {
+		    pn = 1;
+		    if (HasNFS) {
+			if (lstatsafely(path, &lsb)) {
+			    (void) statEx(pbuf, &lsb, &ls);
+			    enls = errno;
+			} else
+d957 4
+a960 5
+			if (statsafely(path, &sb)) {
+			    (void) statEx(pbuf, &sb, &ss);
+			    enss = errno;
+			} else
+			    ss = SB_ALL;
+d962 2
+a963 4
+			ls = lstat(path, &lsb) ? 0 : SB_ALL;
+			enls = errno;
+			ss = stat(path, &sb) ? 0 : SB_ALL;
+			enss = errno;
+d965 23
+a987 12
+		    if (!ls && !Fwarn) {
+			(void) snpf(nmabuf, sizeof(nmabuf), "lstat: %s)",
+			    strerror(enls));
+			nmabuf[sizeof(nmabuf) - 1] = '\0';
+			(void) add_nma(nmabuf, strlen(nmabuf));
+		    }
+		    if (!ss && !Fwarn) {
+			(void) snpf(nmabuf, sizeof(nmabuf), "(stat: %s)",
+			    strerror(enss));
+			nmabuf[sizeof(nmabuf) - 1] = '\0';
+			(void) add_nma(nmabuf, strlen(nmabuf));
+		    }
+d989 1
+a989 1
+		    pn = 0;
+d992 17
+d1046 2
+d1049 2
+a1050 1
+ * Open and read the /proc/<pid>/maps file.
+d1052 1
+a1052 1
+	if (!(ms = fopen(p, "r")))
+d1089 4
+a1092 1
+	    inode = (INODETYPE)atoi(fp[5]);
+d1240 2
+d1243 2
+a1244 1
+ * Open the stat file path and read its first line.
+d1246 1
+a1246 1
+	if (!(fs = fopen(p, "r")))
+@
+
+
+1.19
+log
+@Revision 4.78
+Add SElinux support.
+@
+text
+@d35 1
+a35 1
+static char *rcsid = "$Id: dproc.c,v 1.18 2005/08/29 10:23:33 abe Exp abe $";
+d62 2
+d65 1
+d70 4
+a73 1
+_PROTOTYPE(static int getlinksrc,(char *ln, char *src, int srcl, int *slash));
+d75 2
+a76 2
+_PROTOTYPE(static int read_proc_stat,(char *p, int pid, char **cmd, int *ppid,
+	   int *pgid));
+d144 6
+a149 10
+	static char *cmd = (char *)NULL;
+	char *cp;
+	short cscko, lnk, pn, pss, sf, scko;
+	struct dirent *dp, *fp;
+	static char *dpath = (char *)NULL;
+	static int dpathl = 0;
+	int enls, enss, f, fd, i, ls, n, slash, ss, sv;
+	DIR *fdp;
+	struct stat lsb, sb;
+	char nmabuf[MAXPATHLEN + 1], pbuf[MAXPATHLEN + 1];
+a151 1
+	int pgid, pid, ppid;
+d156 3
+a158 1
+	int txts = 0;
+a160 4
+#if	defined(HASSELINUX)
+	cntxlist_t *cntxp;
+#endif	/* defined(HASSELINUX) */
+
+d166 1
+a166 1
+	    pidpathl = pidx + 64 + 1;		/* 64 is growth room */
+d201 2
+a202 2
+		cscko = 0;
+		scko = 1;
+d214 1
+a214 1
+		    cscko = scko = 0;
+d216 1
+a216 1
+		    cscko = scko = 1;
+d224 1
+a224 1
+	    cscko = scko = 0;
+d238 1
+a238 16
+	    for (f = n = pid = 0, cp = dp->d_name; *cp; cp++) {
+
+#if	defined(__STDC__)	/* { */
+		if (!isdigit((unsigned char)*cp))
+#else	/* !defined(__STDC__)	   } { */
+		if (!isascii(*cp) || !isdigit((unsigned char)*cp))
+#endif	/* defined(__STDC__)	   } */
+
+		{
+		    f = 1;
+		    break;
+		}
+		pid = pid * 10 + (*cp - '0');
+		n++;
+	    }
+	    if (f)
+d244 1
+a244 1
+		pidpathl = pidx + n + 64 + 1;
+d261 3
+d265 2
+a266 3
+	    if (read_proc_stat(path, pid, &cmd, &ppid, &pgid)
+	    ||  is_proc_excl(pid, pgid, uid, &pss, &sf)
+	    ||  is_cmd_excl(cmd, &pss, &sf))
+d268 3
+a270 5
+	    if (cscko) {
+		if (sf & SELPROC)
+		    scko = 0;
+		else
+		    scko = 1;
+a271 2
+	    alloc_lproc(pid, pgid, ppid, uid, cmd, (int)pss, (int)sf);
+	    Plf = (struct lfile *)NULL;
+d273 1
+a273 1
+	 * Process the PID's current working directory info.
+d275 3
+a277 147
+	    (void) make_proc_path(pidpath, n, &path, &pathl, "cwd");
+	    alloc_lfile(CWD, -1);
+	    if (getlinksrc(path, pbuf, sizeof(pbuf), &slash) < 1) {
+		if (!Fwarn) {
+		    (void) memset((void *)&sb, 0, sizeof(sb));
+		    lnk = ss = 0;
+		    (void) snpf(nmabuf, sizeof(nmabuf), "(readlink: %s)",
+			strerror(errno));
+		    nmabuf[sizeof(nmabuf) - 1] = '\0';
+		    (void) add_nma(nmabuf, strlen(nmabuf));
+		    pn = 1;
+		} else
+		    pn = 0;
+	    } else {
+		lnk = 1;
+		if ((scko && !slash) || !scko) {
+		    pn = 1;
+		    ss = SB_ALL;
+		    if (HasNFS) {
+			if ((sv = statsafely(path, &sb)))
+			    sv = statEx(pbuf, &sb, &ss);
+		    } else
+			sv = stat(path, &sb);
+		    if (sv) {
+			ss = 0;
+			if (!Fwarn) {
+			    (void) snpf(nmabuf, sizeof(nmabuf), "(stat: %s)",
+				strerror(errno));
+			    nmabuf[sizeof(nmabuf) - 1] = '\0';
+			    (void) add_nma(nmabuf, strlen(nmabuf));
+			}
+		    }
+		} else
+		    pn = 0;
+	    }
+	    if (pn) {
+		(void) process_proc_node(lnk ? pbuf : path,
+					 &sb, ss,
+					 (struct stat *)NULL, 0);
+		if (Lf->sf)
+		    link_lfile();
+	    }
+	/*
+	 * Process the PID's root directory info.
+	 */
+	    (void) make_proc_path(pidpath, n, &path, &pathl, "root");
+	    alloc_lfile(RTD, -1);
+	    if (getlinksrc(path, pbuf, sizeof(pbuf), &slash) < 1) {
+		if (!Fwarn) {
+		    (void) memset((void *)&sb, 0, sizeof(sb));
+		    lnk = ss = 0;
+		    (void) snpf(nmabuf, sizeof(nmabuf), "(readlink: %s)",
+			strerror(errno));
+		    nmabuf[sizeof(nmabuf) - 1] = '\0';
+		    (void) add_nma(nmabuf, strlen(nmabuf));
+		    pn = 1;
+		} else
+		    pn = 0;
+	    } else {
+		lnk = 1;
+		if ((scko && !slash) || !scko) {
+		    pn = 1;
+		    if (HasNFS) {
+			if ((sv = statsafely(path, &sb)))
+			    sv = statEx(pbuf, &sb, &ss);
+		    } else
+			sv = stat(path, &sb);
+		    if (sv) {
+			ss = 0;
+			if (!Fwarn) {
+			    (void) snpf(nmabuf, sizeof(nmabuf), "(stat: %s)",
+				strerror(errno));
+			    nmabuf[sizeof(nmabuf) - 1] = '\0';
+			    (void) add_nma(nmabuf, strlen(nmabuf));
+			}
+		    } else
+			ss = SB_ALL;
+		} else
+		    pn = 0;
+	    }
+	    if (pn) {
+		(void) process_proc_node(lnk ? pbuf : path,
+					 &sb, ss,
+					 (struct stat *)NULL, 0);
+		if (Lf->sf)
+		    link_lfile();
+	    }
+	/*
+	 * Process the PID's execution info.
+	 */
+	    (void) make_proc_path(pidpath, n, &path, &pathl, "exe");
+	    alloc_lfile("txt", -1);
+	    if (getlinksrc(path, pbuf, sizeof(pbuf), &slash) < 1) {
+		(void) memset((void *)&sb, 0, sizeof(sb));
+		lnk = ss = 0;
+		if (!Fwarn) {
+		    if ((errno != ENOENT) || uid) {
+			(void) snpf(nmabuf, sizeof(nmabuf), "(readlink: %s)",
+			    strerror(errno));
+			nmabuf[sizeof(nmabuf) - 1] = '\0';
+			(void) add_nma(nmabuf, strlen(nmabuf));
+		    }
+		    pn = 1;
+		} else
+		    pn = 0;
+	    } else {
+		lnk = 1;
+		if ((scko && !slash) || !scko) {
+		    pn = 1;
+		    if (HasNFS) {
+			if ((sv = statsafely(path, &sb))) {
+			    sv = statEx(pbuf, &sb,  &ss);
+			    if (!sv && (ss & SB_DEV) && (ss & SB_INO))
+				txts = 1;
+			}
+		    } else
+			sv = stat(path, &sb);
+		    if (sv) {
+			ss = 0;
+			if (!Fwarn) {
+			    (void) snpf(nmabuf, sizeof(nmabuf), "(stat: %s)",
+				strerror(errno));
+			    nmabuf[sizeof(nmabuf) - 1] = '\0';
+			    (void) add_nma(nmabuf, strlen(nmabuf));
+			}
+		    } else {
+			ss = SB_ALL;
+			txts = 1;
+		    }
+		} else
+		    pn = 0;
+	    }
+	    if (pn) {
+		(void) process_proc_node(lnk ? pbuf : path,
+					 &sb, ss,
+					 (struct stat *)NULL, 0);
+		if (Lf->sf)
+		    link_lfile();
+	    }
+	/*
+	 * Process the PID's memory map info.
+	 */
+	    if (!scko) {
+		(void) make_proc_path(pidpath, n, &path, &pathl, "maps");
+		(void) process_proc_map(path, txts ? &sb : (struct stat *)NULL,
+					txts ? ss : 0);
+	    }
+a278 6
+#if	defined(HASSELINUX)
+	/*
+	 * Process the PID's SELinux context.
+	 */
+	    if (Fcntx) {
+
+d280 3
+a282 1
+	     * If the -Z (cntx) option was specified, match the valid contexts.
+d284 1
+a284 14
+		errno = 0;
+		if (getpidcon(pid, &Lp->cntx) == -1) {
+		    Lp->cntx = (char *)NULL;
+		    if (!Fwarn) {
+			(void) snpf(nmabuf, sizeof(nmabuf),
+			    "(getpidcon: %s)\n", strerror(errno));
+			if (!(Lp->cntx = strdup(nmabuf))) {
+			    (void) fprintf(stderr,
+				"%s: no context error space: PID %ld",
+				Pn, (long)Lp->pid);
+			    Exit(1);
+			}
+		    }
+		} else if (CntxArg) {
+d287 2
+a288 1
+		 * See if context includes the process.
+d290 26
+a315 6
+		    for (cntxp = CntxArg; cntxp; cntxp = cntxp->next) {
+			if (cmp_cntx_eq(Lp->cntx, cntxp->cntx)) {
+			    cntxp->f = 1;
+			    Lp->pss |= PS_PRI;
+			    Lp->sf |= SELCNTX;
+			    break;
+d318 4
+a321 31
+		}
+	    }
+#endif	/* defined(HASSELINUX) */
+
+	/*
+	 * Process the PID's file descriptor directory.
+	 */
+	    if ((i = make_proc_path(pidpath, n, &dpath, &dpathl, "fd/")) < 3)
+		continue;
+	    dpath[i - 1] = '\0';
+	    if (!(fdp = opendir(dpath))) {
+		if (!Fwarn) {
+		    (void) snpf(nmabuf, sizeof(nmabuf), "%s (opendir: %s)",
+			dpath, strerror(errno));
+		    alloc_lfile("NOFD", -1);
+		    nmabuf[sizeof(nmabuf) - 1] = '\0';
+		    (void) add_nma(nmabuf, strlen(nmabuf));
+		    link_lfile();
+		}
+		continue;
+	    }
+	    dpath[i - 1] = '/';
+	    while ((fp = readdir(fdp))) {
+		for (f = fd = n = 0, cp = fp->d_name; *cp; cp++) {
+
+#if	defined(__STDC__)	/* { */
+		    if (!isdigit((unsigned char)*cp))
+#else	/* !defined(__STDC__)	   } { */
+		    if (!isascii(*cp) || !isdigit((unsigned char)*cp))
+#endif	/* defined(__STDC__)	   } */
+
+a322 1
+			f = 1;
+a324 2
+		    fd = fd * 10 + (*cp - '0');
+		    n++;
+d326 1
+a326 57
+		if (f)
+		    continue;
+		(void) make_proc_path(dpath, i, &path, &pathl, fp->d_name);
+		(void) alloc_lfile((char *)NULL, fd);
+		if (getlinksrc(path, pbuf, sizeof(pbuf), &slash) < 1) {
+		    (void) memset((void *)&sb, 0, sizeof(sb));
+		    lnk = ss = 0;
+		    if (!Fwarn) {
+			(void) snpf(nmabuf, sizeof(nmabuf), "(readlink: %s)",
+			    strerror(errno));
+			nmabuf[sizeof(nmabuf) - 1] = '\0';
+			(void) add_nma(nmabuf, strlen(nmabuf));
+			pn = 1;
+		    } else
+			pn = 0;
+		} else {
+		    lnk = 1;
+		    if ((scko && !slash) || !scko) {
+			pn = 1;
+			if (HasNFS) {
+			    if (lstatsafely(path, &lsb)) {
+				(void) statEx(pbuf, &lsb, &ls);
+				enls = errno;
+			    } else
+				ls = SB_ALL;
+			    if (statsafely(path, &sb)) {
+				(void) statEx(pbuf, &sb, &ss);
+				enss = errno;
+			    } else
+				ss = SB_ALL;
+			} else {
+			    ls = lstat(path, &lsb) ? 0 : SB_ALL;
+			    enls = errno;
+			    ss = stat(path, &sb) ? 0 : SB_ALL;
+			    enss = errno;
+			}
+			if (!ls && !Fwarn) {
+			    (void) snpf(nmabuf, sizeof(nmabuf), "lstat: %s)",
+				strerror(enls));
+			    nmabuf[sizeof(nmabuf) - 1] = '\0';
+			    (void) add_nma(nmabuf, strlen(nmabuf));
+			}
+			if (!ss && !Fwarn) {
+			    (void) snpf(nmabuf, sizeof(nmabuf), "(stat: %s)",
+				strerror(enss));
+			    nmabuf[sizeof(nmabuf) - 1] = '\0';
+			    (void) add_nma(nmabuf, strlen(nmabuf));
+			}
+		    } else
+			pn = 0;
+		}
+		if (pn) {
+		    process_proc_node(lnk ? pbuf : path,
+				      &sb, ss, &lsb, ls);
+		    if (Lf->sf)
+			link_lfile();
+		}
+a327 1
+	    (void) closedir(fdp);
+d342 1
+a342 1
+	int *slash;			/* leading slash flag: 0 = not present
+d467 353
+d1010 5
+a1014 1
+ * read_proc_stat() - read process status
+d1018 2
+a1019 1
+read_proc_stat(p, pid, cmd, ppid, pgid)
+d1021 1
+a1021 1
+	int pid;			/* PID */
+d1023 3
+a1025 2
+	int *ppid;			/* parent PID */
+	int *pgid;			/* process group ID */
+d1043 2
+a1044 1
+ * Separate the line into fields on white space separators.
+d1046 3
+a1048 1
+	if ((nf = get_fields(buf, (char *)NULL, &fp, (int *)NULL, 0)) < 5)
+d1050 1
+d1053 1
+a1053 1
+ * PID argument.
+d1055 1
+a1055 1
+	if (atoi(fp[0]) != pid)
+d1084 2
+a1085 2
+ * Check the state in the third field.  If it is 'Z', this is a defunct
+ * process and should be skipped.
+d1087 10
+a1096 2
+	if (!fp[2] || !strcmp(fp[2], "Z"))
+	    return(1);
+d1098 1
+a1098 2
+ * Convert and return parent process (fourth field) and process group (fifth
+ * field) IDs.
+d1100 1
+a1100 9
+	if (fp[3] && *fp[3])
+	    *ppid = atoi(fp[3]);
+	else
+	    return(1);
+	if (fp[4] && *fp[4])
+	    *pgid = atoi(fp[4]);
+	else
+	    return(1);
+	return(0);
+@
+
+
+1.18
+log
+@Revision 4.76
+@
+text
+@d35 1
+a35 1
+static char *rcsid = "$Id: dproc.c,v 1.17 2005/08/08 19:52:33 abe Exp abe $";
+d39 4
+d54 10
+d72 1
+d74 2
+d77 4
+d82 50
+d157 5
+d312 2
+a313 4
+			if ((sv = statsafely(path, &sb))) {
+			    if (lnk)
+				sv = statEx(pbuf, &sb, &ss);
+			}
+d356 2
+a357 4
+			if ((sv = statsafely(path, &sb))) {
+			    if (lnk)
+				sv = statEx(pbuf, &sb, &ss);
+			}
+d404 3
+a406 5
+			    if (lnk) {
+				sv = statEx(pbuf, &sb,  &ss);
+				if (!sv && (ss & SB_DEV) && (ss & SB_INO))
+				    txts = 1;
+			    }
+d440 2
+d443 38
+d535 1
+a535 4
+				if (lnk)
+				    (void) statEx(pbuf, &lsb, &ls);
+				else
+				    ls = 0;
+d540 1
+a540 4
+				if (lnk)
+				    (void) statEx(pbuf, &sb, &ss);
+				else
+				    ss = SB_ALL;
+d588 1
+a588 1
+					 *                     1 = present */
+d771 2
+a772 1
+	 * Assemble the inode number.
+d774 1
+d778 2
+a783 1
+	    dev = (dev_t)makedev((int)maj, (int)min);
+@
+
+
+1.17
+log
+@Revision 4.76
+@
+text
+@d35 1
+a35 1
+static char *rcsid = "$Id: dproc.c,v 1.16 2005/05/11 12:53:27 abe Exp abe $";
+d236 1
+a236 1
+			if (sv = statsafely(path, &sb)) {
+d282 1
+a282 1
+			if (sv = statsafely(path, &sb)) {
+d331 1
+a331 1
+			if (sv = statsafely(path, &sb)) {
+d619 2
+a620 1
+	int en, i, mss, nf, sv;
+d639 1
+a639 1
+	    if ((nf = get_fields(buf, ":", &fp)) < 7)
+d644 10
+d732 1
+a732 1
+		if ((nf >= 8) && !strcmp(fp[7], "(deleted)"))
+d752 1
+a752 1
+		if ((nf >= 8) && !strcmp(fp[7], "(deleted)"))
+d811 1
+a811 1
+	int nf, tpid;
+d824 1
+a824 1
+	if ((nf = get_fields(buf, (char *)NULL, &fp)) < 5)
+@
+
+
+1.16
+log
+@Revision 4.75
+@
+text
+@d35 1
+a35 1
+static char *rcsid = "$Id: dproc.c,v 1.15 2004/07/06 19:19:44 abe Exp abe $";
+d617 1
+a617 1
+	char buf[MAXPATHLEN + 1], *ep, **fp, nmabuf[MAXPATHLEN + 1];
+d620 1
+a620 1
+	ino_t inode;
+d628 1
+a628 1
+	    ino_t inode;
+d660 1
+a660 1
+	    inode = (ino_t)atoi(fp[5]);
+d667 1
+a667 1
+	    &&  (dev == s->st_dev) && (inode == s->st_ino))
+d718 1
+a718 1
+		sb.st_ino = inode;
+d729 1
+a729 1
+	    } else if ((sb.st_dev != dev) || (sb.st_ino != inode)) {
+d750 1
+a750 1
+			    (sb.st_ino == inode) ? ")" : ",");
+d756 5
+a760 3
+		    if (sb.st_ino != inode) {
+			(void) snpf(nmabuf, sizeof(nmabuf),
+			    "%sinode=%ld)", sep, sb.st_ino);
+d767 1
+a767 1
+		sb.st_ino = inode;
+@
+
+
+1.15
+log
+@Revision 4.72
+@
+text
+@d35 1
+a35 1
+static char *rcsid = "$Id: dproc.c,v 1.14 2003/06/13 09:52:21 abe Exp $";
+d106 1
+a106 1
+	(void) get_net(path, strlen(path));
+d518 8
+d750 1
+a750 1
+			    (sb.st_ino == inode) ? ")" : "");
+@
+
+
+1.14
+log
+@Revision 4.68
+@
+text
+@d35 1
+a35 1
+static char *rcsid = "$Id: dproc.c,v 1.13 2001/10/17 19:17:48 abe Exp abe $";
+d54 4
+a57 2
+_PROTOTYPE(static void process_proc_map,(char *p, struct stat *s));
+_PROTOTYPE(static int read_proc_stat,(char *p, int pid, char **cmd, int *ppid, int *pgid));
+d69 1
+a69 1
+	short cscko, pss, sf, scko;
+d73 1
+a73 1
+	int f, fd, i, n, slash, sv;
+d76 1
+a78 1
+	char pbuf[MAXPATHLEN + 1];
+d218 14
+a231 1
+	    if (getlinksrc(path, pbuf, sizeof(pbuf), &slash) > 0) {
+d233 8
+a240 3
+		    if (HasNFS)
+			sv = statsafely(path, &sb);
+		    else
+d242 8
+a249 6
+		    if (!sv) {
+			alloc_lfile(CWD, -1);
+			(void) process_proc_node(pbuf, &sb,
+						 (struct stat *)NULL);
+			if (Lf->sf)
+			    link_lfile();
+d251 2
+a252 1
+		}
+d254 7
+d265 14
+a278 1
+	    if (getlinksrc(path, pbuf, sizeof(pbuf), &slash) > 0) {
+d280 7
+a286 3
+		    if (HasNFS)
+			sv = statsafely(path, &sb);
+		    else
+d288 12
+a299 8
+		    if (!sv) {
+			alloc_lfile(RTD, -1);
+			(void) process_proc_node(pbuf, &sb,
+						 (struct stat *)NULL);
+			if (Lf->sf)
+			    link_lfile();
+		    }
+		}
+d301 7
+d312 16
+a327 1
+	    if (getlinksrc(path, pbuf, sizeof(pbuf), &slash) > 0) {
+d329 10
+a338 3
+		    if (HasNFS)
+			sv = statsafely(path, &sb);
+		    else
+d340 10
+a349 1
+		    if (!sv) {
+a350 5
+			alloc_lfile("txt", -1);
+			(void) process_proc_node(pbuf, &sb,
+						 (struct stat *)NULL);
+			if (Lf->sf)
+			    link_lfile();
+d352 2
+a353 1
+		}
+d355 7
+d367 2
+a368 1
+		(void) process_proc_map(path, txts ? &sb : (struct stat *)NULL);
+d376 9
+a384 1
+	    if (!(fdp = opendir(dpath)))
+d386 1
+d407 14
+a420 1
+		if (getlinksrc(path, pbuf, sizeof(pbuf), &slash) > 0) {
+d422 1
+d424 16
+a439 3
+			    if (statsafely(path, &sb)
+			    ||  lstatsafely(path, &lsb))
+				continue;
+d441 4
+a444 2
+			    if (stat(path, &sb) || lstat(path, &lsb))
+				continue;
+d446 14
+a459 5
+			(void) alloc_lfile((char *)NULL, fd);
+			process_proc_node(pbuf, &sb, &lsb);
+			if (Lf->sf)
+			    link_lfile();
+		    }
+d461 6
+d604 1
+a604 1
+process_proc_map(p, s)
+d606 2
+a607 1
+	struct stat *s;			/* exexuting text file state buffer */
+d609 1
+a609 2
+	char buf[MAXPATHLEN], *ep, **fp;
+	int del, i, nf, sv;
+d611 1
+d658 2
+a659 1
+	    if (s && dev == s->st_dev && inode == s->st_ino)
+d691 2
+a692 2
+	 * Get a stat(2) buffer for the mapped file.  If that succeeds,
+	 * allocate space for the file and process it.
+d694 2
+a695 2
+	    del = 0;
+	    if (HasNFS)
+d697 1
+a697 1
+	    else
+d700 1
+a700 1
+
+d702 5
+a706 3
+	     * Applying stat(2) to the file failed.  See if the file has been
+	     * deleted.  If it has, manufacture a partial stat(2) reply, and
+	     * remember the deletion status.
+d708 12
+a719 7
+		if ((nf >= 8) && !strcmp(fp[7], "(deleted)")) {
+		    (void) memset((void *)&sb, 0, sizeof(sb));
+		    sb.st_dev = dev;
+		    sb.st_ino = inode;
+		    sb.st_mode = S_IFREG;
+		    del = 1;
+		    sv = 0;
+d721 1
+a721 6
+	    }
+	    if (!sv) {
+		alloc_lfile("mem", -1);
+		process_proc_node(fp[6], &sb, (struct stat *)NULL);
+		if (Lf->sf) {
+		    if (del) {
+d723 30
+a752 6
+		    /*
+		     * If the stat(2) buffer was manufactured, change some
+		     * local file structure items.
+		     */
+			Lf->sz_def = 0;
+			(void) snpf(Lf->type, sizeof(Lf->type), "%s", "DEL");
+a753 1
+		    link_lfile();
+d755 13
+a767 1
+	    }
+d802 4
+a805 1
+ *
+a808 2
+	if ((nf = get_fields(buf, (char *)NULL, &fp)) < 5)
+	    return(1);
+d838 2
+a839 1
+ * Convert and return parent process and process group IDs.
+d841 6
+d856 79
+@
+
+
+1.13
+log
+@Revision 4.59
+@
+text
+@d35 1
+a35 1
+static char *rcsid = "$Id: dproc.c,v 1.12 2001/10/05 17:48:32 abe Exp abe $";
+d71 1
+a71 1
+	int f, fd, i, n, slash, sv, txts;
+d73 1
+d82 1
+a82 1
+	struct stat lsb, sb;
+d267 1
+a267 2
+		    } else
+			txts = 0;
+@
+
+
+1.12
+log
+@Revision 4.59
+Get process ownership from correct file.
+@
+text
+@d35 1
+a35 1
+static char *rcsid = "$Id: dproc.c,v 1.11 2001/02/13 13:56:07 abe Exp abe $";
+d53 1
+a53 1
+_PROTOTYPE(static int getlinksrc,(char *ln, char *src, int srcl));
+d67 1
+d71 1
+a71 1
+	int f, fd, i, n, sv, txts;
+a80 1
+	short pss, sf;
+d105 44
+d203 6
+d215 14
+a228 10
+	    if (HasNFS)
+		sv = statsafely(path, &sb);
+	    else
+		sv = stat(path, &sb);
+	    if (!sv && getlinksrc(path, pbuf, sizeof(pbuf)) > 0)
+	    {
+		alloc_lfile(CWD, -1);
+		(void) process_proc_node(pbuf, &sb, (struct stat *)NULL);
+		if (Lf->sf)
+		    link_lfile();
+d234 14
+a247 10
+	    if (HasNFS)
+		sv = statsafely(path, &sb);
+	    else
+		sv = stat(path, &sb);
+	    if (!sv && getlinksrc(path, pbuf, sizeof(pbuf)) > 0)
+	    {
+		alloc_lfile(RTD, -1);
+		(void) process_proc_node(pbuf, &sb, (struct stat *)NULL);
+		if (Lf->sf)
+		    link_lfile();
+d253 17
+a269 13
+	    if (HasNFS)
+		sv = statsafely(path, &sb);
+	    else
+		sv = stat(path, &sb);
+	    if (!sv && getlinksrc(path, pbuf, sizeof(pbuf)) > 0)
+	    {
+		txts = 1;
+		alloc_lfile("txt", -1);
+		(void) process_proc_node(pbuf, &sb, (struct stat *)NULL);
+		if (Lf->sf)
+		    link_lfile();
+	    } else
+		txts = 0;
+d273 4
+a276 2
+	    (void) make_proc_path(pidpath, n, &path, &pathl, "maps");
+	    (void) process_proc_map(path, txts ? &sb : (struct stat *)NULL);
+d305 15
+a319 6
+		if (HasNFS) {
+		    if (statsafely(path, &sb) || lstatsafely(path, &lsb))
+			continue;
+		} else {
+		    if (stat(path, &sb) || lstat(path, &lsb))
+			continue;
+a320 6
+		if (getlinksrc(path, pbuf, sizeof(pbuf)) > 0) {
+		    (void) alloc_lfile((char *)NULL, fd);
+		    process_proc_node(pbuf, &sb, &lsb);
+		    if (Lf->sf)
+			link_lfile();
+		}
+d333 1
+a333 1
+getlinksrc(ln, src, srcl)
+d337 2
+d343 1
+d348 2
+a349 1
+	if (*src == '/')
+d351 1
+@
+
+
+1.11
+log
+@Revision 4.55
+@
+text
+@d35 1
+a35 1
+static char *rcsid = "$Id: dproc.c,v 1.10 2001/01/22 12:04:21 abe Exp abe $";
+d151 1
+a151 2
+	    (void) make_proc_path(pidpath, n, &path, &pathl, "stat");
+	    if (stat(path, &sb))
+d154 1
+@
+
+
+1.10
+log
+@Revision 4.54
+Support "(deleted)" /proc/<PID>/maps entries.
+@
+text
+@d35 1
+a35 1
+static char *rcsid = "$Id: dproc.c,v 1.9 2000/08/01 15:42:52 abe Exp abe $";
+d55 1
+a55 1
+_PROTOTYPE(static int read_proc_stat,(char *p, int pid, char **cmd, int *ppid, int *pgrp));
+d75 1
+a75 1
+	int pgrp, pid, ppid;
+d155 2
+a156 2
+	    if (read_proc_stat(path, pid, &cmd, &ppid, &pgrp)
+	    ||  is_proc_excl(pid, pgrp, uid, &pss, &sf)
+d159 1
+a159 1
+	    alloc_lproc(pid, pgrp, ppid, uid, cmd, (int)pss, (int)sf);
+d521 1
+a521 1
+read_proc_stat(p, pid, cmd, ppid, pgrp)
+d526 1
+a526 1
+	int *pgrp;			/* process group ID */
+d587 1
+a587 1
+	    *pgrp = atoi(fp[4]);
+@
+
+
+1.9
+log
+@Revision 4.51
+Convert to snpf().
+@
+text
+@d35 1
+a35 1
+static char *rcsid = "$Id: dproc.c,v 1.8 1999/03/29 07:17:49 abe Exp abe $";
+d391 1
+a392 1
+	int i, sv;
+a398 1
+	static int sma = 0;
+d404 1
+d411 1
+a411 1
+	    if (get_fields(buf, ":", &fp) < 7)
+d474 1
+d479 16
+d498 10
+a507 1
+		if (Lf->sf)
+d509 1
+@
+
+
+1.8
+log
+@Revision 4.42
+Remove ckkv() call.
+@
+text
+@d35 1
+a35 1
+static char *rcsid = "$Id: dproc.c,v 1.7 99/01/25 07:06:30 abe Exp Locker: abe $";
+d95 1
+a95 1
+	    (void) sprintf(pidpath, "%s/", PROCFS);
+d146 1
+a146 1
+	    (void) sprintf(pidpath + pidx, "%s/", dp->d_name);
+d307 2
+a308 1
+		(void) sprintf(path, "%s/%d/fd/%d", PROCFS, Mypid, fd);
+d375 2
+a376 2
+	(void) strcpy(*np, pp);
+	(void) strcpy(*np + pl, sf);
+d550 1
+a550 1
+	(void) strcpy(cbf, cp);
+@
+
+
+1.7
+log
+@Revision 4.40
+@
+text
+@d35 1
+a35 1
+static char *rcsid = "$Id: dproc.c,v 1.6 98/06/29 15:38:09 abe Exp Locker: abe $";
+a298 8
+
+#if	defined(HASKERNIDCK)
+/*
+ * Check kernel identity.
+ */
+	(void) ckkv("Linux", LSOF_VSTR, (char *)NULL, (char *)NULL);
+#endif	/* defined(HASKERNIDCK) */
+
+@
+
+
+1.6
+log
+@Revision 4.35
+@
+text
+@d35 1
+a35 1
+static char *rcsid = "$Id: dproc.c,v 1.5 98/03/18 15:34:53 abe Exp Locker: abe $";
+d241 7
+a247 6
+		if (HasNFS)
+		    sv = statsafely(path, &sb);
+		else
+		    sv = stat(path, &sb);
+		if (sv || lstat(path, &lsb))
+		    continue;
+@
+
+
+1.5
+log
+@Revision 4.29
+Make sure readmnt() is called during initialization.
+@
+text
+@d35 1
+a35 1
+static char *rcsid = "$Id: dproc.c,v 1.4 98/01/20 09:12:59 abe Exp Locker: abe $";
+d298 8
+@
+
+
+1.4
+log
+@Revision 4.24
+Change offset test to use /.
+@
+text
+@d35 1
+a35 1
+static char *rcsid = "$Id: dproc.c,v 1.3 98/01/16 14:30:53 abe Exp Locker: abe $";
+d322 7
+@
+
+
+1.3
+log
+@Revision 4.23
+Determine offset reporting status.
+@
+text
+@d35 1
+a35 1
+static char *rcsid = "$Id: dproc.c,v 1.2 98/01/15 09:18:21 abe Exp Locker: abe $";
+d45 1
+a45 1
+#define	LSTAT_TEST_FILE		"/etc/passwd"
+@
+
+
+1.2
+log
+@Revision 4.23
+Eschew sscanf().  Handle additional readlink() info.
+@
+text
+@d35 1
+a35 1
+static char *rcsid = "$Id: dproc.c,v 1.1 97/12/30 08:15:31 abe Exp Locker: abe $";
+d42 8
+d294 28
+@
+
+
+1.1
+log
+@Initial revision
+@
+text
+@d35 1
+a35 1
+static char *rcsid = "$Id$";
+d45 1
+d161 1
+a161 1
+	    if (!sv && readlink(path, pbuf, sizeof(pbuf) - 1) > 0)
+d176 1
+a176 1
+	    if (!sv && readlink(path, pbuf, sizeof(pbuf) - 1) > 0)
+d191 1
+a191 1
+	    if (!sv && readlink(path, pbuf, sizeof(pbuf) - 1) > 0)
+d239 1
+a239 1
+		if (readlink(path, pbuf, sizeof(pbuf) - 1) > 0) {
+d252 28
+d345 1
+a345 1
+	char buf[MAXPATHLEN], **fp;
+d347 2
+a348 1
+	int i, inode, maj, min, sv;
+d350 1
+d373 4
+a376 1
+	    if (!fp[3] || !*fp[3] || sscanf(fp[3], "%x", &maj) != 1)
+d378 4
+a381 1
+	    if (!fp[4] || !*fp[4] || sscanf(fp[4], "%x", &min) != 1)
+d388 1
+a388 1
+	    inode = atoi(fp[5]);
+d393 2
+a394 2
+	    dev = (dev_t)makedev(maj, min);
+	    if (s && dev == s->st_dev && (ino_t)inode == s->st_ino)
+d401 1
+a401 1
+		if (dev == sm[i].dev && (ino_t)inode == sm[i].inode)
+d424 1
+a424 1
+	    sm[ns++].inode = (ino_t)inode;
+@

@@ -1,0 +1,2773 @@
+head	1.94;
+access;
+symbols;
+locks; strict;
+
+
+1.94
+date	2018.07.14.12.18.34;	author abe;	state Exp;
+branches;
+next	1.93;
+
+1.93
+date	2018.03.26.21.51.46;	author abe;	state Exp;
+branches;
+next	1.92;
+
+1.92
+date	2018.02.14.14.31.05;	author abe;	state Exp;
+branches;
+next	1.91;
+
+1.91
+date	2015.07.07.20.20.22;	author abe;	state Exp;
+branches;
+next	1.90;
+
+1.90
+date	2014.10.13.22.29.00;	author abe;	state Exp;
+branches;
+next	1.89;
+
+1.89
+date	2013.01.02.17.07.05;	author abe;	state Exp;
+branches;
+next	1.88;
+
+1.88
+date	2012.04.10.16.38.44;	author abe;	state Exp;
+branches;
+next	1.87;
+
+1.87
+date	2011.09.27.17.38.07;	author abe;	state Exp;
+branches;
+next	1.86;
+
+1.86
+date	2010.07.29.16.06.29;	author abe;	state Exp;
+branches;
+next	1.85;
+
+1.85
+date	2010.01.18.19.04.52;	author abe;	state Exp;
+branches;
+next	1.84;
+
+1.84
+date	2009.03.25.19.25.11;	author abe;	state Exp;
+branches;
+next	1.83;
+
+1.83
+date	2008.10.21.16.23.01;	author abe;	state Exp;
+branches;
+next	1.82;
+
+1.82
+date	2008.05.09.13.01.54;	author abe;	state Exp;
+branches;
+next	1.81;
+
+1.81
+date	2008.04.15.13.27.36;	author abe;	state Exp;
+branches;
+next	1.80;
+
+1.80
+date	2007.04.24.16.20.10;	author abe;	state Exp;
+branches;
+next	1.79;
+
+1.79
+date	2006.04.10.12.47.48;	author abe;	state Exp;
+branches;
+next	1.78;
+
+1.78
+date	2005.08.30.19.45.58;	author abe;	state Exp;
+branches;
+next	1.77;
+
+1.77
+date	2005.05.11.13.06.38;	author abe;	state Exp;
+branches;
+next	1.76;
+
+1.76
+date	2005.01.17.13.26.19;	author abe;	state Exp;
+branches;
+next	1.75;
+
+1.75
+date	2004.10.21.11.53.46;	author abe;	state Exp;
+branches;
+next	1.74;
+
+1.74
+date	2004.07.13.09.36.53;	author abe;	state Exp;
+branches;
+next	1.73;
+
+1.73
+date	2004.03.10.23.48.18;	author abe;	state Exp;
+branches;
+next	1.72;
+
+1.72
+date	2004.01.14.11.28.03;	author abe;	state Exp;
+branches;
+next	1.71;
+
+1.71
+date	2003.10.16.12.45.41;	author abe;	state Exp;
+branches;
+next	1.70;
+
+1.70
+date	2003.06.18.23.19.38;	author abe;	state Exp;
+branches;
+next	1.69;
+
+1.69
+date	2003.03.27.02.16.18;	author abe;	state Exp;
+branches;
+next	1.68;
+
+1.68
+date	2002.12.22.12.47.49;	author abe;	state Exp;
+branches;
+next	1.67;
+
+1.67
+date	2002.10.10.11.22.36;	author abe;	state Exp;
+branches;
+next	1.66;
+
+1.66
+date	2002.06.26.11.09.19;	author abe;	state Exp;
+branches;
+next	1.65;
+
+1.65
+date	2002.04.22.12.43.45;	author abe;	state Exp;
+branches;
+next	1.64;
+
+1.64
+date	2002.03.07.20.48.21;	author abe;	state Exp;
+branches;
+next	1.63;
+
+1.63
+date	2002.01.22.17.54.13;	author abe;	state Exp;
+branches;
+next	1.62;
+
+1.62
+date	2001.11.09.01.08.10;	author abe;	state Exp;
+branches;
+next	1.61;
+
+1.61
+date	2001.10.20.18.11.00;	author abe;	state Exp;
+branches;
+next	1.60;
+
+1.60
+date	2001.09.11.18.27.24;	author abe;	state Exp;
+branches;
+next	1.59;
+
+1.59
+date	2001.07.19.19.01.16;	author abe;	state Exp;
+branches;
+next	1.58;
+
+1.58
+date	2001.05.03.12.29.17;	author abe;	state Exp;
+branches;
+next	1.57;
+
+1.57
+date	2001.02.15.17.32.17;	author abe;	state Exp;
+branches;
+next	1.56;
+
+1.56
+date	2001.01.19.15.27.56;	author abe;	state Exp;
+branches;
+next	1.55;
+
+1.55
+date	2000.12.06.16.09.59;	author abe;	state Exp;
+branches;
+next	1.54;
+
+1.54
+date	2000.11.08.09.43.45;	author abe;	state Exp;
+branches;
+next	1.53;
+
+1.53
+date	2000.08.22.20.05.26;	author abe;	state Exp;
+branches;
+next	1.52;
+
+1.52
+date	2000.06.29.13.29.32;	author abe;	state Exp;
+branches;
+next	1.51;
+
+1.51
+date	2000.06.29.11.46.49;	author abe;	state Exp;
+branches;
+next	1.50;
+
+1.50
+date	2000.04.03.11.29.55;	author abe;	state Exp;
+branches;
+next	1.49;
+
+1.49
+date	100.01.14.19.44.58;	author abe;	state Exp;
+branches;
+next	1.48;
+
+1.48
+date	99.11.29.18.19.24;	author abe;	state Exp;
+branches;
+next	1.47;
+
+1.47
+date	99.10.23.09.29.48;	author abe;	state Exp;
+branches;
+next	1.46;
+
+1.46
+date	99.07.28.09.45.47;	author abe;	state Exp;
+branches;
+next	1.45;
+
+1.45
+date	99.06.24.06.40.28;	author abe;	state Exp;
+branches;
+next	1.44;
+
+1.44
+date	99.05.11.06.38.43;	author abe;	state Exp;
+branches;
+next	1.43;
+
+1.43
+date	99.03.30.15.54.10;	author abe;	state Exp;
+branches;
+next	1.42;
+
+1.42
+date	99.02.27.15.56.58;	author abe;	state Exp;
+branches;
+next	1.41;
+
+1.41
+date	99.01.25.15.52.27;	author abe;	state Exp;
+branches;
+next	1.40;
+
+1.40
+date	98.12.29.09.36.56;	author abe;	state Exp;
+branches;
+next	1.39;
+
+1.39
+date	98.11.25.10.06.41;	author abe;	state Exp;
+branches;
+next	1.38;
+
+1.38
+date	98.09.15.07.38.58;	author abe;	state Exp;
+branches;
+next	1.37;
+
+1.37
+date	98.08.04.12.24.00;	author abe;	state Exp;
+branches;
+next	1.36;
+
+1.36
+date	98.07.17.18.17.09;	author abe;	state Exp;
+branches;
+next	1.35;
+
+1.35
+date	98.06.26.15.42.24;	author abe;	state Exp;
+branches;
+next	1.34;
+
+1.34
+date	98.05.22.22.56.10;	author abe;	state Exp;
+branches;
+next	1.33;
+
+1.33
+date	98.05.13.07.02.52;	author abe;	state Exp;
+branches;
+next	1.32;
+
+1.32
+date	98.04.21.10.29.01;	author abe;	state Exp;
+branches;
+next	1.31;
+
+1.31
+date	98.04.08.22.22.52;	author abe;	state Exp;
+branches;
+next	1.30;
+
+1.30
+date	98.03.26.08.41.05;	author abe;	state Exp;
+branches;
+next	1.29;
+
+1.29
+date	98.03.10.15.48.17;	author abe;	state Exp;
+branches;
+next	1.28;
+
+1.28
+date	98.03.06.19.09.55;	author abe;	state Exp;
+branches;
+next	1.27;
+
+1.27
+date	98.02.17.22.31.01;	author abe;	state Exp;
+branches;
+next	1.26;
+
+1.26
+date	98.02.07.07.10.19;	author abe;	state Exp;
+branches;
+next	1.25;
+
+1.25
+date	98.01.28.07.07.27;	author abe;	state Exp;
+branches;
+next	1.24;
+
+1.24
+date	98.01.16.21.03.12;	author abe;	state Exp;
+branches;
+next	1.23;
+
+1.23
+date	97.12.15.13.07.42;	author abe;	state Exp;
+branches;
+next	1.22;
+
+1.22
+date	97.12.01.17.49.37;	author abe;	state Exp;
+branches;
+next	1.21;
+
+1.21
+date	97.11.11.07.44.17;	author abe;	state Exp;
+branches;
+next	1.20;
+
+1.20
+date	97.10.30.14.54.12;	author abe;	state Exp;
+branches;
+next	1.19;
+
+1.19
+date	97.10.25.04.56.22;	author abe;	state Exp;
+branches;
+next	1.18;
+
+1.18
+date	97.10.14.08.35.07;	author abe;	state Exp;
+branches;
+next	1.17;
+
+1.17
+date	97.09.25.05.56.05;	author abe;	state Exp;
+branches;
+next	1.16;
+
+1.16
+date	97.08.15.18.19.56;	author abe;	state Exp;
+branches;
+next	1.15;
+
+1.15
+date	97.07.22.10.54.35;	author abe;	state Exp;
+branches;
+next	1.14;
+
+1.14
+date	97.07.09.19.54.26;	author abe;	state Exp;
+branches;
+next	1.13;
+
+1.13
+date	97.06.24.07.34.24;	author abe;	state Exp;
+branches;
+next	1.12;
+
+1.12
+date	97.06.12.19.16.44;	author abe;	state Exp;
+branches;
+next	1.11;
+
+1.11
+date	97.06.08.14.32.10;	author abe;	state Exp;
+branches;
+next	1.10;
+
+1.10
+date	97.06.01.15.04.42;	author abe;	state Exp;
+branches;
+next	1.9;
+
+1.9
+date	97.05.23.13.35.30;	author abe;	state Exp;
+branches;
+next	1.8;
+
+1.8
+date	97.05.12.14.02.47;	author abe;	state Exp;
+branches;
+next	1.7;
+
+1.7
+date	97.04.29.15.51.54;	author abe;	state Exp;
+branches;
+next	1.6;
+
+1.6
+date	97.04.24.06.51.36;	author abe;	state Exp;
+branches;
+next	1.5;
+
+1.5
+date	97.04.17.14.03.58;	author abe;	state Exp;
+branches;
+next	1.4;
+
+1.4
+date	97.04.07.14.09.40;	author abe;	state Exp;
+branches;
+next	1.3;
+
+1.3
+date	97.03.21.13.59.40;	author abe;	state Exp;
+branches;
+next	1.2;
+
+1.2
+date	97.03.03.07.12.13;	author abe;	state Exp;
+branches;
+next	1.1;
+
+1.1
+date	97.02.24.17.01.48;	author abe;	state Exp;
+branches;
+next	;
+
+
+desc
+@Lsof version 4
+@
+
+
+1.94
+log
+@Final release to GitHub
+@
+text
+@
+	Index of Files and Directories in pub/tools/unix/lsof
+
+
+00INDEX			is this file.
+
+00LSOF-L		contains information on the lsof-l LISTSERV
+			mailing list for lsof.
+
+ChangeLog		contains information about changes to lsof, also
+			found in the 00DIST distribution notes file of
+			the lsof distribution.
+
+CHECKSUMS		contains information on external checksums for
+			the current lsof distribution files.
+
+FAQ			is the lsof FAQ, also found in the file 00FAQ
+			of the lsof distribution.
+
+			NOTE: this file is as current as possible.
+			Therefore it may contain information that
+			applies to an upcoming revision.  When in
+			doubt, send email to <abe@@purdue.edu>.
+
+NEW/			is a directory that may sometimes contain
+			new information -- usually bzip2'd or gzip'd
+			tar files for ports to specific dialects that
+			are under development.  Please don't get
+			anything from this directory without contacting
+			me first.
+
+OLD/			is a directory that contains OLD lsof
+			distribution files.
+
+README			contains information on the lsof distribution.
+			This file is included in the lsof distribution
+			tar files, lsof.tar.bz2, lsof.tar.gz and
+			lsof.tar.Z.
+
+Victor_A_Abell.gpg      contains the GnuPG 5.0 public key for Victor
+			A. Abell (abe@@purdue.edu).
+
+			MAY BE USED TO AUTHENTICATE THE LSOF
+			DISTRIBUTION AND BINARY FILES.
+
+Victor_A_Abell.pgp      contains the PGP 2.62 public key for Victor A.
+			Abell (abe@@purdue.edu).
+
+			MAY BE USED TO AUTHENTICATE THE LSOF
+			DISTRIBUTION AND BINARY FILES.
+
+binaries/		is a directory tree that contains selected
+			lsof executables, not always for the latest
+			source distribution.  I strongly recommend
+			you avoid using one of these binaries and
+			build your own instead.
+
+contrib/		is a directory of user-contributed information
+			on porting lsof to other Unix dialects.
+
+lsof_man		is a symbolic link to the man page for the
+			current lsof revision.  This file is included
+			in the lsof distribution tar files,
+			lsof.tar.bz2, lsof.tar.gz and lsof.tar.Z.
+
+lsof.tar.bz2		is a symbolic link to the bzip2'd lsof
+			distribution tar archive for the latest
+			revision of lsof.  Consult the README file
+			in this directory for information on its
+			contents.
+
+lsof.tar.bz2.sig	is a symbolic link to the GPG authentication
+			certificate for lsof.tar.bz2.
+
+lsof.tar.gz		is a symbolic link to the gzip'd lsof
+			distribution tar archive for the latest
+			revision of lsof.  Consult the README file
+			in this directory for information on its
+			contents.
+
+lsof.tar.gz.sig		is a symbolic link to the GPG authentication
+			certificate for lsof.tar.gz.
+
+lsof.tar.Z		is a symbolic link to the compressed lsof
+			distribution tar archive for the latest
+			revision of lsof.  Consult the README file
+			in this directory for information on its
+			contents.
+
+lsof.tar.Z.sig		is a symbolic link to the GPG authentication
+			certificate for lsof.tar.Z.
+
+lsof_4.92.man		is the man page for the current lsof
+			distribution.
+
+lsof_4.92.tar.bz2	is the current bzip2'd lsof distribution.
+			Consult the README file in this directory for
+			information on its contents.
+
+lsof_4.92.tar.bz2.sig	is the GPG authentication certificate for
+			lsof_4.92.tar.bz2.
+
+lsof_4.92.tar.gz	is the current gzip'd lsof distribution.
+			Consult the README file in this directory for
+			information on its contents.
+
+lsof_4.92.tar.gz.sig	is the GPG authentication certificate for
+			lsof_4.92.tar.gz.
+
+lsof_4.92.tar.Z		is the current compressed lsof distribution.
+			Consult the README file in this directory for
+			information on its contents.
+
+lsof_4.92.tar.Z.sig	is the GPG authentication certificate for
+			lsof_4.92.tar.Z.
+
+mirrors			is a list of ftp sites where lsof is mirrored.
+
+patches/		contains lsof patches.
+
+solaris_kaddr_filters   contains a discussion of the Solaris kernel
+			address filters installed in lsof 4.50 and
+			above.  This file may also be found in
+			lsof_4.92/dialects/sun.
+
+
+Vic Abell <abe@@purdue.edu>
+July 14, 2018
+@
+
+
+1.93
+log
+@Revision 4.91
+@
+text
+@d93 1
+a93 1
+lsof_4.91.man		is the man page for the current lsof
+d96 1
+a96 1
+lsof_4.91.tar.bz2	is the current bzip2'd lsof distribution.
+d100 2
+a101 2
+lsof_4.91.tar.bz2.sig	is the GPG authentication certificate for
+			lsof_4.91.tar.bz2.
+d103 1
+a103 1
+lsof_4.91.tar.gz	is the current gzip'd lsof distribution.
+d107 2
+a108 2
+lsof_4.91.tar.gz.sig	is the GPG authentication certificate for
+			lsof_4.91.tar.gz.
+d110 1
+a110 1
+lsof_4.91.tar.Z		is the current compressed lsof distribution.
+d114 2
+a115 2
+lsof_4.91.tar.Z.sig	is the GPG authentication certificate for
+			lsof_4.91.tar.Z.
+d124 1
+a124 1
+			lsof_4.91/dialects/sun.
+d128 1
+a128 1
+March 26, 2018
+@
+
+
+1.92
+log
+@Revision 4.90
+@
+text
+@d93 1
+a93 1
+lsof_4.90.man		is the man page for the current lsof
+d96 1
+a96 1
+lsof_4.90.tar.bz2	is the current bzip2'd lsof distribution.
+d100 2
+a101 2
+lsof_4.90.tar.bz2.sig	is the GPG authentication certificate for
+			lsof_4.90.tar.bz2.
+d103 1
+a103 1
+lsof_4.90.tar.gz	is the current gzip'd lsof distribution.
+d107 2
+a108 2
+lsof_4.90.tar.gz.sig	is the GPG authentication certificate for
+			lsof_4.90.tar.gz.
+d110 1
+a110 1
+lsof_4.90.tar.Z		is the current compressed lsof distribution.
+d114 2
+a115 2
+lsof_4.90.tar.Z.sig	is the GPG authentication certificate for
+			lsof_4.90.tar.Z.
+d124 1
+a124 1
+			lsof_4.90/dialects/sun.
+d128 1
+a128 1
+February 14, 2018
+@
+
+
+1.91
+log
+@Revision 4.89
+@
+text
+@d93 1
+a93 1
+lsof_4.89.man		is the man page for the current lsof
+d96 1
+a96 1
+lsof_4.89.tar.bz2	is the current bzip2'd lsof distribution.
+d100 2
+a101 2
+lsof_4.89.tar.bz2.sig	is the GPG authentication certificate for
+			lsof_4.89.tar.bz2.
+d103 1
+a103 1
+lsof_4.89.tar.gz	is the current gzip'd lsof distribution.
+d107 2
+a108 2
+lsof_4.89.tar.gz.sig	is the GPG authentication certificate for
+			lsof_4.89.tar.gz.
+d110 1
+a110 1
+lsof_4.89.tar.Z		is the current compressed lsof distribution.
+d114 2
+a115 2
+lsof_4.89.tar.Z.sig	is the GPG authentication certificate for
+			lsof_4.89.tar.Z.
+d124 1
+a124 1
+			lsof_4.89/dialects/sun.
+d128 1
+a128 1
+July 7, 2015
+@
+
+
+1.90
+log
+@Revision 4.88
+@
+text
+@d93 1
+a93 1
+lsof_4.88.man		is the man page for the current lsof
+d96 1
+a96 1
+lsof_4.88.tar.bz2	is the current bzip2'd lsof distribution.
+d100 2
+a101 2
+lsof_4.88.tar.bz2.sig	is the GPG authentication certificate for
+			lsof_4.88.tar.bz2.
+d103 1
+a103 1
+lsof_4.88.tar.gz	is the current gzip'd lsof distribution.
+d107 2
+a108 2
+lsof_4.88.tar.gz.sig	is the GPG authentication certificate for
+			lsof_4.88.tar.gz.
+d110 1
+a110 1
+lsof_4.88.tar.Z		is the current compressed lsof distribution.
+d114 2
+a115 2
+lsof_4.88.tar.Z.sig	is the GPG authentication certificate for
+			lsof_4.88.tar.Z.
+d124 1
+a124 1
+			lsof_4.88/dialects/sun.
+d128 1
+a128 1
+October 13, 2014
+@
+
+
+1.89
+log
+@Revision 4.87
+@
+text
+@d93 1
+a93 1
+lsof_4.87.man		is the man page for the current lsof
+d96 1
+a96 1
+lsof_4.87.tar.bz2	is the current bzip2'd lsof distribution.
+d100 2
+a101 2
+lsof_4.87.tar.bz2.sig	is the GPG authentication certificate for
+			lsof_4.87.tar.bz2.
+d103 1
+a103 1
+lsof_4.87.tar.gz	is the current gzip'd lsof distribution.
+d107 2
+a108 2
+lsof_4.87.tar.gz.sig	is the GPG authentication certificate for
+			lsof_4.87.tar.gz.
+d110 1
+a110 1
+lsof_4.87.tar.Z		is the current compressed lsof distribution.
+d114 2
+a115 2
+lsof_4.87.tar.Z.sig	is the GPG authentication certificate for
+			lsof_4.87.tar.Z.
+d124 1
+a124 1
+			lsof_4.87/dialects/sun.
+d128 1
+a128 1
+January 2, 2013
+@
+
+
+1.88
+log
+@Revision 4.86
+@
+text
+@d10 4
+d93 1
+a93 1
+lsof_4.86.man		is the man page for the current lsof
+d96 1
+a96 1
+lsof_4.86.tar.bz2	is the current bzip2'd lsof distribution.
+d100 2
+a101 2
+lsof_4.86.tar.bz2.sig	is the GPG authentication certificate for
+			lsof_4.86.tar.bz2.
+d103 1
+a103 1
+lsof_4.86.tar.gz	is the current gzip'd lsof distribution.
+d107 2
+a108 2
+lsof_4.86.tar.gz.sig	is the GPG authentication certificate for
+			lsof_4.86.tar.gz.
+d110 1
+a110 1
+lsof_4.86.tar.Z		is the current compressed lsof distribution.
+d114 2
+a115 2
+lsof_4.86.tar.Z.sig	is the GPG authentication certificate for
+			lsof_4.86.tar.Z.
+d124 1
+a124 1
+			lsof_4.86/dialects/sun.
+d128 1
+a128 1
+April 10, 2012
+@
+
+
+1.87
+log
+@Revision 4.85
+@
+text
+@d89 1
+a89 1
+lsof_4.85.man		is the man page for the current lsof
+d92 1
+a92 1
+lsof_4.85.tar.bz2	is the current bzip2'd lsof distribution.
+d96 2
+a97 2
+lsof_4.85.tar.bz2.sig	is the GPG authentication certificate for
+			lsof_4.85.tar.bz2.
+d99 1
+a99 1
+lsof_4.85.tar.gz	is the current gzip'd lsof distribution.
+d103 2
+a104 2
+lsof_4.85.tar.gz.sig	is the GPG authentication certificate for
+			lsof_4.85.tar.gz.
+d106 1
+a106 1
+lsof_4.85.tar.Z		is the current compressed lsof distribution.
+d110 2
+a111 2
+lsof_4.85.tar.Z.sig	is the GPG authentication certificate for
+			lsof_4.85.tar.Z.
+d120 1
+a120 1
+			lsof_4.85/dialects/sun.
+d124 1
+a124 1
+September 27, 2011
+@
+
+
+1.86
+log
+@Revision 4.84
+@
+text
+@d89 1
+a89 1
+lsof_4.84.man		is the man page for the current lsof
+d92 1
+a92 1
+lsof_4.84.tar.bz2	is the current bzip2'd lsof distribution.
+d96 2
+a97 2
+lsof_4.84.tar.bz2.sig	is the GPG authentication certificate for
+			lsof_4.84.tar.bz2.
+d99 1
+a99 1
+lsof_4.84.tar.gz	is the current gzip'd lsof distribution.
+d103 2
+a104 2
+lsof_4.84.tar.gz.sig	is the GPG authentication certificate for
+			lsof_4.84.tar.gz.
+d106 1
+a106 1
+lsof_4.84.tar.Z		is the current compressed lsof distribution.
+d110 2
+a111 2
+lsof_4.84.tar.Z.sig	is the GPG authentication certificate for
+			lsof_4.84.tar.Z.
+d120 1
+a120 1
+			lsof_4.84/dialects/sun.
+d124 1
+a124 1
+July 29, 2010
+@
+
+
+1.85
+log
+@Revision 4.83
+@
+text
+@d89 1
+a89 1
+lsof_4.83.man		is the man page for the current lsof
+d92 1
+a92 1
+lsof_4.83.tar.bz2	is the current bzip2'd lsof distribution.
+d96 2
+a97 2
+lsof_4.83.tar.bz2.sig	is the GPG authentication certificate for
+			lsof_4.83.tar.bz2.
+d99 1
+a99 1
+lsof_4.83.tar.gz	is the current gzip'd lsof distribution.
+d103 2
+a104 2
+lsof_4.83.tar.gz.sig	is the GPG authentication certificate for
+			lsof_4.83.tar.gz.
+d106 1
+a106 1
+lsof_4.83.tar.Z		is the current compressed lsof distribution.
+d110 2
+a111 2
+lsof_4.83.tar.Z.sig	is the GPG authentication certificate for
+			lsof_4.83.tar.Z.
+d120 1
+a120 1
+			lsof_4.83/dialects/sun.
+d124 1
+a124 1
+January 18, 2010
+@
+
+
+1.84
+log
+@Revision 4.82
+@
+text
+@d89 1
+a89 1
+lsof_4.82.man		is the man page for the current lsof
+d92 1
+a92 1
+lsof_4.82.tar.bz2	is the current bzip2'd lsof distribution.
+d96 2
+a97 2
+lsof_4.82.tar.bz2.sig	is the GPG authentication certificate for
+			lsof_4.82.tar.bz2.
+d99 1
+a99 1
+lsof_4.82.tar.gz	is the current gzip'd lsof distribution.
+d103 2
+a104 2
+lsof_4.82.tar.gz.sig	is the GPG authentication certificate for
+			lsof_4.82.tar.gz.
+d106 1
+a106 1
+lsof_4.82.tar.Z		is the current compressed lsof distribution.
+d110 2
+a111 2
+lsof_4.82.tar.Z.sig	is the GPG authentication certificate for
+			lsof_4.82.tar.Z.
+d120 1
+a120 1
+			lsof_4.82/dialects/sun.
+d124 1
+a124 1
+March 25, 2009
+@
+
+
+1.83
+log
+@Revision 4.81
+@
+text
+@d89 1
+a89 1
+lsof_4.81.man		is the man page for the current lsof
+d92 1
+a92 1
+lsof_4.81.tar.bz2	is the current bzip2'd lsof distribution.
+d96 2
+a97 2
+lsof_4.81.tar.bz2.sig	is the GPG authentication certificate for
+			lsof_4.81.tar.bz2.
+d99 1
+a99 1
+lsof_4.81.tar.gz	is the current gzip'd lsof distribution.
+d103 2
+a104 2
+lsof_4.81.tar.gz.sig	is the GPG authentication certificate for
+			lsof_4.81.tar.gz.
+d106 1
+a106 1
+lsof_4.81.tar.Z		is the current compressed lsof distribution.
+d110 2
+a111 2
+lsof_4.81.tar.Z.sig	is the GPG authentication certificate for
+			lsof_4.81.tar.Z.
+d120 1
+a120 1
+			lsof_4.81/dialects/sun.
+d124 1
+a124 1
+October 21, 2008
+@
+
+
+1.82
+log
+@Revision 4.80
+@
+text
+@d89 1
+a89 1
+lsof_4.80.man		is the man page for the current lsof
+d92 1
+a92 1
+lsof_4.80.tar.bz2	is the current bzip2'd lsof distribution.
+d96 2
+a97 2
+lsof_4.80.tar.bz2.sig	is the GPG authentication certificate for
+			lsof_4.80.tar.bz2.
+d99 1
+a99 1
+lsof_4.80.tar.gz	is the current gzip'd lsof distribution.
+d103 2
+a104 2
+lsof_4.80.tar.gz.sig	is the GPG authentication certificate for
+			lsof_4.80.tar.gz.
+d106 1
+a106 1
+lsof_4.80.tar.Z		is the current compressed lsof distribution.
+d110 2
+a111 2
+lsof_4.80.tar.Z.sig	is the GPG authentication certificate for
+			lsof_4.80.tar.Z.
+d120 1
+a120 1
+			lsof_4.80/dialects/sun.
+d124 1
+a124 1
+May 9, 2008
+@
+
+
+1.81
+log
+@Revision 4.79
+@
+text
+@d89 1
+a89 1
+lsof_4.79.man		is the man page for the current lsof
+d92 1
+a92 1
+lsof_4.79.tar.bz2	is the current bzip2'd lsof distribution.
+d96 2
+a97 2
+lsof_4.79.tar.bz2.sig	is the GPG authentication certificate for
+			lsof_4.79.tar.bz2.
+d99 1
+a99 1
+lsof_4.79.tar.gz	is the current gzip'd lsof distribution.
+d103 2
+a104 2
+lsof_4.79.tar.gz.sig	is the GPG authentication certificate for
+			lsof_4.79.tar.gz.
+d106 1
+a106 1
+lsof_4.79.tar.Z		is the current compressed lsof distribution.
+d110 2
+a111 2
+lsof_4.79.tar.Z.sig	is the GPG authentication certificate for
+			lsof_4.79.tar.Z.
+d120 1
+a120 1
+			lsof_4.79/dialects/sun.
+d124 1
+a124 1
+April 15, 2008
+@
+
+
+1.80
+log
+@Revision 4.78
+@
+text
+@d89 1
+a89 1
+lsof_4.78.man		is the man page for the current lsof
+d92 1
+a92 1
+lsof_4.78.tar.bz2	is the current bzip2'd lsof distribution.
+d96 2
+a97 2
+lsof_4.78.tar.bz2.sig	is the GPG authentication certificate for
+			lsof_4.78.tar.bz2.
+d99 1
+a99 1
+lsof_4.78.tar.gz	is the current gzip'd lsof distribution.
+d103 2
+a104 2
+lsof_4.78.tar.gz.sig	is the GPG authentication certificate for
+			lsof_4.78.tar.gz.
+d106 1
+a106 1
+lsof_4.78.tar.Z		is the current compressed lsof distribution.
+d110 2
+a111 2
+lsof_4.78.tar.Z.sig	is the GPG authentication certificate for
+			lsof_4.78.tar.Z.
+d120 1
+a120 1
+			lsof_4.78/dialects/sun.
+d124 1
+a124 1
+April 24, 2007
+@
+
+
+1.79
+log
+@Revision 4.77
+@
+text
+@d89 1
+a89 1
+lsof_4.77.man		is the man page for the current lsof
+d92 1
+a92 1
+lsof_4.77.tar.bz2	is the current bzip2'd lsof distribution.
+d96 2
+a97 2
+lsof_4.77.tar.bz2.sig	is the GPG authentication certificate for
+			lsof_4.77.tar.bz2.
+d99 1
+a99 1
+lsof_4.77.tar.gz	is the current gzip'd lsof distribution.
+d103 2
+a104 2
+lsof_4.77.tar.gz.sig	is the GPG authentication certificate for
+			lsof_4.77.tar.gz.
+d106 1
+a106 1
+lsof_4.77.tar.Z		is the current compressed lsof distribution.
+d110 2
+a111 2
+lsof_4.77.tar.Z.sig	is the GPG authentication certificate for
+			lsof_4.77.tar.Z.
+d120 1
+a120 1
+			lsof_4.77/dialects/sun.
+d124 1
+a124 1
+April 10, 2005
+@
+
+
+1.78
+log
+@Revision 4.76
+@
+text
+@d89 1
+a89 1
+lsof_4.76.man		is the man page for the current lsof
+d92 1
+a92 1
+lsof_4.76.tar.bz2	is the current bzip2'd lsof distribution.
+d96 2
+a97 2
+lsof_4.76.tar.bz2.sig	is the GPG authentication certificate for
+			lsof_4.76.tar.bz2.
+d99 1
+a99 1
+lsof_4.76.tar.gz	is the current gzip'd lsof distribution.
+d103 2
+a104 2
+lsof_4.76.tar.gz.sig	is the GPG authentication certificate for
+			lsof_4.76.tar.gz.
+d106 1
+a106 1
+lsof_4.76.tar.Z		is the current compressed lsof distribution.
+d110 2
+a111 2
+lsof_4.76.tar.Z.sig	is the GPG authentication certificate for
+			lsof_4.76.tar.Z.
+d120 1
+a120 1
+			lsof_4.76/dialects/sun.
+d124 1
+a124 1
+August 30, 2005
+@
+
+
+1.77
+log
+@Revision 4.75
+@
+text
+@d89 1
+a89 1
+lsof_4.75.man		is the man page for the current lsof
+d92 1
+a92 1
+lsof_4.75.tar.bz2	is the current bzip2'd lsof distribution.
+d96 2
+a97 2
+lsof_4.75.tar.bz2.sig	is the GPG authentication certificate for
+			lsof_4.75.tar.bz2.
+d99 1
+a99 1
+lsof_4.75.tar.gz	is the current gzip'd lsof distribution.
+d103 2
+a104 2
+lsof_4.75.tar.gz.sig	is the GPG authentication certificate for
+			lsof_4.75.tar.gz.
+d106 1
+a106 1
+lsof_4.75.tar.Z		is the current compressed lsof distribution.
+d110 2
+a111 2
+lsof_4.75.tar.Z.sig	is the GPG authentication certificate for
+			lsof_4.75.tar.Z.
+d120 1
+a120 1
+			lsof_4.75/dialects/sun.
+d124 1
+a124 1
+May 11, 2005
+@
+
+
+1.76
+log
+@Revision 4.74
+@
+text
+@d89 1
+a89 1
+lsof_4.74.man		is the man page for the current lsof
+d92 1
+a92 1
+lsof_4.74.tar.bz2	is the current bzip2'd lsof distribution.
+d96 2
+a97 2
+lsof_4.74.tar.bz2.sig	is the GPG authentication certificate for
+			lsof_4.74.tar.bz2.
+d99 1
+a99 1
+lsof_4.74.tar.gz	is the current gzip'd lsof distribution.
+d103 2
+a104 2
+lsof_4.74.tar.gz.sig	is the GPG authentication certificate for
+			lsof_4.74.tar.gz.
+d106 1
+a106 1
+lsof_4.74.tar.Z		is the current compressed lsof distribution.
+d110 2
+a111 2
+lsof_4.74.tar.Z.sig	is the GPG authentication certificate for
+			lsof_4.74.tar.Z.
+d120 1
+a120 1
+			lsof_4.74/dialects/sun.
+d124 1
+a124 1
+January 17, 2005
+@
+
+
+1.75
+log
+@Revision 4.73
+@
+text
+@d89 1
+a89 1
+lsof_4.73.man		is the man page for the current lsof
+d92 1
+a92 1
+lsof_4.73.tar.bz2	is the current bzip2'd lsof distribution.
+d96 2
+a97 2
+lsof_4.73.tar.bz2.sig	is the GPG authentication certificate for
+			lsof_4.73.tar.bz2.
+d99 1
+a99 1
+lsof_4.73.tar.gz	is the current gzip'd lsof distribution.
+d103 2
+a104 2
+lsof_4.73.tar.gz.sig	is the GPG authentication certificate for
+			lsof_4.73.tar.gz.
+d106 1
+a106 1
+lsof_4.73.tar.Z		is the current compressed lsof distribution.
+d110 2
+a111 2
+lsof_4.73.tar.Z.sig	is the GPG authentication certificate for
+			lsof_4.73.tar.Z.
+d120 1
+a120 1
+			lsof_4.73/dialects/sun.
+d124 1
+a124 1
+October 21, 2004
+@
+
+
+1.74
+log
+@Revision 4.72
+@
+text
+@d10 3
+d68 3
+d77 3
+d86 4
+a89 1
+lsof_4.72.man		is the man page for the current lsof
+d92 1
+a92 1
+lsof_4.72.tar.bz2	is the current bzip2'd lsof distribution.
+d96 4
+a99 1
+lsof_4.72.tar.gz	is the current gzip'd lsof distribution.
+d103 4
+a106 1
+lsof_4.72.tar.Z		is the current compressed lsof distribution.
+d110 3
+d120 1
+a120 1
+			lsof_4.72/dialects/sun.
+d124 1
+a124 1
+July 13, 2004
+@
+
+
+1.73
+log
+@Revision 4.71
+@
+text
+@d77 1
+a77 1
+lsof_4.71.man		is the man page for the current lsof
+d80 1
+a80 1
+lsof_4.71.tar.bz2	is the current bzip2'd lsof distribution.
+d84 1
+a84 1
+lsof_4.71.tar.gz	is the current gzip'd lsof distribution.
+d88 1
+a88 1
+lsof_4.71.tar.Z		is the current compressed lsof distribution.
+d99 1
+a99 1
+			lsof_4.71/dialects/sun.
+d103 1
+a103 1
+March 10, 2004
+@
+
+
+1.72
+log
+@Revision 4.70
+@
+text
+@d19 5
+a23 4
+			new information -- usually gzip'd tar files
+			for ports to specific dialects that are under
+			development.  Please don't get anything from
+			this directory without contacting me first.
+d56 2
+a57 2
+			in the lsof distribution tar files, lsof.tar.Z
+			and lsof.tar.gz.
+d77 1
+a77 1
+lsof_4.70.man		is the man page for the current lsof
+d80 1
+a80 1
+lsof_4.70.tar.bz2	is the current bzip2'd lsof distribution.
+d84 1
+a84 1
+lsof_4.70.tar.gz	is the current gzip'd lsof distribution.
+d88 1
+a88 1
+lsof_4.70.tar.Z		is the current compressed lsof distribution.
+d99 1
+a99 1
+			lsof_4.70/dialects/sun.
+d103 1
+a103 1
+January 14, 2004
+@
+
+
+1.71
+log
+@Revision 4.69
+@
+text
+@d24 1
+a24 1
+OLD/                    is a directory that contains OLD lsof
+d27 1
+a27 1
+README                  contains information on the lsof distribution.
+d29 2
+a30 1
+			tar files, lsof.tar.Z and lsof.tar.gz.
+d32 4
+a35 4
+Victor_A_Abell.pgp      contains the PGP public key for Victor A.
+			Abell (abe@@cc.purdue.edu).
+			
+			REQUIRED FOR AUTHENTICATING THE LSOF
+d38 7
+a44 1
+binaries/               is a directory tree that contains selected
+d50 1
+a50 1
+contrib/                is a directory of user-contributed information
+d53 1
+a53 1
+lsof_man                is a symbolic link to the man page for the
+d58 1
+a58 1
+lsof.tar.Z              is a symbolic link to the compressed lsof
+d64 1
+a64 1
+lsof.tar.gz             is a symbolic link to the gzip'd lsof
+d70 7
+a76 1
+lsof_4.69.man           is the man page for the current lsof
+d79 1
+a79 1
+lsof_4.69.tar.Z         is the current compressed lsof distribution.
+d83 1
+a83 1
+lsof_4.69.tar.gz        is the current gzip'd lsof distribution.
+d87 4
+d98 1
+a98 1
+			lsof_4.69/dialects/sun.
+d102 1
+a102 1
+October 16, 2003
+@
+
+
+1.70
+log
+@Revision 4.68
+@
+text
+@d63 1
+a63 1
+lsof_4.68.man           is the man page for the current lsof
+d66 1
+a66 1
+lsof_4.68.tar.Z         is the current compressed lsof distribution.
+d70 1
+a70 1
+lsof_4.68.tar.gz        is the current gzip'd lsof distribution.
+d81 1
+a81 1
+			lsof_4.68/dialects/sun.
+d85 1
+a85 1
+June 18, 2003
+@
+
+
+1.69
+log
+@Revision 4.67
+@
+text
+@d63 1
+a63 1
+lsof_4.67.man           is the man page for the current lsof
+d66 1
+a66 1
+lsof_4.67.tar.Z         is the current compressed lsof distribution.
+d70 1
+a70 1
+lsof_4.67.tar.gz        is the current gzip'd lsof distribution.
+d81 1
+a81 1
+			lsof_4.67/dialects/sun.
+d85 1
+a85 1
+March 27, 2003
+@
+
+
+1.68
+log
+@Revision 4.66
+@
+text
+@d63 1
+a63 1
+lsof_4.66.man           is the man page for the current lsof
+d66 1
+a66 1
+lsof_4.66.tar.Z         is the current compressed lsof distribution.
+d70 1
+a70 1
+lsof_4.66.tar.gz        is the current gzip'd lsof distribution.
+d81 1
+a81 1
+			lsof_4.66/dialects/sun.
+d85 1
+a85 1
+December 22, 2002
+@
+
+
+1.67
+log
+@Revision 4.65
+@
+text
+@d63 1
+a63 1
+lsof_4.65.man           is the man page for the current lsof
+d66 1
+a66 1
+lsof_4.65.tar.Z         is the current compressed lsof distribution.
+d70 1
+a70 1
+lsof_4.65.tar.gz        is the current gzip'd lsof distribution.
+d81 1
+a81 1
+			lsof_4.65/dialects/sun.
+d85 1
+a85 1
+October 10, 2002
+@
+
+
+1.66
+log
+@Revision 4.64
+@
+text
+@d63 1
+a63 1
+lsof_4.64.man           is the man page for the current lsof
+d66 1
+a66 1
+lsof_4.64.tar.Z         is the current compressed lsof distribution.
+d70 1
+a70 1
+lsof_4.64.tar.gz        is the current gzip'd lsof distribution.
+d81 1
+a81 1
+			lsof_4.64/dialects/sun.
+d85 1
+a85 1
+June 26, 2002
+@
+
+
+1.65
+log
+@Revision 4.63
+@
+text
+@d63 1
+a63 1
+lsof_4.63.man           is the man page for the current lsof
+d66 1
+a66 1
+lsof_4.63.tar.Z         is the current compressed lsof distribution.
+d70 1
+a70 1
+lsof_4.63.tar.gz        is the current gzip'd lsof distribution.
+d81 1
+a81 1
+			lsof_4.63/dialects/sun.
+d85 1
+a85 1
+April 22, 2002
+@
+
+
+1.64
+log
+@Revision 4.62
+@
+text
+@d63 1
+a63 1
+lsof_4.62.man           is the man page for the current lsof
+d66 1
+a66 1
+lsof_4.62.tar.Z         is the current compressed lsof distribution.
+d70 1
+a70 1
+lsof_4.62.tar.gz        is the current gzip'd lsof distribution.
+d81 1
+a81 1
+			lsof_4.62/dialects/sun.
+d85 1
+a85 1
+March 7, 2002
+@
+
+
+1.63
+log
+@Revision 4.61
+@
+text
+@d28 2
+d46 4
+a49 2
+lsof_man		is a symbolic link to the man page for the
+			current lsof revision.
+d63 1
+a63 1
+lsof_4.61.man           is the man page for the current lsof
+d66 1
+a66 1
+lsof_4.61.tar.Z         is the current compressed lsof distribution.
+d70 1
+a70 1
+lsof_4.61.tar.gz        is the current gzip'd lsof distribution.
+d81 1
+a81 1
+			lsof_4.61/dialects/sun.
+d85 1
+a85 1
+January 22, 2002
+@
+
+
+1.62
+log
+@Revision 4.60
+@
+text
+@d59 1
+a59 1
+lsof_4.60.man           is the man page for the current lsof
+d62 1
+a62 1
+lsof_4.60_W.tar.Z       is the current compressed lsof distribution.
+d66 1
+a66 1
+lsof_4.60_W.tar.gz      is the current gzip'd lsof distribution.
+d77 1
+a77 1
+			lsof_4.60/dialects/sun.
+d81 1
+a81 1
+November 9, 2001
+@
+
+
+1.61
+log
+@Revision 4.59
+@
+text
+@d59 1
+a59 1
+lsof_4.59.man           is the man page for the current lsof
+d62 1
+a62 1
+lsof_4.59_W.tar.Z       is the current compressed lsof distribution.
+d66 1
+a66 1
+lsof_4.59_W.tar.gz      is the current gzip'd lsof distribution.
+d77 1
+a77 1
+			lsof_4.59/dialects/sun.
+d81 1
+a81 1
+Octover 20, 2001
+@
+
+
+1.60
+log
+@Revision 4.58
+@
+text
+@d13 5
+d59 1
+a59 1
+lsof_4.58.man           is the man page for the current lsof
+d62 1
+a62 1
+lsof_4.58_W.tar.Z       is the current compressed lsof distribution.
+d66 1
+a66 1
+lsof_4.58_W.tar.gz      is the current gzip'd lsof distribution.
+d77 1
+a77 1
+			lsof_4.58/dialects/sun.
+d81 1
+a81 1
+September 11, 2001
+@
+
+
+1.59
+log
+@Revision 4.57
+@
+text
+@d54 1
+a54 1
+lsof_4.57.man           is the man page for the current lsof
+d57 1
+a57 1
+lsof_4.57_W.tar.Z       is the current compressed lsof distribution.
+d61 1
+a61 1
+lsof_4.57_W.tar.gz      is the current gzip'd lsof distribution.
+d72 1
+a72 1
+			lsof_4.57/dialects/sun.
+d76 1
+a76 1
+July 19, 2001
+@
+
+
+1.58
+log
+@Revision 4.56
+@
+text
+@d10 3
+d39 3
+d54 4
+a57 1
+lsof_4.56_W.tar.Z       is the current compressed lsof distribution.
+d61 1
+a61 1
+lsof_4.56_W.tar.gz      is the current gzip'd lsof distribution.
+d72 1
+a72 1
+			lsof_4.56/dialects/sun.
+d76 1
+a76 1
+May 3, 2001
+@
+
+
+1.57
+log
+@Revision 4.55
+@
+text
+@d48 1
+a48 1
+lsof_4.55_W.tar.Z       is the current compressed lsof distribution.
+d52 1
+a52 1
+lsof_4.55_W.tar.gz      is the current gzip'd lsof distribution.
+d63 1
+a63 1
+			lsof_4.55/dialects/sun.
+d67 1
+a67 1
+February 15, 2001
+@
+
+
+1.56
+log
+@Revision 4.54
+@
+text
+@d48 1
+a48 1
+lsof_4.54_W.tar.Z       is the current compressed lsof distribution.
+d52 1
+a52 1
+lsof_4.54_W.tar.gz      is the current gzip'd lsof distribution.
+d63 1
+a63 1
+			lsof_4.54/dialects/sun.
+d67 1
+a67 1
+January 19, 2001
+@
+
+
+1.55
+log
+@Revision 4.53
+@
+text
+@d48 1
+a48 1
+lsof_4.53_W.tar.Z       is the current compressed lsof distribution.
+d52 1
+a52 1
+lsof_4.53_W.tar.gz      is the current gzip'd lsof distribution.
+d63 1
+a63 1
+			lsof_4.53/dialects/sun.
+d67 1
+a67 1
+December 6, 2000
+@
+
+
+1.54
+log
+@Revision 4.52
+@
+text
+@d48 1
+a48 1
+lsof_4.52_W.tar.Z       is the current compressed lsof distribution.
+d52 1
+a52 1
+lsof_4.52_W.tar.gz      is the current gzip'd lsof distribution.
+d63 1
+a63 1
+			lsof_4.52/dialects/sun.
+d67 1
+a67 1
+November 8, 2000
+@
+
+
+1.53
+log
+@Revision 4.51
+@
+text
+@d48 1
+a48 1
+lsof_4.51_W.tar.Z       is the current compressed lsof distribution.
+d52 1
+a52 1
+lsof_4.51_W.tar.gz      is the current gzip'd lsof distribution.
+d63 1
+a63 1
+			lsof_4.51/dialects/sun.
+d67 1
+a67 1
+August 22, 2000
+@
+
+
+1.52
+log
+@Revision 4.50
+Add info about solaris_kaddr_filters.
+@
+text
+@d48 1
+a48 1
+lsof_4.50_W.tar.Z       is the current compressed lsof distribution.
+d52 1
+a52 1
+lsof_4.50_W.tar.gz      is the current gzip'd lsof distribution.
+d63 1
+a63 1
+			lsof_4.50/dialects/sun.
+d67 1
+a67 1
+June 29, 2000
+@
+
+
+1.51
+log
+@Revision 4.50
+@
+text
+@d60 5
+@
+
+
+1.50
+log
+@Revision 4.49
+@
+text
+@d48 1
+a48 1
+lsof_4.49_W.tar.Z       is the current compressed lsof distribution.
+d52 1
+a52 1
+lsof_4.49_W.tar.gz      is the current gzip'd lsof distribution.
+d62 1
+a62 1
+April 3, 2000
+@
+
+
+1.49
+log
+@Revision 4.48
+@
+text
+@d48 1
+a48 1
+lsof_4.48_W.tar.Z       is the current compressed lsof distribution.
+d52 1
+a52 1
+lsof_4.48_W.tar.gz      is the current gzip'd lsof distribution.
+d62 1
+a62 1
+January 14, 2000
+@
+
+
+1.48
+log
+@Revision 4.47
+@
+text
+@d48 1
+a48 1
+lsof_4.47_W.tar.Z       is the current compressed lsof distribution.
+d52 1
+a52 1
+lsof_4.47_W.tar.gz      is the current gzip'd lsof distribution.
+d62 1
+a62 1
+November 29, 1999
+@
+
+
+1.47
+log
+@Revision 4.46
+@
+text
+@d48 1
+a48 1
+lsof_4.46_W.tar.Z       is the current compressed lsof distribution.
+d52 1
+a52 1
+lsof_4.46_W.tar.gz      is the current gzip'd lsof distribution.
+d61 2
+a62 2
+Vic Abell <abe@@cc.purdue.edu>
+October 23, 1999
+@
+
+
+1.46
+log
+@Revision 4.45
+@
+text
+@d48 1
+a48 1
+lsof_4.45_W.tar.Z       is the current compressed lsof distribution.
+d52 1
+a52 1
+lsof_4.45_W.tar.gz      is the current gzip'd lsof distribution.
+d62 1
+a62 1
+July 28, 1999
+@
+
+
+1.45
+log
+@Revision 4.44
+@
+text
+@d48 1
+a48 1
+lsof_4.44_W.tar.Z       is the current compressed lsof distribution.
+d52 1
+a52 1
+lsof_4.44_W.tar.gz      is the current gzip'd lsof distribution.
+d62 1
+a62 1
+June 24, 1999
+@
+
+
+1.44
+log
+@Revision 4.43
+@
+text
+@d48 1
+a48 1
+lsof_4.43_W.tar.Z       is the current compressed lsof distribution.
+d52 1
+a52 1
+lsof_4.43_W.tar.gz      is the current gzip'd lsof distribution.
+d62 1
+a62 1
+May 11, 1999
+@
+
+
+1.43
+log
+@Revision 4.42
+@
+text
+@d48 1
+a48 1
+lsof_4.42_W.tar.Z       is the current compressed lsof distribution.
+d52 1
+a52 1
+lsof_4.42_W.tar.gz      is the current gzip'd lsof distribution.
+d62 1
+a62 1
+March 30, 1999
+@
+
+
+1.42
+log
+@Revision 4.41
+@
+text
+@d48 1
+a48 1
+lsof_4.41_W.tar.Z       is the current compressed lsof distribution.
+d52 1
+a52 1
+lsof_4.41_W.tar.gz      is the current gzip'd lsof distribution.
+d62 1
+a62 1
+February 27, 1999
+@
+
+
+1.41
+log
+@Revision 4.40
+@
+text
+@d48 1
+a48 1
+lsof_4.40_W.tar.Z       is the current compressed lsof distribution.
+d52 1
+a52 1
+lsof_4.40_W.tar.gz      is the current gzip'd lsof distribution.
+d62 1
+a62 1
+January 25, 1999
+@
+
+
+1.40
+log
+@Revision 4.39
+@
+text
+@d48 1
+a48 1
+lsof_4.39_W.tar.Z       is the current compressed lsof distribution.
+d52 1
+a52 1
+lsof_4.39_W.tar.gz      is the current gzip'd lsof distribution.
+d62 1
+a62 1
+December 29, 1998
+@
+
+
+1.39
+log
+@Revision 4.38
+@
+text
+@d48 1
+a48 1
+lsof_4.38_W.tar.Z       is the current compressed lsof distribution.
+d52 1
+a52 1
+lsof_4.38_W.tar.gz      is the current gzip'd lsof distribution.
+d62 1
+a62 1
+November 25, 1998
+@
+
+
+1.38
+log
+@Revision 4.37
+@
+text
+@d48 1
+a48 1
+lsof_4.37_W.tar.Z       is the current compressed lsof distribution.
+d52 1
+a52 1
+lsof_4.37_W.tar.gz      is the current gzip'd lsof distribution.
+d62 1
+a62 1
+September 15, 1998
+@
+
+
+1.37
+log
+@Revision 4.36
+@
+text
+@d48 1
+a48 1
+lsof_4.36_W.tar.Z       is the current compressed lsof distribution.
+d52 1
+a52 1
+lsof_4.36_W.tar.gz      is the current gzip'd lsof distribution.
+d62 1
+a62 1
+August 4, 1998
+@
+
+
+1.36
+log
+@Revision 4.35
+@
+text
+@d48 1
+a48 1
+lsof_4.35_W.tar.Z       is the current compressed lsof distribution.
+d52 1
+a52 1
+lsof_4.35_W.tar.gz      is the current gzip'd lsof distribution.
+d62 1
+a62 1
+July 17, 1998
+@
+
+
+1.35
+log
+@Revision 4.34
+@
+text
+@d48 1
+a48 1
+lsof_4.34_W.tar.Z       is the current compressed lsof distribution.
+d52 1
+a52 1
+lsof_4.34_W.tar.gz      is the current gzip'd lsof distribution.
+d62 1
+a62 1
+June 26, 1998
+@
+
+
+1.34
+log
+@Revision 4.33
+@
+text
+@d48 1
+a48 1
+lsof_4.33_W.tar.Z       is the current compressed lsof distribution.
+d52 1
+a52 1
+lsof_4.33_W.tar.gz      is the current gzip'd lsof distribution.
+d62 1
+a62 1
+May 22, 1998
+@
+
+
+1.33
+log
+@Revision 4.32
+@
+text
+@d48 1
+a48 1
+lsof_4.32_W.tar.Z       is the current compressed lsof distribution.
+d52 1
+a52 1
+lsof_4.32_W.tar.gz      is the current gzip'd lsof distribution.
+d62 1
+a62 1
+May 13, 1998
+@
+
+
+1.32
+log
+@Revision 4.31
+@
+text
+@d48 1
+a48 1
+lsof_4.31_W.tar.Z       is the current compressed lsof distribution.
+d52 1
+a52 1
+lsof_4.31_W.tar.gz      is the current gzip'd lsof distribution.
+d62 1
+a62 1
+April 21, 1998
+@
+
+
+1.31
+log
+@Revision 4.30
+@
+text
+@d48 1
+a48 1
+lsof_4.30_W.tar.Z       is the current compressed lsof distribution.
+d52 1
+a52 1
+lsof_4.30_W.tar.gz      is the current gzip'd lsof distribution.
+d62 1
+a62 1
+April 9, 1998
+@
+
+
+1.30
+log
+@Revision 4.29
+@
+text
+@d48 1
+a48 1
+lsof_4.29_W.tar.Z       is the current compressed lsof distribution.
+d52 1
+a52 1
+lsof_4.29_W.tar.gz      is the current gzip'd lsof distribution.
+d62 1
+a62 1
+March 26, 1998
+@
+
+
+1.29
+log
+@Revision 4.28
+@
+text
+@d48 1
+a48 1
+lsof_4.28_W.tar.Z       is the current compressed lsof distribution.
+d52 1
+a52 1
+lsof_4.28_W.tar.gz      is the current gzip'd lsof distribution.
+d62 1
+a62 1
+March 10, 1998
+@
+
+
+1.28
+log
+@Revision 4.27
+@
+text
+@d48 1
+a48 1
+lsof_4.27_W.tar.Z       is the current compressed lsof distribution.
+d52 1
+a52 1
+lsof_4.27_W.tar.gz      is the current gzip'd lsof distribution.
+d62 1
+a62 1
+March 6, 1998
+@
+
+
+1.27
+log
+@Revision 4.26
+@
+text
+@d48 1
+a48 1
+lsof_4.26_W.tar.Z       is the current compressed lsof distribution.
+d52 1
+a52 1
+lsof_4.26_W.tar.gz      is the current gzip'd lsof distribution.
+d62 1
+a62 1
+February 17, 1998
+@
+
+
+1.26
+log
+@Revision 4.25
+@
+text
+@d48 1
+a48 1
+lsof_4.25_W.tar.Z       is the current compressed lsof distribution.
+d52 1
+a52 1
+lsof_4.25_W.tar.gz      is the current gzip'd lsof distribution.
+d62 1
+a62 1
+February 7, 1998
+@
+
+
+1.25
+log
+@Revision 4.24
+@
+text
+@d48 1
+a48 1
+lsof_4.24_W.tar.Z       is the current compressed lsof distribution.
+d52 1
+a52 1
+lsof_4.24_W.tar.gz      is the current gzip'd lsof distribution.
+d62 1
+a62 1
+January 28, 1998
+@
+
+
+1.24
+log
+@Revision 4.23
+@
+text
+@d48 1
+a48 1
+lsof_4.23_W.tar.Z       is the current compressed lsof distribution.
+d52 1
+a52 1
+lsof_4.23_W.tar.gz      is the current gzip'd lsof distribution.
+d62 1
+a62 1
+January 16, 1998
+@
+
+
+1.23
+log
+@Revision 4.22
+@
+text
+@d48 1
+a48 1
+lsof_4.22_W.tar.Z       is the current compressed lsof distribution.
+d52 1
+a52 1
+lsof_4.22_W.tar.gz      is the current gzip'd lsof distribution.
+d62 1
+a62 1
+December 15, 1997
+@
+
+
+1.22
+log
+@Revision 4.21
+@
+text
+@d48 1
+a48 1
+lsof_4.21_W.tar.Z       is the current compressed lsof distribution.
+d52 1
+a52 1
+lsof_4.21_W.tar.gz      is the current gzip'd lsof distribution.
+d62 1
+a62 1
+December 1, 1997
+@
+
+
+1.21
+log
+@Revision 4.20
+@
+text
+@d48 1
+a48 1
+lsof_4.20_W.tar.Z       is the current compressed lsof distribution.
+d52 1
+a52 1
+lsof_4.20_W.tar.gz      is the current gzip'd lsof distribution.
+d58 1
+d60 1
+d62 1
+a62 1
+November 11, 1997
+@
+
+
+1.20
+log
+@Revision 4.19
+@
+text
+@d48 1
+a48 1
+lsof_4.19_W.tar.Z       is the current compressed lsof distribution.
+d52 1
+a52 1
+lsof_4.19_W.tar.gz      is the current gzip'd lsof distribution.
+d60 1
+a60 1
+October 30, 1997
+@
+
+
+1.19
+log
+@Revision 4.18
+@
+text
+@d48 1
+a48 1
+lsof_4.18_W.tar.Z       is the current compressed lsof distribution.
+d52 1
+a52 1
+lsof_4.18_W.tar.gz      is the current gzip'd lsof distribution.
+d60 1
+a60 1
+October 25, 1997
+@
+
+
+1.18
+log
+@Revision 4.17
+@
+text
+@d7 3
+d48 1
+a48 1
+lsof_4.17_W.tar.Z       is the current compressed lsof distribution.
+d52 1
+a52 1
+lsof_4.17_W.tar.gz      is the current gzip'd lsof distribution.
+d60 1
+a60 1
+October 14, 1997
+@
+
+
+1.17
+log
+@Revision 4.16
+@
+text
+@d45 1
+a45 1
+lsof_4.16_W.tar.Z       is the current compressed lsof distribution.
+d49 1
+a49 1
+lsof_4.16_W.tar.gz      is the current gzip'd lsof distribution.
+d57 1
+a57 1
+September 25, 1997
+@
+
+
+1.16
+log
+@Revision 4.15
+@
+text
+@d45 1
+a45 1
+lsof_4.15_W.tar.Z       is the current compressed lsof distribution.
+d49 1
+a49 1
+lsof_4.15_W.tar.gz      is the current gzip'd lsof distribution.
+d57 1
+a57 1
+August 15, 1997
+@
+
+
+1.15
+log
+@Revision 4.14
+@
+text
+@d45 1
+a45 1
+lsof_4.14_W.tar.Z       is the current compressed lsof distribution.
+d49 1
+a49 1
+lsof_4.14_W.tar.gz      is the current gzip'd lsof distribution.
+d57 1
+a57 1
+July 22, 1997
+@
+
+
+1.14
+log
+@Revision 4.13
+@
+text
+@d45 1
+a45 1
+lsof_4.13_W.tar.Z       is the current compressed lsof distribution.
+d49 1
+a49 1
+lsof_4.13_W.tar.gz      is the current gzip'd lsof distribution.
+d57 1
+a57 1
+July 9, 1997
+@
+
+
+1.13
+log
+@Revision 4.12
+@
+text
+@d45 1
+a45 1
+lsof_4.12_W.tar.Z       is the current compressed lsof distribution.
+d49 1
+a49 1
+lsof_4.12_W.tar.gz      is the current gzip'd lsof distribution.
+d57 1
+a57 1
+June 24, 1997
+@
+
+
+1.12
+log
+@Revision 4.11
+@
+text
+@d45 1
+a45 1
+lsof_4.11_W.tar.Z       is the current compressed lsof distribution.
+d49 1
+a49 1
+lsof_4.11_W.tar.gz      is the current gzip'd lsof distribution.
+d57 1
+a57 1
+June 12, 1997
+@
+
+
+1.11
+log
+@Revision 4.10
+@
+text
+@d45 1
+a45 1
+lsof_4.10_W.tar.Z       is the current compressed lsof distribution.
+d49 1
+a49 1
+lsof_4.10_W.tar.gz      is the current gzip'd lsof distribution.
+d57 1
+a57 1
+June 8, 1997
+@
+
+
+1.10
+log
+@Revision 4.09
+@
+text
+@d45 1
+a45 1
+lsof_4.09_W.tar.Z       is the current compressed lsof distribution.
+d49 1
+a49 1
+lsof_4.09_W.tar.gz      is the current gzip'd lsof distribution.
+d57 1
+a57 1
+June 1, 1997
+@
+
+
+1.9
+log
+@Revision 4.08
+@
+text
+@d45 1
+a45 1
+lsof_4.08_W.tar.Z       is the current compressed lsof distribution.
+d49 1
+a49 1
+lsof_4.08_W.tar.gz      is the current gzip'd lsof distribution.
+d57 1
+a57 1
+May 23, 1997
+@
+
+
+1.8
+log
+@Revision 4.07
+@
+text
+@d45 1
+a45 1
+lsof_4.07_W.tar.Z       is the current compressed lsof distribution.
+d49 1
+a49 1
+lsof_4.07_W.tar.gz      is the current gzip'd lsof distribution.
+d57 1
+a57 1
+May 12, 1997
+@
+
+
+1.7
+log
+@Revision 4.06
+@
+text
+@d45 1
+a45 1
+lsof_4.06_W.tar.Z       is the current compressed lsof distribution.
+d49 1
+a49 1
+lsof_4.06_W.tar.gz      is the current gzip'd lsof distribution.
+d57 1
+a57 1
+April 30, 1997
+@
+
+
+1.6
+log
+@Revision 4.05
+@
+text
+@d45 1
+a45 1
+lsof_4.05_W.tar.Z       is the current compressed lsof distribution.
+d49 1
+a49 1
+lsof_4.05_W.tar.gz      is the current gzip'd lsof distribution.
+d57 1
+a57 1
+April 24, 1997
+@
+
+
+1.5
+log
+@Revision 4.04
+@
+text
+@d45 1
+a45 1
+lsof_4.04_W.tar.Z       is the current compressed lsof distribution.
+d49 1
+a49 1
+lsof_4.04_W.tar.gz      is the current gzip'd lsof distribution.
+d57 1
+a57 1
+April 17, 1997
+@
+
+
+1.4
+log
+@Revision 4.03
+@
+text
+@d45 1
+a45 1
+lsof_4.03_W.tar.Z       is the current compressed lsof distribution.
+d49 1
+a49 1
+lsof_4.03_W.tar.gz      is the current gzip'd lsof distribution.
+d57 1
+a57 1
+April 7, 1997
+@
+
+
+1.3
+log
+@Revision 4.02
+@
+text
+@d45 1
+a45 1
+lsof_4.02_W.tar.Z       is the current compressed lsof distribution.
+d49 1
+a49 1
+lsof_4.02_W.tar.gz      is the current gzip'd lsof distribution.
+d57 1
+a57 1
+March 21, 1997
+@
+
+
+1.2
+log
+@Revision 4.01
+@
+text
+@d45 1
+a45 1
+lsof_4.01_W.tar.Z       is the current compressed lsof distribution.
+d49 1
+a49 1
+lsof_4.01_W.tar.gz      is the current gzip'd lsof distribution.
+d57 1
+a57 1
+March 3, 1997
+@
+
+
+1.1
+log
+@Initial revision
+@
+text
+@d45 1
+a45 1
+lsof_4.0_W.tar.Z        is the current compressed lsof distribution.
+d49 1
+a49 1
+lsof_4.0_W.tar.gz       is the current gzip'd lsof distribution.
+d57 1
+a57 1
+February 24, 1997
+@

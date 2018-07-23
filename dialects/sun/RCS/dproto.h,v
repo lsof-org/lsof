@@ -1,0 +1,542 @@
+head	1.21;
+access;
+symbols;
+locks; strict;
+comment	@ * @;
+
+
+1.21
+date	2010.01.18.19.03.54;	author abe;	state Exp;
+branches;
+next	1.20;
+
+1.20
+date	2008.10.21.16.16.42;	author abe;	state Exp;
+branches;
+next	1.19;
+
+1.19
+date	2008.04.15.13.32.58;	author abe;	state Exp;
+branches;
+next	1.18;
+
+1.18
+date	2005.08.29.10.24.25;	author abe;	state Exp;
+branches;
+next	1.17;
+
+1.17
+date	2005.08.08.19.55.41;	author abe;	state Exp;
+branches;
+next	1.16;
+
+1.16
+date	2005.05.11.12.54.26;	author abe;	state Exp;
+branches;
+next	1.15;
+
+1.15
+date	2004.12.30.18.42.59;	author abe;	state Exp;
+branches;
+next	1.14;
+
+1.14
+date	2004.03.10.23.53.41;	author abe;	state Exp;
+branches;
+next	1.13;
+
+1.13
+date	2001.07.05.12.26.21;	author abe;	state Exp;
+branches;
+next	1.12;
+
+1.12
+date	2001.06.19.13.31.56;	author abe;	state Exp;
+branches;
+next	1.11;
+
+1.11
+date	2000.12.04.14.35.13;	author abe;	state Exp;
+branches;
+next	1.10;
+
+1.10
+date	2000.11.03.18.35.36;	author abe;	state Exp;
+branches;
+next	1.9;
+
+1.9
+date	2000.06.25.17.31.11;	author abe;	state Exp;
+branches;
+next	1.8;
+
+1.8
+date	99.05.04.09.04.06;	author abe;	state Exp;
+branches;
+next	1.7;
+
+1.7
+date	98.04.03.13.24.14;	author abe;	state Exp;
+branches;
+next	1.6;
+
+1.6
+date	98.03.26.07.49.02;	author abe;	state Exp;
+branches;
+next	1.5;
+
+1.5
+date	98.03.10.07.26.47;	author abe;	state Exp;
+branches;
+next	1.4;
+
+1.4
+date	98.03.06.08.38.38;	author abe;	state Exp;
+branches;
+next	1.3;
+
+1.3
+date	97.10.24.07.56.43;	author abe;	state Exp;
+branches;
+next	1.2;
+
+1.2
+date	97.04.23.15.56.07;	author abe;	state Exp;
+branches;
+next	1.1;
+
+1.1
+date	97.02.24.07.47.13;	author abe;	state Exp;
+branches;
+next	;
+
+
+desc
+@Lsof version 4
+@
+
+
+1.21
+log
+@Revision 4.83
+@
+text
+@/*
+ * dproto.h - Solaris function prototypes for lsof
+ *
+ * The _PROTOTYPE macro is defined in the common proto.h.
+ */
+
+
+/*
+ * Copyright 1994 Purdue Research Foundation, West Lafayette, Indiana
+ * 47907.  All rights reserved.
+ *
+ * Written by Victor A. Abell
+ *
+ * This software is not subject to any license of the American Telephone
+ * and Telegraph Company or the Regents of the University of California.
+ *
+ * Permission is granted to anyone to use this software for any purpose on
+ * any computer system, and to alter it and redistribute it freely, subject
+ * to the following restrictions:
+ *
+ * 1. Neither the authors nor Purdue University are responsible for any
+ *    consequences of the use of this software.
+ *
+ * 2. The origin of this software must not be misrepresented, either by
+ *    explicit claim or by omission.  Credit to the authors and Purdue
+ *    University must appear in documentation and sources.
+ *
+ * 3. Altered versions must be plainly marked as such, and must not be
+ *    misrepresented as being the original software.
+ *
+ * 4. This notice may not be removed or altered.
+ */
+
+
+/*
+ * $Id: dproto.h,v 1.20 2008/10/21 16:16:42 abe Exp abe $
+ */
+
+
+#if	defined(HASVXFSUTIL)
+_PROTOTYPE(extern int access_vxfs_ioffsets,(void));
+#endif	/* defined(HASVXFSUTIL) */
+
+_PROTOTYPE(extern void completevfs,(struct l_vfs *vfs, dev_t *dev));
+
+# if	defined(HAS_LIBCTF)
+_PROTOTYPE(extern int CTF_getmem,(ctf_file_t *f, const char *mod,
+				  const char *ty, CTF_member_t *mem));
+_PROTOTYPE(extern void CTF_init,(int *i, char *t, CTF_request_t *r));
+_PROTOTYPE(extern int CTF_memCB,(const char *name, ctf_id_t id, ulong_t offset,
+				 void *arg));
+# endif	/* defined(HAS_LIBCTF) */
+
+_PROTOTYPE(extern int is_file_named,(char *p, int nt, enum vtype vt, int ps));
+_PROTOTYPE(extern struct l_vfs *readvfs,(KA_T ka, struct vfs *la, struct vnode *lv));
+_PROTOTYPE(extern int vop2ty,(struct vnode *vp, int fx));
+
+#if	defined(HAS_AFS)
+_PROTOTYPE(extern struct vnode *alloc_vcache,(void));
+_PROTOTYPE(extern void ckAFSsym,(struct nlist *nl));
+_PROTOTYPE(extern int hasAFS,(struct vnode *vp));
+_PROTOTYPE(extern int readafsnode,(KA_T va, struct vnode *v, struct afsnode *an));
+#endif	/* defined(HAS_AFS) */
+
+#if	defined(HASDCACHE)
+_PROTOTYPE(extern int rw_clone_sect,(int m));
+_PROTOTYPE(extern void clr_sect,(void));
+_PROTOTYPE(extern int rw_pseudo_sect,(int m));
+#endif	/* defined(HASDCACHE) */
+
+#if	defined(HASIPv6)
+_PROTOTYPE(extern struct hostent *gethostbyname2,(const char *nm, int proto));
+#endif	/* defined(HASIPv6) */
+
+#if	defined(HAS_V_PATH)
+_PROTOTYPE(extern int print_v_path,(struct lfile *lf));
+_PROTOTYPE(extern void read_v_path,(KA_T ka, char *rb, size_t rbl));
+#endif	/* defined(HAS_V_PATH) */
+
+#if	defined(HASVXFS)
+_PROTOTYPE(extern int read_vxnode,(KA_T va, struct vnode *v, struct l_vfs *vfs,
+				   int fx, struct l_ino *li, KA_T *vnops));
+# if	defined(HASVXFSRNL)
+_PROTOTYPE(extern int print_vxfs_rnl_path,(struct lfile *lf));
+# endif	/* defined(HASVXFSRNL) */
+#endif	/* defined(HASVXFS) */
+
+#if	defined(HASZONES)
+_PROTOTYPE(extern int enter_zone_arg,(char *zn));
+#endif	/* defined(HASZONES) */
+
+_PROTOTYPE(extern void close_kvm,(void));
+_PROTOTYPE(extern void open_kvm,(void));
+_PROTOTYPE(extern void process_socket,(KA_T sa, char *ty));
+
+#if	solaris>=110000
+_PROTOTYPE(extern int process_VSOCK,(KA_T va, struct vnode *v,
+				     struct sonode *so));
+#endif	/* solaris>=11000 */
+
+_PROTOTYPE(extern void read_clone,(void));
+
+#if	solaris<20500
+_PROTOTYPE(extern int get_max_fd,(void));
+#endif	/* solaris<20500 */
+
+#if	defined(WILLDROPGID)
+_PROTOTYPE(extern void restoregid,(void));
+#endif	/* defined(WILLDROPGID) */
+@
+
+
+1.20
+log
+@Revision 4.81
+@
+text
+@d36 1
+a36 1
+ * $Id: dproto.h,v 1.19 2008/04/15 13:32:58 abe Exp abe $
+d45 9
+d56 1
+a56 1
+_PROTOTYPE(extern int vop2ty,(struct vnode *vp));
+d82 1
+a82 1
+				   struct l_ino *li, KA_T *vnops));
+d95 6
+@
+
+
+1.19
+log
+@Revision 4.79
+@
+text
+@d36 1
+a36 1
+ * $Id: dproto.h,v 1.18 2005/08/29 10:24:25 abe Exp abe $
+d41 1
+a41 1
+_PROTOTYPE(extern void access_vxfs_ioffsets,(void));
+@
+
+
+1.18
+log
+@Revision 4.76
+@
+text
+@d36 1
+a36 1
+ * $Id: dproto.h,v 1.17 2005/08/08 19:55:41 abe Exp abe $
+d40 4
+@
+
+
+1.17
+log
+@Revision 4.76
+@
+text
+@d36 1
+a36 1
+ * $Id: dproto.h,v 1.16 2005/05/11 12:54:26 abe Exp abe $
+d70 3
+@
+
+
+1.16
+log
+@Revision 4.75
+@
+text
+@d36 1
+a36 1
+ * $Id: dproto.h,v 1.15 2004/12/30 18:42:59 abe Exp abe $
+d64 1
+@
+
+
+1.15
+log
+@Revision 4.74
+@
+text
+@d36 1
+a36 1
+ * $Id: dproto.h,v 1.14 2004/03/10 23:53:41 abe Exp abe $
+d58 4
+@
+
+
+1.14
+log
+@Revision 4.71
+@
+text
+@d36 1
+a36 1
+ * $Id: dproto.h,v 1.13 2001/07/05 12:26:21 abe Exp abe $
+d58 3
+a60 3
+#if	defined(HASZONES)
+_PROTOTYPE(extern int enter_zone_arg,(char *zn));
+#endif	/* defined(HASZONES) */
+d67 4
+@
+
+
+1.13
+log
+@Revision 4.57
+@
+text
+@d36 1
+a36 1
+ * $Id: dproto.h,v 1.12 2001/06/19 13:31:56 abe Exp abe $
+d58 4
+@
+
+
+1.12
+log
+@Revision 4.57
+@
+text
+@d36 1
+a36 1
+ * $Id: dproto.h,v 1.11 2000/12/04 14:35:13 abe Exp abe $
+d71 4
+@
+
+
+1.11
+log
+@Revision 4.53
+@
+text
+@d36 1
+a36 1
+ * $Id: dproto.h,v 1.10 2000/11/03 18:35:36 abe Exp abe $
+d59 2
+a60 1
+_PROTOTYPE(extern int read_vxnode,(KA_T va, struct vnode *v, struct l_vfs *vfs,dev_t *dev, unsigned long *ino, long *nl, unsigned long *sz, KA_T *vnops));
+@
+
+
+1.10
+log
+@Revision 4.52
+@
+text
+@d2 1
+a2 1
+ * dproto.h - SunOS (Solaris 1.x and 2.x)  function prototypes for lsof
+d36 1
+a36 1
+ * $Id: dproto.h,v 1.9 2000/06/25 17:31:11 abe Exp abe $
+a54 1
+# if	defined(solaris)
+a55 1
+# endif	/* defined_solaris */
+a61 1
+#if	defined(solaris)
+a65 3
+#else	/* !defined(solaris) */
+_PROTOTYPE(extern void process_socket,(KA_T sa));
+#endif	/* defined(solaris) */
+d67 1
+a67 1
+#if	defined(solaris) && solaris<20500
+d69 1
+a69 1
+#endif	/* defined(solaris) && solaris<20500 */
+@
+
+
+1.9
+log
+@Revision 4.50
+Add VxFS QIO support.
+@
+text
+@d36 1
+a36 1
+ * $Id: dproto.h,v 1.8 1999/05/04 09:04:06 abe Exp abe $
+d65 2
+@
+
+
+1.8
+log
+@Revision 4.43
+@
+text
+@d36 1
+a36 1
+ * $Id: dproto.h,v 1.7 98/04/03 13:24:14 abe Exp Locker: abe $
+d43 1
+d61 1
+a61 1
+_PROTOTYPE(extern int read_vxnode,(KA_T va, struct vnode *v, struct l_vfs *vfs,dev_t *dev, unsigned long *ino, long *nl, unsigned long *sz));
+@
+
+
+1.7
+log
+@Revision 4.29
+Support AFS under Solaris 2.5.1 and 2.6.
+@
+text
+@d36 1
+a36 1
+ * $Id: dproto.h,v 1.6 98/03/26 07:49:02 abe Exp Locker: abe $
+d60 1
+a60 1
+_PROTOTYPE(extern int read_vxnode,(KA_T va, struct vnode *v, struct l_vfs *vfs,dev_t *dev, unsigned long *ino, unsigned long *sz));
+@
+
+
+1.6
+log
+@Revision 4.29
+Make AFS support changes.
+@
+text
+@d36 1
+a36 1
+ * $Id: dproto.h,v 1.5 98/03/10 07:26:47 abe Exp Locker: abe $
+a45 2
+
+# if	!defined(solaris) || solaris<20500
+a46 2
+# endif	/* !defined(solaris) || solaris<20500 */
+
+@
+
+
+1.5
+log
+@Revision 4.28
+Pick lint pointed out by gcc -Wall.
+@
+text
+@d36 1
+a36 1
+ * $Id: dproto.h,v 1.4 98/03/06 08:38:38 abe Exp Locker: abe $
+d46 2
+d49 2
+@
+
+
+1.4
+log
+@Revision 4.27
+@
+text
+@d36 1
+a36 1
+ * $Id: dproto.h,v 1.3 97/10/24 07:56:43 abe Exp Locker: abe $
+d65 1
+@
+
+
+1.3
+log
+@Revision 4.18
+@
+text
+@d36 1
+a36 1
+ * $Id: dproto.h,v 1.2 97/04/23 15:56:07 abe Exp Locker: abe $
+d42 1
+a42 1
+_PROTOTYPE(extern struct l_vfs *readvfs,(struct vfs *ka, struct vfs *la, struct vnode *lv));
+d48 1
+a48 1
+_PROTOTYPE(extern int readafsnode,(caddr_t va, struct vnode *v, struct afsnode *an));
+d60 1
+a60 1
+_PROTOTYPE(extern int read_vxnode,(caddr_t va, struct vnode *v, struct l_vfs *vfs,dev_t *dev, unsigned long *ino, unsigned long *sz));
+d64 1
+a64 1
+_PROTOTYPE(extern void process_socket,(struct stdata *sa, char *ty));
+d66 1
+a66 1
+_PROTOTYPE(extern void process_socket,(caddr_t sa));
+@
+
+
+1.2
+log
+@Revision 4.05
+Define private get_max_fd() for Solaris < 2.5.
+@
+text
+@d36 1
+a36 1
+ * $Id: dproto.h,v 1.2 97/04/21 14:27:12 abe Exp $
+d62 6
+@
+
+
+1.1
+log
+@Initial revision
+@
+text
+@d36 1
+a36 1
+ * $Id: dproto.h,v 1.10 97/02/10 10:45:03 abe Exp $
+a43 4
+#if	defined(HASVXFS)
+_PROTOTYPE(extern int read_vxnode,(caddr_t va, struct vnode *v, struct l_vfs *vfs,dev_t *dev, unsigned long *ino, unsigned long *sz));
+#endif	/* defined(HASVXFS) */
+
+d58 8
+@

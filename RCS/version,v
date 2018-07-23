@@ -1,0 +1,1497 @@
+head	1.93;
+access;
+symbols;
+locks; strict;
+comment	@# @;
+
+
+1.93
+date	2018.07.14.12.10.49;	author abe;	state Exp;
+branches;
+next	1.92;
+
+1.92
+date	2018.03.26.21.50.45;	author abe;	state Exp;
+branches;
+next	1.91;
+
+1.91
+date	2018.02.14.14.18.25;	author abe;	state Exp;
+branches;
+next	1.90;
+
+1.90
+date	2015.07.07.20.16.58;	author abe;	state Exp;
+branches;
+next	1.89;
+
+1.89
+date	2014.10.13.22.36.49;	author abe;	state Exp;
+branches;
+next	1.88;
+
+1.88
+date	2013.01.02.17.14.59;	author abe;	state Exp;
+branches;
+next	1.87;
+
+1.87
+date	2012.04.10.16.31.03;	author abe;	state Exp;
+branches;
+next	1.86;
+
+1.86
+date	2011.09.27.17.34.32;	author abe;	state Exp;
+branches;
+next	1.85;
+
+1.85
+date	2010.07.29.15.59.58;	author abe;	state Exp;
+branches;
+next	1.84;
+
+1.84
+date	2010.01.18.19.01.11;	author abe;	state Exp;
+branches;
+next	1.83;
+
+1.83
+date	2008.11.02.08.13.09;	author abe;	state Exp;
+branches;
+next	1.82;
+
+1.82
+date	2008.06.04.13.23.14;	author abe;	state Exp;
+branches;
+next	1.81;
+
+1.81
+date	2008.04.22.19.11.18;	author abe;	state Exp;
+branches;
+next	1.80;
+
+1.80
+date	2007.05.16.11.55.18;	author abe;	state Exp;
+branches;
+next	1.79;
+
+1.79
+date	2006.04.23.11.40.44;	author abe;	state Exp;
+branches;
+next	1.78;
+
+1.78
+date	2005.09.21.11.06.13;	author abe;	state Exp;
+branches;
+next	1.77;
+
+1.77
+date	2005.08.08.19.45.00;	author abe;	state Exp;
+branches;
+next	1.76;
+
+1.76
+date	2005.01.19.20.02.13;	author abe;	state Exp;
+branches;
+next	1.75;
+
+1.75
+date	2004.10.22.19.34.58;	author abe;	state Exp;
+branches;
+next	1.74;
+
+1.74
+date	2004.07.14.16.45.21;	author abe;	state Exp;
+branches;
+next	1.73;
+
+1.73
+date	2004.03.15.23.01.19;	author abe;	state Exp;
+branches;
+next	1.72;
+
+1.72
+date	2004.01.20.02.39.56;	author abe;	state Exp;
+branches;
+next	1.71;
+
+1.71
+date	2003.10.16.15.39.40;	author abe;	state Exp;
+branches;
+next	1.70;
+
+1.70
+date	2003.06.19.09.42.20;	author abe;	state Exp;
+branches;
+next	1.69;
+
+1.69
+date	2003.03.31.14.13.42;	author abe;	state Exp;
+branches;
+next	1.68;
+
+1.68
+date	2002.12.24.20.09.05;	author abe;	state Exp;
+branches;
+next	1.67;
+
+1.67
+date	2002.10.10.14.25.28;	author abe;	state Exp;
+branches;
+next	1.66;
+
+1.66
+date	2002.06.26.17.51.05;	author abe;	state Exp;
+branches;
+next	1.65;
+
+1.65
+date	2002.04.24.11.22.54;	author abe;	state Exp;
+branches;
+next	1.64;
+
+1.64
+date	2002.03.12.22.31.47;	author abe;	state Exp;
+branches;
+next	1.63;
+
+1.63
+date	2002.01.23.16.07.47;	author abe;	state Exp;
+branches;
+next	1.62;
+
+1.62
+date	2001.11.12.17.33.25;	author abe;	state Exp;
+branches;
+next	1.61;
+
+1.61
+date	2001.10.23.12.44.02;	author abe;	state Exp;
+branches;
+next	1.60;
+
+1.60
+date	2001.09.19.12.35.41;	author abe;	state Exp;
+branches;
+next	1.59;
+
+1.59
+date	2001.07.31.17.38.26;	author abe;	state Exp;
+branches;
+next	1.58;
+
+1.58
+date	2001.05.07.16.02.29;	author abe;	state Exp;
+branches;
+next	1.57;
+
+1.57
+date	2001.02.18.10.29.31;	author abe;	state Exp;
+branches;
+next	1.56;
+
+1.56
+date	2001.01.21.21.43.48;	author abe;	state Exp;
+branches;
+next	1.55;
+
+1.55
+date	2000.12.07.09.40.34;	author abe;	state Exp;
+branches;
+next	1.54;
+
+1.54
+date	2000.11.09.11.08.01;	author abe;	state Exp;
+branches;
+next	1.53;
+
+1.53
+date	2000.08.25.18.33.00;	author abe;	state Exp;
+branches;
+next	1.52;
+
+1.52
+date	2000.07.05.13.50.20;	author abe;	state Exp;
+branches;
+next	1.51;
+
+1.51
+date	2000.04.05.13.56.33;	author abe;	state Exp;
+branches;
+next	1.50;
+
+1.50
+date	2000.01.26.13.45.21;	author abe;	state Exp;
+branches;
+next	1.49;
+
+1.49
+date	99.11.30.10.29.56;	author abe;	state Exp;
+branches;
+next	1.48;
+
+1.48
+date	99.10.24.14.54.14;	author abe;	state Exp;
+branches;
+next	1.47;
+
+1.47
+date	99.08.06.06.43.18;	author abe;	state Exp;
+branches;
+next	1.46;
+
+1.46
+date	99.06.24.14.38.41;	author abe;	state Exp;
+branches;
+next	1.45;
+
+1.45
+date	99.05.11.14.10.46;	author abe;	state Exp;
+branches;
+next	1.44;
+
+1.44
+date	99.04.01.11.04.56;	author abe;	state Exp;
+branches;
+next	1.43;
+
+1.43
+date	99.02.28.21.08.23;	author abe;	state Exp;
+branches;
+next	1.42;
+
+1.42
+date	99.01.26.10.34.04;	author abe;	state Exp;
+branches;
+next	1.41;
+
+1.41
+date	98.12.30.09.36.17;	author abe;	state Exp;
+branches;
+next	1.40;
+
+1.40
+date	98.11.27.12.47.40;	author abe;	state Exp;
+branches;
+next	1.39;
+
+1.39
+date	98.09.15.20.17.57;	author abe;	state Exp;
+branches;
+next	1.38;
+
+1.38
+date	98.08.06.18.32.48;	author abe;	state Exp;
+branches;
+next	1.37;
+
+1.37
+date	98.07.21.07.39.30;	author abe;	state Exp;
+branches;
+next	1.36;
+
+1.36
+date	98.06.29.08.06.14;	author abe;	state Exp;
+branches;
+next	1.35;
+
+1.35
+date	98.06.12.13.21.29;	author abe;	state Exp;
+branches;
+next	1.34;
+
+1.34
+date	98.05.18.16.05.48;	author abe;	state Exp;
+branches;
+next	1.33;
+
+1.33
+date	98.04.22.17.57.12;	author abe;	state Exp;
+branches;
+next	1.32;
+
+1.32
+date	98.04.20.07.44.08;	author abe;	state Exp;
+branches;
+next	1.31;
+
+1.31
+date	98.03.26.12.38.37;	author abe;	state Exp;
+branches;
+next	1.30;
+
+1.30
+date	98.03.11.15.27.08;	author abe;	state Exp;
+branches;
+next	1.29;
+
+1.29
+date	98.03.08.08.07.38;	author abe;	state Exp;
+branches;
+next	1.28;
+
+1.28
+date	98.02.18.14.56.02;	author abe;	state Exp;
+branches;
+next	1.27;
+
+1.27
+date	98.02.09.16.38.46;	author abe;	state Exp;
+branches;
+next	1.26;
+
+1.26
+date	98.01.28.15.25.00;	author abe;	state Exp;
+branches;
+next	1.25;
+
+1.25
+date	98.01.18.07.35.55;	author abe;	state Exp;
+branches;
+next	1.24;
+
+1.24
+date	97.12.17.09.07.24;	author abe;	state Exp;
+branches;
+next	1.23;
+
+1.23
+date	97.12.03.10.43.54;	author abe;	state Exp;
+branches;
+next	1.22;
+
+1.22
+date	97.11.12.07.29.23;	author abe;	state Exp;
+branches;
+next	1.21;
+
+1.21
+date	97.10.31.08.23.03;	author abe;	state Exp;
+branches;
+next	1.20;
+
+1.20
+date	97.10.30.08.22.39;	author abe;	state Exp;
+branches;
+next	1.19;
+
+1.19
+date	97.10.17.11.19.39;	author abe;	state Exp;
+branches;
+next	1.18;
+
+1.18
+date	97.10.08.08.06.51;	author abe;	state Exp;
+branches;
+next	1.17;
+
+1.17
+date	97.09.23.08.38.02;	author abe;	state Exp;
+branches;
+next	1.16;
+
+1.16
+date	97.07.28.15.19.55;	author abe;	state Exp;
+branches;
+next	1.15;
+
+1.15
+date	97.07.10.07.41.10;	author abe;	state Exp;
+branches;
+next	1.14;
+
+1.14
+date	97.06.25.07.54.23;	author abe;	state Exp;
+branches;
+next	1.13;
+
+1.13
+date	97.06.15.10.05.05;	author abe;	state Exp;
+branches;
+next	1.12;
+
+1.12
+date	97.06.09.12.28.51;	author abe;	state Exp;
+branches;
+next	1.11;
+
+1.11
+date	97.06.02.14.35.12;	author abe;	state Exp;
+branches;
+next	1.10;
+
+1.10
+date	97.05.26.12.28.11;	author abe;	state Exp;
+branches;
+next	1.9;
+
+1.9
+date	97.05.19.14.16.33;	author abe;	state Exp;
+branches;
+next	1.8;
+
+1.8
+date	97.04.29.19.07.29;	author abe;	state Exp;
+branches;
+next	1.7;
+
+1.7
+date	97.04.25.11.48.41;	author abe;	state Exp;
+branches;
+next	1.6;
+
+1.6
+date	97.04.19.12.43.12;	author abe;	state Exp;
+branches;
+next	1.5;
+
+1.5
+date	97.04.09.10.17.31;	author abe;	state Exp;
+branches;
+next	1.4;
+
+1.4
+date	97.03.24.20.03.31;	author abe;	state Exp;
+branches;
+next	1.3;
+
+1.3
+date	97.03.04.14.33.43;	author abe;	state Exp;
+branches;
+next	1.2;
+
+1.2
+date	97.02.25.15.48.45;	author abe;	state Exp;
+branches;
+next	1.1;
+
+1.1
+date	97.02.24.16.51.36;	author abe;	state Exp;
+branches;
+next	;
+
+
+desc
+@Lsof version 4
+@
+
+
+1.93
+log
+@Final release to GitHub
+@
+text
+@.ds VN 4.92
+@
+
+
+1.92
+log
+@Revision 4.91
+@
+text
+@d1 1
+a1 1
+.ds VN 4.91
+@
+
+
+1.91
+log
+@Revision 4.90
+@
+text
+@d1 1
+a1 1
+.ds VN 4.90
+@
+
+
+1.90
+log
+@Revision 4.89
+@
+text
+@d1 1
+a1 1
+.ds VN 4.89
+@
+
+
+1.89
+log
+@Revision 4.88
+@
+text
+@d1 1
+a1 1
+.ds VN 4.88
+@
+
+
+1.88
+log
+@Revision 4.87
+@
+text
+@d1 1
+a1 1
+.ds VN 4.87
+@
+
+
+1.87
+log
+@Revision 4.86
+@
+text
+@d1 1
+a1 1
+.ds VN 4.86
+@
+
+
+1.86
+log
+@Revision 4.85
+@
+text
+@d1 1
+a1 1
+.ds VN 4.85
+@
+
+
+1.85
+log
+@Revision 4.84
+@
+text
+@d1 1
+a1 1
+.ds VN 4.84
+@
+
+
+1.84
+log
+@Revision 4.83
+@
+text
+@d1 1
+a1 1
+.ds VN 4.83
+@
+
+
+1.83
+log
+@Revision 4.82
+@
+text
+@d1 1
+a1 1
+.ds VN 4.82
+@
+
+
+1.82
+log
+@Revision 4.81
+@
+text
+@d1 1
+a1 1
+.ds VN 4.81
+@
+
+
+1.81
+log
+@Revision 4.80
+@
+text
+@d1 1
+a1 1
+.ds VN 4.80
+@
+
+
+1.80
+log
+@Revision 4.79
+@
+text
+@d1 1
+a1 1
+.ds VN 4.79
+@
+
+
+1.79
+log
+@Revision 4.78
+@
+text
+@d1 1
+a1 1
+.ds VN 4.78
+@
+
+
+1.78
+log
+@revision 4.77
+@
+text
+@d1 1
+a1 1
+.ds VN 4.77
+@
+
+
+1.77
+log
+@Revision 4.76
+@
+text
+@d1 1
+a1 1
+.ds VN 4.76
+@
+
+
+1.76
+log
+@Revision 4.75
+@
+text
+@d1 1
+a1 1
+.ds VN 4.75
+@
+
+
+1.75
+log
+@Revision 4.74
+@
+text
+@d1 1
+a1 1
+.ds VN 4.74
+@
+
+
+1.74
+log
+@Revision 4.73
+@
+text
+@d1 1
+a1 1
+.ds VN 4.73
+@
+
+
+1.73
+log
+@Revision 4.72
+@
+text
+@d1 1
+a1 1
+.ds VN 4.72
+@
+
+
+1.72
+log
+@Revision 4.71
+@
+text
+@d1 1
+a1 1
+.ds VN 4.71
+@
+
+
+1.71
+log
+@Revision 4.70
+@
+text
+@d1 1
+a1 1
+.ds VN 4.70
+@
+
+
+1.70
+log
+@Revision 4.69
+@
+text
+@d1 1
+a1 1
+.ds VN 4.69
+@
+
+
+1.69
+log
+@Revision 4.68
+@
+text
+@d1 1
+a1 1
+.ds VN 4.68
+@
+
+
+1.68
+log
+@Revision 4.67
+@
+text
+@d1 1
+a1 1
+.ds VN 4.67
+@
+
+
+1.67
+log
+@Revision 4.66
+@
+text
+@d1 1
+a1 1
+.ds VN 4.66
+@
+
+
+1.66
+log
+@Revision 4.65
+@
+text
+@d1 1
+a1 1
+.ds VN 4.65
+@
+
+
+1.65
+log
+@Revision 4.64
+@
+text
+@d1 1
+a1 1
+.ds VN 4.64
+@
+
+
+1.64
+log
+@Revision 4.63
+@
+text
+@d1 1
+a1 1
+.ds VN 4.63
+@
+
+
+1.63
+log
+@Revision 4.62
+@
+text
+@d1 1
+a1 1
+.ds VN 4.62
+@
+
+
+1.62
+log
+@Revision 4.61
+@
+text
+@d1 1
+a1 1
+.ds VN 4.61
+@
+
+
+1.61
+log
+@Revision 4.60
+@
+text
+@d1 1
+a1 1
+.ds VN 4.60
+@
+
+
+1.60
+log
+@Revision 4.59
+@
+text
+@d1 1
+a1 1
+.ds VN 4.59
+@
+
+
+1.59
+log
+@Revision 4.58
+@
+text
+@d1 1
+a1 1
+.ds VN 4.58
+@
+
+
+1.58
+log
+@Revision 4.57
+@
+text
+@d1 1
+a1 1
+.ds VN 4.57
+@
+
+
+1.57
+log
+@Revision 4.56
+@
+text
+@d1 1
+a1 1
+.ds VN 4.56
+@
+
+
+1.56
+log
+@Revision 4.55
+@
+text
+@d1 1
+a1 1
+.ds VN 4.55
+@
+
+
+1.55
+log
+@Revision 4.54
+@
+text
+@d1 1
+a1 1
+.ds VN 4.54
+@
+
+
+1.54
+log
+@Revision 4.53
+@
+text
+@d1 1
+a1 1
+.ds VN 4.53
+@
+
+
+1.53
+log
+@Revision 4.52
+@
+text
+@d1 1
+a1 1
+.ds VN 4.52
+@
+
+
+1.52
+log
+@Revision 4.51
+@
+text
+@d1 1
+a1 1
+.ds VN 4.51
+@
+
+
+1.51
+log
+@Revision 4.50
+@
+text
+@d1 1
+a1 1
+.ds VN 4.50
+@
+
+
+1.50
+log
+@Revision 4.49
+@
+text
+@d1 1
+a1 1
+.ds VN 4.49
+@
+
+
+1.49
+log
+@Revision 4.48
+@
+text
+@d1 1
+a1 1
+.ds VN 4.48
+@
+
+
+1.48
+log
+@Revision 4.47
+@
+text
+@d1 1
+a1 1
+.ds VN 4.47
+@
+
+
+1.47
+log
+@Revision 4.46
+@
+text
+@d1 1
+a1 1
+.ds VN 4.46
+@
+
+
+1.46
+log
+@Revision 4.45
+@
+text
+@d1 1
+a1 1
+.ds VN 4.45
+@
+
+
+1.45
+log
+@Revision 4.44
+@
+text
+@d1 1
+a1 1
+.ds VN 4.44
+@
+
+
+1.44
+log
+@Revision 4.43
+@
+text
+@d1 1
+a1 1
+.ds VN 4.43
+@
+
+
+1.43
+log
+@Revision 4.42
+@
+text
+@d1 1
+a1 1
+.ds VN 4.42
+@
+
+
+1.42
+log
+@Revision 4.41
+@
+text
+@d1 1
+a1 1
+.ds VN 4.41
+@
+
+
+1.41
+log
+@Revision 4.40
+@
+text
+@d1 1
+a1 1
+.ds VN 4.40
+@
+
+
+1.40
+log
+@Revision 4.39
+@
+text
+@d1 1
+a1 1
+.ds VN 4.39
+@
+
+
+1.39
+log
+@Revision 4.38
+@
+text
+@d1 1
+a1 1
+.ds VN 4.38
+@
+
+
+1.38
+log
+@Revision 4.37
+@
+text
+@d1 1
+a1 1
+.ds VN 4.37
+@
+
+
+1.37
+log
+@Revision 4.36
+@
+text
+@d1 1
+a1 1
+.ds VN 4.36
+@
+
+
+1.36
+log
+@Revision 4.35
+@
+text
+@d1 1
+a1 1
+.ds VN 4.35
+@
+
+
+1.35
+log
+@Revision 4.34
+@
+text
+@d1 1
+a1 1
+.ds VN 4.34
+@
+
+
+1.34
+log
+@Revison 4.33
+@
+text
+@d1 1
+a1 1
+.ds VN 4.33
+@
+
+
+1.33
+log
+@Revision 4.32
+@
+text
+@d1 1
+a1 1
+.ds VN 4.32
+@
+
+
+1.32
+log
+@Revision 4.31
+@
+text
+@d1 1
+a1 1
+.ds VN 4.31
+@
+
+
+1.31
+log
+@Revision 4.30
+@
+text
+@d1 1
+a1 1
+.ds VN 4.30
+@
+
+
+1.30
+log
+@Revision 4.29
+@
+text
+@d1 1
+a1 1
+.ds VN 4.29
+@
+
+
+1.29
+log
+@Revision 4.28
+@
+text
+@d1 1
+a1 1
+.ds VN 4.28
+@
+
+
+1.28
+log
+@Revision 4.27
+@
+text
+@d1 1
+a1 1
+.ds VN 4.27
+@
+
+
+1.27
+log
+@Revision 4.26
+@
+text
+@d1 1
+a1 1
+.ds VN 4.26
+@
+
+
+1.26
+log
+@Revision 4.25
+@
+text
+@d1 1
+a1 1
+.ds VN 4.25
+@
+
+
+1.25
+log
+@Revision 4.24
+@
+text
+@d1 1
+a1 1
+.ds VN 4.24
+@
+
+
+1.24
+log
+@Revision 4.23
+@
+text
+@d1 1
+a1 1
+.ds VN 4.23
+@
+
+
+1.23
+log
+@Revision 4.22
+@
+text
+@d1 1
+a1 1
+.ds VN 4.22
+@
+
+
+1.22
+log
+@Revision 4.21
+@
+text
+@d1 1
+a1 1
+.ds VN 4.21
+@
+
+
+1.21
+log
+@Revision 4.20
+@
+text
+@d1 1
+a1 1
+.ds VN 4.20
+@
+
+
+1.20
+log
+@Revision 4.19
+@
+text
+@d1 1
+a1 1
+.ds VN 4.19
+@
+
+
+1.19
+log
+@Revision 4.18
+@
+text
+@d1 1
+a1 1
+.ds VN 4.18
+@
+
+
+1.18
+log
+@Revision 4.17
+@
+text
+@d1 1
+a1 1
+.ds VN 4.17
+@
+
+
+1.17
+log
+@Revision 4.16
+@
+text
+@d1 1
+a1 1
+.ds VN 4.16
+@
+
+
+1.16
+log
+@Revision 4.15
+@
+text
+@d1 1
+a1 1
+.ds VN 4.15
+@
+
+
+1.15
+log
+@Revision 4.14
+@
+text
+@d1 1
+a1 1
+.ds VN 4.14
+@
+
+
+1.14
+log
+@Revision 4.13
+@
+text
+@d1 1
+a1 1
+.ds VN 4.13
+@
+
+
+1.13
+log
+@Revison 4.12
+@
+text
+@d1 1
+a1 1
+.ds VN 4.12
+@
+
+
+1.12
+log
+@Revsion 4.11
+@
+text
+@d1 1
+a1 1
+.ds VN 4.11
+@
+
+
+1.11
+log
+@Revision 4.10
+@
+text
+@d1 1
+a1 1
+.ds VN 4.10
+@
+
+
+1.10
+log
+@Revision 4.09
+@
+text
+@d1 1
+a1 1
+.ds VN 4.09
+@
+
+
+1.9
+log
+@Revision 4.08
+@
+text
+@d1 1
+a1 1
+.ds VN 4.08
+@
+
+
+1.8
+log
+@Revision 4.07
+@
+text
+@d1 1
+a1 1
+.ds VN 4.07
+@
+
+
+1.7
+log
+@Revision 4.06
+@
+text
+@d1 1
+a1 1
+.ds VN 4.06
+@
+
+
+1.6
+log
+@Revision 4.05
+@
+text
+@d1 1
+a1 1
+.ds VN 4.05
+@
+
+
+1.5
+log
+@Revision 4.04
+@
+text
+@d1 1
+a1 1
+.ds VN 4.04
+@
+
+
+1.4
+log
+@Revision 4.03
+@
+text
+@d1 1
+a1 1
+.ds VN 4.03
+@
+
+
+1.3
+log
+@Revision 4.02
+@
+text
+@d1 1
+a1 1
+.ds VN 4.02
+@
+
+
+1.2
+log
+@Revision 4.01
+@
+text
+@d1 1
+a1 1
+.ds VN 4.01
+@
+
+
+1.1
+log
+@Initial revision
+@
+text
+@d1 1
+a1 1
+.ds VN 4.0
+@

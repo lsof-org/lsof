@@ -1,0 +1,131 @@
+head     1.2;
+branch   ;
+access   ;
+symbols  ;
+locks    ; strict;
+comment  @@;
+
+
+1.2
+date     98.02.16.08.10.49;  author abe;  state Exp;
+branches ;
+next     1.1;
+
+1.1
+date     97.03.04.08.37.30;  author abe;  state Exp;
+branches ;
+next     ;
+
+
+desc
+@Lsof version 4 PUCC master source Makefile
+@
+
+
+1.2
+log
+@Add usage.c
+@
+text
+@#	$Id: Makefile.msrc,v 1.1 97/03/04 08:37:30 abe Exp Locker: abe $
+#
+#	Meta-Makefile for lsof
+
+MANS=	Lsof.8
+MAND=	lsof.man
+GEN=	${MAND}
+SEND=	Make.host version \
+	lsof.h proto.h \
+	arg.c main.c misc.c node.c print.c proc.c store.c usage.c \
+	dialects
+SOURCE=	Makefile Distfile ${SEND}
+INTO=	/usr/src/local/etc/lsof
+
+DEPTS=
+PLATFORMS= -St IBMR2,SUN5
+HOSTS=	${DEPTS} ${PLATFORMS}
+
+MDEFS=
+DDEFS=	-dINTO=${INTO} ${MDEFS} ${HOSTS}
+
+LOOP=	for i in `distrib -H ${HOSTS}` ; do \
+		echo $$i: ;\
+		rsh $$i -n sh -c '"PATH=/usr/local/bin:/usr/local/etc:/usr/opt/bin:$$PATH && export PATH && cd ${INTO} && make DESTDIR=${DESTDIR} DEBUG=${DEBUG} $@@"' ;\
+	done
+
+HERE=	distrib -E -f Make.host -m `hostname` | make -f - $@@
+
+quit: FRC
+	echo 1>&2 "You are in the wrong place to just do a make"
+
+all: rsource FRC
+	${LOOP}
+
+calls: msource FRC
+	${HERE}
+
+clean: FRC
+	${LOOP}
+	rm -f ${GEN} Makefile.bak a.out core errs lint.out tags
+
+deinstall: FRC
+	${LOOP}
+
+depend: FRC
+	${LOOP}
+
+dirs: FRC
+	${LOOP}
+
+distrib: FRC
+	${LOOP}
+
+install: rsource FRC
+	${LOOP}
+
+lint: FRC
+	${LOOP}
+
+${MAND}: ${MANS} version
+	rm -f ${MAND}
+	soelim < ${MANS} > ${MAND}
+
+mkcat: FRC
+	${LOOP}
+
+print: msource FRC
+	${HERE}
+
+source: rsource
+	${LOOP}
+
+rsource: Distfile msource
+	distrib ${DDEFS}
+
+msource: ${SOURCE} ${MAND}
+
+spotless: clean FRC
+	rcsclean ${SOURCE}
+
+tags: msource FRC
+	${HERE}
+
+${SOURCE}:
+	co -q $@@
+
+FRC:
+@
+
+
+1.1
+log
+@Initial revision
+@
+text
+@d1 1
+a1 1
+#	$Id: Makefile.msrc,v 1.3 1996/08/13 12:58:36 abe Exp abe $
+d10 1
+a10 1
+	arg.c main.c misc.c node.c print.c proc.c store.c \
+@

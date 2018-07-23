@@ -1,0 +1,693 @@
+head	1.7;
+access;
+symbols;
+locks; strict;
+comment	@ * @;
+
+
+1.7
+date	2005.08.13.16.21.41;	author abe;	state Exp;
+branches;
+next	1.6;
+
+1.6
+date	2002.06.17.01.44.59;	author abe;	state Exp;
+branches;
+next	1.5;
+
+1.5
+date	98.07.17.08.51.03;	author abe;	state Exp;
+branches;
+next	1.4;
+
+1.4
+date	98.03.18.16.26.50;	author abe;	state Exp;
+branches;
+next	1.3;
+
+1.3
+date	98.03.06.08.40.00;	author abe;	state Exp;
+branches;
+next	1.2;
+
+1.2
+date	98.02.13.12.47.05;	author abe;	state Exp;
+branches;
+next	1.1;
+
+1.1
+date	97.02.24.07.48.49;	author abe;	state Exp;
+branches;
+next	;
+
+
+desc
+@Lsof version 4
+@
+
+
+1.7
+log
+@Revision 4.76
+@
+text
+@/*
+ * dmnt.c - SCO UnixWare mount support functions for lsof
+ */
+
+
+/*
+ * Copyright 1996 Purdue Research Foundation, West Lafayette, Indiana
+ * 47907.  All rights reserved.
+ *
+ * Written by Victor A. Abell
+ *
+ * This software is not subject to any license of the American Telephone
+ * and Telegraph Company or the Regents of the University of California.
+ *
+ * Permission is granted to anyone to use this software for any purpose on
+ * any computer system, and to alter it and redistribute it freely, subject
+ * to the following restrictions:
+ *
+ * 1. Neither the authors nor Purdue University are responsible for any
+ *    consequences of the use of this software.
+ *
+ * 2. The origin of this software must not be misrepresented, either by
+ *    explicit claim or by omission.  Credit to the authors and Purdue
+ *    University must appear in documentation and sources.
+ *
+ * 3. Altered versions must be plainly marked as such, and must not be
+ *    misrepresented as being the original software.
+ *
+ * 4. This notice may not be removed or altered.
+ */
+
+#ifndef lint
+static char copyright[] =
+"@@(#) Copyright 1996 Purdue Research Foundation.\nAll rights reserved.\n";
+static char *rcsid = "$Id: dmnt.c,v 1.6 2002/06/17 01:44:59 abe Exp abe $";
+#endif
+
+
+#include "lsof.h"
+
+
+/*
+ * Local static definitions
+ */
+
+static struct mounts *Lmi = (struct mounts *)NULL;	/* local mount info */
+static int Lmist = 0;					/* Lmi status */
+
+
+/*
+ * readmnt() - read mount table
+ */
+
+struct mounts *
+readmnt()
+{
+	char *dn = (char *)NULL;
+	char *ln;
+	struct mnttab me;
+	FILE *mfp;
+	struct mounts *mtp;
+	char *opt, *opte;
+	struct stat sb;
+
+#if	defined(HASPROCFS)
+	int procfs = 0;
+#endif
+
+	if (Lmi || Lmist)
+	    return(Lmi);
+/*
+ * Open access to the mount table and read mount table entries.
+ */
+	if (!(mfp = fopen(MNTTAB, "r"))) {
+	    (void) fprintf(stderr, "%s: can't access %s\n", Pn, MNTTAB);
+	    return(0);
+        }
+	while (!getmntent(mfp, &me)) {
+
+	/*
+	 * Skip loop-back mounts, since they are aliases for legitimate file
+	 * systems and there is no way to determine that a vnode refers to a
+	 * loop-back alias.
+	 *
+	 * Also skip file systems of type MNTTYPE_IGNORE or with the option
+	 * MNTOPT_IGNORE, since they are auto-mounted file systems whose
+	 * real entries (if they are mounted) will be separately identified
+	 * by getmntent().
+	 */
+	    if (!strcmp(me.mnt_fstype, MNTTYPE_LO)
+	    ||  !strcmp(me.mnt_fstype, MNTTYPE_IGNORE))
+		continue;
+	/*
+	 * Interpolate a possible symbolic directory link.
+	 */
+	    if (dn)
+		(void) free((FREE_P *)dn);
+	    if (!(dn = mkstrcpy(me.mnt_mountp, (MALLOC_S *)NULL))) {
+
+no_space_for_mount:
+
+		(void) fprintf(stderr, "%s: no space for mount at ",Pn);
+		safestrprt(me.mnt_special, stderr, 0);
+		(void) fprintf(stderr, " (");
+		safestrprt(me.mnt_mountp, stderr, 0);
+		(void) fprintf(stderr, ")\n");
+		Exit(1);
+	    }
+	    if (!(ln = Readlink(dn))) {
+		if (!Fwarn) {
+		    (void) fprintf(stderr,
+			"      Output information may be incomplete.\n");
+		}
+		continue;
+	    }
+	    if (ln != dn) {
+		(void) free((FREE_P *)dn);
+		dn = ln;
+	    }
+	    if (*dn != '/')
+		continue;
+	/*
+	 * Stat() the directory.
+	 */
+	    if (statsafely(dn, &sb)) {
+		if (!Fwarn) {
+		    (void) fprintf(stderr, "%s: can't stat()", Pn);
+
+#if	defined(HASFSTYPE)
+		    putc(' ', stderr);
+		    safestrprt(me.mnt_fstype, stderr, 0);
+#endif	/* defined(HASFSTYPE) */
+
+		    (void) fprintf(stderr, " file system ");
+		    safestrprt(me.mnt_mountp, stderr, 1);
+		    (void) fprintf(stderr,
+			"      Output information may be incomplete.\n");
+		}
+		if (!(opt = strstr(me.mnt_mntopts, "dev="))) {
+		    (void) memset(&sb, 0, sizeof(sb));
+		    if (!(opte = x2dev(opt + 4, &sb.st_dev))) {
+			sb.st_mode = S_IFDIR | 0777;
+
+#if	defined(HASFSTYPE)
+			(void) strncpy(sb.st_fstype, me.mnt_fstype,
+				       sizeof(sb.st_fstype));
+			sb.st_fstype[sizeof(sb.st_fstype) - 1 ] = '\0';
+#endif	/* HASFSTYPE */
+
+			if (!Fwarn) {
+			    (void) fprintf(stderr,
+				"      assuming \"%.*s\" from %s\n",
+				(opte - opt), opt, MNTTAB);
+			}
+		    } else
+			opt = (char *)NULL;
+		}
+		if (!opt)
+		    continue;
+	    }
+	/*
+	 * Allocate and fill a local mount structure.
+	 */
+	    if (!(mtp = (struct mounts *)malloc(sizeof(struct mounts))))
+		goto no_space_for_mount;
+
+#if	defined(HASFSTYPE)
+	    if (!(mtp->fstype = mkstrcpy(sb.st_fstype, (MALLOC_S *)NULL)))
+		goto no_space_for_mount;
+#endif	/* HASFSTYPE */
+
+	    mtp->dir = dn;
+	    dn = (char *)NULL;
+	    mtp->next = Lmi;
+	    mtp->dev = sb.st_dev;
+	    mtp->rdev = sb.st_rdev;
+	    mtp->inode = (INODETYPE)sb.st_ino;
+	    mtp->mode = sb.st_mode;
+
+#if	defined(HASPROCFS)
+# if	defined(HASFSTYPE)
+	    if (!strcmp(sb.st_fstype, HASPROCFS))
+# else	/* !defined*HASFSTYPE) */
+	    if (!strcmp(me.mnt_special, "/proc"))
+# endif	/* defined(HASFSTYPE) */
+
+	    {
+
+	    /*
+	     * Save information on exactly one procfs file system.
+	     */
+		if (procfs)
+		    Mtprocfs = (struct mounts *)NULL;
+		else {
+		    procfs = 1;
+		    Mtprocfs = mtp;
+		}
+	    }
+#endif	/* defined(HASPROCFS) */
+
+	/*
+	 * Interpolate a possible file system (mounted-on device) name link.
+	 */
+	    if (!(dn = mkstrcpy(me.mnt_special, (MALLOC_S *)NULL)))
+		goto no_space_for_mount;
+	    mtp->fsname = dn;
+	    ln = Readlink(dn);
+	    dn = (char *)NULL;
+	/*
+	 * Stat() the file system (mounted-on) name and add file system
+	 * information to the local mounts structure.
+	 */
+	    if (!ln || statsafely(ln, &sb))
+		sb.st_mode = 0;
+	    mtp->fsnmres = ln;
+	    mtp->fs_mode = sb.st_mode;
+	    Lmi = mtp;
+        }
+	(void) fclose(mfp);
+/*
+ * Clean up and return local mount info table address.
+ */
+	if (dn)
+	    (void) free((FREE_P *)dn);
+	Lmist = 1;
+	return(Lmi);
+}
+@
+
+
+1.6
+log
+@Revision 4.64
+@
+text
+@d35 1
+a35 1
+static char *rcsid = "$Id: dmnt.c,v 1.5 1998/07/17 08:51:03 abe Exp abe $";
+d177 1
+a177 1
+	    mtp->inode = sb.st_ino;
+@
+
+
+1.5
+log
+@Revision 4.35
+@
+text
+@d35 1
+a35 1
+static char *rcsid = "$Id: dmnt.c,v 1.4 98/03/18 16:26:50 abe Exp Locker: abe $";
+d120 2
+@
+
+
+1.4
+log
+@Revision 4.29
+Convert readmnt() to return a local mount info table pointer.
+Delete readvfs().
+@
+text
+@d35 1
+a35 1
+static char *rcsid = "$Id: dmnt.c,v 1.3 98/03/06 08:40:00 abe Exp Locker: abe $";
+d47 1
+d69 1
+a69 1
+	if (Lmi)
+d223 1
+@
+
+
+1.3
+log
+@Revision 4.27
+@
+text
+@d35 1
+a35 1
+static char *rcsid = "$Id: dmnt.c,v 1.2 98/02/13 12:47:05 abe Exp Locker: abe $";
+d43 7
+d53 1
+a53 1
+int
+a54 1
+
+a55 1
+	int err = 0;
+d68 2
+d98 9
+a106 2
+		err = 1;
+		break;
+a112 1
+		err = 2;
+a135 1
+		err = 2;
+d161 2
+a162 4
+	    if (!(mtp = (struct mounts *)malloc(sizeof(struct mounts)))) {
+		err = 1;
+		break;
+	    }
+d165 2
+a166 4
+	    if (!(mtp->fstype = mkstrcpy(sb.st_fstype, (MALLOC_S *)NULL))) {
+		err = 1;
+		break;
+	    }
+d171 1
+a171 1
+	    mtp->next = Mtab;
+d201 2
+a202 4
+	    if (!(dn = mkstrcpy(me.mnt_special, (MALLOC_S *)NULL))) {
+		err = 1;
+		break;
+	    }
+d214 1
+a214 1
+	    Mtab = mtp;
+d218 1
+a218 1
+ * Clean up and handle errors.
+d222 1
+a222 63
+	switch (err) {
+	case 1:
+	    (void) fprintf(stderr, "%s: no space for mount at ",Pn);
+	    safestrprt(me.mnt_special, stderr, 0);
+	    (void) fprintf(stderr, " (");
+	    safestrprt(me.mnt_mountp, stderr, 0);
+	    (void) fprintf(stderr, ")\n");
+	    return(0);
+	case 2:
+	    return(1);
+	}
+	return(1);
+}
+
+
+/*
+ * readvfs() - read vfs structure
+ */
+
+struct l_vfs *
+readvfs(ka, la)
+	KA_T ka;			/* vfs structure kernel address, if
+					 * must be read from kernel */
+	struct vfs *la;			/* local vfs structure address, non-
+					 * NULL if already read from kernel */
+{
+	struct vfs *v, tv;
+	struct l_vfs *vp;
+
+	if (!ka && !la)
+	    return((struct l_vfs *)NULL);
+/*
+ * Search the local cache.
+ */
+	for (vp = Lvfs; vp; vp = vp->next) {
+	    if (ka == vp->addr)
+		return(vp);
+	}
+/*
+ * Allocate a new cache entry.
+ */
+	if (!(vp = (struct l_vfs *)malloc(sizeof(struct l_vfs)))) {
+	    (void) fprintf(stderr, "%s: PID %d, no space for vfs\n",
+		Pn, Lp->pid);
+	    Exit(1);
+	}
+	vp->dir = (char *)NULL;
+	vp->fsname = (char *)NULL;
+/*
+ * Fill in the new cache entry from kernel data.
+ */
+	if (la)
+	    v = la;
+	else if (kread((KA_T)ka, (char *)&tv, sizeof(tv))) {
+	    (void) free((FREE_P *)vp);
+	    return((struct l_vfs *)NULL);
+	} else
+	    v = &tv;
+	(void) completevfs(vp, (dev_t *)&v->vfs_dev);
+	vp->next = Lvfs;
+	vp->addr = ka;
+	Lvfs = vp;
+	return(vp);
+@
+
+
+1.2
+log
+@Revision 4.26
+@
+text
+@d35 1
+a35 1
+static char *rcsid = "$Id: dmnt.c,v 1.1 97/02/24 07:48:49 abe Exp Locker: abe $";
+d70 1
+a70 1
+	while (getmntent(mfp, &me) == 0) {
+d82 2
+a83 2
+	    if (strcmp(me.mnt_fstype, MNTTYPE_LO) == 0
+	    ||  strcmp(me.mnt_fstype, MNTTYPE_IGNORE) == 0)
+d90 1
+a90 1
+	    if (!(dn = (char *)malloc((MALLOC_S)(strlen(me.mnt_mountp) + 1)))) {
+a93 1
+	    (void) strcpy(dn, me.mnt_mountp);
+d111 1
+a111 1
+		    (void) fprintf(stderr,
+d114 2
+a115 5
+			"%s: WARNING: can't stat() %s file system %s\n",
+			Pn, me.mnt_fstype, me.mnt_mountp
+#else	/* !defined(HASFSTYPE) */
+			"%s: WARNING: can't stat() file system %s\n",
+			Pn, me.mnt_mountp
+d118 2
+a119 1
+		    );
+d155 1
+a155 2
+	    if (!(mtp->fstype=(char *)malloc((MALLOC_S)(strlen(sb.st_fstype)+1))
+	    )) {
+a158 1
+	    (void) strcpy(mtp->fstype, sb.st_fstype);
+d171 1
+a171 1
+	    if (strcmp(sb.st_fstype, HASPROCFS) == 0)
+d173 1
+a173 1
+	    if (strcmp(me.mnt_special, "/proc") == 0)
+d193 1
+a193 1
+	    if (!(dn=(char *)malloc((MALLOC_S)(strlen(me.mnt_special)+1)))) {
+a196 1
+	    (void) strcpy(dn, me.mnt_special);
+d218 5
+a222 2
+	    (void) fprintf(stderr, "%s: no space for mount at %s (%s)\n",
+		Pn, me.mnt_special, me.mnt_mountp);
+d237 1
+a237 1
+	struct vfs *ka;			/* vfs structure kernel address, if
+d246 1
+a246 1
+		return(NULL);
+d251 2
+a252 2
+		if (ka == vp->addr)
+			return(vp);
+d257 4
+a260 4
+	if ((vp = (struct l_vfs *)malloc(sizeof(struct l_vfs))) == NULL) {
+		(void) fprintf(stderr, "%s: PID %d, no space for vfs\n",
+			Pn, Lp->pid);
+		Exit(1);
+d262 2
+a263 2
+	vp->dir = NULL;
+	vp->fsname = NULL;
+d268 1
+a268 1
+		v = la;
+d270 2
+a271 2
+		(void) free((FREE_P *)vp);
+		return(NULL);
+d273 1
+a273 1
+		v = &tv;
+@
+
+
+1.1
+log
+@Initial revision
+@
+text
+@d35 1
+a35 1
+static char *rcsid = "$Id: dmnt.c,v 1.1 96/12/09 07:22:20 abe Exp $";
+d51 1
+a51 1
+	char *dn = NULL;
+d66 3
+a68 3
+	if ((mfp = fopen(MNTTAB, "r")) == NULL) {
+                (void) fprintf(stderr, "%s: can't access %s\n", Pn, MNTTAB);
+                return(0);
+d82 3
+a84 3
+		if (strcmp(me.mnt_fstype, MNTTYPE_LO) == 0
+		||  strcmp(me.mnt_fstype, MNTTYPE_IGNORE) == 0)
+			continue;
+d88 11
+a98 6
+		if (dn)
+			(void) free((FREE_P *)dn);
+		if ((dn=(char *)malloc((MALLOC_S)(strlen(me.mnt_mountp) + 1)))
+		== NULL) {
+			err = 1;
+			break;
+d100 7
+a106 13
+		(void) strcpy(dn, me.mnt_mountp);
+		if ((ln = Readlink(dn)) == NULL) {
+		    if (!Fwarn){
+			(void) fprintf(stderr,
+			    "      Output information may be incomplete.\n");
+		    }
+		    err = 2;
+		    continue;
+		}
+		if (ln != dn) {
+			(void) free((FREE_P *)dn);
+			dn = ln;
+		}
+d110 3
+a112 3
+                if (statsafely(dn, &sb)) {
+		    if (!Fwarn) {
+			(void) fprintf(stderr,
+d115 2
+a116 2
+			    "%s: WARNING: can't stat() %s file system %s\n",
+			    Pn, me.mnt_fstype, me.mnt_mountp
+d118 2
+a119 2
+			    "%s: WARNING: can't stat() file system %s\n",
+			    Pn, me.mnt_mountp
+d122 9
+a130 9
+			);
+			(void) fprintf(stderr,
+			    "      Output information may be incomplete.\n");
+		    }
+		    err = 2;
+		    if ((opt = strstr(me.mnt_mntopts, "dev=")) != NULL) {
+			(void) memset(&sb, 0, sizeof(sb));
+			if ((opte = x2dev(opt + 4, &sb.st_dev)) != NULL) {
+			    sb.st_mode = S_IFDIR | 0777;
+d133 3
+a135 3
+			    (void) strncpy(sb.st_fstype, me.mnt_fstype,
+				sizeof(sb.st_fstype));
+			    sb.st_fstype[sizeof(sb.st_fstype) - 1 ] = '\0';
+d138 7
+a144 9
+			    if (!Fwarn)
+				(void) fprintf(stderr,
+				    "      assuming \"%.*s\" from %s\n",
+				    (opte - opt), opt, MNTTAB);
+			} else
+				opt = NULL;
+		    }
+		    if (opt == NULL)
+			continue;
+d146 3
+d152 4
+a155 12
+		if ((mtp = (struct mounts *)malloc(sizeof(struct mounts)))
+		== NULL) {
+			err = 1;
+			break;
+		}
+		if ((mtp->fsname =
+			(char *)malloc((MALLOC_S)(strlen(me.mnt_special) + 1)))
+		== NULL) {
+			err = 1;
+			break;
+		}
+		(void) strcpy(mtp->fsname, me.mnt_special);
+d158 6
+a163 7
+		if ((mtp->fstype =
+			(char *)malloc((MALLOC_S)(strlen(sb.st_fstype) + 1)))
+		== NULL) {
+			err = 1;
+			break;
+		}
+		(void) strcpy(mtp->fstype, sb.st_fstype);
+d166 7
+a172 7
+		mtp->dir = dn;
+		dn = NULL;
+		mtp->next = Mtab;
+		mtp->dev = sb.st_dev;
+		mtp->rdev = sb.st_rdev;
+		mtp->inode = sb.st_ino;
+		mtp->mode = sb.st_mode;
+d176 4
+a179 4
+		if (strcmp(sb.st_fstype, HASPROCFS) == 0)
+# else
+		if (strcmp(me.mnt_special, "/proc") == 0)
+# endif	/* HASFSTYPE */
+d181 1
+a181 1
+		{
+d183 8
+a190 9
+		/*
+		 * Save information on exactly one procfs file system.
+		 */
+			if (procfs)
+				Mtprocfs = NULL;
+			else {
+				procfs = 1;
+				Mtprocfs = mtp;
+			}
+d192 2
+a193 1
+#endif	/* HASPROCFS */
+d195 20
+a214 1
+		Mtab = mtp;
+a216 2
+	if (dn)
+		(void) free((FREE_P *)dn);
+d218 1
+a218 1
+ * Handle errors.
+d220 2
+d224 3
+a226 3
+		(void) fprintf(stderr, "%s: no space for %s mount at %s (%s)\n",
+			Pn, sb.st_fstype, me.mnt_special, me.mnt_mountp);
+		return(0);
+d228 1
+a228 1
+		return(1);
+@

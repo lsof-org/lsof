@@ -1,0 +1,219 @@
+head     1.8;
+branch   ;
+access   ;
+symbols  ;
+locks    ; strict;
+comment  @ * @;
+
+
+1.8
+date     99.06.22.08.15.18;  author abe;  state Exp;
+branches ;
+next     1.7;
+
+1.7
+date     99.04.15.06.47.25;  author abe;  state Exp;
+branches ;
+next     1.6;
+
+1.6
+date     99.01.25.06.58.30;  author abe;  state Exp;
+branches ;
+next     1.5;
+
+1.5
+date     98.03.06.08.19.29;  author abe;  state Exp;
+branches ;
+next     1.4;
+
+1.4
+date     97.11.06.09.30.01;  author abe;  state Exp;
+branches ;
+next     1.3;
+
+1.3
+date     97.07.02.11.21.08;  author abe;  state Exp;
+branches ;
+next     1.2;
+
+1.2
+date     97.06.12.18.45.26;  author abe;  state Exp;
+branches ;
+next     1.1;
+
+1.1
+date     97.02.24.07.39.39;  author abe;  state Exp;
+branches ;
+next     ;
+
+
+desc
+@Lsof version 4
+@
+
+
+1.8
+log
+@Revision 4.44
+@
+text
+@/*
+ * dproto.h - DEC OSF/1, Digital UNIX, Tru64 UNIX function prototypes for lsof
+ *
+ * The _PROTOTYPE macro is defined in the common proto.h.
+ */
+
+
+/*
+ * Copyright 1994 Purdue Research Foundation, West Lafayette, Indiana
+ * 47907.  All rights reserved.
+ *
+ * Written by Victor A. Abell
+ *
+ * This software is not subject to any license of the American Telephone
+ * and Telegraph Company or the Regents of the University of California.
+ *
+ * Permission is granted to anyone to use this software for any purpose on
+ * any computer system, and to alter it and redistribute it freely, subject
+ * to the following restrictions:
+ *
+ * 1. Neither the authors nor Purdue University are responsible for any
+ *    consequences of the use of this software.
+ *
+ * 2. The origin of this software must not be misrepresented, either by
+ *    explicit claim or by omission.  Credit to the authors and Purdue
+ *    University must appear in documentation and sources.
+ *
+ * 3. Altered versions must be plainly marked as such, and must not be
+ *    misrepresented as being the original software.
+ *
+ * 4. This notice may not be removed or altered.
+ */
+
+
+/*
+ * $Id: dproto.h,v 1.7 99/04/15 06:47:25 abe Exp Locker: abe $
+ */
+
+
+_PROTOTYPE(extern void clr_flinfo,(void));
+_PROTOTYPE(extern char *get_nlist_path,(int ap));
+_PROTOTYPE(extern int is_file_named,(char *p, int cd));
+_PROTOTYPE(extern struct l_vfs *readvfs,(KA_T vm));
+
+#if     defined(HASDCACHE)
+_PROTOTYPE(extern void clr_sect,(void));
+#endif  /* defined(HASDCACHE) */
+
+#if	defined(HASIPv6)
+_PROTOTYPE(extern struct hostent *gethostbyname2,(char *nm, int prot));
+#endif	/* defined(HASIPv6) */
+
+#if	defined(HASPRIVNMCACHE)
+_PROTOTYPE(extern int tag_to_path,(char *fs, mlBfTagT t2pb, int nl, char *nlb));
+#endif	/* defined(HASPRIVNMCACHE) */
+
+#if	defined(USELOCALREADDIR)
+_PROTOTYPE(extern int CloseDir,(DIR *dirp));
+_PROTOTYPE(extern DIR *OpenDir,(char *dir));
+_PROTOTYPE(extern struct DIRTYPE *ReadDir,(DIR *dirp));
+#endif	/* defined(USELOCALREADDIR) */
+@
+
+
+1.7
+log
+@Revision 4.43
+Document for Tru64.  Adjust Tru64 IPv6 support.
+@
+text
+@d36 1
+a36 1
+ * $Id: dproto.h,v 1.6 99/01/25 06:58:30 abe Exp Locker: abe $
+a46 1
+_PROTOTYPE(extern int rw_clone_sect,(int m));
+@
+
+
+1.6
+log
+@Revision 4.40
+@
+text
+@d2 1
+a2 1
+ * dproto.h - Digital UNIX (DEC OSF/1) function prototypes for lsof
+d36 1
+a36 1
+ * $Id: dproto.h,v 1.5 98/03/06 08:19:29 abe Exp Locker: abe $
+d49 4
+@
+
+
+1.5
+log
+@Revision 4.27
+@
+text
+@d36 1
+a36 1
+ * $Id: dproto.h,v 1.4 97/11/06 09:30:01 abe Exp Locker: abe $
+d42 1
+a42 1
+_PROTOTYPE(extern int is_file_named,(char *p, enum vtype ty));
+d53 6
+@
+
+
+1.4
+log
+@Revision 4.20
+@
+text
+@d36 1
+a36 1
+ * $Id: dproto.h,v 1.3 97/07/02 11:21:08 abe Exp Locker: abe $
+d43 1
+a43 1
+_PROTOTYPE(extern struct l_vfs *readvfs,(struct mount *vm));
+@
+
+
+1.3
+log
+@Revision 4.13
+Change from DEC OSF/1 to Digital UNIX.
+@
+text
+@d36 1
+a36 1
+ * $Id: dproto.h,v 1.2 97/06/12 18:45:26 abe Exp Locker: abe $
+d49 4
+@
+
+
+1.2
+log
+@Revision 4.11
+Auto-detect the booted file path via getsysinfo().
+@
+text
+@d2 1
+a2 1
+ * dproto.h - DEC OSF/1 function prototypes for lsof
+d36 1
+a36 1
+ * $Id: dproto.h,v 1.1 97/02/24 07:39:39 abe Exp Locker: abe $
+@
+
+
+1.1
+log
+@Initial revision
+@
+text
+@d36 1
+a36 1
+ * $Id: dproto.h,v 1.7 96/09/21 10:01:16 abe Exp $
+d41 1
+@

@@ -1,0 +1,94 @@
+head     1.3;
+branch   ;
+access   ;
+symbols  ;
+locks    ; strict;
+comment  @# @;
+
+
+1.3
+date     99.04.15.06.40.21;  author abe;  state Exp;
+branches ;
+next     1.2;
+
+1.2
+date     97.07.02.11.20.12;  author abe;  state Exp;
+branches ;
+next     1.1;
+
+1.1
+date     97.02.24.07.39.23;  author abe;  state Exp;
+branches ;
+next     ;
+
+
+desc
+@Lsof version 4
+@
+
+
+1.3
+log
+@Correct lsof version number.
+@
+text
+@#!/bin/sh
+#
+# Mksrc - make DEC OSF/1, Digital UNIX, Tru64 UNIX source files
+#
+# WARNING: This script assumes it is running from the main directory
+#	   of the lsof, version 4 distribution.
+#
+# One environment variable applies:
+#
+# LSOF_MKC	is the method for creating the source files.
+#		It defaults to "ln -s".  A common alternative is "cp".
+#
+# $Id: Mksrc,v 1.2 97/07/02 11:20:12 abe Exp Locker: abe $
+
+
+D=dialects/du
+L="ddev.c dfile.c dlsof.h dmnt.c dnode.c dproc.c dproto.h dsock.c dstore.c machine.h"
+
+for i in $L
+do
+  rm -f $i
+  $LSOF_MKC $D/$i $i
+  echo "$LSOF_MKC $D/$i $i"
+done
+@
+
+
+1.2
+log
+@Revision 4.13
+Change from DEC OSF/1 to Digital UNIX.
+@
+text
+@d3 1
+a3 1
+# Makesrc - make Digital UNIX (DEC OSF/1) source files
+d6 1
+a6 1
+#	   of the lsof, version 3 distribution.
+d13 1
+a13 1
+# $Id: Mksrc,v 1.1 97/02/24 07:39:23 abe Exp Locker: abe $
+@
+
+
+1.1
+log
+@Initial revision
+@
+text
+@d3 1
+a3 1
+# Makesrc - make DEC OSF/1 source files
+d13 1
+a13 1
+# $Id$
+d16 1
+a16 1
+D=dialects/osf
+@

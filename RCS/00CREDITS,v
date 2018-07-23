@@ -1,0 +1,2608 @@
+head	1.107;
+access;
+symbols;
+locks; strict;
+comment	@# @;
+
+
+1.107
+date	2018.03.27.10.34.27;	author abe;	state Exp;
+branches;
+next	1.106;
+
+1.106
+date	2018.02.14.14.00.35;	author abe;	state Exp;
+branches;
+next	1.105;
+
+1.105
+date	2015.07.07.20.13.54;	author abe;	state Exp;
+branches;
+next	1.104;
+
+1.104
+date	2014.10.13.22.29.42;	author abe;	state Exp;
+branches;
+next	1.103;
+
+1.103
+date	2013.01.02.17.16.06;	author abe;	state Exp;
+branches;
+next	1.102;
+
+1.102
+date	2012.04.10.16.32.09;	author abe;	state Exp;
+branches;
+next	1.101;
+
+1.101
+date	2011.09.27.18.03.06;	author abe;	state Exp;
+branches;
+next	1.100;
+
+1.100
+date	2011.09.27.17.28.46;	author abe;	state Exp;
+branches;
+next	1.99;
+
+1.99
+date	2010.07.29.15.52.47;	author abe;	state Exp;
+branches;
+next	1.98;
+
+1.98
+date	2010.01.18.18.57.37;	author abe;	state Exp;
+branches;
+next	1.97;
+
+1.97
+date	2009.03.25.19.16.46;	author abe;	state Exp;
+branches;
+next	1.96;
+
+1.96
+date	2008.10.21.16.19.17;	author abe;	state Exp;
+branches;
+next	1.95;
+
+1.95
+date	2008.05.09.12.59.49;	author abe;	state Exp;
+branches;
+next	1.94;
+
+1.94
+date	2008.04.15.13.23.08;	author abe;	state Exp;
+branches;
+next	1.93;
+
+1.93
+date	2007.04.24.16.12.15;	author abe;	state Exp;
+branches;
+next	1.92;
+
+1.92
+date	2006.03.27.22.59.05;	author abe;	state Exp;
+branches;
+next	1.91;
+
+1.91
+date	2005.08.29.10.12.29;	author abe;	state Exp;
+branches;
+next	1.90;
+
+1.90
+date	2005.05.17.00.51.26;	author abe;	state Exp;
+branches;
+next	1.89;
+
+1.89
+date	2005.05.11.12.58.04;	author abe;	state Exp;
+branches;
+next	1.88;
+
+1.88
+date	2005.01.17.13.21.01;	author abe;	state Exp;
+branches;
+next	1.87;
+
+1.87
+date	2004.12.30.18.36.19;	author abe;	state Exp;
+branches;
+next	1.86;
+
+1.86
+date	2004.10.17.21.40.01;	author abe;	state Exp;
+branches;
+next	1.85;
+
+1.85
+date	2004.07.12.15.44.30;	author abe;	state Exp;
+branches;
+next	1.84;
+
+1.84
+date	2004.07.07.14.01.34;	author abe;	state Exp;
+branches;
+next	1.83;
+
+1.83
+date	2004.07.06.19.10.28;	author abe;	state Exp;
+branches;
+next	1.82;
+
+1.82
+date	2004.03.10.23.38.12;	author abe;	state Exp;
+branches;
+next	1.81;
+
+1.81
+date	2004.01.14.11.19.49;	author abe;	state Exp;
+branches;
+next	1.80;
+
+1.80
+date	2003.10.15.20.24.50;	author abe;	state Exp;
+branches;
+next	1.79;
+
+1.79
+date	2003.10.13.14.05.50;	author abe;	state Exp;
+branches;
+next	1.78;
+
+1.78
+date	2003.06.13.14.47.19;	author abe;	state Exp;
+branches;
+next	1.77;
+
+1.77
+date	2003.06.12.01.56.13;	author abe;	state Exp;
+branches;
+next	1.76;
+
+1.76
+date	2003.06.11.11.31.18;	author abe;	state Exp;
+branches;
+next	1.75;
+
+1.75
+date	2002.10.08.20.11.24;	author abe;	state Exp;
+branches;
+next	1.74;
+
+1.74
+date	2002.06.17.01.35.09;	author abe;	state Exp;
+branches;
+next	1.73;
+
+1.73
+date	2002.04.19.12.02.18;	author abe;	state Exp;
+branches;
+next	1.72;
+
+1.72
+date	2002.02.26.15.06.03;	author abe;	state Exp;
+branches;
+next	1.71;
+
+1.71
+date	2002.01.18.20.49.38;	author abe;	state Exp;
+branches;
+next	1.70;
+
+1.70
+date	2002.01.14.14.21.07;	author abe;	state Exp;
+branches;
+next	1.69;
+
+1.69
+date	2001.11.01.20.21.59;	author abe;	state Exp;
+branches;
+next	1.68;
+
+1.68
+date	2001.10.15.12.14.48;	author abe;	state Exp;
+branches;
+next	1.67;
+
+1.67
+date	2001.09.04.17.59.48;	author abe;	state Exp;
+branches;
+next	1.66;
+
+1.66
+date	2001.06.22.18.09.14;	author abe;	state Exp;
+branches;
+next	1.65;
+
+1.65
+date	2001.05.01.19.47.14;	author abe;	state Exp;
+branches;
+next	1.64;
+
+1.64
+date	2001.04.19.12.21.18;	author abe;	state Exp;
+branches;
+next	1.63;
+
+1.63
+date	2001.03.19.12.29.58;	author abe;	state Exp;
+branches;
+next	1.62;
+
+1.62
+date	2001.02.14.19.37.19;	author abe;	state Exp;
+branches;
+next	1.61;
+
+1.61
+date	2001.01.14.19.14.14;	author abe;	state Exp;
+branches;
+next	1.60;
+
+1.60
+date	2001.01.02.12.41.53;	author abe;	state Exp;
+branches;
+next	1.59;
+
+1.59
+date	2000.12.06.01.43.39;	author abe;	state Exp;
+branches;
+next	1.58;
+
+1.58
+date	2000.11.06.11.57.36;	author abe;	state Exp;
+branches;
+next	1.57;
+
+1.57
+date	2000.11.05.13.29.02;	author abe;	state Exp;
+branches;
+next	1.56;
+
+1.56
+date	2000.08.21.12.03.24;	author abe;	state Exp;
+branches;
+next	1.55;
+
+1.55
+date	2000.08.08.15.14.19;	author abe;	state Exp;
+branches;
+next	1.54;
+
+1.54
+date	2000.06.25.17.39.35;	author abe;	state Exp;
+branches;
+next	1.53;
+
+1.53
+date	2000.05.31.13.20.49;	author abe;	state Exp;
+branches;
+next	1.52;
+
+1.52
+date	2000.04.05.13.57.19;	author abe;	state Exp;
+branches;
+next	1.51;
+
+1.51
+date	2000.04.04.01.28.53;	author abe;	state Exp;
+branches;
+next	1.50;
+
+1.50
+date	2000.04.03.11.27.38;	author abe;	state Exp;
+branches;
+next	1.49;
+
+1.49
+date	2000.03.16.15.18.40;	author abe;	state Exp;
+branches;
+next	1.48;
+
+1.48
+date	100.01.14.08.49.52;	author abe;	state Exp;
+branches;
+next	1.47;
+
+1.47
+date	99.11.28.06.48.25;	author abe;	state Exp;
+branches;
+next	1.46;
+
+1.46
+date	99.10.23.09.23.10;	author abe;	state Exp;
+branches;
+next	1.45;
+
+1.45
+date	99.07.29.13.52.46;	author abe;	state Exp;
+branches;
+next	1.44;
+
+1.44
+date	99.07.28.09.25.13;	author abe;	state Exp;
+branches;
+next	1.43;
+
+1.43
+date	99.06.22.10.29.57;	author abe;	state Exp;
+branches;
+next	1.42;
+
+1.42
+date	99.05.19.06.52.31;	author abe;	state Exp;
+branches;
+next	1.41;
+
+1.41
+date	99.04.15.08.09.07;	author abe;	state Exp;
+branches;
+next	1.40;
+
+1.40
+date	99.03.29.07.22.17;	author abe;	state Exp;
+branches;
+next	1.39;
+
+1.39
+date	99.02.27.10.39.21;	author abe;	state Exp;
+branches;
+next	1.38;
+
+1.38
+date	99.02.25.20.02.48;	author abe;	state Exp;
+branches;
+next	1.37;
+
+1.37
+date	99.01.25.15.44.02;	author abe;	state Exp;
+branches;
+next	1.36;
+
+1.36
+date	98.12.28.10.04.39;	author abe;	state Exp;
+branches;
+next	1.35;
+
+1.35
+date	98.11.25.10.00.57;	author abe;	state Exp;
+branches;
+next	1.34;
+
+1.34
+date	98.11.23.07.42.48;	author abe;	state Exp;
+branches;
+next	1.33;
+
+1.33
+date	98.09.15.06.48.44;	author abe;	state Exp;
+branches;
+next	1.32;
+
+1.32
+date	98.08.03.08.05.51;	author abe;	state Exp;
+branches;
+next	1.31;
+
+1.31
+date	98.07.17.08.35.41;	author abe;	state Exp;
+branches;
+next	1.30;
+
+1.30
+date	98.06.26.07.36.38;	author abe;	state Exp;
+branches;
+next	1.29;
+
+1.29
+date	98.06.18.07.58.44;	author abe;	state Exp;
+branches;
+next	1.28;
+
+1.28
+date	98.05.13.06.59.16;	author abe;	state Exp;
+branches;
+next	1.27;
+
+1.27
+date	98.05.11.06.53.27;	author abe;	state Exp;
+branches;
+next	1.26;
+
+1.26
+date	98.04.21.10.12.50;	author abe;	state Exp;
+branches;
+next	1.25;
+
+1.25
+date	98.04.08.21.30.24;	author abe;	state Exp;
+branches;
+next	1.24;
+
+1.24
+date	98.03.26.08.23.51;	author abe;	state Exp;
+branches;
+next	1.23;
+
+1.23
+date	98.03.18.16.48.32;	author abe;	state Exp;
+branches;
+next	1.22;
+
+1.22
+date	98.02.17.15.22.02;	author abe;	state Exp;
+branches;
+next	1.21;
+
+1.21
+date	98.02.05.23.46.25;	author abe;	state Exp;
+branches;
+next	1.20;
+
+1.20
+date	98.01.28.07.02.00;	author abe;	state Exp;
+branches;
+next	1.19;
+
+1.19
+date	98.01.23.08.40.13;	author abe;	state Exp;
+branches;
+next	1.18;
+
+1.18
+date	97.12.30.08.37.53;	author abe;	state Exp;
+branches;
+next	1.17;
+
+1.17
+date	97.11.28.02.26.23;	author abe;	state Exp;
+branches;
+next	1.16;
+
+1.16
+date	97.11.06.09.44.17;	author abe;	state Exp;
+branches;
+next	1.15;
+
+1.15
+date	97.11.03.15.20.00;	author abe;	state Exp;
+branches;
+next	1.14;
+
+1.14
+date	97.08.15.08.13.20;	author abe;	state Exp;
+branches;
+next	1.13;
+
+1.13
+date	97.07.09.19.12.55;	author abe;	state Exp;
+branches;
+next	1.12;
+
+1.12
+date	97.07.09.08.36.38;	author abe;	state Exp;
+branches;
+next	1.11;
+
+1.11
+date	97.06.24.07.58.24;	author abe;	state Exp;
+branches;
+next	1.10;
+
+1.10
+date	97.06.12.18.48.39;	author abe;	state Exp;
+branches;
+next	1.9;
+
+1.9
+date	97.05.12.09.48.16;	author abe;	state Exp;
+branches;
+next	1.8;
+
+1.8
+date	97.04.29.12.55.54;	author abe;	state Exp;
+branches;
+next	1.7;
+
+1.7
+date	97.04.23.16.00.50;	author abe;	state Exp;
+branches;
+next	1.6;
+
+1.6
+date	97.04.18.05.55.43;	author abe;	state Exp;
+branches;
+next	1.5;
+
+1.5
+date	97.04.17.13.37.23;	author abe;	state Exp;
+branches;
+next	1.4;
+
+1.4
+date	97.03.21.18.16.44;	author abe;	state Exp;
+branches;
+next	1.3;
+
+1.3
+date	97.03.19.13.10.19;	author abe;	state Exp;
+branches;
+next	1.2;
+
+1.2
+date	97.03.03.07.06.14;	author abe;	state Exp;
+branches;
+next	1.1;
+
+1.1
+date	97.02.24.16.50.13;	author abe;	state Exp;
+branches;
+next	;
+
+
+desc
+@Lsof version 4
+@
+
+
+1.107
+log
+@Correct name spelling errors.
+@
+text
+@
+			    Lsof Credits
+
+I owe an enormous debt to the users of lsof who have contributed
+to its steady growth.  The size of the list of people who have
+helped me, while it has grown too large to include in the lsof man
+page any more, is a testimonial to their generosity.
+
+First I acknowledge a debt to the work of Dan Bernstein, Michael
+``Ford'' Ditto, Tom Dunigan, Alexander Dupuy, Vik Lall, Ray Moody,
+C. Spencer, Michael Spitzer and those who wrote Berkeley's fstat
+program, all contributors to lsof's predecessors.
+
+I thank Doug McKenzie for his HP-UX proctor program and Rich Kulawiec
+for pointing it out.
+
+Finally I thank all the following people who have used lsof, pointed
+out its flaws, described its shortcomings, offered suggestions for
+improving it, supplied code for it, gave me technical advice, and
+provided test systems where I was able to do development work.
+
+	Szilveszter Adam
+	David Addison
+	Elias Halldor Agustsson
+	Per Allansson
+	Jim Ankenbrandt
+	Richard Allen
+	Thomas Anders
+	Ric Anderson
+	Stuart Anderson
+	Michael Antlitz
+	Cato Auestad
+	Marc Auslander
+	Tigran Aivazian
+	Jos Backus
+	David Bacon
+	Alexis Ballier
+	Scott Ballew
+	Ade Barkah
+	Alon Bar-Lev
+	Brett Bartick
+	Anthony Baxter
+	John Beacom
+	Bruce Beare
+	M. Jay Beck
+	Marek Behun
+	Bill Behr
+	Michael Beirne
+	Marc Bejarano
+	Andrew Bell
+	Steve Bellenot
+	Robert Benites
+	Dmitry Berezin
+	Ulrich Bernhard
+	Peter J. Bertoncini
+	Dave Bianchi
+	Mark Bixby
+	Allan Black
+	Jan Blunck
+	Achim Bohnet
+	Steve Bonds
+	Mark Bonsack
+	Volker Borchert
+	Bill Bormann
+	Ermin Borovac
+	Heddy Boubaker
+	Pieter Bowman
+	Michael Bracewell
+	H. Merijn Brand
+	Danny Braniss
+	Thomas Braunbeck
+	Kieran Broadfoot
+	Dean Brock
+	Hal Brooks
+	Andrew Brown
+	Jim Brown
+	Michael Bryan
+	Matthew Burt
+	Robert Byrnes
+	Pierfrancesco Caci
+	Bill Campbell
+	David Capshaw
+	John Caruso
+	Jon Champlin
+	Kris Chandrasekhar
+	Stephane Chazelas
+	Andrey Chernov
+	Albert Chin-A-Young
+	Bernt Christandl
+	Marc Christensen
+	Hans Petter Christiansen
+	Tom Christiansen
+	Yves Christophe
+	Richard Chycoski
+	A. Channing Clark
+	Jorn Clausen
+	Axel Clauberg
+	John Clear
+	David Clissold
+	Richard Coley
+	John Colgrave
+	David Comay
+	Lionel Cons
+	Bob Cook
+	Patrick Connor
+	Carl Cook
+	Jim Cooper
+	Roger Cornelius
+	Doug Crabill
+	Eric Cronin
+	Kim Culhan
+	Dave Curry
+	Robert Dahlem
+	Guy Dallaire
+	D. Chris Daniels
+	Renata Maria Dart
+	Ian Darwin
+	Carl E. Davidson
+	David Day
+	Will Day
+	Frederic Delanoy
+	Mike Depot
+	Steve Dibbell
+	Hugh Dickins
+	David DiGiacomo
+	Casper Dik
+	John DiMarco
+	Don Draper
+	Bryan Drewery
+	Michel Dubois
+	Eric Dumazet
+	Dick Dunbar
+	Marc Duponcheel
+	Jan Dvorak
+	Calle Dybedahl
+	John Dzubera
+	Jeff Earickson
+	Greg Earle
+	Bernd Eckenfels
+	Niklas Edmundsson
+	Philip Edwards
+	Robert Ehrlich
+	Mark W. Eichin
+	Doug Eldred
+	Scott Ellentuch
+	Tom Endo
+	Grant Erickson
+	Craig Everhart
+	Chris Evert
+	Bob Farmer
+	Sami Farin
+	Mike Feldman
+	Quentin Fennessy
+	Ian Fitchet
+	Toralf Foerster
+	Bob Foertsch
+	Pierre-Yves Fontaniere
+	Ralph Forsythe
+	Jason Fortezzo
+	Mike Fraser
+	Curt Freeland
+	Terry Friedrichsen
+	Mike Frysinger
+	Harvey Garner
+	Carson Gaspar
+	Stuart D. Gathman
+	Brian L. Gentry
+	Dave Gilbert
+	Steve Ginsberg
+	Bjarni Ingi Gislason
+	Edwin Groothuis
+	Jin Guojun
+	Kurt Gollhardt
+	Roman Gollent
+	Steve Gonczi
+	Bill Goodridge
+	Julian Gordon
+	Marcin Gozdalik
+	Henry Grebler
+	Richard Green
+	Chaskiel Grundman
+	Armin Gruner
+	David Gutierrez
+	Mateusz Guzik
+	Robert Hall
+	Garner Halloran
+	Adam Hammer
+	Charles Hannum
+	Vlad Harchev
+	Craig Harmer
+	Michael Haro
+	Peter Harvey
+	Steinar Haug
+	Jia He
+	Sheldon Hearn
+	John Heasley
+	Wolfgang Hecht
+	Janet Hempstead
+	Michael Hennecke
+	Randolph J. Herber
+	Allen Hewes
+	Andrew Hill
+	Kurt Hillig
+	Steven Hinkle
+	Paul Hite
+	Billy Ho
+	Michael Hocke
+	Brett Hogden
+	Gaylord Holder
+	Kjetil Torgrim Homme
+	Pekka Honkanen
+	Jeffrey C. Honig
+	Heidi Hornstein
+	Michael A. Hovan III
+	Barbara Howe
+	J. Nelson Howell
+	Jeff Howie
+	Louis Huemiller
+	John Hughes
+	Gerrit Huizenga
+	Peter Ilieve
+	Mayer Ilovitz
+	Gregory A. Ivanov
+	John Jackson
+	Kurt Jaeger
+	Edward Jajko
+	Marian Jancar
+	Paul Jarc
+	Jakub Jelinek
+	Robert Jelinek
+	Bruce Jerrick
+	Carl Johnson
+	Dion Johnson
+	Jeff Johnson
+	Douglas B. Jones
+	LaMont Jones
+	Peter Jordan
+	Arne H. Juul
+	Pasi Kaara
+	Frank Kaefer
+	Keith Kalet
+	Claus Kalle
+	Henri Karrenbeld
+	Amir Katz
+	Henry Katz
+	Kawaljeet Kaur
+	Doug Kehn
+	Kris Kennaway
+	Terry Kennedy
+	Shane Kenney
+	Andrew Kephart
+	Robert Kiessling
+	Joshua Kinard
+	Don Kirouac
+	Steve Kirsch
+	Philip Kizer
+	Thomas Klausner
+	Roger Klorese
+	Peter Klosky
+	Przemek Klosowski
+	Angelos D. Keromytis
+	Radko Keves
+	Valdis Kletnieks
+	Chris Kordish
+	Alek O. Komarnitsky
+	Joseph Kowalski
+	Christian Krackowizer
+	Paul Kranenburg
+	Troyan Krastev
+	Brad Krebs
+	Alex Kreis
+	Johannes Kroeger
+	Vincent Kujala
+	Ken Laing
+	Shirley Lam
+	Erwin Lansing
+	Victoria H. Lau
+	Markus Lautenbacher
+	Steve Lacey
+	Marc Aurele La France
+	Chad R. Larson
+	Steve Laubscher
+	Andrei V. Lavreniyuk
+	Loc Le
+	Tin Le
+	Diane Lebel
+	Francis Le Bourse
+	Kyungjoon Lee
+	Marty Leisner
+	Maciej Lesniewski
+	Stuart Levy
+	Ben Lewis
+	Michael Lewis
+	Angel Li
+	Ambrose Li
+	Wendy Lin
+	Carl E. Lindberg
+	Onno van der Linden
+	Johan Lindquist
+	James Lingard
+	Jason Lingohr
+	Robert Lipe
+	Gabor Liptak
+	Friedel Loinger
+	Michael Long
+	Pete Lord
+	Steve Logue
+	Bela Lubkin
+	Pav Lucistnik
+	Horst Luehrsen
+	Andreas Luik
+	Timothy J. Luoma
+	Michael Mackenzie
+	Lawrence MacIntyre
+	Jerome Marchand
+	Benson Margulies
+	Claude Marinier
+	Chris Markle
+	Roy Marples
+	Eberhard Mater
+	James Mathiesen
+	Tom Matthews
+	Fletcher Mattox
+	David Mazieres
+	Brian McAllister
+	Scott McClung
+	Dale McCluskey
+	Terry McCoy
+	Sean McDermott
+	Duncan McEwan
+	Dwight McKay
+	William McVey
+	Eric McWhorter
+	Marjo F. Mercado
+	Dan Mercer
+	Bill Melvin
+	Andrew Merril
+	Richard van Meurs
+	Jim Mewes
+	Conrad Meyer
+	Gary Millen
+	Timothy Miller
+	Davin Milun
+	Yuliy Minchev
+	Jim Mintha
+	Mike Miscevic
+	Arkadiusz Miskiewicz
+	Janardhan Molumuri
+	Nasser Momtaheni
+	Laurent Montaron
+	Phillip Moore
+	Dmitry Morozovsky
+	John Paul Morrison
+	John Gardiner Myers
+	Jeffrey Mogul
+	Dave Morrison
+	Pat Myrto
+	Toshiya Nakamura
+	Filippo Natali
+	Allan Nathanson
+	Chance Neale
+	Dan Nelson
+	Vladislav Nespor
+	Bjorn S. Nilsson
+	Anders Nordby
+	Joseph J. Nuspl Jr.
+	David O'Brien
+	Alexandre Oliva
+	Craig B. Olofson
+	Dave Olson
+	Rainer Orth
+	Sergey A. Osokin
+	Keith Parks
+	Will Partain
+	Vasco Pedro
+	Mark Peek
+	Ezra Peisach
+	Bill Pemberton
+	Lee Penn
+	Gildas Perrot
+	Jesse Perry
+	Nathan Peterson
+	Dominique Petitpierre
+	Hung Pham
+	Ray Phillips
+	Francois Pinard
+	Gary Plewa
+	Alex Podlecki
+	Lutz Poetschulat,
+	John Polstra
+	Scott Presnell
+	Mark Price
+	Philippe-Andre Prindeville
+	David Putz
+	Tom Qin
+	Kurtis Rader
+	Peter Radig
+	Jean-Pierre Radley
+	Tim Ramsey
+	Dewan Rashid
+	Richard J. Rauenzahn
+	Louis Rayman
+	Brian Redman
+	Eric S. Raymond
+	Erwin Reyns
+	Aaron Rhodes
+	Jim Reid
+	Jean-Luc Richier
+	Clint Roberts
+	Ingimar Robertson
+	Sylvain Robitaille
+	Larry Rogers
+	Malgorzata Roos
+	Larry Rosenman
+	Stephan Rossi
+	Kevin Ruderman
+	Wolfgang Rupprecht
+	Pavol Rusnak
+	Eygene Ryabinkin
+	Conrad J. Sabatier
+	Klaus Saggerer
+	Chris Schanzle
+	Igor Schein
+	Horst Scheuermann
+	Peter Schiffer
+	Michael Schmitz
+	Larry Schwimmer
+	Hendrik G. Seliger
+	Igor V. Semenyuk
+	Jonathan Sergent
+	Frank Sanders
+	Berkley Shands
+	Gregory Neil Shapiro
+	Eyal Shaynis
+	Michael Shields
+	Wesley Shields
+	Philip Shin
+	Anthony Shortland
+	Dave Sill
+	John Silva
+	Chuck Silvers
+	Gerry Singleton
+	Leonard Sitongia
+	Kevin Smallwood
+	Gleb Smirnoff
+	Curt Smith
+	Ben Smithurst
+	Douglas R. Smith
+	Kevin Smith
+	Chang Song
+	Josh Soref
+	John Speno
+	Kenneth Stailey
+	Piet Starreveld
+	David Steiner
+	Charles Stephens
+	Marc Stephenson
+	Chip Stettler
+	Dave Stevens
+	Jeff Stewart
+	Diana Stockdale
+	Andreas Stolcke
+	Jeff Stoner
+	Kristyna Streitova
+	Sushila Subramanian
+	Jan Ole Suhr
+	Mike Sullivan
+	Patrick D. Sullivan
+	Peter Svensson
+	Chris Sylvain
+	Miklos Szeredi
+	Paul Szabo
+	Dale Talcott
+	Jon A. Tankersley
+	Jan Tax
+	Samuel Thibault
+	Andy Thomas
+	Matthew Thurmaier
+	Chris Timmons
+	Andrzej Tobola
+	R. Lindsay Todd
+	Zdenko Tomasic
+	Michael Townsend
+	Linus Torvalds
+	Mike Tracy
+	Jeff Trawick
+	Dan Trinkle
+	Erik Trulsson
+	Lars Tunkrans
+	Lenny Turetsky
+	Kevin Vajk
+	Peter Valchev
+	John R. Vanderpool
+	Peter Van Epp
+	Peter C. Vernam
+	Peter Vines
+	Bob Ward
+	Jules van Weerden
+	Tom Weaver
+	Fernando A.B. Whitaker
+	Tom Whitty
+	Carson Wilson
+	David J. Wilson
+	Frank Winkler
+	Marc Winkler
+	Mark Vasoll
+	Holger VanKoll
+	Robert Vernon
+	Joep Vesseur
+	Larry Virden
+	Jos Vos
+	Jun Biao Wang
+	Christopher J Warweg
+	Bill Watson
+	Florian M. Weps
+	Joel White
+	Paul Wickman
+	Martin Wilke
+	Eric Williams
+	Steve Williams
+	Steve Wilson
+	Erich Wimmer
+	Wally Winzer, Jr.
+	Patrick Wolfe
+	Stephen Woods
+	James Woodward
+	Scott Worley
+	Jan Wortelboer
+	Joshua Wright
+	Sailu Yallapragada
+	Masatake YAMATO
+	Donna Yobs
+	Ron Young
+	Warren Young
+	Blair Zajac
+	Karel Zak
+	Donald Zoch
+	Malcom Zung
+	and Waldemar Zurowski
+
+If I have omitted a contributor's name, the fault is wholly mine,
+and I apologize for the error.
+
+
+Vic Abell <abe@@purdue.edu>
+March 27, 2018
+@
+
+
+1.106
+log
+@Revision 4.90
+@
+text
+@d464 1
+a464 1
+	Kristna Streitov
+d546 1
+a546 1
+February 14, 2018
+@
+
+
+1.105
+log
+@Revision 4.89
+@
+text
+@d96 1
+d129 1
+d184 1
+d340 1
+d445 1
+d464 1
+d546 1
+a546 1
+July 7, 2015
+@
+
+
+1.104
+log
+@Revision 4.88
+@
+text
+@d32 1
+d87 1
+d168 1
+d198 1
+d540 1
+a540 1
+October 13, 2014
+@
+
+
+1.103
+log
+@Revision 4.87
+@
+text
+@d85 1
+d379 1
+d411 1
+d536 1
+a536 1
+January 2, 2013
+@
+
+
+1.102
+log
+@Revision 4.86
+@
+text
+@d399 1
+d473 1
+d518 1
+a518 1
+	Masatake Yamato
+d521 1
+d533 1
+a533 1
+April 10, 2012
+@
+
+
+1.101
+log
+@Add a forgotten 4.85 contributor
+@
+text
+@d187 1
+d530 1
+a530 1
+September 27, 2011
+@
+
+
+1.100
+log
+@Revision 4.85 (final)
+@
+text
+@d40 1
+@
+
+
+1.99
+log
+@Revision 4.84
+@
+text
+@d44 1
+d141 1
+d169 1
+d197 1
+d411 1
+d511 1
+d514 1
+d528 1
+a528 1
+July 29, 2010
+@
+
+
+1.98
+log
+@Revision 4.83
+@
+text
+@d50 1
+d301 1
+d450 1
+d521 1
+a521 1
+January 18, 2010
+@
+
+
+1.97
+log
+@Revision 4.82
+@
+text
+@d75 1
+d112 1
+d154 1
+d232 1
+d463 1
+d493 1
+d518 1
+a518 1
+March 25, 2009
+@
+
+
+1.96
+log
+@Revision 4.81
+@
+text
+@d36 1
+d108 1
+d153 1
+d234 1
+d342 1
+d466 1
+d512 1
+a512 1
+October 21, 2008
+@
+
+
+1.95
+log
+@Revision 4.80
+@
+text
+@d69 1
+d298 1
+d310 1
+d506 1
+a506 1
+May 9, 2008
+@
+
+
+1.94
+log
+@Revision 4.79
+@
+text
+@d154 1
+d224 1
+d388 1
+d403 1
+d503 1
+a503 1
+April 15, 2008
+@
+
+
+1.93
+log
+@Revision 4.78
+@
+text
+@d38 1
+d110 1
+d188 1
+d200 1
+d248 1
+d250 1
+a250 1
+	Ken Laing
+d257 1
+d274 1
+d283 1
+d292 1
+d322 1
+d385 1
+d397 1
+d400 1
+a400 1
+	Gregory Neil Shapiro
+d436 1
+d499 1
+a499 1
+April 24, 2007
+@
+
+
+1.92
+log
+@Revision 4.77
+@
+text
+@d61 1
+d65 1
+d170 1
+d203 1
+d362 1
+d378 1
+d401 1
+d445 1
+d470 1
+d486 1
+a486 1
+March 27, 2006
+@
+
+
+1.91
+log
+@Revision 4.76
+@
+text
+@d25 1
+d42 1
+d45 1
+d62 2
+d95 1
+d113 1
+d477 1
+a477 1
+August 29, 2005
+@
+
+
+1.90
+log
+@Revision 4.75
+@
+text
+@d30 1
+d142 1
+d159 1
+d272 1
+d298 1
+d379 1
+d442 1
+d470 1
+a470 1
+May 16, 2005
+@
+
+
+1.89
+log
+@Revision 4.75
+@
+text
+@d87 1
+d235 1
+d463 1
+a463 1
+May 11, 2005
+@
+
+
+1.88
+log
+@Revision 4.74
+@
+text
+@d145 1
+d150 1
+d185 1
+d382 1
+d405 1
+d451 1
+d461 1
+a461 1
+January 17, 2005
+@
+
+
+1.87
+log
+@Revision 4.74
+@
+text
+@d214 1
+d455 1
+a455 1
+December 30, 2004
+@
+
+
+1.86
+log
+@Revision 4.73
+@
+text
+@d55 1
+d340 1
+d360 1
+d422 1
+d445 1
+d454 1
+a454 1
+Octover 17, 2004
+@
+
+
+1.85
+log
+@Revision 4.72
+@
+text
+@d135 1
+d139 1
+d184 1
+d235 1
+d308 1
+d449 1
+a449 1
+July 12, 2004
+@
+
+
+1.84
+log
+@Revision 4,72
+@
+text
+@d420 1
+d444 1
+a444 1
+July 7, 2004
+@
+
+
+1.83
+log
+@Revision 4.72
+@
+text
+@d89 1
+d443 1
+a443 1
+July 6, 2004
+@
+
+
+1.82
+log
+@Revision 4.71
+@
+text
+@d49 1
+d130 1
+d291 1
+d324 1
+d384 1
+d414 1
+d442 1
+a442 1
+March 10, 2004
+@
+
+
+1.81
+log
+@Revision 4.70
+@
+text
+@d50 1
+d239 1
+d415 1
+d436 1
+a436 1
+January 14, 2004
+@
+
+
+1.80
+log
+@Revision 4.69
+@
+text
+@d136 1
+d150 1
+d177 1
+d313 1
+d433 1
+a433 1
+October 15, 2003
+@
+
+
+1.79
+log
+@Revision 4.69
+@
+text
+@d228 1
+d429 1
+a429 1
+October 13, 2003
+@
+
+
+1.78
+log
+@Revision 4.68
+@
+text
+@d102 1
+d272 1
+d428 1
+a428 1
+June 12, 2003
+@
+
+
+1.77
+log
+@Revision 4.68
+@
+text
+@d173 1
+d426 1
+a426 1
+June 11, 2003
+@
+
+
+1.76
+log
+@Revision 4.68
+@
+text
+@d43 1
+d406 1
+@
+
+
+1.75
+log
+@Revision 4.65
+@
+text
+@d28 2
+d44 1
+d53 1
+d124 1
+d138 1
+d202 1
+a220 1
+	Peter J. Bertoncini
+a221 1
+	Michael Bracewell
+d267 1
+d278 1
+d354 1
+d360 1
+d423 1
+a423 1
+October 8, 2002
+@
+
+
+1.74
+log
+@Revision 4.64
+@
+text
+@d142 1
+d214 1
+d276 1
+d414 1
+a414 1
+June 16, 2002
+@
+
+
+1.73
+log
+@Revision 4.63
+@
+text
+@d81 1
+d180 1
+d350 1
+d411 1
+a411 1
+April 19, 2002
+@
+
+
+1.72
+log
+@Revision 4.62
+@
+text
+@d39 1
+d75 1
+d408 1
+a408 1
+February 25, 2002
+@
+
+
+1.71
+log
+@Revision 4.61
+@
+text
+@d86 1
+d122 1
+d143 1
+d406 1
+a406 1
+January 18, 2002
+@
+
+
+1.70
+log
+@Revision 4.61
+@
+text
+@d71 1
+d338 1
+d403 1
+a403 1
+January 14, 2002
+@
+
+
+1.69
+log
+@Revision 4.60
+@
+text
+@d102 1
+d162 1
+d362 1
+d388 1
+d401 1
+a401 1
+November 1, 2001
+@
+
+
+1.68
+log
+@Revision 4.59
+@
+text
+@d397 1
+a397 2
+Purdue University Computing Center
+October 15, 2001
+@
+
+
+1.67
+log
+@Revision 4.58
+@
+text
+@d30 1
+d305 1
+d398 1
+a398 1
+September 4, 2001
+@
+
+
+1.66
+log
+@Revision 4.57
+@
+text
+@d373 1
+d396 1
+a396 1
+June 22, 2001
+@
+
+
+1.65
+log
+@Revision 4.56
+@
+text
+@d22 1
+d167 1
+d187 1
+d198 1
+d203 1
+d297 1
+d395 1
+a395 1
+May 1, 2001
+@
+
+
+1.64
+log
+@Revision 4.56
+@
+text
+@d241 1
+d377 1
+d389 1
+a389 1
+April 19, 2001
+@
+
+
+1.63
+log
+@Revision 4.56
+@
+text
+@d92 1
+d118 1
+d145 1
+d287 1
+d348 1
+d353 1
+d366 1
+d387 1
+a387 1
+March 19, 2001
+@
+
+
+1.62
+log
+@Revision 4.55
+@
+text
+@d146 1
+d234 1
+d364 1
+d380 1
+a380 1
+February 14, 2001
+@
+
+
+1.61
+log
+@Revision 4.54
+@
+text
+@d95 1
+d144 1
+d377 1
+a377 1
+January 14, 2001
+@
+
+
+1.60
+log
+@Revision 4.54
+@
+text
+@d264 1
+d375 1
+a375 1
+January 2, 2001
+@
+
+
+1.59
+log
+@Revision 4.53
+@
+text
+@d91 1
+d174 1
+d374 1
+a374 1
+December 5, 2000
+@
+
+
+1.58
+log
+@Revision 4.52
+@
+text
+@d66 1
+d372 1
+a372 1
+November 6, 2000
+@
+
+
+1.57
+log
+@Revision 4.52
+@
+text
+@d81 1
+d346 1
+d371 1
+a371 1
+November 5, 2000
+@
+
+
+1.56
+log
+@Revision 4.51
+@
+text
+@d35 1
+d61 1
+d81 1
+d87 1
+d185 1
+d187 1
+d234 1
+d310 1
+d360 1
+d369 1
+a369 1
+August 21, 2000
+@
+
+
+1.55
+log
+@Revision 4.51
+@
+text
+@d74 1
+d360 1
+a360 1
+August 8, 2000
+@
+
+
+1.54
+log
+@Revision 4.50
+@
+text
+@d48 1
+d279 1
+d301 1
+d359 1
+a359 1
+June 25, 2000
+@
+
+
+1.53
+log
+@Revision 4.50
+@
+text
+@d46 1
+d356 1
+a356 1
+May 31, 2000
+@
+
+
+1.52
+log
+@Pre-revision 4.50
+@
+text
+@d43 1
+d81 1
+d116 1
+d163 1
+a178 1
+	Volker Borchert
+d220 1
+d295 1
+d329 1
+d355 1
+a355 1
+April 5, 2000
+@
+
+
+1.51
+log
+@Post revision 4.49
+@
+text
+@d167 1
+d349 1
+a349 1
+April 3, 2000
+@
+
+
+1.50
+log
+@Revision 4.49
+@
+text
+@d248 1
+@
+
+
+1.49
+log
+@Revision 4.49
+@
+text
+@d117 1
+d347 1
+a347 1
+March 16, 2000
+@
+
+
+1.48
+log
+@Revision 4.48
+@
+text
+@d129 1
+d155 1
+d211 1
+d301 1
+d335 1
+d346 1
+a346 1
+January 14, 2000
+@
+
+
+1.47
+log
+@Revision 4.47
+@
+text
+@d29 1
+d184 1
+d243 1
+d341 1
+a341 1
+November 28, 1999
+@
+
+
+1.46
+log
+@Revision 4.46
+@
+text
+@d232 1
+d338 1
+a338 1
+October 23, 1999
+@
+
+
+1.45
+log
+@Revision 4.45
+@
+text
+@d83 1
+d130 1
+d170 1
+d177 1
+d181 1
+d213 1
+d337 1
+a337 1
+July 29, 1999
+@
+
+
+1.44
+log
+@Revision 4.45
+@
+text
+@d251 1
+a251 1
+	Stephan Rossi
+d254 1
+d331 1
+a331 1
+July 28, 1999
+@
+
+
+1.43
+log
+@Revision 4.44
+@
+text
+@d90 1
+d92 1
+d116 1
+d166 1
+d176 1
+d255 1
+d330 1
+a330 1
+June 22, 1999
+@
+
+
+1.42
+log
+@Revision 4.44
+@
+text
+@d24 1
+d324 1
+a324 1
+May 19, 1999
+@
+
+
+1.41
+log
+@Revision 4.43
+@
+text
+@d78 1
+d323 1
+a323 1
+April 15, 1999
+@
+
+
+1.40
+log
+@Revision 4.42
+@
+text
+@d107 1
+d322 1
+a322 1
+March 29, 1999
+@
+
+
+1.39
+log
+@Revision 4.41
+@
+text
+@d69 1
+d72 1
+d134 1
+d148 1
+d160 1
+d307 1
+d321 1
+a321 1
+February 27, 1999
+@
+
+
+1.38
+log
+@Revision 4.41
+@
+text
+@d286 1
+d315 1
+a315 1
+February 25, 1999
+@
+
+
+1.37
+log
+@Revision 4.40
+@
+text
+@d56 1
+d106 1
+a106 5
+	Billy Ho
+	Gaylord Holder
+	Kjetil Torgrim Homme
+	Jeffrey C. Honig
+	Michael A. Hovan III
+d111 1
+d113 3
+d117 1
+d223 1
+d314 1
+a314 1
+January 25, 1999
+@
+
+
+1.36
+log
+@Revision 4.39
+@
+text
+@d241 1
+d311 1
+a311 1
+December 28, 1998
+@
+
+
+1.35
+log
+@Revision 4.38
+@
+text
+@d34 1
+a54 1
+	Lee Penn
+d66 1
+d124 1
+d156 1
+d215 1
+d310 1
+a310 1
+November 25, 1998
+@
+
+
+1.34
+log
+@Revision 4.38
+@
+text
+@d54 1
+d167 1
+d241 1
+d306 1
+a306 1
+November 23, 1998
+@
+
+
+1.33
+log
+@Revision 4.37
+@
+text
+@d94 1
+d102 1
+d107 1
+a107 1
+	Steinar Haug
+d147 1
+d151 1
+d157 1
+d183 1
+d266 1
+d303 1
+a303 1
+September 15, 1998
+@
+
+
+1.32
+log
+@Revision 4.36
+@
+text
+@d87 1
+d296 1
+a296 1
+August 3, 1998
+@
+
+
+1.31
+log
+@Revision 4.35
+@
+text
+@d125 1
+d165 1
+d269 1
+d295 1
+a295 1
+July 17, 1998
+@
+
+
+1.30
+log
+@Revision 4.34
+@
+text
+@d102 1
+d214 1
+d292 1
+a292 1
+June 26, 1998
+@
+
+
+1.29
+log
+@Revision 4.34
+@
+text
+@d50 1
+d209 1
+d290 1
+a290 1
+June 18, 1998
+@
+
+
+1.28
+log
+@Revision 4.32
+@
+text
+@d205 1
+d288 1
+a288 1
+May 13, 1998
+@
+
+
+1.27
+log
+@Revision 4.32
+@
+text
+@d93 1
+d287 1
+a287 1
+May 11, 1998
+@
+
+
+1.26
+log
+@Revision 4.31
+@
+text
+@d74 1
+d125 2
+d197 1
+d262 1
+d286 1
+a286 1
+April 21, 1998
+@
+
+
+1.25
+log
+@Revision 4.30
+@
+text
+@d128 1
+d233 2
+a235 1
+	Chip Stettler
+d240 1
+d281 1
+a281 1
+April 8, 1998
+@
+
+
+1.24
+log
+@Revision 4.29
+@
+text
+@d71 1
+d78 1
+d127 1
+d160 1
+d168 1
+d278 1
+a278 1
+March 26, 1998
+@
+
+
+1.23
+log
+@Revision 4.29
+@
+text
+@d103 1
+d273 1
+a273 1
+March 18, 1998
+@
+
+
+1.22
+log
+@Revision 4.26
+@
+text
+@d50 1
+d155 1
+d213 1
+d272 1
+a272 1
+February 17, 1998
+@
+
+
+1.21
+log
+@Revision 4.25
+@
+text
+@d236 1
+d238 1
+a238 1
+	R. Lindsay Todd
+d269 1
+a269 1
+February 5, 1998
+@
+
+
+1.20
+log
+@Revision 4.24
+@
+text
+@d34 1
+d268 1
+a268 1
+January 28, 1998
+@
+
+
+1.19
+log
+@Revision 4.24
+@
+text
+@d205 1
+d267 1
+a267 1
+January 23, 1998
+@
+
+
+1.18
+log
+@Revision 4.23
+@
+text
+@d25 1
+d142 1
+d162 1
+d199 1
+d266 1
+a266 1
+December 30, 1997
+@
+
+
+1.17
+log
+@Revision 4.21
+@
+text
+@d195 1
+d262 1
+a262 1
+November 27, 1997
+@
+
+
+1.16
+log
+@Revision 4.20
+@
+text
+@d169 1
+d261 1
+a261 1
+November 6, 1997
+@
+
+
+1.15
+log
+@Revision 4.20
+@
+text
+@d40 1
+d260 1
+a260 1
+November 3, 1997
+@
+
+
+1.14
+log
+@Revision 4.15
+@
+text
+@d91 1
+d259 1
+a259 1
+August 15, 1997
+@
+
+
+1.13
+log
+@Revision 4.13
+@
+text
+@d76 1
+d258 1
+a258 1
+July 9, 1997
+@
+
+
+1.12
+log
+@Revision 4.13
+@
+text
+@d122 1
+@
+
+
+1.11
+log
+@Rebision 4.12
+@
+text
+@d76 1
+d188 1
+d256 1
+a256 1
+June 24, 1997
+@
+
+
+1.10
+log
+@Revision 4.11
+@
+text
+@d54 1
+d254 1
+a254 1
+June 12, 1997
+@
+
+
+1.9
+log
+@Revision 4.07
+@
+text
+@d88 1
+d230 1
+d253 1
+a253 1
+May 12, 1997
+@
+
+
+1.8
+log
+@Revision 4.06
+@
+text
+@d88 1
+d251 1
+a251 1
+April 29, 1997
+@
+
+
+1.7
+log
+@Revision 4.05
+@
+text
+@d120 1
+d205 1
+d250 1
+a250 1
+April 23, 1997
+@
+
+
+1.6
+log
+@Revision 4.04 supplement
+@
+text
+@d57 1
+d248 1
+a248 1
+April 18, 1997
+@
+
+
+1.5
+log
+@Revision 4.04
+@
+text
+@d162 1
+d247 1
+a247 1
+April 17, 1997
+@
+
+
+1.4
+log
+@Revision 4.02
+Addendum
+@
+text
+@d152 1
+d207 1
+d221 1
+d246 1
+a246 1
+March 21, 1997
+@
+
+
+1.3
+log
+@Revision 4.02
+@
+text
+@d23 1
+d243 1
+a243 1
+March 19, 1997
+@
+
+
+1.2
+log
+@Revision 4.01
+@
+text
+@d42 1
+d71 1
+d179 1
+d188 1
+d242 1
+a242 1
+February 26, 1997
+@
+
+
+1.1
+log
+@Initial revision
+@
+text
+@d38 1
+d144 1
+d238 1
+a238 1
+February 24, 1997
+@

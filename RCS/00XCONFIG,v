@@ -1,0 +1,2857 @@
+head	1.70;
+access;
+symbols;
+locks; strict;
+comment	@# @;
+
+
+1.70
+date	2014.10.13.22.32.15;	author abe;	state Exp;
+branches;
+next	1.69;
+
+1.69
+date	2011.09.27.17.34.20;	author abe;	state Exp;
+branches;
+next	1.68;
+
+1.68
+date	2010.01.18.19.00.37;	author abe;	state Exp;
+branches;
+next	1.67;
+
+1.67
+date	2008.04.15.13.23.08;	author abe;	state Exp;
+branches;
+next	1.66;
+
+1.66
+date	2006.03.27.23.03.55;	author abe;	state Exp;
+branches;
+next	1.65;
+
+1.65
+date	2005.08.29.10.17.02;	author abe;	state Exp;
+branches;
+next	1.64;
+
+1.64
+date	2005.05.17.01.04.25;	author abe;	state Exp;
+branches;
+next	1.63;
+
+1.63
+date	2004.12.30.18.38.50;	author abe;	state Exp;
+branches;
+next	1.62;
+
+1.62
+date	2004.10.17.21.44.01;	author abe;	state Exp;
+branches;
+next	1.61;
+
+1.61
+date	2004.07.06.19.14.29;	author abe;	state Exp;
+branches;
+next	1.60;
+
+1.60
+date	2003.10.15.20.29.16;	author abe;	state Exp;
+branches;
+next	1.59;
+
+1.59
+date	2003.06.11.11.35.48;	author abe;	state Exp;
+branches;
+next	1.58;
+
+1.58
+date	2003.03.21.17.28.31;	author abe;	state Exp;
+branches;
+next	1.57;
+
+1.57
+date	2002.12.05.12.19.06;	author abe;	state Exp;
+branches;
+next	1.56;
+
+1.56
+date	2002.10.08.20.14.40;	author abe;	state Exp;
+branches;
+next	1.55;
+
+1.55
+date	2002.04.19.12.03.55;	author abe;	state Exp;
+branches;
+next	1.54;
+
+1.54
+date	2002.01.18.20.55.34;	author abe;	state Exp;
+branches;
+next	1.53;
+
+1.53
+date	2001.11.01.20.23.54;	author abe;	state Exp;
+branches;
+next	1.52;
+
+1.52
+date	2001.10.19.15.42.51;	author abe;	state Exp;
+branches;
+next	1.51;
+
+1.51
+date	2001.06.19.13.21.55;	author abe;	state Exp;
+branches;
+next	1.50;
+
+1.50
+date	2001.05.03.12.26.30;	author abe;	state Exp;
+branches;
+next	1.49;
+
+1.49
+date	2001.05.01.19.50.17;	author abe;	state Exp;
+branches;
+next	1.48;
+
+1.48
+date	2001.04.19.12.19.22;	author abe;	state Exp;
+branches;
+next	1.47;
+
+1.47
+date	2001.03.19.12.26.40;	author abe;	state Exp;
+branches;
+next	1.46;
+
+1.46
+date	2001.02.14.19.44.49;	author abe;	state Exp;
+branches;
+next	1.45;
+
+1.45
+date	2001.01.02.12.44.30;	author abe;	state Exp;
+branches;
+next	1.44;
+
+1.44
+date	2000.12.06.15.43.17;	author abe;	state Exp;
+branches;
+next	1.43;
+
+1.43
+date	2000.11.05.13.44.17;	author abe;	state Exp;
+branches;
+next	1.42;
+
+1.42
+date	2000.08.08.15.20.28;	author abe;	state Exp;
+branches;
+next	1.41;
+
+1.41
+date	2000.06.28.18.35.46;	author abe;	state Exp;
+branches;
+next	1.40;
+
+1.40
+date	2000.06.27.17.59.53;	author abe;	state Exp;
+branches;
+next	1.39;
+
+1.39
+date	2000.06.25.17.39.35;	author abe;	state Exp;
+branches;
+next	1.38;
+
+1.38
+date	2000.04.03.11.28.26;	author abe;	state Exp;
+branches;
+next	1.37;
+
+1.37
+date	2000.03.23.14.25.36;	author abe;	state Exp;
+branches;
+next	1.36;
+
+1.36
+date	2000.03.16.15.19.17;	author abe;	state Exp;
+branches;
+next	1.35;
+
+1.35
+date	100.01.14.08.56.03;	author abe;	state Exp;
+branches;
+next	1.34;
+
+1.34
+date	99.11.28.06.51.56;	author abe;	state Exp;
+branches;
+next	1.33;
+
+1.33
+date	99.10.23.09.25.20;	author abe;	state Exp;
+branches;
+next	1.32;
+
+1.32
+date	99.07.28.09.29.08;	author abe;	state Exp;
+branches;
+next	1.31;
+
+1.31
+date	99.05.09.20.24.31;	author abe;	state Exp;
+branches;
+next	1.30;
+
+1.30
+date	99.05.09.14.51.44;	author abe;	state Exp;
+branches;
+next	1.29;
+
+1.29
+date	99.05.04.08.21.54;	author abe;	state Exp;
+branches;
+next	1.28;
+
+1.28
+date	99.04.15.08.00.28;	author abe;	state Exp;
+branches;
+next	1.27;
+
+1.27
+date	99.03.29.07.21.00;	author abe;	state Exp;
+branches;
+next	1.26;
+
+1.26
+date	99.02.27.10.40.15;	author abe;	state Exp;
+branches;
+next	1.25;
+
+1.25
+date	99.02.25.20.05.11;	author abe;	state Exp;
+branches;
+next	1.24;
+
+1.24
+date	99.01.25.15.49.43;	author abe;	state Exp;
+branches;
+next	1.23;
+
+1.23
+date	98.12.28.10.09.22;	author abe;	state Exp;
+branches;
+next	1.22;
+
+1.22
+date	98.11.25.15.14.13;	author abe;	state Exp;
+branches;
+next	1.21;
+
+1.21
+date	98.11.25.15.05.23;	author abe;	state Exp;
+branches;
+next	1.20;
+
+1.20
+date	98.11.23.07.45.06;	author abe;	state Exp;
+branches;
+next	1.19;
+
+1.19
+date	98.09.14.13.54.41;	author abe;	state Exp;
+branches;
+next	1.18;
+
+1.18
+date	98.06.26.07.37.24;	author abe;	state Exp;
+branches;
+next	1.17;
+
+1.17
+date	98.05.22.13.59.15;	author abe;	state Exp;
+branches;
+next	1.16;
+
+1.16
+date	98.05.13.07.01.01;	author abe;	state Exp;
+branches;
+next	1.15;
+
+1.15
+date	98.05.11.06.54.53;	author abe;	state Exp;
+branches;
+next	1.14;
+
+1.14
+date	98.04.21.10.16.57;	author abe;	state Exp;
+branches;
+next	1.13;
+
+1.13
+date	98.04.08.21.43.24;	author abe;	state Exp;
+branches;
+next	1.12;
+
+1.12
+date	98.03.06.19.04.42;	author abe;	state Exp;
+branches;
+next	1.11;
+
+1.11
+date	98.01.16.14.38.00;	author abe;	state Exp;
+branches;
+next	1.10;
+
+1.10
+date	97.12.30.08.37.20;	author abe;	state Exp;
+branches;
+next	1.9;
+
+1.9
+date	97.11.24.15.33.39;	author abe;	state Exp;
+branches;
+next	1.8;
+
+1.8
+date	97.11.10.08.19.54;	author abe;	state Exp;
+branches;
+next	1.7;
+
+1.7
+date	97.11.03.10.36.48;	author abe;	state Exp;
+branches;
+next	1.6;
+
+1.6
+date	97.09.23.09.23.41;	author abe;	state Exp;
+branches;
+next	1.5;
+
+1.5
+date	97.08.15.08.12.30;	author abe;	state Exp;
+branches;
+next	1.4;
+
+1.4
+date	97.07.09.08.38.46;	author abe;	state Exp;
+branches;
+next	1.3;
+
+1.3
+date	97.06.23.17.30.01;	author abe;	state Exp;
+branches;
+next	1.2;
+
+1.2
+date	97.06.23.07.15.33;	author abe;	state Exp;
+branches;
+next	1.1;
+
+1.1
+date	97.06.17.16.03.31;	author abe;	state Exp;
+branches;
+next	;
+
+
+desc
+@Cross-configuration instructions
+@
+
+
+1.70
+log
+@Revision 4.88
+@
+text
+@
+			Cross-configuring Lsof
+
+Introduction
+============
+
+Lsof cross-configuration is useful when the target dialect or target
+dialect version for which lsof is to be configured and built differs
+from the one on which the Configure operation is done.
+
+Marty Leisner <leisner@@sdsp.mc.xerox.com> suggested the method
+described here for lsof cross-configuration, and he supplied
+modifications to the Configure script for cross-configuring Linux
+lsof.
+
+Marty says:
+
+    "I used this to successfully compile (lsof) on the same machine
+     for (Linux) 2.0.30 and 2.1.42.  (I normally don't bring up a
+     2.1.42 machine all the time).  Also it (the 2.0.30 system)
+     doesn't have much storage and compiles on it are slow.
+
+     Set LSOF_VERS if it's not the (version of the) current system.
+     (Actually, you should get the version out of include/linux/version.h.)
+
+     Define LINUX_KERNEL to (the path) where the kernel sources
+     are (located).  (No longer necessary as of lsof revision 4.53.)
+
+     This should work on most systems; they put a kernel in
+     /usr/src/linux, which is the default.
+
+     Now I can just do:
+
+	LINUX_KERNEL=/some/other/kernel LSOF_VERS=2142 ./Configure linux
+
+     Comments?  Its very convenient when running multiple kernels.
+     (It would be (have been) very handy when the structures changed
+     between 2.0.2* and 2.0.30 , or whatever.)
+
+     I run multiple OSes at a time (not to mention multiple
+     architectures.  It's very pleasant to cross-build either
+     operating systems or versions."
+
+So, the situation is that you have lsof sources on a UNIX dialect
+version, and you want to configure them to build lsof for some
+other version of the same dialect, or perhaps for some other UNIX
+dialect altogether.
+
+
+The Cross-Configure Method
+==========================
+
+The lsof cross-configure method uses environment variables to tell
+the lsof Configure script about the target dialect.  The environment
+variables may specify alternate locations for Configure to examine
+when it determines characteristics of the target, or they may
+specify the values Configure would discover when it examined the
+target's characteristics.
+
+Consult each environment variable description for the UNIX dialect
+in which you're interested to see how it affects the operation of
+the Configure script.
+
+The number and values of the variables differ by dialect.  Each
+variable begins with an upper case version of the dialect's Configure
+abbreviation -- e.g., AIX for aix or aixgcc, LINUX for linux,
+UW for uw (UnixWare), etc.
+
+Of course, the UNIX dialect's version is probably different from
+that of the system on which you're doing the cross-configuration,
+so you will need to specify the new version, too.  For example, to
+configure for FreeBSD 3.0 on a 2.1.7 system, where the standard
+3.0 header files are in /3.0/usr/include and the 3.0 system sources
+are in /3.0/sys, do this:
+
+	LSOF_VERS=300 LSOF_INCLUDE=/3.0/usr/include \
+	FREEBSD_SYS=/3.0/sys Configure -n freebsd
+
+
+General Environment Variables
+=============================
+
+There are some environment variables whose names don't begin with
+an upper case rendering of a dialect abbreviation.  Generally they
+apply to all dialects.
+
+AFS_VICE        is for AFS configuration.   It need be set only if
+		lsof supports AFS on your dialect and you want to
+		specify an alternate path to the VICE files.
+
+		default: /usr/vice
+
+LSOF_AR         is the path to and arguments for the library archive
+		application that is used to build the lsof library,
+		liblsof.a.  When this value is placed in the library
+		Makefile as the contents of the AR make string, it is
+		followed by the path to the library and the relative
+		paths of the library module
+
+		default: ar cr
+
+LSOF_ARCH       is the architecture type string for the system.
+		Usually this is the output of `uname -m`.  Consult
+		the Configure script for details.  The LSOF_ARCH
+		value may have to be quoted if it contains spaces.
+
+		default: auto-detection (e.g., from `uname -m`)
+
+LSOF_BLDCMT     may be used to introduce a builder's comment into
+		lsof's -v output.  It defaults to the null string,
+		causing no builder's comment to appear in -v output.
+
+		default: none
+
+LSOF_CC         is the path to the C compiler.  You may need to
+		specify it if your C compiler is in a non-standard
+		place, not found by your path.  If you specify a
+		compiler different from the expected default, you
+		may have to change the compile time flags by
+		specifying new CFGF, CFGL, and DEBUG strings on
+		the make command line.
+
+		default: normally cc, but some dialects have other
+			 defaults and some have auto-detection.
+
+			 Check the dialect stanza in the lsof Configure
+			 script to see how LSOF_CC is set by default.
+
+LSOF_CCV        is the C compiler version.  You should specify it
+		if you have specified a compiler path in LSOF_CC.
+
+		default: the lsof Configure script knows how to find
+			 the version number of gcc and some other
+			 dialect-specific compilers.
+
+			 Check the dialect stanza in the lsof Configure
+			 script to see how lsof_CCV is set by default.
+
+LSOF_CFGF	may be used to specify additional configuration values
+		that will appear in the CFGF string of the Makefile.
+
+LSOF_CFGL	may be used to specify additional library specifications
+		that will appear in the CFGL string of the Makefile.
+
+LSOF_HOST       may be used to specify a value in lsof's -v output
+		other than the name of the host where lsof was
+		built.  A value of "none" inhibits host name display
+		in -v output.
+
+		default: the dialect's host name application -- e.g.,
+			 hostname or uname -n
+
+LSOF_INCLUDE    is the path to a tree of header files that is an exact
+		image of the the standard header file tree for the
+		target dialect.  You may need to specify it if you
+		want Configure to test header files in a tree different
+		from /usr/include and compile its test programs with
+		header files from that tree, then you want to compile
+		lsof from the header files in that different, duplicate
+		image tree.
+
+		Note: LSOF_INCLUDE should contain a single path
+		without any option flags, such as -I.  It is always
+		supplied to the compiler in CFLAGS following the -I
+		option flag.  If you want to specify other include
+		paths, use LSOF_OPINC.
+
+		ADDITIONAL NOTE: all the header files that lsof's
+		Configure tests for optional features and uses to
+		compile test programs must be in LSOF_CONFIGURE.
+		They can't be scattered in the other include path
+		that LSOF_OPINC names.
+
+LSOF_LOGNAME    may be used to specify a value in lsof's -v output
+		other than the one in the LOGNAME environment
+		variable for the login name of the person who built
+		lsof.  A value of "none" inhibits login name display
+		in -v output.
+
+		default: the LOGNAME environment variable
+
+LSOF_MAKE	is the path to the make command.
+
+		deafult: the output of `which make`, if it is not NULL;
+			 otherwise the string "make".
+
+LSOF_MKC        may be used to specify an alternate method of
+		connecting dialect sources to the top-level lsof
+		directory.  See 00PORTING for more information.
+
+		default: ln -s
+
+LSOF_OPINC	may be used to specify other include file search
+		paths.  Each must be preceded by the compiler's -I
+		option file and, if there are muliple paths, they
+		must be separated by spaces and the entire set must
+		be enclosed in double quote marks -- e.g.,
+
+		LSOF_OPINC="-I/path1 -I/path2 ..."
+
+		The optional include paths thus specified will be
+		appended to LSOF_INCLUDE and whatever special
+		include paths the lsof Configure script finds
+		necessary.
+
+LSOF_RANLIB	may be used to specify an alternate command for the
+		randomizing of the lsof library.
+
+		default: ranlib for most dialects
+			 none for: IBM AIX; HP-UX; SCO OpenServer; Solaris
+				   and SCO|Caldera UnixWare
+
+LSOF_SYSINFO    may be used to specify a value in lsof's -v output
+		other than the standard system identification --
+		e.g., output from uname.  A value of "none" inhibits
+		system information display in -v output.
+
+		default: the dialect's standard system identification
+			 application output -- e.g., uname, sysinfo
+
+LSOF_USER	may be used to specify a value in lsof's -v output
+		other than the one in the USER environment variable
+		for the login name of the person who built lsof.
+		A value of "none" inhibits login name display in
+		-v output.
+
+		default: the USER environment variable
+
+LSOF_VERS       is the target dialect version number.  It must be
+		stated in the dialect's form -- e.g., FreeBSD 2.0.5
+		is given as 205, Solaris 7 as 70000, etc.  The
+		table, "Abbreviations, Variable Prefixes, and
+		Version Numbers," in this file gives the form for
+		LSOF_VERS for each dialect lsof supports.
+
+		default: auto-detection (e.g., from `uname -r`)
+
+LSOF_VSTR       is the version string from which LSOF_VERS is
+		derived.  Usually this is the output of `uname -r`
+		or `uname -v`.  Consult the Configure script for
+		details.   The LSOF_VSTR value may have to be quoted
+		if it contains spaces.
+
+		default: auto-detection (e.g., output from
+			 `hostname`, `uname -r`, or `uname -v)
+
+
+Make Strings
+============
+
+The CFGF, CFGL, and DEBUG strings can be specified on the make
+command line to change default values placed in the top-level and
+library Makefiles by Configure.  For example, Configure usually
+defines the compiler optimization level to be -O, but you can change
+that with "DEBUG=-g" on the make command -- e.g.,
+
+	$ make DEBUG=-g lsof
+
+Similarly, the CFGF string contains miscellaneous compile-time
+options, and CFGL contains loader options.  Consult the Makefiles
+generated by Configure for the values it defines by default for
+CFGF and CFGL.
+
+As an example, Configure might define CFGL to be "-L./lib -llsof -w"
+for NextStep 3.1; to remove "-w", use this make invocation:
+
+	$ make CFGL="-L./lib -llsof"
+
+
+Abbreviations, Variable Prefixes, and Version Numbers
+=====================================================
+
+The following table describes the relationship between Configure
+abbreviations, environment variable prefixes, and lsof UNIX dialect
+version numbers.  The lsof UNIX dialect version number must be
+declared exactly in the listed form when supplied via the LSOF_VERS
+environment variable.
+
+				Dialect	   Lsof Version
+   Configure	Variable	Version      Number for
+Abbreviation*	  Prefix	 Number       LSOF_VERS
+
+	 aix	     AIX	  3.2.5		   3250
+      aixgcc			  4.1.0		   4100
+				  4.1.4		   4140
+				  4.1.4		   4150
+				  4.2.0		   4200
+				  4.2.1		   4210
+				  4.3		   4300
+				  4.3.1		   4310
+				  4.3.2		   4320
+				  4.3.3		   4330
+				  5.0.x		   5000
+				  5.1.x		   5100
+				  5.2.x		   5200
+				  5.3.x		   5300
+      darwin	  DARWIN	  1.2*		    120
+				  1.3*		    130
+				  1.4*		    140
+				  5.[012]	    500
+				  5.[3-9]	    530
+				  6.x		    600
+				  7.x		    700
+				  8.x		    800
+	  du	      DU	  2.0		  20000
+				  3.0		  30000
+				  3.2		  30200
+				  4.0		  40000
+				  5.0		  50000
+				  5.1		  50100
+     freebsd	 FREEBSD	  1.x		   1000
+				  2.x		   2000
+				  2.0.5		   2005
+				  2.1.x		   2010
+				  2.2.x		   2020
+				  3.x		   30x0
+				  4.x		   40x0
+				  4.1x		   41x0
+				  5.x		   50x0
+				  6.x		   60x0
+				  7.x		   70x0
+				  8.x		   80x0
+				  9.x		   90x0
+	hpux	    HPUX	  9.1		    901
+     hpuxgcc	    HPUX	  9.5		    905
+				  10.0		   1000
+				  10.10		   1010
+				  10.20		   1020
+				  11.00		   1100
+				  11.11		   1111
+      linux	   LINUX	  2.1.x		  21xxx
+				  2.2.x		  22xxx
+				  2.3.x	     	  23xxx
+				  2.4.x		  24xxx
+				  2.6.x		  26xxx
+     netbsd	  NETBSD	  1.2		1002000
+				  1.3		1003000
+				  1.4		1004000
+				  1.5		1005000
+				  1.6		1006000
+				  2.0		2000000
+				  2.99.9        2099009
+				  2.99.10       2099010
+	 ns     NEXTSTEP	  3.1		     31
+    openbsd	 OPENBSD	  1.2		   1020
+				  2.0		   2000
+				  2.1		   2010
+				  2.2		   2020
+				  2.3		   2030
+				  2.4		   2040
+				  2.5		   2050
+				  2.6		   2060
+				  2.7		   2070
+				  2.8		   2080
+				  2.9		   2090
+				  3.0		   3000
+				  3.1		   3010
+				  3.2		   3020
+				  3.3		   3030
+				  3.4		   3040
+				  3.5		   3050
+				  3.6		   3060
+         os     OPENSTEP	  4.x		     4x
+	osr	     OSR	  3.2v2.0	     20
+				  3.2v2.1	     21
+				  3.2v4.0	     40
+				  3.2v4.1	     41
+				  3.2v4.2	     42
+				  3.2v5.0.0	    500
+				  3.2v5.0.2	    502
+				  3.2v5.0.4	    504
+				  3.2v5.0.6	    506
+         ou	      OU	  8.0.0		  80000
+    solaris      SOLARIS	  2.3		  20300
+  solariscc	 SOLARIS	  2.4		  20400
+				  2.5		  20500
+				  2.5.1		  20501
+				  2.6		  20600
+				  7		  70000
+				  8		  80000
+				  9		  90000
+				  10		 100000
+	 uw	      UW	  7.0		  70000
+	 	       		  7.1.0		  70100
+	 	       		  7.1.1		  70101
+	 	       		  7.1.3		  70103
+
+* -- The optional Configure abbreviations -- e.g., the ``decosf''
+     and ``digital_unix'' alternatives to ``du'' -- aren't listed
+     here.
+
+
+Dialect-Specific Environment Variables
+======================================
+
+Here are the dialect-specific environment variables, listed
+alphabetically.  The first part of any environment variable will
+be the dialect abbreviation, as specified to Configure, converted
+to upper case characters.  See the `Configure -help` output for a
+listing of the abbreviations.
+
+AIX_ARCH		specifies the AIX architecture when the AIX version is
+			5.0 or higher.  A value of "" signifies POWER; "ia64",
+			64 bit x86 (Itanium).
+
+			default: none (tested via `uname -a`)
+
+AIX_HAS_AFS		specifies the state of AIX ADS support when the AIX
+			version is 4.3.3 or lower.  (Lsof doesn't support AFS
+			above AIX 4.3.3.)  A value of "" allows the Configure
+			script to determine the AFS support state; "no",
+			disables AFS support; and "yes", forces the enabling of
+			AFS support.
+
+			default: none (tested via presence of AFS files and the
+				 lsof AFSConfig shell script)
+
+AIX_KERNBITS		specifies the kernel bit size, 32 or 64, of the Power
+			architecture AIX 5.x kernel for which lsof was built.
+
+			default: determined by the Configure script with a test
+				 program that uses <sys/systemcfg.h> macros.
+
+AIX_USHACK		If this environment variable has a value of "Y" or "y",
+			and if the aixgcc Configure abbreviation is selected,
+			the AIX 4.1 and greater gcc user structure hack is
+			activated; any other non-NULL value, it's not set; a
+			NULL value, it's tested by compilation.
+
+			default: none (tested by compilation)
+
+DARWIN_XNUDIR		If this environment variable has a value, the value is
+			used as the path to the Darwin XNU kernel source code.
+
+			default: none (entry requested)
+
+DARWIN_XNU_HEADERS	If this environment variable has a value, the value is
+			used as the path to the Darwin XNU kernel header files.
+			This path would match the DSTROOT environment variable
+			used when a "make installhdrs" was executed from the
+			Darwin XNU kernel source directory.
+
+			default: none
+
+DU_ADVFSV		specifies the DEC OSF/1, Digital UNIX, or Tru64 UNIX
+			ADVFS file system version -- e.g., 200 for 2.0, 400
+			for 4.0, etc.
+
+			default: determined via /usr/sbin/setld
+
+DU_CDIR			specifies the name of the DEC OSF/1, Digital UNIX, or
+			Tru64 UNIX system configuration directory.
+
+			default: first host name component, converted to upper
+				 case
+
+DU_SHLIB		specifies the DEC OSF/1, Digital UNIX, or Tru64 UNIX
+			shared library directory path.
+
+			default: /usr/shlib
+
+DU_SYSDIR		DEC OSF/1, Digital UNIX, or Tru64 UNIX system
+			directory path.
+
+			2.x and 3.x default: /sys
+			4.x default: /usr/sys
+
+FREEBSD_KERNEL		specifies the path to the FreeBSD kernel for FreeBSD
+			version less than 2.0.
+
+			default: /386bsd
+
+FREEBSD_SYS		specifies the path to the FreeBSD system source
+			directory.
+
+			default: /sys
+
+HPUX_BASE		specifies the HP-UX lsof source code base, kmem or
+			pstat, to be used.
+
+			default: determined by testing for the
+				 /usr/include/sys/pstat subdirectory
+
+HPUX_BOOTFILE		specifies the file in which lsof's Configure script can
+			find kernel information.  This specification may be
+			useful for defining the path to a copy of /stand/vmunix
+			that has been processed by pxdb or q4pxdb.
+
+			default: /stand/vmunix
+
+HPUX_CCDIR1		specifies the first directory where Configure might
+			find an HP-UX C compiler.  This is ignored when
+			LSOF_CC has been specified.
+
+			default: /bin
+
+HPUX_CCDIR2		specifies the second directory where Configure might
+			find an HP-UX C compiler.  This is ignored when
+			LSOF_CC has been specified.
+
+			default: /usr/ccs/bin
+
+HPUX_HASONLINEJFS	If this environment variable has a value of "Y" or "y",
+			the HASONLINEJFS definition will be enabled in the
+			Makefile CFLAGS.  That will cause dnode1.c to use an
+			alternate vx_inode.h header file in the hpux11 sub-
+			directory of dialects/hpux/kmem.
+
+			default: determined using nm and grep
+
+HPUX_IPC_S_PATCH	If this environment variable has a value of "1", the
+			ipc_s structure of the HP-UX 11 kernel is assumed to
+			have an ipc_ipis member, but it is assumed the ipis_s
+			structure lacks the ipis_msgsqueued member; "2", ipc_s
+			has ipc_ipis, but ipis_s has ipis_msgsqueued; "n" or
+			"N", ipc_s lacks ipc_ipis; any other non-NULL value is
+			considered an error; a NULL value, HPUX_IPC_S_PATCH is
+			determined by testing.
+			
+			default: determined with q4 and grep
+
+HPUX_KERNBITS		specifies the number of bits (32 or 64) in the HP-UX
+			11 "basic kernel word.
+
+			default: `getconf _SC_KERNEL_BITS`
+
+HPUX_LIBC1		specifies the first directory that might contain the
+			HP-UX C library, libc.sl.
+
+			default: /usr/lib
+
+HPUX_LIBC2		specifies the second directory that might contain the
+			HP-UX C library, libc.sl.
+
+			default: /lib
+
+HPUX_RNODE3		If this environment variable has a value of "1", the
+			Configure script will define HASRNODE3 in the Makefile
+			CFGF flags.   If it is defined, but not "1", Configure
+			will not define HASRNODE2.
+
+			default: determined using `nm -x /stand/vmunix` and
+				 `grep r_fh3 /usr/include/nfs/rnode.h`
+
+HPUX_X25DIR		specifies path to the HP-UX X25 directory that contains
+			configuration header files.
+
+			default: /etc/conf
+
+LINUX_CLIB		specifies the definition of the Linux C library:
+
+			default: ""             (standard C library)
+			others: -DGLIBCV=2      (glibc2)
+
+LINUX_CONF_CC		specifies the location of the C compiler to use during
+			the running of the Configure script:
+
+			default: the value of the LSOF_CC variable, if defined,
+				 or cc
+
+LINUX_HASSELINUX	If this environment variable has a value of "Y" or "y",
+			Configure unconditionally activates SELinux support.
+			If it has any other value, Configure unconditionally
+			inhibits SELinux suport.
+
+			Default: assumed to be "Y" if <selinux/selinux.h>
+				 exists
+
+LINUX_INCL		specifies the path to the header file tree:
+
+			default: /usr/include
+
+LINUX_LSEEK		If this environment variable has a value of "Y" or "y",
+			Configure uses Makefile.lseek in place of Makefile in
+			order to enable use of the private lseek() function for
+			2.1.x kernels; any other non-NULL value, Makefile.lseek
+			will isn't used; a NULL value, the alternate lseek()
+			need is determined by compilation.
+
+			default: determined by test program
+
+LINUX_VERSION_CODE	specifies the value of the LINUX_VERSION_CODE in the
+			same decimal form as found in the LINUX_VERSION_CODE
+			#define of /usr/include/linux/version.h:
+
+			default: the value of LINUX_VERSION_CODE in
+				 /usr/include/linux/version.h
+
+NETBSD_SYS		specifies the path to the NetBSD system source
+			directory.
+
+			default: /usr/include
+
+NETBSD_UVM		If this environment variable has a value of "Y" or "y",
+			the NetBSD system uses the UVM virtual memory system;
+			any other non-NULL value, it does not; a NULL value,
+			it will be determined by the contents of /etc/mk.conf.
+
+			default: tested by grep'ping /etc/mk.conf
+
+OPENBSD_SYS		specifies the path to the OpenBSD system source
+			directory.
+
+			default: /sys
+
+OPENBSD_UVM		If this environment variable has a value of "Y" or "y",
+			the OpenBSD system uses the UVM virtual memory system;
+			any other non-NULL value, it does not; a NULL value,
+			it will be determined by examining /bsd.
+
+			default: tested by grep'ping `nm /bsd` output
+
+
+OSR_CFGF		The value of this environment variable is made the
+			initial value for the compiler flags the lsof Configure
+			script constructs for the Makefile CFGF macro.
+
+			default: ""
+
+OSR_CFGL		The value of this environment variable is made the
+			initial value for the loader flags the lsof Configure
+			script constructs for the Makefile CFGL macro.
+
+			default: ""
+
+OSR_STATLSTAT		If this environment variable has a value of "Y" or "y",
+			HAS_STATLSTAT is defined in the Makefile's CFGL string;
+			any other non-NULL value, it's not defined; a NULL
+			value, it is determined with nm and grep.
+
+			default: determined with nm and grep
+
+
+SOLARIS_23P101318	If this environment variable has a non-NULL value, the
+			value is interpreted as the patch level of the Solaris
+			2.3 P101318 patch.
+
+			default: pkginfo tested with grep
+
+SOLARIS_24P101945	If this environment variable has a non-NULL value, the
+			value is interpreted as the patch level of the Solaris
+			2.4 P101945 patch.
+
+			default: pkginfo tested with grep
+
+SOLARIS_24P102303	If this environment variable has a non-NULL value, the
+			value is interpreted as the patch level of the Solaris
+			2.4 P102303 patch.
+
+			default: pkginfo tested with grep
+
+SOLARIS_26PR_GWINDOWS	If this environment variable has a value of "Y" or "y",
+			the HASPR_GWINDOWS definition is set in the Solaris 2.6
+			and 7 Makefile's CFG string; any other non-NULL value,
+			it's not set; a NULL value, it's tested by compilation.
+
+			default: tested by compilation
+
+SOLARIS_26PR_LDT	If this environment variable has a value of "Y" or "y",
+			the HASPR_LDT definition is set in the Solaris 2.6
+			Makefile's CFGL string; any other non-NULL value, it's
+			not set; a NULL value, it's tested by compilation.
+
+			default: tested by compilation
+
+SOLARIS_CCDIR		specifies the path to the Sun C compiler -- i.e., when
+			`Configure solariscc` is used.  This is ignored when
+			LSOF_CC has been specified.
+
+			default: /opt/SUNWspro/bin
+
+SOLARIS_INSTR		specifies the Sun C compiler target instruction set
+			when building lsof for a 64 bit kernel -- i.e., when
+			the Configure abbreviation is "solariscc".  Possible
+			values include amd64 and sparcv9.  This is ignored when
+			the Configure abbreviation is "solaris" -- i.e., the
+			compiler is gcc.
+
+			default: tested with /bin/isainfo -k
+
+SOLARIS_KERNBITS	specifies the number of bits in the Solaris 7, 8, 9 or
+			10 kernel: 32 or 64.
+
+			default: tested with /bin/isainfo -kv
+
+SOLARIS_VSOCK		If this environment variable has a value of "Y" or "y",
+			the HAS_VSOCK definition is in the Solaris Makefile's
+			CFGL string; any other non-NULL value, it's not set; a
+			NULL value, it's tested by compilation.
+
+			default: tested by compilation
+
+SOLARIS_VXFSINCL	This environment variable defines the path to the
+			header files of the VxFS 3.4 or greater version.  If
+			SOLARIS_VXFSINCL is not set, the default is used.
+
+			default: VxFS < 4.0:
+				    /opt/VRTSvxfs/include
+				 VxFS 4.0 and above:
+				    /opt/VRTSfssdk/<version>/include
+
+SOLARIS_VXFSLIB		This environment variable defines the path to the
+			VxFS 3.4 or greater utility libraries, libvxfsutil.a
+			(32 bit) and libvxfsutil64.a (64 bit).  If
+			SOLARIS_VXFSLIB is not set, the default is used.
+
+			Note:  end SOLARIS_VXFSLIB at the "/lib" component; do
+			       NOT put "/sparcv9" at its end.  The lsof
+			       Configure script will add "/sparcv9" if it is
+			       required; hence, if Configure finds that
+			       "/sparcv9" is needed, your SOLARIS_VXFSLIB
+			       directory tree must have a sparcv9 subdirectory.
+
+			default: `dirname $SOLARIS_VXFSINCL`/lib
+
+SUN_AFSAPATHDEF		specifies the path to the AFS library modload file
+			for either Solaris or SunOS.
+
+			default: /usr/vice/etc/modload/libafs
+				 Verified with ls.
+
+			Note: the SunOS support is no longer maintained.
+
+UW_HAS_NSC		If this environment variable has a value of "Y" or "y",
+			lsof will be configured for a UnixWare 7.1.1 or above
+			NonStop Cluster (NSC) system.
+
+			default: tested via /bin/node_self
+
+Vic Abell <abe@@purdue.edu>
+October 13, 2014
+@
+
+
+1.69
+log
+@Revision 4.85 (final)
+@
+text
+@d153 8
+a160 5
+LSOF_INCLUDE    is the path to the standard header files.  You may
+		need to specify it if you want Configure to test
+		header files in a tree different from /usr/include,
+		and you want to compile lsof from the header files
+		in that different tree.
+d162 12
+d193 13
+d731 1
+a731 1
+September 27, 2011
+@
+
+
+1.68
+log
+@Revision 4.83
+@
+text
+@d293 3
+d527 6
+d541 4
+d554 7
+d703 1
+a703 1
+January 18, 2010
+@
+
+
+1.67
+log
+@Revision 4.79
+@
+text
+@d139 6
+d167 5
+d178 7
+d683 1
+a683 1
+April 15, 2008
+@
+
+
+1.66
+log
+@Revision 4.77
+@
+text
+@d506 8
+d665 1
+a665 1
+March 27, 2006
+@
+
+
+1.65
+log
+@Revision 4.76
+@
+text
+@a250 7
+	bsdi	    BSDI	  2.0.x		  20000
+				  2.1.x		  20100
+				  3.0.x		  30000
+				  3.1.x		  30100
+				  4.0		  40000
+				  4.1		  40100
+				  4.3		  40300
+a453 8
+HPUX_RNODE3		If this environment variable has a value of "1", the
+			Configure script will define HASRNODE3 in the Makefile
+			CFGF flags.   If it is defined, but not "1", Configure
+			will not define HASRNODE2.
+
+			default: determined using `nm -x /stand/vmunix` and
+				 `grep r_fh3 /usr/include/nfs/rnode.h`
+
+d488 8
+d657 1
+a657 1
+August 29, 2005
+@
+
+
+1.64
+log
+@Revision 4.75
+@
+text
+@d265 1
+a389 5
+DARWIN_SYSDIR		specifies an alternate prefix to be placed in front of
+			"/System.framework/PrivateHeaders".
+
+			default prefix: "/System/Library/Frameworks"
+			
+d391 1
+a391 1
+			used as the path to the Darwin XNU kernel header files.
+d395 8
+d630 4
+a633 1
+			default: /opt/VRTS/vxfs/include
+d640 6
+a645 1
+			default: /opt/VRTS/vxfs/lib
+d647 2
+d664 1
+a664 1
+May 16, 2005
+@
+
+
+1.63
+log
+@Revision 4.74
+@
+text
+@d136 1
+a136 1
+			 Check the dialect stanza in ths lsof Configure
+d379 1
+a379 1
+				 program that uses <sys/systemcfg.h> macroes.
+a594 5
+SOLARIS_KERNBITS	specifies the nuber of bits in the Solaris 7 or 8
+			kernel: 32 or 64.
+
+			default: tested with /bin/isainfo -kv
+
+d601 14
+d650 1
+a650 1
+December 30, 2004
+@
+
+
+1.62
+log
+@Revision 4.73
+@
+text
+@d293 8
+a300 7
+     netbsd	  NETBSD	  1.0		   1000
+				  1.1		   1010
+				  1.2		   1020
+				  1.3		   1030
+				  1.4		   1040
+				  1.5		   1050
+				  1.6		   1060
+d641 1
+a641 1
+October 17, 2004
+@
+
+
+1.61
+log
+@Revision 4.72
+@
+text
+@d93 9
+d250 1
+d280 1
+d318 1
+d640 1
+a640 1
+July 6, 2004
+@
+
+
+1.60
+log
+@Revision 4.69
+@
+text
+@d261 9
+a269 8
+     freebsd	 FREEBSD	  1.x		    100
+				  2.x		    200
+				  2.0.5		    205
+				  2.1.x		    210
+				  2.2.x		    220
+				  3.x		    3x0
+				  4.x		    4x0
+				  5.x		    5x0
+d281 1
+d305 2
+d628 1
+a628 1
+October 15, 2003
+@
+
+
+1.59
+log
+@Revision 4.68
+@
+text
+@d254 1
+d322 1
+d372 10
+d504 1
+a504 1
+			default: /sys
+d624 1
+a624 1
+June 11, 2003
+@
+
+
+1.58
+log
+@Revision 4.67
+@
+text
+@d300 2
+a301 1
+				  3.2		   3030
+d346 10
+d612 1
+a612 1
+March 2, 2003
+@
+
+
+1.57
+log
+@Revision 4.66
+@
+text
+@d240 1
+d601 1
+a601 1
+December 5, 2002
+@
+
+
+1.56
+log
+@Revision 4.65
+@
+text
+@d284 1
+d298 2
+d322 1
+d340 1
+a340 1
+			64 bit Intel (Itanium).
+d600 1
+a600 1
+October 8, 2002
+@
+
+
+1.55
+log
+@Document HPUX_BOOTFILE.
+@
+text
+@d238 2
+d246 1
+d250 3
+d596 1
+a596 1
+April 19, 2002
+@
+
+
+1.54
+log
+@Revision 4.61
+@
+text
+@d387 7
+d590 1
+a590 1
+January 18, 2001
+@
+
+
+1.53
+log
+@Revision 4.60
+@
+text
+@d334 6
+d583 1
+a583 1
+November 1, 2001
+@
+
+
+1.52
+log
+@Revision 4.59
+@
+text
+@d80 1
+a80 1
+Special Environment Variables
+d83 3
+a85 2
+There are seven special environment variables whose names don't
+begin with an upper case rendering of a dialect abbreviation.
+d87 3
+a89 3
+The first, AFS_VICE, is for AFS configuration.   It need be set
+only if lsof supports AFS on your dialect and you want to specify
+an alternate path to the VICE files.
+d91 1
+a91 4
+The second, LSOF_ARCH, is the architecture type string for the
+system.  Usually this is the output of `uname -m`.  Consult the
+Configure script for details.  The LSOF_ARCH value may have to be
+quoted if it contains spaces.
+d93 4
+a96 6
+The third, LSOF_CC, is the path to the C compiler.  You may need
+to specify it if your C compiler is in a non-standard place, not
+found by your path.  If you specify a compiler different from the
+expected default, you may have to change the compile time flags by
+specifying new CFGF, CFGL, and DEBUG strings on the make command
+line.
+d98 1
+a98 2
+The fourth, LSOF_CCV, is the C compiler version.  You should specify
+it if you have specified a compiler path in LSOF_CC.
+d100 3
+a102 4
+The fifth, LSOF_INCLUDE, is the path to the standard header files.
+You may need to specify it if you want Configure to test header
+files in a tree different from /usr/include, and you want to compile
+lsof from the header files in that different tree.
+d104 1
+a104 5
+The sixth, LSOF_VERS, is the target dialect version number.  It
+must be stated in the dialect's form -- e.g., FreeBSD 2.0.5 is
+given as 205, Solaris 7 as 70000, etc.  The table, "Abbreviations,
+Variable Prefixes, and Version Numbers," in this file gives the
+form for LSOF_VERS for each dialect lsof supports.
+d106 7
+a112 4
+The seventh, LSOF_VSTR, is the version string from which LSOF_VERS
+is derived.  Usually this is the output of `uname -r` or `uname
+-v`.  Consult the Configure script for details.   The LSOF_VSTR
+value may have to be quoted if it contains spaces.
+d114 2
+a115 1
+AFS_VICE                specifies the path to the AFS "vice" directory.
+d117 2
+a118 1
+			default: /usr/vice
+d120 2
+a121 1
+LSOF_ARCH               specifies the system architecture type.
+d123 3
+a125 1
+			default: auto-detection (e.g., from `uname -m`)
+d127 2
+a128 1
+LSOF_CC			specifies the path to the C compiler.
+d130 4
+a133 2
+			default: normally cc, but some dialects have other
+				 defaults and some have auto-detection.
+d135 2
+a136 2
+				 Check the dialect stanza in the lsof Configure
+				 script to see how LSOF_CC is set by default.
+d138 5
+a142 3
+LSOF_CCV		specifies the version of the C compiler specified in
+			LSOF_CCV.  This variable is ignored if LSOF_CC isn't
+			defined.
+d144 5
+a148 3
+			default: the lsof Configure script knows how to find
+				 the version number of gcc and some other
+				 dialect-specific compilers.
+d150 1
+a150 2
+				 Check the dialect stanza in ths lsof Configure
+				 script to see how lsof_CCV is set by default.
+d152 3
+a154 1
+LSOF_INCLUDE		specifies the path to the standard header files.
+d156 1
+a156 1
+			default: /usr/include
+d158 4
+a161 1
+LSOF_VERS		specifies the target dialect's version in its form.
+d163 2
+a164 1
+			default: auto-detection (e.g., from `uname -r`)
+d166 5
+a170 1
+LSOF_VSTR		specifies the dialect version string.
+d172 1
+a172 2
+			default: auto-detection (e.g., output from
+				 `hostname`, `uname -r`, or `uname -v)
+d174 6
+d181 12
+d290 1
+d577 1
+a577 3
+Purdue University Computing Center (PUCC)
+
+October 19, 2001
+@
+
+
+1.51
+log
+@Revision 4.57
+@
+text
+@d213 3
+a215 2
+      darwin	  DARWIN	  1.2		    120
+				  1.3		    130
+d231 1
+a231 1
+     hpuxgcc			  9.5		    905
+d247 1
+a247 1
+	 ns	NEXTSTEP	  3.1		     31
+d259 2
+a260 16
+         os	OPENSTEP	  4.x		     4x
+	ptx	     PTX	  2.1.9		    219
+				  4.0		    400
+				  4.1.3		    413
+				  4.1.4		    414
+				  4.2.1		    421
+				  4.3		    430
+				  4.4		    440
+				  4.4.1		    441
+				  4.4.2		    442
+				  4.4.4		    444
+				  4.4.6		    446
+				  4.5		    450
+				  4.5.1		    451
+				  4.6.1		    461
+	osr	      OSR	  3.2v2.0	     20
+d269 3
+a271 2
+    solaris	  SOLARIS	  2.3		  20300
+  solariscc	  or SUN	  2.4		  20400
+d278 1
+a278 1
+	 uw	       UW	  7.0		  70000
+d446 13
+a465 1
+PTX_CONF		specifies the path to the configuration header files.
+a466 18
+			default: /usr/conf/uts
+
+PTX_TCP_NAME		specifies the path configuration file where the PTX TCP
+			version name is located.
+
+			default: /usr/options/tcp/tcp.name
+
+PTX_TCPV		specifies the PTX TCP version as a 3 digit decimal
+			number, formed from the first three numbers separated by
+			decimal points in the file PTX_TCP_NAME -- e.g., PTX
+			TCP/IP V4.2.1 becomes 421, PTX TCP/IP V4.2.2.1 becomes
+			422, PTX TCP/IP V4.4.3 becomes 443, PTX TCP/IP V4.5.1.1
+			becomes 451.  PTX_TCPV should be set to 0 if no
+			PTX_TCP_NAME test is possible (e.g., for PTX below 4.0).
+
+			default: formed with awk from the contents of the file
+				 PTX_TCP_NAME
+
+d547 1
+a547 1
+June 19, 2001
+@
+
+
+1.50
+log
+@Revision 4.56
+@
+text
+@d257 1
+d272 1
+d381 8
+d535 1
+a535 1
+SOLARIS_VXFSGE34	This environment variable defines the path to the
+d537 1
+a537 1
+			it is not set, the default is used.
+d539 1
+a539 1
+			defailt: /opt/VRTS/vxfs/include
+d541 7
+d565 1
+a565 1
+May 2, 2001
+@
+
+
+1.49
+log
+@Revision 4.56
+@
+text
+@d287 1
+d548 1
+a548 1
+May 1, 2001
+@
+
+
+1.48
+log
+@Revision 4.56, UW NSC info
+@
+text
+@d524 6
+d546 2
+a547 1
+April 19, 2001
+@
+
+
+1.47
+log
+@Revision 4.56
+@
+text
+@d499 1
+a499 1
+SOLARIS_26PR_LDT	If this environment variable has value of "Y" or "y",
+d517 1
+a517 1
+SOLARIS_VSOCK		If this environment variable has value of "Y" or "y",
+d532 6
+d540 1
+a540 1
+March 19, 2001
+@
+
+
+1.46
+log
+@Revision 4.55
+@
+text
+@d214 1
+d289 1
+d534 1
+a534 1
+February 14, 2001
+@
+
+
+1.45
+log
+@Revision 4.54
+@
+text
+@d286 2
+a287 1
+	 uw	       UW	  7.1.0		  70100
+d532 1
+a532 1
+January 2, 2001
+@
+
+
+1.44
+log
+@Revision 4.53
+@
+text
+@d27 1
+a27 1
+     are (located).
+d406 5
+d531 1
+a531 1
+December 6, 2000
+@
+
+
+1.43
+log
+@Revision 4.52
+@
+text
+@d213 1
+d235 4
+a238 5
+      linux	   LINUX	  1.3.68	  13068
+				  2.0.33	  20033
+				  2.1.91	  21091
+				  2.2.5		  22005
+				  2.2.13	  22014
+d280 1
+a280 1
+  solariscc			  2.4		  20400
+d286 1
+a286 8
+      sunos	    SUNOS	  4.1.3		  40103
+    sunoscc			  4.1.4		  40104
+	 uw	       UW	  2.1		  20100
+				  2.1.1		  20101
+				  2.1.2		  20102
+				  2.1.3		  20103
+				  7.0		  70000
+				  7.0.1		  70001
+d302 6
+a405 15
+LINUX_BASE		specifies the source base -- "/proc" or "/dev/kmem"
+			that should be used.
+
+			default: determined by examining the output of
+				 `ls -l /proc/self/fd`.
+
+LINUX_CLIB		specifies the definition of the Linux C library:
+
+			default: "" 		(standard C library)
+			others: -DGLIBCV=2  	(glibc2)
+
+LINUX_KERNEL		specifies the path to the Linux kernel sources.
+
+			default: /usr/src/linux
+
+d522 1
+a522 1
+			Note: this support is no longer maintained.
+a523 33
+SUNOS_ACC		specifies the path to the SunOS acc C compiler.  This
+			is ignored when LSOF_CC has been specified.
+
+			default: /usr/lang
+
+			Note: this support is no longer maintained.
+
+SUNOS_AUSPEXV		specifies the Auspex LFS version in use on the SunOS
+			4.1.4 or greater system in the form %d%02d%02d -- e.g.,
+			1.8.1 becomes 10801.
+
+			default: derived from `uname -a` with sed and awk
+
+			Note: this support is no longer maintained.
+
+SUNOS_NOCONST		If this environment variable has a value of "Y" or "y",
+			the NOCONST definition is set in the SunOS (Solaris
+			1.x) Makefile's CFGL string; any other non- NULL value,
+			it's not set; a NULL value, it's tested by compilation.
+			
+			default: tested by compilation
+
+			Note: this support is no longer maintained.
+
+SUNOS_VSOCK		If this environment variable has a value of "Y" or "y",
+			the HAS_VSOCK definition is set in the SunOS (Solaris
+			1.x) Makefile's CFGL string; any other non-NULL value,
+			it's not set; a NULL value, it's tested by compilation.
+
+			default: tested by compilation
+
+			Note: this support is no longer maintained.
+
+d526 1
+a526 1
+November 5, 2000
+@
+
+
+1.42
+log
+@Revision 4.51
+@
+text
+@d255 1
+a256 3
+    pyramid	 PYRAMID	  1.1		  10100  (DC/OSx)
+				  5.43		  54300  (Reliant UNIX)
+				  5.44		  54400  (Reliant UNIX)
+a287 4
+     ultrix	   ULTRIX	  4.2		  40200
+				  4.3		  40300
+				  4.4		  40400
+				  4.5		  40500
+a461 28
+PYRAMID_ARCH		If this environment variable has a non-NULL value, it
+			is interpreted as the output of the command:
+
+				/bin/pkgparam dcosx ARCH
+			
+			default: `/bin/pkgparam dcosx ARCH`
+
+PYRAMID_DCOSXVERS	If this environment variable has a non-NULL value, it
+			is interpreted as the output of the command:
+
+				/bin/pkgparam dcosx VERSION
+
+			default: `/bin/pkgparam dcosx VERSION`
+
+PYRAMID_PROC		If this environment variable has a non-NULL value, it
+			is interpreted as the output of the command:
+
+				/bin/uname -p
+			
+			default: `/bin/uname -p`
+
+PYRAMID_SYSNM		If this environment variable has a non-NULL value, it
+			is interpreted as the output of the command:
+
+				/bin/uname -s
+			
+			default: `/bin/uname -s`
+
+d538 2
+d545 2
+d553 2
+d562 2
+d571 1
+a571 2
+ULTRIX_HWNM		specifies the Ultrix hardware name in the form of
+			the output of `uname -m`.
+a572 16
+			default: `uname -m`
+
+ULTRIX_DECNET		If this environment variable has a value of "Y" or "y",
+			the DECnet definition is set in the Ultrix Makefile's
+			CFGL string, and the -ldnet Makefile loader flag is
+			defined; any other non-NULL value, they're not set; a
+			NULL value, they're determined by testing for
+			${ULTRIX_USRLIB}.libdnet.a and
+			${LSOF_INCLUDE}/netdnet/dn.h.
+
+			default: based on test for <netdnet/dn.h>
+
+ULTRIX_USRLIB		specifies an alternate path to the Ultrix /usr/lib.
+
+			default: /usr/lib
+
+d575 1
+a575 1
+August 8, 2000
+@
+
+
+1.41
+log
+@Revision 4.50
+@
+text
+@d206 1
+d217 2
+a218 1
+				  5.0-Beta	  50000
+d225 2
+a226 2
+				  4.x		    400
+				  5.x		    500
+d233 1
+d237 2
+a238 1
+				  2.2.5		  20205
+d254 1
+d280 1
+d618 1
+a618 1
+June 28, 2000
+@
+
+
+1.40
+log
+@Revision 4.50
+@
+text
+@d264 1
+d612 1
+a612 1
+June 27, 2000
+@
+
+
+1.39
+log
+@Revision 4.50
+@
+text
+@d240 1
+d611 1
+a611 1
+June 25, 2000
+@
+
+
+1.38
+log
+@Revision 4.49
+@
+text
+@d263 2
+d610 1
+a610 1
+April 3, 2000
+@
+
+
+1.37
+log
+@Revision 4.49
+@
+text
+@d346 6
+d608 1
+a608 1
+March 23, 2000
+@
+
+
+1.36
+log
+@Revision 4.49
+@
+text
+@d224 1
+d602 1
+a602 1
+March 16, 2000
+@
+
+
+1.35
+log
+@Revision 4.48
+@
+text
+@d437 7
+d601 1
+a601 1
+January 14, 2000
+@
+
+
+1.34
+log
+@Revision 4.47
+@
+text
+@d222 1
+a222 1
+				  3.x		    300
+d594 1
+a594 1
+November 28, 1999
+@
+
+
+1.33
+log
+@Revision 4.46
+@
+text
+@d86 3
+a88 3
+The first is for AFS configuration, AFS_VICE.   It need be set only
+if lsof supports AFS on your dialect and you want to specify an
+alternate path to the VICE files.
+d90 4
+a93 4
+The second is the architecture type string for the system, LSOF_ARCH.
+Usually this is the output of `uname -m`.  Consult the Configure
+script for details.  The LSOF_ARCH value may have to be quoted if
+it contains spaces.
+d95 1
+a95 1
+The third is for the path to the C compiler, LSOF_CC.  You may need
+d97 4
+a100 1
+found by your path.
+d102 2
+a103 2
+The fourth is the C ompiler version, if you have specified one in
+LSOF_CC.
+d105 1
+a105 1
+The fifth is for path to the standard header files, LSOF_INCLUDE.
+d110 5
+a114 5
+The sixth is the target dialect version number, LSOF_VERS.  It must
+be stated in the dialect's form -- e.g., FreeBSD 2.0.5 is given as
+205, Solaris 7 as 70000, etc.  The table, "Abbreviations, Variable
+Prefixes, and Version Numbers," in this file gives the form for
+LSOF_VERS for each dialect lsof supports.
+d116 4
+a119 4
+The seventh is the version string from which LSOF_VERS is derived.
+LSOF_VSTR.  Usually this is the output of `uname -r` or `uname -v`.
+Consult the Configure script for details.   The LSOF_VSTR value
+may have to be quoted if it contains spaces.
+d121 1
+a121 1
+AFS_VICE		specifies the path to the AFS "vice" directory.
+d125 1
+a125 1
+LSOF_ARCH		specifies the system architecture type.
+d152 1
+a152 2
+LSOF_VERS		specifies the target dialect's version in its
+			form.
+d162 22
+d357 8
+d594 1
+a594 1
+October 23, 1999
+@
+
+
+1.32
+log
+@Revision 4.45
+@
+text
+@d186 2
+d223 1
+d252 1
+d492 2
+a493 2
+SOLARIS_7KERNBITS	specifies the nuber of bits in the Solaris 7 kernel:
+			32 or 64.
+d562 1
+a562 1
+July 28, 1999
+@
+
+
+1.31
+log
+@Revision 4.43
+@
+text
+@d517 6
+d558 1
+a558 1
+May 9, 1999
+@
+
+
+1.30
+log
+@Revision 4.43
+@
+text
+@d333 1
+a333 1
+			has ipc_ipis, but ipis_s lacks ipis_msgsqueued; "n" or
+@
+
+
+1.29
+log
+@Revision 4.43
+@
+text
+@d212 1
+d552 1
+a552 1
+May 4, 1999
+@
+
+
+1.28
+log
+@Revision 4.43
+@
+text
+@d328 9
+a336 6
+HPUX_IPC_S_PATCH	If this environment variable has a value of "Y" or "y",
+			the ipc_s structure of HP-UX 11 system is assumed to
+			have the ipc_ipis member; any other non-NULL value, it
+			is assumed ipc_s hase no ipc_ipis member; NULL, the
+			value is determined by testing.
+
+d487 1
+a487 1
+SOLARIS_27KERNBITS	specifies the nuber of bits in the Solaris 7 kernel:
+d551 1
+a551 1
+April 15, 1999
+@
+
+
+1.27
+log
+@Revision 4.42
+@
+text
+@d207 1
+d283 3
+a285 2
+DU_ADVFSV		specifies the Digital UNIX ADVFS file system version --
+			e.g., 200 for 2.0, 400 for 4.0, etc.
+d289 2
+a290 2
+DU_CDIR			specifies the name of the Digital UNIX system
+			configuration directory.
+d295 2
+a296 2
+DU_SHLIB		specifies the Digital UNIX shared library directory
+			path.
+d300 2
+a301 1
+DU_SYSDIR		Digital UNIX system directory path.
+d548 1
+a548 1
+March 29, 1999
+@
+
+
+1.26
+log
+@Revision 4.41
+@
+text
+@d216 3
+d326 4
+a329 4
+			the HP-UX 11 system is assumed to have the patch bundle
+			installed that modifies the ipc_s structure; any other
+			non-NULL value, it is assumed the patch bundle isn't
+			installed; NULL, the value is determined by testing.
+d331 1
+a331 1
+			default: determined with swlist and grep
+d545 1
+a545 1
+February 27, 1999
+@
+
+
+1.25
+log
+@Revision 4.41
+@
+text
+@d322 8
+d542 1
+a542 1
+February 25, 1999
+@
+
+
+1.24
+log
+@Revision 4.40
+@
+text
+@d83 1
+a83 1
+There are five special environment variables whose names don't
+d86 3
+a88 3
+One is for AFS configuration, AFS_VICE.   It need be set only if
+lsof supports AFS on your dialect and you want to specify an alternate
+path to the VICE files.
+d90 13
+a102 1
+The second is for path to the standard header files, LSOF_INCLUDE.
+d107 1
+a107 1
+The third is the target dialect version number, LSOF_VERS.  It must
+d113 1
+a113 1
+The fourth is the version string from which LSOF_VERS is derived.
+a117 5
+The fifth is the architecture type string for the system, LSOF_ARCH.
+Usually this is the output of `uname -m`.  Consult the Configure
+script for details.  The LSOF_ARCH value may have to be quoted if
+it contains spaces.
+
+d126 19
+d197 1
+d311 2
+a312 1
+			find an HP-UX C compiler.
+d317 2
+a318 1
+			find an HP-UX C compiler.
+d476 2
+a477 1
+			`Configure solariscc` is used.
+d494 2
+a495 1
+SUNOS_ACC		specifies the path to the SunOS acc C compiler.
+d534 1
+a534 1
+January 25, 1999
+@
+
+
+1.23
+log
+@Revision 4.39
+@
+text
+@d200 3
+d313 6
+d393 16
+d503 1
+a503 1
+December 28, 1998
+@
+
+
+1.22
+log
+@Add more LSOF_ARCH and LSOF_VERS documentation.
+@
+text
+@d155 1
+d478 1
+a478 1
+November 25, 1998
+@
+
+
+1.21
+log
+@Correct LSOF_ARCH and LSOF_VSTR descriptions.
+@
+text
+@d115 4
+d127 5
+@
+
+
+1.20
+log
+@Revision 4.38
+@
+text
+@d103 2
+a104 2
+Consult the Configure script for details.  The value for LSOF_VSTR
+must be quoted -- e.g., LSOF_VSTR=\"V2.1.9\".
+d108 2
+a109 2
+script for details.  The value for LSOF_ARCH must be quoted --
+e.g., LSOF_ARCH=\"sun4m\".
+d468 1
+a468 1
+November 23, 1998
+@
+
+
+1.19
+log
+@Revision 4.37
+Remove IRIX references.
+@
+text
+@d97 1
+a97 1
+205, Solaris 2.7 as 20700, etc.  The table, "Abbreviations, Variable
+d154 1
+d170 1
+a170 1
+     n+obsd	  NETBSD	  1.0		   1000
+d174 2
+a175 2
+	 ns	      NS	  3.1		     31
+     n+obsd	 OPENBSD	  1.2		   1020
+d179 1
+d203 1
+a203 1
+				  2.7		  20700
+d213 1
+d215 1
+d394 2
+a395 2
+			Makefile's CFG atring; any other non-NULL value, it's
+			not set; a NULL value, it's tested by compilation.
+d406 1
+a406 1
+SOLARIS_27KERNBITS	specifies the nuber of bits in the Solaris 2.7 kernel:
+d468 1
+a468 1
+September 14, 1998
+@
+
+
+1.18
+log
+@Revision 4.34
+@
+text
+@d97 1
+a97 1
+205, IRIX 6.2 as 60200, etc.  The table, "Abbreviations, Variable
+a165 8
+       irix	    IRIX	  5.2		  50200
+				  5.3		  50300
+				  6.0		  60000
+				  6.0.1		  60001
+				  6.1		  60100
+				  6.2		  60200
+				  6.3		  60300
+				  6.4		  60400
+d180 1
+a295 39
+IRIX_53NFSROLLUP	If this environment variable has a value of "Y" or "y",
+			and if the IRIX version is 5.3, HAS53NFSROLLUP is
+			defined in the Makefile's CFGL string; any other non-
+			NULL value, it's not set; a NULL value, it's tested
+			with /usr/sbin/showprods.  When HAS53NFSROLLUP is
+			defined, the IRIX 5.3 system is assumed to have the NFS
+			kernel rollup patch installed.
+
+			default: tested with /usr/sbin/showprods
+
+IRIX_BITS		specifies the kernel bit size in `uname -s` terms.
+
+			default: `uname -s`
+
+IRIX_HW			If this environment variable has a value of "Y" or "y",
+			USE_STAT is defined in the Makefile's CFGL string; any
+			other non-NULL value, it's not set; a NULL value, it's
+			set if /hw is readable.  When USE_STAT is defined, the
+			IRIX readdev() function uses stat() instead of lstat()
+			on device node entries,
+			thus following symbolic links -- e.g., /dev/dsk ->
+			/hw/disk.
+
+			default: USE_STAT is set if /hw is readable
+
+IRIX_SM_CCOPTS		If this environment variable has a non-NULL value, it
+			is interpreted as the output of the command:
+
+				grep CCOPTS /var/sysgen/system/irix.sm
+			
+			default: `grep CCOPTS /var/sysgen/system/irix.sm`
+
+IRIX_XFSROLLUP		This environment variable pre-defines the highest IRIX
+			6.2 or 6.4 patch number that alters XFS.  The value is
+			passed as a value to HASXFSROLLUP in the Makefile's
+			CFGL string.
+
+			default: tested with /usr/sbin/showprods
+
+d464 1
+a464 1
+June 26, 1998
+@
+
+
+1.17
+log
+@Revision 4.33
+@
+text
+@d83 1
+a83 1
+There are three special environment variables whose names don't
+d101 10
+d465 6
+d510 1
+a510 1
+May 22, 1998
+@
+
+
+1.16
+log
+@Revision 4.32
+@
+text
+@d164 3
+a166 3
+      linux	   LINUX	  1.3.68	   1368
+				  2.0.33	   2033
+				  2.1.91	   2191
+d355 7
+d494 1
+a494 1
+May 13, 1998
+@
+
+
+1.15
+log
+@Revision 4.32
+@
+text
+@d165 1
+a165 3
+				  2.0.27	   2027
+				  2.1.35	   2135
+				  2.1.42	   2142
+d487 1
+a487 1
+May 11, 1998
+@
+
+
+1.14
+log
+@Revision 4.31
+@
+text
+@d134 2
+d489 1
+a489 1
+April 21, 1998
+@
+
+
+1.13
+log
+@Revision 4.30
+@
+text
+@d151 58
+a208 52
+				  10.10		   10.10
+				  10.20		   10.20
+       irix	    IRIX	  5.2		   50200
+				  5.3		   50300
+				  6.0		   60000
+				  6.0.1		   60001
+				  6.1		   60100
+				  6.2		   60200
+				  6.3		   60300
+				  6.4		   60400
+      linux	   LINUX	  1.3.68	    1368
+				  2.0.27	    2027
+				  2.1.35	    2135
+				  2.1.42	    2142
+     netbsd	  NETBSD	  1.0		    1000
+				  1.1		    1010
+				  1.2		    1020
+	 ns	      NS	  3.1		      31
+    openbsd	 OPENBSD	  1.2		    1020
+				  2.0		    2000
+				  2.1		    2010
+    pyramid	 PYRAMID	  1.1		   10100  (DC/OSx)
+				  5.43		   54300  (Reliant UNIX)
+	ptx	     PTX	  2.1.9		     219
+				  4.0		     400
+				  4.1.3		     413
+				  4.1.4		     414
+				  4.2.1		     421
+				  4.3		     430
+				  4.4		     440
+	osr	      OSR	  3.2v2.0	      20
+				  3.2v2.1	      21
+				  3.2v4.0	      40
+				  3.2v4.1	      41
+				  3.2v4.2	      42
+				  3.2v5.0.0	     500
+				  3.2v5.0.2	     502
+				  3.2v5.0.4	     504
+    solaris	  SOLARIS	  2.3		   20300
+  solariscc			  2.4		   20400
+				  2.5		   20500
+				  2.5.1		   20501
+				  2.6		   20600
+      sunos	    SUNOS	  4.1.3		   40103
+    sunoscc			  4.1.4		   40104
+     ultrix	   ULTRIX	  4.2		   40200
+				  4.3		   40300
+				  4.4		   40400
+				  4.5		   40500
+	 uw	       UW	  2.1		   20100
+				  2.1.1		   20101
+				  2.1.2		   20102
+d431 2
+a432 1
+SOLARIS_CCDIR		specifies the path to the SunPro C compiler.
+d434 1
+a434 1
+			default: /opt/SUNWspro
+d436 5
+d487 1
+a487 1
+April 8, 1998
+@
+
+
+1.12
+log
+@Revision 4.27
+@
+text
+@d220 3
+a222 3
+			the AIX 4.1 and greater gcc user structure hack will
+			be activated; any other non-NULL value, it will not be
+			set; a NULL value, it will be tested by compilation.
+d288 6
+a293 6
+			and if the IRIX version is 5.3, HAS53NFSROLLUP will be
+			defined in the Makefile's CFLAGS; any other non-NULL
+			value, it will not be set; a NULL value, it will be
+			tested with /usr/sbin/showprods.  When HAS53NFSROLLUP
+			is defined, the IRIX 5.3 system is assumed to have the
+			NFS kernel rollup patch installed.
+d302 7
+a308 6
+			USE_STAT will be defined in the Makefile's CFLAGS; any
+			other non-NULL value, it will not be set; a NULL value,
+			it will be set if /hw is readable.  When USE_STAT is
+			defined, the IRIX readdev() function will use stat()
+			instead of lstat() on device node entries, thus
+			following symbolic links -- e.g., /dev/dsk->/hw/disk.
+d319 4
+a322 8
+IRIX_XFSROLLUP		If this environment variable has a value of "Y" or "y",
+			and if the IRIX version is 6.2 or 6.4, HASXFSROLLUP
+			will be defined in the Makefile's CFLAGS; any other
+			non-NULL value, it will not be set; a NULL value, it
+			will be tested with /usr/sbin/showprods.  When
+			HASXFSROLLUP is defined, the IRIX 6.[24] system is
+			assumed to have an XFS rollup patch (#6 for 6.4)
+			installed.
+d336 5
+a340 6
+			Configure will use Makefile.lseek in place of Makefile
+			in order to enable use of the private lseek() function
+			for 2.1.x kernels; any other non-NULL value,
+			Makefile.lseek will not be used; a NULL value, the
+			alternate lseek() need will be determined by compiling
+			and executing a test program.
+d355 3
+a357 3
+			HAS_STATLSTAT will be defined in the Makefile's CFLAGS;
+			any other non-NULL value, it will not be defined; a
+			NULL value, it will be determined with nm and grep.
+d412 3
+a414 4
+			the HASPR_GWINDOWS definition will be set in the
+			Solaris 2.6 Makefile's CFLAGS; any other non-NULL
+			value, it will not be set; a NULL value, it will be
+			tested by compilation.
+d419 3
+a421 4
+			the HASPR_LDT definition will be set in the Solaris 2.6
+			Makefile's CFLAGS; any other non-NULL value, it will
+			not be set; a NULL value, it will be tested by
+			compilation.
+d430 3
+a432 4
+			the HAS_VSOCK definition will be set in the Solaris
+			Makefile's CFLAGS; any other non-NULL value, it will
+			not be set; a NULL value, it will be tested by
+			compilation.
+d441 3
+a443 4
+			the NOCONST definition will be set in the SunOS
+			(Solaris 1.x) Makefile's CFLAGS; any other non-NULL
+			value, it will not be set; a NULL value, it will be
+			determined by compiling and executing a test program.
+d448 3
+a450 4
+			the HAS_VSOCK definition will be set in the SunOS
+			(Solaris 1.x) Makefile's CFLAGS; any other non-NULL
+			value, it will not be set; a NULL value, it will be
+			determined by compiling a test program.
+d460 5
+a464 5
+			the DECnet definition will be set in the Ultrix
+			Makefile's CFLAGS, and the -ldnet Makefile loader flag
+			will be defined; any other non-NULL value, they will
+			not be set; a NULL value, they will be determined by
+			testing for ${ULTRIX_USRLIB}.libdnet.a and
+d475 1
+a475 1
+March 6, 1998
+@
+
+
+1.11
+log
+@Revision 4.23
+@
+text
+@a180 1
+     riscos	   RISCOS	  4_52		     452
+d267 5
+d484 1
+a484 1
+January 16, 1998
+@
+
+
+1.10
+log
+@Revision 4.23
+@
+text
+@a68 9
+There is usually an <abbreviation>_INCLUDE environment variable.
+It may give a path to the standard header files that differs from
+the standard /usr/include.  Thus, for example, if you have the
+include files from a test version of the UNIX dialect in
+/test/usr/include, and you want to configure lsof for the test
+version, set the <abbreviation>_INCLUDE environment variable to
+
+    <abbreviation>_INCLUDE=/test/usr/include ./Configure -n <abbreviation>
+
+d76 1
+a76 1
+	LSOF_VERS=300 FREEBSD_INCLUDE=/3.0/usr/include \
+d92 2
+a93 2
+files in a different tree, and you want to compile lsof from the
+header files in that different tree.
+d480 1
+a480 1
+December 30, 1997
+@
+
+
+1.9
+log
+@Revision 4.21
+Add IRIX_53NFSROLLUP and clarify IRIX_XFSROLLUP.
+@
+text
+@d324 7
+a330 6
+			and if the IRIX version is 6.2, HASXFSROLLUP will be
+			defined in the Makefile's CFLAGS; any other non-NULL
+			value, it will not be set; a NULL value, it will be
+			tested with /usr/sbin/showprods.  When HASXFSROLLUP is
+			defined, the IRIX 6.2 system is assumed to have the
+			XFS rollup patch installed.
+d489 1
+a489 1
+November 24, 1997
+@
+
+
+1.8
+log
+@Revision 4.20
+@
+text
+@d292 10
+d327 3
+a329 1
+			tested with /usr/sbin/showprods.
+d488 1
+a488 1
+November 10, 1997
+@
+
+
+1.7
+log
+@Revision 4.20
+@
+text
+@d236 1
+a236 1
+DU_ADVFSV		specifies the Digital Unix ADVFS file system version --
+d241 1
+a241 1
+DU_CDIR			specifies the name of the Digital Unix system
+d247 2
+a248 1
+DU_SYSDIR		Digital Unix system directory path.
+d250 4
+d476 1
+a476 1
+November 3, 1997
+@
+
+
+1.6
+log
+@Revision 4.16
+Add info on Linux C library control.
+@
+text
+@d145 2
+a146 1
+				  3.x		  30000
+d471 1
+a471 1
+September 23, 1997
+@
+
+
+1.5
+log
+@Revision 4.15
+Remove SOLARIS_26VERS now that he 2.6 Beta has ended.
+@
+text
+@d315 5
+d470 1
+a470 1
+August 15, 1997
+@
+
+
+1.4
+log
+@Revision 4.13
+@
+text
+@a395 7
+SOLARIS_26VERS		If this environment variable has a non-NULL value, the
+			value is interpreted as the output of the command:
+
+				uname -v
+
+			default: `uname -v`
+
+d465 1
+a465 1
+July 9, 1997
+@
+
+
+1.3
+log
+@Revision 4.12
+@
+text
+@d37 2
+a38 2
+     (It would be (have been) very handy when the structure's
+     changed between 2.0.2* and 2.0.30 , or whatever.)
+d67 1
+a67 1
+UNIXWARE for unixware, etc.
+d135 1
+a135 1
+Abbreviation	  Prefix	 Number       LSOF_VERS
+d146 4
+d176 1
+a176 1
+      next3	    NEXT	  3.1		      31
+d190 1
+a190 1
+	sco	      SCO	  3.2v2.0	      20
+a196 1
+				  3.2v5.0.3	     503
+d209 1
+a209 1
+   unixware	 UNIXWARE	  2.1		   20100
+d213 3
+d217 1
+d235 1
+a235 1
+DECOSF_ADVFSV		specifies the DEC OSF/1 ADVFS file system version --
+d240 1
+a240 1
+DECOSF_CDIR		specifies the name of the DEC OSF/1 system
+d243 2
+a244 2
+			default: first host name component, converted to
+				 capital letters
+d246 1
+a246 1
+DECOSF_SYSDIR		DEC OSF/1 system directory path.
+d290 10
+d313 1
+a313 1
+			default: none (tested with /usr/sbin/showprods)
+d327 1
+a327 1
+			default: none (determined by test program)
+d339 7
+d360 1
+a360 1
+PYRAMID_ARCH		If this environment variable has a non-NULL value, it
+a377 7
+SCO_STATLSTAT		If this environment variable has a value of "Y" or "y",
+			HAS_STATLSTAT will be defined in the Makefile's CFLAGS;
+			any other non-NULL value, it will not be defined; a
+			NULL value, it will be determined with nm and grep.
+
+			default: none (determined with nm and grep)
+
+d382 1
+a382 1
+			default: none (pkginfo tested with grep)
+d388 1
+a388 1
+			default: none (pkginfo tested with grep)
+d394 1
+a394 1
+			default: none (pkginfo tested with grep)
+d409 1
+a409 1
+			default: none (tested by compilation)
+d417 1
+a417 1
+			default: none (tested by compilation)
+d429 1
+a429 1
+			default: none (tested by compilation)
+d441 1
+a441 1
+			default: none (compile and execute test program)
+d449 1
+a449 1
+			default: none (compile a test program)
+d464 1
+a464 1
+			default: none (file test)
+d472 1
+a472 1
+June 23, 1997
+@
+
+
+1.2
+log
+@Revision 4.12
+Remove unneeded LINUX_INCLUDE.
+@
+text
+@d208 1
+@
+
+
+1.1
+log
+@Initial revision
+@
+text
+@a296 4
+LINUX_INCLUDE		specifies the path to the Linux kernel header files.
+
+			default: ${LINUX_KERNEL}/include/linux
+
+d454 1
+a454 1
+June 17, 1997
+@

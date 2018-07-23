@@ -1,0 +1,42 @@
+#if	solaris>=110000 && defined(HAS_LIBCTF)
+/*
+ * CTF definitions for Solaris 11 raw IP
+ */
+
+static	int	RawIP_ctfs = 0;		/* CTF initialization status for raw
+					 * IP */
+#define	RAWIP_MOD_FORMAT "/kernel/drv/%s/icmp"
+					/* rawip module pathname template to
+					 * which the kernel's instruction type
+					 * set is added for CTF access */
+#define	ICMP_T_TYPE_NAME "icmp_s"
+
+static	CTF_member_t icmp_t_members[] = {
+    CTF_MEMBER(icmp_state),
+#define	MX_icmp_state			0
+
+    CTF_MEMBER(icmp_v6src),
+#define MX_icmp_v6src			1
+
+    CTF_MEMBER(icmp_v6dst),
+#define	MX_icmp_v6dst			2
+
+    CTF_MEMBER(icmp_ipversion),
+#define	MX_icmp_ipversion		3
+
+    CTF_MEMBER(icmp_ttl),
+#define	MX_icmp_ttl			4
+
+    { NULL, 0 }
+};
+
+
+/*
+ * CTF sockfs request table
+ */
+
+static	CTF_request_t RawIP_requests[] = {
+    { ICMP_T_TYPE_NAME,		icmp_t_members },
+    { NULL,			NULL }
+};
+#endif	/* solaris>=110000 && defined(HAS_LIBCTF) */

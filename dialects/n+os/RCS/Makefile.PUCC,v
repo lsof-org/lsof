@@ -1,0 +1,298 @@
+head     1.7;
+branch   ;
+access   ;
+symbols  ;
+locks    ; strict;
+comment  @@;
+
+
+1.7
+date     99.11.28.06.41.18;  author abe;  state Exp;
+branches ;
+next     1.6;
+
+1.6
+date     98.02.16.19.53.04;  author abe;  state Exp;
+branches ;
+next     1.5;
+
+1.5
+date     97.07.02.15.15.32;  author abe;  state Exp;
+branches ;
+next     1.4;
+
+1.4
+date     97.07.02.11.13.31;  author abe;  state Exp;
+branches ;
+next     1.3;
+
+1.3
+date     97.05.22.14.38.22;  author abe;  state Exp;
+branches ;
+next     1.2;
+
+1.2
+date     97.03.06.12.59.10;  author abe;  state Exp;
+branches ;
+next     1.1;
+
+1.1
+date     97.02.24.07.36.51;  author abe;  state Exp;
+branches ;
+next     ;
+
+
+desc
+@Lsof version 4
+@
+
+
+1.7
+log
+@Revision 4.47
+@
+text
+@# $Id: Makefile.PUCC,v 1.6 98/02/16 19:53:04 abe Exp Locker: abe $
+#
+# PUCC NEXTSTEP-specific Makefile for lsof version 3
+
+PROG=	lsof
+
+BIN=	${DESTDIR}/usr/local/etc
+
+CAT=	${DESTDIR}/usr/man/cat8
+
+DOC=	${DESTDIR}/usr/man
+
+I=/usr/include
+S=/usr/include/sys
+L=/usr/include/local
+P=
+
+DEBUG=	-O
+
+# Use the RC_CFLAGS environment variable to define architecture types.
+# To create a "fat" executable, supporting more than one architecture,
+# set RC_CFLAGS before executing make -- e.g., to build a "fat" executable
+# for m68k, i486, hppa, and SPARC, using /bin/sh:
+#
+#	$ cd <lsof_source_directory>
+#	$ ./Configure ns
+#	$ RC_CFLAGS="-arch m68k -arch i486 -arch hppa -arch sparc"
+#	$ export RC_CFLAGS
+#	$ make
+
+CDEF=	${RC_CFLAGS}
+CDEFS=  ${CDEF} ${CFGF}
+INCL=	${DINC}
+CFLAGS= ${DEBUG} ${CDEFS} ${INCL}
+
+GRP=	kmem
+
+HDR=    lsof.h lsof_fields.h dlsof.h machine.h proto.h dproto.h
+
+SRC=    dnode.c dproc.c dsock.c dstore.c \
+	arg.c main.c misc.c node.c print.c proc.c store.c usage.c
+
+OBJ=	dnode.o dproc.o dsock.o dstore.o \
+	arg.o main.o misc.o node.o print.o proc.o store.o usage.o
+
+MAND=	lsof.8
+MANS=	lsof.man
+
+SHELL=	/bin/sh
+
+SOURCE=	Makefile ${MANS} ${HDR} ${SRC}
+
+all: ${PROG}
+
+${PROG}: ${LIB} ${P} ${OBJ}
+	${CC} -o $@@ ${CFLAGS} ${OBJ} ${CFGL}
+
+calls: ${SRC} ${HDR}
+	calls ${CDEFS} ${INCLUDE} ${SRC}
+
+clean: FRC
+	rm -f Makefile.bak ${PROG} a.out core errs lint.out tags *.o version.h
+	rm -f machine.h.old new_machine.h
+	rm -f lib/Makefile lib/*.[oa]
+
+deinstall: ${MANS} ${DOC} FRC
+	install -R ${BIN}/${PROG}
+	mkcat -r${DOC} -D${MANS}
+
+depend: ${SRC} ${HDR} FRC
+	maketd -a ${CDEFS} ${INCLUDE} ${SRC}
+
+dirs: ${BIN}
+
+distrib: FRC
+	distrib -c ${BIN}/${PROG} HOST
+	distrib -c ${DOC}/man8/${MAND} HOST
+	for i in `distrib -H` ; do \
+		echo $$i ; \
+		rsh $$i -n rm -f ${CAT}/${MAND}\* ; \
+	done
+
+install: all dirs FRC
+	install -cs -m 2755 -g ${GRP} ${PROG} ${BIN}/${PROG}
+
+${LIB}: FRC
+	(cd lib; ${MAKE} DEBUG="${DEBUG}" CFGF="${CFGF}")
+
+lint: ${SRC} ${HDR} FRC
+	lint -h ${CDEFS} ${INCLUDE} ${SRC}
+
+mkcat: ${MANS} ${DOC} FRC
+	mkcat -m man ${MANS}
+	rm -f ${CAT}/${MAND}*
+
+print: FRC
+	lpr -J"${PROG} source" ${SOURCE}
+
+tags: ${HDR} ${SRC}
+	ctags -t ${HDR} ${SRC}
+
+version.h:	FRC
+	@@echo Constructing version.h
+	@@rm -f version.h
+	@@sed '/VN/s/.ds VN \(.*\)/#define	LSOF_VERSION	"\1"/' < version > version.h
+	@@echo '#define	LSOF_CC		"${CC}"' >> version.h
+	@@echo '#define	LSOF_CCV	"${CCV}"' >> version.h
+	@@echo '#define	LSOF_CCDATE	"'`date`'"' >> version.h
+	@@echo '#define	LSOF_CCFLAGS	"${CFLAGS}"' >> version.h
+	@@echo '#define	LSOF_LDFLAGS	"${CFGL}"' >> version.h
+	@@echo '#define	LSOF_LOGNAME	"${LOGNAME}"' >> version.h
+	@@echo '#define	LSOF_HOST	"'`hostname`'"' >> version.h
+	@@echo '#define	LSOF_SYSINFO	""' >> version.h
+	@@echo '#define	LSOF_USER	"${USER}"' >> version.h
+
+FRC:
+
+# DO NOT DELETE THIS LINE - make depend DEPENDS ON IT
+
+ddev.o:		${HDR} ddev.c
+
+dfile.o:	${HDR} dfile.c
+
+dmnt.o:		${HDR} dmnt.c
+
+dnode.o:	${HDR} dnode.c
+
+dproc.o:	${HDR} dproc.c
+
+dsock.o:	${HDR} dsock.c
+
+dstore.o:	${HDR} dstore.c
+
+arg.o:		${HDR} arg.c
+
+main.o:		${HDR} main.c
+
+misc.o:		${HDR} misc.c
+
+node.o:		${HDR} node.c
+
+print.o:	${HDR} print.c
+
+proc.o:		${HDR} proc.c
+
+store.o:	${HDR} store.c
+
+usage.o:	${HDR} version.h usage.c
+
+# *** Do not add anything here - It will go away. ***
+@
+
+
+1.6
+log
+@Revision 4.26
+@
+text
+@d1 1
+a1 1
+# $Id: Makefile.PUCC,v 1.5 97/07/02 15:15:32 abe Exp Locker: abe $
+d87 1
+a87 1
+	(cd lib; ${MAKE} DEBUG="${DEBUG}")
+@
+
+
+1.5
+log
+@Revision 4.13
+Change directory (again) in comments from nextstep to ns.
+@
+text
+@d1 1
+a1 1
+# $Id: Makefile.PUCC,v 1.4 97/07/02 11:13:31 abe Exp Locker: abe $
+d41 1
+a41 1
+	arg.c main.c misc.c node.c print.c proc.c store.c
+d44 1
+a44 1
+	arg.o main.o misc.o node.o print.o proc.o store.o
+d134 1
+a134 1
+arg.o:		${HDR} version.h arg.c
+d147 2
+@
+
+
+1.4
+log
+@Revision 4.13
+Change abbreviation in Configure example from next3 to nextstep.
+@
+text
+@d1 1
+a1 1
+# $Id: Makefile.PUCC,v 1.3 97/05/22 14:38:22 abe Exp Locker: abe $
+d26 1
+a26 1
+#	$ ./Configure nextstep
+@
+
+
+1.3
+log
+@Revision 4.08
+@
+text
+@d1 1
+a1 1
+# $Id: Makefile.PUCC,v 1.2 97/03/06 12:59:10 abe Exp Locker: abe $
+d26 1
+a26 1
+#	$ ./Configure next3
+@
+
+
+1.2
+log
+@Revision 4.02
+Correct shell quoting; add SHELL=/bin/sh string.
+@
+text
+@d1 1
+a1 1
+# $Id: Makefile.PUCC,v 1.1 97/02/24 07:36:51 abe Exp Locker: abe $
+d87 1
+a87 1
+	(cd lib; make DEBUG="${DEBUG}")
+@
+
+
+1.1
+log
+@Initial revision
+@
+text
+@d1 1
+a1 1
+# $Id: Makefile.PUCC,v 1.10 95/12/07 15:40:54 abe Exp $
+d49 2
+d64 1
+@

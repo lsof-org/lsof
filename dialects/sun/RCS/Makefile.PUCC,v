@@ -1,0 +1,287 @@
+head     1.6;
+branch   ;
+access   ;
+symbols  ;
+locks    ; strict;
+comment  @@;
+
+
+1.6
+date     99.11.28.06.44.33;  author abe;  state Exp;
+branches ;
+next     1.5;
+
+1.5
+date     99.02.25.20.00.33;  author abe;  state Exp;
+branches ;
+next     1.4;
+
+1.4
+date     98.02.16.19.55.07;  author abe;  state Exp;
+branches ;
+next     1.3;
+
+1.3
+date     97.05.22.14.37.44;  author abe;  state Exp;
+branches ;
+next     1.2;
+
+1.2
+date     97.03.06.13.03.27;  author abe;  state Exp;
+branches ;
+next     1.1;
+
+1.1
+date     97.02.24.07.46.51;  author abe;  state Exp;
+branches ;
+next     ;
+
+
+desc
+@Lsof version 4
+@
+
+
+1.6
+log
+@Revision 4.47
+@
+text
+@# $Id: Makefile.PUCC,v 1.5 99/02/25 20:00:33 abe Exp Locker: abe $
+#
+# PUCC Sun-specific Makefile for lsof version 3
+
+PROG=	lsof
+
+BIN=	${DESTDIR}/usr/kvm
+
+CAT=	${DESTDIR}/usr/man/cat8
+
+DFK=	dialects/sun/distfile.kvm
+
+SYML=	-S${DESTDIR}/usr/local/etc/lsof
+
+I=/usr/include
+S=/usr/include/sys
+L=/usr/include/local
+P=
+
+DEBUG=	-O
+
+CDEF=
+CDEFS=  ${CDEF} ${CFGF}
+INCL=	${DINC}
+CFLAGS= ${DEBUG} ${CDEFS} ${INCL}
+
+HDR=    lsof.h lsof_fields.h dlsof.h machine.h proto.h dproto.h
+
+SRC=    ddev.c dfile.c dmnt.c dnode.c dnode1.c dnode2.c dproc.c dsock.c \
+	dstore.c \
+	arg.c main.c misc.c node.c print.c proc.c store.c usage.c
+
+OBJ=	ddev.o dfile.o dmnt.o dnode.o dnode1.o dnode2.o dproc.o dsock.o \
+	dstore.o \
+	arg.o main.o misc.o node.o print.o proc.o store.o usage.o
+
+MAND=	lsof.8
+MANS=	lsof.man
+MANSEC=	8
+WINDEX=	lsof.windex
+
+OTHER=	
+
+SHELL=	/bin/sh
+
+SOURCE=	Makefile ${OTHER} ${MANS} ${HDR} ${SRC}
+
+all: ${PROG}
+
+${PROG}: ${LIB} ${P} ${OBJ}
+	${CC} -o $@@ ${CFLAGS} ${OBJ} ${CFGL}
+
+clean: FRC
+	rm -f Makefile.bak ${PROG} a.out core errs lint.out tags *.o version.h
+	rm -f machine.h.old new_machine.h ${WINDEX}
+	rm -f lib/Makefile lib/*.[oa]
+
+calls: ${SRC} ${HDR}
+	calls ${CDEFS} ${INCLUDE} ${SRC}
+
+deinstall: ${MANS} ${DOC} FRC
+	if test `uname -r` = 4.1.3 ; \
+	then mkcat -r${DOC} -D${MANS} ;\
+	else (install -R ${BIN}/${PROG} ; \
+		install -R ${DOC}/cat${MANSEC}/${MAND} ; \
+		install -R ${DOC}/man${MANSEC}/${MAND}) \
+	fi
+
+depend: ${SRC} ${HDR} FRC
+	maketd -a ${CDEFS} ${INCLUDE} ${SRC}
+
+dirs: ${BIN}
+
+distrib: FRC
+	distrib -DSKVM=${KVM} -DOBJPATH=${BIN}/${PROG} -f ${DFK}
+	distrib -DSKVM=${KVM} -DOBJPATH=${DOC}/man${MANSEC}/${MAND} -f ${DFK}
+	distrib -DSKVM=${KVM} -DOBJPATH=${CAT}/${MAND}.Z -f ${DFK}
+
+install: all dirs FRC
+	if test `uname -r` = 4.1.3 ; \
+	then install -cs -m 2755 -g kmem ${SYML} ${PROG} ${BIN}/${PROG} ; \
+	else install -cs -m 2755 -g sys ${SYML} ${PROG} ${BIN}/${PROG} ; \
+	fi
+
+${LIB}: FRC
+	(cd lib; ${MAKE} DEBUG="${DEBUG}" CFGF="${CFGF}")
+
+lint: ${SRC} ${HDR} FRC
+	lint -h ${CDEFS} ${INCLUDE} ${SRC}
+
+mkcat: ${MANS} ${DOC} FRC
+	if test `uname -r` = 4.1.3 ; \
+	then mkcat -r${DOC} ${MANS} ; \
+	else (install -c -m 444 ${MANS} ${DOC}/man${MANSEC}/${MAND} ; \
+		/usr/bin/catman -M ${DOC} ${MANSEC} ; \
+		rm -f ${WINDEX} ; \
+		sort -u ${DOC}/windex > ${WINDEX} ; \
+		install ${WINDEX} ${DOC}/windex) ; \
+		if test -r ${DOC}/cat${MANSEC}/OLD -a ! -d ${DOC}/cat${MANSEC}/OLD ; \
+		then rm ${DOC}/cat${MANSEC}/OLD ; \
+		fi ; \
+	fi
+
+print: FRC
+	lpr -J"${PROG} source" ${SOURCE}
+
+tags: ${HDR} ${SRC}
+
+version.h:	FRC
+	@@echo Constructing version.h
+	@@rm -f version.h
+	@@sed '/VN/s/.ds VN \(.*\)/#define	LSOF_VERSION	"\1"/' < version > version.h
+	@@echo '#define	LSOF_CC		"${CC}"' >> version.h
+	@@echo '#define	LSOF_CCV	"${CCV}"' >> version.h
+	@@echo '#define	LSOF_CCDATE	"'`date`'"' >> version.h
+	@@echo '#define	LSOF_CCFLAGS	"'`echo ${CFLAGS} | sed 's/\\\\(/\\(/g' | sed 's/\\\\)/\\)/g' | sed 's/"/\\\\"/g'`'"' >> version.h
+	@@echo '#define	LSOF_LDFLAGS	"${CFGL}"' >> version.h
+	@@echo '#define	LSOF_LOGNAME	"${LOGNAME}"' >> version.h
+	@@echo '#define	LSOF_HOST	"'`uname -n`'"' >> version.h
+	@@echo '#define	LSOF_SYSINFO	"'`uname -a`'"' >> version.h
+	@@echo '#define	LSOF_USER	"${USER}"' >> version.h
+
+FRC:
+
+# DO NOT DELETE THIS LINE - make depend DEPENDS ON IT
+
+ddev.o:		${HDR} ddev.c
+
+dfile.o:	${HDR} dfile.c
+
+dmnt.o:		${HDR} dmnt.c
+
+dnode.o:	${HDR} dnode.c
+
+dnode1.o:	${HDR} dnode1.c
+
+dnode2.o:	${HDR} dnode2.c
+
+dproc.o:	${HDR} kernelbase.h dproc.c
+
+dsock.o:	${HDR} dsock.c
+
+dstore.o:	${HDR} dstore.c
+
+arg.o:		${HDR} arg.c
+
+main.o:		${HDR} main.c
+
+misc.o:		${HDR} misc.c
+
+node.o:		${HDR} node.c
+
+print.o:	${HDR} print.c
+
+proc.o:		${HDR} proc.c
+
+store.o:	${HDR} store.c
+
+usage.o:	${HDR} version.h usage.c
+
+# *** Do not add anything here - It will go away. ***
+@
+
+
+1.5
+log
+@Revision 4.41
+@
+text
+@d1 1
+a1 1
+# $Id: Makefile.PUCC,v 1.4 98/02/16 19:55:07 abe Exp Locker: abe $
+d86 1
+a86 1
+	(cd lib; ${MAKE} DEBUG="${DEBUG}")
+@
+
+
+1.4
+log
+@Revision 4.26
+@
+text
+@d1 1
+a1 1
+# $Id: Makefile.PUCC,v 1.3 97/05/22 14:37:44 abe Exp Locker: abe $
+d116 1
+a116 1
+	@@echo '#define	LSOF_CCFLAGS	"${CFLAGS}"' >> version.h
+@
+
+
+1.3
+log
+@Revision 4.08
+@
+text
+@d1 1
+a1 1
+# $Id: Makefile.PUCC,v 1.2 97/03/06 13:03:27 abe Exp Locker: abe $
+d30 2
+a31 1
+	dstore.c arg.c main.c misc.c node.c print.c proc.c store.c
+d34 2
+a35 1
+	dstore.o arg.o main.o misc.o node.o print.o proc.o store.o
+d145 1
+a145 1
+arg.o:		${HDR} version.h arg.c
+d158 2
+@
+
+
+1.2
+log
+@Revision 4.02; add SHELL=/bin/sh string.
+@
+text
+@d1 1
+a1 1
+# $Id: Makefile.PUCC,v 1.1 97/02/24 07:46:51 abe Exp Locker: abe $
+d84 1
+a84 1
+	(cd lib; make DEBUG="${DEBUG}")
+@
+
+
+1.1
+log
+@Initial revision
+@
+text
+@d1 1
+a1 1
+# $Id: Makefile.PUCC,v 1.18 97/02/10 10:44:54 abe Exp $
+d42 2
+d54 1
+@

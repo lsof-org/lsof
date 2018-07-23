@@ -1,0 +1,922 @@
+head	1.23;
+access;
+symbols;
+locks; strict;
+comment	@ * @;
+
+
+1.23
+date	2010.01.18.19.03.54;	author abe;	state Exp;
+branches;
+next	1.22;
+
+1.22
+date	2009.03.25.19.22.16;	author abe;	state Exp;
+branches;
+next	1.21;
+
+1.21
+date	2007.04.24.16.23.15;	author abe;	state Exp;
+branches;
+next	1.20;
+
+1.20
+date	2006.03.27.22.57.33;	author abe;	state Exp;
+branches;
+next	1.19;
+
+1.19
+date	2005.08.29.10.24.25;	author abe;	state Exp;
+branches;
+next	1.18;
+
+1.18
+date	2005.08.08.19.55.41;	author abe;	state Exp;
+branches;
+next	1.17;
+
+1.17
+date	2004.03.10.23.53.41;	author abe;	state Exp;
+branches;
+next	1.16;
+
+1.16
+date	2003.10.13.13.30.04;	author abe;	state Exp;
+branches;
+next	1.15;
+
+1.15
+date	2003.06.11.11.43.07;	author abe;	state Exp;
+branches;
+next	1.14;
+
+1.14
+date	2002.06.17.01.42.31;	author abe;	state Exp;
+branches;
+next	1.13;
+
+1.13
+date	2000.12.04.14.35.13;	author abe;	state Exp;
+branches;
+next	1.12;
+
+1.12
+date	2000.06.19.12.11.38;	author abe;	state Exp;
+branches;
+next	1.11;
+
+1.11
+date	2000.05.31.13.10.54;	author abe;	state Exp;
+branches;
+next	1.10;
+
+1.10
+date	99.11.28.06.44.48;	author abe;	state Exp;
+branches;
+next	1.9;
+
+1.9
+date	99.07.19.14.04.54;	author abe;	state Exp;
+branches;
+next	1.8;
+
+1.8
+date	99.05.09.14.56.59;	author abe;	state Exp;
+branches;
+next	1.7;
+
+1.7
+date	99.05.04.09.04.04;	author abe;	state Exp;
+branches;
+next	1.6;
+
+1.6
+date	99.04.27.15.51.44;	author abe;	state Exp;
+branches;
+next	1.5;
+
+1.5
+date	98.06.19.08.32.11;	author abe;	state Exp;
+branches;
+next	1.4;
+
+1.4
+date	98.03.26.07.48.26;	author abe;	state Exp;
+branches;
+next	1.3;
+
+1.3
+date	98.03.06.19.21.24;	author abe;	state Exp;
+branches;
+next	1.2;
+
+1.2
+date	97.10.24.07.58.17;	author abe;	state Exp;
+branches;
+next	1.1;
+
+1.1
+date	97.02.24.07.47.17;	author abe;	state Exp;
+branches;
+next	;
+
+
+desc
+@Lsof version 4
+@
+
+
+1.23
+log
+@Revision 4.83
+@
+text
+@/*
+ * dstore.c - Solaris global storage for lsof
+ */
+
+
+/*
+ * Copyright 1994 Purdue Research Foundation, West Lafayette, Indiana
+ * 47907.  All rights reserved.
+ *
+ * Written by Victor A. Abell
+ *
+ * This software is not subject to any license of the American Telephone
+ * and Telegraph Company or the Regents of the University of California.
+ *
+ * Permission is granted to anyone to use this software for any purpose on
+ * any computer system, and to alter it and redistribute it freely, subject
+ * to the following restrictions:
+ *
+ * 1. Neither the authors nor Purdue University are responsible for any
+ *    consequences of the use of this software.
+ *
+ * 2. The origin of this software must not be misrepresented, either by
+ *    explicit claim or by omission.  Credit to the authors and Purdue
+ *    University must appear in documentation and sources.
+ *
+ * 3. Altered versions must be plainly marked as such, and must not be
+ *    misrepresented as being the original software.
+ *
+ * 4. This notice may not be removed or altered.
+ */
+
+#ifndef lint
+static char copyright[] =
+"@@(#) Copyright 1994 Purdue Research Foundation.\nAll rights reserved.\n";
+static char *rcsid = "$Id: dstore.c,v 1.22 2009/03/25 19:22:16 abe Exp abe $";
+#endif
+
+
+#include "lsof.h"
+
+
+/*
+ * Global storage definitions
+ */
+
+#if	defined(HAS_AFS)
+
+# if	defined(HASAOPT)
+char *AFSApath = (char *)NULL;		/* alternate AFS name list path
+					 * (from -a) */
+# endif	/* defined(HASAOPT) */
+
+dev_t AFSdev;				/* AFS file system device number */
+int AFSdevStat = 0;			/* AFSdev status: 0 = unknown;
+					 *		  1 = known */
+int AFSfstype = -1;			/* AFS file system type index */
+KA_T AFSVfsp = (KA_T)NULL;		/* AFS vfs struct kernel address */
+#endif	/* defined(HAS_AFS) */
+
+struct clone *Clone = NULL;		/* clone list */
+major_t CloneMaj;			/* clone major device number */
+
+
+/*
+ * Drive_Nl -- table to drive the building of Nl[] via build_Nl()
+ *	       (See lsof.h and misc.c.)
+ */
+
+struct drive_Nl Drive_Nl[] = {
+	{ "afsops",	"afs_ops"		 },
+	{ "arFid",	"afs_rootFid"		 },
+	{ "avops",	"afs_vnodeops"		 },
+	{ "Avops",	"Afs_vnodeops"		 },
+	{ "avol",	"afs_volumes"		 },
+	{ "auvops",	"auto_vnodeops"		 },
+	{ "ctfsadir",	"ctfs_ops_adir"		 },
+	{ "ctfsbund",	"ctfs_ops_bundle"	 },
+	{ "ctfscdir",	"ctfs_ops_cdir"		 },
+	{ "ctfsctl",	"ctfs_ops_ctl",		 },
+	{ "ctfsevt",	"ctfs_ops_event",	 },
+	{ "ctfslate",	"ctfs_ops_latest",	 },
+	{ "ctfsroot",	"ctfs_ops_root",	 },
+	{ "ctfsstat",	"ctfs_ops_stat",	 },
+	{ "ctfssym",	"ctfs_ops_sym",		 },
+	{ "ctfstdir",	"ctfs_ops_tdir",	 },
+	{ "ctfstmpl",	"ctfs_ops_tmpl",	 },
+	{ "cvops",	"cachefs_vnodeops"	 },
+	{ "clmaj",	"clonemaj"		 },
+	{ "clmaj_alt",	"clone_major"		 },
+	{ "fdops",	"fdvnodeops"		 },
+	{ "fd_ops",	"fd_vnodeops"		 },
+	{ "fvops",	"fifo_vnodeops"		 },
+	{ "hvops",	"hsfs_vnodeops"		 },
+	{ "lvops",	"lo_vnodeops"		 },
+	{ "mntops",	"mntvnodeops"		 },
+	{ "mvops",	"mvfs_vnodeops"		 },
+
+#if	solaris<90000
+	{ X_NCACHE,	"ncache"		 },
+	{ X_NCSIZE,	"ncsize"		 },
+#else	/* solaris>=90000 */
+	{ X_NCACHE,	"nc_hash"		 },
+	{ X_NCSIZE,	"nc_hashsz"		 },
+	{ "hshav",	"nc_hashavelen"		 },
+#endif	/* solaris<90000 */
+
+#if	defined(NCACHE_NEGVN)
+	{ NCACHE_NEGVN,	NCACHE_NEGVN		 },
+#endif	/* defined(NCACHE_NEGVN) */
+
+	{ "nvops",	"nfs_vnodeops"		 },
+	{ "n3vops",	"nfs3_vnodeops"		 },
+	{ "n4vops",	"nfs4_vnodeops"		 },
+	{ "nmvops",	"nm_vnodeops"		 },
+        { "nproc",	"nproc"			 },
+	{ "pdvops",	"pcfs_dvnodeops"	 },
+	{ "pfvops",	"pcfs_fvnodeops"	 },
+	{ "portvops",	"port_vnodeops"		 },
+	{ "pract",	"practive"		 },
+	{ "prvops",	"prvnodeops"		 },
+	{ "sam1vops",	"samfs_vnodeops"	 },
+	{ "sam2vops",	"samfs_client_vnodeops"	 },
+	{ "sam3vops",	"samfs_vnodeopsp"	 },
+	{ "sam4vops",	"samfs_client_vnodeopsp" },
+	{ "sdevops",	"sdev_vnodeops"		 },
+	{ "sgvops",	"segvn_ops"		 },
+	{ "shvops",	"sharefs_ops_data"	 },
+	{ "sckvops",	"sock_vnodeops"		 },
+	{ "socketvops",	"socket_vnodeops"	 },
+	{ "spvops",	"spec_vnodeops"		 },
+	{ "sncavops",	"socknca_vnodeops"	 },
+	{ "stpivops",	"socktpi_vnodeops"	 },
+	{ "tvops",	"tmp_vnodeops"		 },
+	{ "uvops",	"ufs_vnodeops"		 },
+	{ "vvfops",	"fdd_vnops"		 },
+	{ "vvfcops",	"fdd_chain_vnops"	 },
+	{ "vvfclops",	"vx_fcl_vnodeops_p"	 },
+	{ "vvops",	"vx_vnodeops"		 },
+	{ "vvops_p",	"vx_vnodeops_p"		 },
+
+#if	solaris>=20500
+	{ "devops",	"dv_vnodeops"		 },
+	{ "doorops",	"door_vnodeops"		 },
+	{ "kbase",	"_kernelbase"		 },
+#endif	/* solaris>=20500 */
+
+#if	solaris>=20501
+	{ "kasp",	"kas"			 },
+#endif	/* solaris>=20501 */
+
+#if	solaris>=110000
+	{ "devipnetops","devipnet_vnodeops"	 },
+	{ "devnetops",	"devnet_vnodeops"	 },
+	{ "devptsops",	"devpts_vnodeops"	 },
+	{ "devvtops",	"devvt_vnodeops"	 },
+#endif	/* solaris>=110000 */
+
+	{ "zfsdops",	"zfs_dvnodeops"		 },
+	{ "zfseops",	"zfs_evnodeops"		 },
+	{ "zfsfops",	"zfs_fvnodeops"		 },
+	{ "zfsshops",	"zfs_sharevnodeops"	 },
+	{ "zfssymops",	"zfs_symvnodeops"	 },
+	{ "zfsxdops",	"zfs_xdvnodeops"	 },
+	{ "",		""			 },
+	{ NULL,		NULL			 }
+};
+
+char **Fsinfo = NULL;			/* file system information */
+int Fsinfomax = 0;			/* maximum file system type */
+int HasALLKMEM = 0;			/* has ALLKMEM device */
+int HaveCloneMaj = 0;			/* clone major device number has
+					 * been identified and is in
+					 * CloneMaj */
+kvm_t *Kd = NULL;			/* kvm descriptor */
+struct l_vfs *Lvfs = NULL;		/* local vfs structure table */
+struct netclone *Netclone = NULL;	/* net clone devices from
+					 * /devices/pseudo */
+
+#if	defined(HASFSTRUCT)
+/*
+ * Pff_tab[] - table for printing file flags
+ */
+
+struct pff_tab Pff_tab[] = {
+	{ (long)FREAD,		FF_READ		},
+	{ (long)FWRITE,		FF_WRITE	},
+	{ (long)FNDELAY,	FF_NDELAY	},
+	{ (long)FAPPEND,	FF_APPEND	},
+	{ (long)FSYNC,		FF_SYNC		},
+
+# if	defined(FREVOKED)
+	{ (long)FREVOKED,	FF_REVOKED	},
+# endif	/* defined(FREVOKED) */
+
+	{ (long)FDSYNC,		FF_DSYNC	},
+	{ (long)FRSYNC,		FF_RSYNC	},
+
+# if	defined(FOFFMAX)
+	{ (long)FOFFMAX,	FF_LARGEFILE	},
+# endif	/* defined(FFOFFMAX) */
+
+	{ (long)FNONBLOCK,	FF_NBLOCK	},
+	{ (long)FNOCTTY,	FF_NOCTTY	},
+	{ (long)FASYNC,		FF_ASYNC	},
+	{ (long)FNODSYNC,	FF_NODSYNC	},
+	{ (long)0,		NULL		}
+};
+
+
+/*
+ * Pof_tab[] - table for print process open file flags
+ */
+
+struct pff_tab Pof_tab[] = {
+
+# if	defined(UF_EXCLOSE)
+	{ (long)UF_EXCLOSE,	POF_CLOEXEC	},
+# endif	/* defined(UF_EXCLOSE) */
+
+# if	defined(FD_CLOEXEC)
+	{ (long)FD_CLOEXEC,	POF_CLOEXEC	},
+# endif	/* defined(FD_CLOEXEC) */
+
+# if	defined(UF_FDLOCK)
+	{ (long)UF_FDLOCK,	POF_FDLOCK	},
+# endif	/* defined(UF_FDLOCK) */
+
+	{ (long)0,		NULL		}
+};
+#endif	/* defined(HASFSTRUCT) */
+
+struct pseudo *Pseudo = NULL;		/* non-clone devices from
+					 * /devices/pseudo */
+int Unof;				/* u_nofiles value */
+@
+
+
+1.22
+log
+@Revision 4.82
+@
+text
+@d35 1
+a35 1
+static char *rcsid = "$Id: dstore.c,v 1.21 2007/04/24 16:23:15 abe Exp abe $";
+d91 1
+d125 1
+d129 1
+d143 1
+a143 1
+	{ "dvops",	"door_vnodeops"		 },
+d151 7
+d161 1
+@
+
+
+1.21
+log
+@Revision 4.78
+@
+text
+@d35 1
+a35 1
+static char *rcsid = "$Id: dstore.c,v 1.20 2006/03/27 22:57:33 abe Exp abe $";
+d89 1
+d125 1
+@
+
+
+1.20
+log
+@Revision 4.77
+@
+text
+@d35 1
+a35 1
+static char *rcsid = "$Id: dstore.c,v 1.19 2005/08/29 10:24:25 abe Exp abe $";
+d70 1
+d146 5
+@
+
+
+1.19
+log
+@Revision 4.76
+@
+text
+@d35 1
+a35 1
+static char *rcsid = "$Id: dstore.c,v 1.18 2005/08/08 19:55:41 abe Exp abe $";
+d70 24
+a93 24
+	{ "arFid",	"afs_rootFid"		},
+	{ "avops",	"afs_vnodeops"		},
+	{ "Avops",	"Afs_vnodeops"		},
+	{ "avol",	"afs_volumes"		},
+	{ "auvops",	"auto_vnodeops"		},
+	{ "ctfsadir",	"ctfs_ops_adir"		},
+	{ "ctfsbund",	"ctfs_ops_bundle"	},
+	{ "ctfscdir",	"ctfs_ops_cdir"		},
+	{ "ctfsctl",	"ctfs_ops_ctl",		},
+	{ "ctfsevt",	"ctfs_ops_event",	},
+	{ "ctfslate",	"ctfs_ops_latest",	},
+	{ "ctfsroot",	"ctfs_ops_root",	},
+	{ "ctfsstat",	"ctfs_ops_stat",	},
+	{ "ctfssym",	"ctfs_ops_sym",		},
+	{ "ctfstdir",	"ctfs_ops_tdir",	},
+	{ "ctfstmpl",	"ctfs_ops_tmpl",	},
+	{ "cvops",	"cachefs_vnodeops"	},
+	{ "clmaj",	"clonemaj"		},
+	{ "fdops",	"fdvnodeops"		},
+	{ "fvops",	"fifo_vnodeops"		},
+	{ "hvops",	"hsfs_vnodeops"		},
+	{ "lvops",	"lo_vnodeops"		},
+	{ "mntops",	"mntvnodeops"		},
+	{ "mvops",	"mvfs_vnodeops"		},
+d96 2
+a97 2
+	{ X_NCACHE,	"ncache"		},
+	{ X_NCSIZE,	"ncsize"		},
+d99 3
+a101 3
+	{ X_NCACHE,	"nc_hash"		},
+	{ X_NCSIZE,	"nc_hashsz"		},
+	{ "hshav",	"nc_hashavelen"		},
+d105 1
+a105 1
+	{ NCACHE_NEGVN,	NCACHE_NEGVN		},
+d108 26
+a133 24
+	{ "nvops",	"nfs_vnodeops"		},
+	{ "n3vops",	"nfs3_vnodeops"		},
+	{ "n4vops",	"nfs4_vnodeops"		},
+	{ "nmvops",	"nm_vnodeops"		},
+        { "nproc",	"nproc"			},
+	{ "pdvops",	"pcfs_dvnodeops"	},
+	{ "pfvops",	"pcfs_fvnodeops"	},
+	{ "portvops",	"port_vnodeops"		},
+	{ "pract",	"practive"		},
+	{ "prvops",	"prvnodeops"		},
+	{ "sam1vops",	"samfs_vnodeops"	},
+	{ "sam2vops",	"samfs_client_vnodeops"	},
+	{ "sgvops",	"segvn_ops"		},
+	{ "sckvops",	"sock_vnodeops"		},
+	{ "spvops",	"spec_vnodeops"		},
+	{ "sncavops",	"socknca_vnodeops"	},
+	{ "stpivops",	"socktpi_vnodeops"	},
+	{ "tvops",	"tmp_vnodeops"		},
+	{ "uvops",	"ufs_vnodeops"		},
+	{ "vvfops",	"fdd_vnops"		},
+	{ "vvfcops",	"fdd_chain_vnops"	},
+	{ "vvfclops",	"vx_fcl_vnodeops_p"	},
+	{ "vvops",	"vx_vnodeops"		},
+	{ "vvops_p",	"vx_vnodeops_p"		},
+d136 3
+a138 3
+	{ "devops",	"dv_vnodeops"		},
+	{ "dvops",	"door_vnodeops"		},
+	{ "kbase",	"_kernelbase"		},
+d142 1
+a142 1
+	{ "kasp",	"kas"			},
+d145 2
+a146 2
+	{ "",		""			},
+	{ NULL,		NULL			}
+@
+
+
+1.18
+log
+@Revision 4.76
+@
+text
+@d35 1
+a35 1
+static char *rcsid = "$Id: dstore.c,v 1.17 2004/03/10 23:53:41 abe Exp abe $";
+a126 1
+	{ "vvops",	"vx_vnodeops"		},
+d129 3
+@
+
+
+1.17
+log
+@Revision 4.71
+@
+text
+@d35 1
+a35 1
+static char *rcsid = "$Id: dstore.c,v 1.16 2003/10/13 13:30:04 abe Exp abe $";
+d75 11
+d115 1
+@
+
+
+1.16
+log
+@Revision 4.69
+Solaris 10 port
+@
+text
+@d35 1
+a35 1
+static char *rcsid = "$Id: dstore.c,v 1.15 2003/06/11 11:43:07 abe Exp abe $";
+d104 1
+d111 2
+d135 1
+@
+
+
+1.15
+log
+@Revision 4.68
+@
+text
+@d35 1
+a35 1
+static char *rcsid = "$Id: dstore.c,v 1.14 2002/06/17 01:42:31 abe Exp abe $";
+d99 1
+d105 2
+a106 1
+	{ "samvops",	"samfs_vnodeops"	},
+d117 1
+@
+
+
+1.14
+log
+@Revision 4.64
+@
+text
+@d35 1
+a35 1
+static char *rcsid = "$Id: dstore.c,v 1.13 2000/12/04 14:35:13 abe Exp abe $";
+d104 1
+@
+
+
+1.13
+log
+@Revision 4.53
+@
+text
+@d35 1
+a35 1
+static char *rcsid = "$Id: dstore.c,v 1.12 2000/06/19 12:11:38 abe Exp abe $";
+d77 1
+d83 2
+d87 5
+d191 1
+@
+
+
+1.12
+log
+@Revision 4.50
+Add /dev/fdd support.
+@
+text
+@d2 1
+a2 1
+ * dstore.c - SunOS (Solaris 1.x and 2.x) global storage for lsof
+d35 1
+a35 1
+static char *rcsid = "$Id: dstore.c,v 1.11 2000/05/31 13:10:54 abe Exp abe $";
+a55 2
+
+#if	defined(solaris)
+a56 2
+# endif	/* defined(solaris) */
+
+a60 2
+
+#if	defined(solaris)
+a61 1
+#endif	/* defined(solaris) */
+a62 4
+#if	!defined(solaris)
+char *Cwd = NULL;			/* cwd path name buffer */
+struct file *Fileptr;			/* for process_file() in dfile.c */
+#endif
+a63 1
+
+a69 2
+
+# if	defined(solaris)
+d85 1
+a85 1
+#  if	defined(NCACHE_NEGVN)
+d87 1
+a87 1
+#  endif	/* defined(NCACHE_NEGVN) */
+d105 1
+a105 1
+# if	solaris>=20500
+d108 1
+a108 1
+# endif	/* solaris>=20500 */
+d110 1
+a110 24
+# else	/* !defined(solaris) */
+	{ "arFid",	"_afs_rootFid"		},
+	{ "avops",	"_afs_vnodeops"		},
+	{ "avol",	"_afs_volumes"		},
+	{ "fvops",	"_fifo_vnodeops"	},
+        { "lfsvops",	"_lfs_vnodeops"		},
+        { "hvops",	"_hsfs_vnodeops"	},
+	{ X_NCACHE,	"_ncache"		},
+	{ X_NCSIZE,	"_ncsize"		},
+        { "nvops",	"_nfs_vnodeops"		},
+        { "n3vops",	"_nfs3_vnodeops"	},
+        { "nproc",	"_nproc"		},
+	{ "pdvops",	"_pcfs_dvnodeops"	},
+	{ "pfvops",	"_pcfs_fvnodeops"	},
+	{ "sgvops",	"_segvn_ops"		},
+	{ "spvops",	"_spec_vnodeops"	},
+	{ "tvops",	"_tmp_vnodeops"		},
+	{ "uvops",	"_ufs_vnodeops"		},
+# endif	/* defined(solaris) */
+
+# if	defined(SUNOSV)
+	{ "kasp",	"_kas"			},
+# else	/* !defined(SUNOSV) */
+#  if	defined(solaris) && solaris>=20501
+d112 1
+a112 2
+#  endif	/* defined(solaris) && solaris>=20501 */
+# endif	/* defined(SUNOSV) */
+a117 1
+#if	defined(solaris)
+a119 3
+#endif
+
+#if	defined(solaris)
+a122 2
+#endif	/* defined(solaris) */
+
+a124 2
+
+# if	defined(solaris)
+a126 1
+# endif	/* defined(solaris) */
+d128 1
+a128 1
+# if	defined(HASFSTRUCT)
+d132 1
+a133 1
+#  if	defined(solaris)
+d140 1
+a140 1
+#   if	defined(FREVOKED)
+d142 1
+a142 1
+#   endif	/* defined(FREVOKED) */
+d147 1
+a147 1
+#   if	defined(FOFFMAX)
+d149 1
+a149 1
+#   endif	/* defined(FFOFFMAX) */
+a154 17
+#  else	/* !defined(solaris) */
+	{ (long)_FREAD,		FF_READ		},
+	{ (long)_FWRITE,	FF_WRITE	},
+	{ (long)_FNDELAY,	FF_NDELAY	},
+	{ (long)_FAPPEND,	FF_APPEND	},
+	{ (long)_FSETBLK,	FF_SETBLK	},
+	{ (long)_FASYNC,	FF_ASYNC	},
+	{ (long)_FSHLOCK,	FF_SHLOCK	},
+	{ (long)_FEXLOCK,	FF_EXLOCK	},
+	{ (long)_FNBIO,		FF_NBIO		},
+	{ (long)_FSYNC,		FF_SYNC		},
+	{ (long)_FNONBLOCK,	FF_NBLOCK	},
+	{ (long)_FNOCTTY,	FF_NOCTTY	},
+	{ (long)_FMARK,		FF_MARK		},
+	{ (long)_FDEFER,	FF_DEFER	},
+#  endif	/* defined(solaris) */
+
+a180 1
+#if	defined(solaris)
+a182 3
+#else	/* !defined(solaris) */
+char *Rtd = NULL;			/* root directory path name buffer */
+#endif	/* defined(solaris) */
+@
+
+
+1.11
+log
+@Revision 4.50
+Add support for additional kernel address filtering.  Add support
+for post-Solaris-8 negative vnode caching in the DNLC.
+@
+text
+@d35 1
+a35 1
+static char *rcsid = "$Id: dstore.c,v 1.10 1999/11/28 06:44:48 abe Exp abe $";
+d116 2
+@
+
+
+1.10
+log
+@Revision 4.47
+@
+text
+@d35 1
+a35 1
+static char *rcsid = "$Id: dstore.c,v 1.9 99/07/19 14:04:54 abe Exp Locker: abe $";
+d98 5
+d141 8
+@
+
+
+1.9
+log
+@Revision 4.45
+Add Auspex LFS support.
+@
+text
+@d35 1
+a35 1
+static char *rcsid = "$Id: dstore.c,v 1.8 99/05/09 14:56:59 abe Exp Locker: abe $";
+d94 1
+@
+
+
+1.8
+log
+@Revision 4.43
+@
+text
+@d35 1
+a35 1
+static char *rcsid = "$Id: dstore.c,v 1.7 99/05/04 09:04:04 abe Exp Locker: abe $";
+d121 1
+@
+
+
+1.7
+log
+@Revision 4.43
+@
+text
+@d35 1
+a35 1
+static char *rcsid = "$Id: dstore.c,v 1.6 99/04/27 15:51:44 abe Exp Locker: abe $";
+d201 22
+@
+
+
+1.6
+log
+@Revision 4.43
+@
+text
+@d35 1
+a35 1
+static char *rcsid = "$Id: dstore.c,v 1.5 98/06/19 08:32:11 abe Exp Locker: abe $";
+d164 5
+a168 5
+	{ (long)FREAD,		"R"	},
+	{ (long)FWRITE,		"W"	},
+	{ (long)FNDELAY,	"ND"	},
+	{ (long)FAPPEND,	"AP"	},
+	{ (long)FSYNC,		"SYN"	},
+d171 1
+a171 1
+	{ (long)FREVOKED,	"REV"	},
+d174 2
+a175 2
+	{ (long)FDSYNC,		"DSYN"	},
+	{ (long)FRSYNC,		"RSYN"	},
+d178 1
+a178 1
+	{ (long)FOFFMAX,	"LG"	},
+d181 4
+a184 4
+	{ (long)FNONBLOCK,	"NB"	},
+	{ (long)FNOCTTY,	"NTTY"	},
+	{ (long)FASYNC,		"ASYN"	},
+	{ (long)FNODSYNC,	"NDSY"	},
+d186 14
+a199 14
+	{ (long)_FREAD,		"R"	},
+	{ (long)_FWRITE,	"W"	},
+	{ (long)_FNDELAY,	"ND"	},
+	{ (long)_FAPPEND,	"AP"	},
+	{ (long)_FSETBLK,	"BL"	},
+	{ (long)_FASYNC,	"ASYN"	},
+	{ (long)_FSHLOCK,	"SL"	},
+	{ (long)_FEXLOCK,	"XL"	},
+	{ (long)_FNBIO,		"NBIO"	},
+	{ (long)_FSYNC,		"SYN"	},
+	{ (long)_FNONBLOCK,	"NB"	},
+	{ (long)_FNOCTTY,	"NTTY"	},
+	{ (long)_FMARK,		"MK"	},
+	{ (long)_FDEFER,	"DF"	},
+d201 2
+a202 1
+	{ (long)0,		NULL	}
+@
+
+
+1.5
+log
+@Revision 4.34
+Improve AFS nlist() handling.
+@
+text
+@d35 1
+a35 1
+static char *rcsid = "$Id: dstore.c,v 1.4 98/03/26 07:48:26 abe Exp Locker: abe $";
+d156 1
+a156 1
+# endif
+d158 47
+d208 1
+a208 1
+#else
+d210 1
+a210 1
+#endif
+@
+
+
+1.4
+log
+@Revision 4.29
+Make AFS support changes.
+@
+text
+@d35 1
+a35 1
+static char *rcsid = "$Id: dstore.c,v 1.3 98/03/06 19:21:24 abe Exp Locker: abe $";
+a84 2
+
+#  if	solaris<20600
+d86 1
+a86 4
+#  else	/* solaris>=20600 */
+	{ "avops",	"Afs_vnodeops"		},
+#  endif	/* solaris<20600 */
+
+@
+
+
+1.3
+log
+@Revision 4.27
+@
+text
+@d35 1
+a35 1
+static char *rcsid = "$Id: dstore.c,v 1.2 97/10/24 07:58:17 abe Exp Locker: abe $";
+d53 4
+d85 2
+d88 4
+@
+
+
+1.2
+log
+@Revision 4.18
+@
+text
+@d35 1
+a35 1
+static char *rcsid = "$Id: dstore.c,v 1.1 97/02/24 07:47:17 abe Exp Locker: abe $";
+d56 2
+a57 2
+struct vfs *AFSVfsp = (struct vfs *)NULL;
+					/* AFS vfs struct kernel address */
+@
+
+
+1.1
+log
+@Initial revision
+@
+text
+@d35 1
+a35 1
+static char *rcsid = "$Id: dstore.c,v 1.16 97/02/10 10:45:05 abe Exp $";
+d63 1
+a63 1
+int CloneMaj;				/* clone major device number */
+@

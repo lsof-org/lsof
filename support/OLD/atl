@@ -1,0 +1,5 @@
+#!/bin/ksh
+#
+# atl - rdist Sun sources to atl.rcac
+
+$HOME/src/lsof4/support/GenericRdist atl.rcac.purdue.edu sun ssh

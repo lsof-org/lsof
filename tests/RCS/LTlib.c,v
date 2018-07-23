@@ -1,0 +1,2177 @@
+head	1.18;
+access;
+symbols;
+locks; strict;
+comment	@ * @;
+
+
+1.18
+date	2018.02.14.14.21.44;	author abe;	state Exp;
+branches;
+next	1.17;
+
+1.17
+date	2008.07.05.16.21.07;	author abe;	state Exp;
+branches;
+next	1.16;
+
+1.16
+date	2007.04.24.16.43.52;	author abe;	state Exp;
+branches;
+next	1.15;
+
+1.15
+date	2006.03.27.23.05.52;	author abe;	state Exp;
+branches;
+next	1.14;
+
+1.14
+date	2005.12.14.10.48.04;	author abe;	state Exp;
+branches;
+next	1.13;
+
+1.13
+date	2002.04.28.20.17.40;	author abe;	state Exp;
+branches;
+next	1.12;
+
+1.12
+date	2002.04.23.15.01.06;	author abe;	state Exp;
+branches;
+next	1.11;
+
+1.11
+date	2002.04.19.11.55.43;	author abe;	state Exp;
+branches;
+next	1.10;
+
+1.10
+date	2002.04.11.16.18.40;	author abe;	state Exp;
+branches;
+next	1.9;
+
+1.9
+date	2002.04.06.03.54.50;	author abe;	state Exp;
+branches;
+next	1.8;
+
+1.8
+date	2002.04.05.16.14.30;	author abe;	state Exp;
+branches;
+next	1.7;
+
+1.7
+date	2002.04.04.21.43.49;	author abe;	state Exp;
+branches;
+next	1.6;
+
+1.6
+date	2002.04.04.19.21.48;	author abe;	state Exp;
+branches;
+next	1.5;
+
+1.5
+date	2002.04.03.23.49.02;	author abe;	state Exp;
+branches;
+next	1.4;
+
+1.4
+date	2002.03.30.15.38.36;	author abe;	state Exp;
+branches;
+next	1.3;
+
+1.3
+date	2002.03.28.15.26.06;	author abe;	state Exp;
+branches;
+next	1.2;
+
+1.2
+date	2002.03.26.12.49.16;	author abe;	state Exp;
+branches;
+next	1.1;
+
+1.1
+date	2002.03.25.11.26.03;	author abe;	state Exp;
+branches;
+next	;
+
+
+desc
+@Lsof test C library
+@
+
+
+1.18
+log
+@Revision 4.90
+@
+text
+@/*
+ * LTlib.c -- the lsof test library
+ *
+ * V. Abell
+ * Purdue University
+ */
+
+
+/*
+ * Copyright 2002 Purdue Research Foundation, West Lafayette, Indiana
+ * 47907.  All rights reserved.
+ *
+ * Written by V. Abell.
+ *
+ * This software is not subject to any license of the American Telephone
+ * and Telegraph Company or the Regents of the University of California.
+ *
+ * Permission is granted to anyone to use this software for any purpose on
+ * any computer system, and to alter it and redistribute it freely, subject
+ * to the following restrictions:
+ *
+ * 1. Neither the authors nor Purdue University are responsible for any
+ *    consequences of the use of this software.
+ *
+ * 2. The origin of this software must not be misrepresented, either by
+ *    explicit claim or by omission.  Credit to the authors and Purdue
+ *    University must appear in documentation and sources.
+ *
+ * 3. Altered versions must be plainly marked as such, and must not be
+ *    misrepresented as being the original software.
+ *
+ * 4. This notice may not be removed or altered.
+ */
+
+#ifndef lint
+static char copyright[] =
+"@@(#) Copyright 2002 Purdue Research Foundation.\nAll rights reserved.\n";
+#endif
+
+#include "LsofTest.h"
+
+
+/*
+ * Pre-defintions that may be changed by a specific dialect
+ */
+
+#define	X2DEV_T		unsigned int	/* cast for result of x2dev() */
+#define	XDINDEV		8		/* number of hex digits in an lsof
+					 * device field -- should be
+					 * 2 X sizeof(X2DEV_T) */
+
+
+#if	defined(LT_DIAL_aix)
+/*
+ * AIX-specific items
+ */
+
+#include <sys/sysmacros.h>
+
+# if	defined(LT_AIXA) && LT_AIXA>=1
+
+/*
+ * Note: the DEVNO64 and ISDEVNO54 #define's come from <sys/sysmacros.h>, but
+ * only when _KERNEL is #define'd.
+ */
+
+#undef	DEVNO64
+#define	DEVNO64		0x8000000000000000LL
+#undef	ISDEVNO64
+#define	ISDEVNO64(d)	(((ulong)(d) & DEVNO64) ? 1 : 0)
+
+/*
+ * Define major and minor extraction macros that work on 64 bit AIX
+ * architectures.
+ */
+ 
+#define	major_S(d)	(ISDEVNO64(d) ? major64(d) : minor(d & ~SDEV_REMOTE))
+#define	minor_S(d)	(ISDEVNO64(d) ? (minor64(d) & ~SDEV_REMOTE) : minor(d))
+#undef	X2DEV_T
+#define	X2DEV_T		unsigned long long
+#undef	XDINDEV
+#define	XDINDEV		16
+#define	major_X(dp, em)	major_S(x2dev(dp, em))
+#define	minor_X(dp, em)	minor_S(x2dev(dp, em))
+# endif	/* defined(LT_AIXA) && LT_AIXA>=1 */
+
+#endif	/* defined(LT_DIAL_aix) */
+
+
+#if	defined(LT_DIAL_bsdi)
+/*
+ * BSDI-specific items
+ */
+
+#define	minor_S(dev)	dv_subunit(dev)
+#define	unit_S(dev)	dv_unit(dev)
+#define	minor_X(dp, em)	dv_subunit(x2dev(dp, em))
+#define	unit_X(dp, em)	dv_unit(x2dev(dp, em))	
+#endif	/* defined(LT_DIAL_bsdi) */
+
+
+#if	defined(LT_DIAL_freebsd)
+/*
+ *FreeBSD-specific items
+*/
+
+#undef	XDINDEV
+#define	XDINDEV		16
+# if	defined(LT_DEV64)
+#undef	X2DEV_T
+#define	X2DEV_T		unsigned long long
+#define	major_X(dp, em)	((int)((x2dev(dp, em) >> 32) & 0xffffffff))
+# endif	/* defined(LT_DEV64) */
+#endif	/* defined(LT_DIAL_freebsd) */
+
+
+#if	defined(LT_DIAL_osr)
+/*
+ * OpenUNIX-specific items
+ */
+
+#include <sys/sysmacros.h>
+#endif	/* defined(LT_DIAL_osr) */
+
+
+#if	defined(LT_DIAL_ou)
+/*
+ * OpenUNIX-specific items
+ */
+
+#include <sys/mkdev.h>
+#endif	/* defined(LT_DIAL_ou) */
+
+
+#if	defined(LT_DIAL_solaris)
+/*
+ * Solaris-specific items
+ */
+
+#include <sys/sysmacros.h>
+
+
+/*
+ * Define maximum major device number in a stat(2) dev_t
+ */
+
+# if	LT_VERS>=20501
+#define LT_MJX	L_MAXMAJ	/* Get maximum major device number from
+				 * <sys/sysmacros.h>. */
+# else	/* LT_VERS<20501 */
+#define	LT_MJX	0x3fff		/* Avoid <sys/sysmacros.h> when
+				 * Solaris < 2.5.1. */
+# endif /* LT_VERS>=20501 */
+
+#define	major_S(dev)	((int)((dev >> L_BITSMINOR) & LT_MJX))
+#define	minor_S(dev)	((int)(dev & L_MAXMIN))
+
+# if	defined(LT_K64)
+
+/*
+ * Solaris 64 bit kernel
+ */
+
+#undef	X2DEV_T
+#define	X2DEV_T		unsigned long long
+#undef	XDINDEV
+#define	XDINDEV		16
+
+#define	major_X(dp, em)	((int)((x2dev(dp, em) >> 32) & 0xffffffff))
+#define	minor_X(dp, em) ((int)(x2dev(dp, em) & 0xffffffff))
+# else	/* !defined(LT_K64) */
+
+/*
+ * Solaris 32 bit kernel
+ */
+
+#define	major_X(dp, em)	((int)((x2dev(dp, em) >> L_BITSMINOR) & LT_MJX))
+#define	minor_X(dp, em)	((int)(x2dev(dp, em) & L_MAXMIN))
+# endif	/* LT_K64 */
+#endif	/* defined(LT_DIAL_solaris) */
+
+
+#if	defined(LT_DIAL_uw)
+/*
+ * UnixWare-specific items
+ */
+
+#include <sys/mkdev.h>
+#endif	/* defined(LT_DIAL_uw) */
+
+
+/*
+ * Global variables
+ */
+
+int LsofFd = -1;			/* lsof pipe FD */
+FILE *LsofFs = (FILE *)NULL;		/* stream for lsof pipe FD */
+char *LsofPath = (char *)NULL;		/* path to lsof executable */
+pid_t LsofPid = (pid_t)0;		/* PID of lsof child process */
+int LTopt_h = 0;			/* "-h" option's switch value */
+char *LTopt_p = (char *)NULL;		/* "-p path" option's path value */
+int MsgStat = 0;			/* message status: 1 means prefix needs
+					 * to be issued */
+
+
+/*
+ * Local static variables
+ */
+
+static int Afo = 0;			/* Fo[] structures allocated */
+static char *GOv = (char *)NULL;	/* option `:' value pointer */
+static int GOx1 = 1;			/* first opt[][] index */
+static int GOx2 = 0;			/* second opt[][] index */
+static LTfldo_t *Fo = (LTfldo_t *)NULL;	/* allocated LTfldo_t structures */
+static int Ufo = 0;			/* Fo[] structures used */
+
+
+/*
+ * Local function prototypes
+ */
+
+_PROTOTYPE(static void closepipe,(void));
+_PROTOTYPE(static void getlsofpath,(void));
+_PROTOTYPE(static int GetOpt,(int ct, char *opt[], char *rules, char **em,
+			 char *pn));
+_PROTOTYPE(static X2DEV_T x2dev,(char *x, char **em));
+
+
+/*
+ * Default major, minor, and unit macros.
+ */
+
+#if	!defined(major_S)
+#define	major_S		major
+#endif	/* defined(major_S) */
+
+#if	!defined(minor_S)
+#define	minor_S		minor
+#endif	/* defined(minor_S) */
+
+#if	!defined(unit_S)
+#define	unit_S(x)	0
+#endif	/* defined(unit_S) */
+
+#if	!defined(major_X)
+#define	major_X(dp, em)	major(x2dev(dp, em))
+#endif	/* defined(major_X) */
+
+#if	!defined(minor_X)
+#define	minor_X(dp, em)	minor(x2dev(dp, em))
+#endif	/* defined(minor_X) */
+
+#if	!defined(unit_X)
+#define	unit_X(dp, em)	0
+#endif	/* defined(unit_X) */
+
+
+/*
+ * CanRdKmem() -- can lsof read kernel memory devices?
+ */
+
+char *
+CanRdKmem()
+{
+
+#if	defined(LT_KMEM)
+    char buf[2048];			/* temporary buffer */
+    char *dn;				/* memory device name */
+    char *em;				/* error message pointer */
+    int fd;				/* temporary file descriptor */
+    struct stat sb;			/* memory device stat(2) buffer */
+    int ti;				/* temporary integer */
+/*
+ * Get the lsof path.  If it is not the default, check no further.
+ */
+    (void) getlsofpath();
+    if (!strcmp(LsofPath, LT_DEF_LSOF_PATH))
+	return((char *)NULL);
+/*
+ * Check /dev/kmem access.
+ */
+    dn = "/dev/kmem";
+    if (stat(dn, &sb)) {
+	em = "stat";
+
+kmem_error:
+
+	(void) snprintf(buf, sizeof(buf) - 1,
+	    "ERROR!!!  can't %s(%s): %s\n", em, dn, strerror(errno));
+	buf[sizeof(buf) - 1] = '\0';
+	return(MkStrCpy(buf, &ti));
+    }
+    if ((fd = open(dn, O_RDONLY, 0)) < 0) {
+	em = "open";
+	goto kmem_error;
+    }
+    (void) close(fd);
+/*
+ * Check /dev/mem access.
+ */
+    dn = "/dev/mem";
+    if (stat(dn, &sb)) {
+
+    /*
+     * If /dev/mem can't be found, ignore the error.
+     */
+	return((char *)NULL);
+    }
+    if ((fd = open(dn, O_RDONLY, 0)) < 0) {
+	em = "open";
+	goto kmem_error;
+    }
+    (void) close(fd);
+#endif	/* defined(LT_KMEM) */
+
+    return((char *)NULL);
+}
+
+
+/*
+ * closepipe() -- close pipe from lsof
+ */
+
+static void
+closepipe()
+{
+    if (LsofFd >= 0) {
+
+    /*
+     * A pipe from lsof is open.  Close it and the associated stream.
+     */
+	if (LsofFs) {
+	    (void) fclose(LsofFs);
+	    LsofFs = (FILE *)NULL;
+	}
+	(void) close(LsofFd);
+	LsofFd = -1;
+    }
+}
+
+
+/*
+ * ConvLsofDev() -- convert lsof device string
+ *
+ * Note: this function is dialect-specific.
+ */
+
+char *
+ConvLsofDev(dev, ldev)
+    char *dev;			/* lsof device string -- the value to the
+				 * LSOF_FID_DEVN field of a LSOF_FID_FD block
+				 * (see lsof_fields.h) */
+    LTdev_t *ldev;		/* results are returned to this structure */
+{
+    char *dp;			/* device pointer */
+    char *em;			/* error message pointer */
+    int tlen;			/* temporary length */
+/*
+ * Check function arguments.
+ *
+ * Establish values for decoding the device string.
+ */
+    if (!dev)
+	return("ERROR!!!  no ConvLsofDev() device");
+    if (!ldev)
+	return("ERROR!!!  no ConvLsofDev() result pointer");
+    if (strncmp(dev, "0x", 2))
+	return("ERROR!!!  no leading 0x in ConvLsofDev() device");
+    dp = dev + 2;
+    if (((tlen = (int)strlen(dp)) < 1) || (tlen > XDINDEV))
+	return("ERROR!!!  bad ConvLsofDev() device length");
+/*
+ * Use the pre-defined *_X() macros to do the decomposition.
+ */
+    ldev->maj = (unsigned int)major_X(dp, &em);
+    if (em)
+	return(em);
+    ldev->min = (unsigned int)minor_X(dp, &em);
+    if (em)
+	return(em);
+    ldev->unit = (unsigned int)unit_X(dp, &em);
+    return(em);
+}
+
+
+/*
+ * ConvStatDev() -- convert stat(2) device number
+ *
+ * Note: this function is dialect-specific.
+ */
+
+char *
+ConvStatDev(dev, ldev)
+    dev_t *dev;			/* device number to be converted */
+    LTdev_t *ldev;		/* results are returned to this structure */
+{
+
+/*
+ * Check function arguments.
+ */
+    if (!dev)
+	return("ERROR!!!  no ConvStatDev() device");
+    if (!ldev)
+	return("ERROR!!!  no ConvStatDev() result pointer");
+/*
+ * Use the pre-defined *_S() macros to do the decomposition.
+ */
+    ldev->maj = (unsigned int)major_S(*dev);    
+    ldev->min = (unsigned int)minor_S(*dev);
+    ldev->unit = (unsigned int)unit_S(*dev);
+    return((char *)NULL);
+}
+
+
+/*
+ * ExecLsof() -- execute lsof with full field output and a NUL field terminator
+ *		 in a child process
+ */
+
+char *
+ExecLsof(opt)
+    char **opt;				/* lsof options -- a pointer to an
+					 * array of character pointers,
+					 * terminated by a NULL pointer */
+{
+    static char **av = (char **)NULL;	/* lsof argument vector, dynamically
+					 * allocated */
+    static int ava = 0;			/* **av entries allocated */
+    char buf[2048];			/* temporary buffer */
+    char *em;				/* error message pointer */
+    int fd;				/* temporary file descriptor */
+    int optc;				/* option count */
+    int nf;				/* number of files */
+    int p[2];				/* pipe FDs */
+    char **tcpp;			/* temporary character pointer
+					 * pointer */
+    int ti;				/* temporary integer */
+    int tlen;				/* temporary length */
+    pid_t tpid;				/* temporary PID holder */
+/*
+ * It's an error if lsof is already in execution or if no lsof options
+ * were supplied.
+ */
+    (void) getlsofpath();
+    if (LsofPid)
+	return("ERROR!!!  ExecLsof() says lsof is already in execution");
+    if (!opt)
+	return("ERROR!!!  no ExecLsof() option list");
+    for (optc = 0, tcpp = opt; *tcpp; optc++, tcpp++)
+	;
+/*
+ * Make sure lsof is executable.
+ */
+    if ((em = IsLsofExec()))
+	return(em);
+/*
+ * Open a pipe through which lsof can return output.
+ */
+    if (pipe(p)) {
+	(void) snprintf(buf, sizeof(buf) - 1,
+	    "ERROR!!!  can't open pipe: %s", strerror(errno));
+	return(MkStrCpy(buf, &ti));
+    }
+/*
+ * Allocate and build an argument vector.  The first entry will be set
+ * to "lsof", the second to "-wFr", and the third to "-F0".  Additional
+ * entries will be set as supplied by the caller.
+ */
+    if ((optc + 4) > ava) {
+	tlen = (int)(sizeof(char *) * (optc + 4));
+	if (!av)
+	    av = (char **)malloc(tlen);
+	else
+	    av = (char **)realloc((void *)av, tlen);
+	if (!av) {
+	    (void) snprintf(buf, sizeof(buf) - 1,
+		"LTlib: ExecLsof() can't allocat pointers for %d arguments",
+		optc + 4);
+	    return(MkStrCpy(buf, &ti));
+	}
+	ava = optc + 4;
+    }
+    for (ti = 0, tcpp = opt; ti < (optc + 3); ti++) {
+	switch(ti) {
+	case 0:
+	    av[ti] = "lsof";
+	    break;
+	case 1:
+	    av[ti] = "-wFr";
+	    break;
+	case 2:
+	    av[ti] = "-F0";
+	    break;
+	default:
+	    av[ti] = *tcpp;
+	    tcpp++;
+	}
+    }
+    av[ti] = (char *)NULL;
+/*
+ * Fork a child process to run lsof.
+ */
+    switch((tpid = fork())) {
+    case (pid_t)0:
+
+    /*
+     * This is the child process.
+     *
+     * First close all file descriptors except the output side of the pipe.
+     *
+     * Make the output side of the pipe STDOUT and STDERR.
+     */
+	for (fd = 0, nf = getdtablesize(); fd < nf; fd++) {
+	    if (fd == p[1])
+		continue;
+	    (void) close(fd);
+	}
+	if (p[1] != 1)
+	    (void) dup2(p[1], 1);
+	if (p[1] != 2)
+	    (void) dup2(p[1], 2);
+	if ((p[1] != 1) && (p[1] != 2))
+	    (void) close(p[1]);
+    /*
+     * Execute lsof.
+     */
+	(void) execv(LsofPath, av);
+	_exit(0);				/* (Shouldn't get here.) */
+    case (pid_t)-1:
+
+    /*
+     * A fork error occurred.  Form and return a message.
+     */
+	(void) snprintf(buf, sizeof(buf) - 1,
+	    "ERROR!!!  ExecLsof() can't fork: %s", strerror(errno));
+	buf[sizeof(buf) - 1] = '\0';
+	return(MkStrCpy(buf, &ti));
+    default:
+
+    /*
+     * This is the parent.
+     *
+     * Save the lsof child PID.
+     *
+     * Close the output side of the pipe.
+     *
+     * Save the input side of the pipe as LsofFd; open a stream for it.
+     */
+	LsofPid = tpid;
+	(void) close(p[1]);
+	LsofFd = p[0];
+	if (!(LsofFs = fdopen(LsofFd, "r")))
+	    return("ERROR!!!  ExecLsof() can't open stream to lsof output FD");
+    }
+/*
+ * Wait a bit for lsof to start and put something in its pipe, then return
+ * an "All is well." response.
+ */
+    sleep(1);
+    return((char *)NULL);
+}
+
+
+/*
+ * getlsofpath() -- get lsof path, either from LT_LSOF_PATH in the environment
+ *		    or from LT_DEF_LSOF_PATH
+ */
+
+static void
+getlsofpath()
+{
+    char *tcp;				/* temporary character pointer */
+    int ti;				/* temporary integer */
+
+    if (LsofPath)
+	return;
+    if ((tcp = getenv("LT_LSOF_PATH")))
+	LsofPath = MkStrCpy(tcp, &ti);
+    else
+	LsofPath = LT_DEF_LSOF_PATH;
+}
+
+
+/*
+ * GetOpt() -- Local get option
+ *
+ * Borrowed from lsof's main.c source file.
+ *
+ * Liberally adapted from the public domain AT&T getopt() source,
+ * distributed at the 1985 UNIFORM conference in Dallas
+ *
+ * The modifications allow `?' to be an option character and allow
+ * the caller to decide that an option that may be followed by a
+ * value doesn't have one -- e.g., has a default instead.
+ */
+
+static int
+GetOpt(ct, opt, rules, em, pn)
+    int ct;				/* option count */
+    char *opt[];			/* options */
+    char *rules;			/* option rules */
+    char **em;				/* error message return */
+    char *pn;
+{
+    register int c;			/* character value */
+    register char *cp = (char *)NULL;	/* character pointer */
+    char embf[2048];			/* error message buffer */
+    int tlen;				/* temporary message length from
+					 * MkStrCpy() */
+
+    *em = (char *)NULL;
+    if (GOx2 == 0) {
+
+    /*
+     * Move to a new entry of the option array.
+     *
+     * EOF if:
+     *
+     *	Option list has been exhausted;
+     *	Next option doesn't start with `-' or `+';
+     *	Next option has nothing but `-' or `+';
+     *	Next option is ``--'' or ``++''.
+     */
+	if (GOx1 >= ct
+	||  (opt[GOx1][0] != '-' && opt[GOx1][0] != '+')
+	||  !opt[GOx1][1])
+	    return(EOF);
+	if (strcmp(opt[GOx1], "--") == 0 || strcmp(opt[GOx1], "++") == 0) {
+	    GOx1++;
+	    return(EOF);
+	}
+	GOx2 = 1;
+    }
+/*
+ * Flag `:' option character as an error.
+ *
+ * Check for a rule on this option character.
+ */
+    if ((c = opt[GOx1][GOx2]) == ':') {
+	(void) snprintf(embf, sizeof(embf) - 1,
+	    "ERROR!!!  colon is an illegal option character.");
+	embf[sizeof(embf) - 1] = '\0';
+	*em = MkStrCpy(embf, &tlen);
+    } else if (!(cp = strchr(rules, c))) {
+	(void) snprintf(embf, sizeof(embf) - 1,
+	    "ERROR!!!  illegal option character: %c", c);
+	embf[sizeof(embf) - 1] = '\0';
+	*em = MkStrCpy(embf, &tlen);
+    }
+    if (*em) {
+
+    /*
+     * An error was detected.
+     *
+     * Advance to the next option character.
+     *
+     * Return the character causing the error.
+     */
+	if (opt[GOx1][++GOx2] == '\0') {
+	    GOx1++;
+	    GOx2 = 0;
+	}
+	return(c);
+    }
+    if (*(cp + 1) == ':') {
+
+    /*
+     * The option may have a following value.  The caller decides if it does.
+     *
+     * Don't indicate that an option of ``--'' is a possible value.
+     *
+     * Finally, on the assumption that the caller will decide that the possible
+     * value belongs to the option, position to the option following the
+     * possible value, so that the next call to GetOpt() will find it.
+     */
+	if(opt[GOx1][GOx2 + 1] != '\0') {
+	    GOv = &opt[GOx1++][GOx2];
+	} else if (++GOx1 >= ct)
+	    GOv = (char *)NULL;
+	else {
+	    GOv = opt[GOx1];
+	    if (strcmp(GOv, "--") == 0)
+		GOv = (char *)NULL;
+	    else
+		GOx1++;
+	}
+	GOx2 = 0;
+     } else {
+
+    /*
+     * The option character stands alone with no following value.
+     *
+     * Advance to the next option character.
+     */
+	if (opt[GOx1][++GOx2] == '\0') {
+	    GOx2 = 0;
+	    GOx1++;
+	}
+	GOv = (char *)NULL;
+    }
+/*
+ * Return the option character.
+ */
+    return(c);
+}
+
+
+/*
+ * IsLsofExec() -- see if lsof is executable
+ */
+
+char *
+IsLsofExec()
+{
+    char buf[2048];			/* temporary buffer */
+    int len;				/* temporary length */
+
+    (void) getlsofpath();
+    if (access(LsofPath, X_OK) < 0) {
+	(void) snprintf(buf, sizeof(buf) - 1,
+	    "ERROR!!!  can't execute %s: %s", LsofPath, strerror(errno));
+        return(MkStrCpy(buf, &len));
+    }
+    return((char *)NULL);
+}
+
+
+/*
+ * LTlibClean() -- clean up LTlib resource accesses
+ */
+
+void
+LTlibClean()
+{
+    (void) StopLsof();
+}
+
+
+/*
+ * MkStrCpy() -- make string copy
+ */
+
+char *
+MkStrCpy(src, len)
+    char *src;			/* string source to copy */
+    int *len;			/* returned length allocation */
+{
+    char *rp;			/* return pointer */
+    int srclen;			/* source string length */
+
+    if (!src) {
+	(void) fprintf(stderr, "ERROR!!!  no string supplied to MkStrCpy()\n");
+	exit(1);
+    }
+    srclen = (int)strlen(src);
+    *len = srclen++;
+    if (!(rp = (char *)malloc(srclen))) {
+	(void) fprintf(stderr, "ERROR!!!  MkStrCpy() -- no malloc() space");
+	exit(1);
+    }
+    (void) strcpy(rp, src);
+    return(rp);
+}
+
+
+/*
+ * PrtMsg() -- print message
+ */
+
+void
+PrtMsg(mp, pn)
+    char *mp;				/* message pointer -- may be NULL to
+					 * trigger space prefix initialization
+					 */
+    char *pn;				/* program name */
+{
+    static int pfxlen = -1;		/* prefix length, based on program */
+					/* name -- computed on first call
+					 * when pfxlen == -1 */
+    static char *pfx = (char *)NULL;	/* prefix (spaces) */
+    int ti;				/* temporary index */
+
+    if (pfxlen == -1) {
+
+    /*
+     * This is the first call.  Compute the prefix length and build the
+     * prefix.
+     */
+	if (!pn)
+	    pfxlen = 0;
+	else
+	    pfxlen = (int)(strlen(pn));
+	pfxlen += (int)strlen(" ... ");
+	if (!(pfx = (char *)malloc(pfxlen + 1))) {
+	    (void) printf( "ERROR!!!  not enough space for %d space prefix\n",
+		pfxlen);
+	    exit(1);
+	}
+	for (ti = 0; ti < pfxlen; ti++) {
+	    pfx[ti] = ' ';
+	}
+	pfx[pfxlen] = '\0';
+	MsgStat = 0;
+    }
+/*
+ * Process the message.
+ */
+    if (MsgStat)
+	(void) printf("%s", pfx);
+    if (mp && *mp) {
+	(void) printf("%s\n", mp);
+	MsgStat = 1;
+    }
+}
+
+
+/*
+ * PrtMsgX() -- print message and exit
+ */
+
+void
+PrtMsgX(mp, pn, f, xv)
+    char *mp;				/* message pointer */
+    char *pn;				/* program name */
+    void (*f)();			/* clean-up function pointer */
+    int xv;				/* exit value */
+{
+    if (mp)
+	PrtMsg(mp, pn);
+    if (f)
+	(void) (*f)();
+    (void) LTlibClean();
+    exit(xv);
+}
+
+
+/*
+ * RdFrLsof() -- read from lsof
+ */
+
+LTfldo_t *
+RdFrLsof(nf, em)
+    int *nf;				/* number of fields receiver */
+    char **em;				/* error message pointer receiver */
+{
+    char buf[2048];			/* temporary buffer */
+    int bufl = (int)sizeof(buf);	/* size of buf[] */
+    char *blim = &buf[bufl - 1];	/* buf[] limit (last character
+					 * address) */
+    char *fsp;				/* field start pointer */
+    char *tcp;				/* temporary character pointer */
+    LTfldo_t *tfop;			/* temporary field output pointer */
+    int ti;				/* temporary index */
+    int tlen;				/* remporary length */
+    char *vp;				/* value character pointer */
+/*
+ * Check for errors.
+ */
+    if (!em)
+	return((LTfldo_t *)NULL);
+    if (!nf) {
+	*em = "ERROR!!!  RdFrLsof() not given a count return pointer";
+	return((LTfldo_t *)NULL);
+    }
+    *em = (char *)NULL;
+    *nf = 0;
+/*
+ * If fields are in use, release their resources.
+ */
+    for (ti = 0, tfop = Fo; (ti < Ufo); ti++, tfop++) {
+	if (tfop->v)
+	    (void) free((void *)tfop->v);
+    }
+    Ufo = 0;
+/*
+ * Read a line from lsof.
+ */
+    if (!fgets(buf, bufl - 2, LsofFs)) {
+
+    /*
+     * An lsof pipe EOF has been reached.  Indicate that with a NULL
+     * pointer return, coupled with a NULL error message return pointer
+     * (set above), and a field count of zero (set above).
+     */
+	return((LTfldo_t *)NULL);
+    }
+/*
+ * Parse the lsof line, allocating field output structures as appropriate.
+ *
+ * It is expected that fields will end in a NUL ('\0') or a NL ('\0') and
+ * that a NL ends all fields in the lsof line.
+ */
+    for (tcp = buf, Ufo = 0; (*tcp != '\n') && (tcp < blim); tcp++) {
+
+    /*
+     * Start a new field.  The first character is the LSOF_FID_*.
+     *
+     * First allocate an LTfldo_t structure.
+     */
+	if (Ufo >= Afo) {
+
+	/*
+	 * More LTfldo_t space is required.
+	 */
+	     Afo += LT_FLDO_ALLOC;
+	     tlen = (int)(Afo * sizeof(LTfldo_t));
+	     if (Fo)
+		Fo = (LTfldo_t *)realloc(Fo, tlen);
+	     else
+		Fo = (LTfldo_t *)malloc(tlen);
+	    if (!Fo) {
+
+	    /*
+	     * A serious error has occurred; no LTfldo_t space is available.
+	     */
+		(void) snprintf(buf, bufl,
+		    "ERROR!!!  RdFrLsof() can't allocate %d pointer bytes",
+		    tlen);
+		*em = MkStrCpy(buf, &ti);
+		*nf = -1;
+		return((LTfldo_t *)NULL);
+	    }
+	}
+	tfop = Fo + Ufo;
+	tfop->v = (char *)NULL;
+	Ufo++;
+    /*
+     * Save the LSOF_FID_* character.  Then compute the field value length,
+     * and make a copy of it.
+     */
+	tfop->ft = *tcp++;
+	fsp = tcp;
+	tlen = 0;
+	while (*tcp && (*tcp != '\n') && (tcp < blim)) {
+	     tcp++;
+	     tlen++;
+	}
+	if (!(vp = (char *)malloc(tlen + 1))) {
+
+	/*
+	 * A serious error has occurred; there's no space for the field value.
+	 */
+	    (void) snprintf(buf, bufl,
+		"ERROR!!!  RdFrLsof() can't allocate %d field bytes", tlen + 1);
+	    *em = MkStrCpy(buf, &ti);
+	    *nf = -1;
+	    return((LTfldo_t *)NULL);
+	}
+	(void) memcpy((void *)vp, (void *)fsp, tlen);
+	vp[tlen] = '\0';
+	tfop->v = vp;
+	if (*tcp == '\n')
+	    break;
+	if (tcp >= blim) {
+
+	/*
+	 * The lsof line has no NL terminator; that's an error.
+	 */
+	    *em = "ERROR!!! RdFrLsof() didn't find a NL";
+	    *nf = -1;
+	    return((LTfldo_t *)NULL);
+	}
+    }
+/*
+ * The end of the lsof line has been reached.  If no fields were assembled,
+ * return an error indicate.  Otherwise return the fields and their count.
+ */
+    if (!Ufo) {
+	*em = "ERROR!!! RdFrLsof() read an empty lsof line";
+	*nf = -1;
+	return((LTfldo_t *)NULL);
+    }
+    *nf = Ufo;
+    *em = (char *)NULL;
+    return(Fo);
+}
+
+
+/*
+ * ScanArg() -- scan arguments
+ */
+
+int
+ScanArg(ac, av, opt, pn)
+    int ac;				/* argument count */
+    char *av[];				/* argument pointers */
+    char *opt;				/* option string */
+    char *pn;				/* program name */
+{
+    char *em;				/* pointer to error message returned by
+					 * GetOpt() */
+    char embf[2048];			/* error message buffer */
+    int rv = 0;				/* return value */
+    int tc;				/* temporary character value */
+/*
+ * Preset possible argument values.
+ */
+    LTopt_h = 0;
+    if (LTopt_p) {
+	(void) free((void *)LTopt_p);
+	LTopt_p = (char *)NULL;
+    }
+/*
+ * Process the options according to the supplied option string.
+ */
+    while ((tc = GetOpt(ac, av, opt, &em, pn)) != EOF) {
+	if (em) {
+	    rv = 1;
+	    PrtMsg(em, pn);
+	    continue;
+	}
+	switch (tc) {
+	case 'h':
+	    LTopt_h = 1;
+	    break;
+	case 'p':
+	    if (!GOv || *GOv == '-' || *GOv == '+') {
+		rv = 1;
+		(void) PrtMsg("ERROR!!!  -p not followed by a path", pn);
+	    } else
+		LTopt_p = GOv;
+	    break;
+	default:
+	    rv = 1;
+	    (void) snprintf(embf, sizeof(embf) - 1,
+		"ERROR!!!  unknown option: %c", tc);
+	    PrtMsg(embf, pn);
+	}
+    }
+    for (; GOx1 < ac; GOx1++) {
+
+    /*
+     * Report extraneous arguments.
+     */
+	rv = 1;
+	(void) snprintf(embf, sizeof(embf) - 1,
+	    "ERROR!!!  extraneous option: \"%s\"", av[GOx1]);
+	PrtMsg(embf, pn);
+    }
+    return(rv);
+}
+
+
+/*
+ * StopLsof() -- stop a running lsof process and close the pipe from it
+ */
+
+void
+StopLsof()
+{
+    pid_t pid;
+
+    if (LsofPid) {
+
+    /*
+     * An lsof child process may be active.  Wait for (or kill) it.
+     */
+	pid = wait3(NULL, WNOHANG, NULL);
+	if (pid != LsofPid) {
+	    (void) kill(LsofPid, SIGKILL);
+	    sleep(2);
+	    pid = wait3(NULL, WNOHANG, NULL);
+	}
+	LsofPid = (pid_t)0;
+    }
+    (void) closepipe();
+}
+
+
+/*
+ * x2dev() -- convert hex string to device number
+ */
+
+static X2DEV_T
+x2dev(x, em)
+    char *x;				/* hex string */
+    char **em;				/* error message receiver */
+{
+    char buf[2048];			/* temporary message buffer */
+    int c;				/* character holder */
+    X2DEV_T dev;			/* device number result */
+    char *wx;				/* working hex string pointer */
+    int xl;				/* hex string length */
+
+    if (!x || !*x) {
+	*em = "ERROR!!!  no hex string supplied to x2dev()";
+	return(0);
+    }
+    wx = strncasecmp(x, "0x", 2) ? x : (x + 2);
+    if (((xl = (int)strlen(wx)) < 1) || (xl > XDINDEV)) {
+	(void) snprintf(buf, sizeof(buf) - 1,
+	    "ERROR!!!  x2dev(\"%s\") bad length: %d", x, xl + 2);
+	buf[sizeof(buf) - 1] = '\0';
+	*em = MkStrCpy(buf, &c);
+	return(0);
+    }
+/*
+ * Assemble the device number result from the hex string.
+ */
+    for (dev = (X2DEV_T)0; *wx; wx++) {
+	if (isdigit((unsigned char)*wx)) {
+	    dev = (dev << 4) | (unsigned int)(((int)*wx - (int)'0') & 0xf);
+	    continue;
+	}
+	c = (int) tolower((unsigned char)*wx);
+	if ((c >= (int)'a') && (c <= (int)'f')) {
+	    dev = (dev << 4) | (unsigned int)((c - 'a' + 10) & 0xf);
+	    continue;
+	}
+	(void) snprintf(buf, sizeof(buf) - 1,
+	    "ERROR!!!  x2dev(\"%s\") non-hex character: %c", x, c);
+	*em = MkStrCpy(buf, &c);
+    }
+/*
+ * Return result and no error indication.
+ */
+    *em = (char *)NULL;
+    return(dev);
+}
+@
+
+
+1.17
+log
+@Revision 4.80
+@
+text
+@d102 15
+@
+
+
+1.16
+log
+@Revision 4.78
+@
+text
+@d181 2
+a199 2
+static int LsofFd = -1;			/* lsof pipe FD */
+static FILE *LsofFs = (FILE *)NULL;	/* stream for lsof pipe FD */
+d540 6
+a545 1
+    return((char *)NULL);			/* All is well. */
+d926 1
+a926 1
+	 * A serios error has occurred; there's no space for the field value.
+@
+
+
+1.15
+log
+@Revision 4.77
+@
+text
+@d215 1
+a215 1
+ * Default major, minor, and unit macroes.
+d358 1
+a358 1
+ * Use the pre-defined *_X() macroes to do the decomposition.
+d391 1
+a391 1
+ * Use the pre-defined *_S() macroes to do the decomposition.
+@
+
+
+1.14
+log
+@Correct spelling error in comment.
+@
+text
+@a193 2
+static int GObk[] = { 1, 1 };		/* option backspace values */
+static char GOp;			/* option prefix -- '+' or '-' */
+a339 1
+    char buf[2048];		/* temporary buffer */
+a341 1
+    int ti;			/* temporary integer */
+a342 3
+    unsigned int tmaj;		/* temporary major device number */
+    unsigned int tmin;		/* temporary minor device number */
+    unsigned int tunit;		/* temporary unit number */
+a381 2
+    char buf[2048];		/* temporary buffer */
+    int ti;			/* temporary integer */
+a419 1
+    char *tcp;				/* temporary character pointer */
+a611 1
+	GOp = opt[GOx1][0];
+a649 6
+     * Save the position of the possible value in case the caller decides it
+     * does not belong to the option and wants it reconsidered as an option
+     * character.  The caller does that with:
+     *
+     *		GOx1 = GObk[0]; GOx2 = GObk[1];
+     *
+a656 2
+	    GObk[0] = GOx1;
+	    GObk[1] = ++GOx2;
+a660 2
+	    GObk[0] = GOx1;
+	    GObk[1] = 0;
+a1060 1
+    char *cp, *cp1;			/* working character pointers */
+@
+
+
+1.13
+log
+@Revision 4.64
+Avoid language that requires and ASNCI-C compiler.
+@
+text
+@d261 1
+a261 1
+ * Get the lsof path.  If it is not the default, cgeck no further.
+@
+
+
+1.12
+log
+@Don't hand on wait().
+@
+text
+@d209 5
+a213 4
+static void closepipe();
+static void getlsofpath();
+static int GetOpt(int ct, char *opt[], char *rules, char **em, char *pn);
+static X2DEV_T x2dev(char *x, char **em);
+d336 2
+a337 2
+ConvLsofDev(
+    char *dev,			/* lsof device string -- the value to the
+d340 1
+a340 2
+    LTdev_t *ldev		/* results are returned to this structure */
+)
+d385 3
+a387 4
+ConvStatDev(
+    dev_t *dev,			/* device number to be converted */
+    LTdev_t *ldev		/* results are returned to this structure */
+)
+d415 2
+a416 2
+ExecLsof(
+    char **opt				/* lsof options -- a pointer to an
+a418 1
+)
+d588 6
+a593 7
+GetOpt(
+    int ct,				/* option count */
+    char *opt[],			/* options */
+    char *rules,			/* option rules */
+    char **em,				/* error message return */
+    char *pn
+)
+d745 3
+a747 4
+MkStrCpy(
+    char *src,			/* string source to copy */
+    int *len			/* returned length allocation */
+)
+d772 2
+a773 2
+PrtMsg(
+    char *mp,				/* message pointer -- may be NULL to
+d776 1
+a776 2
+    char *pn				/* program name */
+)
+d823 5
+a827 6
+PrtMsgX(
+    char *mp,				/* message pointer */
+    char *pn,				/* program name */
+    void (*f)(),			/* clean-up function pointer */
+    int xv				/* exit value */
+)
+d843 3
+a845 4
+RdFrLsof(
+    int *nf,				/* number of fields receiver */
+    char **em				/* error message pointer receiver */
+)
+d985 5
+a989 6
+ScanArg(
+    int ac,				/* argument count */
+    char *av[],				/* argument pointers */
+    char *opt,				/* option string */
+    char *pn				/* program name */
+)
+d1076 3
+a1078 4
+x2dev(
+    char *x,				/* hex string */
+    char **em				/* error message receiver */
+)
+@
+
+
+1.11
+log
+@Miscellaneous updates
+@
+text
+@d1067 1
+a1067 1
+	pid = wait(NULL);
+d1071 1
+a1071 1
+	    (void) wait(NULL);
+@
+
+
+1.10
+log
+@Miscellaneous updates
+@
+text
+@d47 4
+a50 1
+#define	DEV_T	dev_t			/* device type definition */
+d61 24
+a84 4
+#define	major_S(dev)	major64(dev);
+#define	minor_S(dev)	minor64(dev);
+#define	major_X(dp, em)	major64(x2dev(dp, em))
+#define	minor_X(dp, em)	minor64(x2dev(dp, em))
+d102 9
+d149 4
+a152 2
+#undef	DEV_T
+#define	DEV_T	unsigned long long
+d181 1
+d210 1
+d212 1
+a212 1
+static DEV_T x2dev(char *x, char **em);
+d245 62
+d338 1
+a338 1
+				 * (see ../lsof_fields.h) */
+d356 1
+a356 1
+	return("ERROR!!!  no device specified to ConvLsofDev()");
+d358 1
+a358 1
+	return("ERROR!!!  no result pointer specified to ConvLsofDev()");
+d360 1
+a360 1
+	return("ERROR!!!  no leading 0x in device specified to ConvLsofDev()");
+d362 2
+a363 2
+    if (((tlen = (int)strlen(dp)) < 1) || (tlen > (2 * sizeof(DEV_T))))
+	return("ERROR!!!  illegal device length specified to ConvLsofDev()");
+d367 1
+a367 1
+    ldev->maj = major_X(dp, &em);
+d370 1
+a370 1
+    ldev->min = minor_X(dp, &em);
+d373 1
+a373 1
+    ldev->unit = unit_X(dp, &em);
+d397 1
+a397 1
+	return("ERROR!!!  no device specified to ConvStatDev()");
+d399 1
+a399 1
+	return("ERROR!!!  no result pointer specified to ConvStatDev()");
+d403 3
+a405 3
+    ldev->maj = major_S(*dev);    
+    ldev->min = minor_S(*dev);
+    ldev->unit = unit_S(*dev);
+d441 1
+d449 1
+a449 1
+ * Make sure ../lsof is executable.
+d524 1
+a524 1
+	(void) execv("../lsof", av);
+d557 20
+d722 2
+a723 1
+    if (access("../lsof", X_OK) < 0) {
+d725 1
+a725 1
+	    "ERROR!!!  can't execute ../lsof: %s", strerror(errno));
+d1083 1
+a1083 1
+static DEV_T
+d1092 1
+a1092 1
+    DEV_T dev;				/* dev_t result */
+d1101 1
+a1101 1
+    if (((xl = (int)strlen(wx)) < 1) || (xl > (2 * sizeof(dev)))) {
+d1109 1
+a1109 1
+ * Assemble the dev_t result from the hex string.
+d1111 1
+a1111 1
+    for (dev = (dev_t)0; *wx; wx++) {
+@
+
+
+1.9
+log
+@Make the length returned by MkStrCpy exclude the NUL terminator.
+@
+text
+@d44 100
+d171 1
+a171 1
+ * DevCP[] -- stat(2) binary device and lsof string device component parameters
+d174 3
+a176 14
+struct devcomp {
+    int l_bmin;				/* bits in the lsof minor number */
+    int s_bmin;				/* bits in the stat(2) minor number */
+    unsigned int l_mxmin;		/* lsof maximum minor number */
+    unsigned int s_mxmin;		/* stat(2) maximum minor number */
+    unsigned int l_mxmaj;		/* lsof maximum major number */
+    unsigned int s_mxmaj;		/* stat(2) maximum major number */
+    int l_bunit;			/* bits in lsof unit number -- no unit
+					 * number if == -1 */
+    int s_bunit;			/* bits in stat(2) unit number -- no
+					 * unit number if == -1 */
+    unsigned int l_mxunit;		/* maximum lsof unit number */
+    unsigned int s_mxunit;		/* maximum stat(2) unit number */
+} static DevCP[] = {
+a177 3
+#if	defined(LT_DIAL_aix)
+    { 16, 16, 0x7fff, 0x7fff, 0x7fff, 0x7fff, -1, -1, 0, 0 },
+#endif	/* defined(LT_DIAL_aix) */
+d179 3
+a181 3
+#if	defined(LT_DIAL_hpux)
+    { 24, 24, 0xffffff, 0xffffff, 0xff, 0xff, -1, -1, 0, 0 },
+#endif	/* defined(LT_DIAL_hpux) */
+d183 3
+a185 3
+#if	defined(LT_DIAL_ns) || defined(LT_DIAL_osr)
+    { 8, 8, 0xff, 0xff, 0xff, 0xff, -1, -1, 0, 0 },
+#endif	/* defined(LT_DIAL_ns) || defined(LT_DIAL_osr) */
+d187 3
+a189 14
+#if	defined(LT_DIAL_solaris)
+# if	defined(LT_K64)
+#  if	defined(LT_GCC)
+    /* Solaris with a 64 bit kernel, using gcc to compile this test */
+    { 32, 32, 0xffffffff, 0xffffffff, 0xffffffff, 0xffffffff, -1, -1, 0, 0 },
+#  else /* !defined(LT_GCC) */
+    /* Solaris with a 64 bit kernel, NOT using gcc to compile this test */
+    { 32, 18, 0xffffffff, 0x3ffff, 0xffffffff, 0x3fff, -1, -1, 0, 0 },
+#  endif /* defined(LT_GCC) */
+# else	/* !defined(LT_K64) */
+    /* Solaris with a 32 bit kernel, using any compilr */
+    { 18, 18, 0x3ffff, 03ffff, 0x3fff, 0x3fff, -1, -1, 0, 0 },
+# endif /* defined(LT_K64) */
+#endif	/* defined(LT_DIAL_solaris) */
+d191 3
+a193 2
+};
+#define NDEVCP		(sizeof(DevCP) / sizeof(struct devcomp))
+d195 3
+d199 3
+a201 3
+/*
+ * Local function prototypes
+ */
+d203 3
+a205 3
+static void closepipe();
+static int GetOpt(int ct, char *opt[], char *rules, char **em, char *pn);
+static char *x2uint(char *x, unsigned int *ui);
+d264 2
+a265 4
+    if ((tlen = (int)strlen(dp)) < 1)
+	return("ERROR!!!  no device specified to ConvLsofDev() too short");
+    if (NDEVCP != 1)
+	return("ERROR!!!  ConvLsofDev() not defined for this dialect");
+d267 1
+a267 1
+ * Decompose the lsof hex digit string into its components.
+d269 2
+a270 68
+    if (DevCP[0].l_bmin >= 32) {
+
+    /*
+     * Process a specification for a minor device number 32 bits or larger.
+     * It's an error if the bit size is greater than 32 or if there are more
+     * than 16 hex digits in the LSOF_FID_DEVN value.
+     */
+	if (tlen > 16) {
+	    (void) snprintf(buf, sizeof(buf) - 1,
+	        "ERROR!!!  ConvLsofDev() too many hex digits: %s", dev);
+	    buf[sizeof(buf) - 1] = '\0';
+	    return(MkStrCpy(buf, &ti));
+	}
+	if (DevCP[0].l_bmin > 32) {
+	    (void) snprintf(buf, sizeof(buf) - 1,
+		"ERROR!!!  ConvLsofDev() too many minor bits: %d",
+		DevCP[0].l_bmin);
+	    buf[sizeof(buf) - 1] = '\0';
+	    return(MkStrCpy(buf, &ti));
+	}
+        if (tlen > 8) {
+	    if ((em = x2uint((dp + tlen - 8), &tmin)))
+		return(em);
+	    (void) memcpy((void *)buf, dp, tlen - 8);
+	    buf[tlen - 8] = '\0';
+	    if ((em = x2uint(buf, &tmaj)))
+		return(em);
+        } else {
+	    if ((em = x2uint(dp, &tmin)))
+		return(em);
+	    tmaj = 0;
+        }
+    /*
+     * Get the unit number, if any is specified.
+     */
+	if (DevCP[0].l_bunit != -1) {
+
+bad_lsof_unit:
+
+	    if (DevCP[0].l_bunit > DevCP[0].l_bmin) {
+		(void) snprintf(buf, sizeof(buf) - 1,
+		    "ERROR!!!  ConvLsofDev() bad unit<=>minor bits: %d<=>%d",
+		DevCP[0].l_bunit, DevCP[0].l_bmin);
+		buf[sizeof(buf) - 1] = '\0';
+		return(MkStrCpy(buf, &ti));
+	    }
+	    tunit = (tmin >> (DevCP[0].l_bmin - DevCP[0].l_bunit))
+		  & DevCP[0].l_mxunit;
+	    tmin = tmin & DevCP[0].l_mxmin;
+	} else
+	    tunit = 0;
+    /*
+     * Return the components.
+     */
+	ldev->maj = tmaj;
+	ldev->min = tmin;
+	ldev->unit = tunit;
+	return(0);
+    }
+/*
+ * Decompose a device number whose minor component is less than 32 bits long.
+ * (That implies the total device number length is 23 bits or less.)
+ *
+ * Ignore hex digits in excess of 8 as a possible sign extension.
+ */
+    if (tlen > 8)
+	dp += tlen - 8;
+    if ((em = x2uint(dp, &tmin)))
+d272 5
+a276 10
+    ldev->maj = (tmin >> DevCP[0].l_bmin) & DevCP[0].l_mxmaj;
+    ldev->min = tmin & DevCP[0].l_mxmin;
+    if (DevCP[0].l_bunit != -1) {
+	if (DevCP[0].l_bunit > DevCP[0].l_bmin)
+	    goto bad_lsof_unit;
+	ldev->unit = (tmin >> (DevCP[0].l_bmin - DevCP[0].l_bunit))
+		   & DevCP[0].l_mxunit;
+    } else
+	ldev->unit = 0;
+    return(0);
+a301 3
+
+    if (NDEVCP != 1)
+	return("ERROR!!!  ConvStatDev() not defined for this dialect");
+d303 1
+a303 1
+ * Convert device number according to the parameters in DevCP[].
+d305 3
+a307 13
+    ldev->maj = (unsigned int)(*dev >> DevCP[0].s_bmin) & DevCP[0].s_mxmaj;
+    ldev->min = (unsigned int)(*dev & DevCP[0].s_mxmin);
+    if (DevCP[0].s_bunit != -1) {
+	if (DevCP[0].s_bunit > DevCP[0].s_bmin) {
+	    (void) snprintf(buf, sizeof(buf) - 1,
+		"ERROR!!! ConvStatDev() bad unit<=>minor bits: %d<=>%d",
+		DevCP[0].s_bmin, DevCP[0].s_bunit);
+	    buf[sizeof(buf) - 1] = '\0';
+	    return(MkStrCpy(buf, &ti));
+	}
+	ldev->unit = *dev >> (DevCP[0].s_bmin - DevCP[0].s_bunit);
+    } else
+	ldev->unit = 0;
+d960 1
+a960 2
+ * x2uint() -- private function for converting a hex string to an unsigned
+ *	       integer
+d963 2
+a964 2
+static char *
+x2uint(
+d966 1
+a966 1
+    unsigned int *ui			/* result receiver */
+d969 1
+a969 1
+    char buf[512];			/* temporary message buffer */
+d971 3
+a973 1
+    char *cp, *cp1;			/* working character plointers */
+a974 2
+    char *wx;				/* working hex string pointer */
+    unsigned int uir;			/* unsigned integer result */
+d976 4
+a979 2
+    if (!x || !*x)
+	return("ERROR!!!  no hex string supplied to x2uint()");
+d981 1
+a981 1
+    if (((xl = (int)strlen(wx)) < 1) || (xl > 8)) {
+d983 1
+a983 2
+	    "ERROR!!!  unacceptable length (%d) to x2uint() hex string: \"%s\"",
+	    xl + 2, x);
+d985 2
+a986 1
+	return(MkStrCpy(buf, &c));
+a987 2
+    if (!ui)
+	return("ERROR!!!  no result pointer supplied to x2uint()");
+d989 1
+a989 1
+ * Assemble the integer result from the hex string.
+d991 1
+a991 1
+    for (uir = 0; *wx; wx++) {
+d993 1
+a993 1
+	    uir = (uir << 4) | (unsigned int)(((int)*wx - (int)'0') & 0xf);
+d998 1
+a998 1
+	    uir = (uir << 4) | (unsigned int)((c - 'a' + 10) & 0xf);
+d1002 2
+a1003 3
+	    "ERROR!!!  non-hex character (%c) in x2uint() hex string: \"%s\"",
+	    c, x);
+	return(MkStrCpy(buf, &c));
+d1006 1
+a1006 1
+ * Return result and return.
+d1008 2
+a1009 2
+    *ui = uir;
+    return((char *)NULL);
+@
+
+
+1.8
+log
+@Make PrtMsg() more flexible.
+@
+text
+@d647 2
+a648 2
+    srclen = (int)(strlen(src) + 1);
+    *len = srclen;
+@
+
+
+1.7
+log
+@Update option process and its error reporting.
+@
+text
+@a696 2
+	if (!mp)
+	    return;
+a700 2
+    if (!mp || !*mp)
+	mp = "ERROR!!!  no message supplied to PrtMsg()";
+d703 4
+a706 2
+    (void) printf("%s\n", mp);
+    MsgStat = 1;
+@
+
+
+1.6
+log
+@Correct AIX and HP-UX DevCP[] entries.
+Let ExecLsof() proceed when no options are supplied.
+@
+text
+@d523 1
+a523 1
+	    "ERROR!!!  colon is an illegal option character.\n");
+d528 1
+a528 1
+	    "ERROR!!!  illegal option character: %c\n", c);
+d925 1
+a925 1
+	    PrtMsg(em, pn);
+d927 10
+@
+
+
+1.5
+log
+@Miscellaneous updates
+@
+text
+@d90 1
+a90 1
+    { 24, 24, 0xffffff, 0xffffff, 0xff, 0xff, -1, -1, 0, 0 },
+d94 1
+a94 1
+    { 16, 16, 0x7fff, 0x7fff, 0x7fff, 0x7fff -1, -1, 0, 0 },
+a355 2
+    if (!optc)
+	return("ERROR!!!  pointers in ExecLsof() option list");
+@
+
+
+1.4
+log
+@Miscellaneous updates
+@
+text
+@d44 11
+d59 5
+a66 1
+static pid_t LsofPid = (pid_t)0;	/* PID of lsof child process */
+d71 50
+d125 1
+d170 3
+a172 1
+    unsigned int tui;		/* temporary unsigned integer */
+d187 2
+a188 6
+
+
+#undef	LT_CONVLSOFDEV
+
+# if	defined(LT_DIAL_aix)
+#define	LT_CONVLSOFDEV	1		/* indicate dialect support */
+d190 1
+a190 1
+ * Convert AIX device string.
+d192 1
+a192 17
+    if ((tlen < 5) || (tlen > 8)) {
+	(void) snprintf(buf, sizeof(buf) - 1,
+	    "ERROR!!!  ConvLsofDev() can't convert: %s", dev);
+	buf[sizeof(buf) - 1] = '\0';
+	return(MkStrCpy(buf, &ti));
+    }
+    if ((em = x2uint((dp + tlen - 4), &tui)))
+	return(em);
+    ldev->min = (unsigned int)(tui & 0x7fff);
+    (void) memcpy((void *)buf, dp, tlen - 4);
+    buf[tlen - 4] = '\0';
+    if ((em = x2uint(buf, &tui)))
+	return(em);
+    ldev->maj = (unsigned int)(tui & 0x7fff);
+    ldev->unit = 0;
+    return((char *)NULL);
+# endif	/* defined(LT_DIAL_aix) */
+d194 34
+a227 5
+# if	defined(LT_DIAL_solaris)
+#define	LT_CONVLSOFDEV	1		/* indicate dialect support */
+/*
+ * Convert Solaris device string.
+ */
+d229 21
+a249 6
+#  if	defined(LT_K64)
+    if ((tlen < 9) || (tlen > 16)) {
+	(void) snprintf(buf, sizeof(buf) - 1,
+	    "ERROR!!!  ConvLsofDev() can't convert: %s", dev);
+	buf[sizeof(buf) - 1] = '\0';
+	return(MkStrCpy(buf, &ti));
+a250 27
+    if ((em = x2uint((dp + tlen - 8), &tui)))
+	return(em);
+    ldev->min = (unsigned int)tui;
+    (void) memcpy((void *)buf, dp, tlen - 8);
+    buf[tlen - 8] = '\0';
+    if ((em = x2uint(buf, &tui)))
+	return(em);
+    ldev->maj = (unsigned int)tui;
+#  else	/* !defined(LT_K64) */
+    if (tlen > 8) {
+	(void) snprintf(buf, sizeof(buf) - 1,
+	    "ERROR!!!  ConvLsofDev() can't convert: %s", dev);
+	buf[sizeof(buf) - 1] = '\0';
+	return(MkStrCpy(buf, &ti));
+    }
+    if ((em = x2uint((dp + tlen - 8), &tui)))
+	return(em);
+    ldev->maj = (unsigned int)((tui >> 18) & 0x3ff);
+    ldev->min = (unsigned int)(tui & 0x3ffff);
+#  endif	/* defined(LT_K64) */
+
+    ldev->unit = 0;
+    return((char *)NULL);
+# endif	/* defined(LT_DIAL_solaris) */
+
+# if	defined(LT_DIAL_ns) || defined(LT_DIAL_osr)
+#define	LT_CONVLSOFDEV	1		/* indicate dialect support */
+d252 4
+a255 1
+ * Convert NEXTSTEP device string.
+d257 3
+a259 1
+    if ((em = x2uint(dp, &tui)))
+d261 10
+a270 10
+    ldev->maj = (unsigned int)((tui >> 8) & 0xff);
+    ldev->min = (unsigned int)(tui & 0xff);
+    ldev->unit = 0;
+    return((char *)NULL);
+# endif	/* defined(LT_DIAL_ns) || defined(LT_DIAL_osr) */
+
+# if	!defined(LT_CONVLSOFDEV)
+    return("ERROR!!!  ConvLsofDev() not defined for this dialect");
+# endif	/* !defined(LT_CONVLSOFDEV) */
+
+d286 2
+d297 2
+a298 4
+#undef	LT_CONVSTATDEV
+
+# if	defined(LT_DIAL_aix)
+#define	LT_CONVSTATDEV	1		/* indicate dialect support */
+d300 1
+a300 1
+ * Convert AIX device string.
+d302 13
+a314 3
+    ldev->maj = (unsigned int)((*dev >> 16) & 0x7fff);
+    ldev->min = (unsigned int)(*dev & 0x7fff);
+    ldev->unit = 0;
+a315 35
+# endif	/* defined(LT_DIAL_aix) */
+
+# if	defined(LT_DIAL_ns) || defined(LT_DIAL_osr)
+#define	LT_CONVSTATDEV	1		/* indicate dialect support */
+/*
+ * Do NEXTSTEP device conversion.
+ */
+    ldev->maj = (unsigned int)((*dev >> 8) & 0xff);
+    ldev->min = (unsigned int)(*dev & 0xff);
+    ldev->unit = 0;
+    return((char *)NULL);
+# endif	/* defined(LT_DIAL_ns) || defined(LT_DIAL_osr) */
+
+# if	defined(LT_DIAL_solaris)
+#define	LT_CONVSTATDEV	1		/* indicate dialect support */
+/*
+ * Do Solaris device conversion.
+ */
+
+#  if	defined(LT_GCC) && defined(LT_K64)
+    ldev->maj = (unsigned int)(((unsigned long long)*dev >> 32) & 0xffffffff);
+    ldev->min = (unsigned int)((unsigned long long)*dev & 0xffffffff);
+#  else	/* !defined(LT_GCC) || !defined(LT_K64) */
+    ldev->maj = (unsigned int)((*dev >> 18) & 0x3fff);
+    ldev->min = (unsigned int)(*dev & 0x3ffff);
+#  endif	/* defined(LT_GCC) && defined(LT_K64) */
+
+    ldev->unit = 0;
+    return((char *)NULL);
+# endif	/* defined(LT_DIAL_solaris) */
+
+# if	!defined(LT_CONVSTATDEV)
+    return("ERROR!!!  ConvStatDev() not defined for this dialect");
+# endif	/* !defined(LT_CONVSTATDEV) */
+
+d467 136
+d661 75
+d875 56
+@
+
+
+1.3
+log
+@Miscellaneous updates
+@
+text
+@d44 1
+a44 6
+ * Globals
+ */
+
+
+/*
+ * Locals
+@
+
+
+1.2
+log
+@Add OSR support.  Use -wFr and -F0 as lsof arguments.
+@
+text
+@d116 1
+a116 1
+	return("LTlib: no device specified to ConvLsofDev()");
+d118 1
+a118 1
+	return("LTlib: no result pointer specified to ConvLsofDev()");
+d120 1
+a120 1
+	return("LTlib: no leading 0x in device specified to ConvLsofDev()");
+d123 1
+a123 1
+	return("LTlib: no device specified to ConvLsofDev() too short");
+d135 1
+a135 1
+	    "LTlib: ConvLsofDev() can't convert: %s", dev);
+d160 1
+a160 1
+	    "LTlib: ConvLsofDev() can't convert: %s", dev);
+d175 1
+a175 1
+	    "LTlib: ConvLsofDev() can't convert: %s", dev);
+d203 1
+a203 1
+    return("LTlib: ConvLsofDev() not defined for this dialect");
+d226 1
+a226 1
+	return("LTlib: no device specified to ConvStatDev()");
+d228 1
+a228 1
+	return("LTlib: no result pointer specified to ConvStatDev()");
+d273 1
+a273 1
+    return("LTlib: ConvStatDev() not defined for this dialect");
+d311 1
+a311 1
+	return("LTlib: ExecLsof() says lsof is already in execution");
+d313 1
+a313 1
+	return("LTlib: no ExecLsof() option list");
+d317 1
+a317 1
+	return("LTlib: pointers in ExecLsof() option list");
+d328 1
+a328 1
+	    "LTlib: can't open pipe: %s", strerror(errno));
+d402 1
+a402 1
+	    "LTlib: ExecLsof() can't fork: %s", strerror(errno));
+d420 1
+a420 1
+	    return("LTlib: ExecLsof() can't open stream to lsof output FD");
+d438 1
+a438 1
+	    "LTlib: can't execute ../lsof: %s", strerror(errno));
+d470 2
+a471 2
+	*len = 0;
+	return((char *)NULL);
+d475 4
+a478 2
+    if (!(rp = (char *)malloc(srclen)))
+	return((char *)NULL);
+d510 1
+a510 1
+	*em = "LTlib: RdFrLsof() not given a count return pointer";
+d565 1
+a565 1
+		    "LTlib: RdFrLsof() can't allocate %d bytes for LDfldo_t's",
+d592 1
+a592 2
+		"Ltlib: RdFrLsof() can't allocate %d field value characters",
+		    tlen + 1);
+d607 1
+a607 2
+	    (void) snprintf(buf, bufl, "Ltlib: RdFrLsof() didn't find a NL");
+	    *em = MkStrCpy(buf, &ti);
+d617 1
+a617 1
+	*em = MkStrCpy("LTlib: RdFrLsof() read an empty lsof line", &ti);
+d672 1
+a672 1
+	return("LTlib: no hex string supplied to x2uint()");
+d676 1
+a676 1
+	    "LTlib: unacceptable length (%d) to x2uint() hex string: \"%s\"",
+d682 1
+a682 1
+	return("LTlib: no result pointer supplied to x2uint()");
+d697 1
+a697 1
+	    "LTlib: non-hex character (%c) in x2uint() hex string: \"%s\"",
+@
+
+
+1.1
+log
+@Initial revision
+@
+text
+@d54 1
+a54 1
+static char LsofFd = -1;		/* lsof pipe FD */
+d128 23
+d156 1
+d166 1
+a166 1
+    ldev->min = tui;
+d171 1
+a171 1
+    ldev->maj = tui;
+d181 2
+a182 2
+    ldev->maj = (tui >> 18) & 0x3ff;
+    ldev->min = tui & 0x3ffff;
+d189 1
+a189 1
+# if	defined(LT_DIAL_ns)
+d196 2
+a197 2
+    ldev->maj = (tui >> 8) & 0xff;
+    ldev->min = tui & 0xff;
+d200 1
+a200 1
+# endif	/* defined(LT_DIAL_ns) */
+d232 1
+a232 1
+# if	defined(LT_DIAL_ns)
+d235 11
+d248 2
+a249 2
+    ldev->maj = (*dev >> 8) & 0xff;
+    ldev->min = *dev & 0xff;
+d252 1
+a252 1
+# endif	/* defined(LT_DIAL_ns) */
+d261 2
+a262 2
+    ldev->maj = (int)(((unsigned long long)*dev >> 32) & 0xffffffff);
+    ldev->min = (int)((unsigned long long)*dev & 0xffffffff);
+d264 2
+a265 2
+    ldev->maj = (*dev >> 18) & 0x3fff;
+    ldev->min = *dev & 0x3ffff;
+d333 2
+a334 2
+ * to "lsof", the second to "-F0".  Additional entries will be set as
+ * supplied by the caller.
+d336 2
+a337 2
+    if ((optc + 3) > ava) {
+	tlen = (int)(sizeof(char *) * (optc + 3));
+d345 1
+a345 1
+		optc + 3);
+d348 1
+a348 1
+	ava = optc + 3;
+d350 1
+a350 1
+    for (ti = 0, tcpp = opt; ti < (optc + 2); ti++) {
+d356 3
+@

@@ -1,0 +1,779 @@
+head	1.14;
+access;
+symbols;
+locks; strict;
+comment	@ * @;
+
+
+1.14
+date	2018.02.14.14.19.25;	author abe;	state Exp;
+branches;
+next	1.13;
+
+1.13
+date	2014.10.13.22.36.20;	author abe;	state Exp;
+branches;
+next	1.12;
+
+1.12
+date	2010.07.29.15.59.28;	author abe;	state Exp;
+branches;
+next	1.11;
+
+1.11
+date	2006.09.15.18.53.21;	author abe;	state Exp;
+branches;
+next	1.10;
+
+1.10
+date	2004.03.10.23.43.03;	author abe;	state Exp;
+branches;
+next	1.9;
+
+1.9
+date	2001.10.15.12.12.16;	author abe;	state Exp;
+branches;
+next	1.8;
+
+1.8
+date	2001.02.13.02.07.46;	author abe;	state Exp;
+branches;
+next	1.7;
+
+1.7
+date	99.06.22.09.58.19;	author abe;	state Exp;
+branches;
+next	1.6;
+
+1.6
+date	99.05.04.08.15.57;	author abe;	state Exp;
+branches;
+next	1.5;
+
+1.5
+date	99.04.27.15.40.10;	author abe;	state Exp;
+branches;
+next	1.4;
+
+1.4
+date	98.12.28.10.14.25;	author abe;	state Exp;
+branches;
+next	1.3;
+
+1.3
+date	97.09.23.08.38.35;	author abe;	state Exp;
+branches;
+next	1.2;
+
+1.2
+date	97.08.15.07.25.46;	author abe;	state Exp;
+branches;
+next	1.1;
+
+1.1
+date	97.02.24.07.12.05;	author abe;	state Exp;
+branches;
+next	;
+
+
+desc
+@Lsof version 4
+@
+
+
+1.14
+log
+@Revision 4.90
+@
+text
+@/*
+ * lsof_field.sh - field ID characters for lsof output that can be parsed
+ *		   (selected with -f or -F)
+ */
+
+
+/*
+ * Copyright 1994 Purdue Research Foundation, West Lafayette, Indiana
+ * 47907.  All rights reserved.
+ *
+ * Written by Victor A. Abell
+ *
+ * This software is not subject to any license of the American Telephone
+ * and Telegraph Company or the Regents of the University of California.
+ *
+ * Permission is granted to anyone to use this software for any purpose on
+ * any computer system, and to alter it and redistribute it freely, subject
+ * to the following restrictions:
+ *
+ * 1. Neither the authors nor Purdue University are responsible for any
+ *    consequences of the use of this software.
+ *
+ * 2. The origin of this software must not be misrepresented, either by
+ *    explicit claim or by omission.  Credit to the authors and Purdue
+ *    University must appear in documentation and sources.
+ *
+ * 3. Altered versions must be plainly marked as such, and must not be
+ *    misrepresented as being the original software.
+ *
+ * 4. This notice may not be removed or altered.
+ */
+
+
+/*
+ * $Id: lsof_fields.h,v 1.13 2014/10/13 22:36:20 abe Exp abe $
+ */
+
+
+#if	!defined(LSOF_FORMAT_H)
+#define	LSOF_FORMAT_H	1
+
+/*
+ * Codes for output fields:
+ *
+ *	LSOF_FID_*	ID character
+ *	LSOF_FIX_*	ID index
+ *	LSOF_FNM_*	name
+ *
+ * A field is displayed in the form:
+ *		<ID_character><data><field_terminator>
+ *	
+ * Output fields are normally terminated with a NL ('\n'), but the field
+ * terminator can be set to NUL with the -0 (zero) option to lsof.
+ *
+ * Field sets -- process-specific information or information specific
+ * to a single file descriptor -- are terminated with NL when the field
+ * terminator is NUL.
+ */
+
+#define	LSOF_FID_ACCESS		'a'
+#define	LSOF_FIX_ACCESS		0
+#define	LSOF_FNM_ACCESS		"access: r = read; w = write; u = read/write"
+
+#define	LSOF_FID_CMD		'c'
+#define	LSOF_FIX_CMD		1
+#define	LSOF_FNM_CMD		"command name"
+
+#define	LSOF_FID_CT		'C'
+#define	LSOF_FIX_CT		2
+#define	LSOF_FNM_CT		"file struct share count"
+
+#define	LSOF_FID_DEVCH		'd'
+#define	LSOF_FIX_DEVCH		3
+#define	LSOF_FNM_DEVCH		"device character code"
+
+#define	LSOF_FID_DEVN		'D'
+#define	LSOF_FIX_DEVN		4
+#define	LSOF_FNM_DEVN		"major/minor device number as 0x<hex>"
+
+#define	LSOF_FID_FD		'f'
+#define	LSOF_FIX_FD		5
+#define	LSOF_FNM_FD		"file descriptor (always selected)"
+
+#define	LSOF_FID_FA		'F'
+#define	LSOF_FIX_FA		6
+#define	LSOF_FNM_FA		"file struct address as 0x<hex>"
+
+#define	LSOF_FID_FG		'G'
+#define	LSOF_FIX_FG		7
+#define	LSOF_FNM_FG		"file flaGs"
+
+#define	LSOF_FID_INODE		'i'
+#define	LSOF_FIX_INODE		8
+#define	LSOF_FNM_INODE		"inode number"
+
+#define	LSOF_FID_NLINK		'k'
+#define	LSOF_FIX_NLINK		9
+#define	LSOF_FNM_NLINK		"link count"
+
+#define	LSOF_FID_TID		'K'
+#define	LSOF_FIX_TID		10
+#define	LSOF_FNM_TID		"task ID (TID)"
+
+#define	LSOF_FID_LOCK		'l'
+#define	LSOF_FIX_LOCK		11
+#define	LSOF_FNM_LOCK		"lock: r/R = read; w/W = write; u = read/write"
+
+#define	LSOF_FID_LOGIN		'L'
+#define	LSOF_FIX_LOGIN		12
+#define	LSOF_FNM_LOGIN		"login name"
+
+#define	LSOF_FID_MARK		'm'
+#define	LSOF_FIX_MARK		13
+#define	LSOF_FNM_MARK		"marker between repeated output"
+
+#define	LSOF_FID_TCMD		'M'
+#define	LSOF_FIX_TCMD		14
+#define	LSOF_FNM_TCMD		"task comMand name"
+
+#define	LSOF_FID_NAME		'n'
+#define	LSOF_FIX_NAME		15
+#define	LSOF_FNM_NAME		"comment, name, Internet addresses"
+
+#define	LSOF_FID_NI		'N'
+#define	LSOF_FIX_NI		16
+#define	LSOF_FNM_NI		"file struct node ID as 0x<hex>"
+
+#define	LSOF_FID_OFFSET		'o'
+#define	LSOF_FIX_OFFSET		17
+#define	LSOF_FNM_OFFSET		"file offset as 0t<dec> or 0x<hex>"
+
+#define	LSOF_FID_PID		'p'
+#define	LSOF_FIX_PID		18
+#define	LSOF_FNM_PID		"process ID (PID)"
+
+#define	LSOF_FID_PGID		'g'
+#define	LSOF_FIX_PGID		19
+#define	LSOF_FNM_PGID		"process group ID (PGID)"
+
+#define	LSOF_FID_PROTO		'P'
+#define	LSOF_FIX_PROTO		20
+#define	LSOF_FNM_PROTO		"protocol name"
+
+#define	LSOF_FID_RDEV		'r'
+#define	LSOF_FIX_RDEV		21
+#define	LSOF_FNM_RDEV		"raw device number as 0x<hex>"
+
+#define	LSOF_FID_PPID		'R'
+#define	LSOF_FIX_PPID		22
+#define	LSOF_FNM_PPID		"paRent PID"
+
+#define	LSOF_FID_SIZE		's'
+#define	LSOF_FIX_SIZE		23
+#define	LSOF_FNM_SIZE		"file size"
+
+#define	LSOF_FID_STREAM		'S'
+#define	LSOF_FIX_STREAM		24
+#define	LSOF_FNM_STREAM		"stream module and device names"
+
+#define	LSOF_FID_TYPE		't'
+#define	LSOF_FIX_TYPE		25
+#define	LSOF_FNM_TYPE		"file type"
+
+#define	LSOF_FID_TCPTPI		'T'
+#define	LSOF_FIX_TCPTPI		26
+#define	LSOF_FNM_TCPTPI		"TCP/TPI info"
+
+#define	LSOF_FID_UID		'u'
+#define	LSOF_FIX_UID		27
+#define	LSOF_FNM_UID		"user ID (UID)"
+
+#define	LSOF_FID_ZONE		'z'
+#define	LSOF_FIX_ZONE		28
+#define	LSOF_FNM_ZONE		"zone name"
+
+#define	LSOF_FID_CNTX		'Z'
+#define	LSOF_FIX_CNTX		29
+#define	LSOF_FNM_CNTX		"security context"
+
+#define	LSOF_FID_TERM		'0'
+#define	LSOF_FIX_TERM		30
+#define	LSOF_FNM_TERM		"(zero) use NUL field terminator instead of NL"
+
+#endif	/* !defined(LSOF_FORMAT_H) */
+@
+
+
+1.13
+log
+@Revision 4.88
+@
+text
+@d35 1
+a35 1
+ * $Id: lsof_fields.h,v 1.12 2010/07/29 15:59:28 abe Exp abe $
+d116 4
+d121 1
+a121 1
+#define	LSOF_FIX_NAME		14
+d125 1
+a125 1
+#define	LSOF_FIX_NI		15
+d129 1
+a129 1
+#define	LSOF_FIX_OFFSET		16
+d133 1
+a133 1
+#define	LSOF_FIX_PID		17
+d137 1
+a137 1
+#define	LSOF_FIX_PGID		18
+d141 1
+a141 1
+#define	LSOF_FIX_PROTO		19
+d145 1
+a145 1
+#define	LSOF_FIX_RDEV		20
+d149 1
+a149 1
+#define	LSOF_FIX_PPID		21
+d153 1
+a153 1
+#define	LSOF_FIX_SIZE		22
+d157 1
+a157 1
+#define	LSOF_FIX_STREAM		23
+d161 1
+a161 1
+#define	LSOF_FIX_TYPE		24
+d165 1
+a165 1
+#define	LSOF_FIX_TCPTPI		25
+d169 1
+a169 1
+#define	LSOF_FIX_UID		26
+d173 1
+a173 1
+#define	LSOF_FIX_ZONE		27
+d177 1
+a177 1
+#define	LSOF_FIX_CNTX		28
+d181 1
+a181 1
+#define	LSOF_FIX_TERM		29
+@
+
+
+1.12
+log
+@Revision 4.84
+@
+text
+@d35 1
+a35 1
+ * $Id: lsof_fields.h,v 1.11 2006/09/15 18:53:21 abe Exp abe $
+d82 1
+a82 1
+#define	LSOF_FNM_FD		"file descriptor"
+@
+
+
+1.11
+log
+@Revision 4.78, part 1
+@
+text
+@d2 2
+a3 2
+ * lsof_field.h - field ID characters for lsof output that can be parsed
+ *		  (selected with -f or -F)
+d35 1
+a35 1
+ * $Id: lsof_fields.h,v 1.10 2004/03/10 23:43:03 abe Exp abe $
+d100 4
+d105 1
+a105 1
+#define	LSOF_FIX_LOCK		10
+d109 1
+a109 1
+#define	LSOF_FIX_LOGIN		11
+d113 1
+a113 1
+#define	LSOF_FIX_MARK		12
+d117 1
+a117 1
+#define	LSOF_FIX_NAME		13
+d121 1
+a121 1
+#define	LSOF_FIX_NI		14
+d125 1
+a125 1
+#define	LSOF_FIX_OFFSET		15
+d129 1
+a129 1
+#define	LSOF_FIX_PID		16
+d133 1
+a133 1
+#define	LSOF_FIX_PGID		17
+d137 1
+a137 1
+#define	LSOF_FIX_PROTO		18
+d141 1
+a141 1
+#define	LSOF_FIX_RDEV		19
+d145 1
+a145 1
+#define	LSOF_FIX_PPID		20
+d149 1
+a149 1
+#define	LSOF_FIX_SIZE		21
+d153 1
+a153 1
+#define	LSOF_FIX_STREAM		22
+d157 1
+a157 1
+#define	LSOF_FIX_TYPE		23
+d161 1
+a161 1
+#define	LSOF_FIX_TCPTPI		24
+d165 1
+a165 1
+#define	LSOF_FIX_UID		25
+d169 1
+a169 1
+#define	LSOF_FIX_ZONE		26
+d173 1
+a173 1
+#define	LSOF_FIX_CNTX		27
+d177 1
+a177 1
+#define	LSOF_FIX_TERM		28
+@
+
+
+1.10
+log
+@Revision 4.71
+@
+text
+@d35 1
+a35 1
+ * $Id: lsof_fields.h,v 1.9 2001/10/15 12:12:16 abe Exp abe $
+d168 4
+d173 1
+a173 1
+#define	LSOF_FIX_TERM		27
+@
+
+
+1.9
+log
+@Revision 4.59
+@
+text
+@d35 1
+a35 1
+ * $Id: lsof_fields.h,v 1.8 2001/02/13 02:07:46 abe Exp abe $
+d164 4
+d169 1
+a169 1
+#define	LSOF_FIX_TERM		26
+@
+
+
+1.8
+log
+@Revision 4.55
+@
+text
+@d35 1
+a35 1
+ * $Id: lsof_fields.h,v 1.7 1999/06/22 09:58:19 abe Exp abe $
+d136 4
+d141 1
+a141 1
+#define	LSOF_FIX_PPID		19
+d145 1
+a145 1
+#define	LSOF_FIX_SIZE		20
+d149 1
+a149 1
+#define	LSOF_FIX_STREAM		21
+d153 1
+a153 1
+#define	LSOF_FIX_TYPE		22
+d157 1
+a157 1
+#define	LSOF_FIX_TCPTPI		23
+d161 1
+a161 1
+#define	LSOF_FIX_UID		24
+d165 1
+a165 1
+#define	LSOF_FIX_TERM		25
+@
+
+
+1.7
+log
+@Revision 4.44
+@
+text
+@d35 1
+a35 1
+ * $Id: lsof_fields.h,v 1.6 99/05/04 08:15:57 abe Exp Locker: abe $
+d128 3
+a130 3
+#define	LSOF_FID_PGRP		'g'
+#define	LSOF_FIX_PGRP		17
+#define	LSOF_FNM_PGRP		"process group ID (PGRP)"
+@
+
+
+1.6
+log
+@Revision 4.43
+@
+text
+@d35 1
+a35 1
+ * $Id: lsof_fields.h,v 1.5 99/04/27 15:40:10 abe Exp Locker: abe $
+d80 4
+d85 1
+a85 1
+#define	LSOF_FIX_FA		5
+a87 4
+#define	LSOF_FID_FD		'f'
+#define	LSOF_FIX_FD		6
+#define	LSOF_FNM_FD		"file descriptor"
+
+a111 4
+#define	LSOF_FID_NA		'N'
+#define	LSOF_FIX_NA		13
+#define	LSOF_FNM_NA		"file struct node address as 0x<hex>"
+
+d113 1
+a113 1
+#define	LSOF_FIX_NAME		14
+d116 4
+d137 1
+a137 1
+#define	LSOF_FIX_PPID		18
+@
+
+
+1.5
+log
+@Revision 4.43
+Add file structure flag field.
+@
+text
+@d35 1
+a35 1
+ * $Id: lsof_fields.h,v 1.4 98/12/28 10:14:25 abe Exp Locker: abe $
+d96 4
+d101 1
+a101 1
+#define	LSOF_FIX_LOCK		9
+d105 1
+a105 1
+#define	LSOF_FIX_LOGIN		10
+d109 1
+a109 1
+#define	LSOF_FIX_MARK		11
+d113 1
+a113 1
+#define	LSOF_FIX_NA		12
+d117 1
+a117 1
+#define	LSOF_FIX_NAME		13
+d121 1
+a121 1
+#define	LSOF_FIX_OFFSET		14
+d125 1
+a125 1
+#define	LSOF_FIX_PID		15
+d129 1
+a129 1
+#define	LSOF_FIX_PGRP		16
+d133 1
+a133 1
+#define	LSOF_FIX_PROTO		17
+d141 1
+a141 1
+#define	LSOF_FIX_SIZE		19
+d145 1
+a145 1
+#define	LSOF_FIX_STREAM		20
+d149 1
+a149 1
+#define	LSOF_FIX_TYPE		21
+d153 1
+a153 1
+#define	LSOF_FIX_TCPTPI		22
+d157 1
+a157 1
+#define	LSOF_FIX_UID		23
+d161 1
+a161 1
+#define	LSOF_FIX_TERM		24
+@
+
+
+1.4
+log
+@Revision 4.39
+@
+text
+@d35 1
+a35 1
+ * $Id: lsof_fields.h,v 1.3 97/09/23 08:38:35 abe Exp Locker: abe $
+d88 4
+d93 1
+a93 1
+#define	LSOF_FIX_INODE		7
+d97 1
+a97 1
+#define	LSOF_FIX_LOCK		8
+d101 1
+a101 1
+#define	LSOF_FIX_LOGIN		9
+d105 1
+a105 1
+#define	LSOF_FIX_MARK		10
+d109 1
+a109 1
+#define	LSOF_FIX_NA		11
+d113 1
+a113 1
+#define	LSOF_FIX_NAME		12
+d117 1
+a117 1
+#define	LSOF_FIX_OFFSET		13
+d121 1
+a121 1
+#define	LSOF_FIX_PID		14
+d125 1
+a125 1
+#define	LSOF_FIX_PGRP		15
+d129 1
+a129 1
+#define	LSOF_FIX_PROTO		16
+d133 1
+a133 1
+#define	LSOF_FIX_PPID		17
+d137 1
+a137 1
+#define	LSOF_FIX_SIZE		18
+d141 1
+a141 1
+#define	LSOF_FIX_STREAM		19
+d145 1
+a145 1
+#define	LSOF_FIX_TYPE		20
+d149 1
+a149 1
+#define	LSOF_FIX_TCPTPI		21
+d153 1
+a153 1
+#define	LSOF_FIX_UID		22
+d157 2
+a158 2
+#define	LSOF_FIX_TERM		23
+#define	LSOF_FNM_TERM		"use NUL field terminator instead of NL"
+@
+
+
+1.3
+log
+@Revision 4.16
+Change TCPTPI explanation.
+@
+text
+@d35 1
+a35 1
+ * $Id: lsof_fields.h,v 1.2 97/08/15 07:25:46 abe Exp Locker: abe $
+d68 4
+d73 1
+a73 1
+#define	LSOF_FIX_DEVCH		2
+d77 1
+a77 1
+#define	LSOF_FIX_DEVN		3
+d80 4
+d85 1
+a85 1
+#define	LSOF_FIX_FD		4
+d89 1
+a89 1
+#define	LSOF_FIX_INODE		5
+d93 1
+a93 1
+#define	LSOF_FIX_LOCK		6
+d97 1
+a97 1
+#define	LSOF_FIX_LOGIN		7
+d101 1
+a101 1
+#define	LSOF_FIX_MARK		8
+d104 4
+d109 1
+a109 1
+#define	LSOF_FIX_NAME		9
+d113 1
+a113 1
+#define	LSOF_FIX_OFFSET		10
+d117 1
+a117 1
+#define	LSOF_FIX_PID		11
+d121 1
+a121 1
+#define	LSOF_FIX_PGRP		12
+d125 1
+a125 1
+#define	LSOF_FIX_PROTO		13
+d129 1
+a129 1
+#define	LSOF_FIX_PPID		14
+d133 1
+a133 1
+#define	LSOF_FIX_SIZE		15
+d137 1
+a137 1
+#define	LSOF_FIX_STREAM		16
+d141 1
+a141 1
+#define	LSOF_FIX_TYPE		17
+d145 1
+a145 1
+#define	LSOF_FIX_TCPTPI		18
+d149 1
+a149 1
+#define	LSOF_FIX_UID		19
+d153 1
+a153 1
+#define	LSOF_FIX_TERM		20
+a154 20
+
+/*
+ * Field identifiers '1' through '9' are reserved for dialect-specified
+ * fields.
+ *
+ * These field identifiers have no LSOF_FID_*, LSOF_FIX_*, or
+ * LSOF_FNM_* definitions.  LSOF_FID_* is always '1' through '9'.
+ * LSOF_FIX_* is always LSOF_FIX_TERM plus the value of the field
+ * identifier.  LSOF_FNM_* is the string value of:
+ *
+ *	HASFIELDAP<field_identifier_digit>
+ *
+ * Dialects that use these private fields must provide macros for
+ * listing them, defined by:
+ *
+ *	LISTLFILEAP<field_identifier_digit>
+ *
+ * These definitions are made in the dialect's machine.h header file.
+ * See ./dialects/ptx/machine.h for an example.
+ */
+@
+
+
+1.2
+log
+@Revision 4.15
+Report TCP/TPI state.
+@
+text
+@d35 1
+a35 1
+ * $Id: lsof_fields.h,v 1.1 97/02/24 07:12:05 abe Exp Locker: abe $
+d134 1
+a134 1
+#define	LSOF_FNM_TCPTPI		"TCP/TPI state"
+@
+
+
+1.1
+log
+@Initial revision
+@
+text
+@d35 1
+a35 1
+ * $Id: lsof_fields.h,v 1.8 97/01/17 09:35:33 abe Exp $
+d132 4
+d137 1
+a137 1
+#define	LSOF_FIX_UID		18
+d141 1
+a141 1
+#define	LSOF_FIX_TERM		19
+@

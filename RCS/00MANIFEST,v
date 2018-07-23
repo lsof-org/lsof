@@ -1,0 +1,1851 @@
+head	1.51;
+access;
+symbols;
+locks; strict;
+comment	@# @;
+
+
+1.51
+date	2013.01.02.17.10.53;	author abe;	state Exp;
+branches;
+next	1.50;
+
+1.50
+date	2010.01.18.19.09.47;	author abe;	state Exp;
+branches;
+next	1.49;
+
+1.49
+date	2009.03.25.19.19.04;	author abe;	state Exp;
+branches;
+next	1.48;
+
+1.48
+date	2008.04.15.13.39.03;	author abe;	state Exp;
+branches;
+next	1.47;
+
+1.47
+date	2007.04.24.19.04.31;	author abe;	state Exp;
+branches;
+next	1.46;
+
+1.46
+date	2007.04.24.16.13.44;	author abe;	state Exp;
+branches;
+next	1.45;
+
+1.45
+date	2006.03.27.23.01.45;	author abe;	state Exp;
+branches;
+next	1.44;
+
+1.44
+date	2005.08.30.19.49.44;	author abe;	state Exp;
+branches;
+next	1.43;
+
+1.43
+date	2005.05.11.23.29.21;	author abe;	state Exp;
+branches;
+next	1.42;
+
+1.42
+date	2005.05.11.13.03.56;	author abe;	state Exp;
+branches;
+next	1.41;
+
+1.41
+date	2004.07.06.19.12.50;	author abe;	state Exp;
+branches;
+next	1.40;
+
+1.40
+date	2004.01.14.11.22.26;	author abe;	state Exp;
+branches;
+next	1.39;
+
+1.39
+date	2003.10.13.14.07.38;	author abe;	state Exp;
+branches;
+next	1.38;
+
+1.38
+date	2003.03.21.17.37.40;	author abe;	state Exp;
+branches;
+next	1.37;
+
+1.37
+date	2002.06.17.01.48.04;	author abe;	state Exp;
+branches;
+next	1.36;
+
+1.36
+date	2002.04.22.12.26.59;	author abe;	state Exp;
+branches;
+next	1.35;
+
+1.35
+date	2001.10.15.18.48.38;	author abe;	state Exp;
+branches;
+next	1.34;
+
+1.34
+date	2001.07.19.19.09.50;	author abe;	state Exp;
+branches;
+next	1.33;
+
+1.33
+date	2001.05.03.12.37.43;	author abe;	state Exp;
+branches;
+next	1.32;
+
+1.32
+date	2001.02.15.17.30.38;	author abe;	state Exp;
+branches;
+next	1.31;
+
+1.31
+date	2000.12.06.16.05.43;	author abe;	state Exp;
+branches;
+next	1.30;
+
+1.30
+date	2000.11.05.13.38.10;	author abe;	state Exp;
+branches;
+next	1.29;
+
+1.29
+date	2000.08.21.19.47.37;	author abe;	state Exp;
+branches;
+next	1.28;
+
+1.28
+date	2000.06.29.13.31.26;	author abe;	state Exp;
+branches;
+next	1.27;
+
+1.27
+date	99.06.22.10.34.04;	author abe;	state Exp;
+branches;
+next	1.26;
+
+1.26
+date	99.05.04.14.55.46;	author abe;	state Exp;
+branches;
+next	1.25;
+
+1.25
+date	99.05.04.08.18.06;	author abe;	state Exp;
+branches;
+next	1.24;
+
+1.24
+date	99.02.27.16.06.14;	author abe;	state Exp;
+branches;
+next	1.23;
+
+1.23
+date	98.12.29.09.49.48;	author abe;	state Exp;
+branches;
+next	1.22;
+
+1.22
+date	98.11.25.10.11.15;	author abe;	state Exp;
+branches;
+next	1.21;
+
+1.21
+date	98.09.15.07.30.48;	author abe;	state Exp;
+branches;
+next	1.20;
+
+1.20
+date	98.06.26.15.46.58;	author abe;	state Exp;
+branches;
+next	1.19;
+
+1.19
+date	98.04.08.22.23.32;	author abe;	state Exp;
+branches;
+next	1.18;
+
+1.18
+date	98.03.18.16.50.17;	author abe;	state Exp;
+branches;
+next	1.17;
+
+1.17
+date	98.03.06.19.06.06;	author abe;	state Exp;
+branches;
+next	1.16;
+
+1.16
+date	98.02.17.22.24.29;	author abe;	state Exp;
+branches;
+next	1.15;
+
+1.15
+date	98.01.16.14.53.52;	author abe;	state Exp;
+branches;
+next	1.14;
+
+1.14
+date	97.10.25.11.18.36;	author abe;	state Exp;
+branches;
+next	1.13;
+
+1.13
+date	97.10.24.08.28.44;	author abe;	state Exp;
+branches;
+next	1.12;
+
+1.12
+date	97.10.14.08.09.25;	author abe;	state Exp;
+branches;
+next	1.11;
+
+1.11
+date	97.09.25.06.04.23;	author abe;	state Exp;
+branches;
+next	1.10;
+
+1.10
+date	97.07.22.10.52.26;	author abe;	state Exp;
+branches;
+next	1.9;
+
+1.9
+date	97.07.09.08.38.07;	author abe;	state Exp;
+branches;
+next	1.8;
+
+1.8
+date	97.06.24.07.35.01;	author abe;	state Exp;
+branches;
+next	1.7;
+
+1.7
+date	97.06.01.15.09.51;	author abe;	state Exp;
+branches;
+next	1.6;
+
+1.6
+date	97.04.29.15.50.25;	author abe;	state Exp;
+branches;
+next	1.5;
+
+1.5
+date	97.04.24.06.56.16;	author abe;	state Exp;
+branches;
+next	1.4;
+
+1.4
+date	97.04.17.13.50.41;	author abe;	state Exp;
+branches;
+next	1.3;
+
+1.3
+date	97.03.21.13.59.02;	author abe;	state Exp;
+branches;
+next	1.2;
+
+1.2
+date	97.02.25.08.15.50;	author abe;	state Exp;
+branches;
+next	1.1;
+
+1.1
+date	97.02.24.07.22.00;	author abe;	state Exp;
+branches;
+next	;
+
+
+desc
+@Lsof version 4
+@
+
+
+1.51
+log
+@Revision 4.87
+@
+text
+@.:
+00.README.FIRST
+00CREDITS
+00DCACHE
+00DIALECTS
+00DIST
+00FAQ
+00LSOF-L
+00MANIFEST
+00PORTING
+00QUICKSTART
+00README
+00TEST
+00XCONFIG
+AFSConfig*
+ChangeLog
+Configure*
+Customize*
+Inventory*
+arg.c
+dialects/
+lib/
+lsof.8
+lsof.h
+lsof.man
+lsof_fields.h
+main.c
+misc.c
+node.c
+print.c
+proc.c
+proto.h
+regex.h
+scripts/
+store.c
+tests/
+usage.c
+util.c
+version
+
+./dialects:
+aix/
+darwin/
+du/
+freebsd/
+hpux/
+linux/
+n+obsd/
+n+os/
+osr/
+sun/
+uw/
+
+./dialects/aix:
+Makefile
+Mksrc*
+aix5/
+ddev.c
+dfile.c
+dlsof.h
+dmnt.c
+dnode.c
+dnode1.c
+dnode2.c
+dproc.c
+dproto.h
+dsock.c
+dstore.c
+machine.h
+
+./dialects/aix/aix5:
+README
+j2/
+
+./dialects/aix/aix5/j2:
+j2_lock.h
+private_j2_snapshot.h
+
+./dialects/darwin:
+get-hdr-loc.sh*
+kmem/
+libproc/
+
+./dialects/darwin/kmem:
+Makefile
+Mksrc*
+ddev.c
+dfile.c
+dlsof.h
+dmnt.c
+dnode.c
+dnode1.c
+dproc.c
+dproto.h
+dsock.c
+dstore.c
+machine.h
+
+./dialects/darwin/libproc:
+Makefile
+Mksrc*
+ddev.c
+dfile.c
+dlsof.h
+dmnt.c
+dproc.c
+dproto.h
+dsock.c
+dstore.c
+machine.h
+
+./dialects/du:
+Makefile
+Mksrc*
+ddev.c
+dfile.c
+dlsof.h
+dmnt.c
+dnode.c
+dproc.c
+dproto.h
+dsock.c
+dstore.c
+machine.h
+
+./dialects/freebsd:
+Makefile
+Makefile.zfs
+Mksrc*
+dlsof.h
+dmnt.c
+dnode.c
+dnode1.c
+dnode2.c
+dproc.c
+dproto.h
+dsock.c
+dstore.c
+dzfs.h
+include/
+machine.h
+
+./dialects/freebsd/include:
+procfs/
+
+./dialects/freebsd/include/procfs:
+pfsnode.h
+
+./dialects/hpux:
+kmem/
+pstat/
+
+./dialects/hpux/kmem:
+Makefile
+Mksrc*
+dfile.c
+dlsof.h
+dmnt.c
+dnode.c
+dnode1.c
+dnode2.c
+dproc.c
+dproto.h
+dsock.c
+dstore.c
+hpux11/
+machine.h
+
+./dialects/hpux/kmem/hpux11:
+ipc_s.h
+kernbits.h
+lla.h
+nfs_clnt.h
+proc.h
+rnode.h
+sth.h
+tcp_s.h
+udp_s.h
+vnode.h
+
+./dialects/hpux/pstat:
+Makefile
+Mksrc*
+dfile.c
+dlsof.h
+dproc.c
+dproto.h
+dsock.c
+dstore.c
+machine.h
+
+./dialects/linux:
+Makefile
+Mksrc*
+dfile.c
+dlsof.h
+dmnt.c
+dnode.c
+dproc.c
+dproto.h
+dsock.c
+dstore.c
+machine.h
+
+./dialects/n+obsd:
+Makefile
+Mksrc*
+dlsof.h
+dmnt.c
+dnode.c
+dnode1.c
+dproc.c
+dproto.h
+dsock.c
+dstore.c
+machine.h
+
+./dialects/n+os:
+Makefile
+Mksrc*
+dlsof.h
+dnode.c
+dnode1.c
+dproc.c
+dproto.h
+dsock.c
+dstore.c
+machine.h
+
+./dialects/osr:
+Makefile
+Mksrc*
+dfile.c
+dlsof.h
+dmnt.c
+dnode.c
+dproc.c
+dproto.h
+dsock.c
+dstore.c
+include/
+machine.h
+
+./dialects/osr/include:
+netdb.h
+sys/
+
+./dialects/osr/include/sys:
+cdefs.h
+
+./dialects/sun:
+Makefile
+Mksrc*
+ddev.c
+dfile.c
+dlsof.h
+dmnt.c
+dnode.c
+dnode1.c
+dnode2.c
+dproc.c
+dproto.h
+dsock.c
+dstore.c
+machine.h
+solaris_kaddr_filters
+
+./dialects/uw:
+Makefile
+Mksrc*
+dfile.c
+dlsof.h
+dmnt.c
+dnode.c
+dnode1.c
+dnode2.c
+dnode3.c
+dproc.c
+dproto.h
+dsock.c
+dstore.c
+machine.h
+uw7/
+
+./dialects/uw/uw7:
+README
+fs/
+sys/
+vm/
+
+./dialects/uw/uw7/fs:
+nsc_cfs/
+procfs/
+
+./dialects/uw/uw7/fs/nsc_cfs:
+cnode.h
+
+./dialects/uw/uw7/fs/procfs:
+README
+prdata.h
+
+./dialects/uw/uw7/sys:
+fs/
+
+./dialects/uw/uw7/sys/fs:
+README
+fifonode.h
+namenode.h
+
+./dialects/uw/uw7/vm:
+
+./lib:
+Makefile.skel
+ckkv.c
+cvfs.c
+dvch.c
+fino.c
+isfn.c
+lkud.c
+pdvn.c
+prfp.c
+ptti.c
+rdev.c
+regex.c
+rmnt.c
+rnam.c
+rnch.c
+rnmh.c
+snpf.c
+
+./scripts:
+00MANIFEST
+00README
+big_brother.perl5*
+count_pf.perl*
+count_pf.perl5*
+identd.perl5*
+idrlogin.perl*
+idrlogin.perl5*
+list_NULf.perl5*
+list_fields.awk
+list_fields.perl*
+shared.perl5*
+sort_res.perl5*
+watch_a_file.perl*
+xusers.awk*
+
+./tests:
+00README
+Add2TestDB*
+CkTestDB*
+LTbasic.c
+LTbigf.c
+LTdnlc.c
+LTlib.c
+LTlock.c
+LTnfs.c
+LTnlink.c
+LTsock.c
+LTszoff.c
+LTunix.c
+LsofTest.h
+Makefile
+TestDB
+@
+
+
+1.50
+log
+@Revision 4.83
+@
+text
+@d16 1
+@
+
+
+1.49
+log
+@Revision 4.82
+@
+text
+@a263 1
+get-hdr-loc.sh*
+a265 1
+zfs/
+a266 21
+./dialects/sun/zfs:
+sys/
+zfs_vnops.c
+
+./dialects/sun/zfs/sys:
+dmu.h
+spa.h
+txg.h
+zfs_acl.h
+zfs_context.h
+zfs_ctldir.h
+zfs_debug.h
+zfs_dir.h
+zfs_ioctl.h
+zfs_rlock.h
+zfs_vfsops.h
+zfs_znode.h
+zil.h
+zio.h
+zio_impl.h
+
+@
+
+
+1.48
+log
+@Revision 4.79
+@
+text
+@d81 1
+d94 13
+@
+
+
+1.47
+log
+@Revision 4.78
+@
+text
+@d37 1
+d113 1
+d119 1
+d124 1
+@
+
+
+1.46
+log
+@Revision 4.78
+@
+text
+@d246 1
+a246 1
+get-hdr-loc.sh
+d249 1
+d251 21
+@
+
+
+1.45
+log
+@Revision 4.77
+@
+text
+@d75 1
+a75 1
+j2_snapshot.h
+d246 1
+@
+
+
+1.44
+log
+@Revision 4.76
+@
+text
+@a40 1
+bsdi/
+d77 3
+a79 12
+./dialects/bsdi:
+Makefile
+Mksrc*
+dfile.c
+dlsof.h
+dmnt.c
+dnode.c
+dproc.c
+dproto.h
+dsock.c
+dstore.c
+machine.h
+d81 1
+a81 1
+./dialects/darwin:
+a93 1
+get-hdr-loc.sh*
+@
+
+
+1.43
+log
+@Revision 4.75
+@
+text
+@d95 1
+@
+
+
+1.42
+log
+@Revision 4.75
+@
+text
+@a49 1
+ou/
+a241 36
+./dialects/ou:
+Makefile
+Mksrc*
+dfile.c
+dlsof.h
+dmnt.c
+dnode.c
+dnode1.c
+dnode2.c
+dnode3.c
+dproc.c
+dproto.h
+dsock.c
+dstore.c
+machine.h
+ou8/
+
+./dialects/ou/ou8:
+README
+sys/
+vm/
+
+./dialects/ou/ou8/sys:
+fs/
+
+./dialects/ou/ou8/sys/fs:
+README
+fifonode.h
+memfs_mnode.h
+namenode.h
+prdata.h
+
+./dialects/ou/ou8/vm:
+README
+page_f.h
+
+@
+
+
+1.41
+log
+@Revision 4.72
+@
+text
+@a171 1
+vx_inode.h
+a292 1
+include/
+a295 6
+./dialects/sun/include:
+sys/
+
+./dialects/sun/include/sys:
+auxv.h
+
+a310 1
+uw21/
+d313 1
+a313 10
+./dialects/uw/uw21:
+fs/
+sys/
+vm/
+
+./dialects/uw/uw21/fs:
+proc/
+procfs/
+
+./dialects/uw/uw21/fs/proc:
+a314 7
+prdata.h
+
+./dialects/uw/uw21/fs/procfs:
+README
+prdata.h
+
+./dialects/uw/uw21/sys:
+a315 9
+
+./dialects/uw/uw21/sys/fs:
+fifonode.h
+namenode.h
+
+./dialects/uw/uw21/vm:
+
+./dialects/uw/uw7:
+fs/
+d334 1
+@
+
+
+1.40
+log
+@Revision 4.70
+@
+text
+@d405 1
+@
+
+
+1.39
+log
+@Revision 4.69
+@
+text
+@d1 1
+d39 1
+a39 1
+dialects:
+d54 1
+a54 1
+dialects/aix:
+d71 1
+a71 1
+dialects/aix/aix5:
+d75 1
+a75 1
+dialects/aix/aix5/j2:
+d79 1
+a79 1
+dialects/bsdi:
+d92 1
+a92 1
+dialects/darwin:
+d107 1
+a107 1
+dialects/du:
+d121 1
+a121 1
+dialects/freebsd:
+d135 1
+a135 1
+dialects/freebsd/include:
+d138 1
+a138 1
+dialects/freebsd/include/procfs:
+d141 1
+a141 1
+dialects/hpux:
+d145 1
+a145 1
+dialects/hpux/kmem:
+d161 1
+a161 1
+dialects/hpux/kmem/hpux11:
+d174 1
+a174 1
+dialects/hpux/pstat:
+d185 1
+a185 1
+dialects/linux:
+d198 1
+a198 1
+dialects/n+obsd:
+d211 1
+a211 1
+dialects/n+os:
+d223 1
+a223 1
+dialects/osr:
+d237 1
+a237 1
+dialects/osr/include:
+d241 1
+a241 1
+dialects/osr/include/sys:
+d244 1
+a244 1
+dialects/ou:
+d261 1
+a261 1
+dialects/ou/ou8:
+d266 1
+a266 1
+dialects/ou/ou8/sys:
+d269 1
+a269 1
+dialects/ou/ou8/sys/fs:
+d276 1
+a276 1
+dialects/ou/ou8/vm:
+d280 1
+a280 1
+dialects/sun:
+d298 1
+a298 1
+dialects/sun/include:
+d301 1
+a301 1
+dialects/sun/include/sys:
+d304 1
+a304 1
+dialects/uw:
+d322 1
+a322 1
+dialects/uw/uw21:
+d327 1
+a327 1
+dialects/uw/uw21/fs:
+d331 1
+a331 1
+dialects/uw/uw21/fs/proc:
+d335 1
+a335 1
+dialects/uw/uw21/fs/procfs:
+d339 1
+a339 1
+dialects/uw/uw21/sys:
+d342 1
+a342 1
+dialects/uw/uw21/sys/fs:
+d346 1
+a346 1
+dialects/uw/uw21/vm:
+d348 1
+a348 1
+dialects/uw/uw7:
+d353 1
+a353 1
+dialects/uw/uw7/fs:
+d357 1
+a357 1
+dialects/uw/uw7/fs/nsc_cfs:
+d360 1
+a360 1
+dialects/uw/uw7/fs/procfs:
+d364 1
+a364 1
+dialects/uw/uw7/sys:
+d367 1
+a367 1
+dialects/uw/uw7/sys/fs:
+d371 1
+a371 1
+dialects/uw/uw7/vm:
+d373 1
+a373 1
+lib:
+d392 1
+a392 1
+scripts:
+d408 1
+a408 1
+tests:
+@
+
+
+1.38
+log
+@Revision 4.67
+Make AIX updates.
+@
+text
+@d103 1
+a103 1
+get-xnu-headers.sh*
+@
+
+
+1.37
+log
+@Revision 4.64
+@
+text
+@d56 1
+a56 1
+aix5l/
+d63 1
+d70 2
+a71 1
+dialects/aix/aix5l:
+d74 1
+a74 1
+dialects/aix/aix5l/j2:
+d76 1
+@
+
+
+1.36
+log
+@Revision 4.63
+@
+text
+@a258 1
+fs/
+a261 7
+dialects/ou/ou8/fs:
+procfs/
+
+dialects/ou/ou8/fs/procfs:
+README
+prdata.h
+
+d270 1
+@
+
+
+1.35
+log
+@Revision 4.59
+@
+text
+@d12 1
+d34 1
+d410 18
+@
+
+
+1.34
+log
+@Revision 4.57
+@
+text
+@d47 1
+a47 1
+ptx/
+d238 1
+a238 1
+dialects/ptx:
+a240 1
+ddev.c
+d247 1
+d253 27
+@
+
+
+1.33
+log
+@Revision 4.56
+Add UW 7.1.1 NSC files.
+@
+text
+@d166 1
+@
+
+
+1.32
+log
+@Add regex.[ch].
+@
+text
+@d327 1
+d329 3
+@
+
+
+1.31
+log
+@Revision 4.53
+@
+text
+@d30 1
+d354 1
+@
+
+
+1.30
+log
+@Revision 4.52
+@
+text
+@d38 1
+d53 1
+d66 6
+d85 15
+a177 4
+kmem/
+proc/
+
+dialects/linux/kmem:
+a178 1
+Makefile.lseek
+a179 1
+__lseek.s
+a188 22
+patches/
+
+dialects/linux/kmem/patches:
+Linux-mouse-module.patch
+
+dialects/linux/proc:
+Makefile
+Mksrc*
+dfile.c
+dlsof.h
+dmnt.c
+dnode.c
+dproc.c
+dproto.h
+dsock.c
+dstore.c
+machine.h
+patches/
+
+dialects/linux/proc/patches:
+README
+net_ipx_af_ipx.c.patch
+@
+
+
+1.29
+log
+@Revision 4.51
+Add lib/snpf.c.
+@
+text
+@a45 1
+pyramid/
+a46 1
+ultrix/
+d113 1
+d143 11
+a256 17
+dialects/pyramid:
+Makefile
+MkKernOpts*
+Mksrc*
+dfile.c
+dlsof.h
+dmnt.c
+dnode.c
+dnode1.c
+dnode2.c
+dnode3.c
+dproc.c
+dproto.h
+dsock.c
+dstore.c
+machine.h
+
+a279 12
+
+dialects/ultrix:
+Makefile
+Mksrc*
+dlsof.h
+dmnt.c
+dnode.c
+dproc.c
+dproto.h
+dsock.c
+dstore.c
+machine.h
+@
+
+
+1.28
+log
+@Revision 4.50
+Add solaris_kaddr_filters to .../dialects/sun list.
+@
+text
+@d381 1
+@
+
+
+1.27
+log
+@Revision 4.44
+@
+text
+@d280 1
+@
+
+
+1.26
+log
+@Revision 4.43
+@
+text
+@a114 1
+pstat/
+a143 6
+dialects/hpux/pstat:
+Makefile
+Mksrc*
+README
+dlsof.h
+
+a212 1
+ddev.c
+a250 1
+ddev.c
+a301 1
+ddev.c
+@
+
+
+1.25
+log
+@Revision 4.43
+@
+text
+@d148 1
+@
+
+
+1.24
+log
+@Revision 4.41
+@
+text
+@d114 4
+d133 1
+a133 1
+dialects/hpux/hpux11:
+d144 5
+@
+
+
+1.23
+log
+@Revision 4.39
+@
+text
+@d256 1
+@
+
+
+1.22
+log
+@Revision 4.38
+@
+text
+@d392 1
+@
+
+
+1.21
+log
+@Revision 4.37
+@
+text
+@d43 1
+a43 1
+ns/
+d195 1
+a195 1
+dialects/ns:
+@
+
+
+1.20
+log
+@Revision 4.34
+@
+text
+@a40 1
+irix/
+a139 95
+
+dialects/irix:
+Makefile
+MkKernOpts*
+Mksrc*
+ddev.c
+dfile.c
+dlsof.h
+dmnt.c
+dnode.c
+dproc.c
+dproto.h
+dsock.c
+dstore.c
+irix5hdr/
+irix61hdr/
+irix64hdr/
+irix6hdr/
+machine.h
+
+dialects/irix/irix5hdr:
+fifofs/
+procfs/
+specfs/
+sys/
+
+dialects/irix/irix5hdr/fifofs:
+fifonode.h
+
+dialects/irix/irix5hdr/procfs:
+prdata.h
+
+dialects/irix/irix5hdr/specfs:
+snode.h
+
+dialects/irix/irix5hdr/sys:
+fs/
+
+dialects/irix/irix5hdr/sys/fs:
+efs_ino.h
+efs_inode.h
+inode.h
+
+dialects/irix/irix61hdr:
+fifofs/
+procfs/
+specfs/
+sys/
+
+dialects/irix/irix61hdr/fifofs:
+fifonode.h
+
+dialects/irix/irix61hdr/procfs:
+prdata.h
+
+dialects/irix/irix61hdr/specfs:
+snode.h
+
+dialects/irix/irix61hdr/sys:
+fs/
+
+dialects/irix/irix61hdr/sys/fs:
+efs_inode.h
+
+dialects/irix/irix64hdr:
+README
+sys/
+
+dialects/irix/irix64hdr/sys:
+fs/
+
+dialects/irix/irix64hdr/sys/fs:
+fdt.h
+
+dialects/irix/irix6hdr:
+fifofs/
+procfs/
+specfs/
+sys/
+
+dialects/irix/irix6hdr/fifofs:
+fifonode.h
+
+dialects/irix/irix6hdr/procfs:
+prdata.h
+
+dialects/irix/irix6hdr/specfs:
+snode.h
+
+dialects/irix/irix6hdr/sys:
+fs/
+
+dialects/irix/irix6hdr/sys/fs:
+efs_ino.h
+efs_inode.h
+@
+
+
+1.19
+log
+@Revision 4.30
+@
+text
+@d461 1
+@
+
+
+1.18
+log
+@Revision 4.29
+@
+text
+@d403 1
+d410 1
+d437 21
+@
+
+
+1.17
+log
+@Revision 4.27
+@
+text
+@a450 1
+rvfs.c
+@
+
+
+1.16
+log
+@Revision 4.26
+@
+text
+@a47 1
+riscos/
+d127 1
+d130 12
+a351 13
+dproc.c
+dproto.h
+dsock.c
+dstore.c
+machine.h
+
+dialects/riscos:
+Makefile
+Mksrc*
+dfile.c
+dlsof.h
+dmnt.c
+dnode.c
+@
+
+
+1.15
+log
+@Revision 4.23
+@
+text
+@d32 1
+a97 1
+dfile.c
+a268 1
+dfile.c
+d418 1
+d421 1
+d424 4
+a438 1
+ckfa.c
+@
+
+
+1.14
+log
+@Revision 4.18
+@
+text
+@d226 4
+d245 1
+a245 1
+dialects/linux/patches:
+d247 18
+@
+
+
+1.13
+log
+@Revision 4.18
+Add 00LSOF-L.
+@
+text
+@a419 1
+prtf.c
+@
+
+
+1.12
+log
+@Revision 4.17
+Add linux/dmnt.c.
+@
+text
+@d7 1
+@
+
+
+1.11
+log
+@Revision 4.16
+@
+text
+@d231 1
+@
+
+
+1.10
+log
+@Revision 4.14
+Add 00DIALECTS.
+@
+text
+@d419 1
+d433 1
+@
+
+
+1.9
+log
+@Revision 4.13
+@
+text
+@d4 1
+@
+
+
+1.8
+log
+@Revision 4.12
+@
+text
+@d35 1
+d38 1
+d40 3
+a42 3
+netbsd/
+next/
+osf/
+a45 2
+sco/
+sgi/
+d48 1
+a48 1
+unixware/
+d78 14
+d128 95
+d241 1
+a241 1
+dialects/netbsd:
+d255 1
+a255 1
+dialects/next:
+d267 1
+a267 1
+dialects/osf:
+d279 1
+d282 7
+a334 117
+dialects/sco:
+Makefile
+Mksrc*
+ddev.c
+dfile.c
+dlsof.h
+dmnt.c
+dnode.c
+dproc.c
+dproto.h
+dsock.c
+dstore.c
+include/
+machine.h
+
+dialects/sco/include:
+netdb.h
+sys/
+
+dialects/sco/include/sys:
+cdefs.h
+
+dialects/sgi:
+Makefile
+MkKernOpts*
+Mksrc*
+ddev.c
+dfile.c
+dlsof.h
+dmnt.c
+dnode.c
+dproc.c
+dproto.h
+dsock.c
+dstore.c
+irix5hdr/
+irix61hdr/
+irix64hdr/
+irix6hdr/
+machine.h
+
+dialects/sgi/irix5hdr:
+fifofs/
+procfs/
+specfs/
+sys/
+
+dialects/sgi/irix5hdr/fifofs:
+fifonode.h
+
+dialects/sgi/irix5hdr/procfs:
+prdata.h
+
+dialects/sgi/irix5hdr/specfs:
+snode.h
+
+dialects/sgi/irix5hdr/sys:
+fs/
+
+dialects/sgi/irix5hdr/sys/fs:
+efs_ino.h
+efs_inode.h
+inode.h
+
+dialects/sgi/irix61hdr:
+fifofs/
+procfs/
+specfs/
+sys/
+
+dialects/sgi/irix61hdr/fifofs:
+fifonode.h
+
+dialects/sgi/irix61hdr/procfs:
+prdata.h
+
+dialects/sgi/irix61hdr/specfs:
+snode.h
+
+dialects/sgi/irix61hdr/sys:
+fs/
+
+dialects/sgi/irix61hdr/sys/fs:
+efs_inode.h
+
+dialects/sgi/irix64hdr:
+README
+sys/
+
+dialects/sgi/irix64hdr/sys:
+fs/
+
+dialects/sgi/irix64hdr/sys/fs:
+fdt.h
+
+dialects/sgi/irix6hdr:
+fifofs/
+procfs/
+specfs/
+sys/
+
+dialects/sgi/irix6hdr/fifofs:
+fifonode.h
+
+dialects/sgi/irix6hdr/procfs:
+prdata.h
+
+dialects/sgi/irix6hdr/specfs:
+snode.h
+
+dialects/sgi/irix6hdr/sys:
+fs/
+
+dialects/sgi/irix6hdr/sys/fs:
+efs_ino.h
+efs_inode.h
+
+d370 1
+a370 1
+dialects/unixware:
+d387 1
+a387 1
+dialects/unixware/uw21:
+d392 1
+a392 1
+dialects/unixware/uw21/fs:
+d395 1
+a395 1
+dialects/unixware/uw21/fs/proc:
+d398 1
+a398 1
+dialects/unixware/uw21/sys:
+d401 1
+a401 1
+dialects/unixware/uw21/sys/fs:
+d405 1
+a405 1
+dialects/unixware/uw21/vm:
+@
+
+
+1.7
+log
+@Revision 4.09
+@
+text
+@d10 1
+@
+
+
+1.6
+log
+@Revision 4.06
+@
+text
+@d421 1
+@
+
+
+1.5
+log
+@Revision 4.05
+Remove epix/.
+@
+text
+@d84 1
+d138 1
+@
+
+
+1.4
+log
+@Revision 4.04
+@
+text
+@a33 1
+epix/
+a64 13
+Makefile
+Mksrc*
+dfile.c
+dlsof.h
+dmnt.c
+dnode.c
+dproc.c
+dproto.h
+dsock.c
+dstore.c
+machine.h
+
+dialects/epix:
+@
+
+
+1.3
+log
+@Revision 4.02
+@
+text
+@a265 1
+irix62hdr/
+a312 16
+
+dialects/sgi/irix62hdr:
+README
+sys/
+
+dialects/sgi/irix62hdr/sys:
+fs/
+
+dialects/sgi/irix62hdr/sys/fs:
+xfs_attr_sf.h
+xfs_bmap_btree.h
+xfs_dinode.h
+xfs_dir_sf.h
+xfs_inode.h
+xfs_inum.h
+xfs_types.h
+@
+
+
+1.2
+log
+@Correct pre-4.0 errors.
+@
+text
+@d128 1
+d130 1
+d464 1
+@
+
+
+1.1
+log
+@Initial revision
+@
+text
+@d17 1
+d19 1
+a51 1
+Makefile.PUCC
+a79 1
+Makefile.PUCC
+a156 1
+Makefile.PUCC
+a157 2
+ddev.c
+dfile.c
+a158 1
+dmnt.c
+a228 1
+Makefile.PUCC
+a362 1
+Makefile.PUCC
+a365 1
+distfile.kvm
+d434 1
+@

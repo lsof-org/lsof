@@ -1,0 +1,1210 @@
+head	1.17;
+access;
+symbols;
+locks; strict;
+comment	@ * @;
+
+
+1.17
+date	2005.05.11.12.53.54;	author abe;	state Exp;
+branches;
+next	1.16;
+
+1.16
+date	2003.10.07.14.34.14;	author abe;	state Exp;
+branches;
+next	1.15;
+
+1.15
+date	2002.12.03.18.23.08;	author abe;	state Exp;
+branches;
+next	1.14;
+
+1.14
+date	2002.06.17.01.44.11;	author abe;	state Exp;
+branches;
+next	1.13;
+
+1.13
+date	2002.02.26.15.20.45;	author abe;	state Exp;
+branches;
+next	1.12;
+
+1.12
+date	2001.02.13.14.16.25;	author abe;	state Exp;
+branches;
+next	1.11;
+
+1.11
+date	2000.11.09.18.04.14;	author abe;	state Exp;
+branches;
+next	1.10;
+
+1.10
+date	2000.06.06.12.54.36;	author abe;	state Exp;
+branches;
+next	1.9;
+
+1.9
+date	99.06.22.16.04.01;	author abe;	state Exp;
+branches;
+next	1.8;
+
+1.8
+date	99.05.09.14.56.08;	author abe;	state Exp;
+branches;
+next	1.7;
+
+1.7
+date	98.11.23.20.11.14;	author abe;	state Exp;
+branches;
+next	1.6;
+
+1.6
+date	98.06.29.15.54.17;	author abe;	state Exp;
+branches;
+next	1.5;
+
+1.5
+date	98.06.25.07.20.14;	author abe;	state Exp;
+branches;
+next	1.4;
+
+1.4
+date	98.05.22.07.18.33;	author abe;	state Exp;
+branches;
+next	1.3;
+
+1.3
+date	98.03.06.08.24.45;	author abe;	state Exp;
+branches;
+next	1.2;
+
+1.2
+date	97.07.02.11.12.34;	author abe;	state Exp;
+branches;
+next	1.1;
+
+1.1
+date	97.02.24.07.36.10;	author abe;	state Exp;
+branches;
+next	;
+
+
+desc
+@Lsof version 4
+@
+
+
+1.17
+log
+@Revision 4.75
+@
+text
+@/*
+ * dproc.c - NetBSD and OpenBSD process access functions for lsof
+ */
+
+
+/*
+ * Copyright 1994 Purdue Research Foundation, West Lafayette, Indiana
+ * 47907.  All rights reserved.
+ *
+ * Written by Victor A. Abell
+ *
+ * This software is not subject to any license of the American Telephone
+ * and Telegraph Company or the Regents of the University of California.
+ *
+ * Permission is granted to anyone to use this software for any purpose on
+ * any computer system, and to alter it and redistribute it freely, subject
+ * to the following restrictions:
+ *
+ * 1. Neither the authors nor Purdue University are responsible for any
+ *    consequences of the use of this software.
+ *
+ * 2. The origin of this software must not be misrepresented, either by
+ *    explicit claim or by omission.  Credit to the authors and Purdue
+ *    University must appear in documentation and sources.
+ *
+ * 3. Altered versions must be plainly marked as such, and must not be
+ *    misrepresented as being the original software.
+ *
+ * 4. This notice may not be removed or altered.
+ */
+
+#ifndef lint
+static char copyright[] =
+"@@(#) Copyright 1994 Purdue Research Foundation.\nAll rights reserved.\n";
+static char *rcsid = "$Id: dproc.c,v 1.16 2003/10/07 14:34:14 abe Exp abe $";
+#endif
+
+#include "lsof.h"
+
+
+_PROTOTYPE(static void enter_vn_text,(KA_T va, int *n));
+_PROTOTYPE(static void get_kernel_access,(void));
+_PROTOTYPE(static void process_text,(KA_T vm));
+
+
+/*
+ * Local static values
+ */
+
+static MALLOC_S Nv = 0;			/* allocated Vp[] entries */
+static KA_T *Vp = NULL;			/* vnode address cache */
+
+
+/*
+ * ckkv - check kernel version
+ */
+
+void
+ckkv(d, er, ev, ea)
+	char *d;			/* dialect */
+	char *er;			/* expected release */
+	char *ev;			/* expected version */
+	char *ea;			/* expected architecture */
+{
+
+#if	defined(HASKERNIDCK)
+	size_t l;
+	int m[2];
+	char v[64];
+
+	if (Fwarn)
+	    return;
+/*
+ * Read kernel version.
+ */
+	m[0] = CTL_KERN;
+	m[1] = KERN_OSRELEASE;
+	l = sizeof(v);
+	if (sysctl(m, 2, v, &l, NULL, 0) < 0) {
+	    (void) fprintf(stderr, "%s: CTL_KERN, KERN_OSRELEASE: %s\n",
+		Pn, strerror(errno));
+	    Exit(1);
+	}
+/*
+ * Warn if the actual and expected releases don't match.
+ */
+	if (!er || strcmp(v, er))
+	    (void) fprintf(stderr,
+		"%s: WARNING: compiled for %s release %s; this is %s.\n",
+		Pn, d, er ? er : "UNKNOWN", v);
+#endif	/* defined(HASKERNIDCK) */
+
+}
+
+
+/*
+ * enter_vn_text() - enter a vnode text reference
+ */
+
+static void
+enter_vn_text(va, n)
+	KA_T va;			/* vnode address */
+	int *n;				/* Vp[] entries in use */
+{
+	int i;
+/*
+ * Ignore the request if the vnode has already been entered.
+ */
+	for (i = 0; i < *n; i++) {
+	    if (va == Vp[i])
+		return;
+	}
+/*
+ * Save the text file information.
+ */
+	alloc_lfile(" txt", -1);
+	Cfp = (struct file *)NULL;
+	process_node((KA_T)va);
+	if (Lf->sf)
+	    link_lfile();
+	if (i >= Nv) {
+
+	/*
+	 * Allocate space for remembering the vnode.
+	 */
+	    Nv += 10;
+	    if (!Vp)
+		Vp=(KA_T *)malloc((MALLOC_S)(sizeof(struct vnode *) * 10));
+	    else
+		Vp=(KA_T *)realloc((MALLOC_P *)Vp,(MALLOC_S)(Nv*sizeof(KA_T)));
+	    if (!Vp) {
+		(void) fprintf(stderr, "%s: no txt ptr space, PID %d\n",
+		    Pn, Lp->pid);
+		Exit(1);
+	    }
+	}
+/*
+ * Remember the vnode.
+ */
+	Vp[*n] = va;
+	(*n)++;
+}
+
+
+/*
+ * gather_proc_info() -- gather process information
+ */
+
+void
+gather_proc_info()
+{
+	struct filedesc fd;
+	int i, nf;
+	MALLOC_S nb;
+	static struct file **ofb = NULL;
+	static int ofbb = 0;
+	short pss, sf;
+	int px;
+	uid_t uid;
+
+#if	defined(HASCWDINFO)
+	struct cwdinfo cw;
+#define	CDIR	cw.cwdi_cdir
+#define	RDIR	cw.cwdi_rdir
+#else	/* !defined(HASCWDINFO) */
+#define	CDIR	fd.fd_cdir
+#define	RDIR	fd.fd_rdir
+#endif	/* defined(HASCWDINFO) */
+
+#if	defined(HASFSTRUCT)
+	static char *pof = (char *)NULL;
+	static int pofb = 0;
+#endif	/* defined(HASFSTRUCT) */
+
+#if	defined(HASKVMGETPROC2)
+	struct kinfo_proc2 *p;
+#define	KVMPROCSZ2	sizeof(struct kinfo_proc2)
+#else	/* !defined(HASKVMGETPROC2) */
+	struct kinfo_proc *p;
+#endif	/* defined(HASKVMGETPROC2) */
+
+/*
+ * Read the process table.
+ */
+
+#if	defined(HASKVMGETPROC2)
+	P = kvm_getproc2(Kd, KERN_PROC_ALL, 0, KVMPROCSZ2, &Np);
+#else	/* !defined(HASKVMGETPROC2) */
+	P = kvm_getprocs(Kd, KERN_PROC_ALL, 0, &Np);
+#endif	/* defined(HASKVMGETPROC2) &/
+
+	if (!P) {
+	    (void) fprintf(stderr, "%s: can't read process table: %s\n",
+		Pn, kvm_geterr(Kd));
+	    Exit(1);
+	}
+/*
+ * Examine proc structures and their associated information.
+ */
+
+	for (p = P, px = 0; px < Np; px++, p++) {
+	    if (p->P_STAT == 0 || p->P_STAT == SZOMB)
+		continue;
+	/*
+	 * Read process information, process group structure (if
+	 * necessary), and User ID (if necessary).
+	 *
+	 * See if process is excluded.
+	 *
+	 * Read file structure pointers.
+	 */
+	    uid = p->P_UID;
+	    if (is_proc_excl((int)p->P_PID, (int)p->P_PGID, (UID_ARG)uid,
+		&pss, &sf))
+	    {
+		continue;
+	    }
+	    if (!p->P_FD
+	    ||  kread((KA_T)p->P_FD, (char *)&fd, sizeof(fd)))
+		continue;
+	    if (!fd.fd_refcnt || fd.fd_lastfile > fd.fd_nfiles)
+		continue;
+
+#if	defined(HASCWDINFO)
+	    if (!p->P_CWDI
+	    ||  kread((KA_T)p->P_CWDI, (char *)&cw, sizeof(cw)))
+		CDIR = RDIR = (struct vnode *)NULL;
+#endif	/* defined(HASCWDINFO) */
+
+	/*
+	 * Allocate a local process structure.
+	 */
+	    if (is_cmd_excl(p->P_COMM, &pss, &sf))
+		continue;
+	    alloc_lproc((int)p->P_PID, (int)p->P_PGID, (int)p->P_PPID,
+		(UID_ARG)uid, p->P_COMM, (int)pss, (int)sf);
+	    Plf = (struct lfile *)NULL;
+	    Kpa = (KA_T)p->P_ADDR;
+	/*
+	 * Save current working directory information.
+	 */
+	    if (CDIR) {
+		alloc_lfile(CWD, -1);
+		Cfp = (struct file *)NULL;
+		process_node((KA_T)CDIR);
+		if (Lf->sf)
+		    link_lfile();
+	    }
+	/*
+	 * Save root directory information.
+	 */
+	    if (RDIR) {
+		alloc_lfile(RTD, -1);
+		Cfp = (struct file *)NULL;
+		process_node((KA_T)RDIR);
+		if (Lf->sf)
+		    link_lfile();
+	    }
+
+#if	defined(OPENBSDV) && OPENBSDV>=3020
+	/*
+	 * Save trace node information.
+	 */
+	    if (p->P_TRACEP) {
+		alloc_lfile("tr", -1);
+		Cfp = (struct file *)NULL;
+		process_node((KA_T)p->P_TRACEP);
+		if (Lf->sf)
+		    link_lfile();
+	    }
+#endif	/* defined(OPENBSDV) && OPENBSDV>=3020 */
+
+	/*
+	 * Save information on the text file.
+	 */
+	    if (p->P_VMSPACE)
+		process_text((KA_T)p->P_VMSPACE);
+	/*
+	 * Read open file structure pointers.
+	 */
+	    if (!fd.fd_ofiles || (nf = fd.fd_nfiles) <= 0)
+		continue;
+	    nb = (MALLOC_S)(sizeof(struct file *) * nf);
+	    if (nb > ofbb) {
+		if (!ofb)
+		    ofb = (struct file **)malloc(nb);
+		else
+		    ofb = (struct file **)realloc((MALLOC_P *)ofb, nb);
+		if (!ofb) {
+		    (void) fprintf(stderr, "%s: PID %d, no file * space\n",
+			Pn, p->P_PID);
+		    Exit(1);
+		}
+		ofbb = nb;
+	    }
+	    if (kread((KA_T)fd.fd_ofiles, (char *)ofb, nb))
+		continue;
+
+#if	defined(HASFSTRUCT)
+	    if (Fsv & FSV_FG) {
+		nb = (MALLOC_S)(sizeof(char) * nf);
+		if (nb > pofb) {
+		    if (!pof)
+			pof = (char *)malloc(nb);
+		    else
+			pof = (char *)realloc((MALLOC_P *)pof, nb);
+		    if (!pof) {
+			(void) fprintf(stderr,
+			    "%s: PID %d, no file flag space\n", Pn, p->P_PID);
+		        Exit(1);
+		    }
+		    pofb = nb;
+		}
+		if (!fd.fd_ofileflags || kread((KA_T)fd.fd_ofileflags, pof, nb))
+		    zeromem(pof, nb);
+	    }
+#endif	/* defined(HASFSTRUCT) */
+
+	/*
+	 * Save information on file descriptors.
+	 */
+	    for (i = 0; i < nf; i++) {
+		if (ofb[i]) {
+		    alloc_lfile(NULL, i);
+		    process_file((KA_T)(Cfp = ofb[i]));
+		    if (Lf->sf) {
+
+#if	defined(HASFSTRUCT)
+			if (Fsv & FSV_FG)
+			    Lf->pof = (long)pof[i];
+#endif	/* defined(HASFSTRUCT) */
+
+			link_lfile();
+		    }
+		}
+	    }
+	/*
+	 * Examine results.
+	 */
+	    if (examine_lproc())
+		return;
+	}
+}
+
+
+/*
+ * get_kernel_access() - get access to kernel memory
+ */
+
+static void
+get_kernel_access()
+{
+	KA_T v;
+/*
+ * Check kernel version.
+ */
+	(void) ckkv(
+
+#if	defined(NETBSDV)
+		    "NetBSD",
+#else	/* !defined(NETBSDV) */
+# if	defined(OPENBSDV)
+		    "OpenBSD",
+# endif	/* defined(OPENBSDV) */
+#endif	/* defined(NETBSDV) */
+
+		    LSOF_VSTR, (char *)NULL, (char *)NULL);
+/*
+ * Set name list file path.
+ */
+	if (!Nmlst)
+
+#if	defined(N_UNIX)
+	    Nmlst = N_UNIX;
+#else	/* !defined(N_UNIX) */
+	{
+	    if (!(Nmlst = get_nlist_path(1))) {
+		(void) fprintf(stderr,
+		    "%s: can't get kernel name list path\n", Pn);
+		Exit(1);
+	    }
+	}
+#endif	/* defined(N_UNIX) */
+
+#if	defined(WILLDROPGID)
+/*
+ * If kernel memory isn't coming from KMEM, drop setgid permission
+ * before attempting to open the (Memory) file.
+ */
+	if (Memory)
+	    (void) dropgid();
+#else	/* !defined(WILLDROPGID) */
+/*
+ * See if the non-KMEM memory and name list files are readable.
+ */
+	if ((Memory && !is_readable(Memory, 1))
+	||  (Nmlst && !is_readable(Nmlst, 1)))
+	    Exit(1);
+#endif	/* defined(WILLDROPGID) */
+
+/*
+ * Open kernel memory access.
+ */
+	if ((Kd = kvm_openfiles(Nmlst, Memory, NULL, O_RDONLY, NULL)) == NULL) {
+	    (void) fprintf(stderr,
+		"%s: kvm_openfiles(execfile=%s, corefile=%s): %s\n",
+		Pn, Nmlst,
+		Memory ? Memory :
+
+#if	defined(_PATH_MEM)
+				  _PATH_MEM,
+#else	/* !defined(_PATH_MEM) */
+				  "default",
+#endif	/* defined(_PATH_MEM) */
+
+		strerror(errno));
+	    Exit(1);
+	}
+	(void) build_Nl(Drive_Nl);
+	if (kvm_nlist(Kd, Nl) < 0) {
+	    (void) fprintf(stderr, "%s: can't read namelist from %s\n",
+		Pn, Nmlst);
+	    Exit(1);
+	}
+
+#if	defined(WILLDROPGID)
+/*
+ * Drop setgid permission, if necessary.
+ */
+	if (!Memory)
+	    (void) dropgid();
+#endif	/* defined(WILLDROPGID) */
+
+/*
+ * Read the kernel's page shift amount, if possible.
+ */
+	if (get_Nl_value("pgshift", Drive_Nl, &v) < 0 || !v
+	||  kread((KA_T)v, (char *)&pgshift, sizeof(pgshift)))
+	    pgshift = 0;
+}
+
+
+#if	!defined(N_UNIX)
+/*
+ * get_nlist_path() - get kernel name list path
+ */
+
+char *
+get_nlist_path(ap)
+	int ap;				/* on success, return an allocated path
+					 * string pointer if 1; return a
+					 * constant character pointer if 0;
+					 * return NULL if failure */
+{
+	const char *bf;
+	static char *bfc;
+	MALLOC_S bfl;
+/*
+ * Get bootfile name.
+ */
+	if ((bf = getbootfile())) {
+	    if (!ap)
+		return("");
+	    bfl = (MALLOC_S)(strlen(bf) + 1);
+	    if (!(bfc = (char *)malloc(bfl))) {
+		(void) fprintf(stderr,
+		    "%s: can't allocate %d bytes for boot file path: %s\n",
+		    Pn, bfl, bf);
+		Exit(1);
+	    }
+	    (void) snpf(bfc, bfl, "%s", bf);
+	    return(bfc);
+	}
+	return((char *)NULL);
+}
+#endif	/* !defined(N_UNIX) */
+
+
+/*
+ * initialize() - perform all initialization
+ */
+
+void
+initialize()
+{
+	get_kernel_access();
+}
+
+
+/*
+ * kread() - read from kernel memory
+ */
+
+int
+kread(addr, buf, len)
+	KA_T addr;			/* kernel memory address */
+	char *buf;			/* buffer to receive data */
+	READLEN_T len;			/* length to read */
+{
+	int br;
+
+	br = kvm_read(Kd, (u_long)addr, buf, len);
+	return((br == len) ? 0 : 1);
+}
+
+
+/*
+ * process_text() - process text information
+ */
+void
+process_text(vm)
+	KA_T vm;				/* kernel vm space pointer */
+{
+	int i, j;
+	KA_T ka;
+	int n = 0;
+	struct vm_map_entry vmme, *e;
+	struct vmspace vmsp;
+
+#if	!defined(UVM)
+	struct pager_struct pg;
+	struct vm_object vmo;
+#endif	/* !defined(UVM) */
+
+/*
+ * Read the vmspace structure for the process.
+ */
+	if (kread(vm, (char *)&vmsp, sizeof(vmsp)))
+	    return;
+/*
+ * Read the vm_map structure.  Search its vm_map_entry structure list.
+ */
+
+#if	!defined(UVM)
+	if (!vmsp.vm_map.is_main_map)
+	    return;
+#endif	/* !defined(UVM) */
+
+	for (i = 0; i < vmsp.vm_map.nentries; i++) {
+
+	/*
+	 * Read the next vm_map_entry.
+	 */
+	    if (!i)
+		e = &vmsp.vm_map.header;
+	    else {
+		if (!(ka = (KA_T)e->next))
+		    return;
+		e = &vmme;
+		if (kread(ka, (char *)e, sizeof(vmme)))
+		    return;
+	    }
+
+#if	defined(UVM)
+	/*
+	 * Process the uvm_obj pointer of a UVM map entry with a UVM_ET_OBJ
+	 * type as a vnode pointer.
+	 */
+	    if ((e->etype > UVM_ET_OBJ) && e->object.uvm_obj)
+		(void) enter_vn_text((KA_T)e->object.uvm_obj, &n);
+#else	/* !defined(UVM) */
+	/*
+	 * Read the map entry's object and the object's shadow.
+	 * Look for a PG_VNODE pager handle.
+	 */
+	    if (e->is_a_map || e->is_sub_map)
+		continue;
+	    for (j = 0, ka = (KA_T)e->object.vm_object;
+		 j < 2 && ka;
+		 j++, ka = (KA_T)vmo.shadow)
+	    {
+		if (kread(ka, (char *)&vmo, sizeof(vmo)))
+		    break;
+		if (!(ka = (KA_T)vmo.pager)
+		||   kread(ka, (char *)&pg, sizeof(pg)))
+		    continue;
+		if (!pg.pg_handle || pg.pg_type != PG_VNODE)
+		    continue;
+		(void) enter_vn_text((KA_T)pg.pg_handle, &n);
+	    }
+#endif	/* defined(UVM) */
+
+	}
+}
+@
+
+
+1.16
+log
+@Revision 4.69
+@
+text
+@d35 1
+a35 1
+static char *rcsid = "$Id: dproc.c,v 1.15 2002/12/03 18:23:08 abe Exp abe $";
+d406 1
+a406 1
+		"%s: kvm_openfiles (namelist=%s, core=%s): %s\n",
+d408 8
+a415 1
+		Memory  ? Memory  : "default",
+@
+
+
+1.15
+log
+@Revision 4.66
+@
+text
+@d35 1
+a35 1
+static char *rcsid = "$Id: dproc.c,v 1.14 2002/06/17 01:44:11 abe Exp abe $";
+a156 1
+	struct kinfo_proc *p;
+d175 7
+d185 8
+a192 1
+	if ((P = kvm_getprocs(Kd, KERN_PROC_ALL, 0, &Np)) == NULL) {
+d212 1
+a212 1
+	    uid = p->kp_eproc.e_ucred.cr_uid;
+d225 2
+a226 2
+	    if (!p->kp_proc.p_cwdi
+	    ||  kread((KA_T)p->kp_proc.p_cwdi, (char *)&cw, sizeof(cw)))
+d264 1
+a264 1
+	    if (p->kp_proc.p_tracep) {
+d267 1
+a267 1
+		process_node((KA_T)p->kp_proc.p_tracep);
+@
+
+
+1.14
+log
+@Revision 4.64
+@
+text
+@d35 1
+a35 1
+static char *rcsid = "$Id: dproc.c,v 1.13 2002/02/26 15:20:45 abe Exp abe $";
+d246 14
+@
+
+
+1.13
+log
+@Revision 4.62
+@
+text
+@d35 1
+a35 1
+static char *rcsid = "$Id: dproc.c,v 1.12 2001/02/13 14:16:25 abe Exp abe $";
+d386 1
+a386 1
+	if (nlist(Nmlst, Nl) < 0) {
+@
+
+
+1.12
+log
+@Revision 4.55
+@
+text
+@d35 1
+a35 1
+static char *rcsid = "$Id: dproc.c,v 1.11 2000/11/09 18:04:14 abe Exp abe $";
+d341 4
+d346 11
+d380 1
+a380 2
+		Pn,
+		Nmlst ? Nmlst : "default",
+d386 1
+a386 1
+	if (nlist(Nmlst ? Nmlst : N_UNIX, Nl) < 0) {
+d388 1
+a388 1
+		Pn, Nmlst ? Nmlst : N_UNIX);
+d407 36
+@
+
+
+1.11
+log
+@Revision 4.52
+@
+text
+@d35 1
+a35 1
+static char *rcsid = "$Id: dproc.c,v 1.10 2000/06/06 12:54:36 abe Exp abe $";
+d200 1
+a200 1
+	    if (is_proc_excl((int)p->P_PID, (int)p->P_PGRP, (UID_ARG)uid,
+d222 1
+a222 1
+	    alloc_lproc((int)p->P_PID, (int)p->P_PGRP, (int)p->P_PPID,
+@
+
+
+1.10
+log
+@Revision 4.50
+Improve UVM object test.
+@
+text
+@d35 1
+a35 1
+static char *rcsid = "$Id: dproc.c,v 1.9 1999/06/22 16:04:01 abe Exp abe $";
+a183 8
+
+#if     defined(HASNCACHE)
+/*
+ * Read kernel name cache.
+ */
+	ncache_load();
+#endif  /* defined(HASNCACHE) */
+
+@
+
+
+1.9
+log
+@Revision 4.44
+@
+text
+@d35 1
+a35 1
+static char *rcsid = "$Id: dproc.c,v 1.8 99/05/09 14:56:08 abe Exp Locker: abe $";
+d483 1
+a483 1
+	    if ((e->etype & UVM_ET_OBJ) && e->object.uvm_obj)
+@
+
+
+1.8
+log
+@Revision 4.43
+@
+text
+@d35 1
+a35 1
+static char *rcsid = "$Id: dproc.c,v 1.7 98/11/23 20:11:14 abe Exp Locker: abe $";
+d162 9
+d218 7
+d237 1
+a237 1
+	    if (fd.fd_cdir) {
+d240 1
+a240 1
+		process_node((KA_T)fd.fd_cdir);
+d247 1
+a247 1
+	    if (fd.fd_rdir) {
+d250 1
+a250 1
+		process_node((KA_T)fd.fd_rdir);
+a440 1
+	struct pager_struct pg;
+d445 1
+@
+
+
+1.7
+log
+@Revision 4.38
+More UVM protection.
+@
+text
+@d35 1
+a35 1
+static char *rcsid = "$Id: dproc.c,v 1.6 98/06/29 15:54:17 abe Exp Locker: abe $";
+d154 1
+a154 1
+	static int nofb = 0;
+d156 1
+d161 6
+d248 7
+a254 5
+	    if (!ofb) {
+		nofb = nf;
+		if (!(ofb = (struct file **)malloc((MALLOC_S)
+			    (nofb * sizeof(struct file *)))))
+		{
+d256 1
+a256 1
+			Pn, (int)p->P_PID);
+d259 19
+a277 9
+	    } else if (nf > nofb) {
+		nofb = fd.fd_nfiles;
+		if (!(ofb = (struct file **)realloc((MALLOC_P *)ofb,
+			    (nofb * sizeof(struct file *)))))
+		{
+		    (void) fprintf(stderr,
+			"%s: PID %d, no realloc file * space\n",
+			Pn, (int)p->P_PID);
+		    Exit(1);
+d279 2
+d282 2
+a283 2
+	    if (kread((KA_T)fd.fd_ofiles,(char *)ofb,nf*sizeof(struct file *)))
+		continue;
+d291 7
+a297 1
+		    if (Lf->sf)
+d299 1
+@
+
+
+1.6
+log
+@Revision 4.35
+@
+text
+@d35 1
+a35 1
+static char *rcsid = "$Id: dproc.c,v 1.5 98/06/25 07:20:14 abe Exp Locker: abe $";
+d413 2
+d417 2
+@
+
+
+1.5
+log
+@Revision 4.34
+Check kernel identity.
+@
+text
+@d35 1
+a35 1
+static char *rcsid = "$Id: dproc.c,v 1.4 98/05/22 07:18:33 abe Exp Locker: abe $";
+d65 2
+d85 1
+a85 1
+ * Return if the actual and expected releases match; abort otherwise.
+d91 2
+@
+
+
+1.4
+log
+@Revision 4.33
+Add UVM support.
+@
+text
+@d35 1
+a35 1
+static char *rcsid = "$Id: dproc.c,v 1.3 98/03/06 08:24:45 abe Exp Locker: abe $";
+d55 38
+d287 15
+@
+
+
+1.3
+log
+@Revision 4.27
+@
+text
+@d35 1
+a35 1
+static char *rcsid = "$Id: dproc.c,v 1.2 97/07/02 11:12:34 abe Exp Locker: abe $";
+d342 3
+d346 2
+a347 1
+	struct vmspace vmsp;
+d363 1
+a363 1
+	    if (i == 0)
+d372 2
+a373 2
+	    if (e->is_a_map || e->is_sub_map)
+		continue;
+d375 7
+d385 2
+d393 1
+a393 1
+		if ((ka = (KA_T)vmo.pager) == NULL
+d396 1
+a396 1
+		if (pg.pg_handle == NULL || pg.pg_type != PG_VNODE)
+d398 1
+a398 1
+		(void) (enter_vn_text((KA_T)pg.pg_handle, &n));
+d400 2
+@
+
+
+1.2
+log
+@Revision 4.13
+Indicate sources are shared by NetBSD and OpenBSD.
+@
+text
+@d35 1
+a35 1
+static char *rcsid = "$Id: dproc.c,v 1.1 97/02/24 07:36:10 abe Exp Locker: abe $";
+d68 2
+a69 2
+		if (va == Vp[i])
+			return;
+d76 1
+a76 1
+	process_node((caddr_t)va);
+d78 1
+a78 1
+		link_lfile();
+d84 10
+a93 21
+		if (Vp == NULL) {
+			if ((Vp = (KA_T *)malloc((MALLOC_S)
+				   (sizeof(struct vnode *) * 10)))
+			== NULL) {
+				(void) fprintf(stderr,
+					"%s: no txt ptr space, PID %d\n",
+					Pn, Lp->pid);
+				Exit(1);
+			}
+			Nv = 10;
+		} else {
+			Nv += 10;
+			if ((Vp = (KA_T *)realloc((MALLOC_P *)Vp,
+				   (MALLOC_S)(Nv * sizeof(struct vnode *))))
+			== NULL) {
+				(void) fprintf(stderr,
+					"%s: no more txt ptr space, PID %d\n",
+					Pn, Lp->pid);
+				Exit(1);
+			}
+		}
+d122 3
+a124 3
+		(void) fprintf(stderr, "%s: can't read process table: %s\n",
+			Pn, kvm_geterr(Kd));
+		Exit(1);
+d139 2
+a140 3
+		if (p->P_STAT == 0 || p->P_STAT == SZOMB)
+			continue;
+
+d149 11
+a159 9
+		uid = p->kp_eproc.e_ucred.cr_uid;
+		if (is_proc_excl((int)p->P_PID, (int)p->P_PGRP, (UID_ARG)uid,
+				 &pss, &sf))
+			continue;
+		if (p->P_FD == NULL
+		||  kread((KA_T)p->P_FD, (char *)&fd, sizeof(fd)))
+			continue;
+		if (!fd.fd_refcnt || fd.fd_lastfile > fd.fd_nfiles)
+			continue;
+d163 6
+a168 6
+		if (is_cmd_excl(p->P_COMM, &pss, &sf))
+			continue;
+		alloc_lproc((int)p->P_PID, (int)p->P_PGRP, (int)p->P_PPID,
+			    (UID_ARG)uid, p->P_COMM, (int)pss, (int)sf);
+		Plf = NULL;
+		Kpa = (KA_T)p->P_ADDR;
+d172 7
+a178 7
+		if (fd.fd_cdir) {
+			alloc_lfile(CWD, -1);
+			Cfp = (struct file *)NULL;
+			process_node((caddr_t)fd.fd_cdir);
+			if (Lf->sf)
+				link_lfile();
+		}
+d182 7
+a188 7
+		if (fd.fd_rdir != NULL) {
+			alloc_lfile(RTD, -1);
+			Cfp = (struct file *)NULL;
+			process_node((caddr_t)fd.fd_rdir);
+			if (Lf->sf)
+				link_lfile();
+		}
+d192 2
+a193 2
+		if (p->P_VMSPACE)
+			process_text((KA_T)p->P_VMSPACE);
+d197 10
+a206 22
+		if (fd.fd_ofiles == NULL || (nf = fd.fd_nfiles) <= 0)
+			continue;
+		if (ofb == NULL) {
+			nofb = nf;
+			if ((ofb = (struct file **)malloc((MALLOC_S)
+				    (nofb * sizeof(struct file *))))
+			== NULL) {
+				(void) fprintf(stderr,
+					"%s: PID %d, no file * space\n",
+					Pn, (int)p->P_PID);
+				Exit(1);
+			}
+		} else if (nf > nofb) {
+			nofb = fd.fd_nfiles;
+			if ((ofb = (struct file **)realloc((MALLOC_P *)ofb,
+				    (nofb * sizeof(struct file *))))
+			== NULL) {
+				(void) fprintf(stderr,
+					"%s: PID %d, no realloc file * space\n",
+					Pn, (int)p->P_PID);
+				Exit(1);
+			}
+d208 13
+a220 3
+		if (kread((KA_T)fd.fd_ofiles, (char *)ofb,
+		    nf * sizeof(struct file *)))
+			continue;
+d224 6
+a229 7
+		for (i = 0; i < nf; i++) {
+			if (ofb[i]) {
+				alloc_lfile(NULL, i);
+				process_file((Cfp = ofb[i]));
+				if (Lf->sf)
+					link_lfile();
+			}
+d231 1
+d235 2
+a236 2
+		if (examine_lproc())
+			return;
+d248 1
+a248 1
+	unsigned long v;
+d256 1
+a256 1
+		(void) dropgid();
+d263 1
+a263 1
+		Exit(1);
+d270 7
+a276 7
+		(void) fprintf(stderr,
+			"%s: kvm_openfiles (namelist=%s, core=%s): %s\n",
+			Pn,
+			Nmlst ? Nmlst : "default",
+			Memory  ? Memory  : "default",
+			strerror(errno));
+		Exit(1);
+d280 3
+a282 3
+		(void) fprintf(stderr, "%s: can't read namelist from %s\n",
+			Pn, Nmlst ? Nmlst : N_UNIX);
+		Exit(1);
+d290 1
+a290 1
+		(void) dropgid();
+d298 1
+a298 1
+		pgshift = 0;
+d335 1
+a335 1
+	KA_T vm;				/* vm space pointer */
+d348 1
+a348 1
+		return;
+d352 2
+a353 2
+	if ( ! vmsp.vm_map.is_main_map)
+		return;
+d359 11
+a369 11
+		if (i == 0)
+			e = &vmsp.vm_map.header;
+		else {
+			if ((ka = (KA_T)e->next) == NULL)
+				return;
+			e = &vmme;
+			if (kread(ka, (char *)e, sizeof(vmme)))
+				return;
+		}
+		if (e->is_a_map || e->is_sub_map)
+			continue;
+d374 13
+a386 13
+		for (j = 0, ka = (KA_T)e->object.vm_object;
+		     j < 2 && ka;
+		     j++, ka = (KA_T)vmo.shadow)
+		{
+			if (kread(ka, (char *)&vmo, sizeof(vmo)))
+				break;
+			if ((ka = (KA_T)vmo.pager) == NULL
+			||   kread(ka, (char *)&pg, sizeof(pg)))
+				continue;
+			if (pg.pg_handle == NULL || pg.pg_type != PG_VNODE)
+				continue;
+			(void) (enter_vn_text((KA_T)pg.pg_handle, &n));
+		}
+@
+
+
+1.1
+log
+@Initial revision
+@
+text
+@d2 1
+a2 1
+ * dproc.c - NetBSD process access functions for lsof
+d35 1
+a35 1
+static char *rcsid = "$Id: dproc.c,v 1.11 97/01/17 09:19:57 abe Exp $";
+@

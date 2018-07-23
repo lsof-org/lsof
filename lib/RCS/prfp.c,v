@@ -1,0 +1,606 @@
+head	1.15;
+access;
+symbols;
+locks; strict;
+comment	@ * @;
+
+
+1.15
+date	2018.02.14.14.21.08;	author abe;	state Exp;
+branches;
+next	1.14;
+
+1.14
+date	2008.10.21.16.12.36;	author abe;	state Exp;
+branches;
+next	1.13;
+
+1.13
+date	2008.06.04.16.12.28;	author abe;	state Exp;
+branches;
+next	1.12;
+
+1.12
+date	2006.03.27.22.56.06;	author abe;	state Exp;
+branches;
+next	1.11;
+
+1.11
+date	2005.08.08.19.40.52;	author abe;	state Exp;
+branches;
+next	1.10;
+
+1.10
+date	2004.12.30.18.40.10;	author abe;	state Exp;
+branches;
+next	1.9;
+
+1.9
+date	2004.03.10.23.46.34;	author abe;	state Exp;
+branches;
+next	1.8;
+
+1.8
+date	2003.03.21.17.43.28;	author abe;	state Exp;
+branches;
+next	1.7;
+
+1.7
+date	2000.08.02.12.53.00;	author abe;	state Exp;
+branches;
+next	1.6;
+
+1.6
+date	99.06.22.09.56.03;	author abe;	state Exp;
+branches;
+next	1.5;
+
+1.5
+date	99.04.27.15.47.01;	author abe;	state Exp;
+branches;
+next	1.4;
+
+1.4
+date	98.12.28.09.26.34;	author abe;	state Exp;
+branches;
+next	1.3;
+
+1.3
+date	98.03.06.08.40.58;	author abe;	state Exp;
+branches;
+next	1.2;
+
+1.2
+date	97.10.24.08.02.30;	author abe;	state Exp;
+branches;
+next	1.1;
+
+1.1
+date	97.02.24.07.29.40;	author abe;	state Exp;
+branches;
+next	;
+
+
+desc
+@Lsof version 4
+@
+
+
+1.15
+log
+@Revision 4.90
+@
+text
+@/*
+ * prfp.c -- process_file() function for lsof library
+ */
+
+
+/*
+ * Copyright 1997 Purdue Research Foundation, West Lafayette, Indiana
+ * 47907.  All rights reserved.
+ *
+ * Written by Victor A. Abell
+ *
+ * This software is not subject to any license of the American Telephone
+ * and Telegraph Company or the Regents of the University of California.
+ *
+ * Permission is granted to anyone to use this software for any purpose on
+ * any computer system, and to alter it and redistribute it freely, subject
+ * to the following restrictions:
+ *
+ * 1. Neither the authors nor Purdue University are responsible for any
+ *    consequences of the use of this software.
+ *
+ * 2. The origin of this software must not be misrepresented, either by
+ *    explicit claim or by omission.  Credit to the authors and Purdue
+ *    University must appear in documentation and sources.
+ *
+ * 3. Altered versions must be plainly marked as such, and must not be
+ *    misrepresented as being the original software.
+ *
+ * 4. This notice may not be removed or altered.
+ */
+
+
+#include "../machine.h"
+
+#if	defined(USE_LIB_PROCESS_FILE)
+
+# if	!defined(lint)
+static char copyright[] =
+"@@(#) Copyright 1997 Purdue Research Foundation.\nAll rights reserved.\n";
+static char *rcsid = "$Id: prfp.c,v 1.14 2008/10/21 16:12:36 abe Exp abe $";
+# endif	/* !defined(lint) */
+
+#include "../lsof.h"
+
+
+/*
+ * process_file() - process file
+ */
+
+/*
+ * The caller may define:
+ *
+ *	FILEPTR	as the name of the location to store a pointer
+ *			to the current file struct -- e.g.,
+ *
+ *			struct file *foobar;
+ *			#define FILEPTR	foobar
+ */
+
+void
+process_file(fp)
+	KA_T fp;			/* kernel file structure address */
+{
+	struct file f;
+	int flag;
+	char tbuf[32];
+
+#if	defined(FILEPTR)
+/*
+ * Save file structure address for process_node().
+ */
+	FILEPTR = &f;
+#endif	/* defined(FILEPTR) */
+
+/*
+ * Read file structure.
+ */
+	if (kread((KA_T)fp, (char *)&f, sizeof(f))) {
+	    (void) snpf(Namech, Namechl, "can't read file struct from %s",
+		print_kptr(fp, (char *)NULL, 0));
+	    enter_nm(Namech);
+	    return;
+	}
+	Lf->off = (SZOFFTYPE)f.f_offset;
+	if (f.f_count) {
+
+	/*
+	 * Construct access code.
+	 */
+	    if ((flag = (f.f_flag & (FREAD | FWRITE))) == FREAD)
+		Lf->access = 'r';
+	    else if (flag == FWRITE)
+		Lf->access = 'w';
+	    else if (flag == (FREAD | FWRITE))
+		Lf->access = 'u';
+
+#if	defined(HASFSTRUCT)
+	/*
+	 * Save file structure values.
+	 */
+
+# if	!defined(HASNOFSCOUNT)
+	    if (Fsv & FSV_CT) {
+		Lf->fct = (long)f.f_count;
+		Lf->fsv |= FSV_CT;
+	    }
+# endif	/* !defined(HASNOFSCOUNT) */
+
+# if	!defined(HASNOFSADDR)
+	    if (Fsv & FSV_FA) {
+		Lf->fsa = fp;
+		Lf->fsv |= FSV_FA;
+	    }
+# endif	/* !defined(HASNOFSADDR) */
+
+# if	!defined(HASNOFSFLAGS)
+	    if (Fsv & FSV_FG) {
+		Lf->ffg = (long)f.f_flag;
+		Lf->fsv |= FSV_FG;
+	    }
+# endif	/* !defined(HASNOFSFLAGS) */
+
+# if	!defined(HASNOFSNADDR)
+	    if (Fsv & FSV_NI) {
+		Lf->fna = (KA_T)f.f_data;
+		Lf->fsv |= FSV_NI;
+	    }
+# endif	/* !defined(HASNOFSNADDR) */
+#endif	/* defined(HASFSTRUCT) */
+
+	/*
+	 * Process structure by its type.
+	 */
+	    switch (f.f_type) {
+
+
+#if	defined(DTYPE_PIPE)
+	    case DTYPE_PIPE:
+# if	defined(HASPIPEFN)
+		if (!Selinet)
+		    HASPIPEFN((KA_T)f.f_data);
+# endif	/* defined(HASPIPEFN) */
+		return;
+#endif	/* defined(DTYPE_PIPE) */
+
+#if	defined(DTYPE_PTS)
+	    case DTYPE_PTS:
+# if	defined(HASPTSFN)
+		HASPTSFN((KA_T)f.f_data);
+# endif	/* defined(HASPTSFN) */
+		return;
+#endif	/* defined(DTYPE_PIPE) */
+
+#if	defined(DTYPE_FIFO)
+	    case DTYPE_FIFO:
+#endif	/* defined(DTYPE_FIFO) */
+
+#if	defined(DTYPE_GNODE)
+	    case DTYPE_GNODE:
+#endif	/* defined(DTYPE_GNODE) */
+
+#if	defined(DTYPE_INODE)
+	    case DTYPE_INODE:
+#endif	/* defined(DTYPE_INODE) */
+
+#if	defined(DTYPE_PORT)
+	    case DTYPE_PORT:
+#endif	/* defined(DTYPE_PORT) */
+
+#if	defined(DTYPE_VNODE)
+	    case DTYPE_VNODE:
+#endif	/* defined(DTYPE_VNODE) */
+
+#if	defined(HASF_VNODE)
+		process_node((KA_T)f.f_vnode);
+#else	/* !defined(HASF_VNODE) */
+		process_node((KA_T)f.f_data);
+#endif	/* defined(HASF_VNODE) */
+
+		return;
+	    case DTYPE_SOCKET:
+		process_socket((KA_T)f.f_data);
+		return;
+
+#if	defined(HASKQUEUE)
+	    case DTYPE_KQUEUE:
+		process_kqueue((KA_T)f.f_data);
+		return;
+#endif	/* defined(HASKQUEUE) */
+
+#if	defined(HASPSXSEM)
+	    case DTYPE_PSXSEM:
+		process_psxsem((KA_T)f.f_data);
+		return;
+#endif	/* defined(HASPSXSEM) */
+
+#if	defined(HASPSXSHM)
+	    case DTYPE_PSXSHM:
+		process_psxshm((KA_T)f.f_data);
+		return;
+#endif	/* defined(HASPSXSHM) */
+
+#if	defined(HASPRIVFILETYPE)
+	    case PRIVFILETYPE:
+		HASPRIVFILETYPE((KA_T)f.f_data);
+		return;
+#endif	/* defined(HASPRIVFILETYPE) */
+
+	    default:
+
+#if	defined(X_BADFILEOPS)
+		if (X_bfopsa && f.f_ops && (X_bfopsa == (KA_T)f.f_ops)) {
+		    (void) snpf(Namech, Namechl,
+			"no more information; ty=%d file may be closing",
+			(int)f.f_type);
+		    enter_nm(Namech);
+		    return;
+		}
+#endif	/* defined(X_BADFILEOPS) */
+
+		if (f.f_type || f.f_ops) {
+		    (void) snpf(Namech, Namechl,
+			"%s file struct, ty=%d, op=%s",
+			print_kptr(fp, tbuf, sizeof(tbuf)), (int)f.f_type,
+			print_kptr((KA_T)f.f_ops, (char *)NULL, 0));
+		    enter_nm(Namech);
+		    return;
+		}
+	    }
+	}
+	enter_nm("no more information");
+}
+#else	/* !defined(USE_LIB_PROCESS_FILE) */
+char prfp_d1[] = "d"; char *prfp_d2 = prfp_d1;
+#endif	/* defined(USE_LIB_PROCESS_FILE) */
+@
+
+
+1.14
+log
+@Revision 4.81
+@
+text
+@d40 1
+a40 1
+static char *rcsid = "$Id: prfp.c,v 1.13 2008/06/04 16:12:28 abe Exp abe $";
+d146 12
+d210 11
+d223 1
+a223 1
+			"%s file struct, ty=%#x, op=%s",
+@
+
+
+1.13
+log
+@Revision 4.80
+@
+text
+@d40 1
+a40 1
+static char *rcsid = "$Id: prfp.c,v 1.12 2006/03/27 22:56:06 abe Exp abe $";
+d211 1
+a211 1
+static char d1[] = "d"; static char *d2 = d1;
+@
+
+
+1.12
+log
+@Revision 4.77
+@
+text
+@d40 1
+a40 1
+static char *rcsid = "$Id: prfp.c,v 1.11 2005/08/08 19:40:52 abe Exp abe $";
+d66 1
+d200 3
+a202 2
+			"%s file struct, ty=%#x, op=%#x",
+			print_kptr(fp, (char *)NULL, 0), f.f_type, f.f_ops);
+@
+
+
+1.11
+log
+@Revision 4.76
+@
+text
+@d40 1
+a40 1
+static char *rcsid = "$Id: prfp.c,v 1.10 2004/12/30 18:40:10 abe Exp abe $";
+d100 2
+d106 3
+d113 3
+d120 3
+d127 1
+a160 2
+		if (!Selinet)
+
+d162 1
+a162 1
+		    process_node((KA_T)f.f_vnode);
+d164 1
+a164 1
+		    process_node((KA_T)f.f_data);
+@
+
+
+1.10
+log
+@Revision 4.74
+@
+text
+@d40 1
+a40 1
+static char *rcsid = "$Id: prfp.c,v 1.9 2004/03/10 23:46:34 abe Exp abe $";
+d129 1
+a130 1
+# endif	/* defined(HASPIPEFN) */
+@
+
+
+1.9
+log
+@Revision 4.71
+@
+text
+@d40 1
+a40 1
+static char *rcsid = "$Id: prfp.c,v 1.8 2003/03/21 17:43:28 abe Exp abe $";
+d150 4
+d155 2
+@
+
+
+1.8
+log
+@Revision 4.67
+Add kqueue support.
+@
+text
+@d40 1
+a40 1
+static char *rcsid = "$Id: prfp.c,v 1.7 2000/08/02 12:53:00 abe Exp abe $";
+d162 12
+@
+
+
+1.7
+log
+@Revision 4.51
+Convert to snpf().
+@
+text
+@d40 1
+a40 1
+static char *rcsid = "$Id: prfp.c,v 1.6 1999/06/22 09:56:03 abe Exp abe $";
+d155 6
+@
+
+
+1.6
+log
+@Revision 4.44
+@
+text
+@d40 1
+a40 1
+static char *rcsid = "$Id: prfp.c,v 1.5 99/04/27 15:47:01 abe Exp Locker: abe $";
+d78 2
+a79 2
+	    (void) sprintf(Namech, "can't read file struct from %s",
+		print_kptr(fp, (char *)NULL));
+d164 3
+a166 2
+		    (void) sprintf(Namech, "%s file struct, ty=%#x, op=%#x",
+			print_kptr(fp, (char *)NULL), f.f_type, f.f_ops);
+@
+
+
+1.5
+log
+@Revision 4.43
+@
+text
+@d40 1
+a40 1
+static char *rcsid = "$Id: prfp.c,v 1.4 98/12/28 09:26:34 abe Exp Locker: abe $";
+d112 1
+a112 1
+	    if (Fsv & FSV_NA) {
+d114 1
+a114 1
+		Lf->fsv |= FSV_NA;
+@
+
+
+1.4
+log
+@Revisison 4.39
+Add +fcfn support.
+@
+text
+@d40 1
+a40 1
+static char *rcsid = "$Id: prfp.c,v 1.3 98/03/06 08:40:58 abe Exp Locker: abe $";
+d107 4
+@
+
+
+1.3
+log
+@Revision 4.27
+@
+text
+@d40 1
+a40 1
+static char *rcsid = "$Id: prfp.c,v 1.2 97/10/24 08:02:30 abe Exp Locker: abe $";
+d68 3
+d74 3
+a83 1
+
+d95 19
+@
+
+
+1.2
+log
+@Revision 4.18
+@
+text
+@d40 1
+a40 1
+static char *rcsid = "$Id: prfp.c,v 1.1 97/02/24 07:29:40 abe Exp Locker: abe $";
+d62 1
+a62 1
+	struct file *fp;		/* kernel file structure address */
+d72 4
+a75 3
+		(void) sprintf(Namech, "can't read file struct from %#x", fp);
+		enter_nm(Namech);
+		return;
+d84 6
+a89 6
+		if ((flag = (f.f_flag & (FREAD | FWRITE))) == FREAD)
+			Lf->access = 'r';
+		else if (flag == FWRITE)
+			Lf->access = 'w';
+		else if (flag == (FREAD | FWRITE))
+			Lf->access = 'u';
+d93 1
+a93 1
+		switch (f.f_type) {
+d97 1
+a97 1
+		case DTYPE_PIPE:
+d99 3
+a101 3
+			if (!Selinet)
+				HASPIPEFN((caddr_t)f.f_data);
+			return;
+d106 1
+a106 1
+		case DTYPE_GNODE:
+d110 1
+a110 1
+		case DTYPE_INODE:
+d114 1
+a114 1
+		case DTYPE_PORT:
+d118 1
+a118 1
+		case DTYPE_VNODE:
+d121 6
+a126 6
+			if (!Selinet)
+				process_node((caddr_t)f.f_data);
+			return;
+		case DTYPE_SOCKET:
+			process_socket((caddr_t)f.f_data);
+			return;
+d129 3
+a131 3
+		case PRIVFILETYPE:
+			HASPRIVFILETYPE((caddr_t)f.f_data);
+			return;
+d134 6
+a139 8
+		default:
+			if (f.f_type != 0 || f.f_ops != NULL) {
+				(void) sprintf(Namech,
+					"%#x file struct, ty=%#x, op=%#x",
+					fp, f.f_type, f.f_ops);
+				enter_nm(Namech);
+				return;
+			}
+d141 1
+@
+
+
+1.1
+log
+@Initial revision
+@
+text
+@d40 1
+a40 1
+static char *rcsid = "$Id$";
+d76 1
+a76 1
+	Lf->off = (unsigned long)f.f_offset;
+@

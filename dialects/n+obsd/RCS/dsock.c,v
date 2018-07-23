@@ -1,0 +1,1459 @@
+head	1.25;
+access;
+symbols;
+locks; strict;
+comment	@ * @;
+
+
+1.25
+date	2005.08.08.19.53.24;	author abe;	state Exp;
+branches;
+next	1.24;
+
+1.24
+date	2004.12.30.18.42.24;	author abe;	state Exp;
+branches;
+next	1.23;
+
+1.23
+date	2004.03.10.23.51.34;	author abe;	state Exp;
+branches;
+next	1.22;
+
+1.22
+date	2002.04.19.12.11.10;	author abe;	state Exp;
+branches;
+next	1.21;
+
+1.21
+date	2002.01.16.15.05.15;	author abe;	state Exp;
+branches;
+next	1.20;
+
+1.20
+date	2001.11.01.20.28.36;	author abe;	state Exp;
+branches;
+next	1.19;
+
+1.19
+date	2001.10.17.19.17.58;	author abe;	state Exp;
+branches;
+next	1.18;
+
+1.18
+date	2001.01.02.12.34.48;	author abe;	state Exp;
+branches;
+next	1.17;
+
+1.17
+date	2000.08.01.12.54.55;	author abe;	state Exp;
+branches;
+next	1.16;
+
+1.16
+date	2000.05.31.13.04.05;	author abe;	state Exp;
+branches;
+next	1.15;
+
+1.15
+date	2000.03.23.14.21.33;	author abe;	state Exp;
+branches;
+next	1.14;
+
+1.14
+date	2000.03.14.20.37.26;	author abe;	state Exp;
+branches;
+next	1.13;
+
+1.13
+date	99.11.28.06.40.56;	author abe;	state Exp;
+branches;
+next	1.12;
+
+1.12
+date	99.10.22.08.22.38;	author abe;	state Exp;
+branches;
+next	1.11;
+
+1.11
+date	99.07.19.14.02.49;	author abe;	state Exp;
+branches;
+next	1.10;
+
+1.10
+date	99.03.29.07.15.29;	author abe;	state Exp;
+branches;
+next	1.9;
+
+1.9
+date	99.01.25.07.08.13;	author abe;	state Exp;
+branches;
+next	1.8;
+
+1.8
+date	98.08.03.07.43.23;	author abe;	state Exp;
+branches;
+next	1.7;
+
+1.7
+date	98.05.22.07.18.35;	author abe;	state Exp;
+branches;
+next	1.6;
+
+1.6
+date	98.03.06.08.24.48;	author abe;	state Exp;
+branches;
+next	1.5;
+
+1.5
+date	97.10.23.12.37.20;	author abe;	state Exp;
+branches;
+next	1.4;
+
+1.4
+date	97.09.23.09.49.22;	author abe;	state Exp;
+branches;
+next	1.3;
+
+1.3
+date	97.08.15.08.22.22;	author abe;	state Exp;
+branches;
+next	1.2;
+
+1.2
+date	97.07.02.11.12.37;	author abe;	state Exp;
+branches;
+next	1.1;
+
+1.1
+date	97.02.24.07.36.14;	author abe;	state Exp;
+branches;
+next	;
+
+
+desc
+@Lsof version 4
+@
+
+
+1.25
+log
+@Revision 4.76
+@
+text
+@/*
+ * dsock.c - NetBSD and OpenBSD socket processing functions for lsof
+ */
+
+
+/*
+ * Copyright 1994 Purdue Research Foundation, West Lafayette, Indiana
+ * 47907.  All rights reserved.
+ *
+ * Written by Victor A. Abell
+ *
+ * This software is not subject to any license of the American Telephone
+ * and Telegraph Company or the Regents of the University of California.
+ *
+ * Permission is granted to anyone to use this software for any purpose on
+ * any computer system, and to alter it and redistribute it freely, subject
+ * to the following restrictions:
+ *
+ * 1. Neither the authors nor Purdue University are responsible for any
+ *    consequences of the use of this software.
+ *
+ * 2. The origin of this software must not be misrepresented, either by
+ *    explicit claim or by omission.  Credit to the authors and Purdue
+ *    University must appear in documentation and sources.
+ *
+ * 3. Altered versions must be plainly marked as such, and must not be
+ *    misrepresented as being the original software.
+ *
+ * 4. This notice may not be removed or altered.
+ */
+
+#ifndef lint
+static char copyright[] =
+"@@(#) Copyright 1994 Purdue Research Foundation.\nAll rights reserved.\n";
+static char *rcsid = "$Id: dsock.c,v 1.24 2004/12/30 18:42:24 abe Exp abe $";
+#endif
+
+
+#include "lsof.h"
+
+
+#if	defined(HASIPv6)
+
+/*
+ * IPv6_2_IPv4()  -- macro to define the address of an IPv4 address contained
+ *		     in an IPv6 address
+ */
+
+#define IPv6_2_IPv4(v6)	(((uint8_t *)((struct in6_addr *)v6)->s6_addr)+12)
+#endif	/* defined(HASIPv6) */
+
+
+/*
+ * process_socket() - process socket
+ */
+
+void
+process_socket(sa)
+	KA_T sa;			/* socket address in kernel */
+{
+	struct domain d;
+	unsigned char *fa = (unsigned char *)NULL;
+	int fam;
+	int fp, lp;
+	struct inpcb inp;
+	unsigned char *la = (unsigned char *)NULL;
+	struct protosw p;
+	struct socket s;
+	struct tcpcb t;
+	KA_T ta = (KA_T)NULL;
+	struct unpcb uc, unp;
+	struct sockaddr_un *ua = NULL;
+	struct sockaddr_un un;
+
+#if	defined(HASIPv6) && defined(NETBSDV) && !defined(HASINRIAIPv6)
+	struct in6pcb in6p;
+#endif	/* defined(HASIPv6) && defined(NETBSDV) && !defined(HASINRIAIPv6) */
+
+#define	UNPADDR_IN_MBUF
+
+#if	defined(NETBSDV)
+# if	NETBSDV>=1004000
+#undef	UNPADDR_IN_MBUF
+# endif	/* NETBSDV>=1004000 */
+#endif	/* defined(NETBSDV) */
+
+#if	defined(UNPADDR_IN_MBUF)
+	struct mbuf mb;
+#endif	/* defined(UNPADDR_IN_MBUF) */
+
+	(void) snpf(Lf->type, sizeof(Lf->type), "sock");
+	Lf->inp_ty = 2;
+/*
+ * Read the socket, protocol, and domain structures.
+ */
+	if (!sa) {
+	    enter_nm("no socket address");
+	    return;
+	}
+	if (kread(sa, (char *) &s, sizeof(s))) {
+	    (void) snpf(Namech, Namechl, "can't read socket struct from %s",
+		print_kptr(sa, (char *)NULL, 0));
+	    enter_nm(Namech);
+	    return;
+	}
+	if (!s.so_type) {
+	    enter_nm("no socket type");
+	    return;
+	}
+	if (!s.so_proto
+	||  kread((KA_T)s.so_proto, (char *)&p, sizeof(p))) {
+	    (void) snpf(Namech, Namechl, "can't read protocol switch from %s",
+		print_kptr((KA_T)s.so_proto, (char *)NULL, 0));
+	    enter_nm(Namech);
+	    return;
+	}
+	if (!p.pr_domain
+	||  kread((KA_T)p.pr_domain, (char *)&d, sizeof(d))) {
+	    (void) snpf(Namech, Namechl, "can't read domain struct from %s",
+		print_kptr((KA_T)p.pr_domain, (char *)NULL, 0));
+	    enter_nm(Namech);
+	    return;
+	}
+/*
+ * Save size information.
+ */
+	if (Fsize) {
+	    if (Lf->access == 'r')
+		Lf->sz = (SZOFFTYPE)s.so_rcv.sb_cc;
+	    else if (Lf->access == 'w')
+		Lf->sz = (SZOFFTYPE)s.so_snd.sb_cc;
+	    else
+		Lf->sz = (SZOFFTYPE)(s.so_rcv.sb_cc + s.so_snd.sb_cc);
+	    Lf->sz_def = 1;
+	} else
+	    Lf->off_def = 1;
+
+#if	defined(HASTCPTPIQ)
+	Lf->lts.rq = s.so_rcv.sb_cc;
+	Lf->lts.sq = s.so_snd.sb_cc;
+	Lf->lts.rqs = Lf->lts.sqs = 1;
+#endif	/* defined(HASTCPTPIQ) */
+
+#if	defined(HASSOOPT)
+	Lf->lts.ltm = (unsigned int)s.so_linger;
+	Lf->lts.opt = (unsigned int)s.so_options;
+	Lf->lts.pqlen = (unsigned int)s.so_q0len;
+	Lf->lts.qlen = (unsigned int)s.so_qlen;
+	Lf->lts.qlim = (unsigned int)s.so_qlimit;
+	Lf->lts.rbsz = (unsigned long)s.so_rcv.sb_mbmax;
+	Lf->lts.sbsz = (unsigned long)s.so_snd.sb_mbmax;
+	Lf->lts.pqlens = Lf->lts.qlens = Lf->lts.qlims = Lf->lts.rbszs
+		       = Lf->lts.sbszs = (unsigned char)1;
+#endif	/* defined(HASSOOPT) */
+
+#if	defined(HASSOSTATE)
+	Lf->lts.ss = (unsigned int)s.so_state;
+#endif	/* defined(HASSOSTATE) */
+
+/*
+ * Process socket by the associated domain family.
+ */
+	switch ((fam = d.dom_family)) {
+/*
+ * Process an Internet domain socket.
+ */
+	case AF_INET:
+
+#if	defined(HASIPv6)
+	case AF_INET6:
+#endif	/* defined(HASIPv6) */
+
+	    if (Fnet) {
+		if (!FnetTy
+		||  ((FnetTy == 4) && (fam == AF_INET))
+
+#if	defined(HASIPv6)
+		||  ((FnetTy == 6) && (fam == AF_INET6))
+#endif	/* defined(HASIPv6) */
+		)
+
+		    Lf->sf |= SELNET;
+	    }
+	    printiproto(p.pr_protocol);
+
+#if	defined(HASIPv6)
+	    (void) snpf(Lf->type, sizeof(Lf->type),
+		(fam == AF_INET) ? "IPv4" : "IPv6");
+#else	/* !defined(HASIPv6) */
+	    (void) snpf(Lf->type, sizeof(Lf->type), "inet");
+#endif	/* defined(HASIPv6) */
+
+#if	defined(HASIPv6) && defined(NETBSDV) && !defined(HASINRIAIPv6)
+	    if (fam == AF_INET6) {
+
+	    /*
+	     * Read IPv6 protocol control block.
+	     */
+		if (!s.so_pcb
+		||  kread((KA_T)s.so_pcb, (char *)&in6p, sizeof(in6p))) {
+		    (void) snpf(Namech, Namechl, "can't read in6pcb at %s",
+			print_kptr((KA_T)s.so_pcb, (char *)NULL, 0));
+		    enter_nm(Namech);
+		    return;
+		}
+	    /*
+	     * Save IPv6 address information.
+	     */
+		enter_dev_ch(print_kptr((KA_T)(in6p.in6p_ppcb ? in6p.in6p_ppcb
+							      : s.so_pcb),
+					       (char *)NULL, 0));
+		if (p.pr_protocol == IPPROTO_TCP)
+		    ta = (KA_T)in6p.in6p_ppcb;
+	        la = (unsigned char *)&in6p.in6p_laddr;
+	        lp = (int)ntohs(in6p.in6p_lport);
+		if (!IN6_IS_ADDR_UNSPECIFIED(&in6p.in6p_faddr)
+		||  in6p.in6p_fport)
+		{
+		    fa = (unsigned char *)&in6p.in6p_faddr;
+		    fp = (int)ntohs(in6p.in6p_fport);
+		}
+	    } else
+#endif	/* defined(HASIPv6) && defined(NETBSDV) && !defined(HASINRIAIPv6) */
+
+	    {
+
+	    /*
+	     * Read IPv4 or IPv6 (OpenBSD) protocol control block.
+	     */
+		if (!s.so_pcb
+		||  kread((KA_T)s.so_pcb, (char *)&inp, sizeof(inp))) {
+		    if (!s.so_pcb) {
+			(void) snpf(Namech, Namechl, "no PCB%s%s",
+			    (s.so_state & SS_CANTSENDMORE) ? ", CANTSENDMORE"
+							   : "",
+			    (s.so_state & SS_CANTRCVMORE) ? ", CANTRCVMORE"
+							  : "");
+		    } else {
+			(void) snpf(Namech, Namechl, "can't read inpcb at %s",
+			    print_kptr((KA_T)s.so_pcb, (char *)NULL, 0));
+		    }
+		    enter_nm(Namech);
+		    return;
+		}
+		enter_dev_ch(print_kptr((KA_T)(inp.inp_ppcb ? inp.inp_ppcb
+							    : s.so_pcb),
+					       (char *)NULL, 0));
+		if (p.pr_protocol == IPPROTO_TCP)
+		    ta = (KA_T)inp.inp_ppcb;
+		lp = (int)ntohs(inp.inp_lport);
+		if (fam == AF_INET) {
+
+		/*
+		 * Save IPv4 address information.
+		 */
+		    la = (unsigned char *)&inp.inp_laddr;
+		    if (inp.inp_faddr.s_addr != INADDR_ANY || inp.inp_fport) {
+			fa = (unsigned char *)&inp.inp_faddr;
+			fp = (int)ntohs(inp.inp_fport);
+		    }
+		}
+
+#if	defined(HASIPv6) && (defined(OPENBSDV) || defined(HASINRIAIPv6))
+		else {
+		    la = (unsigned char *)&inp.inp_laddr6;
+		    if (!IN6_IS_ADDR_UNSPECIFIED(&inp.inp_faddr6)
+		    ||  inp.inp_fport)
+		    {
+			fa = (unsigned char *)&inp.inp_faddr6;
+			fp = (int)ntohs(inp.inp_fport);
+		    }
+		}
+#endif	/* defined(HASIPv6) && (defined(OPENBSDV) || defined(HASINRIAIPv6)) */
+
+	    }
+
+#if	defined(HASIPv6)
+	    if ((fam == AF_INET6)
+	    &&  ((la && IN6_IS_ADDR_V4MAPPED((struct in6_addr *)la))
+	    ||  ((fa && IN6_IS_ADDR_V4MAPPED((struct in6_addr *)fa))))) {
+
+	    /*
+	     * Adjust for IPv4 addresses mapped in IPv6 addresses.
+	     */
+		if (la)
+		    la = (unsigned char *)IPv6_2_IPv4(la);
+		if (fa)
+		    fa = (unsigned char *)IPv6_2_IPv4(fa);
+		fam = AF_INET;
+	    }
+#endif	/* defined(HASIPv6) */
+
+	/*
+	 * Enter local and remote addresses by address family.
+	 */
+	    if (fa || la)
+		(void) ent_inaddr(la, lp, fa, fp, fam);
+	/*
+	 * If the protocol is TCP, and its address is available, read the
+	 * TCP protocol control block and save its state.
+	 */
+	    if (ta && !kread(ta, (char *)&t, sizeof(t))) {
+		Lf->lts.type = 0;
+		Lf->lts.state.i = (int)t.t_state;
+
+#if	defined(HASTCPOPT)
+# if	defined(OPENBSDV)
+		Lf->lts.mss = (unsigned long)t.t_maxseg;
+# else	/* !defined(OPENSDV) */
+		Lf->lts.mss = (unsigned long)t.t_ourmss;
+# endif	/* defined(OPENSDV) */
+
+		Lf->lts.msss = (unsigned char)1;
+		Lf->lts.topt = (unsigned int)t.t_flags;
+#endif	/* defined(HASTCPOPT) */
+
+	    }
+	    break;
+/*
+ * Process a ROUTE domain socket.
+ */
+	case AF_ROUTE:
+	    (void) snpf(Lf->type, sizeof(Lf->type), "rte");
+	    if (s.so_pcb)
+		enter_dev_ch(print_kptr((KA_T)(s.so_pcb), (char *)NULL, 0));
+	    else
+		(void) snpf(Namech, Namechl, "no protocol control block");
+	    if (!Fsize)
+		Lf->off_def = 1;
+	    break;
+/*
+ * Process a Unix domain socket.
+ */
+	case AF_UNIX:
+	    if (Funix)
+		Lf->sf |= SELUNX;
+	    (void) snpf(Lf->type, sizeof(Lf->type), "unix");
+	/*
+	 * Read Unix protocol control block and the Unix address structure.
+	 */
+
+	    enter_dev_ch(print_kptr(sa, (char *)NULL, 0));
+	    if (kread((KA_T) s.so_pcb, (char *) &unp, sizeof(unp))) {
+		(void) snpf(Namech, Namechl, "can't read unpcb at %s",
+		    print_kptr((KA_T)s.so_pcb, (char *)NULL, 0));
+		break;
+	    }
+	    if ((struct socket *)sa != unp.unp_socket) {
+		(void) snpf(Namech, Namechl, "unp_socket (%s) mismatch",
+		    print_kptr((KA_T)unp.unp_socket, (char *)NULL, 0));
+		break;
+	    }
+	    if (unp.unp_addr) {
+
+#if	defined(UNPADDR_IN_MBUF)
+		if (kread((KA_T)unp.unp_addr, (char *)&mb, sizeof(mb)))
+#else	/* !defined(UNPADDR_IN_MBUF) */
+		if (kread((KA_T)unp.unp_addr, (char *)&un, sizeof(un)))
+#endif	/* defined(UNPADDR_IN_MBUF) */
+
+		{
+		    (void) snpf(Namech, Namechl, "can't read unp_addr at %s",
+			print_kptr((KA_T)unp.unp_addr, (char *)NULL, 0));
+		    break;
+		}
+
+#if	defined(UNPADDR_IN_MBUF)
+		if (mb.m_hdr.mh_len == sizeof(struct sockaddr_un))
+		    ua = (struct sockaddr_un *) ((char *) &mb
+		       + (mb.m_hdr.mh_data - (caddr_t) unp.unp_addr));
+#else	/* !defined(UNPADDR_IN_MBUF) */
+		ua = &un;
+#endif	/* defined(UNPADDR_IN_MBUF) */
+
+	    }
+	    if (!ua) {
+		ua = &un;
+		(void) bzero((char *)ua, sizeof(un));
+		ua->sun_family = AF_UNSPEC;
+	    }
+	/*
+	 * Print information on Unix socket that has no address bound
+	 * to it, although it may be connected to another Unix domain
+	 * socket as a pipe.
+	 */
+	    if (ua->sun_family != AF_UNIX) {
+		if (ua->sun_family == AF_UNSPEC) {
+		    if (unp.unp_conn) {
+			if (kread((KA_T)unp.unp_conn, (char *)&uc, sizeof(uc)))
+			    (void) snpf(Namech, Namechl,
+				"can't read unp_conn at %s",
+				print_kptr((KA_T)unp.unp_conn,(char *)NULL,0));
+			else
+			    (void) snpf(Namech, Namechl, "->%s",
+				print_kptr((KA_T)uc.unp_socket,(char *)NULL,0));
+		    } else
+			(void) snpf(Namech, Namechl, "->(none)");
+		} else
+		    (void) snpf(Namech, Namechl, "unknown sun_family (%d)",
+			ua->sun_family);
+		break;
+	    }
+	    if (ua->sun_path[0]) {
+
+#if	defined(UNPADDR_IN_MBUF)
+		if (mb.m_len >= sizeof(struct sockaddr_un))
+		    mb.m_len = sizeof(struct sockaddr_un) - 1;
+		*((char *)ua + mb.m_len) = '\0';
+#else	/* !defined(UNPADDR_IN_MBUF) */
+		ua->sun_path[sizeof(ua->sun_path) - 1] = '\0';
+#endif	/* defined(UNPADDR_IN_MBUF) */
+
+		if (Sfile && is_file_named(ua->sun_path, 0))
+		    Lf->sf |= SELNM;
+		if (!Namech[0])
+		    (void) snpf(Namech, Namechl, "%s", ua->sun_path);
+	    } else
+		(void) snpf(Namech, Namechl, "no address");
+	    break;
+	default:
+	    printunkaf(fam, 1);
+	}
+	if (Namech[0])
+	    enter_nm(Namech);
+}
+@
+
+
+1.24
+log
+@Revision 4.74
+@
+text
+@d35 1
+a35 1
+static char *rcsid = "$Id: dsock.c,v 1.23 2004/03/10 23:51:34 abe Exp abe $";
+d147 1
+d152 2
+a153 2
+	Lf->lts.qlens = Lf->lts.qlims = Lf->lts.rbszs
+		      = Lf->lts.sbszs = (unsigned char)1;
+@
+
+
+1.23
+log
+@Revision 4.71
+@
+text
+@d35 1
+a35 1
+static char *rcsid = "$Id: dsock.c,v 1.22 2002/04/19 12:11:10 abe Exp abe $";
+d82 1
+a82 1
+# if	NETBSDV>=1040
+d84 1
+a84 1
+# endif	/* NETBSDV>=1040 */
+@
+
+
+1.22
+log
+@Revision 4.63
+@
+text
+@d35 1
+a35 1
+static char *rcsid = "$Id: dsock.c,v 1.21 2002/01/16 15:05:15 abe Exp abe $";
+d144 15
+d304 12
+@
+
+
+1.21
+log
+@Update ent_inaddr() usage.
+@
+text
+@d35 1
+a35 1
+static char *rcsid = "$Id: dsock.c,v 1.20 2001/11/01 20:28:36 abe Exp abe $";
+a66 1
+	struct mbuf mb;
+d79 12
+d326 8
+a333 1
+		if (kread((KA_T) unp.unp_addr, (char *) &mb, sizeof(mb))) {
+d338 2
+d343 4
+d376 2
+d381 4
+@
+
+
+1.20
+log
+@Revision 4.60
+@
+text
+@d35 1
+a35 1
+static char *rcsid = "$Id: dsock.c,v 1.19 2001/10/17 19:17:58 abe Exp abe $";
+a67 1
+	int ofam = -1;
+a261 1
+		ofam = fam;
+d270 1
+a270 1
+		(void) ent_inaddr(la, lp, fa, fp, fam, ofam);
+@
+
+
+1.19
+log
+@Revision 4.59
+@
+text
+@d35 1
+a35 1
+static char *rcsid = "$Id: dsock.c,v 1.18 2001/01/02 12:34:48 abe Exp abe $";
+d68 1
+d263 1
+d272 1
+a272 1
+		(void) ent_inaddr(la, lp, fa, fp, fam);
+@
+
+
+1.18
+log
+@Revision 4.54
+@
+text
+@d35 1
+a35 1
+static char *rcsid = "$Id: dsock.c,v 1.17 2000/08/01 12:54:55 abe Exp abe $";
+d146 11
+a156 2
+	    if (Fnet)
+		Lf->sf |= SELNET;
+@
+
+
+1.17
+log
+@Revision 4.51
+Convert to snpf().
+@
+text
+@d35 1
+a35 1
+static char *rcsid = "$Id: dsock.c,v 1.16 2000/05/31 13:04:05 abe Exp abe $";
+a252 2
+		if (Lf->type[3] == '6')
+		    Lf->type[3] = '4';
+@
+
+
+1.16
+log
+@Revision 4.50
+Be more informative about missing PCB.
+@
+text
+@d35 1
+a35 1
+static char *rcsid = "$Id: dsock.c,v 1.15 2000/03/23 14:21:33 abe Exp abe $";
+d80 1
+a80 1
+	(void) strcpy(Lf->type, "sock");
+d90 2
+a91 2
+	    (void) sprintf(Namech, "can't read socket struct from %s",
+		print_kptr(sa, (char *)NULL));
+d101 2
+a102 2
+	    (void) sprintf(Namech, "can't read protocol switch from %s",
+		print_kptr((KA_T)s.so_proto, (char *)NULL));
+d108 2
+a109 2
+	    (void) sprintf(Namech, "can't read domain struct from %s",
+		print_kptr((KA_T)p.pr_domain, (char *)NULL));
+d151 2
+a152 1
+	    (void) strcpy(Lf->type, (fam == AF_INET) ? "IPv4" : "IPv6");
+d154 1
+a154 1
+	    (void) strcpy(Lf->type, "inet");
+d165 2
+a166 2
+		    (void) sprintf(Namech, "can't read in6pcb at %s",
+			print_kptr((KA_T)s.so_pcb, (char *)NULL));
+d175 1
+a175 1
+					       (char *)NULL));
+d197 5
+a201 5
+			(void) strcpy(Namech, "no PCB");
+			if (s.so_state & SS_CANTSENDMORE)
+			    (void) strcpy(endnm(), ", CANTSENDMORE");
+			if (s.so_state & SS_CANTRCVMORE)
+			    (void) strcpy(endnm(), ", CANTRCVMORE");
+d203 2
+a204 2
+			(void) sprintf(Namech, "can't read inpcb at %s",
+			    print_kptr((KA_T)s.so_pcb, (char *)NULL));
+d211 1
+a211 1
+					       (char *)NULL));
+d277 1
+a277 1
+	    (void) strcpy(Lf->type, "rte");
+d279 1
+a279 1
+		enter_dev_ch(print_kptr((KA_T)(s.so_pcb), (char *)NULL));
+d281 1
+a281 1
+		(void) strcpy(Namech, "no protocol control block");
+d291 1
+a291 1
+	    (void) strcpy(Lf->type, "unix");
+d296 1
+a296 1
+	    enter_dev_ch(print_kptr(sa, (char *)NULL));
+d298 2
+a299 2
+		(void) sprintf(Namech, "can't read unpcb at %s",
+		    print_kptr((KA_T)s.so_pcb, (char *)NULL));
+d303 2
+a304 2
+		(void) sprintf(Namech, "unp_socket (%s) mismatch",
+		    print_kptr((KA_T)unp.unp_socket, (char *)NULL));
+d309 2
+a310 2
+		    (void) sprintf(Namech, "can't read unp_addr at %s",
+			print_kptr((KA_T)unp.unp_addr, (char *)NULL));
+d331 3
+a333 2
+			    (void) sprintf(Namech, "can't read unp_conn at %s",
+				print_kptr((KA_T)unp.unp_conn, (char *)NULL));
+d335 2
+a336 2
+			    (void) sprintf(Namech, "->%s",
+				print_kptr((KA_T)uc.unp_socket, (char *)NULL));
+d338 1
+a338 1
+			(void) strcpy(Namech, "->(none)");
+d340 1
+a340 1
+		    (void) sprintf(Namech, "unknown sun_family (%d)",
+d351 1
+a351 1
+		    (void) strcpy(Namech, ua->sun_path);
+d353 1
+a353 1
+		(void) strcpy(Namech, "no address");
+@
+
+
+1.15
+log
+@Revision 4.49
+@
+text
+@d35 1
+a35 1
+static char *rcsid = "$Id: dsock.c,v 1.14 2000/03/14 20:37:26 abe Exp abe $";
+d195 10
+a204 2
+		    (void) sprintf(Namech, "can't read inpcb at %s",
+			print_kptr((KA_T)s.so_pcb, (char *)NULL));
+@
+
+
+1.14
+log
+@Revision 4.49
+@
+text
+@d35 1
+a35 1
+static char *rcsid = "$Id: dsock.c,v 1.13 1999/11/28 06:40:56 abe Exp abe $";
+d41 1
+d228 1
+a228 1
+#endif	/* defined(HASIPv6) && (defined(OPENBSDV) !! defined(HASINRIAIPv6)) */
+d249 1
+@
+
+
+1.13
+log
+@Revision 4.47
+@
+text
+@d35 1
+a35 1
+static char *rcsid = "$Id: dsock.c,v 1.12 99/10/22 08:22:38 abe Exp Locker: abe $";
+d41 1
+d44 9
+d230 18
+@
+
+
+1.12
+log
+@Revision 4.46
+@
+text
+@d35 1
+a35 1
+static char *rcsid = "$Id: dsock.c,v 1.11 99/07/19 14:02:49 abe Exp Locker: abe $";
+d316 1
+a316 1
+	    printunkaf(fam);
+@
+
+
+1.11
+log
+@Revision 4.45.
+Upgrade IPv6 support.
+@
+text
+@d35 1
+a35 1
+static char *rcsid = "$Id: dsock.c,v 1.10 99/03/29 07:15:29 abe Exp Locker: abe $";
+d65 1
+a65 1
+#if	defined(HASIPv6) && defined(NETBSDV)
+d67 1
+a67 1
+#endif	/* defined(HASIPv6) && defined(NETBSDV) */
+d145 1
+a145 1
+#if	defined(HASIPv6) && defined(NETBSDV)
+d175 1
+a175 1
+#endif	/* defined(HASIPv6) && defined(NETBSDV) */
+d207 1
+a207 1
+#if	defined(HASIPv6) && defined(OPENBSDV)
+d217 1
+a217 1
+#endif	/* defined(HASIPv6) && defined(OPENBSDV) */
+@
+
+
+1.10
+log
+@Revision 4.42
+Make UVM adjustment; make file name reporting improvements.
+@
+text
+@d35 1
+a35 1
+static char *rcsid = "$Id: dsock.c,v 1.9 99/01/25 07:08:13 abe Exp Locker: abe $";
+d60 1
+d65 4
+d145 2
+a146 16
+	/*
+	 * Read protocol control block.
+	 */
+	    if (!s.so_pcb
+	    ||  kread((KA_T) s.so_pcb, (char *) &inp, sizeof(inp))) {
+		(void) sprintf(Namech, "can't read inpcb at %s",
+		    print_kptr((KA_T)s.so_pcb, (char *)NULL));
+		enter_nm(Namech);
+		return;
+	    }
+	/*
+	 * Print Internet socket information.
+	 */
+	    enter_dev_ch(print_kptr((KA_T)(inp.inp_ppcb ? inp.inp_ppcb
+							: s.so_pcb),
+				    (char *)NULL));
+d148 9
+a156 11
+#if	defined(HASIPv6) && defined(HASINRIAIPv6)
+	    if (inp.inp_latype == IPATYPE_UNBD)
+		la = (unsigned char *)&in6addr_any;
+	    else if (inp.inp_latype == IPATYPE_IPV6) {
+		fam = AF_INET6;
+		Lf->type[3] = '6';
+		la = (unsigned char *)&inp.inp_laddr6;
+	    } else {
+		if (inp.inp_latype == IPATYPE_IPV4) {
+		    fam = AF_INET;
+		    Lf->type[3] = '4';
+d158 18
+a175 5
+		la = (unsigned char *)&inp.inp_laddr;
+	    }
+#else	/* !defined(HASIPv6) || !defined(HASINRIAIPv6) */
+	    la = (unsigned char *)&inp.inp_laddr;
+#endif	/* defined(HASIPv6) && defined(HASINRIAIPv6) */
+d177 1
+a177 1
+	    lp = (int)ntohs(inp.inp_lport);
+d179 25
+a203 11
+#if	defined(HASIPv6) && defined(HASINRIAIPv6)
+	    if (inp.inp_fatype != IPATYPE_UNBD || inp.inp_fport) {
+		if (inp.inp_fatype == IPATYPE_IPV6) {
+		    fa = (unsigned char *)&inp.inp_faddr6;
+		    fam = AF_INET6;
+		    Lf->type[3] = '6';
+		} else {
+		    fa = (unsigned char *)&inp.inp_faddr;
+		    if (inp.inp_fatype == IPATYPE_IPV4) {
+			fam = AF_INET;
+			Lf->type[3] = '4';
+d206 13
+a218 1
+		fp = (int)ntohs(inp.inp_fport);
+d220 3
+a222 7
+#else	/* !defined(HASIPv6) || !defined(HASINRIAIPv6) */
+	    if (inp.inp_faddr.s_addr != INADDR_ANY || inp.inp_fport) {
+		fa = (unsigned char *)&inp.inp_faddr;
+		fp = (int)ntohs(inp.inp_fport);
+	    }
+#endif	/* defined(HASIPv6) && defined(HASINRIAIPv6) */
+
+d225 5
+a229 2
+	    if (p.pr_protocol == IPPROTO_TCP && inp.inp_ppcb
+	    &&  !kread((KA_T)inp.inp_ppcb, (char *)&t, sizeof(t))) {
+@
+
+
+1.9
+log
+@Revision 4.40
+@
+text
+@d35 1
+a35 1
+static char *rcsid = "$Id: dsock.c,v 1.8 98/08/03 07:43:23 abe Exp Locker: abe $";
+d283 1
+a283 1
+		else
+@
+
+
+1.8
+log
+@Revision 4.36
+Change raw socket handling; add Inria IPv6 support.
+@
+text
+@d35 1
+a35 1
+static char *rcsid = "$Id: dsock.c,v 1.7 98/05/22 07:18:35 abe Exp Locker: abe $";
+d281 1
+a281 1
+		if (Sfile && is_file_named(ua->sun_path, VSOCK))
+@
+
+
+1.7
+log
+@Revision 4.33
+Add UVM support.
+@
+text
+@d35 1
+a35 1
+static char *rcsid = "$Id: dsock.c,v 1.6 98/03/06 08:24:48 abe Exp Locker: abe $";
+a57 1
+	struct rawcb raw;
+a58 1
+	struct sockaddr sad;
+d84 3
+a86 2
+	||  kread((KA_T) s.so_proto, (char *) &p, sizeof(p))) {
+	    (void) strcpy(Namech, "no protocol switch");
+d90 2
+a91 1
+	if (kread((KA_T) p.pr_domain, (char *) &d, sizeof(d))) {
+d125 5
+a129 1
+	case AF_ROUTE:
+a131 2
+	    (void) strcpy(Lf->type, (fam == AF_INET) ? "inet"
+						     : "rte ");
+d133 7
+d143 5
+a147 2
+	    if (!s.so_pcb) {
+		enter_nm("no protocol control block");
+d150 6
+a155 1
+	    if (s.so_type == SOCK_RAW) {
+d157 7
+a163 28
+	    /*
+	     * Print raw socket information.
+	     */
+		if (kread((KA_T) s.so_pcb, (char *)&raw, sizeof(raw))) {
+		    (void) sprintf(Namech, "can't read rawcb at %s",
+			print_kptr((KA_T)s.so_pcb, (char *)NULL));
+		    enter_nm(Namech);
+		    return;
+		}
+		enter_dev_ch(print_kptr((KA_T)s.so_pcb, (char *)NULL));
+		if (raw.rcb_laddr
+		&& !kread((KA_T)raw.rcb_laddr, (char *)&sad, sizeof(sad))) {
+		    if (sad.sa_family == AF_INET || sad.sa_family == AF_ROUTE)
+			la = (unsigned char *)&sad.sa_data[2];
+		    else if (sad.sa_family)
+			printrawaddr(&sad);
+		}
+		if (raw.rcb_faddr
+		&& !kread((KA_T)raw.rcb_faddr, (char *)&sad, sizeof(sad))) {
+		    if (sad.sa_family == AF_INET || sad.sa_family == AF_ROUTE)
+			fa = (unsigned char *)&sad.sa_data[2];
+		    else if (sad.sa_family) {
+			(void) strcat(endnm(), "->");
+			printrawaddr(&sad);
+		    }
+		}
+		if (fa || la)
+		    (void) ent_inaddr(la, -1, fa, -1, AF_INET);
+d165 3
+a167 3
+		if (fam != AF_INET) {
+		    (void) strcpy(Namech, "no further information");
+		    break;
+d169 5
+d175 9
+a183 16
+	    /*
+	     * Print Internet socket information.
+	     */
+		if (kread((KA_T) s.so_pcb, (char *) &inp, sizeof(inp))
+		||  (struct socket *)sa != inp.inp_socket) {
+		    (void) sprintf(Namech, "can't read inpcb at %s",
+			print_kptr((KA_T)s.so_pcb, (char *)NULL));
+		    enter_nm(Namech);
+		    return;
+		}
+		enter_dev_ch(print_kptr((KA_T)(inp.inp_ppcb ? inp.inp_ppcb
+							    : s.so_pcb),
+					(char *)NULL));
+		la = (unsigned char *)&inp.inp_laddr;
+		lp = (int)ntohs(inp.inp_lport);
+		if (inp.inp_faddr.s_addr != INADDR_ANY || inp.inp_fport != 0) {
+d185 4
+a188 1
+		    fp = (int)ntohs(inp.inp_fport);
+d190 1
+a190 7
+		if (fa || la)
+		    (void) ent_inaddr(la, lp, fa, fp, AF_INET);
+		if (p.pr_protocol == IPPROTO_TCP && inp.inp_ppcb
+		&&  !kread((KA_T)inp.inp_ppcb, (char *)&t, sizeof(t))) {
+		    Lf->lts.type = 0;
+		    Lf->lts.state.i = (int)t.t_state;
+		}
+d192 26
+@
+
+
+1.6
+log
+@Revision 4.27
+@
+text
+@d35 1
+a35 1
+static char *rcsid = "$Id: dsock.c,v 1.5 97/10/23 12:37:20 abe Exp Locker: abe $";
+d51 1
+a51 1
+	struct in_addr *fa = (struct in_addr *)NULL;
+d55 1
+a55 1
+	struct in_addr *la = (struct in_addr *)NULL;
+d153 1
+a153 1
+			la = (struct in_addr *)&sad.sa_data[2];
+d160 1
+a160 1
+			fa = (struct in_addr *)&sad.sa_data[2];
+d167 1
+a167 1
+		    (void) ent_inaddr(la, -1, fa, -1);
+d187 1
+a187 1
+		la = &inp.inp_laddr;
+d190 1
+a190 1
+		    fa = &inp.inp_faddr;
+d194 1
+a194 1
+		    (void) ent_inaddr(la, lp, fa, fp);
+@
+
+
+1.5
+log
+@Revision 4.18
+@
+text
+@d35 1
+a35 1
+static char *rcsid = "$Id: dsock.c,v 1.4 97/09/23 09:49:22 abe Exp Locker: abe $";
+d48 1
+a48 1
+	caddr_t sa;			/* socket address in kernel */
+a50 1
+	char dev_ch[32];
+d66 1
+a66 1
+        (void) strcpy(Lf->type, "sock");
+d71 3
+a73 3
+	if (sa == NULL) {
+		enter_nm("no socket address");
+		return;
+d75 5
+a79 8
+        if (kread((KA_T) sa, (char *) &s, sizeof(s))) {
+                (void) sprintf(Namech, "can't read socket struct from %#x", sa);
+                enter_nm(Namech);
+                return;
+        }
+	if ( ! s.so_type) {
+                enter_nm("no socket type");
+                return;
+d81 5
+a85 1
+        if (s.so_proto == NULL
+d87 10
+a96 10
+                (void) strcpy(Namech, "no protocol switch");
+                enter_nm(Namech);
+                return;
+        }
+        if (kread((KA_T) p.pr_domain, (char *) &d, sizeof(d))) {
+                (void) sprintf(Namech, "can't read domain struct from %#x",
+                        p.pr_domain);
+                enter_nm(Namech);
+                return;
+        }
+d101 7
+a107 7
+		if (Lf->access == 'r')
+			Lf->sz = (SZOFFTYPE)s.so_rcv.sb_cc;
+		else if (Lf->access == 'w')
+			Lf->sz = (SZOFFTYPE)s.so_snd.sb_cc;
+		else
+			Lf->sz = (SZOFFTYPE)(s.so_rcv.sb_cc + s.so_snd.sb_cc);
+		Lf->sz_def = 1;
+d109 1
+a109 1
+		Lf->off_def = 1;
+d126 5
+a130 5
+		if (Fnet)
+			Lf->sf |= SELNET;
+		(void) strcpy(Lf->type, (fam == AF_INET) ? "inet"
+							 : "rte ");
+		printiproto(p.pr_protocol);
+d134 14
+a147 3
+		if (s.so_pcb == NULL) {
+			enter_nm("no protocol control block");
+			return;
+d149 15
+a163 10
+		if (s.so_type == SOCK_RAW) {
+
+		/*
+		 * Print raw socket information.
+		 */
+		    if (kread((KA_T) s.so_pcb, (char *)&raw, sizeof(raw))) {
+			(void) sprintf(Namech, "can't read rawcb at %#x",
+				s.so_pcb);
+			enter_nm(Namech);
+			return;
+d165 8
+a172 27
+		    (void) sprintf(dev_ch, "0x%08x", s.so_pcb);
+		    enter_dev_ch(dev_ch);
+		    if (raw.rcb_laddr
+		    && !kread((KA_T)raw.rcb_laddr, (char *)&sad, sizeof(sad))) {
+			if (sad.sa_family == AF_INET
+			||  sad.sa_family == AF_ROUTE)
+			    la = (struct in_addr *)&sad.sa_data[2];
+			else if (sad.sa_family)
+			    printrawaddr(&sad);
+		    }
+		    if (raw.rcb_faddr
+		    && !kread((KA_T)raw.rcb_faddr, (char *)&sad, sizeof(sad))) {
+			if (sad.sa_family == AF_INET
+			||  sad.sa_family == AF_ROUTE)
+			    fa = (struct in_addr *)&sad.sa_data[2];
+			else if (sad.sa_family) {
+				(void) strcat(endnm(), "->");
+				printrawaddr(&sad);
+			}
+		    }
+		    if (fa || la)
+			(void) ent_inaddr(la, -1, fa, -1);
+		} else {
+		    if (fam != AF_INET) {
+			(void) strcpy(Namech, "no further information");
+			break;
+		    }
+d174 9
+a182 27
+		/*
+		 * Print Internet socket information.
+		 */
+		    if (kread((KA_T) s.so_pcb, (char *) &inp, sizeof(inp))
+		    ||  (struct socket *)sa != inp.inp_socket) {
+			(void) sprintf(Namech, "can't read inpcb at %#x",
+			    s.so_pcb);
+			enter_nm(Namech);
+			return;
+		    }
+		    (void) sprintf(dev_ch, "0x%08x",
+			(inp.inp_ppcb == NULL) ? s.so_pcb : inp.inp_ppcb);
+		    enter_dev_ch(dev_ch);
+		    la = &inp.inp_laddr;
+		    lp = (int)ntohs(inp.inp_lport);
+		    if (inp.inp_faddr.s_addr != INADDR_ANY || inp.inp_fport
+		    != 0) {
+			fa = &inp.inp_faddr;
+			fp = (int)ntohs(inp.inp_fport);
+		    }
+		    if (fa || la)
+			(void) ent_inaddr(la, lp, fa, fp);
+		    if (p.pr_protocol == IPPROTO_TCP && inp.inp_ppcb
+		    &&  kread((KA_T)inp.inp_ppcb, (char *)&t, sizeof(t)) == 0) {
+			Lf->lts.type = 0;
+			Lf->lts.state.i = (int)t.t_state;
+		    }
+d184 18
+a201 1
+		break;
+d206 3
+a208 3
+		if (Funix)
+			Lf->sf |= SELUNX;
+		(void) strcpy(Lf->type, "unix");
+d213 16
+a228 6
+		(void) sprintf(dev_ch, "0x%08x", sa);
+		enter_dev_ch(dev_ch);
+		if (kread((KA_T) s.so_pcb, (char *) &unp, sizeof(unp))) {
+			(void) sprintf(Namech, "can't read unpcb at %#x",
+				s.so_pcb);
+			break;
+d230 9
+a238 21
+		if ((struct socket *)sa != unp.unp_socket) {
+			(void) sprintf(Namech, "unp_socket (%#x) mismatch",
+				unp.unp_socket);
+			break;
+		}
+		if (unp.unp_addr) {
+		    if (kread((KA_T) unp.unp_addr, (char *) &mb, sizeof(mb))) {
+			(void) sprintf(Namech,
+				"can't read unp_addr at %#x",
+				unp.unp_addr);
+			break;
+		    }
+		    if (mb.m_hdr.mh_len == sizeof(struct sockaddr_un))
+			ua = (struct sockaddr_un *) ((char *) &mb
+			   + (mb.m_hdr.mh_data - (caddr_t) unp.unp_addr));
+		}
+		if (ua == NULL) {
+			ua = &un;
+			(void) bzero((char *)ua, sizeof(un));
+			ua->sun_family = AF_UNSPEC;
+		}
+d244 6
+a249 26
+		if (ua->sun_family != AF_UNIX) {
+			if (ua->sun_family == AF_UNSPEC) {
+				if (unp.unp_conn) {
+					if (kread((KA_T) unp.unp_conn,
+						(char *) &uc, sizeof(uc))) {
+					    (void) sprintf(Namech,
+						"can't read unp_conn at %#x",
+						unp.unp_conn);
+					} else {
+					    (void) sprintf(Namech,
+						"->0x%08x", uc.unp_socket);
+					}
+				} else
+					(void) strcpy(Namech, "->(none)");
+			} else
+				(void) sprintf(Namech,
+					"unknown sun_family (%d)",
+					ua->sun_family);
+			break;
+		}
+		if (ua->sun_path[0]) {
+			if (mb.m_len >= sizeof(struct sockaddr_un))
+				mb.m_len = sizeof(struct sockaddr_un) - 1;
+			*((char *)ua + mb.m_len) = '\0';
+			if (Sfile && is_file_named(ua->sun_path, VSOCK))
+				Lf->sf |= SELNM;
+d251 4
+a254 1
+				(void) strcpy(Namech, ua->sun_path);
+d256 2
+a257 1
+			(void) strcpy(Namech, "no address");
+d259 12
+d272 1
+a272 1
+		printunkaf(fam);
+d275 1
+a275 1
+		enter_nm(Namech);
+@
+
+
+1.4
+log
+@Revision 4.16
+Expanded TCPTPI support
+@
+text
+@d35 1
+a35 1
+static char *rcsid = "$Id: dsock.c,v 1.3 97/08/15 08:22:22 abe Exp Locker: abe $";
+d102 1
+a102 1
+			Lf->sz = (unsigned long)s.so_rcv.sb_cc;
+d104 1
+a104 1
+			Lf->sz = (unsigned long)s.so_snd.sb_cc;
+d106 1
+a106 1
+			Lf->sz = (unsigned long)s.so_rcv.sb_cc + s.so_snd.sb_cc;
+@
+
+
+1.3
+log
+@Revision 4.15
+@
+text
+@d35 1
+a35 1
+static char *rcsid = "$Id: dsock.c,v 1.2 97/07/02 11:12:37 abe Exp Locker: abe $";
+a38 1
+#define	TCPSTATES		/* activate tcpstates[] */
+a42 25
+ * print_tcptpistate() - print TCP/TPI state
+ */
+
+void
+print_tcptpistate(nl)
+	int nl;				/* 1 == '\n' required */
+{
+	int s;
+
+	if (Lf->lts.type == 0) {
+	    if ((s = Lf->lts.state.i) < 0 || s >= TCP_NSTATES) {
+		(void) printf("%sUNKNOWN TCP STATE: %d%s%s",
+		    Ffield ? "" : "(", s, Ffield ? "" : ")", nl ? "\n" : "");
+		return;
+	    }
+	    (void) printf("%s%s%s%s", Ffield ? "" : "(", tcpstates[s],
+		Ffield ? "" : ")", nl ? "\n" : "");
+	    return;
+	}
+	if (nl)
+	    putchar('\n');
+}
+
+
+/*
+d98 1
+a98 1
+ * Set size, based on access type.
+d110 7
+@
+
+
+1.2
+log
+@Revision 4.13
+Indicate sources are shared by NetBSD and OpenBSD.
+@
+text
+@d35 1
+a35 1
+static char *rcsid = "$Id: dsock.c,v 1.1 97/02/24 07:36:14 abe Exp Locker: abe $";
+d39 1
+d44 25
+d88 1
+d218 5
+@
+
+
+1.1
+log
+@Initial revision
+@
+text
+@d2 1
+a2 1
+ * dsock.c - NetBSD socket processing functions for lsof
+d35 1
+a35 1
+static char *rcsid = "$Id: dsock.c,v 1.6 96/12/28 11:27:53 abe Exp $";
+@

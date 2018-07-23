@@ -1,0 +1,70 @@
+head	1.3;
+access;
+symbols;
+locks; strict;
+comment	@# @;
+
+
+1.3
+date	2004.01.08.15.36.34;	author abe;	state Exp;
+branches;
+next	1.2;
+
+1.2
+date	2004.01.08.02.18.04;	author abe;	state Exp;
+branches;
+next	1.1;
+
+1.1
+date	97.02.24.16.52.22;	author abe;	state Exp;
+branches;
+next	;
+
+
+desc
+@Lsof version 4
+@
+
+
+1.3
+log
+@Use GenericDistrib2 symbolic link.
+@
+text
+@#!/bin/ksh
+#
+# FreeBSDDistrib -- make FreeBSD distribution of lsof 4.x
+#
+# Usage: FreeBSDDistrib [<suffix>]
+#
+#	 <suffix>	optional suffix for identification
+
+if test $# -gt 1
+then
+  echo "Usage: [<suffix>]"
+  exit 1
+fi
+$HOME/src/lsof4/support/GenericDistrib2 freebsd $1
+@
+
+
+1.2
+log
+@Use bz2 compression.
+@
+text
+@d14 1
+a14 1
+$HOME/src/lsof4/support/GenericDistrib_bz2 freebsd $1
+@
+
+
+1.1
+log
+@Initial revision
+@
+text
+@d14 1
+a14 1
+$HOME/src/lsof4/support/GenericDistrib freebsd $1
+@

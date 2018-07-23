@@ -1,0 +1,2531 @@
+head	1.90;
+access;
+symbols;
+locks; strict;
+
+
+1.90
+date	2005.08.29.13.02.55;	author abe;	state Exp;
+branches;
+next	1.89;
+
+1.89
+date	2005.05.17.00.46.26;	author abe;	state Exp;
+branches;
+next	1.88;
+
+1.88
+date	2005.05.11.13.08.27;	author abe;	state Exp;
+branches;
+next	1.87;
+
+1.87
+date	2005.01.17.13.25.55;	author abe;	state Exp;
+branches;
+next	1.86;
+
+1.86
+date	2004.10.21.11.54.26;	author abe;	state Exp;
+branches;
+next	1.85;
+
+1.85
+date	2004.07.13.09.35.59;	author abe;	state Exp;
+branches;
+next	1.84;
+
+1.84
+date	2004.03.11.14.32.04;	author abe;	state Exp;
+branches;
+next	1.83;
+
+1.83
+date	2004.01.17.01.51.06;	author abe;	state Exp;
+branches;
+next	1.82;
+
+1.82
+date	2003.10.31.19.20.22;	author abe;	state Exp;
+branches;
+next	1.81;
+
+1.81
+date	2003.10.16.12.43.59;	author abe;	state Exp;
+branches;
+next	1.80;
+
+1.80
+date	2003.06.18.23.13.38;	author abe;	state Exp;
+branches;
+next	1.79;
+
+1.79
+date	2003.06.12.11.34.04;	author abe;	state Exp;
+branches;
+next	1.78;
+
+1.78
+date	2003.06.11.12.37.07;	author abe;	state Exp;
+branches;
+next	1.77;
+
+1.77
+date	2003.03.27.02.13.35;	author abe;	state Exp;
+branches;
+next	1.76;
+
+1.76
+date	2002.12.22.12.46.39;	author abe;	state Exp;
+branches;
+next	1.75;
+
+1.75
+date	2002.10.10.11.22.36;	author abe;	state Exp;
+branches;
+next	1.74;
+
+1.74
+date	2002.06.26.11.08.26;	author abe;	state Exp;
+branches;
+next	1.73;
+
+1.73
+date	2002.04.22.12.44.21;	author abe;	state Exp;
+branches;
+next	1.72;
+
+1.72
+date	2002.03.07.20.37.18;	author abe;	state Exp;
+branches;
+next	1.71;
+
+1.71
+date	2002.01.22.17.53.51;	author abe;	state Exp;
+branches;
+next	1.70;
+
+1.70
+date	2002.01.14.15.57.03;	author abe;	state Exp;
+branches;
+next	1.69;
+
+1.69
+date	2001.11.08.20.58.40;	author abe;	state Exp;
+branches;
+next	1.68;
+
+1.68
+date	2001.11.08.20.17.50;	author abe;	state Exp;
+branches;
+next	1.67;
+
+1.67
+date	2001.10.20.18.10.01;	author abe;	state Exp;
+branches;
+next	1.66;
+
+1.66
+date	2001.09.13.15.22.47;	author abe;	state Exp;
+branches;
+next	1.65;
+
+1.65
+date	2001.09.11.18.29.22;	author abe;	state Exp;
+branches;
+next	1.64;
+
+1.64
+date	2001.07.19.19.00.32;	author abe;	state Exp;
+branches;
+next	1.63;
+
+1.63
+date	2001.05.03.12.28.11;	author abe;	state Exp;
+branches;
+next	1.62;
+
+1.62
+date	2001.02.15.17.33.00;	author abe;	state Exp;
+branches;
+next	1.61;
+
+1.61
+date	2001.01.19.15.26.33;	author abe;	state Exp;
+branches;
+next	1.60;
+
+1.60
+date	2000.12.06.16.08.52;	author abe;	state Exp;
+branches;
+next	1.59;
+
+1.59
+date	2000.11.05.14.09.15;	author abe;	state Exp;
+branches;
+next	1.58;
+
+1.58
+date	2000.08.25.12.17.42;	author abe;	state Exp;
+branches;
+next	1.57;
+
+1.57
+date	2000.06.29.11.55.21;	author abe;	state Exp;
+branches;
+next	1.56;
+
+1.56
+date	2000.06.09.14.02.56;	author abe;	state Exp;
+branches;
+next	1.55;
+
+1.55
+date	2000.04.03.15.40.49;	author abe;	state Exp;
+branches;
+next	1.54;
+
+1.54
+date	99.11.29.18.18.08;	author abe;	state Exp;
+branches;
+next	1.53;
+
+1.53
+date	99.10.23.14.49.24;	author abe;	state Exp;
+branches;
+next	1.52;
+
+1.52
+date	99.10.23.09.27.58;	author abe;	state Exp;
+branches;
+next	1.51;
+
+1.51
+date	99.07.28.09.52.29;	author abe;	state Exp;
+branches;
+next	1.50;
+
+1.50
+date	99.07.19.14.05.49;	author abe;	state Exp;
+branches;
+next	1.49;
+
+1.49
+date	99.06.24.06.39.10;	author abe;	state Exp;
+branches;
+next	1.48;
+
+1.48
+date	99.05.11.06.36.59;	author abe;	state Exp;
+branches;
+next	1.47;
+
+1.47
+date	99.04.15.09.25.22;	author abe;	state Exp;
+branches;
+next	1.46;
+
+1.46
+date	99.03.30.15.54.05;	author abe;	state Exp;
+branches;
+next	1.45;
+
+1.45
+date	99.01.25.15.51.40;	author abe;	state Exp;
+branches;
+next	1.44;
+
+1.44
+date	98.12.29.09.36.49;	author abe;	state Exp;
+branches;
+next	1.43;
+
+1.43
+date	98.11.25.10.05.15;	author abe;	state Exp;
+branches;
+next	1.42;
+
+1.42
+date	98.09.15.07.37.51;	author abe;	state Exp;
+branches;
+next	1.41;
+
+1.41
+date	98.08.04.12.23.16;	author abe;	state Exp;
+branches;
+next	1.40;
+
+1.40
+date	98.07.17.13.09.27;	author abe;	state Exp;
+branches;
+next	1.39;
+
+1.39
+date	98.06.26.15.40.51;	author abe;	state Exp;
+branches;
+next	1.38;
+
+1.38
+date	98.05.22.22.55.20;	author abe;	state Exp;
+branches;
+next	1.37;
+
+1.37
+date	98.05.11.07.00.41;	author abe;	state Exp;
+branches;
+next	1.36;
+
+1.36
+date	98.05.11.06.56.11;	author abe;	state Exp;
+branches;
+next	1.35;
+
+1.35
+date	98.04.08.22.23.08;	author abe;	state Exp;
+branches;
+next	1.34;
+
+1.34
+date	98.03.26.08.41.25;	author abe;	state Exp;
+branches;
+next	1.33;
+
+1.33
+date	98.03.24.07.26.56;	author abe;	state Exp;
+branches;
+next	1.32;
+
+1.32
+date	98.03.10.15.21.07;	author abe;	state Exp;
+branches;
+next	1.31;
+
+1.31
+date	98.03.06.19.06.47;	author abe;	state Exp;
+branches;
+next	1.30;
+
+1.30
+date	98.02.07.09.23.08;	author abe;	state Exp;
+branches;
+next	1.29;
+
+1.29
+date	98.01.16.21.03.21;	author abe;	state Exp;
+branches;
+next	1.28;
+
+1.28
+date	98.01.13.08.15.51;	author abe;	state Exp;
+branches;
+next	1.27;
+
+1.27
+date	98.01.09.14.58.09;	author abe;	state Exp;
+branches;
+next	1.26;
+
+1.26
+date	97.12.15.07.57.38;	author abe;	state Exp;
+branches;
+next	1.25;
+
+1.25
+date	97.11.10.08.22.20;	author abe;	state Exp;
+branches;
+next	1.24;
+
+1.24
+date	97.10.25.11.13.58;	author abe;	state Exp;
+branches;
+next	1.23;
+
+1.23
+date	97.10.14.10.52.59;	author abe;	state Exp;
+branches;
+next	1.22;
+
+1.22
+date	97.10.14.10.00.40;	author abe;	state Exp;
+branches;
+next	1.21;
+
+1.21
+date	97.09.25.05.50.30;	author abe;	state Exp;
+branches;
+next	1.20;
+
+1.20
+date	97.08.15.14.08.09;	author abe;	state Exp;
+branches;
+next	1.19;
+
+1.19
+date	97.08.15.08.32.00;	author abe;	state Exp;
+branches;
+next	1.18;
+
+1.18
+date	97.07.17.13.12.28;	author abe;	state Exp;
+branches;
+next	1.17;
+
+1.17
+date	97.07.09.19.53.23;	author abe;	state Exp;
+branches;
+next	1.16;
+
+1.16
+date	97.07.09.08.35.08;	author abe;	state Exp;
+branches;
+next	1.15;
+
+1.15
+date	97.06.24.07.33.00;	author abe;	state Exp;
+branches;
+next	1.14;
+
+1.14
+date	97.06.17.15.18.07;	author abe;	state Exp;
+branches;
+next	1.13;
+
+1.13
+date	97.06.12.18.52.37;	author abe;	state Exp;
+branches;
+next	1.12;
+
+1.12
+date	97.06.08.10.13.54;	author abe;	state Exp;
+branches;
+next	1.11;
+
+1.11
+date	97.06.07.20.23.47;	author abe;	state Exp;
+branches;
+next	1.10;
+
+1.10
+date	97.05.22.14.00.27;	author abe;	state Exp;
+branches;
+next	1.9;
+
+1.9
+date	97.05.12.13.38.26;	author abe;	state Exp;
+branches;
+next	1.8;
+
+1.8
+date	97.05.12.09.42.50;	author abe;	state Exp;
+branches;
+next	1.7;
+
+1.7
+date	97.04.19.12.49.11;	author abe;	state Exp;
+branches;
+next	1.6;
+
+1.6
+date	97.04.17.13.22.29;	author abe;	state Exp;
+branches;
+next	1.5;
+
+1.5
+date	97.04.07.14.07.52;	author abe;	state Exp;
+branches;
+next	1.4;
+
+1.4
+date	97.03.21.14.14.56;	author abe;	state Exp;
+branches;
+next	1.3;
+
+1.3
+date	97.03.04.11.08.19;	author abe;	state Exp;
+branches;
+next	1.2;
+
+1.2
+date	97.03.03.08.27.59;	author abe;	state Exp;
+branches;
+next	1.1;
+
+1.1
+date	97.02.24.15.51.37;	author abe;	state Exp;
+branches;
+next	;
+
+
+desc
+@Lsof version 4
+@
+
+
+1.90
+log
+@Revision 4.76
+@
+text
+@\" tbl log.n | troff -ms | dpost
+.LP
+.TS
+tab(:);
+l | c | c | c | c | c | c | c | c.
+AIX 5.1.0, cloud (32):r:     :     :     :     :     :     :     :     :     :
+_
+AIX 5.1.0, sp601 (64):r:::::::
+_
+AIX 5.2.0, storage00 (64):r:::::::
+_
+AIX 5.2.0-ML01, spectrum (32):r:::::::
+_
+AIX 5.3., srb00 (64):r:::::::
+_
+BSDI 4.3.1, gate:t:::::::
+_
+Darwin 7.9, ajn.homeunix.net/imac:t:::::::
+_
+Darwin 8.2, ajn.homeunix.net/mdd:t:::::::
+_
+FreeBSD 4.9, ix86, freebsd4.itsp:t:::::::
+_
+FreeBSD 4.11, ix86, lerbsd:t:::::::
+_
+FreeBSD 5.4, Alpha, beast.freebsd.org (freefall):t:::::::
+_
+FreeBSD 6.0, Amd64, sludge.freebsd.org (freefall):t:::::::
+_
+FreeBSD 6.0, Sparc64, panther.freebsd.org (freefall):t:::::::
+_
+HP-UX 11 (32, patched), nova???:t:::::::
+_
+HP-UX 11 (64, patched), nova???:t:::::::
+_
+HP-UX 11.11 hpux:t:::::::
+_
+HP-UX 11iv2 nova183:t:::::::
+_
+Linux ix86 2.4.18+GlibC, csociety, paloalto:t:::::::
+_
+NetBSD 2.0G alpha, jkmrc:t:::::::
+_
+NetBSD 3.99.3 alpha, tweedlebsd:t:::::::
+_
+NetBSD 1.6G i386, dukey:t:::::::
+_
+NetBSD 2.0G sparc64, it:t:::::::
+_
+NetBSD 3.99.6 i386, this:t:::::::
+_
+OpenBSD 3.6, ludlow:t:::::::
+_
+OpenStep 4.2, hartley:t:::::::
+_
+OpenUNIX 8.0, lerlsof:t:::::::
+_
+OSR 5.0.6, deepthought:t:::::::
+_
+Solaris 2.6, fortress:r:::::::
+_
+Solaris 8 (32), space:r:::::::
+_
+Solaris 8 (64), db:r:::::::
+_
+Solaris 9 (64)/VxFS, champion:r:::::::
+_
+Solaris 9 (32), lsof:r:::::::
+_
+Solaris 10 (64), mentor:r:::::::
+_
+Solaris 9 (64), lsof, mentor, champion:r:::::::
+_
+Solaris 10 (32-pc), bart:t:::::::
+_
+Solaris 10 (amd64), chess2:t:::::::
+_
+Solaris 10 (64 Sparc), titan:t:::::::
+_
+Tru64 UNIX 5.1, beech:t:::::::
+_
+UnixWare 7.1.4, lerami:t:::::::
+.TE
+@
+
+
+1.89
+log
+@Revision 4.75
+@
+text
+@d18 1
+a18 1
+Darwin 7.2, ward2too:t:::::::
+d20 2
+d38 1
+a38 1
+HP-UX 11.23 nova???:t:::::::
+d44 1
+a44 1
+NetBSD 1.6ZL alpha, zapf:t:::::::
+d50 1
+a50 1
+NetBSD 2.99.9 i386, this:t:::::::
+d66 2
+d70 2
+d76 2
+@
+
+
+1.88
+log
+@Revision 4.75
+@
+text
+@d36 1
+a36 1
+HP-UX 11iv2 nova???:t:::::::
+d60 1
+a60 1
+Solaris 8 (32), blueprint:r:::::::
+d62 1
+a62 1
+Solaris 8 (64), dbm-spare:r:::::::
+d66 1
+a66 1
+Solaris 9 (64), lsof, mentor:r:::::::
+@
+
+
+1.87
+log
+@Revision 4.74
+@
+text
+@d10 1
+a10 1
+AIX 5.2.0, storage01 (64):r:::::::
+d14 2
+d22 1
+a22 1
+FreeBSD 4.10, ix86, lerbsd:t:::::::
+d24 1
+a24 1
+FreeBSD 5.3, Alpha, beast.freebsd.org (freefall):t:::::::
+d30 1
+a30 1
+HP-UX 11 (32, patched), nova178:t:::::::
+d32 1
+a32 1
+HP-UX 11 (64, patched), nova186:t:::::::
+d36 2
+@
+
+
+1.86
+log
+@Revision 4.73
+@
+text
+@d10 1
+a10 1
+AIX 5.2.0, pwr3test (64):r:::::::
+a17 2
+Digital UNIX 4.0B, rimon:t:::::::
+_
+d22 1
+a22 1
+FreeBSD 6.0, ix86, ref5.freebsd.org (freefall):t:::::::
+a23 2
+FreeBSD 6.0, Alpha, beast.freebsd.org (freefall):t:::::::
+_
+d68 1
+a68 1
+Tru64 UNIX 5.1, mudpuddle:t:::::::
+@
+
+
+1.85
+log
+@Revision 4.72
+@
+text
+@d6 1
+a6 1
+AIX 4.3.2, speedy:r:     :     :     :     :     :     :     :     :     :
+a7 2
+AIX 5.1.0, cloud (32):r:::::::
+_
+d24 1
+a24 1
+FreeBSD 5.2, ix86, ref5.freebsd.org (freefall):t:::::::
+d26 1
+a26 1
+FreeBSD 5.2, Alpha, beast.freebsd.org (freefall):t:::::::
+d28 1
+a28 1
+FreeBSD 5.2, Amd64, sludge.freebsd.org (freefall):t:::::::
+d30 1
+a30 1
+FreeBSD 5.2, Sparc64, panther.freebsd.org (freefall):t:::::::
+d40 1
+a40 1
+NetBSD 1.4.1 alpha, jkmrc:t:::::::
+d46 1
+a46 1
+NetBSD 2.0E sparc64, it:t:::::::
+d48 1
+a48 1
+NetBSD 2.0G i386, this:t:::::::
+d50 1
+a50 1
+OpenBSD 3.4, ludlow:t:::::::
+d60 1
+a60 1
+Solaris 8 (32), statsun:r:::::::
+d62 1
+a62 1
+Solaris 8 (64), dbm-dev, dbm-spare (gcc):r:::::::
+a71 2
+Tru64 UNIX 5.0, beech:t:::::::
+_
+a73 4
+UnixWare 7.1.1, server:t:::::::
+_
+UnixWare 7.1.1 NSC, oceanic:t:::::::
+_
+@
+
+
+1.84
+log
+@Revision 4.71
+@
+text
+@a21 2
+FreeBSD 4.8, ix86, ref4.freebsd.org (freefall):t:::::::
+_
+d24 2
+d34 1
+a34 1
+HP-UX 11 (32, patched), nova179:t:::::::
+d36 1
+a36 1
+HP-UX 11 (64, patched), nova116:t:::::::
+d44 1
+a44 1
+NetBSD 1.6ZG alpha, zapf:t:::::::
+d48 1
+a48 1
+NetBSD 1.6ZK i386, this:t:::::::
+d50 2
+a57 2
+OSR 5.0.4, dlpcomet:t:::::::
+_
+@
+
+
+1.83
+log
+@Revision 4.70
+@
+text
+@d18 1
+a18 1
+Darwin 7.0, ward2too:t:::::::
+d34 1
+a34 1
+HP-UX 11 (32, patched), nova178:t:::::::
+d36 1
+a36 1
+HP-UX 11 (64, patched), nova186:t:::::::
+d48 1
+a48 1
+NetBSD 1.6ZG i386, this:t:::::::
+d50 1
+a50 1
+OpenBSD 3.2, ludlow:t:::::::
+d82 1
+a82 1
+UnixWare 7.1.3, lerami:t:::::::
+@
+
+
+1.82
+log
+@After move to vic1
+@
+text
+@d18 1
+a18 1
+Darwin 6.8, ward2too:t:::::::
+a19 2
+Darwin 7.0, mdd:t:::::::
+_
+d26 1
+a26 1
+FreeBSD 5.1, ix86, ref5.freebsd.org (freefall):t:::::::
+d28 1
+a28 1
+FreeBSD 5.1, Alpha, beast.freebsd.org (freefall):t:::::::
+d30 1
+a30 1
+FreeBSD 5.1, Amd64, sludge.freebsd.org (freefall):t:::::::
+d32 1
+a32 1
+FreeBSD 5.1, Sparc64, panther.freebsd.org (freefall):t:::::::
+d36 1
+a36 1
+HP-UX 11 (64, patched), ???:t:::::::
+d44 1
+a44 1
+NetBSD 1.6ZC alpha, zapf:t:::::::
+d48 1
+a48 1
+NetBSD 1.6ZC i386, this:t:::::::
+a49 2
+NEXTSTEP::::::::
+_
+d66 1
+a66 1
+Solaris 9 (32), vic1:r:::::::
+d68 1
+a68 1
+Solaris 9 (64), vic1, mentor:r:::::::
+d72 1
+a72 1
+Tru64 UNIX 5.0, tryon:t:::::::
+d74 2
+@
+
+
+1.81
+log
+@Revision 4.69
+@
+text
+@d1 1
+a1 1
+\" tbl log.n | ptroff -ms
+d5 1
+a5 1
+l | c | c | c | c | c | c | c | c | c | c | c.
+d8 1
+a8 1
+AIX 5.1.0, cloud (32):r:     :     :     :     :     :     :     :     :     :
+d10 1
+a10 1
+AIX 5.1.0, sp601 (64):r:     :     :     :     :     :     :     :     :     :
+d12 1
+a12 1
+AIX 5.2.0, pwr3test (64):r:     :     :     :     :     :     :     :     :     :
+d14 1
+a14 1
+AIX 5.2.0-ML01, spectrum (32):r:     :     :     :     :     :     :     :     :     :
+d16 1
+a16 1
+BSDI 4.3.1, gate:t::::::::::
+d18 1
+a18 1
+Darwin 6.8, ward2too:t::::::::::
+d20 1
+a20 1
+Darwin 7.0, mdd:t::::::::::
+d22 1
+a22 1
+Digital UNIX 4.0B, rimon:t::::::::::
+d24 1
+a24 1
+FreeBSD 4.8, ix86, ref4.freebsd.org (freefall):t::::::::::
+d26 1
+a26 1
+FreeBSD 4.9, ix86, freebsd4.itsp:t::::::::::
+d28 1
+a28 1
+FreeBSD 5.1, ix86, ref5.freebsd.org (freefall):t::::::::::
+d30 1
+a30 1
+FreeBSD 5.1, Alpha, beast.freebsd.org (freefall):t::::::::::
+d32 1
+a32 1
+FreeBSD 5.1, Amd64, sludge.freebsd.org (freefall):t::::::::::
+d34 1
+a34 1
+FreeBSD 5.1, Sparc64, panther.freebsd.org (freefall):t::::::::::
+d36 1
+a36 1
+HP-UX 11 (32, patched), nova178:t::::::::::
+d38 1
+a38 1
+HP-UX 11 (64, patched), ???:t::::::::::
+d40 1
+a40 1
+HP-UX 11.11 hpux:t::::::::::
+d42 1
+a42 1
+Linux ix86 2.4.18+GlibC, csociety, paloalto:t::::::::::
+d44 1
+a44 1
+NetBSD 1.4.1 alpha, jkmrc:t::::::::::
+d46 1
+a46 1
+NetBSD 1.6ZC alpha, zapf:t::::::::::
+d48 1
+a48 1
+NetBSD 1.6G i386, dukey:t::::::::::
+d50 1
+a50 1
+NetBSD 1.6ZC i386, this:t::::::::::
+d52 1
+a52 1
+NEXTSTEP:::::::::::
+d54 1
+a54 1
+OpenBSD 3.2, ludlow:t::::::::::
+d56 1
+a56 1
+OpenStep 4.2, hartley:t::::::::::
+d58 1
+a58 1
+OpenUNIX 8.0, lerlsof:t::::::::::
+d60 1
+a60 1
+OSR 5.0.4, dlpcomet:t::::::::::
+d62 1
+a62 1
+OSR 5.0.6, deepthought:t::::::::::
+d64 1
+a64 1
+Solaris 2.6, fortress:r::::::::::
+d66 1
+a66 1
+Solaris 8 (32), statsun:r::::::::::
+d68 1
+a68 1
+Solaris 8 (64), dbm-dev, dbm-spare (gcc):r::::::::::
+d70 1
+a70 1
+Solaris 9 (32), vic1:r::::::::::
+d72 1
+a72 1
+Solaris 9 (64), vic1, mentor:r::::::::::
+d74 1
+a74 1
+Solaris 10 (32-pc), bart:t::::::::::
+d76 1
+a76 1
+Tru64 UNIX 5.0, tryon:t::::::::::
+d78 1
+a78 1
+Tru64 UNIX 5.1, mudpuddle:t::::::::::
+d80 1
+a80 1
+UnixWare 7.1.1, server:t::::::::::
+d82 1
+a82 1
+UnixWare 7.1.1 NSC, oceanic:t::::::::::
+d84 1
+a84 1
+UnixWare 7.1.3, lerami:t::::::::::
+@
+
+
+1.80
+log
+@Revision 4.68
+@
+text
+@a7 2
+AIX 4.3.3, crystal:r::::::::::
+_
+d10 2
+d14 2
+d18 1
+a18 1
+Darwin 6.6, ward2too:t::::::::::
+d20 2
+d26 2
+d32 2
+d44 1
+a44 1
+NetBSD 1.4.1 alpha, jkproxy:t::::::::::
+d46 1
+a46 1
+NetBSD 1.6O alpha, zapf:t::::::::::
+d50 1
+a50 1
+NetBSD 1.6Q i386, this:t::::::::::
+a65 4
+Solaris 7 (32), stokes:t::::::::::
+_
+Solaris 7 (64), stokes:t::::::::::
+_
+d73 2
+@
+
+
+1.79
+log
+@Revision 4.68
+@
+text
+@d18 1
+a18 1
+Digital UNIX 4.0B, ewald:t::::::::::
+d28 1
+a28 1
+HP-UX 11 (32, patched), lsof.hp.is:t::::::::::
+d30 1
+a30 1
+HP-UX 11 (64, patched), nova168:t::::::::::
+@
+
+
+1.78
+log
+@Revision 4.68
+@
+text
+@d16 1
+a16 1
+Darwin 5.5, ward2too:t::::::::::
+a19 4
+FreeBSD 4.6, ix86, relay.nuxi.com:t::::::::::
+_
+FreeBSD 4.7, ix86, freefall.freebsd.org:t::::::::::
+_
+d22 1
+a22 1
+FreeBSD 5.0, ix86, ref5.freebsd.org (freefall):t::::::::::
+d24 1
+a24 1
+FreeBSD 5.0, Alpha, beast.freebsd.org (freefall):t::::::::::
+d26 1
+a26 1
+FreeBSD 5.0, Sparc64, panther.freebsd.org (freefall):t::::::::::
+d70 1
+a70 1
+Tru64 UNIX 5.0, woodfin:t::::::::::
+@
+
+
+1.77
+log
+@Revision 4.67
+@
+text
+@d60 1
+a60 1
+Solaris 2.6, omni:r::::::::::
+@
+
+
+1.76
+log
+@Revision 4.66
+@
+text
+@a7 2
+AIX 4.3.3, cloud:r:     :     :     :     :     :     :     :     :     :
+_
+d10 1
+a10 1
+AIX 5.1-ppc-64, pwr3test:t::::::::::
+d12 1
+a12 1
+BSDI 4.3, gate:t::::::::::
+d14 2
+d22 1
+a22 1
+FreeBSD 4.7, ix86, ref4.freebsd.org:t::::::::::
+d24 1
+a24 1
+FreeBSD 5.0, ix86, ref5.freebsd.org:t::::::::::
+d26 1
+a26 1
+FreeBSD 5.0, Alpha, beast.freebsd.org:t::::::::::
+d28 1
+a28 1
+FreeBSD 5.0, Sparc64, panther.freebsd.org:t::::::::::
+d30 2
+d34 1
+a34 1
+HP-UX 11 (64, patched), nova205:t::::::::::
+d42 1
+a42 1
+NetBSD 1.6G alpha, zapf:t::::::::::
+d44 1
+a44 1
+NetBSD 1.6I i386, dukey:t::::::::::
+d46 2
+d50 1
+a50 1
+OpenBSD 3.1, ludlow:t::::::::::
+d68 1
+a68 1
+Solaris 8 (64), dbm-dev, champion:r::::::::::
+a76 2
+_
+UnixWare 7.1.1, olympic:t::::::::::
+@
+
+
+1.75
+log
+@Revision 4.65
+@
+text
+@d40 1
+a40 1
+NetBSD 1.6B alpha, zapf:t::::::::::
+d42 1
+a42 1
+NetBSD 1.6G i386, dukey:t::::::::::
+d58 5
+a62 1
+Solaris 8 (32), dbm-dev:r::::::::::
+@
+
+
+1.74
+log
+@Revision 4.64
+@
+text
+@d12 1
+a12 1
+AIX 5.1-ppc-32:t::::::::::
+d14 1
+a14 1
+AIX 5.1-ppc-64:t::::::::::
+d16 1
+a16 1
+BSDI 4.1, gate:t::::::::::
+a17 2
+Darwin 1.4, ward2too:t::::::::::
+_
+d20 1
+a20 1
+FreeBSD 4.5, ix86, relay.nuxi.com:t::::::::::
+d22 1
+a22 1
+FreeBSD 4.6, ix86, ref4.freebsd.org:t::::::::::
+d26 4
+d36 1
+a36 1
+Linux ix86 2.2.x+GlibC, csociety:t::::::::::
+d40 1
+a40 1
+NetBSD 1.6A alpha, zapf:t::::::::::
+d42 1
+a42 1
+NetBSD 1.6A i386, dukey:t::::::::::
+d46 1
+a46 1
+OpenBSD 3.0, ludlow:t::::::::::
+d50 2
+a55 4
+OpenUNIX 8.0, lerlsof:t::::::::::
+_
+OpenUNIX 8.0.1, lerami:t::::::::::
+_
+d58 1
+a58 1
+Solaris 7 (32), i2a2c:r::::::::::
+d60 1
+a60 1
+Solaris 8 (32), dbm.dev:r::::::::::
+a61 2
+Solaris 8 (64), dvm-dev, mentor, champion:r::::::::::
+_
+d64 1
+a64 1
+Solaris 9 (64), vic1:r::::::::::
+d70 4
+d75 2
+@
+
+
+1.73
+log
+@Revision 4.63
+@
+text
+@d22 1
+a22 1
+FreeBSD 4.5, ix86, ref4.freebsd.org:t::::::::::
+d24 2
+d36 1
+a36 1
+NetBSD 1.4.1 Alpha, jkproxy:t::::::::::
+d38 1
+a38 1
+NetBSD 1.5ZC i386, this (dukey):t::::::::::
+d40 2
+d46 2
+d52 1
+a52 1
+OpenUNIX 8, lerami:t::::::::::
+d54 2
+d60 1
+a60 1
+Solaris 8 (32), pier.ecn:r::::::::::
+d62 1
+a62 1
+Solaris 8 (64), mentor, champion:r::::::::::
+@
+
+
+1.72
+log
+@Revision 4.62
+@
+text
+@d12 1
+a12 1
+AIX 5.1-ia64, inetle3:t::::::::::
+d14 1
+a14 1
+AIX 5.1-ppc-32, inetle1:t::::::::::
+a15 2
+AIX 5.1-ppc-64, inetle2:t::::::::::
+_
+d20 1
+a20 1
+Digital UNIX 4.0D, ewald:t::::::::::
+d36 1
+a36 1
+NetBSD 1.5ZA SPARC, neon (plato):t::::::::::
+a37 2
+NetBSD 1.5ZA i386, this:t::::::::::
+_
+d52 1
+a52 1
+Solaris 8 (32), tsunami:r::::::::::
+d54 1
+a54 1
+Solaris 8 (64), mentor:r::::::::::
+a62 2
+_
+UnixWare 7.1.1, olympic:t::::::::::
+@
+
+
+1.71
+log
+@Revision 4.61
+@
+text
+@d16 1
+a16 1
+AIX 5.1-ppc-64, ep61002:t::::::::::
+d68 3
+a70 1
+UnixWare 7.1.1, oceanic:t::::::::::
+@
+
+
+1.70
+log
+@Revision 4.61
+@
+text
+@d14 1
+a14 1
+AIX 5.1-ppc, inetle1:t::::::::::
+d16 2
+d38 1
+a38 1
+NetBSD 1.5U SPARC, neon (plato):t::::::::::
+d40 1
+a40 1
+NetBSD 1.5Y i386, this:t::::::::::
+a54 2
+_
+Solaris 7 (64), champion:r::::::::::
+@
+
+
+1.69
+log
+@Revision 4.60
+@
+text
+@d22 1
+a22 1
+FreeBSD 4.4, ix86, ref4.freebsd.org:t::::::::::
+@
+
+
+1.68
+log
+@Revision 4.60
+@
+text
+@d14 1
+a14 1
+AIX 5.1-ppc, inetle2:t::::::::::
+@
+
+
+1.67
+log
+@Revision 4.59
+@
+text
+@d20 1
+a20 1
+Digital UNIX 4.0D, ewald:c::::::::::
+d42 1
+a42 1
+OpenBSD 2.9, ludlow:t::::::::::
+@
+
+
+1.66
+log
+@Revision 4.58
+@
+text
+@d18 1
+a18 1
+Darwin 1.3, ward2too:t::::::::::
+a21 2
+FreeBSD 4.4, relay.nuxi.com:t::::::::::
+_
+d38 1
+a38 1
+NetBSD 1.5K i386, ebola:t::::::::::
+d42 1
+a42 1
+OpenBSD 2.8, ludlow:t::::::::::
+d48 1
+a48 5
+PTX 4.4.4, synergy2:t::::::::::
+_
+PTX 4.4.6, synergy7:t::::::::::
+_
+PTX 4.5.1, synergy9:t::::::::::
+@
+
+
+1.65
+log
+@Revision 4.58
+@
+text
+@a17 2
+Darwin 1.2, sandbox:t::::::::::
+_
+d22 1
+a22 1
+FreeBSD 4.2, relay.nuxi.com:t::::::::::
+d28 1
+a28 1
+HP-UX 11 (32, patched), news.hp.is:t::::::::::
+a59 2
+Solaris 7 (64), mentor:r::::::::::
+_
+d64 1
+a64 1
+Solaris 8 (64), tsunami:r::::::::::
+d66 1
+a66 1
+Solaris 9 (32), ???:r::::::::::
+d68 1
+a68 1
+Solaris 9 (64), ???:r::::::::::
+@
+
+
+1.64
+log
+@Revision 4.57
+@
+text
+@d26 1
+a26 1
+FreeBSD 4.3, ix86, ref4.freebsd.org:t::::::::::
+d49 2
+@
+
+
+1.63
+log
+@Revision 4.56
+@
+text
+@d12 1
+a12 1
+AIX 5L-ia64, inetle3:t::::::::::
+d14 1
+a14 1
+AIX 5L-ppc, inetle2:t::::::::::
+a18 2
+3
+Darwin 1.2, ward2too:t::::::::::
+d20 2
+d24 1
+a24 1
+FreeBSD 4.0, relay.nuxi.com:t::::::::::
+a29 2
+HP-UX 10, strympa:t::::::::::
+_
+d34 1
+a34 1
+HP-UX 11.11 ???:t::::::::::
+d62 1
+a62 1
+Solaris 8 (32), vic1:r::::::::::
+d64 1
+a64 1
+Solaris 8 (64), vic1:r::::::::::
+d66 1
+a66 1
+Solaris 9 (32), barracuda:r::::::::::
+d68 1
+a68 1
+Solaris 9 (64), barracuda:r::::::::::
+d70 2
+a76 2
+_
+UnixWare 7.1. NSC, galvanic:t::::::::::
+@
+
+
+1.62
+log
+@Revision 4.55
+@
+text
+@d12 1
+a12 1
+AIX 5L-ia64, inetkp2:t::::::::::
+d14 1
+a14 1
+AIX 5L-ppc, inetkp3:t::::::::::
+d19 1
+a19 1
+_
+d26 1
+a26 1
+FreeBSD 4.2, ix86, ref4.freebsd.org:t::::::::::
+d36 1
+a36 1
+HP-UX 11.11 xo.hp.is:t::::::::::
+d42 1
+a42 1
+NetBSD 1.5E SPARC, neon (plato):t::::::::::
+d44 1
+a44 1
+NetBSD 1.5E i386, ebola:t::::::::::
+a51 2
+PTX 4.4.2, synergy3:t::::::::::
+_
+d64 2
+d68 4
+d76 3
+a78 1
+UnixWare 7.1, msnuw7a:t::::::::::
+@
+
+
+1.61
+log
+@Revision 4.54
+@
+text
+@a23 2
+FreeBSD 3.2, volta.physics:t::::::::::
+_
+a29 2
+HP-UX 9, ghg:c::::::::::
+_
+d34 1
+a34 1
+HP-UX 11 (64, patched), nova50:t::::::::::
+a36 2
+_
+Linux Alpha 2.2.16, aviao:t::::::::::
+@
+
+
+1.60
+log
+@Revision 4.53
+@
+text
+@a37 2
+HP-UX 11 (64, patched), xo.hp.is:t::::::::::
+_
+d40 1
+a40 1
+HP-UX 11.11 nova95:t::::::::::
+d56 1
+a56 1
+OSR 5.0.5, adccomet:t::::::::::
+a64 2
+_
+Solaris 2.5.1, arthur:c::::::::::
+@
+
+
+1.59
+log
+@Revision 4.52
+@
+text
+@d12 4
+d18 4
+a47 2
+Linux ix86 2.4+GlibC, c61066-a:t::::::::::
+_
+d50 1
+a50 1
+NetBSD 1.4K i386, biffin:t::::::::::
+d52 1
+a52 1
+NetBSD 1.4X SPARC, neon (plato):t::::::::::
+a53 2
+NetBSD 1.5C i386, ebola:t::::::::::
+_
+a57 2
+OSR 5.0.0, my PC:t::::::::::
+_
+d72 1
+a72 1
+Solaris 7 (32), devp:r::::::::::
+@
+
+
+1.58
+log
+@Post revision 4.51
+@
+text
+@a17 2
+FreeBSD 3.4, netmug.org:t::::::::::
+_
+d20 1
+a20 1
+FreeBSD 4.1, ix86, ref4.freebsd.org:t::::::::::
+d22 1
+a22 1
+FreeBSD 5.0, ix86, beast.freebsd.org:t::::::::::
+d34 2
+d52 1
+a52 1
+OpenBSD 2.7, redlab:t::::::::::
+a78 2
+_
+Ultrix 4.2, turtle:c::::::::::
+@
+
+
+1.57
+log
+@Revision 4.50
+@
+text
+@d6 1
+a6 1
+AIX 4.3.2, clerk:r:     :     :     :     :     :     :     :     :     :
+d8 2
+a15 2
+Digital UNIX 4.0D, woodfin:t::::::::::
+_
+d22 2
+d36 1
+a36 1
+Linux Alpha 2.2.5, aviao:t::::::::::
+d38 1
+a38 1
+Linux IPv6, ipv6-gw.ecn:t::::::::::
+d40 1
+a40 1
+Linux ix86 2.0.38+GlibC, curlew:t::::::::::
+d42 1
+a42 1
+Linux ix86 2.2.x+GlibC, csociety:t::::::::::
+a43 2
+NetBSD 1.4.1 Alpha, jkalpha2:t::::::::::
+_
+d48 2
+d52 1
+a52 1
+OpenBSD 2.6, redlab:t::::::::::
+a65 2
+Reliant UNIX 5.44, aesop, RM600:t::::::::::
+_
+d68 1
+a68 1
+Solaris 2.6, mentor, omni:r::::::::::
+d72 1
+a72 1
+Solaris 7 (64), jumpgate:r::::::::::
+d74 1
+a74 1
+Solaris 8 BETA-Refresh (32), vic1:r::::::::::
+d76 1
+a76 1
+SunOS 4.1.4, ritz:t::::::::::
+d78 1
+a78 1
+Tru64 UNIX 5.0, mudpuddle:t::::::::::
+@
+
+
+1.56
+log
+@Revision 4.50
+@
+text
+@d56 1
+a56 1
+PTX 4.4.2, synergy1:t::::::::::
+d60 4
+a80 2
+_
+UnixWare 2.1.3, uw2:t::::::::::
+@
+
+
+1.55
+log
+@Revision 4.49
+@
+text
+@d18 2
+d22 1
+a22 1
+FreeBSD 5.0, ix86, erebus.cs.ucdavis.edu:t::::::::::
+d38 1
+a38 1
+Linux ix86 2.0.35+GlibC, curlew:t::::::::::
+d42 1
+a42 1
+NetBSD 1.4C i386, biffin:t::::::::::
+d44 1
+a44 1
+NetBSD 1.3I SPARC, neon:t::::::::::
+d46 2
+a51 2
+OSR 3.0, dipper:c::::::::::
+_
+a55 2
+PTX 4.2.3, synergy4:t::::::::::
+_
+d58 1
+a58 1
+PTX 4.4.4, synergy5:t::::::::::
+a70 2
+_
+SunOS 4.1.3, icarus:c::::::::::
+@
+
+
+1.54
+log
+@Revision 4.47
+@
+text
+@d6 1
+a6 1
+AIX 4.2.1, spectrum:r:     :     :     :     :     :     :     :     :     :
+a7 2
+AIX 4.3.2, clerk:r::::::::::
+_
+d10 1
+a10 1
+BSDI 4.0.1, gate:t::::::::::
+a15 2
+FreeBSD 2.2.7, centerone.com:t::::::::::
+_
+d18 1
+a18 1
+FreeBSD 3.3, relay.nuxi.com:t::::::::::
+d20 1
+a20 1
+FreeBSD 4, erebus.cs.ucdavis.edu:t::::::::::
+a53 2
+PTX 2.1.9, synergy2:t::::::::::
+_
+d76 1
+a76 1
+Tru64 UNIX 5.0, wubs:t::::::::::
+a80 2
+_
+UnixWare 7.0.1, gategeeper:t::::::::::
+@
+
+
+1.53
+log
+@Pyramid changes
+@
+text
+@d12 1
+a12 1
+BSDI 2.1, nwgate:t::::::::::
+a13 2
+BSDI 3.1, spcuna:t::::::::::
+_
+d50 1
+a50 1
+OpenBSD 2.5, redlab:t::::::::::
+d76 1
+a76 1
+Solaris 8 BETA (32), vic1:r::::::::::
+@
+
+
+1.52
+log
+@Revision 4.46
+@
+text
+@a15 2
+DC/OSx 1.1, roland (odin1->):t::::::::::
+_
+d68 1
+a68 3
+Reliant UNIX 5.43, odin1, RM1000:t::::::::::
+_
+Reliant UNIX 5.44, aesir (odin1->), RM600:t::::::::::
+@
+
+
+1.51
+log
+@Add ipv6.ecn.
+@
+text
+@a4 1
+l | c | c | c | c | c | c | c | c | c | c | c
+d6 1
+a6 3
+System and Host Name: Distr. :     :     :     :     :     :     :     :     :     :      
+=
+AIX 4.2.1, spectrum:r::::::::::
+d10 2
+d22 1
+a22 1
+FreeBSD 2.2.6, hemi.com:t::::::::::
+d24 1
+a24 1
+FreeBSD 3.2, relay.nuzxi.com:t::::::::::
+d26 4
+d40 1
+a40 1
+Linux Alpha 2.0.35+GlibC, aviao:t::::::::::
+d42 1
+a42 1
+Linux IPv6, ipv6.ecn:t::::::::::
+d48 1
+a48 1
+NetBSD 1.3I i386, biffin:t::::::::::
+d50 1
+a50 1
+NetBSD 1.4C SPARC, neon:t::::::::::
+d76 1
+a76 1
+Solaris 2.6, mentor:r::::::::::
+d78 1
+a78 1
+Solaris 2.6, omni:r::::::::::
+d80 1
+a80 1
+Solaris 7 (32), vic1:r::::::::::
+d82 1
+a82 1
+Solaris 7 (64), jumpgate:r::::::::::
+@
+
+
+1.50
+log
+@Revision 4.45
+@
+text
+@d39 2
+@
+
+
+1.49
+log
+@Miscellaneous updates
+@
+text
+@d77 1
+a77 1
+Solaris 7 (64), Jon Sergent:t::::::::::
+@
+
+
+1.48
+log
+@Revision 4.43
+@
+text
+@a20 2
+Digital UNIX 4.0D, screamer:t::::::::::
+_
+d25 1
+a25 1
+FreeBSD 3.0, volta.physics:t::::::::::
+d43 1
+a43 1
+NetBSD 1.3 i386, biffin:t::::::::::
+d45 1
+a45 1
+NetBSD 1.3 SPARC, neon:t::::::::::
+d81 2
+d87 1
+a87 1
+UnixWare 2.1.2, uw2:t::::::::::
+d90 2
+@
+
+
+1.47
+log
+@Use Tru64 UNIX for DU 5.0.
+@
+text
+@d33 1
+a33 1
+HP-UX 11 (32), news.hp.is:t::::::::::
+d35 1
+a35 1
+HP-UX 11 (64), xo.hp.is:t::::::::::
+@
+
+
+1.46
+log
+@Revision 4.42
+@
+text
+@a24 2
+Digital UNIX 5.0-Beta, wubs:t::::::::::
+_
+d82 2
+@
+
+
+1.45
+log
+@Revision 4.40
+@
+text
+@a8 4
+AIX 4.1.5, runner:r::::::::::
+_
+AIX 4.2, prism:r::::::::::
+_
+d11 1
+a11 1
+AIX 4.3.1, clerk:r::::::::::
+a12 2
+AIX 4.3.2, odds:r::::::::::
+_
+d39 2
+d45 1
+a45 1
+Linux ix86 2.2.x+GlibC, c61066-a:t::::::::::
+d47 1
+a47 1
+NetBSD 1.3 i386, gorbadoc:t::::::::::
+d53 1
+a53 1
+OpenBSD 2.3, redlab:t::::::::::
+d79 3
+a81 1
+Solaris 2.7, vic1:r::::::::::
+@
+
+
+1.44
+log
+@Revision 4.39
+@
+text
+@d23 1
+a23 1
+DC/OSx 1.1, sw1 (odin1->):t::::::::::
+d25 1
+a25 1
+Digital UNIX 2.0, ewald:c::::::::::
+d45 1
+a45 1
+Linux 2.0.35+GlibC, curlew:t::::::::::
+d47 1
+a47 1
+Linux 2.1.x+GlibC, c61066-a:t::::::::::
+d49 2
+d57 1
+a57 1
+OpenBSD 2.3, redlab:c::::::::::
+d71 2
+d79 2
+d91 1
+a91 1
+UnixWare 7.0.1, gemini:t::::::::::
+@
+
+
+1.43
+log
+@Revision 4.38
+@
+text
+@d11 1
+a11 1
+AIX 4.2, bk2k/prism:r::::::::::
+d15 1
+a15 1
+AIX 4.3, clerk:r::::::::::
+d17 2
+d45 1
+a45 1
+Linux 2.0.32+GlibC, csociety:t::::::::::
+@
+
+
+1.42
+log
+@Revision 4.37
+@
+text
+@d29 1
+a29 1
+FreeBSD 2.1.7, hemi.com:t::::::::::
+d31 4
+d39 1
+a39 1
+HP-UX 11 (64), nova50:t::::::::::
+d41 2
+d59 1
+a59 1
+OSR 5.0.4, adccomet:t::::::::::
+d77 1
+a77 1
+SunOS 4.1.3, ifestos:c::::::::::
+d81 1
+a81 1
+UnixWare 2.1.2, adcuw:t::::::::::
+@
+
+
+1.41
+log
+@Miscellaneous shuffling
+@
+text
+@d15 1
+a15 1
+AIX 4.3, wfpftest12:t::::::::::
+d21 1
+a21 1
+DC/OSx 1.1, vaprel (btt1->):t::::::::::
+d27 1
+a27 1
+Digital UNIX 4.0D, penrose:t::::::::::
+a34 2
+HP-UX 11 (32), xo:t::::::::::
+_
+d37 1
+a37 1
+IRIX 5.3, antares:c::::::::::
+d39 1
+a39 1
+IRIX 6.2, rrdjazz:c::::::::::
+a40 4
+IRIX 6.2, fig/lemon:t::::::::::
+_
+Linux 2.0.32+GlibC, csociety:t::::::::::
+_
+d61 1
+a61 1
+Reliant UNIX, btt1, RM1000:t::::::::::
+d63 1
+a63 1
+Reliant UNIX, abg-4 (btt1->abg-1-con), RM600:t::::::::::
+d65 1
+a65 1
+Solaris 2.5, helios:r::::::::::
+d67 1
+a67 1
+Solaris 2.5.1, omni:r::::::::::
+a68 4
+Solaris 2.6, harbor:r::::::::::
+_
+Solaris 2.6, mentor:r::::::::::
+_
+d71 1
+a71 1
+SunOS 4.1.3, arthur:c::::::::::
+d77 1
+a77 1
+UnixWare 7, gemini:t::::::::::
+@
+
+
+1.40
+log
+@Remove FreeBSD and Linux entries.
+@
+text
+@d35 1
+a35 1
+HP-UX 11, xo:t::::::::::
+d37 2
+d76 2
+@
+
+
+1.39
+log
+@Change UnixWare 2 host.
+@
+text
+@a30 2
+FreeBSD 3.0, sushi.hemi.com:t::::::::::
+_
+a43 2
+_
+Linux 2.0.33+GlibC, bock:t::::::::::
+@
+
+
+1.38
+log
+@Revision 4.33
+@
+text
+@d85 1
+a85 1
+UnixWare 2.1.2, gatekeeper:t::::::::::
+@
+
+
+1.37
+log
+@Use spectrum.cc as AIX 4.2.1 test host.
+@
+text
+@d15 2
+d21 1
+a21 1
+DC/OSx 1.1, phoenix (warp8|halley):t::::::::::
+a48 2
+Linux 2.1.xx, hill-b-118:t::::::::::
+_
+d69 1
+a69 1
+Reliant UNIX, btt1 (warp8), RM1000:t::::::::::
+d71 1
+a71 3
+Reliant UNIX, tera-39 (warp8|halley|giga), RM600:t::::::::::
+_
+Reliant UNIX, warp8:t::::::::::
+@
+
+
+1.36
+log
+@Deleted IRIX 6.4; add Solaris 2.7.
+@
+text
+@d13 1
+a13 1
+AIX 4.2.1, softserve:r::::::::::
+@
+
+
+1.35
+log
+@Revision 4.30
+@
+text
+@a42 2
+IRIX 6.4, jaboticaba:t::::::::::
+_
+d75 2
+d80 2
+@
+
+
+1.34
+log
+@DU, Pyramid, and OpenBSD updates
+@
+text
+@d45 1
+a45 1
+Linux 2.0.32, csociety:t::::::::::
+d71 1
+a71 1
+Reliant UNIX, btt1 (warp8|halley), RM1000:t::::::::::
+d85 3
+a87 1
+UnixWare 2.1, cyclone:t::::::::::
+@
+
+
+1.33
+log
+@Delete Solaris 2.3; change Solaris 2.6 to harbor.ecn.
+@
+text
+@d19 1
+a19 1
+DC/OSx 1.1, phoenix:t::::::::::
+d23 1
+a23 1
+Digital UNIX 3.2, screamer:t::::::::::
+d25 1
+a25 1
+Digital UNIX 4.0, penrose:t::::::::::
+d57 1
+a57 1
+OpenBSD 2.2, redlab:c::::::::::
+d71 1
+a71 1
+Reliant UNIX, r3-1-con, RM1000:t::::::::::
+d73 1
+a73 1
+Reliant UNIX, tera-39, RM600:t::::::::::
+@
+
+
+1.32
+log
+@Change RM600 host --- again!
+@
+text
+@a76 2
+Solaris 2.3, harbor:c::::::::::
+_
+d79 1
+a79 1
+Solaris 2.6, vic1:r::::::::::
+@
+
+
+1.31
+log
+@Miscellaneous host changes.
+@
+text
+@d73 1
+a73 1
+Reliant UNIX, hydra-3, RM600:t::::::::::
+@
+
+
+1.30
+log
+@Stop trying to keep up with the Linux 2.1.xx version.
+@
+text
+@d35 1
+a35 1
+IRIX 5.3, mordred:c::::::::::
+d37 2
+d53 1
+a53 1
+NetBSD 1.3 SPARC, flambard:t::::::::::
+d63 1
+a63 1
+OSR 5.0.4, r5omino:t::::::::::
+a75 2
+_
+RISCos 4.52, masc19:t::::::::::
+@
+
+
+1.29
+log
+@Adjust miscellaneous dialect names and versions.
+@
+text
+@d47 1
+a47 1
+Linux 2.1.79, hill-b-118:t::::::::::
+@
+
+
+1.28
+log
+@Delete mentor.cc -- it's now running Solaris 2.5.1.
+@
+text
+@d15 1
+a15 1
+BSDI 2.1, spcuna:c::::::::::
+d17 1
+a17 1
+BSDI 3.1, new-york:c::::::::::
+d47 1
+a47 1
+Linux 2.1.72, hill-b-118:t::::::::::
+d49 1
+a49 1
+NetBSD 1.2 i386, gorbadoc:t::::::::::
+d51 1
+a51 1
+NetBSD 1.2 SPARC, neon:t::::::::::
+d65 1
+a65 1
+PTX 4.2.1, synergy4:t::::::::::
+d67 1
+a67 1
+PTX 4.4, synergy1:t::::::::::
+@
+
+
+1.27
+log
+@Add Linux 2.0.33 + GlibC test host.
+@
+text
+@a80 2
+Solaris 2.5, mentor:r::::::::::
+_
+@
+
+
+1.26
+log
+@Update dialect versions.
+@
+text
+@d43 3
+a45 1
+Linux 2.0.30, csociety:t::::::::::
+@
+
+
+1.25
+log
+@Add DU 4.0
+@
+text
+@d17 1
+a17 1
+BSDI 3.0, new-york:c::::::::::
+d45 1
+a45 1
+Linux 2.1.57, hill-b-118:t::::::::::
+d53 1
+a53 1
+OpenBSD 2.1, redlab:c::::::::::
+@
+
+
+1.24
+log
+@Revision 4.18
+@
+text
+@d25 2
+@
+
+
+1.23
+log
+@Add hill-b-118 for Linux 2.1.57.
+@
+text
+@d51 1
+a51 1
+OpenBSD 2.1, redlab:r::::::::::
+d65 3
+a67 1
+Reliant UNIX, r3-1-con:t::::::::::
+@
+
+
+1.22
+log
+@Remove Beta from Solaris 2.6.
+@
+text
+@d43 2
+@
+
+
+1.21
+log
+@Make Pyramid changes.
+@
+text
+@d75 1
+a75 1
+Solaris 2.6-Beta, vic1:r::::::::::
+@
+
+
+1.20
+log
+@No more AIX 4.1.4
+@
+text
+@d19 1
+a19 1
+DC/OSx 1.1, pyrsoft3:t::::::::::
+d63 3
+a65 1
+Reliant UNIX, odin1:t::::::::::
+@
+
+
+1.19
+log
+@Change BSDI 3.0 host name.
+@
+text
+@a8 2
+AIX 4.1.4, cloud:r::::::::::
+_
+@
+
+
+1.18
+log
+@Replace cesium with gorbadoc.
+@
+text
+@d19 1
+a19 1
+BSDI 3.0, test1:c::::::::::
+@
+
+
+1.17
+log
+@Add SCO OSR 5.0.4 test host.
+@
+text
+@d45 1
+a45 1
+NetBSD 1.1B i386, cesium:t::::::::::
+d47 1
+a47 1
+NetBSD 1.2B SPARC, neon:t::::::::::
+@
+
+
+1.16
+log
+@Use more correct dialect titles.
+@
+text
+@d53 1
+a53 1
+OSR, dipper:c::::::::::
+d55 3
+a57 1
+OSR, my PC:t::::::::::
+@
+
+
+1.15
+log
+@Update Linux/csociety.ecn version number.
+@
+text
+@d23 4
+d35 8
+d49 1
+a49 1
+NeXT:::::::::::
+d53 1
+a53 1
+OSF/1 2.0, ewald:c::::::::::
+d55 1
+a55 1
+OSF/1 3.2, screamer:t::::::::::
+a65 12
+_
+SCO, dipper:c::::::::::
+_
+SCO, my PC:t::::::::::
+_
+SGI IRIX 5.3, mordred:c::::::::::
+_
+SGI IRIX 6.2, rrdjazz:c::::::::::
+_
+SGI IRIX 6.2, fig/lemon:t::::::::::
+_
+SGI IRIX 6.4, jaboticaba:t::::::::::
+@
+
+
+1.14
+log
+@Remove redbird
+@
+text
+@d31 1
+a31 1
+Linux 2.0.27, csociety:t::::::::::
+@
+
+
+1.13
+log
+@Add sofserve.cc for AIX 4.2.1.
+@
+text
+@a24 2
+FreeBSD 2.1.6, redbird:c::::::::::
+_
+@
+
+
+1.12
+log
+@Lemon is an IRIX6.2 alternative.
+@
+text
+@d15 2
+@
+
+
+1.11
+log
+@Delete synergy5.
+Create synergy1 for pTX 4.4.
+Delete galt.cs.
+
+@
+text
+@d63 1
+a63 1
+SGI IRIX 6.2, fig:t::::::::::
+@
+
+
+1.10
+log
+@Remove PTX 4.4
+@
+text
+@d49 1
+a49 1
+PTX 4.3, synergy5:t::::::::::
+a67 2
+_
+Solaris 2.4, galt:r::::::::::
+@
+
+
+1.9
+log
+@OpenBSD 2.0->2.1
+@
+text
+@a50 2
+PTX 4.4, heisenberg.physics:t::::::::::
+_
+@
+
+
+1.8
+log
+@Add BSDI 3.0.
+Change Linux
+Change Solaris 2.4
+@
+text
+@d39 1
+a39 1
+OpenBSD 2.0, redlab:r::::::::::
+@
+
+
+1.7
+log
+@Delete keep.cc for EP/IX.
+@
+text
+@d17 2
+d31 1
+a31 1
+Linux 2.1.29, hillres55-129:t::::::::::
+d71 1
+a71 1
+Solaris 2.4, centurion:r::::::::::
+@
+
+
+1.6
+log
+@Replace lemon with fig for IRIX 6.2.
+@
+text
+@a18 2
+EP/IX, keep:r::::::::::
+_
+@
+
+
+1.5
+log
+@Remove BSDI 3.0, Linux 2.0.27; add Linux 2.1.29 and PTX 4.4.
+@
+text
+@d65 1
+a65 1
+SGI IRIX 6.2, lemon:t::::::::::
+@
+
+
+1.4
+log
+@Add BSDI 3.0 and Linux 2.1.28
+@
+text
+@a16 2
+BSDI 3.0, tmpuna:c::::::::::
+_
+d31 1
+a31 1
+Linux 2.0.27, nvwls:r::::::::::
+a32 2
+Linux 2.1.28, hillres55-129:r::::::::::
+_
+d50 2
+@
+
+
+1.3
+log
+@Change tmpuna to spcuna.
+@
+text
+@d17 2
+d33 3
+a35 1
+Linux, nvwls:r::::::::::
+@
+
+
+1.2
+log
+@Add runner.cc for AIX 4.1.5
+@
+text
+@d15 1
+a15 1
+BSDI 2.1, tmpuna:c::::::::::
+@
+
+
+1.1
+log
+@Initial revision
+@
+text
+@d11 2
+@

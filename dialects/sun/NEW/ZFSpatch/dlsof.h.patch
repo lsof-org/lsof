@@ -1,0 +1,17 @@
+Index: dialects/sun/dlsof.h
+===================================================================
+RCS file: /src/local/repository/usr/local/pkgs/lsof/dialects/sun/dlsof.h,v
+retrieving revision 1.1.1.13
+retrieving revision 1.3
+diff -u -p -r1.1.1.13 -r1.3
+--- dialects/sun/dlsof.h	31 Mar 2009 15:57:49 -0000	1.1.1.13
++++ dialects/sun/dlsof.h	31 Mar 2009 16:27:19 -0000	1.3
+@@ -585,8 +585,4 @@
+ #  endif	/* solaris>=80000 */
+ # endif	/* defined(HASNCACHE) */
+ 
+-# if	defined(HAS_ZFS) && HAS_ZFS==1
+-#define	DIALECT_WARNING "privately defined ZFS structures may be incorrect."
+-# endif	/* defined(HAS_ZFS) && HAS_ZFS==1 */
+-
+ #endif	/* SOLARIS_LSOF_H */

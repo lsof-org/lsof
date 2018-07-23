@@ -1,0 +1,71 @@
+head	1.1;
+access;
+symbols;
+locks; strict;
+comment	@# @;
+
+
+1.1
+date	2003.11.05.12.14.31;	author abe;	state Exp;
+branches;
+next	;
+
+
+desc
+@Rdist from vic1 to vic.
+@
+
+
+1.1
+log
+@Initial revision
+@
+text
+@#!/bin/ksh
+#
+# vic -- rdist all lsof 4.x sources to vic.cc.purdue.edu
+#
+# Usage: vic
+
+H=vic.cc.purdue.edu
+SHP="-P /opt/openssh/bin/ssh"
+
+# Define the distfile and make sure it's removed on premature exit.
+
+R=/tmp/distfile.$$
+trap 'rm $R; exit 1' 1 2 3 15
+
+rm -f $R
+echo ". -> $H" > $R
+echo "	except ( ./.ck00MAN );" >> $R
+echo "	except ( ./.neverCust ./.neverInv );" >> $R
+echo "	except ( ./Makefile ./ddev.c ./dfile.c ./dlsof.h ./dmnt.c );" >> $R
+echo "	except ( ./dnode.c ./dnode1.c ./dproc.c ./dproto.h ./dsock.c );" >> $R
+echo "	except ( ./dstore.c ./lib/Makefile ./lib/RCS ./lib/OLD ./lib/NEW );" >> $R
+echo "	except ( ./lsof ./machine.h ./version.h ./zipme );" >> $R
+echo "	except ( ./NEW ./OLD ./RCS ./dialects ./support ) ;" >> $R
+echo "	except ( ./new ./old ./X ./xxx ./errs ) ;" >> $R
+echo "	except ( ./scripts/OLD ./scripts/NEW ./scripts/RCS ) ;" >> $R
+echo "	except ( ./tests/OLD ./tests/NEW ./tests/RCS ) ;" >> $R
+echo "	except ( ./tests/LTbasic ./tests/LTbigf ./tests/LTdnlc ) ;" >> $R
+echo "	except ( ./tests/LTlock ./tests/LTnfs ./tests/LTnlink ) ;" >> $R
+echo "	except ( ./tests/LTsock ./tests/LTszoff ./tests/LTunix ) ;" >> $R
+echo "	except_pat ( \\\\./tests/config\\\\. );" >> $R
+echo "	except_pat ( \\\\.gz \\\\.o \\\\.a );" >> $R
+echo "	install src/lsof4 ;" >> $R
+DL=`(cd $HOME/src/lsof4/dialects; /bin/ls)`
+for d in $DL
+do
+  echo "" >> $R
+  echo "./dialects/$d -> $H" >> $R
+  echo "	except ( ./dialects/$d/NEW );" >> $R
+  echo "	except ( ./dialects/$d/OLD ./dialects/$d/RCS );" >> $R
+  echo "	install src/lsof4/dialects/$d ;" >> $R
+done
+
+# Do the actual distribution.
+
+(cd $HOME/src/lsof4; rdist $SHP -f $R)
+rm $R
+echo done
+@

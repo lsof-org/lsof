@@ -1,0 +1,10 @@
+#!/bin/sh
+#
+# tar.distrib - make lsof distribution tar files
+
+cd $HOME/src/lsof4
+for i in FreeBSD Linux N+OBSD N+OS OSR
+do
+	echo "::::: " $i " :::::"
+	support/${i}Distrib
+done

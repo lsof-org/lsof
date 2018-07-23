@@ -1,0 +1,48 @@
+head     1.1;
+branch   ;
+access   ;
+symbols  ;
+locks    ; strict;
+comment  @@;
+
+
+1.1
+date     97.02.24.16.56.26;  author abe;  state Exp;
+branches ;
+next     ;
+
+
+desc
+@Lsof version 4
+@
+
+
+
+1.1
+log
+@Initial revision
+@
+text
+@
+	Index of Files in pub/tools/unix/lsof/contrib
+
+
+00INDEX			is this file.
+
+BSDI-1.1                contains information on a BSDI BSD/386 1.1
+			port to lsof 3.25 from Bob Thrush
+			<rd@@tarpit.oau.org>.
+
+NCR                     a directory containing a complete distribution
+			of lsof 3.88 for NCR System Vr4 (3.0) releases
+			2.2.1 and 3.0.0, done by Boyd Roberts
+			<boyd@@france3.fr>
+
+RT_PC.BSD4.3            contains information on a RT/PC BSD 4.3
+			port to lsof 3.24 from R. Bernstein
+			<rocky@@panix.com>.
+
+
+Vic Abell
+February 20, 1997
+@

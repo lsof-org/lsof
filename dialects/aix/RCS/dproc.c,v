@@ -1,0 +1,2933 @@
+head	1.27;
+access;
+symbols;
+locks; strict;
+comment	@ * @;
+
+
+1.27
+date	2018.02.14.14.23.27;	author abe;	state Exp;
+branches;
+next	1.26;
+
+1.26
+date	2008.10.21.16.14.18;	author abe;	state Exp;
+branches;
+next	1.25;
+
+1.25
+date	2005.08.08.19.46.38;	author abe;	state Exp;
+branches;
+next	1.24;
+
+1.24
+date	2004.07.06.19.16.20;	author abe;	state Exp;
+branches;
+next	1.23;
+
+1.23
+date	2003.03.21.17.39.46;	author abe;	state Exp;
+branches;
+next	1.22;
+
+1.22
+date	2002.01.22.12.40.13;	author abe;	state Exp;
+branches;
+next	1.21;
+
+1.21
+date	2002.01.18.20.57.04;	author abe;	state Exp;
+branches;
+next	1.20;
+
+1.20
+date	2001.08.14.12.27.01;	author abe;	state Exp;
+branches;
+next	1.19;
+
+1.19
+date	2001.07.18.14.01.42;	author abe;	state Exp;
+branches;
+next	1.18;
+
+1.18
+date	2001.02.13.02.04.33;	author abe;	state Exp;
+branches;
+next	1.17;
+
+1.17
+date	2000.12.04.14.19.38;	author abe;	state Exp;
+branches;
+next	1.16;
+
+1.16
+date	2000.11.09.18.02.47;	author abe;	state Exp;
+branches;
+next	1.15;
+
+1.15
+date	2000.07.31.12.01.05;	author abe;	state Exp;
+branches;
+next	1.14;
+
+1.14
+date	2000.03.14.20.34.27;	author abe;	state Exp;
+branches;
+next	1.13;
+
+1.13
+date	99.10.22.08.21.43;	author abe;	state Exp;
+branches;
+next	1.12;
+
+1.12
+date	99.10.13.09.14.01;	author abe;	state Exp;
+branches;
+next	1.11;
+
+1.11
+date	99.05.09.14.55.05;	author abe;	state Exp;
+branches;
+next	1.10;
+
+1.10
+date	99.01.26.15.11.51;	author abe;	state Exp;
+branches;
+next	1.9;
+
+1.9
+date	99.01.25.06.54.32;	author abe;	state Exp;
+branches;
+next	1.8;
+
+1.8
+date	98.06.29.15.54.15;	author abe;	state Exp;
+branches;
+next	1.7;
+
+1.7
+date	98.06.25.07.16.25;	author abe;	state Exp;
+branches;
+next	1.6;
+
+1.6
+date	98.06.22.07.46.01;	author abe;	state Exp;
+branches;
+next	1.5;
+
+1.5
+date	98.05.04.07.38.49;	author abe;	state Exp;
+branches;
+next	1.4;
+
+1.4
+date	98.04.27.15.33.45;	author abe;	state Exp;
+branches;
+next	1.3;
+
+1.3
+date	98.03.06.08.04.35;	author abe;	state Exp;
+branches;
+next	1.2;
+
+1.2
+date	97.05.30.08.24.09;	author abe;	state Exp;
+branches;
+next	1.1;
+
+1.1
+date	97.02.24.07.30.55;	author abe;	state Exp;
+branches;
+next	;
+
+
+desc
+@Lsof version 4
+@
+
+
+1.27
+log
+@Revision 4.90
+@
+text
+@/*
+ * dproc.c - AIX process access functions for lsof
+ */
+
+
+/*
+ * Copyright 1994 Purdue Research Foundation, West Lafayette, Indiana
+ * 47907.  All rights reserved.
+ *
+ * Written by Victor A. Abell
+ *
+ * This software is not subject to any license of the American Telephone
+ * and Telegraph Company or the Regents of the University of California.
+ *
+ * Permission is granted to anyone to use this software for any purpose on
+ * any computer system, and to alter it and redistribute it freely, subject
+ * to the following restrictions:
+ *
+ * 1. Neither the authors nor Purdue University are responsible for any
+ *    consequences of the use of this software.
+ *
+ * 2. The origin of this software must not be misrepresented, either by
+ *    explicit claim or by omission.  Credit to the authors and Purdue
+ *    University must appear in documentation and sources.
+ *
+ * 3. Altered versions must be plainly marked as such, and must not be
+ *    misrepresented as being the original software.
+ *
+ * 4. This notice may not be removed or altered.
+ */
+
+#ifndef lint
+static char copyright[] =
+"@@(#) Copyright 1994 Purdue Research Foundation.\nAll rights reserved.\n";
+static char *rcsid = "$Id: dproc.c,v 1.26 2008/10/21 16:14:18 abe Exp abe $";
+#endif
+
+
+#include "lsof.h"
+
+_PROTOTYPE(static void get_kernel_access,(void));
+
+#if	AIXA<2
+_PROTOTYPE(static struct le *getle,(KA_T a, KA_T sid, char **err));
+#endif	/* AIXA<2 */
+
+#if	AIXV>=4110
+_PROTOTYPE(static void getlenm,(struct le *le, KA_T sid));
+#endif	/* AIXV>=4110 */
+
+_PROTOTYPE(static int kreadx,(KA_T addr, char *buf, int len, KA_T sid));
+
+#if	AIXA<2
+_PROTOTYPE(static void process_text,(KA_T sid));
+#else	/* AIXA>=2 */
+_PROTOTYPE(static void getsoinfo,(void));
+_PROTOTYPE(static void process_text,(pid_t pid));
+#endif	/* AIXA<2 */
+
+#if	defined(SIGDANGER)
+# if	defined(HASINTSIGNAL)
+_PROTOTYPE(static int lowpgsp,(int sig));
+# else	/* !defined(HASINTSIGNAL) */
+_PROTOTYPE(static void lowpgsp,(int sig));
+# endif	/* defined(HASINTSIGNAL) */
+#endif	/* defined(SIGDANGER) */
+
+
+/*
+ * Local definitions
+ */
+
+#if	AIXV<4300
+#define	PROCINFO	procinfo
+#else	/* AIXV>=4300 */
+#define	PROCINFO_INCR	256
+# if	AIXA<1
+#define	FDSINFO		fdsinfo
+#define	GETPROCS	getprocs
+#define	PROCINFO	procsinfo
+# else	/* AIXA>=1 */
+#define	FDSINFO		fdsinfo64
+#define	GETPROCS	getprocs64
+#define	PROCINFO	procentry64
+
+#  if	AIXA>1
+/*
+ * AIX 5 and greater ia64 loader definitions
+ */
+
+#include <sys/ldr.h>
+
+#define	SOHASHBUCKS	128		/* SoHash[] bucket count
+					 * MUST BE A POWER OF 2!!! */
+#define	SOHASH(d, n)	((((int)(((GET_MIN_DEV(d) & 0x7fffffff) * SOHASHBUCKS) \
+			         + n) * 31415) >> 7) & (SOHASHBUCKS - 1))
+
+typedef struct so_hash {
+	dev_t dev;			/* device (st_dev) */
+	int nlink;			/* link count (st_nlink) */
+	char *nm;			/* name (mi_name) */
+	INODETYPE node;			/* node number (st_ino) */
+	struct so_hash *next;		/* next entry in hash bucket */
+	SZOFFTYPE sz;			/* size (st_size) */
+} so_hash_t;
+
+so_hash_t **SoHash = (so_hash_t **)NULL;
+#  endif	/* AIXA>1 */
+# endif	/* AIXA<1 */
+#endif	/* AIXV<4300 */
+
+#define	PROCSIZE	sizeof(struct PROCINFO)
+
+/*
+ * Create the FDSINFOSIZE definition for allocating FDSINFO space.  (This
+ * isn't as straightforward as it might seem, because someone made a bad
+ * decision to change the struct fdsinfo* family at AIX 5.2.)
+ */
+
+#define	FDSINFOSIZE	sizeof(struct FDSINFO)	/* (If we're lucky.) */
+
+#if	defined(OPEN_SHRT_MAX)
+# if	OPEN_SHRT_MAX<OPEN_MAX
+#undef	FDSINFOSIZE				/* (We weren't lucky.) */
+#define	FDSELEMSIZE	(sizeof(struct FDSINFO)/OPEN_SHRT_MAX)
+#define	FDSINFOSIZE	(OPEN_MAX * FDSELEMSIZE)
+# endif	/* OPEN_SHRT_MAX<OPEN_MAX */
+#endif	/* defined(OPEN_SHRT_MAX) */
+
+
+#if	AIXV>=4110
+/*
+ * Loader access definitions for AIX 4.1.1 and above.
+ */
+
+#define	LIBNMLN		40			/* maximum library table name
+						 * length */
+
+#define	LIBMASK		0xf0000000		/* library table mask */
+#define	LIBNMCOMP	0xd0000000		/* library table name has
+						 * multiple components */
+# if	AIXA<1
+#define	RDXMASK		0x0fffffff		/* kreadx() address mask */
+# else	/* AIXA>=1 */
+#define	RDXMASK		0x0fffffffffffffff	/* kreadx() address mask */
+#define	URDXMASK	0x0fffffff00000000	/* upper part of RDXMASK */
+# endif	/* AIXA<1 */
+#endif	/* AIXV>=4110 */
+
+
+/*
+ * Loader structure definitions.  (AIX doesn't supply ld_data.h.)
+ */
+
+struct le {				/* loader entry */
+
+	struct le *next;		/* next entry pointer */
+
+#if	AIXV<4300
+	ushort dummy1;
+	ushort dummy2;
+	uint dummy3;
+	struct file *fp;		/* file table entry pointer */
+
+# if	AIXV>=4110
+	int ft;				/* file type indicator */
+	unsigned dummy4;
+	char *dummy5;
+	unsigned dummy6;
+	char *dummy7[3];
+	char *nm;			/* name */
+# endif	/* AIXV>=4110 */
+#else	/* AIXV>=4300 */
+# if	AIXA<2
+	uint flags;
+	struct file *fp;		/* file table entry pointer */
+	char *nm;			/* name */
+# else	/* AIXA>=2 */
+	KA_T d1[2];
+	KA_T nm;			/* name */
+	KA_T d2[10];
+	struct file *fp;		/* file table entry pointer */
+# endif	/* AIXA<2 */
+#endif	/* AIXV<4300 */
+
+};
+
+
+#if	AIXV>=4300
+/*
+ * The elements of interest from the AIX >= 4.3 loader anchor structure.
+ */
+struct la {			/* loader anchor */
+
+# if	AIXA<2
+    struct le *list;
+    struct le *exec;
+# else	/* AIXA>=2 */
+    KA_T exec;
+    KA_T list;
+# endif	/* AIXA<2 */
+};
+#endif	/* AIXV>=4300 */
+
+
+/*
+ * Local static values
+ */
+
+static int Np = 0;			/* number of processes */
+static struct PROCINFO *P = (struct PROCINFO *)NULL;
+					/* the process table */
+static struct user *Up;			/* user structure */
+
+#if	AIXV>=4110
+# if	AIXA<2
+static KA_T Soff;			/* shared library VM offset */
+int Soff_stat = 0;			/* Soff-available status */
+# endif	/* AIXA<2 */
+static KA_T Uo;				/* user area VM offset */
+#endif	/* AIXV>=4110 */
+
+
+/*
+ * ckkv() - check kernel version
+ */
+
+void
+ckkv(d, er, ev, ea)
+	char *d;			/* dialect */
+	char *er;			/* expected release */
+	char *ev;			/* expected version */
+	char *ea;			/* expected architecture */
+{
+
+#if	defined(HASKERNIDCK)
+# if	AIXV<5000
+
+/*
+ * Use oslevel below AIX 5.
+ */
+	int br, p[2], pid;
+	char buf[128], *cp;
+	struct stat sb;
+
+	if (Fwarn)
+	    return;
+/*
+ * Make sure we can execute OSLEVEL.  If OSLEVEL doesn't exist and the AIX
+ * version is below 4.1, return quietly.
+ */
+
+#define	OSLEVEL		"oslevel"
+#define	OSLEVELPATH	"/usr/bin/oslevel"
+	
+	if (stat(OSLEVELPATH, &sb)) {
+
+#  if	AIXV<4100
+	    if (errno == ENOENT)
+		return;
+#  endif	/* AIXV<4100 */
+
+	    (void) fprintf(stderr, "%s: can't execute %s: %s\n",
+		Pn, OSLEVELPATH, strerror(errno));
+	    Exit(1);
+	}
+	if ((sb.st_mode & (S_IROTH | S_IXOTH)) != (S_IROTH | S_IXOTH)) {
+	    (void) fprintf(stderr, "%s: can't execute %s, modes: %o\n",
+		Pn, OSLEVELPATH, sb.st_mode);
+	    Exit(1);
+	}
+/*
+ * Open a pipe for receiving the version number from OSLEVEL.  Fork a
+ * child to run OSLEVEL.  Retrieve the OSLEVEL output.
+ */
+	if (pipe(p)) {
+	    (void) fprintf(stderr, "%s: can't create pipe to: %s\n",
+		Pn, OSLEVELPATH);
+	    Exit(1);
+	}
+	if ((pid = fork()) == 0) {
+	    (void) close(1);
+	    (void) close(2);
+	    (void) close(p[0]);
+	    dup2(p[1], 1);
+	    dup2(p[1], 2);
+	    (void) close(p[1]);
+	    execl(OSLEVELPATH, OSLEVEL, NULL);
+	    _exit(0);
+	}
+	if (pid < 0) {
+	    (void) fprintf(stderr, "%s: can't fork a child for %s: %s\n",
+		Pn, OSLEVELPATH, strerror(errno));
+	    Exit(1);
+	}
+	(void) close(p[1]);
+	br = read(p[0], buf, sizeof(buf) - 1);
+	(void) close(p[0]);
+	(void) wait(NULL);
+/*
+ * Warn if the actual and expected versions don't match.
+ */
+	if (br > 0) {
+	    buf[br] = '\0';
+	    if ((cp = strrchr(buf, '\n')))
+		*cp = '\0';
+	} else
+	    (void) snpf(buf, sizeof(buf), "UNKNOWN");
+# else	/* AIXV>=5000 */
+
+/*
+ * Use uname() for AIX 5 and above.
+ */
+	char buf[64];
+	struct utsname u;
+
+	(void) memset((void *)&u, 0, sizeof(u));
+	(void) uname(&u);
+	(void) snpf(buf, sizeof(buf) - 1, "%s.%s.0.0", u.version, u.release);
+	buf[sizeof(buf) - 1] = '\0';
+# endif	/* AIXV<5000 */
+	if (!ev || strcmp(buf, ev))
+	    (void) fprintf(stderr,
+		"%s: WARNING: compiled for %s version %s; this is %s.\n",
+		Pn, d, ev ? ev : "UNKNOWN", buf);
+#endif	/* defined(HASKERNIDCK) */
+
+}
+
+
+/*
+ * gather_proc_info() - gather process information
+ */
+
+void
+gather_proc_info()
+{
+	short cckreg;			/* conditional status of regular file
+					 * checking:
+					 *     0 = unconditionally check
+					 *     1 = conditionally check */
+	short ckscko;			/* socket file only checking status:
+					 *     0 = none
+					 *     1 = check only socket files,
+					 *	   including TCP and UDP
+					 *	   streams with eXPORT data,
+					 *	   where supported */
+	KA_T cdir, fp, pdir, rdir;
+	char *cmd;
+	int hl, i, nf, np;
+	struct PROCINFO *p;
+	short pss, sf;
+	struct user us;
+
+#if	AIXV>=4300
+	static struct FDSINFO *fds = (struct FDSINFO *)NULL;
+	MALLOC_S msz;
+# if	AIXA==1
+	pid32_t pid;		/* Since we're operating with types defined
+				 * under _KERNEL (see machine.), but
+				 * getprocs64() expects application types
+				 * (where pid_t is 32 bits), the pid variable
+				 * must be cast in an application-compatible
+				 * manner.
+				 */
+# else	/* AIXA!=1 */
+	pid_t pid;
+# endif	/* AIXA==1 */
+# if	AIXV==4330
+	static int trx = 0;
+	unsigned int mxof;
+	static int uo = 0;
+# endif	/* AIXV==4330 */
+#endif	/* AIXV>=4300 */
+
+/*
+ * Define socket and regular file conditional processing flags.
+ *
+ * If only socket files have been selected, or socket files have been
+ * selected, ANDed with other selection options, enable the skipping of
+ * regular files.
+ *
+ * If socket files and some process options have been selected, enable
+ * conditional skipping of regular file; i.e., regular files will be skipped
+ * unless they belong to a process selected by one of the specified options.
+ */
+	if (Selflags & SELNW) {
+
+	/*
+	 * Some network files selection options have been specified.
+	 */
+	    if (Fand || !(Selflags & ~SELNW)) {
+
+	    /*
+	     * Selection ANDing or only network file options have been
+	     * specified, so set unconditional skipping of regular files
+	     * and socket file only checking.
+	     */
+		cckreg = 0;
+		ckscko = 1;
+	    } else {
+
+	    /*
+	     * If ORed file selection options have been specified, or no
+	     * ORed process selection options have been specified, enable
+	     * unconditional file checking and clear socket file only
+	     * checking.
+	     *
+	     * If only ORed process selection options have been specified,
+	     * enable conditional file skipping and socket file only checking.
+	     */
+		if ((Selflags & SELFILE) || !(Selflags & SelProc))
+		    cckreg = ckscko = 0;
+		else
+		    cckreg = ckscko = 1;
+	    }
+	} else {
+
+	/*
+	 * No network file selection options were specified.  Enable
+	 * unconditional file checking and clear socket file only checking.
+	 */
+	    cckreg = ckscko = 0;
+	}
+/*
+ * Read the process table.
+ */
+
+#if	AIXV<4300
+	if (!P) {
+	    if (!(P = (struct PROCINFO *)malloc((MALLOC_S)PROCSIZE))) {
+		(void) fprintf(stderr,
+		    "%s: can't allocate space for 1 proc\n", Pn);
+		Exit(1);
+	    }
+	    Np = 1;
+	}
+	while (((np = getproc(P, Np, PROCSIZE)) == -1) && errno == ENOSPC) {
+	    Np = P->p_pid + 10;
+	    if (!(P = (struct PROCINFO *)realloc((MALLOC_P *)P,
+					 (size_t)(Np * PROCSIZE))))
+	    {
+		(void) fprintf(stderr, "%s: no space for %d procinfo's\n",
+		    Pn, Np);
+		Exit(1);
+	    }
+	}
+#else	/* AIXV>=4300 */
+	if (!P) {
+	    msz = (MALLOC_S)(PROCSIZE * PROCINFO_INCR);
+	    if (!(P = (struct PROCINFO *)malloc(msz))) {
+		(void) fprintf(stderr,
+		    "%s: can't allocate space for %d procs\n",
+		    Pn, PROCINFO_INCR);
+		Exit(1);
+	    }
+	    Np = PROCINFO_INCR;
+	}
+	np = pid = 0;
+	p = P;
+	while ((i = GETPROCS(p, PROCSIZE, (struct FDSINFO *)NULL, 0, &pid,
+			     PROCINFO_INCR))
+	== PROCINFO_INCR) {
+	    np += PROCINFO_INCR;
+	    if (np >= Np) {
+	        msz = (MALLOC_S)(PROCSIZE * (Np + PROCINFO_INCR));
+		if (!(P = (struct PROCINFO *)realloc((MALLOC_P *)P, msz))) {
+		    (void) fprintf(stderr,
+			"%s: no more space for proc storage\n", Pn);
+		    Exit(1);
+		}
+		Np += PROCINFO_INCR;
+	    }
+	    p = (struct PROCINFO *)((char *)P + (np * PROCSIZE));
+	}
+	if (i > 0)
+	    np += i;
+#endif	/* AIXV<4300 */
+
+/*
+ * Loop through processes.
+ */
+	for (p = P, Up = &us; np > 0; np--, p++) {
+	    if (p->p_stat == 0 || p->p_stat == SZOMB)
+		continue;
+	    if (is_proc_excl(p->p_pid, (int)p->p_pgid, (UID_ARG)p->p_uid,
+			     &pss, &sf))
+		continue;
+
+#if	AIXV<4300
+	/*
+	 * Get user structure for AIX < 4.3.
+	 *
+	 * If AIX version is below 4.1.1, use getuser().
+	 *
+	 * If AIX version is 4.1.1 or above: if readx() is disabled (no -X
+	 * option, use  getuser(); if readx() is enabled (-X), use readx().
+	 */
+
+# if	AIXV>=4110
+	    if (Fxopt
+	    &&  kreadx(Uo, (char *)Up, U_SIZE, (KA_T)p->pi_adspace) == 0)
+		i = 1;
+	    else
+		i = 0;
+	    if (i == 0) {
+		if (getuser(p, PROCSIZE, Up, U_SIZE) != 0)
+		    continue;
+	    }
+	    hl = i;
+# else	/* AIXV<4110 */
+	    if (getuser(p, PROCSIZE, Up, U_SIZE) != 0)
+		continue;
+	    hl = 1;
+# endif	/* AIXV>=4110 */
+	/*
+	 * Save directory vnode addresses, command name address, and open file
+	 * count from user structure.
+	 *
+	 * Skip processes excluded by the user structure command name.
+	 */
+	    cdir = (KA_T)Up->u_cdir;
+
+# if	AIXV<4100
+	    pdir = (KA_T)Up->u_pdir;
+# endif	/* AIXV<4100 */
+
+	    rdir = (KA_T)Up->u_rdir;
+	    cmd = Up->u_comm;
+	    nf = Up->u_maxofile;
+	    if (is_cmd_excl(cmd, &pss, &sf))
+		continue;
+	    if (cckreg) {
+
+	    /*
+	     * If conditional checking of regular files is enabled, enable
+	     * socket file only checking, based on the process' selection
+	     * status.
+	     */
+		ckscko = (sf & SelProc) ? 0 : 1;
+	    }
+	    
+#else	/* AIXV>=4300 */
+	/*
+	 * For AIX 4.3 and above, skip processes excluded by the procsinfo
+	 * command name.  Use getprocs() to get the file descriptors for
+	 * included processes.
+	 *
+	 * If readx is enabled (-X), use it to get the loader_anchor structure.
+	 */
+	    if (is_cmd_excl(p->pi_comm, &pss, &sf))
+		continue;
+	    if (cckreg) {
+
+	    /*
+	     * If conditional checking of regular files is enabled, enable
+	     * socket file only checking, based on the process' selection
+	     * status.
+	     */
+		ckscko = (sf & SelProc) ? 0 : 1;
+	    }
+	    if (!fds) {
+		if (!(fds = (struct FDSINFO *)malloc((MALLOC_S)FDSINFOSIZE)))
+		{
+		    (void) fprintf(stderr,
+			"%s: can't allocate fdsinfo struct for PID %d\n",
+			Pn, pid);
+		    Exit(1);
+		}
+	    }
+	    pid = p->p_pid;
+	    if (GETPROCS((struct PROCINFO *)NULL, PROCSIZE, fds, FDSINFOSIZE,
+			  &pid, 1)
+	    != 1)
+		continue;
+	    hl = 0;
+
+# if	AIXV==4330
+	/*
+	 * Handle readx() for AIX 4.3.3 specially, because 4.3.3 was released
+	 * with two different user struct definitions in <sys/user.h> and
+	 * their form affects using readx() to get the loader table pointers
+	 * from U_loader of the user structure (when -X is specified).
+	 */
+	    if (Fxopt) {
+		for (;;) {
+
+		/*
+		 * Read the AIX 4.3.3 U_loader pointers.
+		 */
+		    if (kreadx((KA_T)((char *)Uo
+				      + offsetof(struct user, U_loader) + uo),
+			       (char *)&Up->U_loader, sizeof(struct la),
+			       (KA_T)p->pi_adspace))
+			break;
+		    if (trx) {
+			hl = 1;
+			break;
+		    }
+		/*
+		 * Until the correct size of the U_loader offset in lo has been
+		 * established, read U_maxofile and match it to pi_maxofile
+		 * from the PROCINFO structure.  Try the offsets 0, 48, and
+		 * -48.  Note: these offsets are heuristic attempts to adjust
+		 * to differences in the user struct as observed on two systems
+		 * whose <sys/user.h> header files differed.  U_maxofile 
+		 * follows U_loader by the same number of elements in both
+		 * user structs, so the U_loader offset should be the same as
+		 * the U_maxofile offset.
+		 */
+		    if (!kreadx((KA_T)((char *)Uo
+				      + offsetof(struct user,U_maxofile) + uo),
+			        (char *)&mxof, sizeof(mxof),
+				(KA_T)p->pi_adspace)
+		    && (mxof == p->pi_maxofile))
+		    {
+			hl = trx = 1;
+			break;
+		    }
+		    if (uo == 0)
+			uo = 48;
+		    else if (uo == 48)
+			uo = -48;
+		    else {
+			Fxopt = hl = 0;
+			trx = 1;
+			if (!Fwarn) {
+			    (void) fprintf(stderr,
+				"%s: WARNING: user struct mismatch;", Pn);
+			    (void) fprintf(stderr, " -X option disabled.\n");
+			}
+			break;
+		    }
+		}
+	    }
+# else	/* AIXV!=4330 */
+	    if (Fxopt
+	    &&  kreadx((KA_T)((char *)Uo + offsetof(struct user, U_loader)),
+		       (char *)&Up->U_loader, sizeof(struct la),
+		       (KA_T)p->pi_adspace)
+	    == 0)
+		hl = 1;
+# endif	/* AIXV==4330 */
+
+	/*
+	 * Save directory vnode addresses, command name, and open file count
+	 * from procinfo structure.
+	 */
+	    cdir = (KA_T)p->pi_cdir;
+	    pdir = (KA_T)NULL;
+	    rdir = (KA_T)p->pi_rdir;
+	    cmd = p->pi_comm;
+	    nf = p->pi_maxofile;
+#endif	/* AIXV<4300 */
+
+	/*
+	 * Allocate a local process structure and start filling it.
+	 */
+	    alloc_lproc(p->p_pid, (int)p->p_pgid, (int)p->p_ppid,
+		(UID_ARG)p->p_uid, cmd, (int)pss, (int)sf);
+	    Plf = (struct lfile *)NULL;
+	/*
+	 * Save current working directory information.
+	 */
+	    if (!ckscko && cdir) {
+		alloc_lfile(CWD, -1);
+		process_node(cdir);
+		if (Lf->sf)
+		    link_lfile();
+	    }
+	/*
+	 * Save root directory information.
+	 */
+	    if (!ckscko && rdir) {
+		alloc_lfile(RTD, -1);
+		process_node(rdir);
+		if (Lf->sf)
+		    link_lfile();
+	    }
+
+#if	AIXV<4100
+	/*
+	 * Save parent directory information.
+	 */
+	    if (!ckscko && pdir) {
+		alloc_lfile("  pd", -1);
+		process_node(pdir);
+		if (Lf->sf)
+		    link_lfile();
+	    }
+#endif	/* AIXV<4100 */
+
+	/*
+	 * Save information on text files.
+	 */
+	    if (!ckscko && hl) {
+
+#if	AIXA<2
+# if	AIXA<1
+		process_text((KA_T)p->pi_adspace);
+# else	/* AIXA==1 */
+		{
+		    int ck = 1;
+		    KA_T sid = (KA_T)p->pi_adspace;
+
+		    if ((Up->U_loader[0] & URDXMASK)
+		    ||  (Up->U_loader[1] & URDXMASK))
+		    {
+
+		    /*
+		     * If the upper part of either loader map address is
+		     * non-zero and this is not the lsof process, skip the
+		     * processing of text files.  If this is the lsof process,
+		     * set the segment address to zero, forcing text file
+		     * information to come from kmem rather than mem.
+		     */
+			if (Mypid == p->p_pid)
+			    sid = (KA_T)0;
+			else
+			    ck = 0;
+		    }
+		    if (ck)
+			process_text(sid);
+		}
+# endif	/* AIXA<1 */
+#else	/* AIXA>=2 */
+		process_text(p->p_pid);
+#endif	/* AIXA<2 */
+
+	    }
+	/*
+	 * Save information on file descriptors.
+	 */
+	    for (i = 0; i < nf; i++) {
+
+#if	AIXV<4300
+		fp = (KA_T)Up->u_ufd[i].fp;
+#else	/* AIXV>=4300 */
+		fp = (KA_T)fds->pi_ufd[i].fp;
+#endif	/* AIXV<4300 */
+
+		if (fp) {
+		    alloc_lfile((char *)NULL, i);
+		    process_file(fp);
+		    if (Lf->sf) {
+
+#if	defined(HASFSTRUCT)
+			if (Fsv & FSV_FG)
+
+# if	AIXV<4300
+			    Lf->pof = (long)(Up->u_ufd[i].flags & 0x7f);
+#else	/* AIXV>=4300 */
+			    Lf->pof = (long)(fds->pi_ufd[i].flags & 0x7f);
+#endif	/* AIXV<4300 */
+#endif	/* defined(HASFSTRUCT) */
+
+			link_lfile();
+		    }
+		}
+	    }
+	/*
+	 * Examine results.
+	 */
+	    if (examine_lproc())
+		return;
+	}
+}
+
+
+/*
+ * get_kernel_access() - get access to kernel memory
+ */
+
+static void
+get_kernel_access()
+{
+	int oe = 0;
+
+#if	defined(AIX_KERNBITS)
+	int kb;
+	char *kbb, *kbr;
+/*
+ * Check the kernel bit size against the size for which this executable was
+ * configured.
+ */
+	if (__KERNEL_32()) {
+	    kb = 32;
+	    kbr = "32";
+	} else if (__KERNEL_64()) {
+	    kb = 64;
+	    kbr = "64";
+	} else {
+	    kb = 0;
+	    kbr = "unknown";
+	}
+	if ((AIX_KERNBITS == 0) || !kb || (kb != AIX_KERNBITS)) {
+	    if (AIX_KERNBITS == 32)
+		kbb = "32";
+	    else if (AIX_KERNBITS == 64)
+		kbb = "64";
+	    else
+		kbb = "unknown";
+	    (void) fprintf(stderr,
+		"%s: FATAL: compiled for a kernel of %s bit size.\n", Pn, kbb);
+	    (void) fprintf(stderr,
+		"      The bit size of this kernel is %s.\n", kbr);
+	    Exit(1);
+	}
+#endif	/* defined(AIX_KERNBITS) */
+
+/*
+ * Access /dev/mem.
+ */
+	if ((Km = open("/dev/mem", O_RDONLY, 0)) < 0) {
+	    (void) fprintf(stderr, "%s: can't open /dev/mem: %s\n",
+		Pn, strerror(errno));
+	    oe++;
+	}
+
+#if	defined(WILLDROPGID)
+/*
+ * If kernel memory isn't coming from KMEM, drop setgid permission
+ * before attempting to open the (Memory) file.
+ */
+	if (Memory)
+	    (void) dropgid();
+#else	/* !defined(WILLDROPGID) */
+/*
+ * See if the non-KMEM memory file is readable.
+ */
+	if (Memory && !is_readable(Memory, 1))
+	    Exit(1);
+#endif	/* defined(WILLDROPGID) */
+
+/*
+ * Access kernel memory file.
+ */
+	if ((Kd = open(Memory ? Memory : KMEM, O_RDONLY, 0)) < 0) {
+	    (void) fprintf(stderr, "%s: can't open %s: %s\n", Pn,
+		Memory ? Memory : KMEM, strerror(errno));
+	    oe++;
+	}
+	if (oe)
+	    Exit(1);
+
+#if	defined(WILLDROPGID)
+/*
+ * Drop setgid permission, if necessary.
+ */
+	if (!Memory)
+	    (void) dropgid();
+#endif	/* defined(WILLDROPGID) */
+
+/*
+ * Get kernel symbols.
+ */
+	if (knlist(Nl, X_NL_NUM, sizeof(struct nlist)) || !Nl[X_UADDR].n_value)
+	{
+	    (void) fprintf(stderr, "%s: can't get kernel's %s address\n",
+		Pn, Nl[X_UADDR].n_name);
+	    Exit(1);
+	}
+
+#if	defined(HAS_AFS)
+	(void) knlist(AFSnl, X_AFSNL_NUM, sizeof(struct nlist));
+#endif	/* defined(HAS_AFS) */
+
+#if	AIXV>=4110
+/*
+ * Get user area and shared library VM offsets for AIX 4.1.1 and above.
+ */
+	if (Fxopt) {
+	    struct ublock *ub;
+
+# if	AIXA<2
+	    struct nlist ll[] = {
+		{ "library_anchor"	},
+
+#  if	AIXV>=4330
+		{ "library_le_handle"	},
+#  else	/* AIXV<4330 */
+		{ "library_data_handle"	},
+#  endif	/* AIXV>=4330 */
+
+		{ (char *)NULL		}
+	    };
+
+	    if (nlist(N_UNIX, ll) == 0
+	    &&  ll[0].n_value != (long)0 && ll[1].n_value != (long)0
+	    &&  kreadx((KA_T)(ll[1].n_value & RDXMASK), (char *)&Soff,
+			sizeof(Soff), (KA_T)0)
+	    == 0)
+		Soff_stat++;
+# endif	/* AIXA<2 */
+
+	    ub = (struct ublock *)Nl[X_UADDR].n_value;
+	    Uo = (KA_T)((KA_T)&ub->ub_user & RDXMASK);
+	}
+#endif	/* AIXV>=4110 */
+
+/*
+ * Check the kernel version number.
+ */
+	(void) ckkv("AIX", (char *)NULL, LSOF_VSTR, (char *)NULL);
+
+#if	defined(SIGDANGER)
+/*
+ * If SIGDANGER is defined, enable its handler.
+ */
+	(void) signal(SIGDANGER, lowpgsp);
+#endif	/* defined(SIGDANGER) */
+
+}
+
+
+#if	AIXA<2
+/*
+ * getle() - get loader entry structure
+ */
+
+static struct le *
+getle(a, sid, err)
+	KA_T a;				/* loader entry kernel address */
+	KA_T sid;			/* user structure segment ID */
+	char **err;			/* error message (if return is NULL) */
+{
+	static struct le le;
+
+#if	AIXV<4110
+	if (a < Nl[X_UADDR].n_value) {
+	    *err = "address too small";
+	    return((struct le *)NULL);
+	}
+	if (((char *)a + sizeof(le)) <= ((char *)Nl[X_UADDR].n_value + U_SIZE))
+	    return((struct le *)((char *)Up + a - Nl[X_UADDR].n_value));
+#endif	/* AIXV<4110 */
+
+	if (!Fxopt) {
+	    *err = "readx() disabled for Stale Segment ID bug (see -X)";
+	    return((struct le *)NULL);
+	}
+
+#if	AIXV>=4110
+	if (!sid) {
+	    if (!kread(a, (char *)&le, sizeof(le)))
+		return(&le);
+	} else {
+	    if (!kreadx((KA_T)(a & RDXMASK),(char *)&le,sizeof(le),(KA_T)sid))
+		return(&le);
+	}
+#else	/* AIXV<4110 */
+	if (!kreadx((KA_T)a, (char *)&le, sizeof(le), (KA_T)sid))
+	    return(&le);
+#endif	/* AIXV>=4110 */
+
+getle_err:
+
+	*err = "can't readx()";
+	return((struct le *)NULL);
+}
+#endif	/* AIXA<2 */
+
+
+#if	AIXV>=4110
+/*
+ * getlenm() - get loader entry file name for AIX >= 4.1.1
+ */
+
+static void
+getlenm(le, sid)
+	struct le *le;			/* loader entry structure */
+	KA_T sid;			/* segment ID */
+{
+	char buf[LIBNMLN];
+	int i;
+
+# if	AIXV<4300
+	if ((le->ft & LIBMASK) != LIBNMCOMP)
+	    return;
+#else	/* AIXV>=4300 */
+# if	AIXA<2
+	if (!sid) {
+	     if (kread((KA_T)le->nm, buf, LIBNMLN))
+		return;
+	} else {
+	    if (!Soff_stat || !le->nm
+	    ||  kreadx((KA_T)le->nm & (KA_T)RDXMASK, buf, LIBNMLN, (KA_T)Soff))
+		return;
+	}
+	buf[LIBNMLN - 1] = '\0';
+	i = strlen(buf);
+	if (i < (LIBNMLN - 3) && buf[i+1])
+	    enter_nm(&buf[i+1]);
+	else if (buf[0])
+	    enter_nm(buf);
+# else	/* AIXA>=2 */
+	if (!le->nm || kread(le->nm, buf, sizeof(buf)))
+	    return;
+	buf[LIBNMLN - 1] = '\0';
+	if (!strlen(buf))
+	    return;
+	enter_nm(buf);
+# endif	/* AIXA<2 */
+#endif	/* AIXV<4300 */
+
+}
+#endif	/* AIXV>=4110 */
+
+
+#if	AIXA>1
+/*
+ * getsoinfo() - get *.so information for ia64 AIX >= 5
+ */
+
+static void
+getsoinfo()
+{
+	char buf[65536];
+	uint bufsz = (uint) sizeof(buf);
+	int ct, h;
+	char *ln = (char *)NULL;
+	char *rn = (char *)NULL;
+	LDR_Mod_info_t *lp;
+	struct stat sb;
+	so_hash_t *sp;
+/*
+ * See if loader information is needed.  Warn if this process has insufficient
+ * permission to acquire it from all processes.
+ */
+	if (!Fxopt)
+	    return;
+	if ((Myuid != 0) && !Setuidroot && !Fwarn) {
+	    (void) fprintf(stderr,
+		"%s: WARNING: insufficient permission to access all", Pn);
+	    (void) fprintf(stderr, " /%s/object sub-\n", HASPROCFS);
+	    (void) fprintf(stderr,
+		    "      directories; some loader information may", Pn);
+	    (void) fprintf(stderr, " be unavailable.\n");
+	}
+/*
+ * Get the loader module table.  Allocate hash space for it.
+ */
+	if ((ct = ldr_get_modules(SOL_GLOBAL, (void *)buf, &bufsz)) < 1)
+	    return;
+	if (!(SoHash = (so_hash_t **)calloc((MALLOC_S)SOHASHBUCKS,
+					    sizeof(so_hash_t *))))
+	{
+	    (void) fprintf(stderr, "%s: no space for *.so hash buckets\n", Pn);
+	    Exit(1);
+	}
+/*
+ * Cache the loader module information, complete with stat(2) results.
+ */
+	for (lp = (LDR_Mod_info_t *)buf; ct; ct--, lp++) {
+
+	/*
+	 * Release previous name space allocations.
+	 */
+	    if (ln) {
+		(void) free((MALLOC_P *)ln);
+		ln = (char *)NULL;
+	    }
+	    if (rn) {
+		(void) free((MALLOC_P *)rn);
+		rn = (char *)NULL;
+	    }
+	/*
+	 * Make a copy of the loader module name.
+	 */
+	    if (!(rn = mkstrcpy(lp->mi_name, (MALLOC_S *)NULL))) {
+		(void) fprintf(stderr, "%s: no space for name: %s\n", Pn,
+		    lp->mi_name);
+		Exit(1);
+	    }
+	/*
+	 * Resolve symbolic links.
+	 */
+	    ln = Readlink(rn);
+	    if (ln == rn)
+		rn = (char *)NULL;
+	/*
+	 * Get stat(2) information.
+	 */
+	    if (statsafely(ln, &sb)) {
+		if (!Fwarn)
+		    (void) fprintf(stderr, "%s: WARNING: can't stat: %s\n",
+			Pn, ln);
+		    continue;
+	    }
+	/*
+	 * Allocate and fill a loader information hash structure.
+	 */
+	    if (!(sp = (so_hash_t *)malloc((MALLOC_S)sizeof(so_hash_t)))) {
+		(void) fprintf(stderr, "%s: no space for *.so hash entry: %s\n",
+		    Pn, ln);
+		Exit(1);
+	    }
+	    sp->dev = sb.st_dev;
+	    sp->nlink = (int)sb.st_nlink;
+	    sp->nm = ln;
+	    ln = (char *)NULL;
+	    sp->node = (INODETYPE)sb.st_ino;
+	    sp->sz = (SZOFFTYPE)sb.st_size;
+	/*
+	 * Link the structure to the appropriate hash bucket.
+	 */
+	    h = SOHASH(sb.st_dev, (INODETYPE)sb.st_ino);
+	    if (SoHash[h])
+		sp->next = SoHash[h];
+	    else
+		sp->next = (so_hash_t *)NULL;
+	    SoHash[h] = sp;
+	}
+/*
+ * Free any unused name space that was allocated.
+ */
+	if (ln)
+	    (void) free((MALLOC_P *)ln);
+	if (rn)
+	    (void) free((MALLOC_P *)rn);
+}
+#endif	/* AIXA>1 */
+
+
+/*
+ * initialize() - perform all initialization
+ */
+
+void
+initialize()
+{
+	get_kernel_access();
+
+#if	AIXA>1
+	(void) getsoinfo();
+#endif	/* AIXA>1 */
+
+}
+
+
+/*
+ * kread() - read from kernel memory
+ */
+
+int
+kread(addr, buf, len)
+	KA_T addr;			/* kernel memory address */
+	char *buf;			/* buffer to receive data */
+	READLEN_T len;			/* length to read */
+{
+	int br;
+
+#if	AIXV<4200
+	if (lseek(Kd, (off_t)addr, L_SET) == (off_t)-1)
+#else	/* AIXV>=4200 */
+	if (lseek64(Kd, (off64_t)addr, L_SET) == (off64_t)-1)
+#endif	/* AIXV<4200 */
+
+	    return(1);
+	br = read(Kd, buf, len);
+	return((br == len) ? 0 : 1);
+}
+
+
+/*
+ * kreadx() - read kernel segmented memory
+ */
+
+int
+kreadx(addr, buf, len, sid)
+	KA_T addr;			/* kernel address */
+	char *buf;			/* destination buffer */
+	int len;			/* length */
+	KA_T sid;			/* segment ID */
+{
+	int br;
+
+#if	AIXV<4200
+	if (lseek(Km, addr, L_SET) == (off_t)-1)
+#else	/* AIXV>=4200 */
+	if (lseek64(Km, (off64_t)addr, L_SET) == (off64_t)-1)
+#endif	/* AIXV<4200 */
+
+	    return(1);
+	br = readx(Km, buf, len, sid);
+	return (br == len ? 0 : 1);
+}
+
+
+#if	defined(SIGDANGER)
+/*
+ * lowpgsp() - hangle a SIGDANGER signal about low paging space
+*/
+
+# if	defined(HASINTSIGNAL)
+static int
+# else	/* !defined(HASINTSIGNAL) */
+static void
+# endif	/* defined(HASINTSIGNAL) */
+
+lowpgsp(sig)
+	int sig;
+{
+	(void) fprintf(stderr, "%s: FATAL: system paging space is low.\n", Pn);
+	Exit(1);
+}
+#endif	/* defined(SIGDANGER) */
+
+
+#if	AIXA<2
+/*
+ * process_text() - process text file information for non-ia64 AIX
+ */
+
+static void
+process_text(sid)
+	KA_T sid;			/* user area segment ID */
+{
+	char *err, fd[8];
+	static struct file **f = (struct file **)NULL;
+	int i, j, n;
+	struct le *le;
+	KA_T ll;
+	MALLOC_S msz;
+	static MALLOC_S nf = 0;
+	struct file *xf = (struct file *)NULL;
+
+#if	AIXV>=4300
+	struct la *la = (struct la *)&Up->U_loader;
+#endif	/* AIXV>=4300 */
+
+/*
+ * Display information on the exec'd entry.
+ */
+
+#if	AIXV<4300
+	if ((ll = (KA_T)Up->u_loader[1]))
+#else	/* AIXV>=4300 */
+	if ((ll = (KA_T)la->exec))
+#endif	/* AIXV<4300 */
+
+	{
+	    alloc_lfile(" txt", -1);
+	    if ((le = getle(ll, sid, &err))) {
+		if ((xf = le->fp)) {
+		    process_file((KA_T)xf);
+		    if (Lf->sf) {
+
+#if	AIXV>=4110 && AIXV<4300
+			if (!Lf->nm || !Lf->nm[0])
+			    getlenm(le, sid);
+#endif	/* AIXV>=4110 && AIXV<4300 */
+
+			link_lfile();
+		    }
+		}
+	    } else {
+		(void) snpf(Namech, Namechl, "text entry at %s: %s",
+		    print_kptr((KA_T)ll, (char *)NULL, 0), err);
+		enter_nm(Namech);
+		if (Lf->sf)
+		    link_lfile();
+	    }
+	}
+/*
+ * Display the loader list.
+ */
+	for (i = n = 0,
+
+#if	AIXV<4300
+	     ll = (KA_T)Up->u_loader[0];
+#else	/* AIXV>=4300 */
+	     ll = (KA_T)la->list;
+#endif	/* AIXV<4300 */
+
+	     ll;
+	     ll = (KA_T)le->next)
+	{
+	    (void) snpf(fd, sizeof(fd), " L%02d", i);
+	    alloc_lfile(fd, -1);
+	    if (!(le = getle(ll, sid, &err))) {
+		(void) snpf(Namech, Namechl, "loader entry at %s: %s",
+		    print_kptr((KA_T)ll, (char *)NULL, 0), err);
+		enter_nm(Namech);
+		if (Lf->sf)
+		    link_lfile();
+		return;
+	    }
+	/*
+	 * Skip entries with no file pointers, the exec'd file, and entries
+	 * that have already been processed.
+	 */
+	    if (!le->fp || (le->fp == xf))
+		continue;
+	    for (j = 0; j < n; j++) {
+		if (f[j] == le->fp)
+		    break;
+	    }
+	    if (j < n)
+		continue;
+	    if (n >= nf) {
+
+	    /*
+	     * Allocate file structure address cache space.
+	     */
+		nf += 10;
+		msz = (MALLOC_S)(nf * sizeof(struct file *));
+		if (f)
+		    f = (struct file **)realloc((MALLOC_P *)f, msz);
+		else
+		    f = (struct file **)malloc(msz);
+		if (!f) {
+		    (void) fprintf(stderr,
+			"%s: no space for text file pointers\n", Pn);
+		    Exit(1);
+		}
+	    }
+	    f[n++] = le->fp;
+	/*
+	 * Save the loader entry.
+	 */
+	    process_file((KA_T)le->fp);
+	    if (Lf->sf) {
+
+#if	AIXV>=4110
+		if (!Lf->nm || !Lf->nm[0])
+		    getlenm(le, sid);
+#endif	/* AIXV>=4110 */
+
+		link_lfile();
+		i++;
+	    }
+	}
+}
+#else	/* AIXA>=2 */
+/*
+ * process_text() - process text file information for ia64 AIX >= 5
+ */
+
+static void
+process_text(pid)
+	pid_t pid;			/* process PID */
+{
+	char buf[MAXPATHLEN+1], fd[8], *nm, *pp;
+	size_t bufl = sizeof(buf);
+	DIR *dfp;
+	struct dirent *dp;
+	int i;
+	struct la *la = (struct la *)&Up->U_loader;
+	struct le le;
+	struct lfile *lf;
+	struct stat sb;
+	so_hash_t *sp;
+	size_t sz;
+	dev_t xdev;
+	INODETYPE xnode;
+	int xs = 0;
+/*
+ * Display information on the exec'd entry.
+ */
+	if (la->exec && !kread((KA_T)la->exec, (char *)&le, sizeof(le))
+	&&  le.fp) {
+	    alloc_lfile(" txt", -1);
+	    process_file((KA_T)le.fp);
+	    if (Lf->dev_def && (Lf->inp_ty == 1)) {
+		xdev = Lf->dev;
+		xnode = Lf->inode;
+		xs = 1;
+	    }
+	    if (Lf->sf) {
+		if (!Lf->nm || !Lf->nm[0])
+		    getlenm(&le, (KA_T)0);
+		link_lfile();
+	    }
+	}
+/*
+ * Collect devices and names for the entries in /HASPROCFS/PID/object -- the
+ * AIX 5 loader list equivalent.  When things fail in this processing -- most
+ * likely for insufficient permissions -- be silent; a warning was issued by
+ * getsoinfo().
+ */
+	(void) snpf(buf, bufl, "/%s/%ld/object", HASPROCFS, (long)pid);
+	if (!(dfp = opendir(buf)))
+	    return;
+	if ((sz = strlen(buf)) >= bufl)
+	   return;
+	buf[sz++] = '/';
+	pp = &buf[sz];
+	sz = bufl - sz;
+/*
+ * Read the entries in the /HASPROCFS/PID/object subdirectory.
+ */
+	for (dp = readdir(dfp), i = 0; dp; dp = readdir(dfp)) {
+
+	/*
+	 * Skip '.', "..", entries with no node number, and entries whose
+	 * names are too long.
+	 */
+	    if (!dp->d_ino || (dp->d_name[0] == '.'))
+		continue;
+	    if ((dp->d_namlen + 1) >= sz)
+		continue;
+	    (void) strncpy(pp, dp->d_name, dp->d_namlen);
+	    pp[dp->d_namlen] = '\0';
+	/*
+	 * Get stat(2) information.
+	 */
+	    if (statsafely(buf, &sb))
+		continue;
+	/*
+	 * Ignore the exec'd and non-regular files.
+	 */
+	    if (xs && (xdev == sb.st_dev) && (xnode == (INODETYPE)sb.st_ino))
+		continue;
+	    if (!S_ISREG(sb.st_mode))
+		continue;
+	/*
+	 * Allocate space for a file entry.  Set its basic characteristics.
+	 */
+	    (void) snpf(fd, sizeof(fd), "L%02d", i++);
+	    alloc_lfile(fd, -1);
+	    Lf->dev_def = Lf->inp_ty = Lf->nlink_def = Lf->sz_def = 1;
+	    Lf->dev = sb.st_dev;
+	    Lf->inode = (INODETYPE)sb.st_ino;
+	    (void) snpf(Lf->type, sizeof(Lf->type), "VREG");
+	/*
+	 * Look for a match on device and node numbers in the *.so cache.
+	 */
+	    for (sp = SoHash[SOHASH(sb.st_dev, (INODETYPE)sb.st_ino)];
+		 sp;
+		 sp = sp->next)
+	    {
+		if ((sp->dev == sb.st_dev)
+		&&  (sp->node == (INODETYPE)sb.st_ino))
+		{
+
+		/*
+		 * A match was found; use its name, link count, and size.
+		 */
+		    nm = sp->nm;
+		    Lf->nlink = sp->nlink;
+		    Lf->sz = sp->sz;
+		    break;
+		}
+	    }
+	    if (!sp) {
+
+	    /*
+	     * No match was found; use the /HASPROCFS/object name, its link
+	     * count, and its size.
+	     */
+		nm = pp;
+		Lf->nlink_def = sb.st_nlink;
+		Lf->sz = sb.st_size;
+	    }
+	/*
+	 * Do selection tests: NFS; link count; file name; and file system.
+	 */
+
+# if	defined(HAS_NFS)
+	    if (Fnfs && (GET_MIN_DEV(Lf->dev_def) & SDEV_REMOTE))
+		Lf->sf |= SELNFS;
+# endif	/* defined(HAS_NFS) */
+
+	    if (Nlink && (Lf->nlink < Nlink))
+		Lf->sf |= SELNLINK;
+	    if (Sfile && is_file_named(NULL, VREG, 0, 0))
+		Lf->sf |= SELNM;
+	    if (Lf->sf) {
+
+	    /*
+	     * If the file was selected, enter its name and link it to the
+	     * other files of the process.
+	     */
+		enter_nm(nm);
+		link_lfile();
+	    }
+	}
+	(void) closedir(dfp);
+}
+#endif	/* AIXA<2 */
+@
+
+
+1.26
+log
+@Revision 4.81
+@
+text
+@d35 1
+a35 1
+static char *rcsid = "$Id: dproc.c,v 1.25 2005/08/08 19:46:38 abe Exp abe $";
+d412 1
+a412 1
+		if ((Selflags & SELFILE) || !(Selflags & SELPROC))
+d540 1
+a540 1
+		ckscko = (sf & SELPROC) ? 0 : 1;
+d560 1
+a560 1
+		ckscko = (sf & SELPROC) ? 0 : 1;
+@
+
+
+1.25
+log
+@Revision 4.76
+@
+text
+@d35 1
+a35 1
+static char *rcsid = "$Id: dproc.c,v 1.24 2004/07/06 19:16:20 abe Exp abe $";
+d338 10
+d377 49
+d533 10
+d553 9
+d665 1
+a665 1
+	    if (cdir) {
+d674 1
+a674 1
+	    if (rdir) {
+d685 1
+a685 1
+	    if (pdir) {
+d696 1
+a696 1
+	    if (hl) {
+@
+
+
+1.24
+log
+@Revision 4.72
+@
+text
+@d35 1
+a35 1
+static char *rcsid = "$Id: dproc.c,v 1.23 2003/03/21 17:39:46 abe Exp abe $";
+d102 1
+a102 1
+	unsigned long node;		/* node number (st_ino) */
+d1024 1
+a1024 1
+	    sp->node = (unsigned long)sb.st_ino;
+d1029 1
+a1029 1
+	    h = SOHASH(sb.st_dev, sb.st_ino);
+d1278 1
+a1278 1
+	unsigned long xnode;
+d1335 1
+a1335 1
+	    if (xs && (xdev == sb.st_dev) && (xnode == sb.st_ino))
+d1346 1
+a1346 1
+	    Lf->inode = (unsigned long)sb.st_ino;
+d1351 7
+a1357 2
+	    for (sp = SoHash[SOHASH(sb.st_dev,sb.st_ino)]; sp; sp = sp->next) {
+		if ((sp->dev == sb.st_dev) && (sp->node == sb.st_ino)) {
+@
+
+
+1.23
+log
+@Revision 4.67
+@
+text
+@d35 1
+a35 1
+static char *rcsid = "$Id: dproc.c,v 1.22 2002/01/22 12:40:13 abe Exp abe $";
+d60 7
+d68 1
+d827 8
+d1112 20
+@
+
+
+1.22
+log
+@Revision 4.61
+@
+text
+@d35 1
+a35 1
+static char *rcsid = "$Id: dproc.c,v 1.21 2002/01/18 20:57:04 abe Exp abe $";
+d106 5
+d112 11
+d229 5
+d250 1
+a250 1
+# if	AIXV<4100
+d253 1
+a253 1
+# endif	/* AIXV<4100 */
+d301 13
+d477 1
+a477 2
+		if (!(fds = (struct FDSINFO *)malloc((MALLOC_S)
+					      sizeof(struct FDSINFO))))
+d486 2
+a487 2
+	    if (GETPROCS((struct PROCINFO *)NULL, PROCSIZE, fds,
+			 sizeof(struct FDSINFO), &pid, 1)
+d691 1
+d694 29
+a722 2
+	int kba;
+	char *kbs;
+a724 1
+	int oe = 0;
+a818 26
+
+#if	defined(AIX_KERNBITS)
+/*
+ * Check the kernel bit size against the size for which this executable was
+ * configured.
+ */
+	if (__KERNEL_32()) {
+	    kba = 32;
+	    kbs = "32";
+	} else if (__KERNEL_64()) {
+	    kba = 64;
+	    kbs = "64";
+	} else {
+	    kba = -1;
+	    kbs = "unknown";
+	}
+	if ((kba == -1) || (kba != AIX_KERNBITS)) {
+	    (void) fprintf(stderr,
+		"%s: FATAL: compiled for a %d bit kernel.\n",
+		Pn, AIX_KERNBITS);
+	    (void) fprintf(stderr,
+		"      The bit size of this kernel is %s.\n", kbs);
+	    Exit(1);
+	}
+#endif	/* defined(AIX_KERNBITS) */
+
+@
+
+
+1.21
+log
+@Revision 4.61
+@
+text
+@d35 1
+a35 1
+static char *rcsid = "$Id: dproc.c,v 1.20 2001/08/14 12:27:01 abe Exp abe $";
+d751 1
+a751 1
+	    Uo = (KA_T)((int)&ub->ub_user & RDXMASK);
+@
+
+
+1.20
+log
+@Revision 4.58
+@
+text
+@d35 1
+a35 1
+static char *rcsid = "$Id: dproc.c,v 1.19 2001/07/18 14:01:42 abe Exp abe $";
+a40 1
+
+d43 1
+a43 1
+#if	AIXA<1
+d45 1
+a45 1
+#endif	/* AIXA<1 */
+d48 1
+a48 1
+_PROTOTYPE(static void getlenm,(struct le *le));
+d53 1
+a53 1
+#if	AIXA<1
+d55 1
+a55 1
+#else	/* AIXA>=1 */
+d58 1
+a58 1
+#endif	/* AIXA<1 */
+d78 1
+d100 1
+d114 1
+d118 1
+d120 4
+d150 1
+a150 1
+# if	AIXA<1
+d154 1
+a154 1
+# else	/* AIXA>=1 */
+d159 1
+a159 1
+# endif	/* AIXA<1 */
+d171 1
+a171 1
+# if	AIXA<1
+d174 1
+a174 1
+# else	/* AIXA>=1 */
+d177 1
+a177 1
+# endif	/* AIXA<1 */
+d192 1
+a192 1
+# if	AIXA<1
+d195 1
+a195 1
+# endif	/* AIXA<1 */
+d306 9
+d316 1
+d579 2
+a580 1
+#if	AIXA<1
+d582 26
+a607 1
+#else	/* AIXA>=1 */
+d609 1
+a609 1
+#endif	/* AIXA<1 */
+d658 6
+d729 1
+a729 1
+# if	AIXA<1
+d748 1
+a748 1
+# endif	/* AIXA<1 */
+d759 26
+d788 1
+a788 1
+#if	AIXA<1
+d816 7
+a822 1
+	if (!kreadx((KA_T)(a & RDXMASK), (char *)&le, sizeof(le), (KA_T)sid))
+d825 1
+d828 2
+a829 1
+	    return(&le);
+d833 1
+a833 1
+#endif	/* AIXA<1 */
+d842 3
+a844 2
+getlenm(le)
+	struct le *le;
+d853 8
+a860 9
+# if	AIXA<1
+	if (Soff_stat
+	&&  !kreadx((KA_T)le->nm & (KA_T)RDXMASK, buf, LIBNMLN, (KA_T)Soff)) {
+	    buf[LIBNMLN - 1] = '\0';
+	    i = strlen(buf);
+	    if (i < (LIBNMLN - 3) && buf[i+1])
+		enter_nm(&buf[i+1]);
+	    else if (buf[0])
+		enter_nm(buf);
+d862 7
+a868 1
+# else	/* AIXA>=1 */
+d875 1
+a875 1
+# endif	/* AIXA<1 */
+d882 1
+a882 1
+#if	AIXA>=1
+d994 1
+a994 1
+#endif	/* AIXA>=1 */
+d1006 1
+a1006 1
+#if	AIXA>=1
+d1008 1
+a1008 1
+#endif	/* AIXA>=1 */
+d1062 1
+a1062 1
+#if	AIXA<1
+d1103 1
+a1103 1
+			    getlenm(le);
+d1179 1
+a1179 1
+		    getlenm(le);
+d1187 1
+a1187 1
+#else	/* AIXA>=1 */
+d1224 1
+a1224 1
+		    getlenm(&le);
+d1328 1
+a1328 1
+#endif	/* AIXA<1 */
+@
+
+
+1.19
+log
+@Revision 4.57
+@
+text
+@d35 1
+a35 1
+static char *rcsid = "$Id: dproc.c,v 1.18 2001/02/13 02:04:33 abe Exp abe $";
+d87 1
+a87 1
+#define	SOHASH(d, n)	((((int)(((minor64(d) & 0x7fffffff) * SOHASHBUCKS) \
+d1219 1
+a1219 1
+	    if (Fnfs && (minor64(Lf->dev_def) & SDEV_REMOTE))
+@
+
+
+1.18
+log
+@Revision 4.55
+@
+text
+@d35 1
+a35 1
+static char *rcsid = "$Id: dproc.c,v 1.17 2000/12/04 14:19:38 abe Exp abe $";
+d44 1
+a44 1
+#if	AIXV<5199
+d46 1
+a46 1
+#endif	/* AIXV<5199 */
+d54 1
+a54 1
+#if	AIXV<5199
+d56 1
+a56 1
+#else	/* AIXV>=5199 */
+d59 1
+a59 1
+#endif	/* AIXV<5199 */
+d70 1
+a70 1
+# if	AIXV<5199
+d74 1
+a74 1
+# else	/* AIXV>=5199 */
+d100 1
+a100 1
+# endif	/* AIXV<5199 */
+d143 1
+a143 1
+# if	AIXV<5199
+d147 1
+a147 1
+# else	/* AIXV>=5199 */
+d152 1
+a152 1
+# endif	/* AIXV<5199 */
+d164 1
+a164 1
+# if	AIXV<5199
+d167 1
+a167 1
+# else	/* AIXV>=5199 */
+d170 1
+a170 1
+# endif	/* AIXV>=5199 */
+d185 1
+a185 1
+# if	AIXV<5199
+d188 1
+a188 1
+# endif	/* AIXV<5199 */
+d562 1
+a562 1
+#if	AIXV<5199
+d564 1
+a564 1
+#else	/* AIXV>=5199 */
+d566 1
+a566 1
+#endif	/* AIXV<5199 */
+d680 1
+a680 1
+# if	AIXV<5199
+d699 1
+a699 1
+# endif	/* AIXV<5199 */
+d713 1
+a713 1
+#if	AIXV<5199
+d750 1
+a750 1
+#endif	/* AIXV<5199 */
+d769 1
+a769 1
+# if	AIXV<5199
+d779 1
+a779 1
+# else	/* AIXV>=5199 */
+d786 1
+a786 1
+# endif	/* AIXV<5199 */
+d793 1
+a793 1
+#if	AIXV>=5199
+d905 1
+a905 1
+#endif	/* AIXV>5199 */
+d917 1
+a917 1
+#if	AIXV>=5199
+d919 1
+a919 1
+#endif	/* AIXV>=5199 */
+d973 1
+a973 1
+#if	AIXV<5199
+d975 1
+a975 1
+ * process_text() - process text file information for AIX < 4.3
+d1098 1
+a1098 1
+#else	/* AIXV>=5199 */
+d1239 1
+a1239 1
+#endif	/* AIXV<5199 */
+@
+
+
+1.17
+log
+@Revision 4.53
+@
+text
+@d35 1
+a35 1
+static char *rcsid = "$Id: dproc.c,v 1.16 2000/11/09 18:02:47 abe Exp abe $";
+d368 1
+a368 1
+	    if (is_proc_excl(p->p_pid, (int)p->p_pgrp, (UID_ARG)p->p_uid,
+d523 1
+a523 1
+	    alloc_lproc(p->p_pid, (int)p->p_pgrp, (int)p->p_ppid,
+@
+
+
+1.16
+log
+@Revision 4.52
+@
+text
+@d35 1
+a35 1
+static char *rcsid = "$Id: dproc.c,v 1.15 2000/07/31 12:01:05 abe Exp abe $";
+d44 1
+a44 1
+#if	AIXV<5000
+d46 1
+a46 1
+#endif	/* AIXV<5000 */
+d54 1
+a54 1
+#if	AIXV<5000
+d56 1
+a56 1
+#else	/* AIXV>=5000 */
+d59 1
+a59 1
+#endif	/* AIXV<5000 */
+d70 1
+a70 1
+# if	AIXV<5000
+d74 1
+a74 1
+# else	/* AIXV>=5000 */
+d80 1
+a80 1
+ * AIX 5 and greater loader definitions
+d100 1
+a100 1
+# endif	/* AIXV<5000 */
+d143 1
+a143 1
+# if	AIXV<5000
+d147 1
+a147 1
+# else	/* AIXV>=5000 */
+d152 1
+a152 1
+# endif	/* AIXC<5000 */
+d164 1
+a164 1
+# if	AIXV<5000
+d167 1
+a167 1
+# else	/* AIXV>=5000 */
+d170 1
+a170 1
+# endif	/* AIXV>=5000 */
+d185 1
+a185 1
+# if	AIXV<5000
+d188 1
+a188 1
+# endif	/* AIXV<5000 */
+d562 1
+a562 1
+#if	AIXV<5000
+d564 1
+a564 1
+#else	/* AIXV>=5000 */
+d566 1
+a566 1
+#endif	/* AIXV<5000 */
+d680 1
+a680 1
+# if	AIXV<5000
+d699 1
+a699 1
+# endif	/* AIXV<5000 */
+d713 1
+a713 1
+#if	AIXV<5000
+d750 1
+a750 1
+#endif	/* AIXV<500 */
+d769 1
+a769 1
+# if	AIXV<5000
+d779 1
+a779 1
+# else	/* AIXV>=5000 */
+d786 1
+a786 1
+# endif	/* AIXV<5000 */
+d793 1
+a793 1
+#if	AIXV>=5000
+d795 1
+a795 1
+ * getsoinfo() - get *.so information for AIX >= 5
+d905 1
+a905 1
+#endif	/* AIXV<5000 */
+d917 1
+a917 1
+#if	AIXV>=5000
+d919 1
+a919 1
+#endif	/* AIXV>=5000 */
+d973 1
+a973 1
+#if	AIXV<5000
+d1098 1
+a1098 1
+#else	/* AIXV>=5000 */
+d1100 1
+a1100 1
+ * process_text() - process text file information for AIX >= 5
+d1239 1
+a1239 1
+#endif	/* AIXV<5000 */
+@
+
+
+1.15
+log
+@Revision 4.51
+Convert to snpf().  Adjust -X to two different user structs in AIX 4.3.3.
+@
+text
+@d35 1
+a35 1
+static char *rcsid = "$Id: dproc.c,v 1.14 2000/03/14 20:34:27 abe Exp abe $";
+a42 1
+_PROTOTYPE(static struct le *getle,(long a, long sid, char **err));
+d44 4
+d52 1
+a52 1
+_PROTOTYPE(static void process_text,(unsigned long sid));
+d54 6
+d61 1
+d69 4
+d74 27
+a100 1
+#define	PROCINFO_INCR	256
+d106 1
+d108 68
+d185 2
+a186 1
+static unsigned long Soff;		/* shared library VM offset */
+d188 2
+a189 1
+static unsigned long Uo;		/* user area VM offset */
+d222 1
+a222 1
+#if	AIXV<4100
+d225 1
+a225 1
+#endif	/* AIXV<4100 */
+d227 1
+a227 1
+	    (void) fprintf(stderr, "%s: can't execure %s: %s\n",
+d297 1
+a297 1
+	static struct fdsinfo *fds = (struct fdsinfo *)NULL;
+d313 1
+a313 1
+	    if (!(P = (struct PROCINFO *)malloc((size_t)PROCSIZE))) {
+d343 1
+a343 1
+	while ((i = getprocs(p, PROCSIZE, (struct fdsinfo *)NULL, 0, &pid,
+d384 1
+a384 1
+	    &&  kreadx(Uo, (char *)Up, U_SIZE, p->pi_adspace) == 0)
+d426 2
+a427 2
+		if (!(fds = (struct fdsinfo *)malloc((MALLOC_S)
+					      sizeof(struct fdsinfo))))
+d436 2
+a437 2
+	    if (getprocs((struct procsinfo *)NULL, PROCSIZE, fds,
+			 sizeof(struct fdsinfo), &pid, 1)
+d455 2
+a456 1
+		    if (kreadx((off_t)(Uo+offsetof(struct user,U_loader)+uo),
+d458 1
+a458 1
+			       p->pi_adspace))
+d475 4
+a478 2
+		    if (!kreadx((off_t)(Uo+offsetof(struct user,U_maxofile)+uo),
+			        (char *)&mxof, sizeof(mxof), p->pi_adspace)
+d502 3
+a504 2
+	    &&  kreadx((off_t)(Uo + offsetof(struct user, U_loader)),
+		       (char *)&Up->U_loader, sizeof(struct la), p->pi_adspace)
+d560 9
+a568 2
+	    if (hl)
+		process_text(p->pi_adspace);
+d662 2
+a663 2
+	if (knlist(Nl, X_NL_NUM, sizeof(struct nlist))
+	||  Nl[X_UADDR].n_value == (long)0) {
+d678 1
+d680 1
+d684 1
+a684 1
+# if	AIXV>=4330
+d686 1
+a686 1
+# else	/* AIXV<4330 */
+d688 1
+a688 1
+# endif	/* AIXV>=4330 */
+a691 1
+	    struct ublock *ub;
+d695 2
+a696 2
+	    &&  kreadx((off_t)(ll[1].n_value & RDXMASK), (char *)&Soff,
+			sizeof(Soff), (unsigned long)0)
+d699 2
+d702 1
+a702 1
+	    Uo = (unsigned long)((int)&ub->ub_user & RDXMASK);
+d713 1
+d720 2
+a721 2
+	long a;				/* loader entry kernel address */
+	long sid;			/* user structure segment ID */
+d741 1
+a741 1
+	if (kreadx((off_t)(a & RDXMASK), (char *)&le, sizeof(le), sid) == 0)
+d743 1
+a743 1
+	if (kreadx((off_t)a, (char *)&le, sizeof(le), sid) == 0)
+d750 1
+d755 1
+a755 1
+ * getlenm() - get loader entry file name for AIX >= 4.1.1 and < 4.3
+d768 4
+a771 3
+#endif	/* AIXV<4300 */
+
+	if (!kreadx((off_t)le->nm & RDXMASK, buf, LIBNMLN, Soff)) {
+d779 10
+d793 1
+d795 114
+d916 5
+d954 1
+a954 1
+	off_t addr;			/* kernel address */
+d957 1
+a957 1
+	long sid;			/* segment ID */
+d973 1
+d980 1
+a980 1
+	unsigned long sid;		/* user area segment ID */
+d982 1
+a983 1
+	char *err, fd[8];
+d986 1
+a986 1
+	long ll;
+d1000 1
+a1000 1
+	if ((ll = Up->u_loader[1]))
+d1002 1
+a1002 1
+	if ((ll = (long)la->exec))
+a1030 1
+
+d1034 1
+a1034 1
+	     ll = Up->u_loader[0];
+d1036 1
+a1036 1
+	     ll = (long)la->list;
+d1040 1
+a1040 1
+	     ll = (long)le->next)
+d1056 1
+a1056 1
+	    if (!le->fp || le->fp == xf)
+d1065 4
+d1098 142
+@
+
+
+1.14
+log
+@Revision 4.49
+Adjust for machines with > 2GB RAM.
+@
+text
+@d35 1
+a35 1
+static char *rcsid = "$Id: dproc.c,v 1.13 1999/10/22 08:21:43 abe Exp abe $";
+d78 1
+a78 1
+static unsigned long Uoff;		/* user area VM offset */
+d161 1
+a161 1
+	    (void) strcpy(buf, "UNKNOWN");
+d189 5
+d273 1
+a273 1
+	    &&  kreadx(Uoff, (char *)Up, U_SIZE, p->pi_adspace) == 0)
+d329 58
+d388 1
+a388 1
+	    &&  kreadx((off_t)(Uoff + offsetof(struct user, U_loader)),
+d392 2
+a393 2
+	    else
+		hl = 0;
+d577 1
+a577 1
+	    Uoff = (unsigned long)((int)&ub->ub_user & RDXMASK);
+d762 2
+a763 2
+		(void) sprintf(Namech, "text entry at %s: %s",
+		    print_kptr((KA_T)ll, (char *)NULL), err);
+d784 1
+a784 1
+	    (void) sprintf(fd, " L%02d", i);
+d787 2
+a788 2
+		(void) sprintf(Namech, "loader entry at %s: %s",
+		    print_kptr((KA_T)ll, (char *)NULL), err);
+@
+
+
+1.13
+log
+@Revision 4.46
+@
+text
+@d35 1
+a35 1
+static char *rcsid = "$Id: dproc.c,v 1.12 99/10/13 09:14:01 abe Exp Locker: abe $";
+d615 7
+a621 2
+	if (lseek(Kd, addr, L_SET) == (off_t)-1L)
+		return(-1);
+d640 1
+d642 5
+a646 1
+		return(1);
+@
+
+
+1.12
+log
+@Revision 4.46
+Prevent incorrect setting of file selection flag.
+@
+text
+@d35 1
+a35 1
+static char *rcsid = "$Id: dproc.c,v 1.11 99/05/09 14:55:05 abe Exp Locker: abe $";
+d496 4
+d501 2
+d680 1
+a680 1
+#if	AIXV>=4110
+d683 1
+a683 1
+#endif	/* AIXV>=4110 */
+@
+
+
+1.11
+log
+@Revision 4.43
+@
+text
+@d35 1
+a35 1
+static char *rcsid = "$Id: dproc.c,v 1.10 99/01/26 15:11:51 abe Exp Locker: abe $";
+d398 1
+a398 1
+		    if (Lf->sf)
+d411 1
+@
+
+
+1.10
+log
+@Revision 4.41
+Correct bungled 4.39 patch that went into 4.40.
+@
+text
+@d35 1
+a35 1
+static char *rcsid = "$Id: dproc.c,v 1.9 99/01/25 06:54:32 abe Exp Locker: abe $";
+d399 11
+@
+
+
+1.9
+log
+@Revision 4.40
+@
+text
+@d35 1
+a35 1
+static char *rcsid = "$Id: dproc.c,v 1.8 98/06/29 15:54:15 abe Exp Locker: abe $";
+d240 1
+a240 1
+	    p += PROCINFO_INCR;
+@
+
+
+1.8
+log
+@Revision 4.35
+@
+text
+@d35 1
+a35 1
+static char *rcsid = "$Id: dproc.c,v 1.7 98/06/25 07:16:25 abe Exp Locker: abe $";
+d189 1
+a189 1
+#endif	/* AIXV4300 */
+d238 1
+d240 1
+a240 2
+	    p = (struct PROCINFO *)((char *)P + (Np * PROCSIZE));
+	    Np += PROCINFO_INCR;
+@
+
+
+1.7
+log
+@Revision 4.34
+Check kernel identity.
+@
+text
+@d35 1
+a35 1
+static char *rcsid = "$Id: dproc.c,v 1.6 98/06/22 07:46:01 abe Exp Locker: abe $";
+d93 2
+d166 2
+@
+
+
+1.6
+log
+@Revision 4.34
+Correct knlist() usage.
+@
+text
+@d35 1
+a35 1
+static char *rcsid = "$Id: dproc.c,v 1.5 98/05/04 07:38:49 abe Exp Locker: abe $";
+d83 85
+d496 4
+@
+
+
+1.5
+log
+@Revision 4.32
+@
+text
+@d35 1
+a35 1
+static char *rcsid = "$Id: dproc.c,v 1.4 98/04/27 15:33:45 abe Exp Locker: abe $";
+d376 1
+a376 1
+	if (knlist(&Nl, X_NL_NUM, sizeof(struct nlist))
+d384 1
+a384 1
+	(void) knlist(&AFSnl, X_AFSNL_NUM, sizeof(struct nlist));
+@
+
+
+1.4
+log
+@Revision 4.32
+Issue error messages about both /dev memory devices before quitting.
+@
+text
+@d35 1
+a35 1
+static char *rcsid = "$Id: dproc.c,v 1.3 98/03/06 08:04:35 abe Exp Locker: abe $";
+d53 14
+d71 2
+a72 1
+static struct procinfo *P = NULL;	/* the process table */
+d89 4
+a92 2
+	int i, np;
+	struct procinfo *p;
+d95 7
+d105 2
+d108 6
+a113 7
+		if ((P = (struct procinfo *)malloc((size_t)PROCSIZE)) == NULL) {
+			(void) fprintf(stderr,
+				"%s: can't allocate space for 1 procinfo\n",
+				Pn);
+			Exit(1);
+		}
+		Np = 1;
+d116 32
+a147 6
+		Np = P->p_pid + 10;
+		if ((P = (struct procinfo *)realloc((MALLOC_P *)P,
+		    (size_t) (Np * PROCSIZE))) == NULL) {
+			(void) fprintf(stderr,
+				"%s: no space for %d procinfo's\n", Pn, Np);
+			Exit(1);
+d149 3
+d153 4
+d161 7
+a167 5
+		if (p->p_stat == 0 || p->p_stat == SZOMB)
+			continue;
+		if (is_proc_excl(p->p_pid, (int)p->p_pgrp, (UID_ARG)p->p_uid,
+		    &pss, &sf))
+			continue;
+d169 1
+a169 1
+	 * Get user structure.
+d173 2
+a174 2
+	 * If AIX version is 4.1.1 or above: if readx() is disabled, use
+	 * getuser(); if readx() is enabled, use readx().
+d177 7
+a183 11
+#if	AIXV>=4110
+		if (Fxopt
+		&&  kreadx(Uoff, (char *)Up, U_SIZE, p->pi_adspace) == 0)
+			i = 1;
+		else
+			i = 0;
+		if (i == 0) {
+			if (getuser(p, PROCSIZE, Up, U_SIZE) != 0)
+				continue;
+		}
+#else	/* AIXV<4110 */
+d185 15
+a199 2
+			continue;
+#endif	/* AIXV>=4110 */
+d201 10
+d212 42
+d256 3
+a258 5
+		if (is_cmd_excl(Up->u_comm, &pss, &sf))
+			continue;
+		alloc_lproc(p->p_pid, (int)p->p_pgrp, (int)p->p_ppid,
+			(UID_ARG)p->p_uid, Up->u_comm, (int)pss, (int)sf);
+		Plf = (struct lfile *)NULL;
+d262 6
+a267 6
+		if (Up->u_cdir) {
+			alloc_lfile(CWD, -1);
+			process_node((KA_T)Up->u_cdir);
+			if (Lf->sf)
+				link_lfile();
+		}
+d271 6
+a276 6
+		if (Up->u_rdir) {
+			alloc_lfile(RTD, -1);
+			process_node((KA_T)Up->u_rdir);
+			if (Lf->sf)
+				link_lfile();
+		}
+d282 6
+a287 6
+		if (Up->u_pdir) {
+			alloc_lfile("  pd", -1);
+			process_node((KA_T)Up->u_pdir);
+			if (Lf->sf)
+				link_lfile();
+		}
+d293 1
+a294 1
+
+d298 13
+a310 7
+		for (i = 0; i < Up->u_maxofile; i++) {
+			if (Up->u_ufd[i].fp) {
+				alloc_lfile(NULL, i);
+				process_file((KA_T)Up->u_ufd[i].fp);
+				if (Lf->sf)
+					link_lfile();
+			}
+d312 1
+d316 2
+a317 2
+		if (examine_lproc())
+			return;
+d396 1
+a396 1
+		{ NULL			}
+d428 2
+a429 2
+		*err = "address too small";
+		return(NULL);
+d432 1
+a432 1
+		return((struct le *)((char *)Up + a - Nl[X_UADDR].n_value));
+d435 3
+a437 3
+	if ( ! Fxopt) {
+		*err = "readx() disabled for Stale Segment ID bug (see -X)";
+		return(NULL);
+d446 1
+a446 1
+		return(&le);
+d448 1
+a448 1
+	return(NULL);
+d454 1
+a454 1
+ * getlenm() - get loader entry file name for AIX 4.1.1 and above
+d464 1
+d466 10
+a475 9
+		return;
+		(off_t)le->nm & RDXMASK;
+	if (kreadx((off_t)le->nm & RDXMASK, buf, LIBNMLN, Soff) == 0) {
+		buf[LIBNMLN - 1] = '\0';
+		i = strlen(buf);
+		if (i < (LIBNMLN - 3) && buf[i+1])
+			enter_nm(&buf[i+1]);
+		else if (buf[0])
+			enter_nm(buf);
+a480 1
+
+d532 1
+a532 1
+ * process_text() - process text file information
+d539 1
+a539 1
+	static struct file **f = NULL;
+d544 1
+d546 6
+a554 6
+	if ((ll = Up->u_loader[1])) {
+		alloc_lfile(" txt", -1);
+		if ((le = getle(ll, sid, &err)) != NULL) {
+			if (le->fp) {
+				process_file((KA_T)le->fp);
+				if (Lf->sf) {
+d556 13
+d570 2
+a571 2
+					if (Lf->nm == NULL || Lf->nm[0] == '\0')
+						getlenm(le);
+d574 2
+a575 9
+					link_lfile();
+				}
+			}
+		} else {
+			(void) sprintf(Namech, "text entry at %#x: %s",
+				ll, err);
+			enter_nm(Namech);
+			if (Lf->sf)
+				link_lfile();
+d577 7
+d588 22
+a609 11
+	for (i = n = 0, ll = Up->u_loader[0]; ll; ll = (long)le->next) {
+		(void) sprintf(fd, " L%02d", i);
+		alloc_lfile(fd, -1);
+		if ((le = getle(ll, sid, &err)) == NULL) {
+			(void) sprintf(Namech, "loader entry at %#x: %s",
+				ll, err);
+			enter_nm(Namech);
+			if (Lf->sf)
+				link_lfile();
+			return;
+		}
+d611 2
+a612 1
+	 * Skip the exec'd file and entries with no file pointers.
+d614 19
+a632 9
+		if (ll == Up->u_loader[1] || ! le->fp)
+			continue;
+	/*
+	 * Skip entries with a file pointer that has already been
+	 * displayed.  Record new, unique file pointers.
+	 */
+		for (j = 0; j < n; j++) {
+			if (f[j] == le->fp)
+				break;
+d634 2
+a635 23
+		if (j < n)
+			continue;
+		if (f == NULL) {
+			if ((f = (struct file **)malloc((MALLOC_S)
+				(sizeof(struct file *) * 10)))
+			== NULL) {
+			    (void) fprintf(stderr,
+				"%s: no space for text file pointers\n", Pn);
+			    Exit(1);
+			}
+			nf = 10;
+		} else if (n >= nf) {
+			nf += 10;
+			if ((f = (struct file **)realloc((MALLOC_P *)f,
+				(MALLOC_S)(nf * sizeof(struct file *))))
+			== NULL) {
+			    (void) fprintf(stderr,
+				"%s: no more space for text file pointers\n",
+				Pn);
+			    Exit(1);
+			}
+		}
+		f[n++] = le->fp;
+d639 2
+a640 2
+		process_file((KA_T)le->fp);
+		if (Lf->sf) {
+d643 2
+a644 2
+			if (Lf->nm == NULL || Lf->nm[0] == '\0')
+				getlenm(le);
+d647 3
+a649 3
+			link_lfile();
+			i++;
+		}
+@
+
+
+1.3
+log
+@Revision 4.27
+@
+text
+@d35 1
+a35 1
+static char *rcsid = "$Id: dproc.c,v 1.2 97/05/30 08:24:09 abe Exp Locker: abe $";
+d203 1
+a203 1
+
+d208 3
+a210 3
+		(void) fprintf(stderr, "%s: can't open /dev/mem: %s\n",
+			Pn, strerror(errno));
+		Exit(1);
+d219 1
+a219 1
+		(void) dropgid();
+d225 1
+a225 1
+		Exit(1);
+d232 3
+a234 3
+		(void) fprintf(stderr, "%s: can't open %s: %s\n", Pn,
+			Memory ? Memory : KMEM, strerror(errno));
+		Exit(1);
+d236 2
+d244 1
+a244 1
+		(void) dropgid();
+d252 3
+a254 3
+		(void) fprintf(stderr, "%s: can't get kernel's %s address\n",
+			Pn, Nl[X_UADDR].n_name);
+		Exit(1);
+d267 6
+a272 6
+		struct nlist ll[] = {
+			{ "library_anchor"	},
+			{ "library_data_handle"	},
+			{ NULL			}
+		};
+		struct ublock *ub;
+d274 3
+a276 3
+		if (nlist(N_UNIX, ll) == 0
+		&&  ll[0].n_value != (long)0 && ll[1].n_value != (long)0
+		&&  kreadx((off_t)(ll[1].n_value & RDXMASK), (char *)&Soff,
+d278 4
+a281 4
+		== 0)
+			Soff_stat++;
+		ub = (struct ublock *)Nl[X_UADDR].n_value;
+		Uoff = (unsigned long)((int)&ub->ub_user & RDXMASK);
+@
+
+
+1.2
+log
+@Revision 4.09
+Correct fprintf() argument.
+@
+text
+@d35 1
+a35 1
+static char *rcsid = "$Id: dproc.c,v 1.1 97/02/24 07:30:55 abe Exp Locker: abe $";
+d139 1
+a139 1
+		Plf = NULL;
+d145 1
+a145 1
+			process_node((caddr_t)Up->u_cdir);
+d154 1
+a154 1
+			process_node((caddr_t)Up->u_rdir);
+d165 1
+a165 1
+			process_node((caddr_t)Up->u_pdir);
+d182 1
+a182 1
+				process_file((struct file *)Up->u_ufd[i].fp);
+d423 1
+a423 1
+				process_file((struct file *)le->fp);
+d495 1
+a495 1
+		process_file((struct file *)le->fp);
+@
+
+
+1.1
+log
+@Initial revision
+@
+text
+@d35 1
+a35 1
+static char *rcsid = "$Id: dproc.c,v 1.22 97/01/17 09:13:01 abe Exp $";
+d95 1
+a95 1
+				"%s: no space for %ld procinfo's\n", Pn, Np);
+@

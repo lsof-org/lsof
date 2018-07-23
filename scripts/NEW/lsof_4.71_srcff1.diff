@@ -1,0 +1,140 @@
+diff -Naur lsof_4.71_src/scripts/00MANIFEST lsof_4.71_srcff1/scripts/00MANIFEST
+--- lsof_4.71_src/scripts/00MANIFEST	1998-12-28 16:30:44.000000000 +0100
++++ lsof_4.71_srcff1/scripts/00MANIFEST	2004-06-13 09:21:02.968808904 +0200
+@@ -41,6 +41,10 @@
+ 			a list of file descriptors or files shared by
+ 			processes.
+ 
++sort_res.perl5		Perl 5 script to display top resource usage
++				-Default is 20 top entries
++				-e.g. sort_res.perl5 30
++
+ watch_a_file.perl	Perl 4 or 5 script that watches the use of a
+ 			named file
+ 
+diff -Naur lsof_4.71_src/scripts/sort_res.perl5 lsof_4.71_srcff1/scripts/sort_res.perl5
+--- lsof_4.71_src/scripts/sort_res.perl5	1970-01-01 01:00:00.000000000 +0100
++++ lsof_4.71_srcff1/scripts/sort_res.perl5	2004-06-13 09:21:40.530098720 +0200
+@@ -0,0 +1,122 @@
++#!/usr/bin/perl
++# sort_res.perl5 - Script to group & sort lsof output by resource
++#
++# Copyright (c) 2004 - Fabian Frederick <fabian.frederick@gmx.fr>
++#
++# This program/include file is free software; you can redistribute it and/or
++# modify it under the terms of the GNU General Public License as published
++# by the Free Software Foundation; either version 2 of the License, or
++# (at your option) any later version.
++#
++# This program/include file is distributed in the hope that it will be
++# useful, but WITHOUT ANY WARRANTY; without even the implied warranty
++# of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++# GNU General Public License for more details.
++#
++# You should have received a copy of the GNU General Public License
++# along with this program (in the main directory of the Linux-NTFS
++# distribution in the file COPYING); if not, write to the Free Software
++# Foundation,Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
++#
++# Note : 
++#	-This script uses lsof released by Victor A. Abell
++#	-lsof path recovery comes from standard perl scripts in there.
++#
++
++require 'getopts.pl';
++my @args = @_;
++$head_lines=20; #tail -n 20 result (default)
++if ($ARGV[0] ne ""){
++	$head_lines=$ARGV[0];
++}
++
++# Set path to lsof.
++if (($LSOF = &isexec("/usr/sbin/lsof")) eq "") {    # Some distros use lsof out of $PATH
++	if (($LSOF = &isexec("lsof")) eq "") {      # Then try . and $PATH
++		print "can't execute $LSOF\n"; exit 1
++	}
++}
++
++#Parse lsof output to gather command, resource name, pid and size
++#Some extradata stand to keep script genericity 
++$i=0;
++if (open(FILE, "$LSOF -Fcns|")){
++	while (defined ($line=<FILE>)){
++		$cline=$line;
++		$cline =~ s"^(.)"";
++		$cline =~ s/^\s+|\s+$//g;
++		if($line=~m/^p/){
++			$pid=$cline;
++		}else{
++			if($line=~/^s/){
++				$size = $cline;
++			  }else{
++				if($line=~/^c/){
++					$command = $cline;
++				}else{
++					if($line=~/^n/){
++						$name = $cline;
++						$data{$i} = { command => $command, name => $name, pid => $pid , size => $size};
++						$i = $i+1;
++					}
++				}
++			}
++		}
++	}
++}
++
++#Resource name sorting
++sub byresname { $data{$a}{name} cmp $data{$b}{name}}
++@ks=sort byresname (keys %data);
++
++#Resource grouping
++$i=0;
++$cname="a";
++foreach $k (@ks){
++		if ($data{$k}{name} ne $cname){
++				$dgroup{$i} = { name => $data{$k}{name}, size => $data{$k}{size}};
++				$cname = $data{$k}{name};
++				$i++;
++		}	
++}
++$top_min = $i - $head_lines;
++
++#Size sort on resource hash
++sub bysize { $dgroup{$a}{size} <=> $dgroup{$b}{size} }
++@ks=sort bysize (keys %dgroup);
++$i=0;
++printf(" -- KB --  -- Resource --\n", );
++foreach $k (@ks){
++	if ($i > $top_min){
++		printf("%10d %s\n", $dgroup{$k}{size}/1024, $dgroup{$k}{name});
++	}
++	$i++;
++}
++
++## isexec($path) -- is $path executable
++#
++# $path   = absolute or relative path to file to test for executabiity.
++#	    Paths that begin with neither '/' nor '.' that arent't found as
++#	    simple references are also tested with the path prefixes of the
++#	    PATH environment variable.  
++
++sub
++isexec {
++    my ($path) = @_;
++    my ($i, @P, $PATH);
++
++    $path =~ s/^\s+|\s+$//g;
++    if ($path eq "") { return(""); }
++    if (($path =~ m#^[\/\.]#)) {
++	if (-x $path) { return($path); }
++	return("");
++    }
++    $PATH = $ENV{PATH};
++    @P = split(":", $PATH);
++    for ($i = 0; $i <= $#P; $i++) {
++	if (-x "$P[$i]/$path") { return("$P[$i]/$path"); }
++    }
++    return("");
++}
++
++

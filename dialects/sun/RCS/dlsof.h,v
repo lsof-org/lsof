@@ -1,0 +1,2196 @@
+head	1.48;
+access;
+symbols;
+locks; strict;
+comment	@ * @;
+
+
+1.48
+date	2012.04.10.16.40.23;	author abe;	state Exp;
+branches;
+next	1.47;
+
+1.47
+date	2011.09.07.19.16.00;	author abe;	state Exp;
+branches;
+next	1.46;
+
+1.46
+date	2010.01.18.19.03.54;	author abe;	state Exp;
+branches;
+next	1.45;
+
+1.45
+date	2009.03.25.19.22.16;	author abe;	state Exp;
+branches;
+next	1.44;
+
+1.44
+date	2007.04.24.16.23.15;	author abe;	state Exp;
+branches;
+next	1.43;
+
+1.43
+date	2006.03.27.22.57.33;	author abe;	state Exp;
+branches;
+next	1.42;
+
+1.42
+date	2005.08.29.10.24.25;	author abe;	state Exp;
+branches;
+next	1.41;
+
+1.41
+date	2005.08.08.19.55.41;	author abe;	state Exp;
+branches;
+next	1.40;
+
+1.40
+date	2004.12.30.18.42.59;	author abe;	state Exp;
+branches;
+next	1.39;
+
+1.39
+date	2004.11.01.13.47.02;	author abe;	state Exp;
+branches;
+next	1.38;
+
+1.38
+date	2004.03.10.23.53.41;	author abe;	state Exp;
+branches;
+next	1.37;
+
+1.37
+date	2004.02.25.13.23.14;	author abe;	state Exp;
+branches;
+next	1.36;
+
+1.36
+date	2004.01.14.11.29.31;	author abe;	state Exp;
+branches;
+next	1.35;
+
+1.35
+date	2003.10.13.13.30.04;	author abe;	state Exp;
+branches;
+next	1.34;
+
+1.34
+date	2002.06.17.01.42.31;	author abe;	state Exp;
+branches;
+next	1.33;
+
+1.33
+date	2002.04.23.01.01.25;	author abe;	state Exp;
+branches;
+next	1.32;
+
+1.32
+date	2001.08.14.13.08.58;	author abe;	state Exp;
+branches;
+next	1.31;
+
+1.31
+date	2001.06.19.13.31.21;	author abe;	state Exp;
+branches;
+next	1.30;
+
+1.30
+date	2001.04.09.20.10.36;	author abe;	state Exp;
+branches;
+next	1.29;
+
+1.29
+date	2001.03.19.12.20.22;	author abe;	state Exp;
+branches;
+next	1.28;
+
+1.28
+date	2001.01.02.12.36.51;	author abe;	state Exp;
+branches;
+next	1.27;
+
+1.27
+date	2000.12.04.14.35.13;	author abe;	state Exp;
+branches;
+next	1.26;
+
+1.26
+date	2000.11.03.18.33.44;	author abe;	state Exp;
+branches;
+next	1.25;
+
+1.25
+date	2000.06.25.17.31.11;	author abe;	state Exp;
+branches;
+next	1.24;
+
+1.24
+date	2000.05.31.13.09.00;	author abe;	state Exp;
+branches;
+next	1.23;
+
+1.23
+date	99.12.20.08.03.39;	author abe;	state Exp;
+branches;
+next	1.22;
+
+1.22
+date	99.11.28.06.44.35;	author abe;	state Exp;
+branches;
+next	1.21;
+
+1.21
+date	99.10.22.08.23.41;	author abe;	state Exp;
+branches;
+next	1.20;
+
+1.20
+date	99.07.08.14.53.43;	author abe;	state Exp;
+branches;
+next	1.19;
+
+1.19
+date	99.05.17.13.18.00;	author abe;	state Exp;
+branches;
+next	1.18;
+
+1.18
+date	99.01.25.07.18.29;	author abe;	state Exp;
+branches;
+next	1.17;
+
+1.17
+date	98.11.23.07.40.28;	author abe;	state Exp;
+branches;
+next	1.16;
+
+1.16
+date	98.06.19.08.31.51;	author abe;	state Exp;
+branches;
+next	1.15;
+
+1.15
+date	98.04.29.13.41.47;	author abe;	state Exp;
+branches;
+next	1.14;
+
+1.14
+date	98.04.21.12.21.05;	author abe;	state Exp;
+branches;
+next	1.13;
+
+1.13
+date	98.04.21.10.04.10;	author abe;	state Exp;
+branches;
+next	1.12;
+
+1.12
+date	98.03.26.07.47.57;	author abe;	state Exp;
+branches;
+next	1.11;
+
+1.11
+date	98.03.06.08.38.22;	author abe;	state Exp;
+branches;
+next	1.10;
+
+1.10
+date	98.02.13.12.44.24;	author abe;	state Exp;
+branches;
+next	1.9;
+
+1.9
+date	98.01.12.13.10.20;	author abe;	state Exp;
+branches;
+next	1.8;
+
+1.8
+date	97.12.11.16.01.41;	author abe;	state Exp;
+branches;
+next	1.7;
+
+1.7
+date	97.10.24.07.54.19;	author abe;	state Exp;
+branches;
+next	1.6;
+
+1.6
+date	97.08.15.08.27.23;	author abe;	state Exp;
+branches;
+next	1.5;
+
+1.5
+date	97.07.22.10.40.53;	author abe;	state Exp;
+branches;
+next	1.4;
+
+1.4
+date	97.05.22.14.39.17;	author abe;	state Exp;
+branches;
+next	1.3;
+
+1.3
+date	97.04.18.05.45.13;	author abe;	state Exp;
+branches;
+next	1.2;
+
+1.2
+date	97.04.15.10.47.06;	author abe;	state Exp;
+branches;
+next	1.1;
+
+1.1
+date	97.02.24.07.46.59;	author abe;	state Exp;
+branches;
+next	;
+
+
+desc
+@Lsof version 4
+@
+
+
+1.48
+log
+@Revision 4.86
+@
+text
+@/*
+ * dlsof.h - Solaris header file for lsof
+ */
+
+
+/*
+ * Copyright 1994 Purdue Research Foundation, West Lafayette, Indiana
+ * 47907.  All rights reserved.
+ *
+ * Written by Victor A. Abell
+ *
+ * This software is not subject to any license of the American Telephone
+ * and Telegraph Company or the Regents of the University of California.
+ *
+ * Permission is granted to anyone to use this software for any purpose on
+ * any computer system, and to alter it and redistribute it freely, subject
+ * to the following restrictions:
+ *
+ * 1. Neither the authors nor Purdue University are responsible for any
+ *    consequences of the use of this software.
+ *
+ * 2. The origin of this software must not be misrepresented, either by
+ *    explicit claim or by omission.  Credit to the authors and Purdue
+ *    University must appear in documentation and sources.
+ *
+ * 3. Altered versions must be plainly marked as such, and must not be
+ *    misrepresented as being the original software.
+ *
+ * 4. This notice may not be removed or altered.
+ */
+
+
+/*
+ * $Id: dlsof.h,v 1.47 2011/09/07 19:16:00 abe Exp abe $
+ */
+
+
+#if	!defined(SOLARIS_LSOF_H)
+#define	SOLARIS_LSOF_H	1
+
+#include <fcntl.h>
+#include <sys/mntent.h>
+#include <sys/mnttab.h>
+
+# if	solaris<20600
+#define	_KMEMUSER	1
+# else	/* solaris>=20600 */
+#include <stddef.h>
+# endif	/* solaris<20600 */
+
+#include <stdlib.h>
+#include <dirent.h>
+
+# if	defined(HASZONES)
+#define	_KERNEL
+#include<sys/zone.h>
+#undef	_KERNEL
+# endif	/* defined(HASZONES) */
+
+#include <kvm.h>
+#include <nlist.h>
+#include <signal.h>
+#include <setjmp.h>
+#include <string.h>
+#include <unistd.h>
+#include <arpa/inet.h>
+#include <rpc/types.h>
+#include <sys/protosw.h>
+#include <sys/socket.h>
+#include <sys/un.h>
+#include <sys/wait.h>
+
+# if	solaris>=110000
+#define	_KERNEL
+# endif	/* solaris>=110000 */
+
+#include <netinet/in.h>
+
+# if	solaris>=110000
+#undef	_KERNEL
+# endif	/* solaris>=110000 */
+
+
+# if	solaris>=70000
+#include <sys/conf.h>
+#include <sys/systeminfo.h>
+# endif	/* solaris>=70000 */
+
+#define	_KERNEL
+#define	MI_HRTIMING
+#include <inet/led.h>
+
+# if	solaris<20600
+#undef	staticf
+# endif	/* solaris<20600 */
+
+#include <inet/common.h>
+
+# if	solaris>=70000
+#include <sys/stropts.h>
+# endif	/* solaris>=70000 */
+
+# if	solaris<20600
+#include <inet/mi.h>
+# endif	/* solaris<20600 */
+
+# if	solaris>=80000
+#include <netinet/igmp.h>
+#include <netinet/ip6.h>
+# endif	/* solaris>=80000 */
+
+# if	defined(HAS_IPCLASSIFIER_H)
+#define	ffs		__kernel_ffs
+#define	inet_ntop	__inet_ntop
+#define	inet_pton	__inet_pton
+#define	longjmp		__kernel_longjmp
+#define	setjmp		__kernel_setjmp
+#  if	solaris>=110000
+#define	printf		__kernel_printf
+#define	snprintf	__kernel_snprintf
+#define	sprintf		__kernel_sprintf
+#define	strsignal	__kernel_strsignal
+#define	swab		__kernel_swab
+#define	vprintf		__kernel_vprintf
+#define	vsprintf	__kernel_vsprintf
+#define	vsnprintf	__kernel_vsnprintf
+#  endif	/* solaris>=110000 */
+#include <inet/ipclassifier.h>
+#undef	ffs
+#undef	inet_ntop
+#undef	inet_pton
+#undef	longjmp
+#undef	setjmp
+#  if	solaris>=110000
+#undef	printf
+#undef	snprintf
+#undef	sprintf
+#undef	strsignal
+#undef	swab
+#undef	vprintf
+#undef	vsprintf
+#undef	vsnprintf
+#  endif	/* solaris>=110000 */
+# endif	/* defined(HAS_IPCLASSIFIER_H) */
+
+#include <inet/ip.h>
+#undef	_KERNEL
+#undef	MI_HRTIMING
+#define	exit		kernel_exit
+#define	rval_t		char
+#define	strsignal	kernel_strsignal
+#include <sys/strsubr.h>
+
+# if	defined(HAS_SOCKET_PROTO_H)
+#define	_KERNEL	1	/* DEBUG */
+# endif	/* HAS_SOCKET_PROTO_H */
+
+#include <sys/socketvar.h>
+
+# if	defined(HAS_SOCKET_PROTO_H)
+#undef	_KERNEL		/* DEBUG */
+# endif	/* HAS_SOCKET_PROTO_H */
+
+#undef	exit
+#undef	rval_t
+#undef	strsignal
+
+# if	solaris>=80000
+#define	_KERNEL	1
+# endif	/* solaris>=80000 */
+
+#include <inet/tcp.h>
+
+# if	solaris>=80000
+#undef	_KERNEL
+# endif	/* solaris>=80000 */
+
+#include <net/route.h>
+#include <netinet/in_pcb.h>
+#include <sys/stream.h>
+
+# if	solaris<20600
+#undef	MAX
+#undef	MIN
+# endif	/* solaris<20600 */
+
+#include <sys/sysmacros.h>
+#include <sys/vfs.h>
+#include <sys/vnode.h>
+#include <sys/fs/hsfs_spec.h>
+#include <sys/fs/hsfs_node.h>
+#include <sys/fs/lofs_node.h>
+
+# if	solaris>=20600
+#define	_KERNEL
+# endif	/* solaris>=20600 */
+
+#include <sys/fs/namenode.h>
+
+# if	solaris>=20600
+#undef	_KERNEL
+# endif	/* solaris>=20600 */
+
+#include <sys/tihdr.h>
+
+# if	solaris>=20500
+#include <sys/tiuser.h>
+#include <rpc/auth.h>
+#include <rpc/clnt.h>
+
+# if	solaris>=110000
+#define	_KERNEL
+#include <rpc/rpc.h>
+#undef	_KERNEL
+# endif	/* solaris>=110000 */
+
+#include <rpc/clnt_soc.h>
+#include <rpc/pmap_prot.h>
+#define	_KERNEL
+#include <sys/fs/autofs.h>
+
+#  if	solaris>=100000
+#define	printf		lsof_printf
+#define	snprintf	lsof_snprintf
+#define	sprintf		lsof_sprintf
+#define	swab		lsof_swab
+#define	vprintf		lsof_vprintf
+#define	vsnprintf	lsof_vsnprintf
+#define	vsprintf	lsof_vsprintf
+#include <sys/fs/dv_node.h>
+#undef	printf
+#undef	snprintf
+#undef	sprintf
+#undef	swab
+#undef	vprintf
+#undef	vsnprintf
+#undef	vsprintf
+#include <sys/contract_impl.h>
+#include <sys/ctfs_impl.h>
+#include <sys/port_impl.h>
+#  endif	/* solaris>=100000 */
+
+#include <sys/door.h>
+#undef	_KERNEL
+# endif	/* solaris>=20500 */
+
+#  if	!defined(_NETDB_H_)
+#include <rpc/rpcent.h>
+#  endif	/* !defined(_NETDB_H_) */
+
+#include <sys/t_lock.h>
+#include <sys/flock.h>
+
+# if	solaris>=20300
+#  if	solaris<20400
+/*
+ * The lock_descriptor structure definition is missing from Solaris 2.3.
+ */
+
+struct lock_descriptor {
+	struct lock_descriptor *prev;
+	struct lock_descriptor *next;
+	struct vnode *vnode;
+	struct owner {
+		pid_t pid;
+		long sysid;
+	} owner;
+	int flags;
+	short type;
+	off_t start;
+	off_t end;
+	struct lock_info {
+		struct active_lock_info {
+			struct lock_descriptor *ali_stack;
+		} li_active;
+		struct sleep_lock_info {
+			struct flock sli_flock;
+			/* Ignore the rest. */
+		} li_sleep;
+	} info;
+};
+#define	ACTIVE_LOCK	0x008		/* lock is active */
+#  else	/* solaris>=20400 */
+#include <sys/flock_impl.h>
+#  endif	/* solaris<20400 */
+# endif	/* solaris>=20300 */
+
+#include <sys/fstyp.h>
+#include <sys/dditypes.h>
+#include <sys/ddidmareq.h>
+#include <sys/ddi_impldefs.h>
+#include <sys/mkdev.h>
+
+# if	defined(HASCACHEFS)
+#include <sys/fs/cachefs_fs.h>
+# endif	/* defined(HACACHEFS) */
+
+#include <sys/fs/fifonode.h>
+#include <sys/fs/pc_fs.h>
+#include <sys/fs/pc_dir.h>
+#include <sys/fs/pc_label.h>
+#include <sys/fs/pc_node.h>
+
+# if	solaris>=20600
+#undef	SLOCKED
+# endif	/* solaris>=20600 */
+
+#include <sys/fs/snode.h>
+#include <sys/fs/tmpnode.h>
+
+# if	solaris>=110000
+#define	_KERNEL
+# endif	/* solaris>=110000 */
+
+#include <nfs/nfs.h>
+
+# if	solaris>=110000
+#undef	_KERNEL
+# endif	/* solaris>=110000 */
+
+# if	solaris>=100000
+#define	_KERNEL
+# endif	/* solaris >= 100000 */
+
+#include <nfs/rnode.h>
+
+#  if	solaris>=100000
+#include <nfs/mount.h>
+#include <nfs/nfs4.h>
+#include <nfs/rnode4.h>
+#  endif	/* solaris>=100000 */
+
+# if	solaris>=100000
+#undef	_KERNEL
+# endif	/* solaris >= 100000 */
+
+#include <sys/proc.h>
+#include <sys/user.h>
+
+# if	defined(HASPROCFS)
+#include <sys/proc/prdata.h>
+# endif	/* defined(HASPROCFS) */
+
+#include <sys/file.h>
+#include <vm/hat.h>
+#include <vm/as.h>
+#include <vm/seg.h>
+#include <vm/seg_dev.h>
+#include <vm/seg_map.h>
+#include <vm/seg_vn.h>
+#include <sys/tiuser.h>
+#include <sys/t_kuser.h>
+
+# if	solaris<100000
+#include <sys/sockmod.h>
+# endif	/* solaris<100000 */
+
+/*
+ * Structure for Atria's MVFS nodes
+ */
+
+struct mvfsnode {
+	unsigned long d1[6];
+	unsigned long m_ino;		/* node number */
+};
+
+extern int nlist();
+
+# if	defined(HAS_AFS) && !defined(AFSAPATHDEF)
+#define	AFSAPATHDEF	"/usr/vice/etc/modload/libafs"
+# endif	/* defined(HAS_AFS) && !defined(AFSAPATHDEF) */
+
+#define	ALLKMEM		"/dev/allkmem"
+#define	COMP_P		const void
+#define	CWDLEN		(MAXPATHLEN+1)
+#define DEVINCR		1024		/* device table malloc() increment */
+#define	DINAMEL		32
+#define	DIRTYPE		dirent
+
+# if	solaris>=100000
+#define	GET_MAJ_DEV(d)	((major_t)(d >> L_BITSMINOR & L_MAXMAJ))
+#define	GET_MIN_DEV(d)	((minor_t)(d & L_MAXMIN))
+# endif	/* solaris >= 100000 */
+
+# if	solaris>=70000
+typedef	uintptr_t	KA_T;
+# else	/* solaris<70000 */
+typedef	void *		KA_T;
+# endif	/* solaris>=70000 */
+
+# if	solaris>=70000
+#define	KA_T_FMT_X	"0x%p"
+# endif	/* solaris>=70000 */
+
+# if	solaris>=20501
+#define	KMEM		"/dev/mem"
+# else	/* solaris<20501 */
+#define	KMEM		"/dev/kmem"
+# endif	/* solaris>=20501 */
+
+#define MALLOC_P	char
+#define FREE_P		MALLOC_P
+#define MALLOC_S	unsigned
+
+# if	!defined(MAXEND)
+#define	MAXEND		0x7fffffff
+# endif	/* !defined(MAXEND) */
+
+#define MAXSEGS		100		/* maximum text segments */
+#define	MAXSYSCMDL	MAXCOMLEN	/* max system command name length */
+#define NETCLNML	8
+#define	N_UNIX		"/dev/ksyms"
+#define	PROCMIN		5		/* processes that make a "good" scan */
+
+#  if	defined(HASPROCFS)
+#define	PR_ROOTINO	2		/* root inode for proc file system */
+#  endif	/* defined(HASPROCFS) */
+
+#define	PROCDFLT	256		/* default size for local proc table --
+					 * MUST BE > 4!!!  */
+#define PROCSIZE	sizeof(struct proc)
+#define	PROCTRYLM	5		/* times to try to read proc table */
+#define QSORT_P		char
+#define	READLEN_T	int
+#define STRNCPY_L	int
+#define	STRNML		32		/* stream name length (maximum) */
+
+# if	solaris>=20501
+/*
+ * Enable large file support.
+ */
+
+#  if	solaris>=20600
+#define	fstat		fstat64
+#define	lstat		lstat64
+#define	stat		stat64
+#  endif	/* solaris>=20600 */
+
+#define	SZOFFTYPE	unsigned long long
+					/* size and offset internal storage
+					 * type */
+#define	SZOFFPSPEC	"ll"		/* SZOFFTYPE printf specification
+					 * modifier */
+# endif	/* solaris>=20501 */
+
+#define U_SIZE		sizeof(struct user)
+
+
+/*
+ * Global storage definitions (including their structure definitions)
+ */
+
+# if	defined(HAS_AFS)
+
+#  if	defined(HASAOPT)
+extern char *AFSApath;			/* alternate AFS name list path
+					 * (from -a) */
+#  endif	/* defined(HASAOPT) */
+
+extern dev_t AFSdev;			/* AFS file system device number */
+extern int AFSdevStat;			/* AFS file system device number
+					 * status: 0 = unknown; 1 = known */
+extern int AFSfstype;			/* AFS file system type index */
+extern KA_T AFSVfsp;			/* AFS struct vfs kernel pointer */
+# endif	/* defined(HAS_AFS) */
+
+struct clone {
+	struct l_dev cd;		/* device, inode, name, and verify */
+	int n;				/* network flag */
+	struct clone *next;		/* forward link */
+};
+extern struct clone *Clone;
+
+extern	major_t	CloneMaj;
+
+# if	defined(HAS_LIBCTF)
+/*
+ * Definitions for using the CTF library, libctf.
+ */
+
+#include <libctf.h>
+
+#define CTF_MEMBER_UNDEF    ~0UL	/* undefined member type */
+					/* CTF_member_t element definition */
+
+/*
+ * Member structure definition, initialized by CTF_MEMBER() macro calls
+ */
+
+typedef struct CTF_member {
+    char *m_name;       		/* Member name. */
+    ulong_t m_offset;   		/* Member offset, initially in bits,
+					 * later bytes */
+} CTF_member_t;
+
+
+/*
+ * CTF request structure
+ */
+
+typedef struct CTF_request {
+    char *name;				/* structure name */
+    CTF_member_t *mem;			/* member table */
+} CTF_request_t;
+
+
+/*
+ * CTF macroes
+ */
+
+#define CTF_MEMBER(name)    { #name, CTF_MEMBER_UNDEF }
+#define CTF_MEMBER_READ(ka, s, members, member) \
+    kread((KA_T)(ka) + members[MX_ ## member].m_offset, \
+          (char *)&s->member, sizeof(s->member))
+# endif	/* defined(HAS_LIBCTF) */
+
+extern char **Fsinfo;
+extern int Fsinfomax;
+extern int HasALLKMEM;
+extern int HaveCloneMaj;
+extern kvm_t *Kd;
+
+struct l_ino {
+	unsigned char dev_def;		/* dev member is defined */
+	unsigned char ino_def;		/* ino member is defined */
+	unsigned char nl_def;		/* nl member is defined */
+	unsigned char rdev_def;		/* rdev member is defined */
+	unsigned char sz_def;		/* sz member is defined */
+	dev_t dev;			/* device */
+	long ino;			/* node number */
+	long nl;			/* link count */
+	dev_t rdev;			/* "raw" device */
+	SZOFFTYPE sz;			/* size */
+};
+
+struct l_vfs {
+	KA_T addr;			/* kernel address */
+	char *dir;			/* mounted directory */
+	char *fsname;			/* file system name */
+	dev_t dev;			/* device */
+
+# if	defined(HASFSINO)
+	INODETYPE fs_ino;		/* file system inode number */
+# endif	/* defined(HASFSINO) */
+
+# if	defined(HASMNTSTAT)
+	unsigned char mnt_stat;		/* mount point stat() status:
+					 *     0 = succeeded
+					 *     1 = failed */
+# endif	/* defined(HASMNTSTAT) */
+
+
+# if	solaris>=80000
+	nlink_t nlink;			/* directory link count */
+	off_t size;			/* directory size */
+# endif	/* solaris>=80000 */
+
+	struct l_vfs *next;		/* forward link */
+};
+extern struct l_vfs *Lvfs;
+
+struct mounts {
+        char *dir;              	/* directory (mounted on) */
+        char *fsname;           	/* file system
+					 * (symbolic links unresolved) */
+	char *fsnmres;			/* file system
+					 * (symbolic links resolved) */
+        dev_t dev;              	/* directory st_dev */
+	dev_t rdev;			/* directory st_rdev */
+	INODETYPE inode;		/* directory st_ino */
+	mode_t mode;			/* directory st_mode */
+	mode_t fs_mode;			/* file system st_mode */
+        struct mounts *next;    	/* forward link */
+
+# if	defined(HASFSTYPE)
+	char *fstype;			/* file system type */
+# endif	/* defined(HASFSTYPE) */
+
+# if	solaris>=80000
+	nlink_t nlink;			/* directory st_nlink */
+	off_t size;			/* directory st_size */
+# endif	/* solaris>=80000 */
+
+# if	defined(HASMNTSTAT)
+	unsigned char stat;		/* mount point stat() status:
+					 *     0 = succeeded
+					 *     1 = failed */
+# endif	/* defined(HASMNTSTAT) */
+
+};
+
+struct pseudo {
+	struct l_dev pd;		/* device, inode, path, verify */
+	struct pseudo *next;		/* forward link */
+};
+extern struct pseudo *Pseudo;
+
+
+/*
+ * Solaris 11 sdev definitions
+ */
+
+#define	SDVOP_IP	0		/* Sdev[] devipnet_vnodeops index */
+#define	SDVOP_NET	1		/* Sdev[] devnet_vnodeops index */
+#define	SDVOP_PTS	2		/* Sdev[] devpts_vnodeops index */
+#define	SDVOP_VT	3		/* Sdev[] devvt_vnodeops index */
+#define	SDVOP_NUM	4		/* number of Sdev[] entries */
+
+
+struct sfile {
+	char *aname;			/* file name argument */
+	char *name;			/* file name (after readlink()) */
+	char *devnm;			/* device name (optional) */
+	dev_t dev;			/* device */
+	dev_t rdev;			/* raw device */
+	u_short mode;			/* S_IFMT mode bits from stat() */
+	int type;			/* file type: 0 = file system
+				 	 *	      1 = regular file */
+	INODETYPE i;			/* inode number */
+	int f;				/* file found flag */
+	struct sfile *next;		/* forward link */
+};
+extern int Unof;			/* u_nofiles value */
+
+
+/*
+ * VxFS definitions
+ */
+
+#define	VXVOP_FCL	0		/* Vvops[] vx_fcl_vnodeops_p index */
+#define	VXVOP_FDD	1		/* Vvops[] fdd_vnops index */
+#define	VXVOP_FDDCH	2		/* Vvops[] fdd_chain_vnops index */
+#define	VXVOP_REG	3		/* Vvops[] vx_vnodeops index */
+#define	VXVOP_REG_P	4		/* Vvops[] vx_vnodeops_p index */
+#define	VXVOP_NUM	5		/* number of Vvops[] entries */
+
+
+/*
+ * Kernel name list definitions
+ */
+
+#define	NL_NAME		n_name
+#define	X_NCACHE	"ncache"
+#define	X_NCSIZE	"ncsize"
+
+
+/*
+ * Definitions for dvch.c
+ */
+
+# if	defined(HASDCACHE)
+#define	DCACHE_CLONE	rw_clone_sect	/* clone function for read_dcache */
+#define	DCACHE_CLR	clr_sect	/* function to clear clone and
+					 * pseudo caches when reading the
+					 * device cache file fails */
+#define	DCACHE_PSEUDO	rw_pseudo_sect	/* pseudo function for read_dcache */
+# endif	/* defined(HASDCACHE) */
+
+#define	DVCH_DEVPATH	"/devices"
+
+
+/*
+ * Definition for cvfs.c
+ */
+
+#define	CVFS_DEVSAVE 	1
+
+# if	solaris>=80000
+#define	CVFS_NLKSAVE	1
+#define	CVFS_SZSAVE	1
+# endif	/* solaris>=80000 */
+
+
+/*
+ * Definitions for rnch.c
+ */
+
+# if	defined(HASNCACHE)
+#include <sys/dnlc.h>
+
+#  if	!defined(NC_NAMLEN)
+#define	HASDNLCPTR	1
+#  endif	/* !defined(NC_NAMLEN) */
+
+#  if	solaris>=80000
+#define	NCACHE_NEGVN	"negative_cache_vnode"
+#  endif	/* solaris>=80000 */
+# endif	/* defined(HASNCACHE) */
+
+#endif	/* SOLARIS_LSOF_H */
+@
+
+
+1.47
+log
+@Revision 4.85
+@
+text
+@d34 1
+a34 1
+ * $Id: dlsof.h,v 1.46 2010/01/18 19:03:54 abe Exp $
+d122 1
+d138 1
+d210 7
+d293 2
+d296 2
+d310 5
+d317 4
+@
+
+
+1.46
+log
+@Revision 4.83
+@
+text
+@d34 1
+a34 1
+ * $Id: dlsof.h,v 1.45 2009/03/25 19:22:16 abe Exp abe $
+d151 5
+d157 5
+@
+
+
+1.45
+log
+@Revision 4.82
+@
+text
+@d34 1
+a34 1
+ * $Id: dlsof.h,v 1.44 2007/04/24 16:23:15 abe Exp abe $
+d72 5
+d79 5
+d118 9
+d133 9
+d443 42
+d566 12
+a606 12
+ * ZFS definitions
+ */
+
+#define	ZVOP_D		0		/* Zvops[] zfs_dvnodeops index */
+#define	ZVOP_E		1		/* Zvops[] zfs_evnodeops index */
+#define	ZVOP_F		2		/* Zvops[] zfs_fvnodeops index */
+#define	ZVOP_SYM	3		/* Zvops[] zfs_symvnodeops index */
+#define	ZVOP_XD		4		/* Zvops[] zfs_xdvnodeops index */
+#define	ZVOP_NUM	5		/* number of Zvops[] entries */
+
+
+/*
+a657 4
+# if	defined(HAS_ZFS) && HAS_ZFS==1
+#define	DIALECT_WARNING "privately defined ZFS structures may be incorrect."
+# endif	/* defined(HAS_ZFS) && HAS_ZFS==1 */
+
+@
+
+
+1.44
+log
+@Revision 4.78
+@
+text
+@d34 1
+a34 1
+ * $Id: dlsof.h,v 1.43 2006/03/27 22:57:33 abe Exp abe $
+d320 5
+@
+
+
+1.43
+log
+@Revision 4.77
+@
+text
+@d34 1
+a34 1
+ * $Id: dlsof.h,v 1.42 2005/08/29 10:24:25 abe Exp abe $
+d520 12
+d583 4
+@
+
+
+1.42
+log
+@Revision 4.76
+@
+text
+@d34 1
+a34 1
+ * $Id: dlsof.h,v 1.41 2005/08/08 19:55:41 abe Exp abe $
+d98 1
+d317 1
+d326 4
+d345 1
+a345 6
+#define	DINAMEL		32
+
+# if	solaris>=70000
+#define	KA_T_FMT_X	"0x%p"
+# endif	/* solaris>=70000 */
+
+@
+
+
+1.41
+log
+@Revision 4.76
+@
+text
+@d34 1
+a34 1
+ * $Id: dlsof.h,v 1.40 2004/12/30 18:42:59 abe Exp abe $
+d438 7
+d476 6
+d510 6
+a515 4
+#define	VXVOP_FDD	0		/* Vvops[] index for fdd_vnops */
+#define	VXVOP_FDDCH	1		/* Vvops[] index for fdd_chain_vnops */
+#define	VXVOP_REG	2		/* Vvops[] index for vx_vnodeops */
+#define	VXVOP_NUM	3		/* number of Vvops[] entries */
+@
+
+
+1.40
+log
+@Revision 4.74
+@
+text
+@d34 1
+a34 1
+ * $Id: dlsof.h,v 1.39 2004/11/01 13:47:02 abe Exp abe $
+d190 3
+d376 1
+a376 1
+#define	SZOFFPSPEC	"ll"		/* SZOFFTYPE print specification
+d435 1
+a435 1
+	ino_t fs_ino;			/* file system inode number */
+d455 1
+a455 1
+	ino_t inode;			/* directory st_ino */
+d486 1
+a486 1
+	ino_t i;			/* inode number */
+@
+
+
+1.39
+log
+@Revision 4.74
+Solaris 10 work-around
+@
+text
+@d34 1
+a34 1
+ * $Id: dlsof.h,v 1.38 2004/03/10 23:53:41 abe Exp abe $
+d102 1
+d105 2
+d108 1
+d111 2
+d257 1
+a257 1
+# if	solaris>=10000
+d259 1
+a259 1
+# endif	/* solaris >= 10000 */
+d263 7
+a269 1
+# if	solaris>=10000
+d271 1
+a271 1
+# endif	/* solaris >= 10000 */
+@
+
+
+1.38
+log
+@Revision 4.71
+@
+text
+@d34 1
+a34 1
+ * $Id: dlsof.h,v 1.37 2004/02/25 13:23:14 abe Exp abe $
+d250 5
+d256 5
+@
+
+
+1.37
+log
+@Revision 4.71
+For s10_b51
+@
+text
+@d34 1
+a34 1
+ * $Id: dlsof.h,v 1.36 2004/01/14 11:29:31 abe Exp abe $
+d54 1
+a54 8
+# if	defined(HAS_SOLARIS_ZONE_H) && solaris>=100000
+/*
+ * !!!DEBUG!!!!
+ *
+ * The "defined(HAS_SOLARIS_ZONE_H) &&" part of the above #if statement is
+ * only needed for Solaris 10_b51.  It should be removed when Solaris 10
+ * reaches Beta or FCS.
+ */
+d58 1
+a58 1
+# endif	/* defined(HAS_SOLARIS_ZONE_H) && solaris>=100000 */
+d287 1
+d328 2
+a329 1
+#define	PROCDFLT	256		/* default size for local proc table */
+d386 1
+@
+
+
+1.36
+log
+@Revision 4.70
+@
+text
+@d34 1
+a34 1
+ * $Id: dlsof.h,v 1.35 2003/10/13 13:30:04 abe Exp abe $
+d53 14
+@
+
+
+1.35
+log
+@Revision 4.69
+Solaris 10 port
+@
+text
+@d34 1
+a34 1
+ * $Id: dlsof.h,v 1.34 2002/06/17 01:42:31 abe Exp abe $
+d99 1
+a99 1
+#undef	inet_pto
+d162 3
+d167 1
+d170 7
+a176 3
+#undef	lsof_swab
+#undef	lsof_vprintf
+#undef	lsof_vsprintf
+@
+
+
+1.34
+log
+@Revision 4.64
+@
+text
+@d34 1
+a34 1
+ * $Id: dlsof.h,v 1.33 2002/04/23 01:01:25 abe Exp abe $
+d94 8
+d160 11
+d252 2
+d255 1
+@
+
+
+1.33
+log
+@Revision 4.63
+@
+text
+@d34 1
+a34 1
+ * $Id: dlsof.h,v 1.32 2001/08/14 13:08:58 abe Exp abe $
+d425 1
+@
+
+
+1.32
+log
+@Revision 4.58
+@
+text
+@d34 1
+a34 1
+ * $Id: dlsof.h,v 1.31 2001/06/19 13:31:21 abe Exp abe $
+d304 1
+@
+
+
+1.31
+log
+@Revision 4.57
+@
+text
+@d34 1
+a34 1
+ * $Id: dlsof.h,v 1.30 2001/04/09 20:10:36 abe Exp abe $
+d299 9
+@
+
+
+1.30
+log
+@Avoid <inet/mi.h> on Solaris >= 2.6.
+@
+text
+@d34 1
+a34 1
+ * $Id: dlsof.h,v 1.29 2001/03/19 12:20:22 abe Exp abe $
+d339 13
+@
+
+
+1.29
+log
+@Add <arpa/inet.h> #include.
+@
+text
+@d34 1
+a34 1
+ * $Id: dlsof.h,v 1.28 2001/01/02 12:36:51 abe Exp abe $
+d86 1
+d88 1
+@
+
+
+1.28
+log
+@Revision 4.54
+@
+text
+@d34 1
+a34 1
+ * $Id: dlsof.h,v 1.27 2000/12/04 14:35:13 abe Exp abe $
+d59 1
+@
+
+
+1.27
+log
+@Revision 4.53
+@
+text
+@d34 1
+a34 1
+ * $Id: dlsof.h,v 1.26 2000/11/03 18:33:44 abe Exp abe $
+d371 1
+a371 1
+# endif	/& defined(HASFSTYPE) */
+@
+
+
+1.26
+log
+@Revision 4.52
+@
+text
+@d2 1
+a2 1
+ * dlsof.h - SunOS (Solaris 1.x and 2.x) header file for lsof
+d34 1
+a34 1
+ * $Id: dlsof.h,v 1.25 2000/06/25 17:31:11 abe Exp abe $
+d38 2
+a39 2
+#if	!defined(SUN_LSOF_H)
+#define	SUN_LSOF_H	1
+a40 1
+# if	defined(solaris)
+d45 1
+a45 1
+#  if	solaris<20600
+d47 1
+a47 1
+#  else	/* solaris>=20600 */
+d49 1
+a49 1
+#  endif	/* solaris<20600 */
+a50 5
+# else		/* not solaris */
+#include <mntent.h>
+#include <sys/domain.h>
+# endif	/* solaris */
+
+a61 5
+
+# if	!defined(solaris)
+#include <sys/socketvar.h>
+# endif	/* !defined(solaris) */
+
+d66 1
+a66 2
+# if	defined(solaris)
+#  if	solaris>=70000
+d69 1
+a69 1
+#  endif	/* solaris>=70000 */
+d75 1
+a75 1
+#  if	solaris<20600
+d77 1
+a77 1
+#  endif	/* solaris<20600 */
+d81 1
+a81 1
+#  if	solaris>=70000
+d83 1
+a83 1
+#  endif	/* solaris>=70000 */
+d87 1
+a87 1
+#  if	solaris>=80000
+d89 1
+a89 1
+#  endif	/* solaris>=80000 */
+d103 1
+a103 1
+#  if	solaris>=80000
+d105 1
+a105 1
+#  endif	/* solaris>=80000 */
+d109 1
+a109 1
+#  if	solaris>=80000
+d111 1
+a111 1
+#  endif	/* solaris>=80000 */
+a112 8
+# else	/* !solaris */
+#include <netinet/tcp.h>
+#include <netinet/tcp_fsm.h>
+#include <netinet/tcp_timer.h>
+#include <netinet/tcp_var.h>
+#include <sys/unpcb.h>
+# endif	/*  solaris */
+
+d117 1
+a117 1
+# if	defined(solaris) && solaris<20600
+d120 1
+a120 1
+# endif	/* defined(solaris) && solaris<20600 */
+a124 2
+
+# if	defined(solaris)
+d129 1
+a129 1
+#  if	solaris>=20600
+d131 1
+a131 1
+#  endif	/* solaris>=20600 */
+d135 1
+a135 1
+#  if	solaris>=20600
+d137 1
+a137 1
+#  endif	/* solaris>=20600 */
+d141 1
+a141 1
+#  if	solaris>=20500
+d151 2
+a152 5
+#  else	/* solaris<20500 */
+#include <rpc/rpc.h>
+#include <rpc/clnt_soc.h>
+#include <rpc/pmap_prot.h>
+#  endif	/* solaris>=20500 */
+a155 3
+# else	/* !solaris */
+#include <rpc/rpc.h>
+#include <rpc/pmap_prot.h>
+a156 32
+/*
+ * Dummy hsnode structure for below SunOS 4.1.3.  This should come from
+ * hsfs_node.h, but it has unresolvable protoype declaration conflicts.
+ */
+
+#  if	SUNOSV<40103
+struct  hsnode {
+	struct hsnode	*dummy1[3];
+	struct vnode	dummy2;
+	struct	hs_direntry {
+		u_int	ext_lbn;	/* SunOS 4.1.x inode number */
+		u_int	ext_size;    	/* size */
+	} hs_dirent;
+};
+#  else	/* SUNOSV>=40103 */
+#include <hsfs/hsfs_spec.h>
+struct cred;
+#define	strcpy	LSOF_strcpy
+#define	strncpy	LSOF_strncpy
+
+#   if	defined(HAS_HSFS_NODE)
+#include <hsfs/hsfs_node.h>
+#   else	/* !defined(HAS_HSFS_NODE) */
+#include <hsfs/hsnode.h>
+#   endif	/* defined(HAS_HSFS_NODE) */
+
+#undef	strcpy
+#undef	strncpy
+#  endif	/* SUNOSV<40103 */
+# endif	/* solaris */
+
+# if	defined(solaris)
+d160 2
+a161 2
+#  if	solaris>=20300
+#   if	solaris<20400
+d189 1
+a189 1
+#   else	/* solaris>=20400 */
+d191 2
+a192 2
+#   endif	/* solaris<20400 */
+#  endif	/* solaris>=20300 */
+d206 1
+a206 1
+#  if	solaris>=20600
+d208 1
+a208 1
+#  endif	/* solaris>=20600 */
+a211 11
+# else	/* !solaris */
+#include <net/raw_cb.h>
+#include <ufs/lockf.h>
+#include <ufs/inode.h>
+#include <specfs/snode.h>
+#include <tmpfs/tmpnode.h>
+#include <sys/mbuf.h>
+#include <sys/domain.h>
+#include <ufs/mount.h>
+# endif	/* solaris */
+
+a220 5
+
+# if	!defined(solaris)
+#  if	!defined(KERNEL)
+#define KERNEL	1
+#  endif
+a221 8
+#include <pcfs/pc_dir.h>
+#include <pcfs/pc_label.h>
+#include <pcfs/pc_node.h>
+#include <specfs/fifonode.h>
+#undef	KERNEL
+# endif	/* solaris */
+
+#include <sys/file.h>
+a227 2
+
+# if	defined(solaris)
+a230 1
+# endif	/* defined(solaris) */
+a242 5
+# if	!defined(solaris)
+extern char *sys_errlist[];
+#define	strerror(errno)	sys_errlist[errno]
+# endif
+
+a246 3
+# if	defined(NOCONST)
+#define	COMP_P		void
+# else
+a247 2
+# endif
+
+d252 1
+a252 2
+# if	defined(solaris)
+#  if	solaris>=70000
+d254 1
+a254 1
+#  else	/* solaris<70000 */
+d256 1
+a256 4
+#  endif	/* solaris>=70000 */
+# else	/* !defined(solaris) */
+typedef	unsigned long	KA_T;
+# endif	/* defined(solaris) */
+d258 1
+a258 1
+# if	defined(solaris) && solaris>=20501
+d260 1
+a260 1
+# else	/* !defined(solaris) || solaris<20501 */
+d262 1
+a262 1
+# endif	/* defined(solaris) && solaris>=20501 */
+a272 2
+
+# if	defined(solaris)
+d275 1
+a275 1
+#  if	solaris>=70000
+d277 1
+a277 1
+#  endif	/* solaris>=70000 */
+a286 8
+# else	/* !defined(solaris) */
+#define CLONEMAJ	37		/* major device number for clone
+					 * device */
+#define	MEMMOVE		memcpy		/* for fill_portmap() in print.c */
+#define N_UNIX		"/vmunix"
+#define	PROCMIN		3		/* processes that make a "good" scan */
+# endif	/* defined(solaris) */
+
+d295 1
+a295 1
+# if	defined(solaris) && solaris>=20501
+d301 1
+a301 1
+# endif	/* defined(solaris) && solaris>=20501 */
+a319 2
+
+#  if	defined(solaris)
+a320 2
+#  endif	/* defined(solaris) */
+
+a330 1
+# if	defined(solaris)
+a333 6
+# else	/* !defined(solaris) */
+extern char *Cwd;
+extern struct file *Fileptr;
+#define	FILEPTR	Fileptr			/* for process_file() in dfile.c */
+# endif	/* defined(solaris) */
+
+d347 1
+a347 1
+# if	defined(solaris) && solaris>=80000
+d350 1
+a350 1
+# endif	/* defined(solaris) && solaris>=80000 */
+d373 1
+a373 1
+# if	defined(solaris) && solaris>=80000
+d376 1
+a376 1
+# endif	/* defined(solaris) && solaris>=80000 */
+a379 1
+# if	defined(solaris)
+a384 1
+# endif	/* solaris */
+a385 4
+# if	!defined(solaris)
+extern char *Rtd;
+# endif	/* !defined(solaris) */
+
+d391 1
+a428 1
+#  if	defined(solaris)
+a429 1
+#  endif	/* defined_solaris */
+a431 1
+# if	defined(solaris)
+a432 3
+# else	/* !defined(solaris) */
+#define	DVCH_DEVPATH	"/dev"
+# endif	/* defined(solaris) */
+d441 1
+a441 1
+# if	defined(solaris) && solaris>=80000
+d444 1
+a444 1
+# endif	/* defined(solaris) && solaris>=80000 */
+d458 1
+a458 1
+#  if	defined(solaris) && solaris>=80000
+d460 1
+a460 1
+#  endif	/* defined(solaris) && solaris>=80000 */
+d463 1
+a463 1
+#endif	/* SUN_LSOF_H */
+@
+
+
+1.25
+log
+@Revision 4.50
+Add VxFS QIO support.
+@
+text
+@d34 1
+a34 1
+ * $Id: dlsof.h,v 1.24 2000/05/31 13:09:00 abe Exp abe $
+d412 1
+a412 1
+# endif	/* defined(solaris) && solaris>=20600 */
+@
+
+
+1.24
+log
+@Revision 4.50
+Add support for additional kernel address filtering.  Add support
+for post-Solaris-8 negative vnode caching in the DNLC.
+@
+text
+@d34 1
+a34 1
+ * $Id: dlsof.h,v 1.23 1999/12/20 08:03:39 abe Exp abe $
+d526 10
+@
+
+
+1.23
+log
+@Revision 4.48
+Correct AFSVfsp declaration.
+@
+text
+@d34 1
+a34 1
+ * $Id: dlsof.h,v 1.22 99/11/28 06:44:35 abe Exp Locker: abe $
+d359 3
+d363 2
+d406 1
+a406 1
+# if	defined(solaris) && solaris>=20600
+d576 1
+d580 4
+@
+
+
+1.22
+log
+@Revision 4.47
+@
+text
+@d34 1
+a34 1
+ * $Id: dlsof.h,v 1.21 99/10/22 08:23:41 abe Exp Locker: abe $
+d431 1
+a431 1
+KA_T AFSVfsp;				/* AFS struct vfs kernel pointer */
+@
+
+
+1.21
+log
+@Revision 4.46
+@
+text
+@d34 1
+a34 1
+ * $Id: dlsof.h,v 1.20 99/07/08 14:53:43 abe Exp Locker: abe $
+d98 5
+d464 5
+d488 1
+a488 1
+# endif
+d490 5
+d558 5
+@
+
+
+1.20
+log
+@Revision 4.45
+@
+text
+@d34 1
+a34 1
+ * $Id: dlsof.h,v 1.19 99/05/17 13:18:00 abe Exp Locker: abe $
+d82 1
+d109 5
+d115 5
+d320 1
+a320 1
+	unsigned long m_ino;			/* node number */
+d341 1
+a341 1
+#define DEVINCR		1024	/* device table malloc() increment */
+d363 1
+a363 1
+#define MAXSEGS		100	/* maximum text segments */
+d374 1
+a374 1
+#define	PROCMIN		5	/* processes that make a "good" scan */
+d377 1
+a377 1
+#define	PR_ROOTINO	2	/* root inode for proc file system */
+d381 3
+a383 2
+#define CLONEMAJ	37	/* major device number for clone device */
+#define	MEMMOVE		memcpy	/* for fill_portmap() in print.c */
+d385 1
+a385 1
+#define	PROCMIN		3	/* processes that make a "good" scan */
+d388 1
+a388 1
+#define	PROCDFLT	256	/* default size for local proc table */
+d390 1
+a390 1
+#define	PROCTRYLM	5	/* times to try to read proc table */
+d394 1
+a394 1
+#define	STRNML		32	/* stream name length (maximum) */
+d398 4
+a401 2
+				/* size and offset internal storage type */
+#define	SZOFFPSPEC	"ll"	/* SZOFFTYPE print specification modifier */
+d414 2
+a415 1
+extern char *AFSApath;		/* alternate AFS name list path (from -a) */
+d418 3
+a420 3
+extern dev_t AFSdev;		/* AFS file system device number */
+extern int AFSdevStat;		/* AFS file system device number status:
+				 * 0 = unknown; 1 = known */
+d423 1
+a423 1
+extern int AFSfstype;		/* AFS file system type index */
+d426 1
+a426 1
+KA_T AFSVfsp;			/* AFS struct vfs kernel pointer */
+d430 3
+a432 3
+	struct l_dev cd;	/* device, inode, name, and verify */
+	int n;			/* network flag */
+	struct clone *next;	/* forward link */
+@
+
+
+1.19
+log
+@Revision 4.44
+Handle SunOS 4.1.x hsnode definition better.
+@
+text
+@d34 1
+a34 1
+ * $Id: dlsof.h,v 1.18 99/01/25 07:18:29 abe Exp Locker: abe $
+d137 1
+a137 1
+#  endif	solaris>=20600
+d143 1
+a143 1
+#  endif	solaris>=20600
+@
+
+
+1.18
+log
+@Revision 4.40
+@
+text
+@d34 1
+a34 1
+ * $Id: dlsof.h,v 1.17 98/11/23 07:40:28 abe Exp Locker: abe $
+d170 1
+a170 1
+ * Dummy hsnode structure for SunOS 4.1.3 and below.  This should come from
+d174 1
+d183 15
+@
+
+
+1.17
+log
+@Revision 4.38
+@
+text
+@d34 1
+a34 1
+ * $Id: dlsof.h,v 1.16 98/06/19 08:31:51 abe Exp Locker: abe $
+d315 1
+@
+
+
+1.16
+log
+@Revision 4.34
+Improve AFS nlist() handling.
+@
+text
+@d34 1
+a34 1
+ * $Id: dlsof.h,v 1.15 98/04/29 13:41:47 abe Exp Locker: abe $
+d78 1
+a78 1
+#  if	solaris>=20700
+d81 1
+a81 1
+#  endif	/* solars>=20700 */
+d92 1
+a92 1
+#  if	solaris>=20700
+d94 1
+a94 1
+#  endif	/* solaris>=20700 */
+d317 1
+a317 1
+#  if	solaris>=20700
+d319 1
+a319 1
+#  else	/* solaris<20700 */
+d321 1
+a321 1
+#  endif	/* solaris>=20700 */
+d340 1
+a340 1
+#  if	solaris>=20700
+d342 1
+a342 1
+#  endif	/* solaris>=20700 */
+@
+
+
+1.15
+log
+@Revision 4.32
+@
+text
+@d34 1
+a34 1
+ * $Id: dlsof.h,v 1.14 98/04/21 12:21:05 abe Exp Locker: abe $
+d303 1
+a303 1
+# if	defined(HAS_AFS)
+d305 1
+a305 1
+# endif	/* defined(HAS_AFS) */
+@
+
+
+1.14
+log
+@Revision 4.31
+Preserved former KA_T definition for SunOS.
+@
+text
+@d34 1
+a34 1
+ * $Id: dlsof.h,v 1.13 98/04/21 10:04:10 abe Exp Locker: abe $
+d318 1
+a318 1
+#define	KA_T		uintptr_t
+d320 1
+a320 1
+#define	KA_T		void *
+d323 1
+a323 1
+#define	KA_T		unsigned long
+@
+
+
+1.13
+log
+@Revision 4.31
+Add Solaris 2.7 support.
+@
+text
+@d34 1
+a34 1
+ * $Id: dlsof.h,v 1.12 98/03/26 07:47:57 abe Exp Locker: abe $
+d316 2
+a317 1
+# if	defined(solaris) && solaris>=20700
+d319 1
+a319 1
+# else	/* !defined(solaris) || solaris<20700 */
+d321 4
+a324 1
+# endif	/* defined(solaris) && solaris>=20700 */
+@
+
+
+1.12
+log
+@Revision 4.29
+Change AFS system device number handling.
+@
+text
+@d34 1
+a34 1
+ * $Id: dlsof.h,v 1.11 98/03/06 08:38:22 abe Exp Locker: abe $
+d78 4
+d91 5
+a96 1
+
+d315 7
+a321 1
+#define	KA_T		unsigned long
+a324 1
+#define MAXSEGS		100	/* maximum text segments */
+d327 6
+d335 5
+d515 3
+@
+
+
+1.11
+log
+@Revision 4.27
+@
+text
+@d34 1
+a34 1
+ * $Id: dlsof.h,v 1.10 98/02/13 12:44:24 abe Exp Locker: abe $
+a296 1
+#define	AFSDEV		1	/* AFS "fake" device number */
+d357 4
+@
+
+
+1.10
+log
+@Revision 4.26
+@
+text
+@d34 1
+a34 1
+ * $Id: dlsof.h,v 1.9 98/01/12 13:10:20 abe Exp Locker: abe $
+d127 1
+a127 1
+# if	solaris>=20600
+d129 1
+a129 1
+# endif	solaris>=20600
+d133 1
+a133 1
+# if	solaris>=20600
+d135 1
+a135 1
+# endif	solaris>=20600
+d363 1
+a363 1
+extern struct vfs *AFSVfsp;	/* AFS struct vfs kernel pointer */
+d387 1
+a387 1
+	struct vfs *addr;		/* kernel address */
+@
+
+
+1.9
+log
+@Revision 4.23
+Compensate for BIND/Sun versions of <netdb.h> and their affect
+on including <rpc/rpcent.h>.
+@
+text
+@d34 1
+a34 1
+ * $Id: dlsof.h,v 1.10 98/01/12 10:34:13 abe Exp Locker: abe $
+d401 10
+a410 5
+        dev_t dev;              	/* st_dev */
+        char *dir;              	/* directory */
+        char *fsname;           	/* file system */
+	ino_t inode;			/* st_ino */
+	mode_t mode;			/* st_mode */
+a416 1
+	dev_t rdev;			/* st_rdev */
+@
+
+
+1.8
+log
+@Revision 4.22
+@
+text
+@d34 1
+a34 1
+ * $Id: dlsof.h,v 1.7 97/10/24 07:54:19 abe Exp Locker: abe $
+a144 3
+#   if	solaris>=20600
+#include <rpc/rpcent.h>
+#   endif	/* solaris>=20600 */
+d154 3
+@
+
+
+1.7
+log
+@Revision 4.18
+@
+text
+@d34 1
+a34 1
+ * $Id: dlsof.h,v 1.6 97/08/15 08:27:23 abe Exp Locker: abe $
+d143 5
+d152 4
+d158 2
+d327 1
+@
+
+
+1.6
+log
+@Revision 4.15
+@
+text
+@d34 1
+a34 1
+ * $Id: dlsof.h,v 1.5 97/07/22 10:40:53 abe Exp Locker: abe $
+d68 2
+d71 2
+d74 1
+d96 1
+d113 1
+a113 1
+#  if	solaris<20600
+d116 1
+a116 1
+#  endif	/* solaris<20600 */
+d297 1
+a297 1
+#define	KA_T		off_t
+d327 7
+d361 5
+a365 3
+extern int CloneMaj;
+
+# if	!defined(solaris)
+d369 1
+a369 6
+# endif
+
+# if	defined(solaris)
+extern char **Fsinfo;
+extern int Fsinfomax;
+# endif
+@
+
+
+1.5
+log
+@Revision 4.14
+Remove include of ufs_inode.h.
+@
+text
+@d34 1
+a34 1
+ * $Id: dlsof.h,v 1.4 97/05/22 14:39:17 abe Exp Locker: abe $
+d96 4
+d131 1
+@
+
+
+1.4
+log
+@Revision 4.08
+@
+text
+@d34 1
+a34 1
+ * $Id: dlsof.h,v 1.3 97/04/18 05:45:13 abe Exp Locker: abe $
+a209 1
+#include <sys/fs/ufs_inode.h>
+@
+
+
+1.3
+log
+@Revision 4.04 supplement
+Correct DVCH_DEVPATH definition placement.
+@
+text
+@d34 1
+a34 1
+ * $Id: dlsof.h,v 1.2 97/04/15 10:47:06 abe Exp Locker: abe $
+d176 9
+@
+
+
+1.2
+log
+@Revision 4.04
+@
+text
+@d34 1
+a34 1
+ * $Id: dlsof.h,v 1.1 97/02/24 07:46:59 abe Exp Locker: abe $
+a424 6
+#define	DVCH_DEVPATH	"/devices"
+#  else	/* !defined(solaris) */
+#define	DVCH_DEVPATH	"/dev"
+#  endif	/* defined(solaris) */
+
+#  if	defined(solaris)
+d428 6
+@
+
+
+1.1
+log
+@Initial revision
+@
+text
+@d34 1
+a34 1
+ * $Id: dlsof.h,v 1.35 96/12/28 11:58:04 abe Exp $
+d158 2
+a159 2
+# if	solaris>=20300
+#  if	solaris<20400
+d178 1
+a178 1
+#  else	/* solaris>=20400 */
+d180 2
+a181 2
+#  endif	/* solaris<20400 */
+# endif	/* solaris>=20300 */
+d195 1
+a195 1
+# if	solaris>=20600
+d197 1
+a197 1
+# endif	/* solaris>=20600 */
+d329 1
+a329 2
+	char *nm;		/* path name */
+	dev_t rdev;		/* device number */
+d382 1
+a382 2
+	char *nm;			/* path name */
+	dev_t rdev;			/* device number */
+d388 1
+a388 1
+#if	!defined(solaris)
+d390 1
+a390 1
+#endif
+d419 1
+d424 5
+d430 1
+a430 1
+# if	defined(solaris)
+d432 2
+a433 1
+# endif	/* defined_solaris */
+@

@@ -1,0 +1,128 @@
+head     1.5;
+branch   ;
+access   ;
+symbols  ;
+locks    ; strict;
+comment  @# @;
+
+
+1.5
+date     99.06.22.09.52.02;  author abe;  state Exp;
+branches ;
+next     1.4;
+
+1.4
+date     99.04.15.06.41.18;  author abe;  state Exp;
+branches ;
+next     1.3;
+
+1.3
+date     98.04.03.13.25.00;  author abe;  state Exp;
+branches ;
+next     1.2;
+
+1.2
+date     97.07.02.15.24.21;  author abe;  state Exp;
+branches ;
+next     1.1;
+
+1.1
+date     97.02.24.07.48.37;  author abe;  state Exp;
+branches ;
+next     ;
+
+
+desc
+@Lsof version 4
+@
+
+
+1.5
+log
+@Revision 4.44
+@
+text
+@#!/bin/sh
+#
+# Mksrc - make SCO UnixWare source files
+#
+# WARNING: This script assumes it is running from the main directory
+#	   of the lsof, version 4 distribution.
+#
+# One environment variable applies:
+#
+# LSOF_MKC	is the method for creating the source files.
+#		It defaults to "ln -s".  A common alternative is "cp".
+#
+# $Id: Mksrc,v 1.4 99/04/15 06:41:18 abe Exp Locker: abe $
+
+D=dialects/uw
+L="dfile.c dlsof.h dmnt.c dnode.c dnode1.c dnode2.c dnode3.c dproc.c dproto.h dsock.c dstore.c machine.h"
+
+for i in $L
+do
+  rm -f $i
+  $LSOF_MKC $D/$i $i
+  echo "$LSOF_MKC $D/$i $i"
+done
+@
+
+
+1.4
+log
+@Correct lsof version number.
+@
+text
+@d13 1
+a13 1
+# $Id: Mksrc,v 1.3 98/04/03 13:25:00 abe Exp Locker: abe $
+d16 1
+a16 1
+L="ddev.c dfile.c dlsof.h dmnt.c dnode.c dnode1.c dnode2.c dnode3.c dproc.c dproto.h dsock.c dstore.c machine.h"
+@
+
+
+1.3
+log
+@Revision 4.29
+Add dnode3.c.
+@
+text
+@d3 1
+a3 1
+# Makesrc - make SCO UnixWare source files
+d6 1
+a6 1
+#	   of the lsof, version 3 distribution.
+d13 1
+a13 1
+# $Id: Mksrc,v 1.2 97/07/02 15:24:21 abe Exp Locker: abe $
+@
+
+
+1.2
+log
+@Change directory from unixware to uw.
+@
+text
+@d13 1
+a13 1
+# $Id: Mksrc,v 1.1 97/02/24 07:48:37 abe Exp Locker: abe $
+d16 1
+a16 1
+L="ddev.c dfile.c dlsof.h dmnt.c dnode.c dnode1.c dnode2.c dproc.c dproto.h dsock.c dstore.c machine.h"
+@
+
+
+1.1
+log
+@Initial revision
+@
+text
+@d13 1
+a13 1
+# $Id$
+d15 1
+a15 1
+D=dialects/unixware
+@

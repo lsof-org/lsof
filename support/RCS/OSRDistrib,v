@@ -1,0 +1,93 @@
+head     1.4;
+branch   ;
+access   ;
+symbols  ;
+locks    ; strict;
+comment  @# @;
+
+
+1.4
+date     99.11.28.06.56.55;  author abe;  state Exp;
+branches ;
+next     1.3;
+
+1.3
+date     98.03.10.07.55.23;  author abe;  state Exp;
+branches ;
+next     1.2;
+
+1.2
+date     98.03.06.19.06.31;  author abe;  state Exp;
+branches ;
+next     1.1;
+
+1.1
+date     97.07.03.07.11.37;  author abe;  state Exp;
+branches ;
+next     ;
+
+
+desc
+@Make an SCO OpenServer distribution.
+@
+
+
+1.4
+log
+@OSR test systems now have gzip.
+@
+text
+@#!/bin/ksh
+#
+# OSRDistrib -- make SCO OpenServer distribution of lsof 4.x
+#
+# Usage: OSRDistrib [<suffix>]
+#
+#	 <suffix>	optional suffix for identification
+
+if test $# -gt 1
+then
+  echo "Usage: [<suffix>]"
+  exit 1
+fi
+cd $HOME/src/lsof4/support
+./GenericDistrib osr $1
+@
+
+
+1.3
+log
+@Correct location error when compressing.
+@
+text
+@a15 9
+echo "Creating compressed copy of distribution ..."
+rm -f /tmp/lsof_*.osr.tar.gz
+cp lsof_*.osr.tar.gz /tmp
+gunzip lsof_*.osr.tar.gz
+rm -f lsof_*.osr.tar.Z
+compress lsof_*.osr.tar
+echo done
+mv /tmp/lsof_*.osr.tar.gz .
+ls -l lsof_*.osr.tar.*
+@
+
+
+1.2
+log
+@Make Z distribution for 5.0.4.
+@
+text
+@d14 2
+a15 1
+$HOME/src/lsof4/support/GenericDistrib osr $1
+@
+
+
+1.1
+log
+@Initial revision
+@
+text
+@d15 9
+@

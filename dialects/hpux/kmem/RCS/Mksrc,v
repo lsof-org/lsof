@@ -1,0 +1,93 @@
+head     1.3;
+branch   ;
+access   ;
+symbols  ;
+locks    ; strict;
+comment  @# @;
+
+
+1.3
+date     99.04.27.15.54.00;  author abe;  state Exp;
+branches ;
+next     1.2;
+
+1.2
+date     99.04.15.06.40.29;  author abe;  state Exp;
+branches ;
+next     1.1;
+
+1.1
+date     97.02.24.07.33.43;  author abe;  state Exp;
+branches ;
+next     ;
+
+
+desc
+@Lsof version 4
+@
+
+
+1.3
+log
+@Revision 4.43
+@
+text
+@#!/bin/sh
+#
+# Mksrc - make /dev/kmem-based HP-UX source files
+#
+# WARNING: This script assumes it is running from the main directory
+#	   of the lsof, version 4 distribution.
+#
+# One environment variable applies:
+#
+# LSOF_MKC	is the method for creating the source files.
+#		It defaults to "ln -s".  A common alternative is "cp".
+#
+# $Id: Mksrc,v 1.2 99/04/15 06:40:29 abe Exp Locker: abe $
+
+
+D=dialects/hpux/kmem
+L="dfile.c dlsof.h dmnt.c dnode.c dnode1.c dnode2.c dproc.c dproto.h dsock.c dstore.c machine.h"
+
+for i in $L
+do
+  rm -f $i
+  $LSOF_MKC $D/$i $i
+  echo "$LSOF_MKC $D/$i $i"
+done
+@
+
+
+1.2
+log
+@Correct lsof version number.
+@
+text
+@d3 1
+a3 1
+# Mksrc - make HP-UX source files
+d13 1
+a13 1
+# $Id: Mksrc,v 1.1 97/02/24 07:33:43 abe Exp Locker: abe $
+d16 1
+a16 1
+D=dialects/hpux
+@
+
+
+1.1
+log
+@Initial revision
+@
+text
+@d3 1
+a3 1
+# Makesrc - make HP-UX source files
+d6 1
+a6 1
+#	   of the lsof, version 3 distribution.
+d13 1
+a13 1
+# $Id$
+@

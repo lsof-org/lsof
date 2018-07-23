@@ -1,0 +1,4889 @@
+head	1.31;
+access;
+symbols;
+locks; strict;
+comment	@ * @;
+
+
+1.31
+date	2011.08.07.22.53.42;	author abe;	state Exp;
+branches;
+next	1.30;
+
+1.30
+date	2010.07.29.16.05.15;	author abe;	state Exp;
+branches;
+next	1.29;
+
+1.29
+date	2010.01.18.19.03.54;	author abe;	state Exp;
+branches;
+next	1.28;
+
+1.28
+date	2008.10.21.16.16.42;	author abe;	state Exp;
+branches;
+next	1.27;
+
+1.27
+date	2007.04.24.16.23.15;	author abe;	state Exp;
+branches;
+next	1.26;
+
+1.26
+date	2005.08.08.19.55.41;	author abe;	state Exp;
+branches;
+next	1.25;
+
+1.25
+date	2004.03.10.23.53.41;	author abe;	state Exp;
+branches;
+next	1.24;
+
+1.24
+date	2004.02.24.13.47.45;	author abe;	state Exp;
+branches;
+next	1.23;
+
+1.23
+date	2003.10.13.13.30.04;	author abe;	state Exp;
+branches;
+next	1.22;
+
+1.22
+date	2002.01.16.15.05.41;	author abe;	state Exp;
+branches;
+next	1.21;
+
+1.21
+date	2001.11.01.20.28.49;	author abe;	state Exp;
+branches;
+next	1.20;
+
+1.20
+date	2001.10.17.19.19.19;	author abe;	state Exp;
+branches;
+next	1.19;
+
+1.19
+date	2001.01.02.12.35.05;	author abe;	state Exp;
+branches;
+next	1.18;
+
+1.18
+date	2000.12.04.14.35.13;	author abe;	state Exp;
+branches;
+next	1.17;
+
+1.17
+date	2000.08.01.15.20.40;	author abe;	state Exp;
+branches;
+next	1.16;
+
+1.16
+date	99.11.28.06.44.44;	author abe;	state Exp;
+branches;
+next	1.15;
+
+1.15
+date	99.10.22.08.23.50;	author abe;	state Exp;
+branches;
+next	1.14;
+
+1.14
+date	99.07.28.09.24.30;	author abe;	state Exp;
+branches;
+next	1.13;
+
+1.13
+date	99.06.22.08.09.33;	author abe;	state Exp;
+branches;
+next	1.12;
+
+1.12
+date	99.04.15.06.44.06;	author abe;	state Exp;
+branches;
+next	1.11;
+
+1.11
+date	99.03.29.07.16.57;	author abe;	state Exp;
+branches;
+next	1.10;
+
+1.10
+date	98.08.03.07.37.35;	author abe;	state Exp;
+branches;
+next	1.9;
+
+1.9
+date	98.05.22.07.16.37;	author abe;	state Exp;
+branches;
+next	1.8;
+
+1.8
+date	98.04.21.10.04.32;	author abe;	state Exp;
+branches;
+next	1.7;
+
+1.7
+date	98.03.06.08.38.39;	author abe;	state Exp;
+branches;
+next	1.6;
+
+1.6
+date	97.12.11.16.01.53;	author abe;	state Exp;
+branches;
+next	1.5;
+
+1.5
+date	97.10.24.07.57.38;	author abe;	state Exp;
+branches;
+next	1.4;
+
+1.4
+date	97.09.23.09.52.17;	author abe;	state Exp;
+branches;
+next	1.3;
+
+1.3
+date	97.08.15.08.27.29;	author abe;	state Exp;
+branches;
+next	1.2;
+
+1.2
+date	97.04.23.15.57.04;	author abe;	state Exp;
+branches;
+next	1.1;
+
+1.1
+date	97.02.24.07.47.15;	author abe;	state Exp;
+branches;
+next	;
+
+
+desc
+@Lsof version 4
+@
+
+
+1.31
+log
+@Revision 4.85, part 1
+@
+text
+@/*
+ * dsock.c - Solaris socket processing functions for lsof
+ */
+
+
+/*
+ * Copyright 1994 Purdue Research Foundation, West Lafayette, Indiana
+ * 47907.  All rights reserved.
+ *
+ * Written by Victor A. Abell
+ *
+ * This software is not subject to any license of the American Telephone
+ * and Telegraph Company or the Regents of the University of California.
+ *
+ * Permission is granted to anyone to use this software for any purpose on
+ * any computer system, and to alter it and redistribute it freely, subject
+ * to the following restrictions:
+ *
+ * 1. Neither the authors nor Purdue University are responsible for any
+ *    consequences of the use of this software.
+ *
+ * 2. The origin of this software must not be misrepresented, either by
+ *    explicit claim or by omission.  Credit to the authors and Purdue
+ *    University must appear in documentation and sources.
+ *
+ * 3. Altered versions must be plainly marked as such, and must not be
+ *    misrepresented as being the original software.
+ *
+ * 4. This notice may not be removed or altered.
+ */
+
+#ifndef lint
+static char copyright[] =
+"@@(#) Copyright 1994 Purdue Research Foundation.\nAll rights reserved.\n";
+static char *rcsid = "$Id: dsock.c,v 1.30 2010/07/29 16:05:15 abe Exp abe $";
+#endif
+
+
+#include "lsof.h"
+
+#if	solaris>=110000
+#include <inet/ipclassifier.h>
+#endif	/* solaris>=110000 */
+
+
+#if	defined(HAS_LIBCTF) && solaris>=110000
+/*
+ * Icmp_t, rts_t and udp_t structure support for Solaris >=11 via libctf
+ *
+ * These structure definitions may look like kernel structures, but they
+ * are not.  They have been defined to have member names that duplicate
+ * those used by the kernel that are of interest to lsof.  Member valuess
+ * are obtained via the CTF library, libctf.
+ *
+ * Robert Byrnes developed the CTF library access code and contributed it
+ * to lsof.
+ */
+
+/*
+ * Icmp_t internal structure definition
+ */
+
+typedef struct icmp_s {
+	uint_t icmp_state;		/* TPI state */
+	KA_T *icmp_connp;		/* connection structure pointer */
+	in6_addr_t icmp_bound_v6src;	/* Explicitely bound to address */
+	in6_addr_t icmp_v6src;		/* Source address of this stream */
+	union {
+	    uint_t icmp_dummy;
+	    uint_t
+		icmp_Debug : 1,	   	/* SO_DEBUG option */
+		icmp_dontroute : 1,	/* SO_DONTROUTE option */
+		icmp_broadcast : 1,	/* SO_BROADCAST option */
+		icmp_reuseaddr : 1,	/* SO_REUSEADDR option */
+		icmp_useloopback : 1,	/* SO_USELOOPBACK option */
+		icmp_hdrincl : 1,	/* IP_HDRINCL option, etc. */
+		icmp_dgram_errind : 1,	/* SO_DGRAM_ERRIND option */
+		icmp_pad : 25;		/* pad to bit 31 */
+	} icmp_debug;			/* This name identifies a single bit
+					 * variable of the kernel's union, but
+					 * CTF won't read individual bit
+					 * variables, so for CTF's purposes
+					 * it is declared as a uint_t union,
+					 * named by the first bit variable of
+					 * the kernel union, whose address CTF
+					 * groks. */
+} icmp_t;
+
+
+/*
+ * Rts_t internal structure definition
+ */
+
+typedef struct rts_s {
+	uint_t rts_state;		/* Provider interface state */
+
+# if	defined(HAS_CONN_NEW)
+	KA_T *rts_connp;		/* connection structure pointer */
+# endif	/* defined(HAS_CONN_NEW) */
+
+	union {
+	    uint_t rts_dummy;
+	    uint_t
+		rts_Debug : 1,		/* SO_DEBUG option */
+		rts_dontroute : 1,	/* SO_DONTROUTE option */
+		rts_broadcast : 1,	/* SO_BROADCAST option */
+		rts_reuseaddr : 1,	/* SO_REUSEADDR option */
+		rts_useloopback : 1,	/* SO_USELOOPBACK option */
+		icmp_pad : 27;		/* padding to bit 31 */
+	} rts_debug;			/* This name identifies a single bit
+					 * variable, but CTF won't read
+					 * individual bit variables, so for
+					 * CTF's purposes it is declared as a
+					 * uint_t union, named by its first
+					 * bit variable, whose address CTF
+					 * groks. */
+} rts_t;
+
+/*
+ * Udp_t internal structure definition
+ */
+
+typedef struct udp { uint_t udp_state;		/* TPI state */
+	in_port_t udp_port;		/* port bound to this stream */
+	in_port_t udp_dstport;		/* connected port */
+	in6_addr_t udp_v6src;		/* source address of this stream */
+	in6_addr_t udp_v6dst;		/* connected destination */
+	ushort_t udp_ipversion;		/* version -- IPV[46]_VERSION */
+	KA_T *udp_connp; 		/* connection structure pointer */
+	uint_t udp_bits;		/* socket option bits */
+} udp_t;
+
+
+/*
+ * CTF definitions for icmp_t, rts_t and udp_t
+ */
+
+static int	IRU_ctfs = 0;		/* CTF initialization status for
+					 * icmp_t, rts_t and udp_t */
+
+# if	defined(_LP64)
+#define	IRU_MOD_FORMAT "/kernel/%s/genunix"
+#else	/* !defined(_LP64) */
+#define	IRU_MOD_FORMAT "/kernel/genunix"
+#endif	/* defined(_LP64) */
+
+					/* genunix pathname template to which
+					 * the kernel's instruction type set
+					 * is added for CTF access to icmp_t,
+					 * rts_t and udp_t */
+
+
+/*
+ * Icmp_t, rts_t and udp_t access definitions and structures
+ */
+
+#define	ICMP_T_TYPE_NAME "icmp_t"
+
+static	CTF_member_t icmp_t_members[] = {
+    CTF_MEMBER(icmp_state),
+#define	MX_icmp_state			0
+
+# if	defined(HAS_CONN_NEW)
+
+    CTF_MEMBER(icmp_connp),
+#define	MX_icmp_connp			1
+# else	/* !defined(HAS_CONN_NEW) */
+    CTF_MEMBER(icmp_bound_v6src),
+#define	MX_icmp_bound_v6src		1
+
+    CTF_MEMBER(icmp_v6src),
+#define	MX_icmp_v6src			2
+
+    CTF_MEMBER(icmp_debug),
+#define	MX_icmp_debug			3
+# endif	/* defined(HAS_CONN_NEW) */
+
+    { NULL, 0 }
+};
+
+
+#define	RTS_T_TYPE_NAME "rts_t"
+
+static	CTF_member_t rts_t_members[] = {
+    CTF_MEMBER(rts_state),
+#define	MX_rts_state			0
+
+# if	defined(HAS_CONN_NEW)
+    CTF_MEMBER(rts_connp),
+#define	MX_rts_connp			1
+# else	/* !defined(HAS_CONN_NEW) */
+
+    CTF_MEMBER(rts_debug),
+#define	MX_rts_debug			1
+# endif	/* defined(HAS_CONN_NEW) */
+
+    { NULL, 0 }
+};
+
+
+#define UDP_T_TYPE_NAME "udp_t"
+
+static	CTF_member_t udp_t_members[] = {
+    CTF_MEMBER(udp_state),
+#define	MX_udp_state			0
+
+    CTF_MEMBER(udp_connp),
+#define	MX_udp_connp			1
+
+# if	!defined(HAS_CONN_NEW)
+    CTF_MEMBER(udp_port),
+#define	MX_udp_port			2
+
+    CTF_MEMBER(udp_dstport),
+#define	MX_udp_dstport			3
+
+    CTF_MEMBER(udp_v6src),
+#define	MX_udp_v6src			4
+
+    CTF_MEMBER(udp_v6dst),
+#define	MX_udp_v6dst			5
+
+    CTF_MEMBER(udp_ipversion),
+#define	MX_udp_ipversion		6
+
+    CTF_MEMBER(udp_bits),
+#define	MX_udp_bits			7
+# endif	/* !defined(HAS_CONN_NEW) */
+
+    { NULL, 0 }
+};
+
+
+/*
+ * CTF icmp_t, rts_t and udp_t request table
+ */
+
+static CTF_request_t IRU_requests[] = {
+    { ICMP_T_TYPE_NAME,		icmp_t_members },
+    { RTS_T_TYPE_NAME,		rts_t_members },
+    { UDP_T_TYPE_NAME,		udp_t_members },
+    { NULL,			NULL }
+};
+
+
+/*
+ * Icmp_t, rts_t and udp_t function prototypes
+ */
+
+_PROTOTYPE(static int read_icmp_t,(KA_T va, KA_T ph, KA_T ia, icmp_t *ic));
+_PROTOTYPE(static int read_rts_t,(KA_T va, KA_T ph, KA_T ra, rts_t *rt));
+_PROTOTYPE(static int read_udp_t,(KA_T ua, udp_t *uc));
+#endif	/* defined(HAS_LIBCTF) && solaris>=110000 */
+
+
+#if	solaris<80000 || defined(HAS_IPCLASSIFIER_H)
+/*
+ * Make sure the tcpb structure is always defined.
+ */
+
+typedef struct tcpb {
+	int dummy;
+} tcpb_t;
+#endif	/* solaris<80000 || defined(HAS_IPCLASSIFIER_H) */
+
+#if	defined(HASIPv6)
+
+/*
+ * IPv6_2_IPv4()  -- macro to define the address of an IPv4 address contained
+ *		     in an IPv6 address
+ */
+
+#define IPv6_2_IPv4(v6)	(((uint8_t *)((struct in6_addr *)v6)->s6_addr)+12)
+
+/*
+ * IPv_ADDR_UNSPEC() -- macro to test an IP[46] address for an unspecified
+ *			address value
+ */
+
+#define IPv_ADDR_UNSPEC(af, p) \
+    (((af) == AF_INET6) ? (IN6_IS_ADDR_UNSPECIFIED((struct in6_addr *)p)) \
+			: (((struct in_addr *)(p))->s_addr == INADDR_ANY))
+#else	/* !defined(HASIPv6) */
+
+/*
+ * IPv_ADDR_UNSPEC() -- IPv4-only form of macro to test for an unspecified
+ *			address value
+ */
+
+#define	IPv_ADDR_UNSPEC(af, p) (((struct in_addr *)(p))->s_addr == INADDR_ANY)
+
+#endif	/* !defined(HASIPv6) */
+
+#if	defined(HASTCPOPT)
+# if	solaris==20600
+#include <netinet/tcp.h>
+# endif	/* solaris==20600 */
+#include <netinet/tcp_timer.h>
+#include <netinet/tcp_var.h>
+
+# if	defined(TH_TIMER_NEEDED)
+#define	ACK_TIMER	TH_TIMER_NEEDED
+# else
+#  if	defined(TH_ACK_TIMER_NEEDED)
+#define	ACK_TIMER	TH_ACK_TIMER_NEEDED
+#  endif	/* defined(TH_ACK_TIMER_NEEDED) */
+# endif	/* defined(TH_TIMER_NEEDED */
+#endif	/* defined(HASTCPOPT) */
+
+#if	defined(HASSOOPT)
+# if	solaris<100000
+#define	KEEPALIVE_INTERVAL	tcp_keepalive_intrvl
+# else	/* solaris>=100000 */
+#define	KEEPALIVE_INTERVAL	tcp_ka_last_intrvl
+# endif	/* solaris<100000 */
+#endif	/* defined(HASSOOPT) */
+
+
+/*
+ * Local function prototypes
+ */
+
+_PROTOTYPE(static void save_TCP_size,(tcp_t *tc));
+_PROTOTYPE(static void save_TCP_states,(tcp_t *tc, caddr_t *fa, tcpb_t *tb,
+					caddr_t *xp));
+
+
+/*
+ * build_IPstates() -- build the TCP and UDP state tables
+ */
+
+void
+build_IPstates()
+{
+	if (!TcpSt) {
+	    (void) enter_IPstate("TCP", "CLOSED", TCPS_CLOSED);
+	    (void) enter_IPstate("TCP", "IDLE", TCPS_IDLE);
+	    (void) enter_IPstate("TCP", "BOUND", TCPS_BOUND);
+	    (void) enter_IPstate("TCP", "LISTEN", TCPS_LISTEN);
+	    (void) enter_IPstate("TCP", "SYN_SENT", TCPS_SYN_SENT);
+	    (void) enter_IPstate("TCP", "SYN_RCVD", TCPS_SYN_RCVD);
+	    (void) enter_IPstate("TCP", "ESTABLISHED", TCPS_ESTABLISHED);
+	    (void) enter_IPstate("TCP", "CLOSE_WAIT", TCPS_CLOSE_WAIT);
+	    (void) enter_IPstate("TCP", "FIN_WAIT_1", TCPS_FIN_WAIT_1);
+	    (void) enter_IPstate("TCP", "CLOSING", TCPS_CLOSING);
+	    (void) enter_IPstate("TCP", "LAST_ACK", TCPS_LAST_ACK);
+	    (void) enter_IPstate("TCP", "FIN_WAIT_2", TCPS_FIN_WAIT_2);
+	    (void) enter_IPstate("TCP", "TIME_WAIT", TCPS_TIME_WAIT);
+	    (void) enter_IPstate("TCP", (char *)NULL, 0);
+	}
+	if (!UdpSt) {
+	    (void) enter_IPstate("UDP", "Unbound", TS_UNBND);
+	    (void) enter_IPstate("UDP", "Wait_BIND_REQ_Ack", TS_WACK_BREQ);
+	    (void) enter_IPstate("UDP", "Wait_UNBIND_REQ_Ack", TS_WACK_UREQ);
+	    (void) enter_IPstate("UDP", "Idle", TS_IDLE);
+	    (void) enter_IPstate("UDP", "Wait_OPT_REQ_Ack", TS_WACK_OPTREQ);
+	    (void) enter_IPstate("UDP", "Wait_CONN_REQ_Ack", TS_WACK_CREQ);
+	    (void) enter_IPstate("UDP", "Wait_CONN_REQ_Confirm", TS_WCON_CREQ);
+	    (void) enter_IPstate("UDP", "Wait_CONN_IND_Response", TS_WRES_CIND);
+	    (void) enter_IPstate("UDP", "Wait_CONN_RES_Ack", TS_WACK_CRES);
+	    (void) enter_IPstate("UDP", "Wait_Data_Xfr", TS_DATA_XFER);
+	    (void) enter_IPstate("UDP", "Wait_Read_Release", TS_WIND_ORDREL);
+	    (void) enter_IPstate("UDP", "Wait_Write_Release", TS_WREQ_ORDREL);
+	    (void) enter_IPstate("UDP", "Wait_DISCON_REQ_Ack", TS_WACK_DREQ6);
+	    (void) enter_IPstate("UDP", "Wait_DISCON_REQ_Ack", TS_WACK_DREQ7);
+	    (void) enter_IPstate("UDP", "Wait_DISCON_REQ_Ack", TS_WACK_DREQ9);
+	    (void) enter_IPstate("UDP", "Wait_DISCON_REQ_Ack", TS_WACK_DREQ10);
+	    (void) enter_IPstate("UDP", "Wait_DISCON_REQ_Ack", TS_WACK_DREQ11);
+	    (void) enter_IPstate("UDP", (char *)NULL, 0);
+	}
+}
+
+
+/*
+ * print_tcptpi() - print TCP/TPI info
+ */
+
+void
+print_tcptpi(nl)
+	int nl;				/* 1 == '\n' required */
+{
+	char *cp = (char *)NULL;
+	char  sbuf[128];
+	int i;
+	int ps = 0;
+	unsigned int u;
+
+	if (Ftcptpi & TCPTPI_STATE) {
+	    switch (Lf->lts.type) {
+	    case 0:				/* TCP */
+		if (!TcpSt)
+		    (void) build_IPstates();
+		if ((i = Lf->lts.state.i + TcpStOff) < 0 || i >= TcpNstates) {
+		    (void) snpf(sbuf, sizeof(sbuf), "UNKNOWN_TCP_STATE_%d",
+			Lf->lts.state.i);
+		    cp = sbuf;
+		} else
+		    cp = TcpSt[i];
+		break;
+	    case 1:				/* TPI */
+		if (!UdpSt)
+		    (void) build_IPstates();
+		if ((u = Lf->lts.state.ui + UdpStOff) < 0 || u >= UdpNstates) {
+		    (void) snpf(sbuf, sizeof(sbuf), "UNKNOWN_UDP_STATE_%u",
+			Lf->lts.state.ui);
+		    cp = sbuf;
+		} else
+		    cp = UdpSt[u];
+	    }
+	    if (cp) {
+		if (Ffield)
+		    (void) printf("%cST=%s%c", LSOF_FID_TCPTPI, cp, Terminator);
+		else {
+		    putchar('(');
+		    (void) fputs(cp, stdout);
+		}
+		ps++;
+	    }
+	}
+
+#if	defined(HASTCPTPIQ)
+	if (Ftcptpi & TCPTPI_QUEUES) {
+	    if (Lf->lts.rqs) {
+		if (Ffield)
+		    putchar(LSOF_FID_TCPTPI);
+		else {
+		    if (ps)
+			putchar(' ');
+		    else
+			putchar('(');
+		}
+		(void) printf("QR=%lu", Lf->lts.rq);
+		if (Ffield)
+		    putchar(Terminator);
+		ps++;
+	    }
+	    if (Lf->lts.sqs) {
+		if (Ffield)
+			putchar(LSOF_FID_TCPTPI);
+		else {
+		    if (ps)
+			putchar(' ');
+		    else
+			putchar('(');
+		}
+		(void) printf("QS=%lu", Lf->lts.sq);
+		if (Ffield)
+		    putchar(Terminator);
+		ps++;
+	    }
+	}
+#endif	/* defined(HASTCPTPIQ) */
+
+#if	defined(HASSOOPT)
+	if (Ftcptpi & TCPTPI_FLAGS) {
+	    int opt;
+
+	    if ((opt = Lf->lts.opt)
+	    ||  Lf->lts.pqlens || Lf->lts.qlens || Lf->lts.qlims
+	    ||  Lf->lts.rbszs  || Lf->lts.sbsz
+	    ) {
+		char sep = ' ';
+
+		if (Ffield)
+		    sep = LSOF_FID_TCPTPI;
+		else if (!ps)
+		    sep = '(';
+		(void) printf("%cSO", sep);
+		ps++;
+		sep = '=';
+
+# if	defined(SO_BROADCAST)
+		if (opt & SO_BROADCAST) {
+		    (void) printf("%cBROADCAST", sep);
+		    opt &= ~SO_BROADCAST;
+		    sep = ',';
+		}
+# endif	/* defined(SO_BROADCAST) */
+
+# if	defined(SO_DEBUG)
+		if (opt & SO_DEBUG) {
+		    (void) printf("%cDEBUG", sep);
+		    opt &= ~ SO_DEBUG;
+		    sep = ',';
+		}
+# endif	/* defined(SO_DEBUG) */
+
+# if	defined(SO_DGRAM_ERRIND)
+		if (opt & SO_DGRAM_ERRIND) {
+		    (void) printf("%cDGRAM_ERRIND", sep);
+		    opt &= ~SO_DGRAM_ERRIND;
+		    sep = ',';
+		}
+# endif	/* defined(SO_DGRAM_ERRIND) */
+
+# if	defined(SO_DONTROUTE)
+		if (opt & SO_DONTROUTE) {
+		    (void) printf("%cDONTROUTE", sep);
+		    opt &= ~SO_DONTROUTE;
+		    sep = ',';
+		}
+# endif	/* defined(SO_DONTROUTE) */
+
+# if	defined(SO_KEEPALIVE)
+		if (opt & SO_KEEPALIVE) {
+		    (void) printf("%cKEEPALIVE", sep);
+		    if (Lf->lts.kai)
+			(void) printf("=%d", Lf->lts.kai);
+		    opt &= ~SO_KEEPALIVE;
+		    sep = ',';
+		}
+# endif	/* defined(SO_KEEPALIVE) */
+
+# if	defined(SO_LINGER)
+		if (opt & SO_LINGER) {
+		    (void) printf("%cLINGER", sep);
+		    if (Lf->lts.ltm)
+			(void) printf("=%d", Lf->lts.ltm);
+		    opt &= ~SO_LINGER;
+		    sep = ',';
+		}
+# endif	/* defined(SO_LINGER) */
+
+# if	defined(SO_OOBINLINE)
+		if (opt & SO_OOBINLINE) {
+		    (void) printf("%cOOBINLINE", sep);
+		    opt &= ~SO_OOBINLINE;
+		    sep = ',';
+		}
+# endif	/* defined(SO_OOBINLINE) */
+
+		if (Lf->lts.pqlens) {
+		    (void) printf("%cPQLEN=%u", sep, Lf->lts.pqlen);
+		    sep = ',';
+		}
+		if (Lf->lts.qlens) {
+		    (void) printf("%cQLEN=%u", sep, Lf->lts.qlen);
+		    sep = ',';
+		}
+		if (Lf->lts.qlims) {
+		    (void) printf("%cQLIM=%u", sep, Lf->lts.qlim);
+		    sep = ',';
+		}
+		if (Lf->lts.rbszs) {
+		    (void) printf("%cRCVBUF=%lu", sep, Lf->lts.rbsz);
+		    sep = ',';
+		}
+
+# if	defined(SO_REUSEADDR)
+		if (opt & SO_REUSEADDR) {
+		    (void) printf("%cREUSEADDR", sep);
+		    opt &= ~SO_REUSEADDR;
+		    sep = ',';
+		}
+# endif	/* defined(SO_REUSEADDR) */
+
+		if (Lf->lts.sbszs) {
+		    (void) printf("%cSNDBUF=%lu", sep, Lf->lts.sbsz);
+		    sep = ',';
+		}
+
+# if	defined(SO_TIMESTAMP)
+		if (opt & SO_TIMESTAMP) {
+		    (void) printf("%cTIMESTAMP", sep);
+		    opt &= ~SO_TIMESTAMP;
+		    sep = ',';
+		}
+# endif	/* defined(SO_TIMESTAMP) */
+
+# if	defined(SO_USELOOPBACK)
+		if (opt & SO_USELOOPBACK) {
+		    (void) printf("%cUSELOOPBACK", sep);
+		    opt &= ~SO_USELOOPBACK;
+		    sep = ',';
+		}
+# endif	/* defined(SO_USELOOPBACK) */
+
+		if (opt)
+		    (void) printf("%cUNKNOWN=%#x", sep, opt);
+		if (Ffield)
+		    putchar(Terminator);
+	    }
+	}
+#endif	/* defined(HASSOOPT) */
+
+#if	defined(HASTCPOPT)
+	if (Ftcptpi & TCPTPI_FLAGS) {
+	    int topt;
+
+	    if ((topt = Lf->lts.topt) || Lf->lts.msss) {
+		char sep = ' ';
+
+		if (Ffield)
+		    sep = LSOF_FID_TCPTPI;
+		else if (!ps)
+		    sep = '(';
+		(void) printf("%cTF", sep);
+		ps++;
+		sep = '=';
+
+# if	defined(TF_ACKNOW)
+		if (topt & TF_ACKNOW) {
+		    (void) printf("%cACKNOW", sep);
+		    topt &= ~TF_ACKNOW;
+		    sep = ',';
+		}
+# endif	/* defined(TF_ACKNOW) */
+
+# if	defined(TF_DELACK)
+		if (topt & TF_DELACK) {
+		    (void) printf("%cDELACK", sep);
+		    topt &= ~TF_DELACK;
+		    sep = ',';
+		}
+# endif	/* defined(TF_DELACK) */
+
+		if (Lf->lts.msss) {
+		    (void) printf("%cMSS=%lu", sep, Lf->lts.mss);
+		    sep = ',';
+		}
+
+# if	defined(TF_NODELAY)
+		if (topt & TF_NODELAY) {
+		    (void) printf("%cNODELAY", sep);
+		    topt &= ~TF_NODELAY;
+		    sep = ',';
+		}
+# endif	/* defined(TF_NODELAY) */
+
+# if	defined(TF_NOOPT)
+		if (topt & TF_NOOPT) {
+		    (void) printf("%cNOOPT", sep);
+		    topt &= ~TF_NOOPT;
+		    sep = ',';
+		}
+# endif	/* defined(TF_NOOPT) */
+
+# if	defined(TF_SENTFIN)
+		if (topt & TF_SENTFIN) {
+		    (void) printf("%cSENTFIN", sep);
+		    topt &= ~TF_SENTFIN;
+		    sep = ',';
+		}
+# endif	/* defined(TF_SENTFIN) */
+
+		if (topt)
+		    (void) printf("%cUNKNOWN=%#x", sep, topt);
+		if (Ffield)
+		    putchar(Terminator);
+	    }
+	}
+#endif	/* defined(HASTCPOPT) */
+
+#if	defined(HASTCPTPIW)
+	if (Ftcptpi & TCPTPI_WINDOWS) {
+	    if (Lf->lts.rws) {
+		if (Ffield)
+			putchar(LSOF_FID_TCPTPI);
+		else {
+		    if (ps)
+			putchar(' ');
+		    else
+			putchar('(');
+		}
+		(void) printf("WR=%lu", Lf->lts.rw);
+		if (Ffield)
+		    putchar(Terminator);
+		ps++;
+	    }
+	    if (Lf->lts.wws) {
+		if (Ffield)
+			putchar(LSOF_FID_TCPTPI);
+		else {
+		    if (ps)
+			putchar(' ');
+		    else
+			putchar('(');
+		}
+		(void) printf("WW=%lu", Lf->lts.ww);
+		if (Ffield)
+		    putchar(Terminator);
+		ps++;
+	    }
+	}
+#endif	/* defined(HASTCPTPIW) */
+
+	if (Ftcptpi && !Ffield && ps)
+	    putchar(')');
+	if (nl)
+	    putchar('\n');
+}
+
+#if	solaris>=110000
+/*
+ * procss_VSOCK() -- process a VSOCK socket
+ */
+
+# if	defined(HAS_CONN_NEW)
+/*
+ * Adjust for changes in the conn_s structure, introduced at OpenSolaris
+ * level b134.
+ */
+
+#define	conn_ulp conn_proto
+#define conn_rem V4_PART_OF_V6(connua_v6addr.connua_faddr)
+#define conn_src V4_PART_OF_V6(connua_v6addr.connua_laddr)
+# endif	/* defined(HAS_CONN_NEW) */
+
+int
+process_VSOCK(va, v, so)
+	KA_T va;			/* containing vnode address */
+	struct vnode *v;		/* pointer to containing vnode */
+	struct sonode *so;		/* pointer to socket's sonode */
+{
+	int af;				/* address family */
+	struct conn_s cs;		/* connection info */
+	unsigned char *fa = (unsigned char *)NULL;
+					/* foreign address */
+	u_short fp = (u_short)0;	/* foreign port */
+	u_short lp;			/* local port */
+	icmp_t ic;			/* ICMP control structure */
+	KA_T ka;			/* temporary kernel address */
+	unsigned char *la = (unsigned char *)NULL;
+					/* local address */
+	KA_T pha;			/* protocol handle address */
+	rts_t rt;			/* AF_ROUTE control structure */
+	int s;				/* state */
+	unsigned char *ta = (unsigned char *)NULL;
+					/* temporary address */
+	char tbuf[32], tbuf1[32];	/* temporary buffers */
+	tcp_t tc;			/* TCP control structure */
+	tcph_t th;			/* TCP header structure */
+
+# if	defined(HAS_CONN_NEW)
+	struct ip_xmit_attr_s xa;
+	caddr_t *xp = (caddr_t *)NULL;
+# else	/* !defined(HAS_CONN_NEW) */
+	tcph_t *tha = (tcph_t *)NULL;	/* TCP header structure address */
+# endif	/* defined(HAS_CONN_NEW) */
+
+	char *ty;			/* TCP type */
+	udp_t uc;			/* local UDP control structure */
+/*
+ * Read VSOCK's connection information.  Enter its address as the protocol
+ * control block device address.
+ */
+	if (!(pha = (KA_T)so->so_proto_handle))
+	    return(0);
+	if (kread(pha, (char *)&cs, sizeof(cs))) {
+	    (void) snpf(Namech, Namechl,
+		"vnode at %s; snode at %s; can't read proto handle at: %s",
+		print_kptr(va, tbuf, sizeof(tbuf)),
+		print_kptr((KA_T)v->v_data, tbuf1, sizeof(tbuf1)),
+		print_kptr(pha, (char *)NULL, 0));
+	    Namech[Namechl - 1] = '\0';
+	    enter_nm(Namech);
+	    return(1);
+	}
+	enter_dev_ch(print_kptr(pha, (char *)NULL, 0));
+/*
+ * Process connection info by protocol.
+ */
+	switch ((af = so->so_family)) {
+	case AF_INET:
+	case AF_INET6:
+
+	/*
+	 * Set INET type -- IPv4 or IPv6.
+	 */
+	    if (af == AF_INET)
+		ty = "IPv4";
+	    else
+		ty = "IPv6";
+	    (void) snpf(Lf->type, sizeof(Lf->type), ty);
+
+	    switch (cs.conn_ulp) {
+	    case IPPROTO_TCP:
+
+	    /*
+	     * Process TCP socket; read its control structure.
+	     */
+		if (!(ka = (KA_T)cs.conn_proto_priv.cp_tcp)
+		||  kread(ka, (char *)&tc, sizeof(tc))
+		) {
+		    (void) snpf(Namech, Namechl - 1,
+			"can't read TCP socket's control structure: %s",
+			print_kptr((KA_T)ka, (char *)NULL, 0));
+		    Namech[Namechl - 1] = '\0';
+		    enter_nm(Namech);
+		    return(1);
+		}
+	    /*
+	     * Set TCP protcol name in Lf->iproto[].
+	     */
+		(void) snpf(Lf->iproto, IPROTOL - 1, "%s", "TCP");
+		Lf->iproto[IPROTOL - 1] = '\0';
+		Lf->inp_ty = 2;
+	    /*
+	     * Check for TCP state inclusion or exclusion.
+	     */
+		if (TcpNstates) {
+		    if ((s = (int)tc.tcp_state + TcpStOff) < TcpNstates) {
+			if (TcpStXn) {
+			    if (TcpStX[s]) {
+				Lf->sf |= SELEXCLF;
+				return(1);
+			    }
+			}
+			if (TcpStIn) {
+			    if (TcpStI[s]) {
+				TcpStI[s] = 2;
+				Lf->sf |= SELNET;
+			    } else {
+				Lf->sf |= SELEXCLF;
+				return(1);
+			    }
+			}
+		    }
+		}
+	    /*
+	     * Set network file selection status.
+	     */
+		if (Fnet) {
+		    if (!FnetTy
+		    ||  ((FnetTy == 4) && (af == AF_INET))
+		    ||  ((FnetTy == 6) && (af == AF_INET6))
+		    ) {
+			Lf->sf |= SELNET;
+		    }
+		}
+	    /*
+	     * Save local and remote (foreign) TCP address.
+	     */
+		if (af == AF_INET6) {
+		    ta = (unsigned char *)&cs.connua_v6addr.connua_faddr;
+		    la = (unsigned char *)&cs.connua_v6addr.connua_laddr;
+		} else {
+		    ta = (unsigned char *)&cs.conn_rem;
+		    la = (unsigned char *)&cs.conn_src;
+		}
+		if (!IPv_ADDR_UNSPEC(af, ta) || (u_short)cs.conn_fport) {
+		    fa = ta;
+		    fp = (u_short)cs.conn_fport;
+		}
+		if ((af == AF_INET6)
+		&&  ((la && IN6_IS_ADDR_V4MAPPED((struct in6_addr *)la))
+		||  ((fa && IN6_IS_ADDR_V4MAPPED((struct in6_addr *)fa))))
+		) {
+
+		/*
+		 * Convert IPv4 addresses in IPv6 structures to IPv4 addresses
+		 * in IPv4 structures.  Change the address family to AF_INET.
+		 */
+		    if (la)
+			la = (unsigned char *)IPv6_2_IPv4(la);
+		    if (fa)
+			fa = (unsigned char *)IPv6_2_IPv4(fa);
+		    af = AF_INET;
+		}
+		lp = (u_short)cs.conn_lport;
+		(void) ent_inaddr(la, (int)ntohs(lp), fa, (int)ntohs(fp), af);
+	    /*
+	     * Save TCP state information.
+	     */
+
+# if	defined(HAS_CONN_NEW)
+		if ((ka = (KA_T)cs.conn_ixa)
+		&&  !kread(ka, (char *)&xa, sizeof(xa))
+		) {
+		    xp = (caddr_t *)&xa;
+		}
+		(void) save_TCP_states(&tc, (caddr_t *)&cs, (tcpb_t *)NULL, xp);
+# else	/* !defined(HAS_CONN_NEW) */
+		if (tc.tcp_tcp_hdr_len
+		&&  (ka = (KA_T)tc.tcp_tcph)
+		&&  !kread(ka, (char *)&th, sizeof(th))
+		) {
+		    tha = &th;
+		}
+		(void) save_TCP_states(&tc, (caddr_t *)tha, (tcpb_t *)NULL,
+				       (caddr_t *)NULL);
+# endif	/* defined(HAS_CONN_NEW) */
+
+		Lf->lts.type = 0;
+		Lf->lts.state.i = (int)tc.tcp_state;
+	    /*
+	     * Save TCP size information.
+	     */
+		(void) save_TCP_size(&tc);
+		break;
+	    case IPPROTO_UDP:
+
+	    /*
+	     * Process UDP socket; read its control structure.
+	     */
+		if (!(ka = (KA_T)cs.conn_proto_priv.cp_udp)
+		||  kread(ka, (char *)&uc, sizeof(uc))
+		) {
+		    (void) snpf(Namech, Namechl - 1,
+			"can't read UDP socket's control structure: %s",
+			print_kptr((KA_T)ka, (char *)NULL, 0));
+		    Namech[Namechl - 1] = '\0';
+		    enter_nm(Namech);
+		    return(1);
+		}
+	    /*
+	     * Set UDP protcol name in Lf->iproto[].
+	     */
+		(void) snpf(Lf->iproto, IPROTOL - 1, "%s", "UDP");
+		Lf->iproto[IPROTOL - 1] = '\0';
+		Lf->inp_ty = 2;
+	    /*
+	     * Check for UDP state inclusion or exclusion.
+	     */
+		if (UdpNstates) {
+		    if ((s = (int)uc.udp_state + TcpStOff) < UdpNstates) {
+			if (UdpStXn) {
+			    if (UdpStX[s]) {
+				Lf->sf |= SELEXCLF;
+				return(1);
+			    }
+			}
+			if (UdpStIn) {
+			    if (UdpStI[s]) {
+				UdpStI[s] = 2;
+				Lf->sf |= SELNET;
+			    } else {
+				Lf->sf |= SELEXCLF;
+				return(1);
+			    }
+			}
+		    }
+		}
+	    /*
+	     * Set network file selection status.
+	     */
+		if (Fnet) {
+		    if (!FnetTy
+		    ||  ((FnetTy == 4) && (af == AF_INET))
+		    ||  ((FnetTy == 6) && (af == AF_INET6))
+		    ) {
+			Lf->sf |= SELNET;
+		    }
+		}
+	    /*
+	     * Save local and remote (foreign) UDP address.
+	     */
+		if (af == AF_INET6) {
+		    ta = (unsigned char *)&cs.connua_v6addr.connua_faddr;
+		    la = (unsigned char *)&cs.connua_v6addr.connua_laddr;
+		} else {
+		    ta = (unsigned char *)&cs.conn_rem;
+		    la = (unsigned char *)&cs.conn_src;
+		}
+		if (!IPv_ADDR_UNSPEC(af, ta) || (u_short)cs.conn_fport) {
+		    fa = ta;
+		    fp = (u_short)cs.conn_fport;
+	    	}
+		lp = (u_short)cs.conn_lport;
+		(void) ent_inaddr(la, (int)ntohs(lp), fa, (int)ntohs(fp), af);
+	    /*
+	     * Save UDP state and size information.
+	     */
+		if (!Fsize)
+		    Lf->off_def = 1;
+		Lf->lts.type = 1;
+		Lf->lts.state.ui = (unsigned int)uc.udp_state;
+
+# if	defined(HASSOOPT)
+	    /*
+	     * Save UDP flags.
+	     */
+		if (Ftcptpi & TCPTPI_FLAGS) {
+		    union {
+			uint_t flags;
+			uint_t 
+			    udpb_debug : 1,	   /* SO_DEBUG option */
+			    udpb_dontroute : 1,	   /* SO_DONTROUTE option */
+			    udpb_broadcast : 1,	   /* SO_BROADCAST option */
+			    udpb_reuseaddr : 1,	   /* SO_REUSEADDR option */
+			    udpb_useloopback : 1,  /* SO_USELOOPBACK option */
+			    udpb_dgram_errind : 1, /* SO_DGRAM_ERRIND option */
+			    udpb_pad : 26;	   /* pad to bit 31 */
+		    } ucf;
+
+		    ucf.flags = uc.udp_bits;
+		    if (ucf.udpb_debug)
+			Lf->lts.opt |= SO_DEBUG;
+		    if (ucf.udpb_dontroute)
+		        Lf->lts.opt |= SO_DONTROUTE;
+		    if (ucf.udpb_broadcast)
+		        Lf->lts.opt |= SO_BROADCAST;
+		    if (ucf.udpb_reuseaddr)
+			Lf->lts.opt |= SO_REUSEADDR;
+		    if (ucf.udpb_useloopback)
+			Lf->lts.opt |= SO_USELOOPBACK;
+		    if (ucf.udpb_dgram_errind)
+			Lf->lts.opt |= SO_DGRAM_ERRIND;
+		}
+# endif	/* defined(HASSOOPT) */
+
+		break;
+	    case IPPROTO_ICMP:
+	    case IPPROTO_ICMPV6:
+
+	    /*
+	     * Process ICMP or ICMP6 socket.
+	     *
+	     * Set protocol name.
+	     */
+		if (cs.conn_ulp == IPPROTO_ICMP)
+		    ty = "ICMP";
+		else
+		    ty = "ICMP6";
+		(void) snpf(Lf->iproto, IPROTOL - 1, "%s", ty);
+		Lf->iproto[IPROTOL - 1] = '\0';
+		Lf->inp_ty = 2;
+	    /*
+	     * Read the ICMP control structure.
+	     */
+		if (read_icmp_t(va, pha, (KA_T)cs.conn_proto_priv.cp_icmp, &ic))
+		    return(1);
+	    /*
+	     * Save ICMP size and state information.
+	     */
+		if (!Fsize)
+		    Lf->off_def = 1;
+		Lf->lts.type = 1;
+		Lf->lts.state.ui = (unsigned int)ic.icmp_state;
+	    /*
+	     * Set network file selection status.
+	     */
+		if (Fnet) {
+		    if (!FnetTy
+		    ||  ((FnetTy == 4) && (af == AF_INET))
+		    ||  ((FnetTy == 6) && (af == AF_INET6))
+		    ) {
+			Lf->sf |= SELNET;
+		    }
+		}
+	    /*
+	     * Save addresses.
+	     */
+		ta = (af == AF_INET6) ? (unsigned char *)&ic.icmp_bound_v6src
+		   :  (unsigned char *)&V4_PART_OF_V6(ic.icmp_bound_v6src);
+		if (!IPv_ADDR_UNSPEC(af, ta))
+		    la = ta;
+		ta = (af == AF_INET6) ? (unsigned char *)&ic.icmp_v6src
+		   :  (unsigned char *)&V4_PART_OF_V6(ic.icmp_v6src);
+		if (!IPv_ADDR_UNSPEC(af, ta))
+		    fa = ta;
+		if (la || fa)
+		    (void)ent_inaddr(la, 0, fa, 0, af);
+
+# if	defined(HASSOOPT)
+	    /*
+	     * Save ICMP flags.
+	     */
+		if (Ftcptpi & TCPTPI_FLAGS) {
+		    if (ic.icmp_debug.icmp_Debug)
+			Lf->lts.opt |= SO_DEBUG;
+		    if (ic.icmp_debug.icmp_dontroute)
+		        Lf->lts.opt |= SO_DONTROUTE;
+		    if (ic.icmp_debug.icmp_broadcast)
+		        Lf->lts.opt |= SO_BROADCAST;
+		    if (ic.icmp_debug.icmp_reuseaddr)
+			Lf->lts.opt |= SO_REUSEADDR;
+		    if (ic.icmp_debug.icmp_useloopback)
+			Lf->lts.opt |= SO_USELOOPBACK;
+		    if (ic.icmp_debug.icmp_dgram_errind)
+			Lf->lts.opt |= SO_DGRAM_ERRIND;
+		}
+# endif	/* defined(HASSOOPT) */
+
+		break;
+	    default:
+		(void) snpf(Namech, Namechl - 1,
+		    "unsupported conn_s AF_INET%s protocol: %u",
+		    (af == AF_INET6) ? "6" : "",
+		    (unsigned int)cs.conn_ulp);
+		Namech[Namechl - 1] = '\0';
+		enter_nm(Namech);
+		return(1);
+	    }
+	    break;
+	case AF_ROUTE:
+
+	/*
+	 * Set INET type -- IPv4 or IPv6.
+	 */
+	    if (af == AF_INET)
+		ty = "IPv4";
+	    else
+		ty = "IPv6";
+	    (void) snpf(Lf->type, sizeof(Lf->type), ty);
+	/*
+	 * Set protocol name.
+	 */
+	    (void) strncpy(Lf->iproto, "ROUTE", IPROTOL - 1);
+	    Lf->iproto[IPROTOL - 1] = '\0';
+	    Lf->inp_ty = 2;
+
+	/*
+	 * Read routing control structure.
+	 */
+	    if (read_rts_t(va, pha, (KA_T)cs.conn_proto_priv.cp_rts, &rt))
+		return(1);
+	/*
+	/*
+	 * Save AF_ROUTE size and state information.
+	 */
+	    if (!Fsize)
+		Lf->off_def = 1;
+	    Lf->lts.type = 1;
+	    Lf->lts.state.i = (int)rt.rts_state;
+	/*
+	 * Set network file selection status.
+	 */
+	    if (Fnet) {
+		if (!FnetTy
+		||  ((FnetTy == 4) && (af == AF_INET))
+		||  ((FnetTy == 6) && (af == AF_INET6))
+		) {
+		    Lf->sf |= SELNET;
+		}
+	    }
+
+# if	defined(HASSOOPT)
+	/*
+	 * Save ROUTE flags.
+	 */
+	    if (Ftcptpi & TCPTPI_FLAGS) {
+		if (rt.rts_debug.rts_Debug)
+		    Lf->lts.opt |= SO_DEBUG;
+		if (rt.rts_debug.rts_dontroute)
+		    Lf->lts.opt |= SO_DONTROUTE;
+		if (rt.rts_debug.rts_broadcast)
+		    Lf->lts.opt |= SO_BROADCAST;
+		if (rt.rts_debug.rts_reuseaddr)
+		   Lf->lts.opt |= SO_REUSEADDR;
+		if (rt.rts_debug.rts_useloopback)
+		    Lf->lts.opt |= SO_USELOOPBACK;
+	    }
+# endif	/* defined(HASSOOPT) */
+
+	    break;
+	default:
+	    (void) printiproto((int)cs.conn_ulp);
+	    (void) snpf(Namech, Namechl - 1, "unsupported socket family: %u",
+		so->so_family);
+	    Namech[Namechl - 1] = '\0';
+	    enter_nm(Namech);
+	    Lf->inp_ty = 2;
+	}
+	return(1);
+}
+#endif	/* solaris>=110000*/
+
+
+/*
+ * process_socket() - process Solaris socket
+ */
+
+void
+process_socket(sa, ty)
+	KA_T sa;			/* stream's data address in kernel */
+	char *ty;			/* socket type name */
+{
+	int af;
+	unsigned char *fa = (unsigned char *)NULL;
+	int fp = 0;
+	int i, lp;
+
+#if	solaris<110000
+# if	solaris>=100000 && defined(HAS_IPCLASSIFIER_H)
+	struct conn_s ic;
+#define	ipc_v6laddr	conn_srcv6
+#define	ipc_v6faddr	conn_remv6
+#define	ipc_fport	conn_fport
+#define	ipc_lport	conn_lport
+# else	/* solaris<100000 || !defined(HAS_IPCLASSIFIER_H) */
+	struct ipc_s ic;
+# endif	/* solaris>=100000 && defined(HAS_IPCLASSIFIER_H) */
+#else	/* solaris>=110000 */
+	struct conn_s cs;
+#endif	/* solaris<110000 */
+
+	int ics = 0;
+	unsigned char *la = (unsigned char *)NULL;
+	struct module_info mi;
+	KA_T ka;
+	u_short p;
+	KA_T pcb = (KA_T)NULL;
+	struct queue q;
+	struct qinit qi;
+	KA_T qp;
+	u_short *s;
+	struct stdata sd;
+	unsigned char *ta;
+	char tbuf[32];
+
+#if	solaris<20600
+	struct tcp_s {			/* should come from kernel source
+					 * file ../uts/common/inet/tcp.c */
+
+# if	solaris>=20400
+	    struct tcp_s *d1[8];
+# endif	/* solaris>=20400 */
+
+# if	defined(P101318) && P101318>=32
+	    struct tcp_s *d1[6];
+# endif	/* defined(P101318) && P101318>=32 */
+
+	    int tcp_state;
+	    queue_t *d3[2];
+	    mblk_t *d4[2];
+	    u_long d5;
+	    mblk_t *d6;
+	    u_long d7;
+	    u_long tcp_snxt;	/* Senders next seq num */
+	    u_long tcp_suna;	/* Sender unacknowledged */
+	    u_long tcp_swnd;	/* Senders window (relative to suna) */
+	    u_long d8[5];
+	    int tcp_hdr_len;	/* combined TCP/IP header length */
+	    tcph_t *tcp_tcph;	/* pointer to combined header */
+	    int d9;
+	    unsigned int d10;
+	    int d11;
+	    mblk_t *d12;
+	    long d13;
+	    mblk_t *d14;
+	    u_long d15;
+
+# if	solaris<20400 && (!defined(P101318) || P101318<32)
+	    mblk_t *d16;
+# endif	/* solaris<20400 && (!defined(P101318) || P101318<32) */
+
+	    unsigned int d17;
+	    u_long tcp_rnxt;	/* Seq we expect to recv next */
+	    u_long tcp_rwnd;	/* Current receive window */
+	    u_long d18;
+	    long d19[2];
+	    mblk_t *d20[4];
+	    u_long d21[5];
+	    long d22[3];
+
+# if	solaris<20500
+	    u_long d23[2];
+	    u_long tcp_rack;	/* Seq # we have acked */
+# else	/* solaris>=20500 */
+	    u_long d23[3];
+# endif	/* solaris<20500 */
+
+# if	solaris<20400
+	    u_long d24[28];
+# else	/* solaris>=20400 */
+#  if	solaris<20500
+	    u_long d24[67];
+#  else	/* solaris>=20500 */
+#   if	solaris<20501
+	    u_long d25[6];
+#   else	/* solaris>=20501 */
+	    u_long d25[8];
+#   endif	/* solaris<20501 */
+	    u_long tcp_rack;	/* Seq # we have acked */
+#   if	solaris<20501
+	    u_long d26[29];
+#   else	/* solaris>=20501 */
+	    u_long d26[33];
+#   endif	/* solaris>=20501 */
+#  endif	/* solaris<20500 */
+# endif	/* solaris<20400 */
+
+	    iph_t tcp_iph;
+	} tc;
+#else	/* solaris>=20600 */
+	struct tcp_s tc;
+#endif	/* solaris<20600 */
+
+#if	solaris>=80000 && !defined(HAS_IPCLASSIFIER_H)
+	tcpb_t	tcb;
+#endif	/* solaris>=80000 && !defined(HAS_IPCLASSIFIER_H) */
+
+	tcpb_t *tcbp = (tcpb_t *)NULL;
+	int tcs = 0;
+	tcph_t th;
+	tcph_t *tha = (tcph_t *)NULL;
+
+#if	solaris<110000
+	struct ud_s {			/* should come from kernel source
+					 * file ../uts/common/inet/udp.c */
+	    uint udp_state;		/* TPI state */
+	    unsigned char d1[2];
+	    unsigned char udp_port[2];	/* port bound to this stream */
+	    unsigned char udp_src[4];	/* source address of this stream */
+	} uc;
+#else	/* solaris>=110000 */
+	udp_t uc;			/* UDP control structure */
+#endif	/* solaris<110000 */
+	int ucs = 0;
+
+#if	defined(HASIPv6)
+	if (strrchr(ty, '6')) {
+	    (void) snpf(Lf->type, sizeof(Lf->type), "IPv6");
+	    af = AF_INET6;
+	} else {
+	    (void) snpf(Lf->type, sizeof(Lf->type), "IPv4");
+	    af = AF_INET;
+	}
+#else	/* !defined(HASIPv6) */
+	(void) snpf(Lf->type, sizeof(Lf->type), "inet");
+	af = AF_INET;
+#endif	/* defined(HASIPv6) */
+
+/*
+ * Set network file selection status.
+ */
+	if (Fnet) {
+	    if (!FnetTy
+	    ||  ((FnetTy == 4) && (af == AF_INET))
+
+#if	defined(HASIPv6)
+	    ||  ((FnetTy == 6) && (af == AF_INET6))
+#endif	/* defined(HASIPv6) */
+
+	    ) {
+		if (!TcpStIn && !UdpStIn)
+		    Lf->sf |= SELNET;
+	    }
+	}
+	Lf->inp_ty = 2;
+/*
+ * Convert type to upper case protocol name.
+ */
+	if (ty) {
+	    for (i = 0; (ty[i] != '\0') && (i < IPROTOL) && (i < 3); i++) {
+		if (islower((unsigned char)ty[i]))
+		    Lf->iproto[i] = toupper((unsigned char)ty[i]);
+		else
+		    Lf->iproto[i] = ty[i];
+	    }
+	} else
+	    i = 0;
+	Lf->iproto[i] = '\0';
+/*
+ * Read stream queue entries to obtain private IP, TCP, and UDP structures.
+ */
+	if (!sa || readstdata(sa, &sd))
+	    qp = (KA_T)NULL;
+	else
+	    qp = (KA_T)sd.sd_wrq;
+	for (i = 0; qp && i < 20; i++, qp = (KA_T)q.q_next) {
+	    if (kread(qp, (char *)&q, sizeof(q)))
+		break;
+	    if ((ka = (KA_T)q.q_qinfo) == (KA_T)NULL
+	    ||  kread(ka, (char *)&qi, sizeof(qi)))
+		continue;
+	    if ((ka = (KA_T)qi.qi_minfo) == (KA_T)NULL
+	    ||  kread(ka, (char *)&mi, sizeof(mi))
+	    ||  (ka = (KA_T)mi.mi_idname) == (KA_T)NULL)
+		continue;
+	    if (kread(ka, (char *)&tbuf, sizeof(tbuf) - 1))
+		continue;
+	    if ((pcb = (KA_T)q.q_ptr) == (KA_T)NULL)
+		continue;
+
+#if	solaris<110000
+	    if (strncasecmp(tbuf, "IP",  2) == 0) {
+		if (kread(pcb, (char *)&ic, sizeof(ic)) == 0)
+		    ics = 1;
+		continue;
+	    }
+#endif	/* solaris<110000 */
+
+	    if (strncasecmp(tbuf, "TCP", 3) == 0) {
+
+#if	solaris<=90000 || !defined(HAS_IPCLASSIFIER_H)
+		if (!kread((KA_T)pcb, (char *)&tc, sizeof(tc)))
+
+# if	solaris>=80000
+		{
+		    if (tc.tcp_base
+		    &&  !kread((KA_T)tc.tcp_base, (char *)&tcb, sizeof(tcb))) {
+			tcs = 1;
+			tcbp = &tcb;
+		    }
+		    tc.tcp_base = &tcb;		/* support for macros */
+		    tcb.tcpb_tcp = &tc;		/* support for macros */
+		}
+# else	/* solaris<80000 */
+		    tcs = 1;
+# endif	/* solaris>=80000 */
+#else	/* solaris>90000 && defined(HAS_IPCLASSIFIER_H) */
+# if	solaris>=110000
+		if (!kread(pcb, (char *)&cs, sizeof(cs))
+		&&  (cs.conn_ulp == IPPROTO_TCP)
+		) {
+		    ics = 1;
+		    if ((ka = (KA_T)cs.conn_proto_priv.cp_tcp)
+		    &&  !kread(ka, (char *)&tc, sizeof(tc))
+		    ) {
+			tcs = 1;
+		    }
+		}
+# else	/* solaris<110000 */
+		if (!kread((KA_T)pcb, (char *)&ic, sizeof(ic))
+		&&  ic.conn_tcp
+		&&  !kread((KA_T)ic.conn_tcp, (char *)&tc, sizeof(tc))
+		) {
+		    ics = tcs = 1;
+		}
+# endif	/* solaris>=110000 */
+#endif        /* solaris<=90000 || !defined(HAS_IPCLASSIFIER_H) */
+
+		if (tcs && TcpNstates) {
+		    int s = (int)tc.tcp_state + TcpStOff;
+		/*
+		 * Check for TCP state inclusion or exclusion.
+		 */
+
+		    if (s < TcpNstates) {
+			if (TcpStXn) {
+			    if (TcpStX[s]) {
+				Lf->sf &= ~SELNET;
+				Lf->sf |= SELEXCLF;
+				return;
+			    }
+			}
+			if (TcpStIn) {
+			    if (TcpStI[s]) {
+				TcpStI[s] = 2;
+				Lf->sf |= SELNET;
+			    } else {
+				Lf->sf &= ~SELNET;
+				Lf->sf |= SELEXCLF;
+				return;
+			    }
+			}
+		    }
+		}
+		if (!(Lf->sf & SELNET) && !TcpStIn && UdpStIn) {
+		    if (Fnet) {
+			if (!FnetTy
+			||  (FnetTy == 4) && (af == AF_INET)
+
+#if	defined(HASIPv6)
+			||  (FnetTy == 6) && (af == AF_INET6)
+#endif 	/* defined(HASIPv6) */
+
+			) {
+			    Lf->sf |= SELNET;
+			}
+		    }
+		}
+		continue;
+	    }
+	    if (strncasecmp(tbuf, "UDP", 3) == 0) {
+
+#if	solaris<110000
+		if (kread(pcb, (char *)&uc, sizeof(uc)) == 0)
+		    ucs = 1;
+#else	/* solaris>=110000 */
+		if (!kread(pcb, (char *)&cs, sizeof(cs))
+		&&  (cs.conn_ulp == IPPROTO_UDP)
+		) {
+		    ics = 1;
+		    if ((ka = (KA_T)cs.conn_proto_priv.cp_udp)
+		    &&  !read_udp_t(ka, &uc)
+		    ) {
+			ucs = 1;
+		    }
+		}
+#endif	/* solaris<110000 */
+
+		if (ucs && UdpNstates) {
+		    unsigned int s = (unsigned int)uc.udp_state + UdpStOff;
+		/*
+		 * Check for UDP state inclusion or exclusion.
+		 */
+
+		    if (s < UdpNstates) {
+			if (UdpStXn) {
+			    if (UdpStX[s]) {
+				Lf->sf &= ~SELNET;
+				Lf->sf |= SELEXCLF;
+				return;
+			    }
+			}
+			if (UdpStIn) {
+			    if (UdpStI[s]) {
+				UdpStI[s] = 2;
+				Lf->sf |= SELNET;
+			    } else {
+				Lf->sf |= SELEXCLF;
+				return;
+			    }
+			}
+		    }
+		}
+		if (!(Lf->sf & SELNET) && TcpStIn && !UdpStIn) {
+		    if (Fnet) {
+			if (!FnetTy
+			||  (FnetTy == 4) && (af == AF_INET)
+
+#if	defined(HASIPv6)
+			||  (FnetTy == 6) && (af == AF_INET6)
+#endif 	/* defined(HASIPv6) */
+
+			) {
+			    Lf->sf |= SELNET;
+			}
+		    }
+		}
+		continue;
+	    }
+	}
+	if (ics) {
+
+	/*
+	 * Print stream head's q_ptr address as protocol control block address.
+	 */
+	    if (pcb)
+		enter_dev_ch(print_kptr(pcb, (char *)NULL, 0));
+	    if (strncmp(Lf->iproto, "UDP", 3) == 0) {
+
+	/*
+	 * Save UDP address and TPI state.
+	 */
+
+#if	solaris<20600
+		la = (unsigned char *)&ic.ipc_udp_addr;
+		p = (u_short)ic.ipc_udp_port;
+#else	/* solaris>=20600 */
+# if	solaris>=110000
+		af = (uc.udp_ipversion == IPV6_VERSION) ? AF_INET6 : AF_INET;
+		la = (af == AF_INET6) ? (unsigned char *)&uc.udp_v6src
+		   :  (unsigned char *)&V4_PART_OF_V6(uc.udp_v6src);
+		p = (u_short)uc.udp_port;
+# else	/* solaris<110000 */
+#  if	defined(HASIPv6)
+		la = (af == AF_INET6) ? (unsigned char *)&ic.ipc_v6laddr
+		   :  (unsigned char *)IPv6_2_IPv4(&ic.ipc_v6laddr);
+#  else	/* !defined(HASIPv6 */
+		la = (unsigned char *)&ic.ipc_laddr;
+#  endif	/* defined(HASIPv6) */
+
+		p = (u_short)ic.ipc_lport;
+# endif	/* solaris>=110000 */
+#endif	/* solaris<20600 */
+
+#if	solaris<110000
+		if (IPv_ADDR_UNSPEC(af, la) && !p && ucs) {
+
+		/*
+		 * If the ipc_s structure has no local address, use
+		 * the port in the ud_s structure.
+		 */
+		    s = (u_short *)&uc.udp_port[0];
+		    p = *s;
+		}
+
+# if	defined(HASIPv6)
+		if ((af == AF_INET6) && la
+		&&  IN6_IS_ADDR_V4MAPPED((struct in6_addr *)la)) {
+
+		/*
+		 * Convert a local IPv4 address in an IPv6 structure to an IPv4
+		 * address in an IPv4 structure.  Change the address family to
+		 * AF_INET.
+		 */
+		    la = (unsigned char *)IPv6_2_IPv4(la);
+		    af = AF_INET;
+		}
+# endif	/* defined(HASIPv6) */
+#endif	/* solaris<110000 */
+
+		(void) ent_inaddr(la, (int)ntohs(p), (unsigned char *)NULL,
+				  -1, af);
+		if (!Fsize)
+		    Lf->off_def = 1;
+		if (ucs) {
+		    Lf->lts.type = 1;
+		    Lf->lts.state.ui = (unsigned int)uc.udp_state;
+		}
+	    } else if (strncmp(Lf->iproto, "TCP", 3) == 0) {
+		if (ics) {
+
+	    /*
+	     * Save TCP address.
+	     */
+
+#if	solaris<20400
+		    la = (unsigned char *)&ic.ipc_tcp_addr[0];
+		    p = (u_short)ic.ipc_tcp_addr[5];
+#else	/* solaris>=20400 */
+# if	solaris<20600
+		    la = (unsigned char *)&ic.ipc_tcp_laddr;
+		    p = (u_short)((short *)&ic.ipc_tcp_ports)[1];
+# else	/* solaris>=20600 */
+#  if	solaris>=110000
+		    la = (af == AF_INET6)
+		       ? (unsigned char *)&cs.connua_v6addr.connua_laddr
+		       : (unsigned char *)&cs.conn_src;
+	            lp = cs.conn_lport;
+#  else	/* solaris<110000 */
+#   if	defined(HASIPv6)
+		    la = (af == AF_INET6) ? (unsigned char *)&ic.ipc_v6laddr
+		       :  (unsigned char *)IPv6_2_IPv4(&ic.ipc_v6laddr);
+#   else		/* !defined(HASIPv6 */
+		    la = (unsigned char *)&ic.ipc_laddr;
+#   endif	/* defined(HASIPv6) */
+
+		    p = (u_short)ic.ipc_lport;
+#  endif	/* solaris>=110000 */
+# endif	/* solaris<20600 */
+#endif	/* solaris<20400 */
+
+#if	solaris<110000
+		    if (IPv_ADDR_UNSPEC(af, la) && !p && tcs) {
+
+		    /*
+		     * If the ipc_s structure has no local address, use the
+		     * local address in the stream's tcp_iph structure (except
+		     * for Solaris 2.4), and the port number in the stream's
+		     * tcph structure.
+		     */
+
+# if	solaris!=20400 && solaris<80000
+			la = (unsigned char *)&tc.tcp_iph.iph_src[0];
+# else	/* solaris==20400 || solaris<80000 */
+#  if	solaris>=100000 && defined(HAS_IPCLASSIFIER_H)
+			la = (af == AF_INET6) ? (unsigned char *)&ic.conn_srcv6
+			   :  (unsigned char *)IPv6_2_IPv4(&ic.conn_srcv6);
+#  else	/* solaris<100000 || !defined(HAS_IPCLASSIFIER_H) */
+#   if	solaris>=80000
+#    if	defined(HASIPv6)
+			la = (af == AF_INET6)
+			   ? (unsigned char *)&tcb.tcpb_ip_src_v6
+			   :  (unsigned char *)IPv6_2_IPv4(&tcb.tcpb_ip_src_v6);
+#    else	/* !defined(HASIPv6) */
+			la = (unsigned char *)&tcb.tcpb_ip_src;
+#    endif	/* defined(HASIPv6) */
+#   endif	/* solaris>=80000 */
+#  endif	/* solaris>=100000 && defined(HAS_IPCLASSIFIER_H) */
+# endif	/* solaris!=20400 && !defined(HASIPv6) */
+
+			if (tc.tcp_hdr_len && tc.tcp_tcph
+			&&  !kread((KA_T)tc.tcp_tcph, (char *)&th, sizeof(th))
+			) {
+			    tha = &th;
+			    s = (u_short *)&th.th_lport[0];
+			    p = *s;
+			}
+		    }
+#endif	/* solaris<110000 */
+
+		    lp = (int)ntohs(p);
+
+#if	solaris<20400
+		    if ((int)ic.ipc_tcp_addr[2] != INADDR_ANY
+		    ||  ic.ipc_tcp_addr[4] != 0)
+		    {
+			fa = (unsigned char *)&ic.ipc_tcp_addr[2];
+			fp = (int)ntohs(ic.ipc_tcp_addr[4]);
+		    }
+#else	/* solaris>=20400 */
+# if	solaris<20600
+		    if ((int)ic.ipc_tcp_faddr != INADDR_ANY
+		    ||  ((u_short *) &ic.ipc_tcp_ports)[0] != 0)
+		    {
+			fa = (unsigned char *)&ic.ipc_tcp_faddr;
+			fp = (int)ntohs(((u_short *)&ic.ipc_tcp_ports)[0]);
+		    }
+# else	/* solaris>=20600 */
+
+#  if	solaris>=110000
+		    ta = (af == AF_INET6)
+		       ? (unsigned char *)&cs.connua_v6addr.connua_faddr
+		       : (unsigned char *)&cs.conn_rem;
+		    if (!IPv_ADDR_UNSPEC(af, ta) || ((u_short)cs.conn_fport)) {
+			fa = ta;
+			fp = (u_short)cs.conn_fport;
+		    }
+#  else	/* solaris<110000 */
+#   if	defined(HASIPv6)
+		    ta = (af == AF_INET6) ? (unsigned char *)&ic.ipc_v6faddr
+		       :  (unsigned char *)IPv6_2_IPv4(&ic.ipc_v6faddr);
+#   else	/* !defined(HASIPv6) */
+		    ta = (unsigned char *)&ic.ipc_faddr;
+#   endif	/* defined(HASIPv6) */
+
+		    if (!IPv_ADDR_UNSPEC(af, ta) || ((u_short)ic.ipc_fport)) {
+			fa = ta;
+			fp = (int)ntohs(((u_short)ic.ipc_fport));
+		    }
+#  endif	/* solaris>=110000 */
+# endif	/* solaris<20600 */
+#endif	/* solaris <20400 */
+
+#if	defined(HASIPv6)
+		    if ((af == AF_INET6)
+		    &&  ((la && IN6_IS_ADDR_V4MAPPED((struct in6_addr *)la))
+		    ||  ((fa && IN6_IS_ADDR_V4MAPPED((struct in6_addr *)fa))))
+		    ) {
+
+		    /*
+		     * Convert IPv4 addresses in IPv6 structures to IPv4
+		     * addresses in IPv4 structures.  Change the address
+		     * family to AF_INET.
+		     */
+			if (la)
+			    la = (unsigned char *)IPv6_2_IPv4(la);
+			if (fa)
+			    fa = (unsigned char *)IPv6_2_IPv4(fa);
+			af = AF_INET;
+		    }
+#endif	/* defined(HASIPv6) */
+
+		    if (fa || la)
+			(void) ent_inaddr(la, lp, fa, fp, af);
+		}
+	    /*
+	     * Save TCP state information.
+	     */
+		if (tcs) {
+		    (void) save_TCP_states(&tc, (caddr_t *)tha, tcbp,
+					   (caddr_t *)NULL);
+		    Lf->lts.type = 0;
+		    Lf->lts.state.i = (int)tc.tcp_state;
+		}
+	    /*
+	     * Save TCP size information.
+	     */
+
+		if (tcs)
+		    (void) save_TCP_size(&tc);
+	    }
+	} else
+	    (void) strcat(Namech, "no TCP/UDP/IP information available");
+/*
+ * Enter name characters if there are some.
+ */
+	if (Namech[0])
+	    enter_nm(Namech);
+}
+
+
+#if	solaris>=110000
+/*
+ * read_icmp_t() - read connections icmp_t info
+ */
+
+static int
+read_icmp_t(va, ph, ia, ic)
+	KA_T va;			/* containing vnode kernel address */
+	KA_T ph;			/* containing protocol handle kernel
+					 * address */
+	KA_T ia;			/* icmp_t structure's kernel address */
+	icmp_t *ic;			/* local icmp_t receiver */
+{
+	char tbuf[32], tbuf1[32];	/* print_kptr() temporary buffers */
+
+# if	defined(HAS_CONN_NEW)
+	struct conn_s cs;		/* connection structure */
+	KA_T ka;			/* kernel address */
+
+	zeromem((char *)ic, sizeof(icmp_t));
+# endif	/* defined(HAS_CONN_NEW) */
+
+	(void) CTF_init(&IRU_ctfs, IRU_MOD_FORMAT, IRU_requests);
+	if (!ia
+	||  CTF_MEMBER_READ(ia, ic, icmp_t_members, icmp_state)
+
+# if	defined(HAS_CONN_NEW)
+	||  CTF_MEMBER_READ(ia, ic, icmp_t_members, icmp_connp)
+# else	/* !defined(HAS_CONN_NEW) */
+	||  CTF_MEMBER_READ(ia, ic, icmp_t_members, icmp_bound_v6src)
+	||  CTF_MEMBER_READ(ia, ic, icmp_t_members, icmp_v6src)
+	||  CTF_MEMBER_READ(ia, ic, icmp_t_members, icmp_debug)
+# endif	/* defined(HAS_CONN_NEW) */
+
+	) {
+	    (void) snpf(Namech, Namechl - 1,
+		"vnode at %s; proto handle at %s; can't read icmp_t at %s",
+		print_kptr(va, tbuf, sizeof(tbuf)),
+		print_kptr(ph, tbuf1, sizeof(tbuf1)),
+		print_kptr(ia, (char *)NULL, 0));
+	    Namech[Namechl - 1] = '\0';
+	    enter_nm(Namech);
+	    return(1);
+	}
+
+# if	defined(HAS_CONN_NEW)
+	if ((ka = (KA_T)ic->icmp_connp)
+	&& !kread(ka, (char *)&cs, sizeof(cs)))
+	{
+	    struct ip_xmit_attr_s xa;
+
+	/*
+	 * Complete the icmp_t structure from the conn_s structure.
+	 */
+	    ic->icmp_bound_v6src = cs.conn_bound_addr_v6;
+	    ic->icmp_v6src = cs.conn_saddr_v6;
+	    ic->icmp_debug.icmp_Debug = cs.conn_debug;
+	    ic->icmp_debug.icmp_broadcast = cs.conn_broadcast;
+	    ic->icmp_debug.icmp_reuseaddr = cs.conn_reuseaddr;
+	    ic->icmp_debug.icmp_useloopback = cs.conn_useloopback;
+	    ic->icmp_debug.icmp_dgram_errind = cs.conn_dgram_errind;
+	    if ((ka = (KA_T)cs.conn_ixa)
+	    &&  !kread(ka, (char *)&xa, sizeof(xa))
+	    ) {
+		ic->icmp_debug.icmp_dontroute = (xa.ixa_flags & IXAF_DONTROUTE)
+					      ? 1 : 0;
+	    }
+
+	}
+# endif	/* defined(HAS_CONN_NEW) */
+
+	return(0);
+}
+
+
+/*
+ * read_rts_t() - read connections rts_t info
+ */
+
+static int
+read_rts_t(va, ph, ra, rt)
+	KA_T va;			/* containing vnode kernel address */
+	KA_T ph;			/* containing protocol handle kernel
+					 * address */
+	KA_T ra;			/* rts_t structure's kernel address */
+	rts_t *rt;			/* local rts_t receiver */
+{
+	char tbuf[32], tbuf1[32];	/* print_kptr() temporary buffers */
+
+# if	defined(HAS_CONN_NEW)
+	struct conn_s cs;		/* connextion structure */
+	KA_T ka;			/* kernal address */
+
+	zeromem((char *)rt, sizeof(rts_t));
+# endif	/* defined(HAS_CONN_NEW) */
+
+	(void) CTF_init(&IRU_ctfs, IRU_MOD_FORMAT, IRU_requests);
+	if (!ra
+	||  CTF_MEMBER_READ(ra, rt, rts_t_members, rts_state)
+
+# if	defined(HAS_CONN_NEW)
+	||  CTF_MEMBER_READ(ra, rt, rts_t_members, rts_connp)
+# else	/* !defined(HAS_CONN_NEW) */
+	||  CTF_MEMBER_READ(ra, rt, rts_t_members, rts_debug)
+# endif	/* defined(HAS_CONN_NEW) */
+
+	) {
+	    (void) snpf(Namech, Namechl - 1,
+		"vnode at %s; proto handle at %s; can't read rts_t at %s",
+		print_kptr(va, tbuf, sizeof(tbuf)),
+		print_kptr(ph, tbuf1, sizeof(tbuf1)),
+		print_kptr(ra, (char *)NULL, 0));
+	    Namech[Namechl - 1] = '\0';
+	    enter_nm(Namech);
+	    return(1);
+	}
+
+# if	defined(HAS_CONN_NEW)
+	if ((ka = (KA_T)rt->rts_connp)
+	&&  !kread(ka, (char *)&cs, sizeof(struct conn_s))
+	) {
+	    struct ip_xmit_attr_s xa;
+
+	/*
+	 * Fill in rts_debug from the connection structure.
+	 */
+	    rt->rts_debug.rts_Debug = cs.conn_debug;
+	    rt->rts_debug.rts_broadcast = cs.conn_broadcast;
+	    rt->rts_debug.rts_reuseaddr = cs.conn_reuseaddr;
+	    rt->rts_debug.rts_useloopback = cs.conn_useloopback;
+	    if ((ka = (KA_T)cs.conn_ixa)
+	    &&  !kread(ka, (char *)&xa, sizeof(xa))
+	    ) {
+		rt->rts_debug.rts_dontroute = (xa.ixa_flags & IXAF_DONTROUTE)
+					    ? 1 : 0;
+	    }
+	}
+
+# endif	/* defined(HAS_CONN_NEW) */
+
+	return(0);
+}
+
+
+/*
+ * read_udp_t() - read UDP control structure
+ */
+
+static int
+read_udp_t(ua, uc)
+	KA_T ua;			/* ucp_t kernel address */
+	udp_t *uc;			/* receiving udp_t structure */
+{
+	(void) CTF_init(&IRU_ctfs, IRU_MOD_FORMAT, IRU_requests);
+	if (!ua
+	||  CTF_MEMBER_READ(ua, uc, udp_t_members, udp_state)
+
+# if	defined(HAS_CONN_NEW)
+	||  CTF_MEMBER_READ(ua, uc, udp_t_members, udp_connp)
+# else	/* !defined(HAS_CONN_NEW) */
+	||  CTF_MEMBER_READ(ua, uc, udp_t_members, udp_port)
+	||  CTF_MEMBER_READ(ua, uc, udp_t_members, udp_dstport)
+	||  CTF_MEMBER_READ(ua, uc, udp_t_members, udp_v6src)
+	||  CTF_MEMBER_READ(ua, uc, udp_t_members, udp_v6dst)
+	||  CTF_MEMBER_READ(ua, uc, udp_t_members, udp_ipversion)
+	||  CTF_MEMBER_READ(ua, uc, udp_t_members, udp_bits)
+# endif	/* defined(HAS_CONN_NEW) */
+
+	) {
+	    (void) snpf(Namech, Namechl, "can't read udp_t: %s",
+			print_kptr(ua, (char *)NULL, 0));
+	    Namech[Namechl - 1] = '\0';
+	    enter_nm(Namech);
+	    return(1);
+	}
+	return(0);
+}
+#endif	/* solaris>=110000 */
+
+
+/*
+ * save_TCP_size() -- save TCP size information
+ */
+
+static void
+
+save_TCP_size(tc)
+	tcp_t *tc;			/* pointer to TCP control structure */
+{
+	int rq, sq;
+
+#if	defined(HASTCPTPIQ) || defined(HASTCPTPIW)
+# if	defined(HASTCPTPIW)
+	Lf->lts.rw = (int)tc->tcp_rwnd;
+	Lf->lts.ww = (int)tc->tcp_swnd;
+	Lf->lts.rws = Lf->lts.wws = 1;
+# endif	/* defined(HASTCPTPIW) */
+
+	if ((rq = (int)tc->tcp_rnxt - (int)tc->tcp_rack) < 0)
+	    rq = 0;
+	if ((sq = (int)tc->tcp_snxt - (int)tc->tcp_suna - 1) < 0)
+	    sq  = 0;
+
+# if	defined(HASTCPTPIQ)
+	Lf->lts.rq = (unsigned long)rq;
+	Lf->lts.sq = (unsigned long)sq;
+	Lf->lts.rqs = Lf->lts.sqs = 1;
+# endif	/* defined(HASTCPTPIQ) */
+
+	if (Fsize) {
+	    if (Lf->access == 'r')
+		Lf->sz = (SZOFFTYPE)rq;
+	    else if (Lf->access == 'w')
+		Lf->sz = (SZOFFTYPE)sq;
+	    else
+		Lf->sz = (SZOFFTYPE)(rq + sq);
+		Lf->sz_def = 1;
+	} else
+	    Lf->off_def = 1;
+#else	/* !defined(HASTCPTPIQ) && !defined(HASTCPTPIW) */
+	Lf->off_def = 1;
+#endif	/* defined(HASTCPTPIQ) || defined(HASTCPTPIW) */
+
+}
+
+
+/*
+ * save_TCP_states() - save TCP states
+ */
+
+static void
+save_TCP_states(tc, fa, tb, xp)
+	tcp_t *tc;			/* pointer to TCP control structure */
+	caddr_t *fa;			/* flags address (may be NULL):
+					 *   if HAS_CONN_NEW: conn_s *
+					 *   if !CONN_HAS_NEW: tcph_t *
+					 */
+	tcpb_t *tb;			/* pointer to TCP base structure (may
+					 * be NULL) */
+	caddr_t *xp;			/* pointer to struct ip_xmit_attr_s if
+					 * HAS_CONN_NEW (may be NULL) */
+{
+	if (!tc)
+	    return;
+
+#if	defined(HASSOOPT)
+# if	defined(HAS_CONN_NEW)
+	if (Ftcptpi & TCPTPI_FLAGS && fa) {
+	    struct conn_s *cs = (struct conn_s *)fa;
+
+	    if (cs->conn_broadcast)
+		Lf->lts.opt |= SO_BROADCAST;
+	    if (cs->conn_debug)
+		Lf->lts.opt |= SO_DEBUG;
+	    if (cs->conn_dgram_errind)
+		Lf->lts.opt |= SO_DGRAM_ERRIND;
+	    if (xp && (((ip_xmit_attr_t *)xp)->ixa_flags & IXAF_DONTROUTE))
+		Lf->lts.opt |= SO_DONTROUTE;
+	    if (cs->conn_keepalive) {
+		Lf->lts.opt |= SO_KEEPALIVE;
+		Lf->lts.kai = (unsigned int)tc->tcp_ka_interval;
+	    }
+	    if (cs->conn_linger) {
+		Lf->lts.opt |= SO_LINGER;
+		Lf->lts.ltm = (unsigned int)cs->conn_lingertime;
+	    }
+	    if (cs->conn_oobinline)
+		Lf->lts.opt |= SO_OOBINLINE;
+	    Lf->lts.pqlen = (unsigned int)tc->tcp_conn_req_cnt_q0;
+	    Lf->lts.qlen = (unsigned int)tc->tcp_conn_req_cnt_q;
+	    Lf->lts.qlim = (unsigned int)tc->tcp_conn_req_max;
+	    Lf->lts.pqlens = Lf->lts.qlens = Lf->lts.qlims
+			   = (unsigned char)1;
+	    if (cs->conn_reuseaddr)
+		Lf->lts.opt |= SO_REUSEADDR;
+	    if (cs->conn_useloopback)
+		Lf->lts.opt |= SO_USELOOPBACK;
+# else	/* !defined(HAS_CONN_NEW) */
+	if (Ftcptpi & TCPTPI_FLAGS) {
+	    if (tc->tcp_broadcast)
+		Lf->lts.opt |= SO_BROADCAST;
+	    if (tc->tcp_debug)
+		Lf->lts.opt |= SO_DEBUG;
+	    if (tc->tcp_dgram_errind)
+		Lf->lts.opt |= SO_DGRAM_ERRIND;
+	    if (tc->tcp_dontroute)
+		Lf->lts.opt |= SO_DONTROUTE;
+	    if (tc->KEEPALIVE_INTERVAL) {
+		Lf->lts.opt |= SO_KEEPALIVE;
+		Lf->lts.kai = (unsigned int)tc->KEEPALIVE_INTERVAL;
+	    }
+	    if (tc->tcp_linger) {
+		Lf->lts.opt |= SO_LINGER;
+		Lf->lts.ltm = (unsigned int)tc->tcp_lingertime;
+	    }
+	    if (tc->tcp_oobinline)
+		Lf->lts.opt |= SO_OOBINLINE;
+	    Lf->lts.pqlen = (unsigned int)tc->tcp_conn_req_cnt_q0;
+	    Lf->lts.qlen = (unsigned int)tc->tcp_conn_req_cnt_q;
+	    Lf->lts.qlim = (unsigned int)tc->tcp_conn_req_max;
+	    Lf->lts.pqlens = Lf->lts.qlens = Lf->lts.qlims
+			   = (unsigned char)1;
+
+#  if	solaris>=80000
+#   if	defined(HAS_IPCLASSIFIER_H)
+	    if (tc->tcp_reuseaddr)
+#   else /* !defined(HAS_IPCLASSIFIER_H) */
+	    if (tb && tb->tcpb_reuseaddr)
+#   endif /* !defined(HAS_IPCLASSIFIER_H) */
+
+	    Lf->lts.opt |= SO_REUSEADDR;
+#  endif	/* solaris>=80000 */
+
+	    if (tc->tcp_useloopback)
+		Lf->lts.opt |= SO_USELOOPBACK;
+# endif /* defined(HAS_CONN_NEW) */
+#endif	/* defined(HASSOOPT) */
+
+#if	defined(HASTCPOPT)
+# if	defined(ACK_TIMER)
+#  if	!defined(HAS_CONN_NEW)
+	    if (fa && (((tcph_t *)fa)->th_flags[0] & ACK_TIMER))
+		Lf->lts.topt |= TF_DELACK;
+#  endif /* !defined(HAS_CONN_NEW) */
+# endif	/* defined(ACK_TIMER) */
+
+# if	solaris<80000 || defined(HAS_IPCLASSIFIER_H)
+	    Lf->lts.mss = (unsigned long)tc->tcp_mss;
+# else	/* solaris>=80000 && !defined(HAS_IPCLASSIFIER_H) */
+	    if (tb)
+		Lf->lts.mss = (unsigned long)tb->tcpb_mss;
+# endif	/* solaris<80000 || defined(HAS_IPCLASSIFIER_H) */
+
+	    Lf->lts.msss = (unsigned char)1;
+	    if (tc->tcp_naglim == 1L)
+		Lf->lts.topt |= TF_NODELAY;
+	    if (tc->tcp_fin_sent)
+		Lf->lts.topt |= TF_SENTFIN;
+	}
+#endif	/* defined(HASTCPOPT) */
+
+}
+@
+
+
+1.30
+log
+@Revision 4.84
+@
+text
+@d35 1
+a35 1
+static char *rcsid = "$Id: dsock.c,v 1.29 2010/01/18 19:03:54 abe Exp abe $";
+d140 2
+d143 4
+@
+
+
+1.29
+log
+@Revision 4.83
+@
+text
+@d35 1
+a35 1
+static char *rcsid = "$Id: dsock.c,v 1.28 2008/10/21 16:16:42 abe Exp abe $";
+d65 1
+d68 19
+a86 8
+	uint_t icmp_debug;		/* This name identifies a single bit
+					 * variable, but CTF won't read
+					 * individual bit variables, so for
+					 * CTF's purposes it is declared as a
+					 * single member, named by its first
+					 * bit variable, whose address CTF
+					 * groks.  The bit variables are later
+					 * decoded via a union. */
+d96 15
+a110 1
+	uint_t rts_debug;		/* This name identifies a single bit
+d114 1
+a114 1
+					 * single member, named by its first
+d116 1
+a116 2
+					 * groks.  The bit variables are later
+					 * decoded via a union. */
+d123 1
+a123 2
+typedef struct udp {
+	uint_t udp_state;		/* TPI state */
+d129 1
+a129 1
+	KA_T udp_connp;			/* connection structure pointer */
+d157 5
+d168 4
+d182 5
+d189 1
+d201 4
+d206 1
+a206 1
+#define	MX_udp_port			1
+d209 1
+a209 1
+#define	MX_udp_dstport			2
+d212 1
+a212 1
+#define	MX_udp_v6src			3
+d215 1
+a215 1
+#define	MX_udp_v6dst			4
+d218 1
+a218 1
+#define	MX_udp_ipversion		5
+a219 3
+    CTF_MEMBER(udp_connp),
+#define	MX_udp_connp			6
+
+d222 1
+d318 2
+a319 1
+_PROTOTYPE(static void save_TCP_states,(tcp_t *tc, tcph_t *th, tcpb_t *tb));
+d692 11
+d727 5
+d733 2
+d859 9
+d874 4
+a877 1
+		(void) save_TCP_states(&tc, tha, (tcpb_t *)NULL);
+d963 1
+a963 1
+#if	defined(HASSOOPT)
+d994 1
+a994 1
+#endif	/* defined(HASSOOPT) */
+d1049 1
+a1049 1
+#if	defined(HASSOOPT)
+d1054 1
+a1054 15
+		    union {
+			uint_t flags;
+			uint_t
+			    icmp_debug : 1,	   /* SO_DEBUG option */
+			    icmp_dontroute : 1,	   /* SO_DONTROUTE option */
+			    icmp_broadcast : 1,	   /* SO_BROADCAST option */
+			    icmp_reuseaddr : 1,	   /* SO_REUSEADDR option */
+			    icmp_useloopback : 1,  /* SO_USELOOPBACK option */
+			    icmp_hdrincl : 1,	   /* IP_HDRINCL option, etc. */
+			    icmp_dgram_errind : 1, /* SO_DGRAM_ERRIND option */
+			    icmp_pad : 25;	   /* pad to bit 31 */
+		    } icf;
+
+		    icf.flags = ic.icmp_debug;
+		    if (icf.icmp_debug)
+d1056 1
+a1056 1
+		    if (icf.icmp_dontroute)
+d1058 1
+a1058 1
+		    if (icf.icmp_broadcast)
+d1060 1
+a1060 1
+		    if (icf.icmp_reuseaddr)
+d1062 1
+a1062 1
+		    if (icf.icmp_useloopback)
+d1064 1
+a1064 1
+		    if (icf.icmp_dgram_errind)
+d1067 1
+a1067 1
+#endif	/* defined(HASSOOPT) */
+d1122 1
+a1122 1
+#if	defined(HASSOOPT)
+d1127 1
+a1127 13
+		union {
+		    uint_t flags;
+		    uint_t
+			rts_debug : 1,		/* SO_DEBUG option */
+			rts_dontroute : 1,	/* SO_DONTROUTE option */
+			rts_broadcast : 1,	/* SO_BROADCAST option */
+			rts_reuseaddr : 1,	/* SO_REUSEADDR option */
+			rts_useloopback : 1,	/* SO_USELOOPBACK option */
+			icmp_pad : 27;		/* padding to bit 31 */
+		} rtf;
+
+		rtf.flags = rt.rts_debug;
+		if (rtf.rts_debug)
+d1129 1
+a1129 1
+		if (rtf.rts_dontroute)
+d1131 1
+a1131 1
+		if (rtf.rts_broadcast)
+d1133 1
+a1133 1
+		if (rtf.rts_reuseaddr)
+d1135 1
+a1135 1
+		if (rtf.rts_useloopback)
+d1138 1
+a1138 1
+#endif	/* defined(HASSOOPT) */
+d1720 2
+a1721 1
+		    (void) save_TCP_states(&tc, tha, tcbp);
+d1757 7
+d1767 4
+d1773 3
+d1786 27
+d1831 7
+d1841 4
+d1846 2
+d1858 24
+d1898 4
+a1906 1
+	||  CTF_MEMBER_READ(ua, uc, udp_t_members, udp_connp)
+d1908 2
+d1973 1
+a1973 1
+save_TCP_states(tc, th, tb)
+d1975 4
+a1978 2
+	tcph_t *th;			/* pointer to TCP header structure
+					 * (may be NULL) */
+d1981 2
+d1988 32
+d2045 2
+a2046 2
+# if	solaris>=80000
+#  if	defined(HAS_IPCLASSIFIER_H)
+d2048 1
+a2048 1
+#  else	/* !defined(HAS_IPCLASSIFIER_H) */
+d2050 1
+a2050 1
+#  endif	/* !defined(HAS_IPCLASSIFIER_H) */
+d2053 1
+a2053 1
+# endif	/* solaris>=80000 */
+d2057 1
+d2062 2
+a2063 1
+	    if (th && (th->th_flags[0] & ACK_TIMER))
+d2065 1
+@
+
+
+1.28
+log
+@Revision 4.81
+@
+text
+@d35 1
+a35 1
+static char *rcsid = "$Id: dsock.c,v 1.27 2007/04/24 16:23:15 abe Exp abe $";
+d41 178
+d273 8
+d514 8
+d645 4
+d650 27
+d678 431
+d1122 2
+a1123 1
+#if	solaris>=100000 && defined(HAS_IPCLASSIFIER_H)
+d1129 1
+a1129 1
+#else	/* solaris<100000 || !defined(HAS_IPCLASSIFIER_H) */
+d1131 4
+a1134 1
+#endif	/* solaris>=100000 && defined(HAS_IPCLASSIFIER_H) */
+d1232 1
+d1235 3
+a1237 1
+	int ths = 0;
+d1245 3
+d1250 1
+a1250 1
+# if	defined(HASIPv6)
+d1258 1
+a1258 1
+# else	/* !defined(HASIPv6) */
+d1261 2
+a1262 1
+# endif	/* defined(HASIPv6) */
+d1270 1
+a1270 1
+# if	defined(HASIPv6)
+d1272 1
+a1272 1
+# endif	/* defined(HASIPv6) */
+d1314 2
+d1321 2
+d1326 1
+a1326 1
+		if (kread((KA_T)q.q_ptr, (char *)&tc, sizeof(tc)) == 0)
+d1331 1
+a1331 1
+		    &&  !kread((KA_T)tc.tcp_base, (char *)&tcb, sizeof(tcb)))
+d1333 2
+d1342 10
+a1351 5
+		if (kread((KA_T)q.q_ptr, (char *)&ic, sizeof(ic)) == 0)
+		{
+		    if (ic.conn_tcp &&
+		    !kread((KA_T)ic.conn_tcp, (char *)&tc, sizeof(tc)))
+			ics = tcs = 1;
+d1353 8
+d1406 3
+a1408 1
+		if (kread((KA_T)q.q_ptr, (char *)&uc, sizeof(uc)) == 0)
+d1410 13
+d1482 7
+a1488 1
+# if	defined(HASIPv6)
+d1491 1
+a1491 1
+# else	/* !defined(HASIPv6 */
+d1493 1
+a1493 1
+# endif	/* defined(HASIPv6) */
+d1496 1
+d1499 1
+d1523 1
+d1534 1
+d1541 2
+a1542 2
+		la = (unsigned char *)&ic.ipc_tcp_addr[0];
+		p = (u_short)ic.ipc_tcp_addr[5];
+d1545 2
+a1546 2
+		la = (unsigned char *)&ic.ipc_tcp_laddr;
+		p = (u_short)((short *)&ic.ipc_tcp_ports)[1];
+d1548 12
+a1559 6
+#  if	defined(HASIPv6)
+		la = (af == AF_INET6) ? (unsigned char *)&ic.ipc_v6laddr
+		   :  (unsigned char *)IPv6_2_IPv4(&ic.ipc_v6laddr);
+#  else		/* !defined(HASIPv6 */
+		la = (unsigned char *)&ic.ipc_laddr;
+#  endif	/* defined(HASIPv6) */
+d1561 2
+a1562 1
+		p = (u_short)ic.ipc_lport;
+d1566 2
+a1567 1
+		if (IPv_ADDR_UNSPEC(af, la) && !p && tcs) {
+d1569 6
+a1574 6
+		/*
+		 * If the ipc_s structure has no local address, use the local
+		 * address in the stream's tcp_iph structure (except for
+		 * Solaris 2.4), and the port number in the stream's tcph
+		 * structure.
+		 */
+d1576 18
+a1593 17
+#if	solaris!=20400 && solaris<80000
+		    la = (unsigned char *)&tc.tcp_iph.iph_src[0];
+#else	/* solaris==20400 || solaris<80000 */
+# if	solaris>=100000 && defined(HAS_IPCLASSIFIER_H)
+		    la = (af == AF_INET6) ? (unsigned char *)&ic.conn_srcv6
+		       :  (unsigned char *)IPv6_2_IPv4(&ic.conn_srcv6);
+# else	/* solaris<100000 || !defined(HAS_IPCLASSIFIER_H) */
+#  if	solaris>=80000
+#   if	defined(HASIPv6)
+		    la = (af == AF_INET6) ? (unsigned char *)&tcb.tcpb_ip_src_v6
+		       :  (unsigned char *)IPv6_2_IPv4(&tcb.tcpb_ip_src_v6);
+#   else	/* !defined(HASIPv6) */
+		    la = (unsigned char *)&tcb.tcpb_ip_src;
+#   endif	/* defined(HASIPv6) */
+#  endif	/* solaris>=80000 */
+# endif	/* solaris>=100000 && defined(HAS_IPCLASSIFIER_H) */
+#endif	/* solaris!=20400 && !defined(HASIPv6) */
+d1595 7
+a1601 5
+		    if (tc.tcp_hdr_len && tc.tcp_tcph
+		    &&  !kread((KA_T)tc.tcp_tcph, (char *)&th, sizeof(th))) {
+			ths = 1;
+			s = (u_short *)&th.th_lport[0];
+			p = *s;
+d1603 1
+a1603 2
+		}
+		lp = (int)ntohs(p);
+d1605 2
+d1608 6
+a1613 6
+		if ((int)ic.ipc_tcp_addr[2] != INADDR_ANY
+		||  ic.ipc_tcp_addr[4] != 0)
+		{
+		    fa = (unsigned char *)&ic.ipc_tcp_addr[2];
+		    fp = (int)ntohs(ic.ipc_tcp_addr[4]);
+		}
+d1616 6
+a1621 6
+		if ((int)ic.ipc_tcp_faddr != INADDR_ANY
+		||  ((u_short *) &ic.ipc_tcp_ports)[0] != 0)
+		{
+		    fa = (unsigned char *)&ic.ipc_tcp_faddr;
+		    fp = (int)ntohs(((u_short *)&ic.ipc_tcp_ports)[0]);
+		}
+d1624 15
+a1638 6
+#  if	defined(HASIPv6)
+		ta = (af == AF_INET6) ? (unsigned char *)&ic.ipc_v6faddr
+		   :  (unsigned char *)IPv6_2_IPv4(&ic.ipc_v6faddr);
+#  else	/* !defined(HASIPv6) */
+		ta = (unsigned char *)&ic.ipc_faddr;
+#  endif	/* defined(HASIPv6) */
+d1640 5
+a1644 4
+		if (!IPv_ADDR_UNSPEC(af, ta) || ((u_short)ic.ipc_fport)) {
+		    fa = ta;
+		    fp = (int)ntohs(((u_short)ic.ipc_fport));
+		}
+d1649 4
+a1652 3
+		if ((af == AF_INET6)
+		&&  ((la && IN6_IS_ADDR_V4MAPPED((struct in6_addr *)la))
+		||  ((fa && IN6_IS_ADDR_V4MAPPED((struct in6_addr *)fa))))) {
+d1654 11
+a1664 10
+		/*
+		 * Convert IPv4 addresses in IPv6 structures to IPv4 addresses
+		 * in IPv4 structures.  Change the address family to AF_INET.
+		 */
+		    if (la)
+			la = (unsigned char *)IPv6_2_IPv4(la);
+		    if (fa)
+			fa = (unsigned char *)IPv6_2_IPv4(fa);
+		    af = AF_INET;
+		}
+d1667 3
+a1669 2
+		if (fa || la)
+		    (void) ent_inaddr(la, lp, fa, fp, af);
+d1674 7
+d1682 11
+a1692 25
+#if	defined(HASSOOPT)
+		    if (Ftcptpi & TCPTPI_FLAGS) {
+			if (tc.tcp_broadcast)
+			    Lf->lts.opt |= SO_BROADCAST;
+			if (tc.tcp_debug)
+			    Lf->lts.opt |= SO_DEBUG;
+			if (tc.tcp_dgram_errind)
+			    Lf->lts.opt |= SO_DGRAM_ERRIND;
+			if (tc.tcp_dontroute)
+			    Lf->lts.opt |= SO_DONTROUTE;
+			if (tc.KEEPALIVE_INTERVAL) {
+			    Lf->lts.opt |= SO_KEEPALIVE;
+			    Lf->lts.kai = (unsigned int)tc.KEEPALIVE_INTERVAL;
+			}
+			if (tc.tcp_linger) {
+			    Lf->lts.opt |= SO_LINGER;
+			    Lf->lts.ltm = (unsigned int)tc.tcp_lingertime;
+			}
+			if (tc.tcp_oobinline)
+			    Lf->lts.opt |= SO_OOBINLINE;
+			Lf->lts.pqlen = (unsigned int)tc.tcp_conn_req_cnt_q0;
+			Lf->lts.qlen = (unsigned int)tc.tcp_conn_req_cnt_q;
+			Lf->lts.qlim = (unsigned int)tc.tcp_conn_req_max;
+			Lf->lts.pqlens = Lf->lts.qlens = Lf->lts.qlims
+				       = (unsigned char)1;
+a1693 6
+# if	solaris>=80000
+#  if	defined(HAS_IPCLASSIFIER_H)
+			if (tc.tcp_reuseaddr)
+#  else	/* !defined(HAS_IPCLASSIFIER_H) */
+			if (tcb.tcpb_reuseaddr)
+#  endif	/* !defined(HAS_IPCLASSIFIER_H) */
+d1695 4
+a1698 2
+			    Lf->lts.opt |= SO_REUSEADDR;
+# endif	/* solaris>=80000 */
+d1700 9
+a1708 3
+			if (tc.tcp_useloopback)
+			    Lf->lts.opt |= SO_USELOOPBACK;
+#endif	/* defined(HASSOOPT) */
+d1710 17
+a1726 5
+#if	defined(HASTCPOPT)
+# if	defined(ACK_TIMER)
+			if (ths && (th.th_flags[0] & ACK_TIMER))
+			    Lf->lts.topt |= TF_DELACK;
+# endif	/* defined(ACK_TIMER) */
+a1727 5
+# if	solaris<80000 || defined(HAS_IPCLASSIFIER_H)
+			Lf->lts.mss = (unsigned long)tc.tcp_mss;
+# else	/* solaris>=80000 && !defined(HAS_IPCLASSIFIER_H) */
+			Lf->lts.mss = (unsigned long)tcb.tcpb_mss;
+# endif	/* solaris<80000 || defined(HAS_IPCLASSIFIER_H) */
+d1729 3
+a1731 1
+			Lf->lts.msss = (unsigned char)1;
+d1733 9
+a1741 6
+			if (tc.tcp_naglim == 1L)
+			    Lf->lts.topt |= TF_NODELAY;
+			if (tc.tcp_fin_sent)
+			    Lf->lts.topt |= TF_SENTFIN;
+		    }
+#endif	/* defined(HASTCPOPT) */
+d1743 16
+a1758 6
+		    Lf->lts.type = 0;
+		    Lf->lts.state.i = (int)tc.tcp_state;
+		}
+	    /*
+	     * Save TCP size information.
+	     */
+a1759 2
+#if	defined(HASTCPTPIQ) || defined(HASTCPTPIW)
+		if (tcs) {
+d1761 3
+a1763 1
+		    int rq, sq;
+d1765 39
+d1805 3
+a1807 3
+		    Lf->lts.rw = (int)tc.tcp_rwnd;
+		    Lf->lts.ww = (int)tc.tcp_swnd;
+		    Lf->lts.rws = Lf->lts.wws = 1;
+d1810 4
+a1813 4
+		    if ((rq = (int)tc.tcp_rnxt - (int)tc.tcp_rack) < 0)
+			rq = 0;
+		    if ((sq = (int)tc.tcp_snxt - (int)tc.tcp_suna - 1) < 0)
+			sq  = 0;
+d1816 3
+a1818 3
+		    Lf->lts.rq = (unsigned long)rq;
+		    Lf->lts.sq = (unsigned long)sq;
+		    Lf->lts.rqs = Lf->lts.sqs = 1;
+d1821 10
+a1830 11
+		    if (Fsize) {
+			if (Lf->access == 'r')
+			    Lf->sz = (SZOFFTYPE)rq;
+			else if (Lf->access == 'w')
+			    Lf->sz = (SZOFFTYPE)sq;
+			else
+			    Lf->sz = (SZOFFTYPE)(rq + sq);
+			Lf->sz_def = 1;
+		    } else
+			Lf->off_def = 1;
+		}
+d1832 1
+a1832 1
+		Lf->off_def = 1;
+d1835 3
+a1837 6
+	    } else {
+		if (!Fsize)
+		    Lf->off_def = 1;
+	    }
+	} else
+	    (void) strcat(Namech, "no TCP/UDP/IP information available");
+d1839 1
+a1839 1
+ * Enter name characters if there are some.
+d1841 73
+a1913 2
+	if (Namech[0])
+	    enter_nm(Namech);
+@
+
+
+1.27
+log
+@Revision 4.78
+@
+text
+@d35 1
+a35 1
+static char *rcsid = "$Id: dsock.c,v 1.26 2005/08/08 19:55:41 abe Exp abe $";
+d95 46
+d157 5
+a161 42
+		switch ((i = Lf->lts.state.i)) {
+		case TCPS_CLOSED:
+		    cp = "CLOSED";
+		    break;
+		case TCPS_IDLE:
+		    cp = "IDLE";
+		    break;
+		case TCPS_BOUND:
+		    cp = "BOUND";
+		    break;
+		case TCPS_LISTEN:
+		    cp = "LISTEN";
+		    break;
+		case TCPS_SYN_SENT:
+		    cp = "SYN_SENT";
+		    break;
+		case TCPS_SYN_RCVD:
+		    cp = "SYN_RCVD";
+		    break;
+		case TCPS_ESTABLISHED:
+		    cp = "ESTABLISHED";
+		    break;
+		case TCPS_CLOSE_WAIT:
+		    cp = "CLOSE_WAIT";
+		    break;
+		case TCPS_FIN_WAIT_1:
+		    cp = "FIN_WAIT_1";
+		    break;
+		case TCPS_CLOSING:
+		    cp = "CLOSING";
+		    break;
+		case TCPS_LAST_ACK:
+		    cp = "LAST_ACK";
+		    break;
+		case TCPS_FIN_WAIT_2:
+		    cp = "FIN_WAIT_2";
+		    break;
+		case TCPS_TIME_WAIT:
+		    cp = "TIME_WAIT";
+		    break;
+		default:
+		    (void) snpf(sbuf, sizeof(sbuf), "UknownState_%d", i);
+d163 2
+a164 1
+		}
+d167 5
+a171 46
+		switch ((u = Lf->lts.state.ui)) {
+		case TS_UNBND:
+		    cp = "Unbound";
+		    break;
+		case TS_WACK_BREQ:
+		    cp = "Wait_BIND_REQ_Ack";
+		    break;
+		case TS_WACK_UREQ:
+		    cp = "Wait_UNBIND_REQ_Ack";
+		    break;
+		case TS_IDLE:
+		    cp = "Idle";
+		    break;
+		case TS_WACK_OPTREQ:
+		    cp = "Wait_OPT_REQ_Ack";
+		    break;
+		case TS_WACK_CREQ:
+		    cp = "Wait_CONN_REQ_Ack";
+		    break;
+		case TS_WCON_CREQ:
+		    cp = "Wait_CONN_REQ_Confirm";
+		    break;
+		case TS_WRES_CIND:
+		    cp = "Wait_CONN_IND_Response";
+		    break;
+		case TS_WACK_CRES:
+		    cp = "Wait_CONN_RES_Ack";
+		    break;
+		case TS_DATA_XFER:
+		    cp = "Wait_Data_Xfr";
+		    break;
+		case TS_WIND_ORDREL:
+		    cp = "Wait_Read_Release";
+		    break;
+		case TS_WREQ_ORDREL:
+		    cp = "Wait_Write_Release";
+		    break;
+		case TS_WACK_DREQ6:
+		case TS_WACK_DREQ7:
+		case TS_WACK_DREQ9:
+		case TS_WACK_DREQ10:
+		case TS_WACK_DREQ11:
+		    cp = "Wait_DISCON_REQ_Ack";
+		    break;
+		default:
+		    (void) snpf(sbuf, sizeof(sbuf), "UNKNOWN_TPI_STATE_%u", u);
+d173 9
+d183 1
+a184 7
+	    if (Ffield)
+		(void) printf("%cST=%s%c", LSOF_FID_TCPTPI, cp, Terminator);
+	    else {
+		putchar('(');
+		(void) fputs(cp, stdout);
+	    }
+	    ps++;
+d607 4
+a610 2
+	    )
+		Lf->sf |= SELNET;
+d677 40
+d722 39
+@
+
+
+1.26
+log
+@Revision 4.76
+@
+text
+@d35 1
+a35 1
+static char *rcsid = "$Id: dsock.c,v 1.25 2004/03/10 23:53:41 abe Exp abe $";
+d688 2
+a689 2
+		    tc.tcp_base = &tcb;		/* support for macroes */
+		    tcb.tcpb_tcp = &tc;		/* support for macroes */
+@
+
+
+1.25
+log
+@Revision 4.71
+@
+text
+@d35 1
+a35 1
+static char *rcsid = "$Id: dsock.c,v 1.24 2004/02/24 13:47:45 abe Exp abe $";
+d253 2
+a254 1
+	    ||  Lf->lts.qlens || Lf->lts.qlims || Lf->lts.rbszs || Lf->lts.sbsz
+d326 4
+d331 1
+a331 1
+		    (void) printf("%cQLEN=%d", sep, Lf->lts.qlen);
+d335 1
+a335 1
+		    (void) printf("%cQLIM=%lu", sep, Lf->lts.qlim);
+a489 1
+	char *cp;
+d906 1
+d909 2
+a910 1
+			Lf->lts.qlens = Lf->lts.qlims = (unsigned char)1;
+@
+
+
+1.24
+log
+@Revision 4.71
+Add "-Tf" support.
+@
+text
+@d35 1
+a35 1
+static char *rcsid = "$Id: dsock.c,v 1.23 2003/10/13 13:30:04 abe Exp abe $";
+d75 8
+d85 7
+d93 1
+d598 1
+d820 1
+d892 1
+a892 1
+			if (tc.tcp_keepalive_intrvl) {
+d894 1
+a894 1
+			    Lf->lts.kai = (unsigned int)tc.tcp_keepalive_intrvl;
+d907 3
+d911 2
+d921 2
+a922 1
+			if (tc.tcp_ack_timer_running)
+d924 1
+d926 3
+a928 1
+#  if	solaris>=80000
+d930 2
+a932 1
+#  endif	/* solaris>=80000 */
+@
+
+
+1.23
+log
+@Revision 4.69
+Solaris 10 port
+@
+text
+@d35 1
+a35 1
+static char *rcsid = "$Id: dsock.c,v 1.22 2002/01/16 15:05:41 abe Exp abe $";
+d69 7
+d77 1
+d199 1
+a199 1
+# if	defined(HASTCPTPIQ)
+d203 1
+a203 1
+			putchar(LSOF_FID_TCPTPI);
+d230 1
+a230 1
+# endif	/* defined(HASTCPTPIQ) */
+d232 188
+a419 1
+# if	defined(HASTCPTPIW)
+d450 1
+a450 1
+# endif	/* defined(HASTCPTPIW) */
+d863 50
+@
+
+
+1.22
+log
+@Update ent_inaddr() usage.
+@
+text
+@d35 1
+a35 1
+static char *rcsid = "$Id: dsock.c,v 1.21 2001/11/01 20:28:49 abe Exp abe $";
+d278 8
+d287 2
+d381 1
+a381 1
+#if	solaris>=80000
+d383 1
+a383 1
+#endif	/* solaris>=80000 */
+d463 2
+d467 1
+a467 1
+#if	solaris>=80000
+d475 1
+a475 1
+#else	/* solaris<80000 */
+d477 9
+a485 1
+#endif	/* solaris>=80000 */
+d591 6
+a596 2
+# if	solaris>=80000
+#  if	defined(HASIPv6)
+d599 1
+a599 1
+#  else	/* !defined(HASIPv6) */
+d601 3
+a603 2
+#  endif	/* defined(HASIPv6) */
+# endif	/* solaris>=80000 */
+@
+
+
+1.21
+log
+@Revision 4.60
+@
+text
+@d35 1
+a35 1
+static char *rcsid = "$Id: dsock.c,v 1.20 2001/10/17 19:19:19 abe Exp abe $";
+a282 1
+	int oaf = -1;
+a521 1
+		    oaf = af;
+d527 1
+a527 1
+				  -1, af, oaf);
+a632 1
+		    oaf = af;
+d638 1
+a638 1
+		    (void) ent_inaddr(la, lp, fa, fp, af, oaf);
+@
+
+
+1.20
+log
+@Revision 4.59
+@
+text
+@d35 1
+a35 1
+static char *rcsid = "$Id: dsock.c,v 1.19 2001/01/02 12:35:05 abe Exp abe $";
+d283 1
+d523 1
+d529 1
+a529 1
+				  -1, af);
+d635 1
+d641 1
+a641 1
+		    (void) ent_inaddr(la, lp, fa, fp, af);
+@
+
+
+1.19
+log
+@Revision 4.54
+@
+text
+@d35 1
+a35 1
+static char *rcsid = "$Id: dsock.c,v 1.18 2000/12/04 14:35:13 abe Exp abe $";
+a384 2
+	if (Fnet)
+	    Lf->sf |= SELNET;
+d398 6
+d405 7
+d519 1
+a519 1
+		 * AF_INET and file type type to IPv4.
+d627 1
+a627 2
+		 * in IPv4 structures.  Change the address family to AF_INET
+		 * and the file type to IPv4.
+@
+
+
+1.18
+log
+@Revision 4.53
+@
+text
+@d35 1
+a35 1
+static char *rcsid = "$Id: dsock.c,v 1.17 2000/08/01 15:20:40 abe Exp abe $";
+a510 2
+		    if (Lf->type[3] == '6')
+			Lf->type[3] = '4';
+a622 2
+		    if (Lf->type[3] == '6')
+			Lf->type[3] = '4';
+@
+
+
+1.17
+log
+@Revision 4.51
+Convert to snpf().
+@
+text
+@d2 1
+a2 1
+ * dsock.c - SunOS (Solaris 1.x and 2.x) socket processing functions for lsof
+d35 1
+a35 1
+static char *rcsid = "$Id: dsock.c,v 1.16 1999/11/28 06:44:44 abe Exp abe $";
+d41 1
+a41 2
+#if	defined(solaris)
+# if	defined(HASIPv6)
+d58 1
+a58 1
+# else	/* !defined(HASIPv6) */
+d67 1
+a67 2
+# endif	/* !defined(HASIPv6) */
+#endif	/* defined(solaris) */
+a69 1
+#if	defined(solaris)
+d293 1
+a293 1
+# if	solaris<20600
+d297 1
+a297 1
+#  if	solaris>=20400
+d299 1
+a299 1
+#  endif	/* solaris>=20400 */
+d301 1
+a301 1
+#  if	defined(P101318) && P101318>=32
+d303 1
+a303 1
+#  endif	/* defined(P101318) && P101318>=32 */
+d325 1
+a325 1
+#  if	solaris<20400 && (!defined(P101318) || P101318<32)
+d327 1
+a327 1
+#  endif	/* solaris<20400 && (!defined(P101318) || P101318<32) */
+d338 1
+a338 1
+#  if	solaris<20500
+d341 1
+a341 1
+#  else	/* solaris>=20500 */
+d343 1
+a343 1
+#  endif	/* solaris<20500 */
+d345 1
+a345 1
+#  if	solaris<20400
+d347 2
+a348 2
+#  else	/* solaris>=20400 */
+#   if	solaris<20500
+d350 2
+a351 2
+#   else	/* solaris>=20500 */
+#    if	solaris<20501
+d353 1
+a353 1
+#    else	/* solaris>=20501 */
+d355 1
+a355 1
+#    endif	/* solaris<20501 */
+d357 1
+a357 1
+#    if	solaris<20501
+d359 1
+a359 1
+#    else	/* solaris>=20501 */
+d361 3
+a363 3
+#    endif	/* solaris>=20501 */
+#   endif	/* solaris<20500 */
+#  endif	/* solaris<20400 */
+d367 1
+a367 1
+# else	/* solaris>=20600 */
+d369 1
+a369 1
+# endif	/* solaris<20600 */
+d371 1
+a371 1
+# if	solaris>=80000
+d373 1
+a373 1
+# endif	/* solaris>=80000 */
+d444 1
+a444 1
+# if	solaris>=80000
+d452 1
+a452 1
+# else	/* solaris<80000 */
+d454 2
+a455 1
+# endif	/* solaris>=80000 */
+d477 1
+a477 1
+# if	solaris<20600
+d480 2
+a481 2
+# else	/* solaris>=20600 */
+#  if	defined(HASIPv6)
+d484 1
+a484 1
+#  else	/* !defined(HASIPv6 */
+d486 1
+a486 1
+#  endif	/* defined(HASIPv6) */
+d489 1
+a489 1
+# endif	/* solaris<20600 */
+d531 1
+a531 1
+# if	solaris<20400
+d534 2
+a535 2
+# else	/* solaris>=20400 */
+#  if	solaris<20600
+d538 2
+a539 2
+#  else	/* solaris>=20600 */
+#   if	defined(HASIPv6)
+d542 1
+a542 1
+#else		/* !defined(HASIPv6 */
+d544 1
+a544 1
+#   endif	/* defined(HASIPv6) */
+d547 2
+a548 2
+#  endif	/* solaris<20600 */
+# endif	/* solaris<20400 */
+d559 1
+a559 1
+# if	solaris!=20400 && solaris<80000
+d561 3
+a563 3
+# else	/* solaris==20400 || solaris<80000 */
+#  if	solaris>=80000
+#   if	defined(HASIPv6)
+d566 1
+a566 1
+#   else	/* !defined(HASIPv6) */
+d568 3
+a570 3
+#   endif	/* defined(HASIPv6) */
+#  endif	/* solaris>=80000 */
+# endif	/* solaris!=20400 && !defined(HASIPv6) */
+d580 1
+a580 1
+# if	solaris<20400
+d587 2
+a588 2
+# else	/* solaris>=20400 */
+#  if	solaris<20600
+d595 1
+a595 1
+#  else	/* solaris>=20600 */
+d597 1
+a597 1
+#   if	defined(HASIPv6)
+d600 1
+a600 1
+#   else	/* !defined(HASIPv6) */
+d602 1
+a602 1
+#   endif	/* defined(HASIPv6) */
+d608 2
+a609 2
+#  endif	/* solaris<20600 */
+# endif	/* solaris <20400 */
+d611 1
+a611 1
+# if	defined(HASIPv6)
+d629 1
+a629 1
+# endif	/* defined(HASIPv6) */
+d644 1
+a644 1
+# if	defined(HASTCPTPIQ) || defined(HASTCPTPIW)
+d649 1
+a649 1
+#  if	defined(HASTCPTPIW)
+d653 1
+a653 1
+#  endif	/* defined(HASTCPTPIW) */
+d660 1
+a660 1
+#  if	defined(HASTCPTPIQ)
+d664 1
+a664 1
+#  endif	/* defined(HASTCPTPIQ) */
+d677 1
+a677 1
+# else	/* !defined(HASTCPTPIQ) && !defined(HASTCPTPIW) */
+d679 1
+a679 1
+# endif	/* defined(HASTCPTPIQ) || defined(HASTCPTPIW) */
+d688 1
+a688 1
+ * Enter name charcters if there are some.
+a692 232
+#else	/* !solaris */
+
+
+/*
+ * process_socket() - process non-Solaris socket
+ */
+
+void
+process_socket(sa)
+	KA_T sa;			/* socket address in kernel */
+{
+	struct domain d;
+	char *ep;
+	unsigned char *fa = (unsigned char *)NULL;
+	int fam;
+	int fp, lp;
+	struct inpcb inp;
+	unsigned char *la = (unsigned char *)NULL;
+	struct mbuf mb;
+	struct protosw p;
+	struct rawcb raw;
+	struct socket s;
+	size_t sz;
+	struct tcpcb t;
+	struct unpcb uc, unp;
+	struct sockaddr_un *ua = NULL;
+	struct sockaddr_un un;
+
+	(void) snpf(Lf->type, sizeof(Lf->type), "sock");
+	Lf->inp_ty = 2;
+/*
+ * Read socket, protocol, and domain structures.
+ */
+	if (!sa) {
+	    enter_nm("no socket address");
+	    return;
+	}
+	if (kread(sa, (char *) &s, sizeof(s))) {
+	    (void) snpf(Namech, Namechl, "can't read socket struct from %s",
+		print_kptr(sa, (char *)NULL, 0));
+	    enter_nm(Namech);
+	    return;
+	}
+	if (!s.so_type) {
+	    enter_nm("no socket type");
+	    return;
+	}
+	if (!s.so_proto
+	||  kread((KA_T)s.so_proto, (char *)&p, sizeof(p))) {
+	    (void) snpf(Namech, Namechl, "can't read protocol switch from %s",
+		print_kptr((KA_T)s.so_proto, (char *)NULL, 0));
+	    enter_nm(Namech);
+	    return;
+	}
+	if (!p.pr_domain
+	||  kread((KA_T)p.pr_domain, (char *)&d, sizeof(d))) {
+	    (void) snpf(Namech, Namechl, "can't read domain struct from %s",
+		print_kptr((KA_T)p.pr_domain, (char *)NULL, 0));
+	    enter_nm(Namech);
+	    return;
+	}
+/*
+ * Save size information.
+ */
+	if (Fsize) {
+	    if (Lf->access == 'r')
+		Lf->sz = (SZOFFTYPE)s.so_rcv.sb_cc;
+	    else if (Lf->access == 'w')
+		Lf->sz = (SZOFFTYPE)s.so_snd.sb_cc;
+	    else
+		Lf->sz = (SZOFFTYPE)(s.so_rcv.sb_cc + s.so_snd.sb_cc);
+	    Lf->sz_def = 1;
+	} else
+	    Lf->off_def = 1;
+
+# if	defined(HASTCPTPIQ)
+	Lf->lts.rq = s.so_rcv.sb_cc;
+	Lf->lts.sq = s.so_snd.sb_cc;
+	Lf->lts.rqs = Lf->lts.sqs = 1;
+# endif	/* defined(HASTCPTPIQ) */
+
+/*
+ * Process socket by the associated domain family.
+ */
+	switch ((fam = d.dom_family)) {
+/*
+ * Process an Internet domain socket.
+ */
+	case AF_INET:
+	    if (Fnet)
+		Lf->sf |= SELNET;
+	    (void) snpf(Lf->type, sizeof(Lf->type), "inet");
+	    printiproto(p.pr_protocol);
+	/*
+	 * Read protocol control block.
+	 */
+	    if (!s.so_pcb) {
+		enter_nm("no protocol control block");
+		return;
+	    }
+	    if (s.so_type == SOCK_RAW) {
+
+	    /*
+	     * Print raw socket information.
+	     */
+		if (kread((KA_T) s.so_pcb, (char *)&raw, sizeof(raw))
+		||  (struct socket *)sa != raw.rcb_socket) {
+		    (void) snpf(Namech, Namechl, "can't read rawcb at %s",
+			print_kptr((KA_T)s.so_pcb, (char *)NULL, 0));
+		    enter_nm(Namech);
+		    return;
+		}
+		enter_dev_ch(print_kptr((KA_T)(raw.rcb_pcb ? raw.rcb_pcb
+							   : s.so_pcb),
+					(char *)NULL, 0));
+		if (raw.rcb_laddr.sa_family == AF_INET)
+		    la = (unsigned char *)&raw.rcb_laddr.sa_data[2];
+		else if (raw.rcb_laddr.sa_family)
+		    printrawaddr(&raw.rcb_laddr);
+		if (raw.rcb_faddr.sa_family == AF_INET)
+		    fa = (unsigned char *)&raw.rcb_faddr.sa_data[2];
+		else if (raw.rcb_faddr.sa_family) {
+		    ep = endnm(&sz);
+		    (void) snpf(ep, sz, "->");
+		    printrawaddr(&raw.rcb_faddr);
+		}
+		if (fa || la)
+		    (void) ent_inaddr(la, -1, fa, -1, AF_INET);
+	    } else {
+
+	    /*
+	     * Save Internet socket information.
+	     */
+		if (kread((KA_T)s.so_pcb, (char *)&inp, sizeof(inp))) {
+		    (void) snpf(Namech, Namechl, "can't read inpcb at %s",
+			print_kptr((KA_T)s.so_pcb, (char *)NULL, 0));
+		    enter_nm(Namech);
+		    return;
+		}
+		enter_dev_ch(print_kptr((KA_T)(inp.inp_ppcb ? inp.inp_ppcb
+							    : s.so_pcb),
+					(char *)NULL, 0));
+		la = (unsigned char *)&inp.inp_laddr;
+		lp = (int)ntohs(inp.inp_lport);
+		if (inp.inp_faddr.s_addr != INADDR_ANY || inp.inp_fport != 0) {
+		    fa = (unsigned char *)&inp.inp_faddr;
+		    fp = (int)ntohs(inp.inp_fport);
+		}
+		if (fa || la)
+		    (void) ent_inaddr(la, lp, fa, fp, AF_INET);
+		if (p.pr_protocol == IPPROTO_TCP
+		&&  inp.inp_ppcb
+		&&  kread((KA_T)inp.inp_ppcb, (char *)&t, sizeof(t)) == 0) {
+		    Lf->lts.type = 0;
+		    Lf->lts.state.i = (int)t.t_state;
+		}
+	    }
+	    break;
+/*
+ * Process a Unix domain socket.
+ */
+	case AF_UNIX:
+	    if (Funix)
+		Lf->sf |= SELUNX;
+	    (void) snpf(Lf->type, sizeof(Lf->type), "unix");
+	/*
+	 * Read Unix protocol control block and the Unix address structure.
+	 */
+	    enter_dev_ch(print_kptr(sa, (char *)NULL, 0));
+	    if (kread((KA_T) s.so_pcb, (char *) &unp, sizeof(unp))) {
+		(void) snpf(Namech, Namechl, "can't read unpcb at %s",
+		    print_kptr((KA_T)s.so_pcb, (char *)NULL, 0));
+		break;
+	    }
+	    if ((struct socket *)sa != unp.unp_socket) {
+		(void) snpf(Namech, Namechl, "unp_socket (%s) mismatch",
+		    print_kptr((KA_T)unp.unp_socket, (char *)NULL, 0));
+		break;
+	    }
+	    if (unp.unp_addr) {
+		if (kread((KA_T)unp.unp_addr, (char *) &mb, sizeof(mb))) {
+		    (void) snpf(Namech, Namechl, "can't read unp_addr at %s",
+			print_kptr((KA_T)unp.unp_addr, (char *)NULL, 0));
+		    break;
+		}
+		ua = (struct sockaddr_un *)(((char *)&mb) + mb.m_off);
+	    }
+	    if (!ua) {
+		ua = &un;
+		(void) bzero((char *)ua, sizeof(un));
+		ua->sun_family = AF_UNSPEC;
+	    }
+	/*
+	 * Print information on Unix socket that has no address bound
+	 * to it, although it may be connected to another Unix domain
+	 * socket as a pipe.
+	 */
+	    if (ua->sun_family != AF_UNIX) {
+		if (ua->sun_family == AF_UNSPEC) {
+		    if (unp.unp_conn) {
+			if (kread((KA_T)unp.unp_conn,(char *)&uc,sizeof(uc))) {
+			    (void) snpf(Namech, Namechl,
+				"can't read unp_conn at %#x",
+				print_kptr((KA_T)unp.unp_conn,(char *)NULL,0));
+			} else
+			    (void) snpf(Namech, Namechl, "->%s",
+				print_kptr((KA_T)uc.unp_socket,(char *)NULL,0));
+		    } else
+			(void) snpf(Namech, Namechl, "->(none)");
+		} else
+		    (void) snpf(Namech, Namechl, "unknown sun_family (%d)",
+			ua->sun_family);
+		break;
+	    }
+	    if (ua->sun_path[0]) {
+		if (mb.m_len >= sizeof(struct sockaddr_un))
+		    mb.m_len = sizeof(struct sockaddr_un) - 1;
+		*((char *)ua + mb.m_len) = '\0';
+		if (Sfile && is_file_named(ua->sun_path, Ntype, VSOCK, 0))
+		    Lf->sf |= SELNM;
+		if (!Namech[0])
+		    (void) snpf(Namech, Namechl, "%s", ua->sun_path);
+	    } else
+		(void) snpf(Namech, Namechl, "no address");
+	    break;
+	default:
+	    printunkaf(fam, 1);
+	}
+	if (Namech[0])
+	    enter_nm(Namech);
+}
+#endif	/* solaris */
+@
+
+
+1.16
+log
+@Revision 4.47
+@
+text
+@d35 1
+a35 1
+static char *rcsid = "$Id: dsock.c,v 1.15 99/10/22 08:23:50 abe Exp $";
+d131 1
+a131 1
+		    (void) sprintf(sbuf, "UknownState_%d", i);
+d136 1
+a136 1
+		switch ((u = Lf->lts.state.u)) {
+d181 1
+a181 1
+		    (void) sprintf(sbuf, "UNKNOWN_TPI_STATE_%u", u);
+d393 1
+a393 1
+	    (void) strcpy(Lf->type, "IPv6");
+d396 1
+a396 1
+	    (void) strcpy(Lf->type, "IPv4");
+d400 1
+a400 1
+	(void) strcpy(Lf->type, "inet");
+d472 1
+a472 1
+		enter_dev_ch(print_kptr(pcb, (char *)NULL));
+d525 1
+a525 1
+		    Lf->lts.state.u = (unsigned int)uc.udp_state;
+d707 1
+d717 1
+d723 1
+a723 1
+	(void) strcpy(Lf->type, "sock");
+d733 2
+a734 2
+	    (void) sprintf(Namech, "can't read socket struct from %s",
+		print_kptr(sa, (char *)NULL));
+d744 2
+a745 2
+	    (void) sprintf(Namech, "can't read protocol switch from %s",
+		print_kptr((KA_T)s.so_proto, (char *)NULL));
+d751 2
+a752 2
+	    (void) sprintf(Namech, "can't read domain struct from %s",
+		print_kptr((KA_T)p.pr_domain, (char *)NULL));
+d786 1
+a786 1
+	    (void) strcpy(Lf->type, "inet");
+d802 2
+a803 2
+		    (void) sprintf(Namech, "can't read rawcb at %s",
+			print_kptr((KA_T)s.so_pcb, (char *)NULL));
+d809 1
+a809 1
+					(char *)NULL));
+d817 2
+a818 1
+		    (void) strcat(endnm(), "->");
+d829 2
+a830 2
+		    (void) sprintf(Namech, "can't read inpcb at %s",
+			print_kptr((KA_T)s.so_pcb, (char *)NULL));
+d836 1
+a836 1
+					(char *)NULL));
+d859 1
+a859 1
+	    (void) strcpy(Lf->type, "unix");
+d863 1
+a863 1
+	    enter_dev_ch(print_kptr(sa, (char *)NULL));
+d865 2
+a866 2
+		(void) sprintf(Namech, "can't read unpcb at %s",
+		    print_kptr((KA_T)s.so_pcb, (char *)NULL));
+d870 2
+a871 2
+		(void) sprintf(Namech, "unp_socket (%s) mismatch",
+		    print_kptr((KA_T)unp.unp_socket, (char *)NULL));
+d876 2
+a877 2
+		    (void) sprintf(Namech, "can't read unp_addr at %s",
+			print_kptr((KA_T)unp.unp_addr, (char *)NULL));
+d896 3
+a898 2
+			    (void) sprintf(Namech, "can't read unp_conn at %#x",
+				print_kptr((KA_T)unp.unp_conn, (char *)NULL));
+d900 2
+a901 2
+			    (void) sprintf(Namech, "->%s",
+				print_kptr((KA_T)uc.unp_socket, (char *)NULL));
+d903 1
+a903 1
+			(void) strcpy(Namech, "->(none)");
+d905 1
+a905 1
+		    (void) sprintf(Namech, "unknown sun_family (%d)",
+d916 1
+a916 1
+		    (void) strcpy(Namech, ua->sun_path);
+d918 1
+a918 1
+		(void) strcpy(Namech, "no address");
+@
+
+
+1.15
+log
+@Revision 4.46
+@
+text
+@d35 1
+a35 1
+static char *rcsid = "$Id: dsock.c,v 1.14 99/07/28 09:24:30 abe Exp Locker: abe $";
+a42 4
+/*
+ * Special definitions for IPv6.  Some of these are work-arounds caused by
+ * needing to define _KERNEL before <netinet/in.h> is #include'd.
+ */
+a43 1
+#  if	!defined(V4_PART_OF_V6)
+d45 2
+a46 3
+ * Make some special definitions for the Solaris 8 Beta release, because
+ * the required compilation with _KERNEL defined is much different from
+ * compilation without it.
+d49 1
+a49 4
+/*
+ * IPv6_2_IPv4() -- macro to extract an IPv4 adress to an in_addr from its
+ *		    mapped location in an IPv6 address
+ */
+a50 3
+#define	IPv6_2_IPv4(v6, v4) ((v4)->s_addr = \
+	((in6_t *)(v6))->in6_un.sun6_ip6addr.ipa_32[3])
+
+a51 7
+ * Some _KERNEL|<netinet/in.h> circumventions
+ */
+
+#undef	ipa_32
+#define	V4_PART_OF_V6(v6)	v6.ipa_32[3]
+
+/*
+a55 29
+#define	IPv_ADDR_UNSPEC(af, p) \
+   (((af) == AF_INET6) ? (IN6_IS_ADDR_UNSPECIFIED((ipv6addr_t *)&(((in6_t *)(p))->in6_un.sun6_ip6addr))) \
+		       : (((struct in_addr *)(p))->s_addr == INADDR_ANY))
+
+/*
+ * IP4_IN_IPv6() -- macro to test if an IPv4 address is mapped in an IPv6
+ *		    address
+ */
+
+#define	IPv4_IN_IPv6(p)	\
+  IN6_IS_ADDR_V4MAPPED((ipv6addr_t *)&(((in6_t *)(p))->in6_un.sun6_ip6addr))
+#  else	/* !defined(V4_PART_OF_V6) */
+/*
+ * Definitions for "proper" IPv6 behavior -- i.e., not in Solaris 8 Beta
+ * release mode.
+ */
+
+/*
+ * IPv6_2_IPv4() -- macro to extract an IPv4 adress to an in_addr from its
+ *		    mapped location in an IPv6 address
+ */
+
+#define IPv6_2_IPv4(v6, v4)	IN6_V4MAPPED_TO_INADDR((in6_addr_t *)v6, v4)
+
+/*
+ * IPv_ADDR_UNSPEC() -- macro to test an IP[46] address for an unspecified
+ *			address value
+ */
+
+d57 1
+a57 1
+    (((af) == AF_INET6) ? (IN6_IS_ADDR_UNSPECIFIED((in6_addr_t *)p)) \
+a58 9
+
+/*
+ * IP4_IN_IPv6() -- macro to test if an IPv4 address is mapped in an IPv6
+ *		    address
+ */
+
+#define IPv4_IN_IPv6(p)		IN6_IS_ADDR_V4MAPPED((in6_addr_t *)p)
+#  endif	/* !defined(V4_PART_OF_V6) */
+
+d62 1
+a62 1
+ * IPv_ADDR_UNSPEC() -- IPv4 only form of macro to test for an unspecified
+d67 1
+a278 5
+
+# if	defined(HASIPv6)
+	struct in_addr fv4, lv4;
+# endif	/* defined(HASIPv6) */
+
+d449 1
+a449 1
+		    if (!tc.tcp_base
+d451 1
+a451 1
+			tcs;
+d484 4
+a487 3
+		if (af == AF_INET6)
+		    la = (unsigned char *)&ic.ipc_v6laddr;
+		else
+a489 1
+		    la = (unsigned char *)&ic.ipc_laddr;
+d504 2
+a505 1
+		if ((af == AF_INET6) && la && IPv4_IN_IPv6(la)) {
+d512 1
+a512 2
+		    IPv6_2_IPv4(la, &lv4);
+		    la = (unsigned char *)&lv4;
+d542 4
+a545 3
+		if (af == AF_INET6)
+		    la = (unsigned char *)&ic.ipc_v6laddr;
+		else
+d547 1
+a547 1
+		    la = (unsigned char *)&ic.ipc_laddr;
+d566 4
+a569 3
+		    if (af == AF_INET6)
+			la = (unsigned char *)&tcb.tcpb_ip_src_v6;
+		    else
+a570 1
+			la = (unsigned char *)&tcb.tcpb_ip_src;
+d601 1
+a601 1
+				      : (unsigned char *)&ic.ipc_faddr;
+d615 2
+a616 1
+		&&  ((la && IPv4_IN_IPv6(la)) || ((fa && IPv4_IN_IPv6(fa))))) {
+d623 4
+a626 8
+		    if (la) {
+			IPv6_2_IPv4(la, &lv4);
+			la = (unsigned char *)&lv4;
+		    }
+		    if (fa) {
+			IPv6_2_IPv4(fa, &fv4);
+			fa = (unsigned char *)&fv4;
+		    }
+d917 1
+a917 1
+	    printunkaf(fam);
+@
+
+
+1.14
+log
+@Revision 4.45
+Add Auspex LFS support.
+@
+text
+@d35 1
+a35 1
+static char *rcsid = "$Id: dsock.c,v 1.13 99/06/22 08:09:33 abe Exp Locker: abe $";
+d41 6
+d48 80
+d332 2
+d335 5
+d354 1
+d435 4
+a448 1
+
+d451 10
+d462 3
+d470 1
+a470 1
+	    for (i = 0; ty[i] != '\0' && i < IPROTOL; i++) {
+d507 10
+d518 1
+d534 1
+a534 1
+	    if (strcmp(Lf->iproto, "UDP") == 0) {
+d544 7
+a550 1
+		la = (unsigned char *)&ic.ipc_laddr;
+d554 1
+a554 3
+		if (((struct in_addr *)la)->s_addr == INADDR_ANY
+		&&  p == 0 && ucs)
+		{
+d563 17
+d581 1
+a581 1
+				  -1, AF_INET);
+d588 1
+a588 1
+	    } else if (strcmp(Lf->iproto, "TCP") == 0) {
+d602 6
+a607 1
+		la = (unsigned char *)&ic.ipc_laddr;
+d612 1
+a612 3
+		if (((struct in_addr *)la)->s_addr == INADDR_ANY
+		&&  p == 0 && tcs)
+		{
+d621 1
+a621 1
+# if	solaris!=20400
+d623 10
+a632 1
+# endif	/* solaris!=20400 */
+d658 10
+a667 3
+		if ((int)ic.ipc_faddr != INADDR_ANY || ((u_short)ic.ipc_fport))
+		{
+		    fa = (unsigned char *)&ic.ipc_faddr;
+d673 23
+d697 1
+a697 1
+		    (void) ent_inaddr(la, lp, fa, fp, AF_INET);
+@
+
+
+1.13
+log
+@Revision 4.44
+@
+text
+@d35 1
+a35 1
+static char *rcsid = "$Id: dsock.c,v 1.12 99/04/15 06:44:06 abe Exp Locker: abe $";
+d53 1
+a53 1
+	int i, t;
+d58 1
+a58 1
+	    switch ((t = Lf->lts.type)) {
+@
+
+
+1.12
+log
+@Revision 4.43
+Correct tcp_s struct definition for Solaris 2.5.
+@
+text
+@d35 1
+a35 1
+static char *rcsid = "$Id: dsock.c,v 1.11 99/03/29 07:16:57 abe Exp Locker: abe $";
+d471 3
+a473 2
+		 * address in its tcp_iph structure (except for Solaris 2.4),
+		 * and the port number in its tcph structure.
+d490 2
+a491 1
+		|| ic.ipc_tcp_addr[4] != 0) {
+d498 1
+a498 1
+		|| ((u_short *) &ic.ipc_tcp_ports)[0] != 0)
+@
+
+
+1.11
+log
+@Revision 4.42
+Make file name reporting improvements; update VxFS support.
+@
+text
+@a5 1
+
+d35 1
+a35 1
+static char *rcsid = "$Id: dsock.c,v 1.10 98/08/03 07:37:35 abe Exp Locker: abe $";
+d321 3
+d325 1
+d331 1
+a331 1
+#    endif	/* solaris<20501 */
+@
+
+
+1.10
+log
+@Revision 4.36
+Correct TCP and UDP IP address reporting.  Do miscellaneous cleanup.
+@
+text
+@d36 1
+a36 1
+static char *rcsid = "$Id: dsock.c,v 1.9 98/05/22 07:16:37 abe Exp Locker: abe $";
+d785 2
+a786 1
+		(void) strcpy(Namech, ua->sun_path);
+@
+
+
+1.9
+log
+@Revision 4.33
+@
+text
+@d36 1
+a36 1
+static char *rcsid = "$Id: dsock.c,v 1.8 98/04/21 10:04:32 abe Exp Locker: abe $";
+d324 5
+a328 1
+	    u_long d26[58];
+d342 2
+a343 2
+	    uint udp_state;
+	    unsigned char dummy2[2];
+d420 2
+a421 2
+		la = (unsigned char *)&ic.ipc_faddr;
+		p = (u_short)ic.ipc_fport;
+d425 2
+a426 1
+		&&  p == 0 && ucs) {
+d429 2
+a430 2
+		 * If the ipc_s structure has no local address, read
+		 * the ud_s structure for the stream one back.
+d463 2
+a464 1
+		&&  p == 0 && tcs) {
+d614 5
+a618 3
+	if (s.so_proto == NULL
+	||  kread((KA_T) s.so_proto, (char *) &p, sizeof(p))) {
+	    enter_nm("no protocol switch");
+d621 2
+a622 1
+	if (kread((KA_T) p.pr_domain, (char *) &d, sizeof(d))) {
+d699 1
+a699 2
+		if (kread((KA_T)s.so_pcb, (char *) &inp, sizeof(inp))
+		||  (struct socket *)sa != inp.inp_socket) {
+@
+
+
+1.8
+log
+@Revision 4.31
+Add Solaris 2.7 support.
+@
+text
+@d36 1
+a36 1
+static char *rcsid = "$Id: dsock.c,v 1.7 98/03/06 08:38:39 abe Exp Locker: abe $";
+d247 1
+a247 1
+	struct in_addr *fa = (struct in_addr *)NULL;
+d252 1
+a252 1
+	struct in_addr *la = (struct in_addr *)NULL;
+d413 1
+a413 1
+		la = (struct in_addr *)&ic.ipc_udp_addr;
+d416 1
+a416 1
+		la = (struct in_addr *)&ic.ipc_faddr;
+d420 2
+a421 1
+		if (la->s_addr == INADDR_ANY && p == 0 && ucs) {
+d430 2
+a431 1
+		(void) ent_inaddr(la,(int)ntohs(p),(struct in_addr *)NULL,-1);
+d445 1
+a445 1
+		la = (struct in_addr *)&ic.ipc_tcp_addr[0];
+d449 1
+a449 1
+		la = (struct in_addr *)&ic.ipc_tcp_laddr;
+d452 1
+a452 1
+		la = (struct in_addr *)&ic.ipc_laddr;
+d457 2
+a458 1
+		if (la->s_addr == INADDR_ANY && p == 0 && tcs) {
+d467 1
+a467 1
+		    la = (struct in_addr *)&tc.tcp_iph.iph_src[0];
+d481 1
+a481 1
+		    fa = (struct in_addr *)&ic.ipc_tcp_addr[2];
+d489 1
+a489 1
+		    fa = (struct in_addr *)&ic.ipc_tcp_faddr;
+d495 1
+a495 1
+		    fa = (struct in_addr *)&ic.ipc_faddr;
+d502 1
+a502 1
+		    (void) ent_inaddr(la, lp, fa, fp);
+d575 1
+a575 1
+	struct in_addr *fa = (struct in_addr *)NULL;
+d579 1
+a579 1
+	struct in_addr *la = (struct in_addr *)NULL;
+d674 1
+a674 1
+		    la = (struct in_addr *)&raw.rcb_laddr.sa_data[2];
+d678 1
+a678 1
+		    fa = (struct in_addr *)&raw.rcb_faddr.sa_data[2];
+d684 1
+a684 1
+		    (void) ent_inaddr(la, -1, fa, -1);
+d700 1
+a700 1
+		la = &inp.inp_laddr;
+d703 1
+a703 1
+		    fa = &inp.inp_faddr;
+d707 1
+a707 1
+		    (void) ent_inaddr(la, lp, fa, fp);
+@
+
+
+1.7
+log
+@Revision 4.27
+@
+text
+@d36 1
+a36 1
+static char *rcsid = "$Id: dsock.c,v 1.6 97/12/11 16:01:53 abe Exp Locker: abe $";
+d254 1
+a254 1
+	KA_T ka, qp;
+d259 1
+d339 3
+a341 3
+	    u8 dummy2[2];
+	    u8 udp_port[2];		/* port bound to this stream */
+	    u8 udp_src[4];		/* source address of this stream */
+@
+
+
+1.6
+log
+@Revision 4.22
+Add missing offset mode set.
+@
+text
+@d36 1
+a36 1
+static char *rcsid = "$Id: dsock.c,v 1.5 97/10/24 07:57:38 abe Exp Locker: abe $";
+d244 1
+a244 1
+	struct stdata *sa;		/* stream's data address in kernel */
+a246 1
+	char dev_ch[32];
+d256 1
+a256 1
+	struct queue *pcb = (struct queue *)NULL;
+d261 1
+d268 1
+a268 1
+		struct tcp_s *d1[8];
+d272 1
+a272 1
+		struct tcp_s *d1[6];
+d275 19
+a293 19
+		int tcp_state;
+		queue_t *d3[2];
+		mblk_t *d4[2];
+		u_long d5;
+		mblk_t *d6;
+		u_long d7;
+		u_long tcp_snxt;	/* Senders next seq num */
+		u_long tcp_suna;	/* Sender unacknowledged */
+		u_long tcp_swnd;	/* Senders window (relative to suna) */
+		u_long d8[5];
+		int tcp_hdr_len;	/* combined TCP/IP header length */
+		tcph_t *tcp_tcph;	/* pointer to combined header */
+		int d9;
+		unsigned int d10;
+		int d11;
+		mblk_t *d12;
+		long d13;
+		mblk_t *d14;
+		u_long d15;
+d296 1
+a296 1
+		mblk_t *d16;
+d299 8
+a306 8
+		unsigned int d17;
+		u_long tcp_rnxt;	/* Seq we expect to recv next */
+		u_long tcp_rwnd;	/* Current receive window */
+		u_long d18;
+		long d19[2];
+		mblk_t *d20[4];
+		u_long d21[5];
+		long d22[3];
+d309 2
+a310 2
+		u_long d23[2];
+		u_long tcp_rack;	/* Seq # we have acked */
+d312 1
+a312 1
+		u_long d23[3];
+d316 1
+a316 1
+		u_long d24[28];
+d319 1
+a319 1
+		u_long d24[67];
+d321 3
+a323 3
+		u_long d25[8];
+		u_long tcp_rack;	/* Seq # we have acked */
+		u_long d26[58];
+d327 1
+a327 1
+		iph_t tcp_iph;
+d332 1
+d337 4
+a340 4
+		uint udp_state;
+		u8 dummy2[2];
+		u8 udp_port[2];		/* port bound to this stream */
+		u8 udp_src[4];		/* source address of this stream */
+d345 2
+a346 2
+		Lf->sf |= SELNET;
+        (void) strcpy(Lf->type, "inet");
+d352 6
+a357 6
+		for (i = 0; ty[i] != '\0' && i < IPROTOL; i++) {
+			if (islower((unsigned char)ty[i]))
+				Lf->iproto[i] = toupper((unsigned char)ty[i]);
+			else
+				Lf->iproto[i] = ty[i];
+		}
+d359 1
+a359 1
+		i = 0;
+d364 2
+a365 2
+	if ( ! sa || readstdata(sa, &sd))
+		qp = (KA_T)NULL;
+d367 1
+a367 1
+		qp = (KA_T)sd.sd_wrq;
+d369 28
+a396 28
+		if (kread(qp, (char *)&q, sizeof(q)))
+			break;
+		if ((ka = (KA_T)q.q_qinfo) == (KA_T)NULL
+		||  kread(ka, (char *)&qi, sizeof(qi)))
+			continue;
+		if ((ka = (KA_T)qi.qi_minfo) == (KA_T)NULL
+		||  kread(ka, (char *)&mi, sizeof(mi))
+		||  (ka = (KA_T)mi.mi_idname) == (KA_T)NULL)
+			continue;
+		if (kread(ka, (char *)&dev_ch, sizeof(dev_ch) - 1))
+			continue;
+		if ((pcb = q.q_ptr) == (KA_T)NULL)
+			continue;
+		if (strncasecmp(dev_ch, "IP",  2) == 0) {
+			if (kread((KA_T)pcb, (char *)&ic, sizeof(ic)) == 0)
+				ics = 1;
+			continue;
+		}
+		if (strncasecmp(dev_ch, "TCP", 3) == 0) {
+			if (kread((KA_T)q.q_ptr, (char *)&tc, sizeof(tc)) == 0)
+				tcs = 1;
+			continue;
+		}
+		if (strncasecmp(dev_ch, "UDP", 3) == 0) {
+			if (kread((KA_T)q.q_ptr, (char *)&uc, sizeof(uc)) == 0)
+				ucs = 1;
+			continue;
+		}
+d403 2
+a404 4
+	    if (pcb) {
+		(void) sprintf(dev_ch, "0x%08lx", (unsigned long)pcb);
+		enter_dev_ch(dev_ch);
+	    }
+d425 2
+a426 2
+			s = (u_short *)&uc.udp_port[0];
+			p = *s;
+d430 1
+a430 1
+			Lf->off_def = 1;
+d463 1
+a463 1
+			la = (struct in_addr *)&tc.tcp_iph.iph_src[0];
+d466 5
+a470 6
+			if (tc.tcp_hdr_len && tc.tcp_tcph
+			&&  kread((KA_T)tc.tcp_tcph, (char *)&th, sizeof(th))
+			== 0) {
+				s = (u_short *)&th.th_lport[0];
+				p = *s;
+			}
+d477 2
+a478 2
+			fa = (struct in_addr *)&ic.ipc_tcp_addr[2];
+			fp = (int)ntohs(ic.ipc_tcp_addr[4]);
+d485 2
+a486 2
+			fa = (struct in_addr *)&ic.ipc_tcp_faddr;
+			fp = (int)ntohs(((u_short *)&ic.ipc_tcp_ports)[0]);
+d489 4
+a492 4
+		if ((int)ic.ipc_faddr != INADDR_ANY || ((u_short)ic.ipc_fport)
+		!= 0) {
+			fa = (struct in_addr *)&ic.ipc_faddr;
+			fp = (int)ntohs(((u_short)ic.ipc_fport));
+d498 1
+a498 2
+			(void) ent_inaddr(la, lp, fa, fp);
+
+d549 1
+a549 1
+			Lf->off_def = 1;
+d557 1
+a557 1
+		enter_nm(Namech);
+d568 1
+a568 1
+	caddr_t sa;			/* socket address in kernel */
+a570 1
+	char dev_ch[32];
+d585 1
+a585 1
+        (void) strcpy(Lf->type, "sock");
+d590 3
+a592 3
+	if (sa == NULL) {
+		enter_nm("no socket address");
+		return;
+d594 5
+a598 9
+        if (kread((KA_T) sa, (char *) &s, sizeof(s))) {
+                (void) sprintf(Namech, "can't read socket struct from %#x",
+			sa);
+                enter_nm(Namech);
+                return;
+        }
+	if ( ! s.so_type) {
+                enter_nm("no socket type");
+                return;
+d600 5
+a604 1
+        if (s.so_proto == NULL
+d606 9
+a614 9
+                enter_nm("no protocol switch");
+                return;
+        }
+        if (kread((KA_T) p.pr_domain, (char *) &d, sizeof(d))) {
+                (void) sprintf(Namech, "can't read domain struct from %#x",
+                        p.pr_domain);
+                enter_nm(Namech);
+                return;
+        }
+d619 7
+a625 7
+		if (Lf->access == 'r')
+			Lf->sz = (SZOFFTYPE)s.so_rcv.sb_cc;
+		else if (Lf->access == 'w')
+			Lf->sz = (SZOFFTYPE)s.so_snd.sb_cc;
+		else
+			Lf->sz = (SZOFFTYPE)(s.so_rcv.sb_cc + s.so_snd.sb_cc);
+		Lf->sz_def = 1;
+d627 1
+a627 1
+		Lf->off_def = 1;
+d643 4
+a646 4
+		if (Fnet)
+			Lf->sf |= SELNET;
+		(void) strcpy(Lf->type, "inet");
+		printiproto(p.pr_protocol);
+d650 15
+a664 3
+		if (s.so_pcb == NULL) {
+			enter_nm("no protocol control block");
+			return;
+d666 12
+a677 58
+		if (s.so_type == SOCK_RAW) {
+
+		/*
+		 * Print raw socket information.
+		 */
+		    if (kread((KA_T) s.so_pcb, (char *)&raw, sizeof(raw))
+		    ||  (struct socket *)sa != raw.rcb_socket) {
+			(void) sprintf(Namech, "can't read rawcb at %#x",
+				s.so_pcb);
+			enter_nm(Namech);
+			return;
+		    }
+		    (void) sprintf(dev_ch, "0x%08x",
+			(raw.rcb_pcb == NULL) ? s.so_pcb : raw.rcb_pcb);
+		    enter_dev_ch(dev_ch);
+		    if (raw.rcb_laddr.sa_family == AF_INET)
+			la = (struct in_addr *)&raw.rcb_laddr.sa_data[2];
+		    else if (raw.rcb_laddr.sa_family)
+			printrawaddr(&raw.rcb_laddr);
+		    if (raw.rcb_faddr.sa_family == AF_INET)
+			fa = (struct in_addr *)&raw.rcb_faddr.sa_data[2];
+		    else if (raw.rcb_faddr.sa_family) {
+			(void) strcat(endnm(), "->");
+			printrawaddr(&raw.rcb_faddr);
+		    }
+		    if (fa || la)
+			(void) ent_inaddr(la, -1, fa, -1);
+		} else {
+
+		/*
+		 * Save Internet socket information.
+		 */
+		    if (kread((KA_T) s.so_pcb, (char *) &inp, sizeof(inp))
+		    ||  (struct socket *)sa != inp.inp_socket) {
+			(void) sprintf(Namech, "can't read inpcb at %#x",
+			    s.so_pcb);
+			enter_nm(Namech);
+			return;
+		    }
+		    (void) sprintf(dev_ch, "0x%08x",
+			(inp.inp_ppcb == NULL) ? s.so_pcb : inp.inp_ppcb);
+		    enter_dev_ch(dev_ch);
+		    la = &inp.inp_laddr;
+		    lp = (int)ntohs(inp.inp_lport);
+		    if (inp.inp_faddr.s_addr != INADDR_ANY || inp.inp_fport
+		    != 0) {
+			fa = &inp.inp_faddr;
+			fp = (int)ntohs(inp.inp_fport);
+		    }
+		    if (fa || la)
+			(void) ent_inaddr(la, lp, fa, fp);
+		    if (p.pr_protocol == IPPROTO_TCP
+		    &&  inp.inp_ppcb
+		    &&  kread((KA_T)inp.inp_ppcb, (char *)&t, sizeof(t)) == 0)
+		    {
+			Lf->lts.type = 0;
+			Lf->lts.state.i = (int)t.t_state;
+		    }
+d679 33
+a711 1
+		break;
+d716 3
+a718 3
+		if (Funix)
+			Lf->sf |= SELUNX;
+		(void) strcpy(Lf->type, "unix");
+d722 16
+a737 6
+		(void) sprintf(dev_ch, "0x%08x", sa);
+		enter_dev_ch(dev_ch);
+		if (kread((KA_T) s.so_pcb, (char *) &unp, sizeof(unp))) {
+			(void) sprintf(Namech, "can't read unpcb at %#x",
+				s.so_pcb);
+			break;
+d739 7
+a745 19
+		if ((struct socket *)sa != unp.unp_socket) {
+			(void) sprintf(Namech, "unp_socket (%#x) mismatch",
+				unp.unp_socket);
+			break;
+		}
+		if (unp.unp_addr) {
+		    if (kread((KA_T) unp.unp_addr, (char *) &mb, sizeof(mb))) {
+			(void) sprintf(Namech,
+				"can't read unp_addr at %#x",
+				unp.unp_addr);
+			break;
+		    }
+		    ua = (struct sockaddr_un *)(((char *)&mb) + mb.m_off);
+		}
+		if (ua == NULL) {
+			ua = &un;
+			(void) bzero((char *)ua, sizeof(un));
+			ua->sun_family = AF_UNSPEC;
+		}
+d751 6
+a756 14
+		if (ua->sun_family != AF_UNIX) {
+			if (ua->sun_family == AF_UNSPEC) {
+				if (unp.unp_conn) {
+					if (kread((KA_T) unp.unp_conn,
+						(char *) &uc, sizeof(uc))) {
+					    (void) sprintf(Namech,
+						"can't read unp_conn at %#x",
+						unp.unp_conn);
+					} else {
+					    (void) sprintf(Namech,
+						"->0x%08x", uc.unp_socket);
+					}
+				} else
+					(void) strcpy(Namech, "->(none)");
+d758 4
+a761 12
+				(void) sprintf(Namech,
+					"unknown sun_family (%d)",
+					ua->sun_family);
+			break;
+		}
+		if (ua->sun_path[0]) {
+		    if (mb.m_len >= sizeof(struct sockaddr_un))
+				mb.m_len = sizeof(struct sockaddr_un) - 1;
+		    *((char *)ua + mb.m_len) = '\0';
+		    if (Sfile && is_file_named(ua->sun_path, Ntype, VSOCK, 0))
+			Lf->sf |= SELNM;
+		    (void) strcpy(Namech, ua->sun_path);
+d763 2
+a764 1
+			(void) strcpy(Namech, "no address");
+d766 11
+d778 1
+a778 1
+		printunkaf(fam);
+d781 1
+a781 1
+		enter_nm(Namech);
+@
+
+
+1.5
+log
+@Revision 4.18
+@
+text
+@d36 1
+a36 1
+static char *rcsid = "$Id: dsock.c,v 1.4 97/09/23 09:52:17 abe Exp Locker: abe $";
+d631 1
+@
+
+
+1.4
+log
+@Revision 4.16
+Expanded TCPTPI info support
+@
+text
+@d36 1
+a36 1
+static char *rcsid = "$Id: dsock.c,v 1.3 97/08/15 08:27:29 abe Exp Locker: abe $";
+d52 2
+a53 1
+	char *cp, sbuf[128];
+d249 2
+a250 2
+	int fp, lp;
+	int i, *ip;
+d352 2
+a353 2
+			if (islower(ty[i]))
+				Lf->iproto[i] = toupper(ty[i]);
+d403 1
+a403 1
+		(void) sprintf(dev_ch, "0x%08x", pcb);
+d537 1
+a537 1
+			    Lf->sz = (unsigned long)rq;
+d539 1
+a539 1
+			    Lf->sz = (unsigned long)sq;
+d541 1
+a541 1
+			    Lf->sz = (unsigned long)(rq + sq);
+d624 1
+a624 1
+			Lf->sz = (unsigned long)s.so_rcv.sb_cc;
+d626 1
+a626 1
+			Lf->sz = (unsigned long)s.so_snd.sb_cc;
+d628 1
+a628 1
+			Lf->sz = (unsigned long)s.so_rcv.sb_cc + s.so_snd.sb_cc;
+@
+
+
+1.3
+log
+@Revision 4.15
+@
+text
+@d2 1
+a2 1
+ * dsock.c - SunOS (Solairs 1.x and 2.x) socket processing functions for lsof
+d36 1
+a36 1
+static char *rcsid = "$Id: dsock.c,v 1.2 97/04/23 15:57:04 abe Exp Locker: abe $";
+a39 4
+#if	!defined(solaris)
+#define TCPSTATES			/* activate tcpstates[] */
+#endif	/* !defined(solaris) */
+
+d43 1
+d45 1
+a45 1
+ * print_tcptpistate() - print TCP/TPI state
+d49 1
+a49 1
+print_tcptpistate(nl)
+a51 2
+
+#if	defined(solaris)
+d54 1
+d57 47
+a103 5
+	switch ((t = Lf->lts.type)) {
+	case 0:				/* TCP */
+	    switch ((i = Lf->lts.state.i)) {
+	    case TCPS_CLOSED:
+		cp = "CLOSED";
+d105 49
+a153 39
+	    case TCPS_IDLE:
+		cp = "IDLE";
+		break;
+	    case TCPS_BOUND:
+		cp = "BOUND";
+		break;
+	    case TCPS_LISTEN:
+		cp = "LISTEN";
+		break;
+	    case TCPS_SYN_SENT:
+		cp = "SYN_SENT";
+		break;
+	    case TCPS_SYN_RCVD:
+		cp = "SYN_RCVD";
+		break;
+	    case TCPS_ESTABLISHED:
+		cp = "ESTABLISHED";
+		break;
+	    case TCPS_CLOSE_WAIT:
+		cp = "CLOSE_WAIT";
+		break;
+	    case TCPS_FIN_WAIT_1:
+		cp = "FIN_WAIT_1";
+		break;
+	    case TCPS_CLOSING:
+		cp = "CLOSING";
+		break;
+	    case TCPS_LAST_ACK:
+		cp = "LAST_ACK";
+		break;
+	    case TCPS_FIN_WAIT_2:
+		cp = "FIN_WAIT_2";
+		break;
+	    case TCPS_TIME_WAIT:
+		cp = "TIME_WAIT";
+		break;
+	    default:
+		(void) sprintf(sbuf, "UknownState(%d)", i);
+		cp = sbuf;
+d155 5
+a159 51
+	    (void) printf("%s%s%s%s",
+		Ffield ? "" : "(", cp, Ffield ? "" : ")", nl ? "\n" : "");
+	    return;
+	case 1:				/* TPI */
+	    switch ((u = Lf->lts.state.u)) {
+	    case TS_UNBND:
+		cp = "Unbound";
+		break;
+	    case TS_WACK_BREQ:
+		cp = "Wait BIND_REQ Ack";
+		break;
+	    case TS_WACK_UREQ:
+		cp = "Wait UNBIND_REQ Ack";
+		break;
+	    case TS_IDLE:
+		cp = "Idle";
+		break;
+	    case TS_WACK_OPTREQ:
+		cp = "Wait OPT_REQ Ack";
+		break;
+	    case TS_WACK_CREQ:
+		cp = "Wait CONN_REQ Ack";
+		break;
+	    case TS_WCON_CREQ:
+		cp = "Wait CONN_REQ Confirm";
+		break;
+	    case TS_WRES_CIND:
+		cp = "Wait CONN_IND Response";
+		break;
+	    case TS_WACK_CRES:
+		cp = "Wait CONN_RES Ack";
+		break;
+	    case TS_DATA_XFER:
+		cp = "Wait Data Xfr";
+		break;
+	    case TS_WIND_ORDREL:
+		cp = "Wait Read Release";
+		break;
+	    case TS_WREQ_ORDREL:
+		cp = "Wait Write Release";
+		break;
+	    case TS_WACK_DREQ6:
+	    case TS_WACK_DREQ7:
+	    case TS_WACK_DREQ9:
+	    case TS_WACK_DREQ10:
+	    case TS_WACK_DREQ11:
+		cp = "Wait DISCON_REQ Ack";
+		break;
+	    default:
+		(void) sprintf(sbuf, "UNKNOWN TPI STATE: %u", u);
+		cp = sbuf;
+d161 1
+a161 3
+	    (void) printf("%s%s%s%s",
+		Ffield ? "" : "(", cp, Ffield ? "" : ")", nl ? "\n" : "");
+	    return;
+a162 4
+	if (nl)
+	    putchar('\n');
+#else	/* !defined(solaris) */
+	int s;
+d164 30
+a193 8
+	if (Lf->lts.type == 0) {
+	    (void) printf("%s%s%s%s",
+		Ffield ? "" : "(",
+		(Lf->lts.state.i < 0 || Lf->lts.state.i >= TCP_NSTATES)
+			? "UNKNOWN TCP STATE" : tcpstates[Lf->lts.state.i],
+		Ffield ? "" : ")",
+		nl ? "\n" : "");
+	    return;
+d195 37
+a233 1
+#endif	/* defined(solaris) */
+a236 1
+#if	defined(solaris)
+a258 1
+	int rq, sq;
+d282 2
+a283 1
+		u_long d8[6];
+d300 2
+a301 1
+		u_long d18[2];
+d306 2
+d310 3
+d317 1
+d319 5
+d511 24
+a534 5
+		if (tcs && Fsize) {
+			if ((rq = (int)tc.tcp_rnxt - (int)tc.tcp_rack) < 0)
+				rq = 0;
+			if ((sq = (int)tc.tcp_snxt - (int)tc.tcp_suna - 1) < 0)
+				sq = 0;
+d536 1
+a536 1
+				Lf->sz = (unsigned long)rq;
+d538 1
+a538 1
+				Lf->sz = (unsigned long)sq;
+d540 1
+a540 1
+				Lf->sz = (unsigned long)(rq + sq);
+d542 1
+a542 1
+		} else
+d544 5
+d619 1
+a619 1
+ * Set size, based on access type.
+d630 7
+a636 1
+		Lf->off_def = 1;
+@
+
+
+1.2
+log
+@Revision 4.05
+Add 2.6 Beta_Update support.
+@
+text
+@d36 1
+a36 1
+static char *rcsid = "$Id: dsock.c,v 1.1 97/02/24 07:47:15 abe Exp Locker: abe $";
+d40 4
+d47 9
+d57 127
+d222 1
+a222 1
+		int d2;
+d270 1
+a270 1
+		uint dummy1;
+d343 1
+a343 1
+	 * Save UDP address.
+d366 4
+d437 7
+d494 1
+d591 1
+a591 1
+		 * Print Internet socket information.
+d612 7
+@
+
+
+1.1
+log
+@Initial revision
+@
+text
+@d36 1
+a36 1
+static char *rcsid = "$Id: dsock.c,v 1.22 96/12/28 11:58:18 abe Exp $";
+d69 2
+d74 1
+a74 1
+# if	solaris>=20400
+d76 1
+a76 1
+# endif	/* solaris>=20400 */
+d78 1
+a78 1
+# if	defined(P101318) && P101318>=32
+d80 1
+a80 1
+# endif	/* defined(P101318) && P101318>=32 */
+a81 5
+# if	solaris>=20600
+		struct tcp_s *d1_1[2];
+		u_long d1_2;
+# endif	/* solaris>=20600 */
+
+d101 1
+a101 1
+# if	solaris<20400 && (!defined(P101318) || P101318<32)
+d103 1
+a103 1
+# endif	/* solaris<20400 && (!defined(P101318) || P101318<32) */
+a104 4
+# if	solaris>=20600
+		long d16_1;
+# endif	/* solaris>=20600 */
+
+a105 6
+
+# if	solaris>=20600
+		long d17_1[2];
+		u_long d17_2;
+# endif	/* solaris>=20600 */
+
+a107 2
+
+# if	solaris<20600
+a108 2
+# endif	/* solaris<20600 */
+
+a109 10
+
+# if	solaris>=20600
+		u_long d21;
+		mblk_t *d22[4];
+		long d22_1;
+		u_long d22_2[5];
+		long d22_3[4];
+		u_long d22_4;
+		long d22_5[2];
+# else	/* solaris<20600 */
+a111 2
+# endif	/* solaris>=20600 */
+
+a114 3
+# if	solaris>=20600
+		u_long d24[27];
+# else	/* solaris<20600 */
+a119 1
+# endif	/* solaris>=20600 */
+d123 3
+d205 2
+d209 5
+d236 1
+d239 4
+d249 2
+a250 2
+		 * address in its tcp_iph structure, and the port number in
+		 * its tcph structure.
+d252 2
+d255 2
+d273 1
+d280 7
+@

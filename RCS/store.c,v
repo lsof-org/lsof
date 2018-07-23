@@ -1,0 +1,1558 @@
+head	1.44;
+access;
+symbols;
+locks; strict;
+comment	@ * @;
+
+
+1.44
+date	2018.02.14.14.20.14;	author abe;	state Exp;
+branches;
+next	1.43;
+
+1.43
+date	2015.07.07.20.16.58;	author abe;	state Exp;
+branches;
+next	1.42;
+
+1.42
+date	2014.10.13.22.36.20;	author abe;	state Exp;
+branches;
+next	1.41;
+
+1.41
+date	2013.01.02.17.14.59;	author abe;	state Exp;
+branches;
+next	1.40;
+
+1.40
+date	2011.09.07.19.13.49;	author abe;	state Exp;
+branches;
+next	1.39;
+
+1.39
+date	2010.07.29.15.59.28;	author abe;	state Exp;
+branches;
+next	1.38;
+
+1.38
+date	2008.10.21.16.21.41;	author abe;	state Exp;
+branches;
+next	1.37;
+
+1.37
+date	2008.04.15.13.24.19;	author abe;	state Exp;
+branches;
+next	1.36;
+
+1.36
+date	2006.09.15.18.58.03;	author abe;	state Exp;
+branches;
+next	1.35;
+
+1.35
+date	2005.08.08.19.44.35;	author abe;	state Exp;
+branches;
+next	1.34;
+
+1.34
+date	2005.05.11.13.02.46;	author abe;	state Exp;
+branches;
+next	1.33;
+
+1.33
+date	2004.07.06.19.09.32;	author abe;	state Exp;
+branches;
+next	1.32;
+
+1.32
+date	2004.03.10.23.44.27;	author abe;	state Exp;
+branches;
+next	1.31;
+
+1.31
+date	2003.10.07.11.34.30;	author abe;	state Exp;
+branches;
+next	1.30;
+
+1.30
+date	2003.03.21.17.25.46;	author abe;	state Exp;
+branches;
+next	1.29;
+
+1.29
+date	2002.06.17.01.38.15;	author abe;	state Exp;
+branches;
+next	1.28;
+
+1.28
+date	2001.10.17.19.24.37;	author abe;	state Exp;
+branches;
+next	1.27;
+
+1.27
+date	2001.10.15.12.11.54;	author abe;	state Exp;
+branches;
+next	1.26;
+
+1.26
+date	2001.02.13.02.10.43;	author abe;	state Exp;
+branches;
+next	1.25;
+
+1.25
+date	2000.12.04.13.55.17;	author abe;	state Exp;
+branches;
+next	1.24;
+
+1.24
+date	2000.11.05.13.49.53;	author abe;	state Exp;
+branches;
+next	1.23;
+
+1.23
+date	2000.08.01.17.17.39;	author abe;	state Exp;
+branches;
+next	1.22;
+
+1.22
+date	100.01.14.08.57.44;	author abe;	state Exp;
+branches;
+next	1.21;
+
+1.21
+date	99.11.28.06.32.05;	author abe;	state Exp;
+branches;
+next	1.20;
+
+1.20
+date	99.06.22.09.57.15;	author abe;	state Exp;
+branches;
+next	1.19;
+
+1.19
+date	99.05.04.08.13.41;	author abe;	state Exp;
+branches;
+next	1.18;
+
+1.18
+date	99.04.27.15.41.46;	author abe;	state Exp;
+branches;
+next	1.17;
+
+1.17
+date	99.01.25.07.22.33;	author abe;	state Exp;
+branches;
+next	1.16;
+
+1.16
+date	98.12.28.10.17.43;	author abe;	state Exp;
+branches;
+next	1.15;
+
+1.15
+date	98.11.23.07.34.55;	author abe;	state Exp;
+branches;
+next	1.14;
+
+1.14
+date	98.08.18.08.07.35;	author abe;	state Exp;
+branches;
+next	1.13;
+
+1.13
+date	98.06.18.07.58.12;	author abe;	state Exp;
+branches;
+next	1.12;
+
+1.12
+date	98.03.18.14.33.09;	author abe;	state Exp;
+branches;
+next	1.11;
+
+1.11
+date	98.02.16.15.55.22;	author abe;	state Exp;
+branches;
+next	1.10;
+
+1.10
+date	98.02.13.07.43.04;	author abe;	state Exp;
+branches;
+next	1.9;
+
+1.9
+date	98.01.29.15.38.25;	author abe;	state Exp;
+branches;
+next	1.8;
+
+1.8
+date	97.12.11.15.37.48;	author abe;	state Exp;
+branches;
+next	1.7;
+
+1.7
+date	97.10.24.08.01.56;	author abe;	state Exp;
+branches;
+next	1.6;
+
+1.6
+date	97.10.10.08.24.29;	author abe;	state Exp;
+branches;
+next	1.5;
+
+1.5
+date	97.09.23.09.13.54;	author abe;	state Exp;
+branches;
+next	1.4;
+
+1.4
+date	97.08.15.07.25.54;	author abe;	state Exp;
+branches;
+next	1.3;
+
+1.3
+date	97.04.15.10.18.46;	author abe;	state Exp;
+branches;
+next	1.2;
+
+1.2
+date	97.04.07.08.16.07;	author abe;	state Exp;
+branches;
+next	1.1;
+
+1.1
+date	97.02.24.07.12.46;	author abe;	state Exp;
+branches;
+next	;
+
+
+desc
+@Lsof version 4
+@
+
+
+1.44
+log
+@Revision 4.90
+@
+text
+@/*
+ * store.c - common global storage for lsof
+ */
+
+
+/*
+ * Copyright 1994 Purdue Research Foundation, West Lafayette, Indiana
+ * 47907.  All rights reserved.
+ *
+ * Written by Victor A. Abell
+ *
+ * This software is not subject to any license of the American Telephone
+ * and Telegraph Company or the Regents of the University of California.
+ *
+ * Permission is granted to anyone to use this software for any purpose on
+ * any computer system, and to alter it and redistribute it freely, subject
+ * to the following restrictions:
+ *
+ * 1. Neither the authors nor Purdue University are responsible for any
+ *    consequences of the use of this software.
+ *
+ * 2. The origin of this software must not be misrepresented, either by
+ *    explicit claim or by omission.  Credit to the authors and Purdue
+ *    University must appear in documentation and sources.
+ *
+ * 3. Altered versions must be plainly marked as such, and must not be
+ *    misrepresented as being the original software.
+ *
+ * 4. This notice may not be removed or altered.
+ */
+
+#ifndef lint
+static char copyright[] =
+"@@(#) Copyright 1994 Purdue Research Foundation.\nAll rights reserved.\n";
+static char *rcsid = "$Id: store.c,v 1.43 2015/07/07 20:16:58 abe Exp abe $";
+#endif
+
+
+#include "lsof.h"
+
+
+/*
+ * Global storage definitions
+ */
+
+int AllProc = 1;		/* all processes are selected (default) */
+
+#if	defined(HASBLKDEV)
+struct l_dev *BDevtp = (struct l_dev *)NULL;
+				/* block device table pointer */
+int BNdev = 0;			/* number of entries in BDevtp[] */
+struct l_dev **BSdev = (struct l_dev **)NULL;
+				/* pointer to BDevtp[] pointers, sorted
+				 * by device */
+#endif	/* defined(HASBLKDEV) */
+
+int CkPasswd = 0;		/* time to check /etc/passwd for change */
+
+#if	defined(HAS_STD_CLONE)
+struct clone *Clone = (struct clone *)NULL;
+				/* clone device list */
+#endif	/* defined(HAS_STD_CLONE) */
+
+int CmdColW;			/* COMMAND column width */
+struct str_lst *Cmdl = (struct str_lst *)NULL;
+				/* command names selected with -c */
+int CmdLim = CMDL;		/* COMMAND column width limit */
+int Cmdni = 0;			/* command name inclusions selected with -c */
+int Cmdnx = 0;			/* command name exclusions selected with -c */
+lsof_rx_t *CmdRx = (lsof_rx_t *)NULL;
+				/* command regular expression table */
+
+#if	defined(HASSELINUX)
+cntxlist_t *CntxArg = (cntxlist_t *)NULL;
+				/* security context arguments supplied with
+				 * -Z */
+int CntxColW;			/* security context column width */
+int CntxStatus = 0;		/* security context status: 0 == disabled,
+				 * 1 == enabled */
+#endif	/* defined(HASSELINUX) */
+
+#if	defined(HASDCACHE)
+unsigned DCcksum;		/* device cache file checksum */
+int DCfd = -1;			/* device cache file descriptor */
+FILE *DCfs = (FILE *)NULL;	/* stream pointer for DCfd */
+char *DCpathArg = (char *)NULL;	/* device cache path from -D[b|r|u]<path> */
+char *DCpath[] = {		/* device cache paths, indexed by DCpathX
+				 *when it's >= 0 */
+	(char *)NULL, (char *)NULL, (char *)NULL, (char *)NULL
+};
+int DCpathX = -1;		/* device cache path index:
+				 *	-1 = path not defined
+				 *	 0 = defined via -D
+				 *	 1 = defined via HASENVDC
+				 *	 2 = defined via HASSYSDC
+				 *	 3 = defined via HASPERSDC and
+				 *	     HASPERSDCPATH */
+int DCrebuilt = 0;		/* an unsafe device cache file has been
+				 * rebuilt */
+int DCstate = 3;		/* device cache state:
+				 *	0 = ignore (-Di)
+				 *	1 = build (-Db[path])
+				 *	2 = read; don't rebuild (-Dr[path])
+				 *	3 = update; read and rebuild if
+				 *	    necessary (-Du[path])
+				 */
+int DCunsafe = 0;		/* device cache file is potentially unsafe,
+				 * (The [cm]time check failed.) */
+#endif	/* defined(HASDCACHE) */
+
+int DChelp = 0;			/* -D? status */
+
+int DevColW;			/* DEVICE column width */
+dev_t DevDev;			/* device number of /dev or its equivalent */
+struct l_dev *Devtp = (struct l_dev *)NULL;
+				/* device table pointer */
+
+
+/*
+ * Externals for a stkdir(), dumbed-down for older AIX compilers.
+ */
+
+char **Dstk = (char **)NULL;	/* the directory stack */
+int Dstkx = 0;			/* Dstk[] index */
+int Dstkn = 0;			/* Dstk[] entries allocated */
+efsys_list_t *Efsysl = (efsys_list_t *)NULL;
+				/* file systems for which kernel blocks are
+				 * to be eliminated */
+int ErrStat = 0;		/* path stat() error count */
+uid_t Euid;			/* effective UID of this lsof process */
+int Fand = 0;			/* -a option status */
+int Fblock = 0;			/* -b option status */
+int FcColW;			/* FCT column width */
+int Fcntx = 0;			/* -Z option status */
+int FdColW;			/* FD column width */
+int FeptE = 0;			/* -E option status: 0==none, 1==info,
+				 * 2==info+files */
+int Ffilesys = 0;		/* -f option status:
+				 *    0 = paths may be file systems
+				 *    1 = paths are just files
+				 *    2 = paths must be file systems */
+
+#if	defined(HASNCACHE)
+int Fncache = 1;		/* -C option status */
+int NcacheReload = 1;		/* 1 == call ncache_load() */
+#endif	/* defined(HASNCACHE) */
+
+int Ffield = 0;			/* -f and -F status */
+int FgColW;			/* FILE-FLAG column width */
+int Fhelp = 0;			/* -h option status */
+int Fhost = 1;			/* -H option status */
+int Fnet = 0;			/* -i option status: 0==none
+				 *		     1==find all
+				 *		     2==some found*/
+int FnetTy = 0;			/* Fnet type request: 0==all
+				 *		      4==IPv4
+				 *		      6==IPv6 */
+int Fnfs = 0;			/* -N option status: 0==none, 1==find all,
+				 * 2==some found*/
+int Fnlink = 0;			/* -L option status */
+int Foffset = 0;		/* -o option status */
+int Fovhd = 0;			/* -O option status */
+int Fport = 1;			/* -P option status */
+
+#if	!defined(HASNORPC_H)
+# if	defined(HASPMAPENABLED)
+int FportMap = 1;		/* +|-M option status */
+# else	/* !defined(HASPMAPENABLED) */
+int FportMap = 0;		/* +|-M option status */
+# endif	/* defined(HASPMAPENABLED) */
+#endif	/* !defined(HASNORPC_H) */
+
+int Fpgid = 0;			/* -g option status */
+int Fppid = 0;			/* -R option status */
+int Fsize = 0;			/* -s option status */
+int FsColW;			/* FSTR-ADDR column width */
+int Fsv = FSV_DEFAULT;		/* file struct value selections */
+int FsvByf = 0;			/* Fsv was set by +f */
+int FsvFlagX = 0;		/* hex format status for FSV_FG */
+int Ftask = 0;			/* -K option value */
+int NiColW;			/* NODE-ID column width */
+char *NiTtl = NITTL;		/* NODE-ID column title */
+int Ftcptpi = TCPTPI_STATE;	/* -T option status */
+int Fterse = 0;			/* -t option status */
+int Funix = 0;			/* -U option status */
+int Futol = 1;			/* -l option status */
+int Fverbose = 0;		/* -V option status */
+
+#if	defined(WARNINGSTATE)
+int Fwarn = 1;			/* +|-w option status */
+#else	/* !defined(WARNINGSTATE) */
+int Fwarn = 0;			/* +|-w option status */
+#endif	/* defined(WARNINGSTATE) */
+
+#if	defined(HASXOPT_VALUE)
+int Fxopt = HASXOPT_VALUE;	/* -X option status */
+#endif	/* defined(HASXOPT_VALUE) */
+
+int Fxover = 0;			/* -x option value */
+int Fzone = 0;			/* -z option status */
+
+struct fd_lst *Fdl = (struct fd_lst *)NULL;
+				/* file descriptors selected with -d */
+int FdlTy = -1;			/* Fdl[] type: -1 == none
+				 *		0 == include
+				 *		1 == exclude */
+
+struct fieldsel FieldSel[] = {
+    { LSOF_FID_ACCESS, 0,  LSOF_FNM_ACCESS, NULL,     0		 }, /*  0 */
+    { LSOF_FID_CMD,    0,  LSOF_FNM_CMD,    NULL,     0		 }, /*  1 */
+    { LSOF_FID_CT,     0,  LSOF_FNM_CT,     &Fsv,     FSV_CT 	 }, /*  2 */
+    { LSOF_FID_DEVCH,  0,  LSOF_FNM_DEVCH,  NULL,     0		 }, /*  3 */
+    { LSOF_FID_DEVN,   0,  LSOF_FNM_DEVN,   NULL,     0		 }, /*  4 */
+    { LSOF_FID_FD,     1,  LSOF_FNM_FD,     NULL,     0		 }, /*  5 */
+    { LSOF_FID_FA,     0,  LSOF_FNM_FA,     &Fsv,     FSV_FA	 }, /*  6 */
+    { LSOF_FID_FG,     0,  LSOF_FNM_FG,     &Fsv,     FSV_FG	 }, /*  7 */
+    { LSOF_FID_INODE,  0,  LSOF_FNM_INODE,  NULL,     0		 }, /*  8 */
+    { LSOF_FID_NLINK,  0,  LSOF_FNM_NLINK,  &Fnlink,  1		 }, /*  9 */
+    { LSOF_FID_TID,    0,  LSOF_FNM_TID,    NULL,     0		 }, /* 11 */
+    { LSOF_FID_LOCK,   0,  LSOF_FNM_LOCK,   NULL,     0		 }, /* 11 */
+    { LSOF_FID_LOGIN,  0,  LSOF_FNM_LOGIN,  NULL,     0		 }, /* 12 */
+    { LSOF_FID_MARK,   1,  LSOF_FNM_MARK,   NULL,     0		 }, /* 13 */
+    { LSOF_FID_TCMD,   0,  LSOF_FNM_TCMD,   NULL,     0		 }, /* 14 */
+    { LSOF_FID_NAME,   0,  LSOF_FNM_NAME,   NULL,     0		 }, /* 15 */
+    { LSOF_FID_NI,     0,  LSOF_FNM_NI,     &Fsv,     FSV_NI	 }, /* 16 */
+    { LSOF_FID_OFFSET, 0,  LSOF_FNM_OFFSET, NULL,     0		 }, /* 17 */
+    { LSOF_FID_PID,    1,  LSOF_FNM_PID,    NULL,     0		 }, /* 18 */
+    { LSOF_FID_PGID,   0,  LSOF_FNM_PGID,   &Fpgid,   1		 }, /* 19 */
+    { LSOF_FID_PROTO,  0,  LSOF_FNM_PROTO,  NULL,     0		 }, /* 20 */
+    { LSOF_FID_RDEV,   0,  LSOF_FNM_RDEV,   NULL,     0		 }, /* 21 */
+    { LSOF_FID_PPID,   0,  LSOF_FNM_PPID,   &Fppid,   1		 }, /* 22 */
+    { LSOF_FID_SIZE,   0,  LSOF_FNM_SIZE,   NULL,     0		 }, /* 23 */
+    { LSOF_FID_STREAM, 0,  LSOF_FNM_STREAM, NULL,     0		 }, /* 24 */
+    { LSOF_FID_TYPE,   0,  LSOF_FNM_TYPE,   NULL,     0		 }, /* 25 */
+    { LSOF_FID_TCPTPI, 0,  LSOF_FNM_TCPTPI, &Ftcptpi, TCPTPI_ALL }, /* 26 */
+    { LSOF_FID_UID,    0,  LSOF_FNM_UID,    NULL,     0		 }, /* 27 */
+    { LSOF_FID_ZONE,   0,  LSOF_FNM_ZONE,   &Fzone,   1		 }, /* 28 */
+    { LSOF_FID_CNTX,   0,  LSOF_FNM_CNTX,   &Fcntx,   1		 }, /* 29 */
+    { LSOF_FID_TERM,   0,  LSOF_FNM_TERM,   NULL,     0		 }, /* 30 */
+    { ' ',	       0,  NULL,	    NULL,     0		 }
+};
+
+int Hdr = 0;			/* header print status */
+int IgnTasks = 0;		/* ignore tasks when non-zero */
+char *InodeFmt_d = (char *) NULL;
+				/* INODETYPE decimal printf specification */
+char *InodeFmt_x = (char *) NULL;
+				/* INODETYPE hexadecimal printf specification */
+int LastPid = -1;		/* last PID listed (for eliminating duplicates
+				 * in terse output) */
+struct lfile *Lf = (struct lfile *)NULL;
+				/* current local file structure */
+struct lproc *Lp = (struct lproc *)NULL;
+				/* current local process table entry */
+struct lproc *Lproc = (struct lproc *)NULL;
+				/* local process table */
+int MaxFd;			/* maximum file descriptors to close */
+char *Memory = (char *)NULL;	/* core file path */
+int MntSup = 0;			/* mount supplement state: 0 == none
+				 *			   1 == create
+				 *			   2 == read */
+char *MntSupP = (char *)NULL;	/* mount supplement path -- if MntSup == 2 */
+
+#if	defined(HASPROCFS)
+struct mounts *Mtprocfs = (struct mounts *)NULL;
+				/* /proc mount entry */
+#endif	/* defined(HASPROCFS) */
+
+int Mxpgid = 0;			/* maximum process group ID table entries */
+int Mxpid = 0;			/* maximum PID table entries */
+int Mxuid = 0;			/* maximum UID table entries */
+gid_t Mygid;			/* real GID of this lsof process */
+int Mypid;			/* lsof's process ID */
+uid_t Myuid;			/* real UID of this lsof process */
+char *Namech = (char *)NULL;	/* name characters for printing */
+size_t Namechl = (size_t)0;	/* sizeof(Namech) */
+int NCmdRxU = 0;		/* number of CmdRx[] entries */
+int Ndev = 0;			/* number of entries in Devtp[] */
+
+#if	defined(HASNLIST)
+struct NLIST_TYPE *Nl = (struct NLIST_TYPE *)NULL;
+				/* kernel name list */
+int Nll = 0;			/* Nl calloc'd length */
+#endif	/* defined(HASNLIST) */
+
+long Nlink = 0l;		/* report nlink values below this number
+				 * (0 = report all nlink values) */
+int Nlproc = 0;			/* number of entries in Lproc[] */
+int NlColW;			/* NLINK column width */
+int NmColW;			/* NAME column width */
+char *Nmlst = (char *)NULL;	/* namelist file path */
+int NodeColW;			/* NODE column width */
+int Npgid = 0;			/* -g option count */
+int Npgidi = 0;			/* -g option inclusion count */
+int Npgidx = 0;			/* -g option exclusion count */
+int Npid = 0;			/* -p option count */
+int Npidi = 0;			/* -p option inclusion count */
+int Npidx = 0;			/* -p option exclusion count */
+int Npuns;			/* number of unselected PIDs (starts at Npid) */
+int Ntype;			/* node type (see N_* symbols) */
+int Nuid = 0;			/* -u option count */
+int Nuidexcl = 0;		/* -u option count of UIDs excluded */
+int Nuidincl = 0;		/* -u option count of UIDs included */
+struct nwad *Nwad = (struct nwad *)NULL;
+				/* list of network addresses */
+int OffDecDig = OFFDECDIG;	/* offset decimal form (0t...) digit limit */
+int OffColW;			/* OFFSET column width */
+int PgidColW;			/* PGID column width */
+int PidColW;			/* PID column width */
+struct lfile *Plf = (struct lfile *)NULL;
+				/* previous local file structure */
+char *Pn;			/* program name */
+int PpidColW;			/* PPID column width */
+
+#if	defined(HASPROCFS)
+int Procfind = 0;		/* 1 when searching for an proc file system
+				 * file and one was found */
+struct procfsid *Procfsid = (struct procfsid *)NULL;
+				/* proc file system PID search table */
+int Procsrch = 0;		/* 1 if searching for any proc file system
+				 * file */
+#endif	/* defined(HASPROCFS) */
+
+int PrPass = 0;			/* print pass: 0 = compute column widths
+				 *	       1 = print */
+int RptTm = 0;			/* repeat time -- set by -r */
+struct l_dev **Sdev = (struct l_dev **)NULL;
+				/* pointer to Devtp[] pointers, sorted
+				 * by device */
+int SelAll = 0;			/* SELALL flags, modified by IgnTasks */
+int Selflags = 0;		/* selection flags -- see SEL* in lsof.h */
+int SelProc = 0;		/* SELPROC flags, modified by IgnTasks */
+int Setgid = 0;			/* setgid state */
+int Selinet = 0;		/* select only Internet socket files */
+int Setuidroot = 0;		/* setuid-root state */
+struct sfile *Sfile = (struct sfile *)NULL;
+				/* chain of files to search for */
+struct int_lst *Spgid = (struct int_lst *)NULL;
+				/* process group IDs to search for */
+struct int_lst *Spid = (struct int_lst *)NULL;
+				/* Process IDs to search for */
+struct seluid *Suid = (struct seluid *)NULL;
+				/* User IDs to include or exclude */
+int SzColW;			/* SIZE column width */
+int SzOffColW;			/* SIZE/OFF column width */
+char *SzOffFmt_0t = (char *)NULL;
+				/* SZOFFTYPE 0t%u printf specification */
+char *SzOffFmt_d = (char *)NULL;
+				/* SZOFFTYPE %d printf  specification */
+char *SzOffFmt_dv = (char *)NULL;
+				/* SZOFFTYPE %*d printf  specification */
+char *SzOffFmt_x = (char *)NULL;
+				/* SZOFFTYPE %#x printf  specification */
+int TaskCmdColW = 0;		/* task command column width */
+int TaskCmdLim = TASKCMDL;	/* TASKCMD column width limit (same as
+				 * CmdLim) */
+int TaskPrtCmd = 0;		/* task print task command flag */
+int TaskPrtTid = 0;		/* task print TID flag */
+int TcpStAlloc = 0;		/* allocated (possibly unused) entries in TCP 
+				 * state tables */
+unsigned char *TcpStI = (unsigned char *)NULL;
+				/* included TCP states */
+int TcpStIn = 0;		/* number of entries in TcpStI[] */
+int TcpStOff = 0;		/* offset for TCP state number to adjust
+				 * negative numbers to an index into TcpSt[],
+				 * TcpStI[] and TcpStX[] */
+unsigned char *TcpStX = (unsigned char *)NULL;
+				/* excluded TCP states */
+int TcpStXn = 0;		/* number of entries in TcpStX[] */
+int TcpNstates = 0;		/* number of TCP states -- either in
+				 * tcpstates[] or TcpSt[] */
+char **TcpSt = (char **)NULL;	/* local TCP state names, indexed by system
+				 * state value */
+char Terminator = '\n';		/* output field terminator */
+int TaskTidColW = 0;		/* task TID column width */
+int TmLimit = TMLIMIT;		/* Readlink() and stat() timeout (seconds) */
+int TypeColW;			/* TYPE column width */
+int UdpStAlloc = 0;		/* allocated (possibly unused) entries in UDP 
+				 * state tables */
+unsigned char *UdpStI = (unsigned char *)NULL;
+				/* included UDP states */
+int UdpStIn = 0;		/* number of entries in UdpStI[] */
+int UdpStOff = 0;		/* offset for UDP state number to adjust
+				 * negative numbers to an index into UdpSt[],
+				 * UdpStI[] and UdpStX[] */
+unsigned char *UdpStX = (unsigned char *)NULL;
+				/* excluded UDP states */
+int UdpStXn = 0;		/* number of entries in UdpStX[] */
+int UdpNstates = 0;		/* number of UDP states  in UdpSt[] */
+char **UdpSt = (char **)NULL;	/* local UDP state names, indexed by system
+				 * state number */
+int UserColW;			/* USER column width */
+
+#if	defined(HASZONES)
+znhash_t **ZoneArg = (znhash_t **)NULL;
+				/* zone arguments supplied with -z */
+#endif	/* defined(HASZONES) */
+
+int ZoneColW;			/* ZONE column width */
+@
+
+
+1.43
+log
+@Revision 4.89
+@
+text
+@d35 1
+a35 1
+static char *rcsid = "$Id: store.c,v 1.42 2014/10/13 22:36:20 abe Exp abe $";
+d46 2
+d223 17
+a239 16
+    { LSOF_FID_NAME,   0,  LSOF_FNM_NAME,   NULL,     0		 }, /* 14 */
+    { LSOF_FID_NI,     0,  LSOF_FNM_NI,     &Fsv,     FSV_NI	 }, /* 15 */
+    { LSOF_FID_OFFSET, 0,  LSOF_FNM_OFFSET, NULL,     0		 }, /* 16 */
+    { LSOF_FID_PID,    1,  LSOF_FNM_PID,    NULL,     0		 }, /* 17 */
+    { LSOF_FID_PGID,   0,  LSOF_FNM_PGID,   &Fpgid,   1		 }, /* 18 */
+    { LSOF_FID_PROTO,  0,  LSOF_FNM_PROTO,  NULL,     0		 }, /* 19 */
+    { LSOF_FID_RDEV,   0,  LSOF_FNM_RDEV,   NULL,     0		 }, /* 20 */
+    { LSOF_FID_PPID,   0,  LSOF_FNM_PPID,   &Fppid,   1		 }, /* 21 */
+    { LSOF_FID_SIZE,   0,  LSOF_FNM_SIZE,   NULL,     0		 }, /* 22 */
+    { LSOF_FID_STREAM, 0,  LSOF_FNM_STREAM, NULL,     0		 }, /* 23 */
+    { LSOF_FID_TYPE,   0,  LSOF_FNM_TYPE,   NULL,     0		 }, /* 24 */
+    { LSOF_FID_TCPTPI, 0,  LSOF_FNM_TCPTPI, &Ftcptpi, TCPTPI_ALL }, /* 25 */
+    { LSOF_FID_UID,    0,  LSOF_FNM_UID,    NULL,     0		 }, /* 26 */
+    { LSOF_FID_ZONE,   0,  LSOF_FNM_ZONE,   &Fzone,   1		 }, /* 27 */
+    { LSOF_FID_CNTX,   0,  LSOF_FNM_CNTX,   &Fcntx,   1		 }, /* 28 */
+    { LSOF_FID_TERM,   0,  LSOF_FNM_TERM,   NULL,     0		 }, /* 29 */
+d244 1
+d330 1
+a330 1
+int Selall = 1;			/* all processes are selected (default) */
+d332 1
+d354 5
+a358 1
+int TaskPrtFl = 0;		/* task print flag */
+d375 1
+a375 1
+int TidColW = 0;		/* TID column width */
+@
+
+
+1.42
+log
+@Revision 4.88
+@
+text
+@d35 1
+a35 1
+static char *rcsid = "$Id: store.c,v 1.41 2013/01/02 17:14:59 abe Exp abe $";
+d134 2
+a160 2
+int FpipeE = 0;			/* -E option status: 0==none, 1==info,
+				 * 2==info+files */
+@
+
+
+1.41
+log
+@Revision 4.87
+@
+text
+@d35 1
+a35 1
+static char *rcsid = "$Id: store.c,v 1.40 2011/09/07 19:13:49 abe Exp abe $";
+d159 2
+d212 1
+a212 1
+    { LSOF_FID_FD,     0,  LSOF_FNM_FD,     NULL,     0		 }, /*  5 */
+d253 1
+@
+
+
+1.40
+log
+@Revision 4.85: +|-e addition
+@
+text
+@d35 1
+a35 1
+static char *rcsid = "$Id: store.c,v 1.39 2010/07/29 15:59:28 abe Exp abe $";
+d243 2
+@
+
+
+1.39
+log
+@Revision 4.84
+@
+text
+@d35 1
+a35 1
+static char *rcsid = "$Id: store.c,v 1.38 2008/10/21 16:21:41 abe Exp abe $";
+d124 3
+a126 1
+
+d161 2
+a162 1
+#if	defined(HASPMAPENABLED)
+d164 1
+a164 1
+#else	/* !defined(HASPMAPENABLED) */
+d166 2
+a167 1
+#endif	/* defined(HASPMAPENABLED) */
+@
+
+
+1.38
+log
+@Revision 4.81
+@
+text
+@d35 1
+a35 1
+static char *rcsid = "$Id: store.c,v 1.37 2008/04/15 13:24:19 abe Exp abe $";
+d129 1
+d143 1
+a167 2
+int FcColW;			/* FCT column width */
+int FgColW;			/* FILE-FLAG column width */
+d172 1
+d211 20
+a230 56
+    { LSOF_FID_LOCK,   0,  LSOF_FNM_LOCK,   NULL,     0		 }, /* 10 */
+    { LSOF_FID_LOGIN,  0,  LSOF_FNM_LOGIN,  NULL,     0		 }, /* 11 */
+    { LSOF_FID_MARK,   1,  LSOF_FNM_MARK,   NULL,     0		 }, /* 12 */
+    { LSOF_FID_NAME,   0,  LSOF_FNM_NAME,   NULL,     0		 }, /* 13 */
+    { LSOF_FID_NI,     0,  LSOF_FNM_NI,     &Fsv,     FSV_NI	 }, /* 14 */
+    { LSOF_FID_OFFSET, 0,  LSOF_FNM_OFFSET, NULL,     0		 }, /* 15 */
+    { LSOF_FID_PID,    1,  LSOF_FNM_PID,    NULL,     0		 }, /* 16 */
+    { LSOF_FID_PGID,   0,  LSOF_FNM_PGID,   &Fpgid,   1		 }, /* 17 */
+    { LSOF_FID_PROTO,  0,  LSOF_FNM_PROTO,  NULL,     0		 }, /* 18 */
+    { LSOF_FID_RDEV,   0,  LSOF_FNM_RDEV,   NULL,     0		 }, /* 19 */
+    { LSOF_FID_PPID,   0,  LSOF_FNM_PPID,   &Fppid,   1		 }, /* 20 */
+    { LSOF_FID_SIZE,   0,  LSOF_FNM_SIZE,   NULL,     0		 }, /* 21 */
+    { LSOF_FID_STREAM, 0,  LSOF_FNM_STREAM, NULL,     0		 }, /* 22 */
+    { LSOF_FID_TYPE,   0,  LSOF_FNM_TYPE,   NULL,     0		 }, /* 23 */
+    { LSOF_FID_TCPTPI, 0,  LSOF_FNM_TCPTPI, &Ftcptpi, TCPTPI_ALL }, /* 24 */
+    { LSOF_FID_UID,    0,  LSOF_FNM_UID,    NULL,     0		 }, /* 25 */
+    { LSOF_FID_ZONE,   0,  LSOF_FNM_ZONE,   &Fzone,   1		 }, /* 26 */
+    { LSOF_FID_CNTX,   0,  LSOF_FNM_CNTX,   &Fcntx,   1		 }, /* 27 */
+    { LSOF_FID_TERM,   0,  LSOF_FNM_TERM,   NULL,     0		 }, /* 28 */
+
+#if	defined(HASFIELDAP1)
+    { '1',	       0,  HASFIELDAP1,     NULL,     0		 }, /* TERM+1 */
+#endif	/* defined(HASFIELDAP1) */
+
+#if	defined(HASFIELDAP2)
+    { '2',	       0,  HASFIELDAP2,     NULL,     0		 }, /* TERM+2 */
+#endif	/* defined(HASFIELDAP2) */
+
+#if	defined(HASFIELDAP3)
+    { '3',	       0,  HASFIELDAP3,     NULL,     0		 }, /* TERM+3 */
+#endif	/* defined(HASFIELDAP3) */
+
+#if	defined(HASFIELDAP4)
+    { '4',	       0,  HASFIELDAP4,     NULL,     0		 }, /* TERM+4 */
+#endif	/* defined(HASFIELDAP4) */
+
+#if	defined(HASFIELDAP5)
+    { '5',	       0,  HASFIELDAP5,     NULL,     0		 }, /* TERM+5 */
+#endif	/* defined(HASFIELDAP5) */
+
+#if	defined(HASFIELDAP6)
+    { '6',	       0,  HASFIELDAP6,     NULL,     0		 }, /* TERM+6 */
+#endif	/* defined(HASFIELDAP6) */
+
+#if	defined(HASFIELDAP7)
+    { '7',	       0,  HASFIELDAP7,     NULL,     0		 }, /* TERM+7 */
+#endif	/* defined(HASFIELDAP7) */
+
+#if	defined(HASFIELDAP8)
+    { '8',	       0,  HASFIELDAP8,     NULL,     0		 }, /* TERM+8 */
+#endif	/* defined(HASFIELDAP8) */
+
+#if	defined(HASFIELDAP9)
+    { '9',	       0,  HASFIELDAP9,     NULL,     0		 }, /* TERM+9 */
+#endif	/* defined(HASFIELDAP9) */
+
+d340 1
+d357 1
+@
+
+
+1.37
+log
+@Revision 4.79
+@
+text
+@d35 1
+a35 1
+static char *rcsid = "$Id: store.c,v 1.36 2006/09/15 18:58:03 abe Exp abe $";
+d66 2
+d375 15
+d393 14
+@
+
+
+1.36
+log
+@Revision 4.78, part 1
+@
+text
+@d35 1
+a35 1
+static char *rcsid = "$Id: store.c,v 1.35 2005/08/08 19:44:35 abe Exp abe $";
+d73 3
+a75 1
+int CntxColW;			/* security context  column width */
+d168 1
+@
+
+
+1.35
+log
+@Revision 4.76
+@
+text
+@d35 1
+a35 1
+static char *rcsid = "$Id: store.c,v 1.34 2005/05/11 13:02:46 abe Exp abe $";
+d69 7
+d125 1
+d222 2
+a223 1
+    { LSOF_FID_TERM,   0,  LSOF_FNM_TERM,   NULL,     0		 }, /* 27 */
+@
+
+
+1.34
+log
+@Revision 4.75
+@
+text
+@d35 1
+a35 1
+static char *rcsid = "$Id: store.c,v 1.33 2004/07/06 19:09:32 abe Exp abe $";
+d256 4
+@
+
+
+1.33
+log
+@Revision 4.72
+@
+text
+@d35 1
+a35 1
+static char *rcsid = "$Id: store.c,v 1.32 2004/03/10 23:44:27 abe Exp abe $";
+d298 2
+d301 2
+@
+
+
+1.32
+log
+@Revision 4.71
+@
+text
+@d35 1
+a35 1
+static char *rcsid = "$Id: store.c,v 1.31 2003/10/07 11:34:30 abe Exp abe $";
+d115 1
+d263 4
+@
+
+
+1.31
+log
+@Revision 4,69
+@
+text
+@d35 1
+a35 1
+static char *rcsid = "$Id: store.c,v 1.30 2003/03/21 17:25:46 abe Exp abe $";
+d176 3
+d212 2
+a213 1
+    { LSOF_FID_TERM,   0,  LSOF_FNM_TERM,   NULL,     0		 }, /* 26 */
+d352 7
+@
+
+
+1.30
+log
+@Revision 4.67
+Add COMMAND column width control support.
+@
+text
+@d35 1
+a35 1
+static char *rcsid = "$Id: store.c,v 1.29 2002/06/17 01:38:15 abe Exp abe $";
+d101 1
+a101 1
+dev_t DevDev;			/* devce number of /dev or its equivalent */
+@
+
+
+1.29
+log
+@Revision 4.64
+@
+text
+@d35 1
+a35 1
+static char *rcsid = "$Id: store.c,v 1.28 2001/10/17 19:24:37 abe Exp abe $";
+d62 1
+d65 1
+a65 1
+int CmdColW;			/* COMMAND column width */
+@
+
+
+1.28
+log
+@Revision 4.59
+@
+text
+@d35 1
+a35 1
+static char *rcsid = "$Id: store.c,v 1.27 2001/10/15 12:11:54 abe Exp abe $";
+d177 3
+@
+
+
+1.27
+log
+@Revision 4.59
+@
+text
+@d35 1
+a35 1
+static char *rcsid = "$Id: store.c,v 1.26 2001/02/13 02:10:43 abe Exp abe $";
+d130 6
+a135 2
+int Fnet = 0;			/* -i option status: 0==none, 1==find all,
+				 * 2==some found*/
+@
+
+
+1.26
+log
+@Revision 4.55
+@
+text
+@d35 1
+a35 1
+static char *rcsid = "$Id: store.c,v 1.25 2000/12/04 13:55:17 abe Exp abe $";
+d194 8
+a201 7
+    { LSOF_FID_PPID,   0,  LSOF_FNM_PPID,   &Fppid,   1		 }, /* 19 */
+    { LSOF_FID_SIZE,   0,  LSOF_FNM_SIZE,   NULL,     0		 }, /* 20 */
+    { LSOF_FID_STREAM, 0,  LSOF_FNM_STREAM, NULL,     0		 }, /* 21 */
+    { LSOF_FID_TYPE,   0,  LSOF_FNM_TYPE,   NULL,     0		 }, /* 22 */
+    { LSOF_FID_TCPTPI, 0,  LSOF_FNM_TCPTPI, &Ftcptpi, TCPTPI_ALL }, /* 23 */
+    { LSOF_FID_UID,    0,  LSOF_FNM_UID,    NULL,     0		 }, /* 24 */
+    { LSOF_FID_TERM,   0,  LSOF_FNM_TERM,   NULL,     0		 }, /* 25 */
+@
+
+
+1.25
+log
+@Revision 4.53
+@
+text
+@d35 1
+a35 1
+static char *rcsid = "$Id: store.c,v 1.24 2000/11/05 13:49:53 abe Exp abe $";
+d65 2
+d145 1
+a145 1
+int Fpgrp = 0;			/* -g option status */
+d192 1
+a192 1
+    { LSOF_FID_PGRP,   0,  LSOF_FNM_PGRP,   &Fpgrp,   1		 }, /* 17 */
+d255 1
+a255 1
+int Mxpgrp = 0;			/* maximum process groip ID table entries */
+d263 1
+d279 1
+a279 1
+int Npgrp = 0;			/* -g option count */
+d290 1
+a290 1
+int PgrpColW;			/* PGRP column width */
+d319 1
+a319 1
+struct int_lst *Spgrp = (struct int_lst *)NULL;
+@
+
+
+1.24
+log
+@Revision 4.52
+@
+text
+@d35 1
+a35 1
+static char *rcsid = "$Id: store.c,v 1.23 2000/08/01 17:17:39 abe Exp abe $";
+d98 1
+@
+
+
+1.23
+log
+@Revision 4.51
+Convert to snpf().
+@
+text
+@d35 1
+a35 1
+static char *rcsid = "$Id: store.c,v 1.22 100/01/14 08:57:44 abe Exp abe $";
+d121 1
+@
+
+
+1.22
+log
+@Revision 4.48
+Make sure Fppid is always available for FieldSel[].
+@
+text
+@d35 1
+a35 1
+static char *rcsid = "$Id: store.c,v 1.21 99/11/28 06:32:05 abe Exp Locker: abe $";
+d258 1
+@
+
+
+1.21
+log
+@Revision 4.47
+Expand field selection table.
+@
+text
+@d35 1
+a35 1
+static char *rcsid = "$Id: store.c,v 1.20 99/06/22 09:57:15 abe Exp Locker: abe $";
+a141 2
+
+#if	defined(HASPPID)
+a142 2
+#endif	/* defined(HASPPID) */
+
+@
+
+
+1.20
+log
+@Revision 4.44
+@
+text
+@d35 1
+a35 1
+static char *rcsid = "$Id: store.c,v 1.19 99/05/04 08:13:41 abe Exp Locker: abe $";
+a147 2
+
+#if	defined(HASFSTRUCT)
+a154 2
+#endif	/* defined(HASFSTRUCT) */
+
+d175 26
+a200 26
+	{ LSOF_FID_ACCESS,	0,	LSOF_FNM_ACCESS	},	/*  0 */
+	{ LSOF_FID_CMD,		0,	LSOF_FNM_CMD	},	/*  1 */
+	{ LSOF_FID_CT,		0,	LSOF_FNM_CT	},	/*  2 */
+	{ LSOF_FID_DEVCH,	0,	LSOF_FNM_DEVCH	},	/*  3 */
+	{ LSOF_FID_DEVN,	0,	LSOF_FNM_DEVN	},	/*  4 */
+	{ LSOF_FID_FD,		0,	LSOF_FNM_FD	},	/*  5 */
+	{ LSOF_FID_FA,		0,	LSOF_FNM_FA	},	/*  6 */
+	{ LSOF_FID_FG,		0,	LSOF_FNM_FG	},	/*  7 */
+	{ LSOF_FID_INODE,	0,	LSOF_FNM_INODE	},	/*  8 */
+	{ LSOF_FID_NLINK,	0,	LSOF_FNM_NLINK	},	/*  9 */
+	{ LSOF_FID_LOCK,	0,	LSOF_FNM_LOCK	},	/* 10 */
+	{ LSOF_FID_LOGIN,	0,	LSOF_FNM_LOGIN	},	/* 11 */
+	{ LSOF_FID_MARK,	1,	LSOF_FNM_MARK	},	/* 12 */
+	{ LSOF_FID_NAME,	0,	LSOF_FNM_NAME	},	/* 13 */
+	{ LSOF_FID_NI,		0,	LSOF_FNM_NI	},	/* 14 */
+	{ LSOF_FID_OFFSET,	0,	LSOF_FNM_OFFSET	},	/* 15 */
+	{ LSOF_FID_PID,		1,	LSOF_FNM_PID	},	/* 16 */
+	{ LSOF_FID_PGRP,	0,	LSOF_FNM_PGRP	},	/* 17 */
+	{ LSOF_FID_PROTO,	0,	LSOF_FNM_PROTO	},	/* 18 */
+	{ LSOF_FID_PPID,	0,	LSOF_FNM_PPID	},	/* 19 */
+	{ LSOF_FID_SIZE,	0,	LSOF_FNM_SIZE	},	/* 20 */
+	{ LSOF_FID_STREAM,	0,	LSOF_FNM_STREAM	},	/* 21 */
+	{ LSOF_FID_TYPE,	0,	LSOF_FNM_TYPE	},	/* 22 */
+	{ LSOF_FID_TCPTPI,	0,	LSOF_FNM_TCPTPI	},	/* 23 */
+	{ LSOF_FID_UID,		0,	LSOF_FNM_UID	},	/* 24 */
+	{ LSOF_FID_TERM,	0,	LSOF_FNM_TERM	},	/* 25 */
+d203 1
+a203 1
+	{ '1',			0,	HASFIELDAP1},		/* TERM + 1 */
+d207 1
+a207 1
+	{ '2',			0,	HASFIELDAP2},		/* TERM + 2 */
+d211 1
+a211 1
+	{ '3',			0,	HASFIELDAP3},		/* TERM + 3 */
+d215 1
+a215 1
+	{ '4',			0,	HASFIELDAP4},		/* TERM + 4 */
+d219 1
+a219 1
+	{ '5',			0,	HASFIELDAP5},		/* TERM + 5 */
+d223 1
+a223 1
+	{ '6',			0,	HASFIELDAP6},		/* TERM + 6 */
+d227 1
+a227 1
+	{ '7',			0,	HASFIELDAP7},		/* TERM + 7 */
+d231 1
+a231 1
+	{ '8',			0,	HASFIELDAP8},		/* TERM + 8 */
+d235 1
+a235 1
+	{ '9',			0,	HASFIELDAP9},		/* TERM + 9 */
+d238 1
+a238 1
+	{ ' ',			0,	NULL		}
+@
+
+
+1.19
+log
+@Revision 4.43
+@
+text
+@d35 1
+a35 1
+static char *rcsid = "$Id: store.c,v 1.18 99/04/27 15:41:46 abe Exp Locker: abe $";
+d56 6
+d155 2
+a156 2
+int NaColW;			/* NODE-ADDR column width */
+char *NaTtl = NATTL;		/* NODE-ADDR column title */
+d184 2
+a185 2
+	{ LSOF_FID_FA,		0,	LSOF_FNM_FA	},	/*  5 */
+	{ LSOF_FID_FD,		0,	LSOF_FNM_FD	},	/*  6 */
+d192 2
+a193 2
+	{ LSOF_FID_NA	,	0,	LSOF_FNM_NA	},	/* 13 */
+	{ LSOF_FID_NAME,	0,	LSOF_FNM_NAME	},	/* 14 */
+@
+
+
+1.18
+log
+@Revision 4.43
+Add flags support.
+@
+text
+@d35 1
+a35 1
+static char *rcsid = "$Id: store.c,v 1.17 99/01/25 07:22:33 abe Exp Locker: abe $";
+d124 1
+d182 17
+a198 16
+	{ LSOF_FID_LOCK,	0,	LSOF_FNM_LOCK	},	/*  9 */
+	{ LSOF_FID_LOGIN,	0,	LSOF_FNM_LOGIN	},	/* 10 */
+	{ LSOF_FID_MARK,	1,	LSOF_FNM_MARK	},	/* 11 */
+	{ LSOF_FID_NA	,	0,	LSOF_FNM_NA	},	/* 12 */
+	{ LSOF_FID_NAME,	0,	LSOF_FNM_NAME	},	/* 13 */
+	{ LSOF_FID_OFFSET,	0,	LSOF_FNM_OFFSET	},	/* 14 */
+	{ LSOF_FID_PID,		1,	LSOF_FNM_PID	},	/* 15 */
+	{ LSOF_FID_PGRP,	0,	LSOF_FNM_PGRP	},	/* 16 */
+	{ LSOF_FID_PROTO,	0,	LSOF_FNM_PROTO	},	/* 17 */
+	{ LSOF_FID_PPID,	0,	LSOF_FNM_PPID	},	/* 18 */
+	{ LSOF_FID_SIZE,	0,	LSOF_FNM_SIZE	},	/* 19 */
+	{ LSOF_FID_STREAM,	0,	LSOF_FNM_STREAM	},	/* 20 */
+	{ LSOF_FID_TYPE,	0,	LSOF_FNM_TYPE	},	/* 21 */
+	{ LSOF_FID_TCPTPI,	0,	LSOF_FNM_TCPTPI	},	/* 22 */
+	{ LSOF_FID_UID,		0,	LSOF_FNM_UID	},	/* 23 */
+	{ LSOF_FID_TERM,	0,	LSOF_FNM_TERM	},	/* 24 */
+d268 2
+d271 1
+@
+
+
+1.17
+log
+@Revision 4.40
+@
+text
+@d35 1
+a35 1
+static char *rcsid = "$Id: store.c,v 1.16 98/12/28 10:17:43 abe Exp Locker: abe $";
+d144 1
+d147 1
+d179 18
+a196 17
+	{ LSOF_FID_INODE,	0,	LSOF_FNM_INODE	},	/*  7 */
+	{ LSOF_FID_LOCK,	0,	LSOF_FNM_LOCK	},	/*  8 */
+	{ LSOF_FID_LOGIN,	0,	LSOF_FNM_LOGIN	},	/*  9 */
+	{ LSOF_FID_MARK,	1,	LSOF_FNM_MARK	},	/* 10 */
+	{ LSOF_FID_NA	,	0,	LSOF_FNM_NA	},	/* 11 */
+	{ LSOF_FID_NAME,	0,	LSOF_FNM_NAME	},	/* 12 */
+	{ LSOF_FID_OFFSET,	0,	LSOF_FNM_OFFSET	},	/* 13 */
+	{ LSOF_FID_PID,		1,	LSOF_FNM_PID	},	/* 14 */
+	{ LSOF_FID_PGRP,	0,	LSOF_FNM_PGRP	},	/* 15 */
+	{ LSOF_FID_PROTO,	0,	LSOF_FNM_PROTO	},	/* 16 */
+	{ LSOF_FID_PPID,	0,	LSOF_FNM_PPID	},	/* 17 */
+	{ LSOF_FID_SIZE,	0,	LSOF_FNM_SIZE	},	/* 18 */
+	{ LSOF_FID_STREAM,	0,	LSOF_FNM_STREAM	},	/* 19 */
+	{ LSOF_FID_TYPE,	0,	LSOF_FNM_TYPE	},	/* 20 */
+	{ LSOF_FID_TCPTPI,	0,	LSOF_FNM_TCPTPI	},	/* 21 */
+	{ LSOF_FID_UID,		0,	LSOF_FNM_UID	},	/* 22 */
+	{ LSOF_FID_TERM,	0,	LSOF_FNM_TERM	},	/* 23 */
+@
+
+
+1.16
+log
+@Revision 4.39
+@
+text
+@d35 1
+a35 1
+static char *rcsid = "$Id: store.c,v 1.15 98/11/23 07:34:55 abe Exp Locker: abe $";
+d94 10
+@
+
+
+1.15
+log
+@Revision 4.38
+@
+text
+@d35 1
+a35 1
+static char *rcsid = "$Id: store.c,v 1.14 98/08/18 08:07:35 abe Exp Locker: abe $";
+d131 9
+d162 22
+a183 19
+	{ LSOF_FID_DEVCH,	0,	LSOF_FNM_DEVCH	},	/*  2 */
+	{ LSOF_FID_DEVN,	0,	LSOF_FNM_DEVN	},	/*  3 */
+	{ LSOF_FID_FD,		0,	LSOF_FNM_FD	},	/*  4 */
+	{ LSOF_FID_INODE,	0,	LSOF_FNM_INODE	},	/*  5 */
+	{ LSOF_FID_LOCK,	0,	LSOF_FNM_LOCK	},	/*  6 */
+	{ LSOF_FID_LOGIN,	0,	LSOF_FNM_LOGIN	},	/*  7 */
+	{ LSOF_FID_MARK,	1,	LSOF_FNM_MARK	},	/*  8 */
+	{ LSOF_FID_NAME,	0,	LSOF_FNM_NAME	},	/*  9 */
+	{ LSOF_FID_OFFSET,	0,	LSOF_FNM_OFFSET	},	/* 10 */
+	{ LSOF_FID_PID,		1,	LSOF_FNM_PID	},	/* 11 */
+	{ LSOF_FID_PGRP,	0,	LSOF_FNM_PGRP	},	/* 12 */
+	{ LSOF_FID_PROTO,	0,	LSOF_FNM_PROTO	},	/* 13 */
+	{ LSOF_FID_PPID,	0,	LSOF_FNM_PPID	},	/* 14 */
+	{ LSOF_FID_SIZE,	0,	LSOF_FNM_SIZE	},	/* 15 */
+	{ LSOF_FID_STREAM,	0,	LSOF_FNM_STREAM	},	/* 16 */
+	{ LSOF_FID_TYPE,	0,	LSOF_FNM_TYPE	},	/* 17 */
+	{ LSOF_FID_TCPTPI,	0,	LSOF_FNM_TCPTPI	},	/* 18 */
+	{ LSOF_FID_UID,		0,	LSOF_FNM_UID	},	/* 19 */
+	{ LSOF_FID_TERM,	0,	LSOF_FNM_TERM	},	/* 20 */
+@
+
+
+1.14
+log
+@Revision 4.37
+@
+text
+@d35 1
+a35 1
+static char *rcsid = "$Id: store.c,v 1.13 98/06/18 07:58:12 abe Exp Locker: abe $";
+d94 1
+@
+
+
+1.13
+log
+@Revision 4.34
+Change INODE column title to NODE.
+@
+text
+@d35 1
+a35 1
+static char *rcsid = "$Id: store.c,v 1.12 98/03/18 14:33:09 abe Exp Locker: abe $";
+d146 1
+a146 1
+struct str_lst *Fdl = (struct str_lst *)NULL;
+@
+
+
+1.12
+log
+@Revision 4.29
+Remove Mtab -- it must be ontained via readmnt().
+@
+text
+@d35 1
+a35 1
+static char *rcsid = "$Id: store.c,v 1.11 98/02/16 15:55:22 abe Exp Locker: abe $";
+a211 1
+int InoColW;			/* INODE column width */
+d243 1
+@
+
+
+1.11
+log
+@Revision 4.26
+Add Procfind.
+@
+text
+@d35 1
+a35 1
+static char *rcsid = "$Id: store.c,v 1.10 98/02/13 07:43:04 abe Exp Locker: abe $";
+a219 2
+struct mounts *Mtab = (struct mounts *)NULL;
+				/* mounted devices */
+@
+
+
+1.10
+log
+@Revision 4.26
+@
+text
+@d35 1
+a35 1
+static char *rcsid = "$Id: store.c,v 1.9 98/01/29 15:38:25 abe Exp Locker: abe $";
+d265 2
+d271 1
+a271 1
+#endif
+@
+
+
+1.9
+log
+@Revision 4.25
+@
+text
+@d35 1
+a35 1
+static char *rcsid = "$Id: store.c,v 1.8 97/12/11 15:37:48 abe Exp Locker: abe $";
+d97 4
+@
+
+
+1.8
+log
+@Revision 4.22
+Add +|-M support; change -w to +|-w.
+@
+text
+@d35 1
+a35 1
+static char *rcsid = "$Id: store.c,v 1.7 97/10/24 08:01:56 abe Exp Locker: abe $";
+d251 1
+@
+
+
+1.7
+log
+@Revision 4.18
+@
+text
+@d35 1
+a35 1
+static char *rcsid = "$Id: store.c,v 1.6 97/10/10 08:24:29 abe Exp Locker: abe $";
+d112 7
+d133 1
+a133 1
+int Fwarn = 1;			/* -w option status */
+d135 1
+a135 1
+int Fwarn = 0;			/* -w option status */
+@
+
+
+1.6
+log
+@Revision 4.17
+Update descriptions of Fnet and Fnfs.  Add Fverbose for -V.
+Change PID and PGRP lists to int_lst structure to accommodate find flag.
+@
+text
+@d35 1
+a35 1
+static char *rcsid = "$Id: store.c,v 1.5 97/09/23 09:13:54 abe Exp Locker: abe $";
+d47 2
+a48 1
+struct l_dev *BDevtp = NULL;	/* block device table pointer */
+d50 2
+a51 1
+struct l_dev **BSdev = NULL;	/* pointer to BDevtp[] pointers, sorted
+d56 3
+a58 1
+struct str_lst *Cmdl = NULL;	/* command names selected with -c */
+d63 2
+a64 2
+FILE *DCfs = NULL;		/* stream pointer for DCfd */
+char *DCpathArg = NULL;		/* device cache path from -D[b|r|u]<path> */
+d67 1
+a67 1
+	NULL, NULL, NULL, NULL
+d91 3
+a93 1
+struct l_dev *Devtp = NULL;	/* device table pointer */
+d96 1
+d135 2
+a136 1
+struct str_lst *Fdl = NULL;	/* file descriptors selected with -d */
+d201 10
+a210 5
+struct lfile *Lf = NULL;	/* current local file structure */
+struct lproc *Lp = NULL;	/* current local process table entry */
+struct lproc *Lproc = NULL;	/* local process table */
+char *Memory = NULL;		/* core file path */
+struct mounts *Mtab = NULL;	/* mounted devices */
+d213 2
+a214 1
+struct mounts *Mtprocfs = NULL;	/* /proc mount entry */
+d223 1
+a223 1
+char *Namech = NULL;		/* name characters for printing */
+d227 2
+a228 1
+struct NLIST_TYPE *Nl = NULL;	/* kernel name list */
+d233 2
+a234 1
+char *Nmlst = NULL;		/* namelist file path */
+d242 7
+a248 2
+struct nwad *Nwad = NULL;	/* list of network addresses */
+struct lfile *Plf = NULL;	/* previous local file structure */
+d250 1
+d253 1
+a253 1
+struct procfsid *Procfsid = NULL;
+d259 2
+d262 2
+a263 1
+struct l_dev **Sdev = NULL;	/* pointer to Devtp[] pointers, sorted
+d270 18
+a287 4
+struct sfile *Sfile = NULL;	/* chain of files to search for */
+struct int_lst *Spgrp = NULL;	/* process group IDs to search for */
+struct int_lst *Spid = NULL;	/* Process IDs to search for */
+struct seluid *Suid = NULL;	/* User IDs to include or exclude */
+d290 2
+@
+
+
+1.5
+log
+@Revision 4.16
+@
+text
+@d35 1
+a35 1
+static char *rcsid = "$Id: store.c,v 1.4 97/08/15 07:25:54 abe Exp Locker: abe $";
+d98 4
+a101 2
+int Fnet = 0;			/* -n option status */
+int Fnfs = 0;			/* -N option status */
+d116 1
+d246 2
+a247 2
+int *Spgrp = NULL;		/* process group IDs to search for */
+int *Spid = NULL;		/* Process IDs to search for */
+@
+
+
+1.4
+log
+@Revision 4.15
+Report TCP/TPI state.
+@
+text
+@d35 1
+a35 1
+static char *rcsid = "$Id: store.c,v 1.3 97/04/15 10:18:46 abe Exp Locker: abe $";
+d110 1
+@
+
+
+1.3
+log
+@Revision 4.04
+@
+text
+@d35 1
+a35 1
+static char *rcsid = "$Id: store.c,v 1.2 97/04/07 08:16:07 abe Exp Locker: abe $";
+d145 3
+a147 2
+	{ LSOF_FID_UID,		0,	LSOF_FNM_UID	},	/* 18 */
+	{ LSOF_FID_TERM,	0,	LSOF_FNM_TERM	},	/* 19 */
+@
+
+
+1.2
+log
+@Revision 4.03
+Implement WARNINGSTATE option.
+@
+text
+@d35 1
+a35 1
+static char *rcsid = "$Id: store.c,v 1.1 97/02/24 07:12:46 abe Exp Locker: abe $";
+d72 2
+d81 2
+@
+
+
+1.1
+log
+@Initial revision
+@
+text
+@d35 1
+a35 1
+static char *rcsid = "$Id: store.c,v 1.26 97/01/17 09:34:54 abe Exp $";
+d109 4
+d114 1
+@

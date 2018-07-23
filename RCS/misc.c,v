@@ -1,0 +1,3058 @@
+head	1.29;
+access;
+symbols;
+locks; strict;
+comment	@ * @;
+
+
+1.29
+date	2018.02.14.14.20.14;	author abe;	state Exp;
+branches;
+next	1.28;
+
+1.28
+date	2014.10.13.22.36.20;	author abe;	state Exp;
+branches;
+next	1.27;
+
+1.27
+date	2013.01.02.17.14.59;	author abe;	state Exp;
+branches;
+next	1.26;
+
+1.26
+date	2008.10.21.16.21.41;	author abe;	state Exp;
+branches;
+next	1.25;
+
+1.25
+date	2008.04.15.13.24.19;	author abe;	state Exp;
+branches;
+next	1.24;
+
+1.24
+date	2005.08.08.19.43.41;	author abe;	state Exp;
+branches;
+next	1.23;
+
+1.23
+date	2004.10.17.21.39.23;	author abe;	state Exp;
+branches;
+next	1.22;
+
+1.22
+date	2002.04.29.17.11.04;	author abe;	state Exp;
+branches;
+next	1.21;
+
+1.21
+date	2001.11.01.20.21.18;	author abe;	state Exp;
+branches;
+next	1.20;
+
+1.20
+date	2001.08.03.15.08.43;	author abe;	state Exp;
+branches;
+next	1.19;
+
+1.19
+date	2001.01.02.12.45.48;	author abe;	state Exp;
+branches;
+next	1.18;
+
+1.18
+date	2000.08.01.17.07.13;	author abe;	state Exp;
+branches;
+next	1.17;
+
+1.17
+date	99.07.06.13.05.13;	author abe;	state Exp;
+branches;
+next	1.16;
+
+1.16
+date	99.01.25.07.22.25;	author abe;	state Exp;
+branches;
+next	1.15;
+
+1.15
+date	98.08.18.08.07.30;	author abe;	state Exp;
+branches;
+next	1.14;
+
+1.14
+date	98.08.03.08.01.10;	author abe;	state Exp;
+branches;
+next	1.13;
+
+1.13
+date	98.05.22.14.01.22;	author abe;	state Exp;
+branches;
+next	1.12;
+
+1.12
+date	98.03.19.15.29.46;	author abe;	state Exp;
+branches;
+next	1.11;
+
+1.11
+date	98.03.09.15.59.46;	author abe;	state Exp;
+branches;
+next	1.10;
+
+1.10
+date	98.03.06.07.25.38;	author abe;	state Exp;
+branches;
+next	1.9;
+
+1.9
+date	98.01.29.15.38.48;	author abe;	state Exp;
+branches;
+next	1.8;
+
+1.8
+date	98.01.15.09.19.48;	author abe;	state Exp;
+branches;
+next	1.7;
+
+1.7
+date	97.10.24.08.01.44;	author abe;	state Exp;
+branches;
+next	1.6;
+
+1.6
+date	97.10.10.08.22.17;	author abe;	state Exp;
+branches;
+next	1.5;
+
+1.5
+date	97.06.20.08.38.42;	author abe;	state Exp;
+branches;
+next	1.4;
+
+1.4
+date	97.06.07.20.06.00;	author abe;	state Exp;
+branches;
+next	1.3;
+
+1.3
+date	97.04.23.15.57.54;	author abe;	state Exp;
+branches;
+next	1.2;
+
+1.2
+date	97.04.15.10.19.12;	author abe;	state Exp;
+branches;
+next	1.1;
+
+1.1
+date	97.02.24.07.12.25;	author abe;	state Exp;
+branches;
+next	;
+
+
+desc
+@Lsof version 4
+@
+
+
+1.29
+log
+@Revision 4.90
+@
+text
+@/*
+ * misc.c - common miscellaneous functions for lsof
+ */
+
+
+/*
+ * Copyright 1994 Purdue Research Foundation, West Lafayette, Indiana
+ * 47907.  All rights reserved.
+ *
+ * Written by Victor A. Abell
+ *
+ * This software is not subject to any license of the American Telephone
+ * and Telegraph Company or the Regents of the University of California.
+ *
+ * Permission is granted to anyone to use this software for any purpose on
+ * any computer system, and to alter it and redistribute it freely, subject
+ * to the following restrictions:
+ *
+ * 1. Neither the authors nor Purdue University are responsible for any
+ *    consequences of the use of this software.
+ *
+ * 2. The origin of this software must not be misrepresented, either by
+ *    explicit claim or by omission.  Credit to the authors and Purdue
+ *    University must appear in documentation and sources.
+ *
+ * 3. Altered versions must be plainly marked as such, and must not be
+ *    misrepresented as being the original software.
+ *
+ * 4. This notice may not be removed or altered.
+ */
+
+#ifndef lint
+static char copyright[] =
+"@@(#) Copyright 1994 Purdue Research Foundation.\nAll rights reserved.\n";
+static char *rcsid = "$Id: misc.c,v 1.28 2014/10/13 22:36:20 abe Exp abe $";
+#endif
+
+
+#include "lsof.h"
+
+#if	defined(HASWIDECHAR)
+# if	defined(WIDECHARINCL)
+#include WIDECHARINCL
+# endif	/* defined(WIDECHARINCL) */
+# if	defined(HASWCTYPE_H)
+#include <wctype.h>
+# endif	/* defined(HASWCTYPE_H) */
+#endif	/* defined(HASWIDECHAR) */
+
+
+/*
+ * Local definitions
+ */
+
+#if	!defined(MAXSYMLINKS)
+#define	MAXSYMLINKS	32
+#endif	/* !defined(MAXSYMLINKS) */
+
+
+/*
+ * Local function prototypes
+ */
+
+_PROTOTYPE(static void closePipes,(void));
+_PROTOTYPE(static int dolstat,(char *path, char *buf, int len));
+_PROTOTYPE(static int dostat,(char *path, char *buf, int len));
+_PROTOTYPE(static int doreadlink,(char *path, char *buf, int len));
+_PROTOTYPE(static int doinchild,(int (*fn)(), char *fp, char *rbuf, int rbln));
+
+#if	defined(HASINTSIGNAL)
+_PROTOTYPE(static int handleint,(int sig));
+#else	/* !defined(HASINTSIGNAL) */
+_PROTOTYPE(static void handleint,(int sig));
+#endif	/* defined(HASINTSIGNAL) */
+
+
+/*
+ * Local variables
+ */
+
+static pid_t Cpid = 0;			/* child PID */
+static jmp_buf Jmp_buf;			/* jump buffer */
+static int Pipes[] =			/* pipes for child process */
+	{ -1, -1, -1, -1 };
+static int CtSigs[] = { 0, SIGINT, SIGKILL };
+					/* child termination signals (in order
+					 * of application) -- the first is a
+					 * dummy to allow pipe closure to
+					 * cause the child to exit */
+#define	NCTSIGS	(sizeof(CtSigs) / sizeof(int))
+
+
+#if	defined(HASNLIST)
+/*
+ * build-Nl() - build kernel name list table
+ */
+
+static struct drive_Nl *Build_Nl = (struct drive_Nl *)NULL;
+					/* the default Drive_Nl address */
+
+void
+build_Nl(d)
+	struct drive_Nl *d;		/* data to drive the construction */
+{
+	struct drive_Nl *dp;
+	int i, n;
+
+	for (dp = d, n = 0; dp->nn; dp++, n++)
+	    ;
+	if (n < 1) {
+	    (void) fprintf(stderr,
+		"%s: can't calculate kernel name list length\n", Pn);
+	    Exit(1);
+	}
+	if (!(Nl = (struct NLIST_TYPE *)calloc((n + 1),
+					       sizeof(struct NLIST_TYPE))))
+	{
+	    (void) fprintf(stderr,
+		"%s: can't allocate %d bytes to kernel name list structure\n",
+		Pn, (int)((n + 1) * sizeof(struct NLIST_TYPE)));
+	    Exit(1);
+	}
+	for (dp = d, i = 0; i < n; dp++, i++) {
+	    Nl[i].NL_NAME = dp->knm;
+	}
+	Nll = (int)((n + 1) * sizeof(struct NLIST_TYPE));
+	Build_Nl = d;
+}
+#endif	/* defined(HASNLIST) */
+
+
+/*
+ * childx() - make child process exit (if possible)
+ */
+
+void
+childx()
+{
+	static int at, sx;
+	pid_t wpid;
+
+	if (Cpid > 1) {
+
+	/*
+	 * First close the pipes to and from the child.  That should cause the
+	 * child to exit.  Compute alarm time shares.
+	 */
+	    (void) closePipes();
+	    if ((at = TmLimit / NCTSIGS) < TMLIMMIN)
+		at = TMLIMMIN;
+	/*
+	 * Loop, waiting for the child to exit.  After the first pass, help
+	 * the child exit by sending it signals.
+	 */
+	    for (sx = 0; sx < NCTSIGS; sx++) {
+		if (setjmp(Jmp_buf)) {
+
+		/*
+		 * An alarm has rung.  Disable further alarms.
+		 *
+		 * If there are more signals to send, continue the signal loop.
+		 *
+		 * If the last signal has been sent, issue a warning (unless
+		 * warninge have been suppressed) and exit the signal loop.
+		 */
+		    (void) alarm(0);
+		    (void) signal(SIGALRM, SIG_DFL);
+		    if (sx < (NCTSIGS - 1))
+			continue;
+		    if (!Fwarn)
+			(void) fprintf(stderr,
+			    "%s: WARNING -- child process %d may be hung.\n",
+			    Pn, (int)Cpid);
+		    break;
+	        }
+	    /*
+	     * Send the next signal to the child process, after the first pass
+	     * through the loop.
+	     *
+	     * Wrap the wait() with an alarm.
+	     */
+		if (sx)
+		    (void) kill(Cpid, CtSigs[sx]);
+		(void) signal(SIGALRM, handleint);
+		(void) alarm(at);
+		wpid = (pid_t) wait(NULL);
+		(void) alarm(0);
+		(void) signal(SIGALRM, SIG_DFL);
+		if (wpid == Cpid)
+		    break;
+	    }
+	    Cpid = 0;
+	}
+}
+
+
+/*
+ * closePipes() - close open pipe file descriptors
+ */
+
+static void
+closePipes()
+{
+	int i;
+
+	for (i = 0; i < 4; i++) {
+	    if (Pipes[i] >= 0) {
+		(void) close(Pipes[i]);
+		Pipes[i] = -1;
+	    }
+	}
+}
+
+
+/*
+ * compdev() - compare Devtp[] entries
+ */
+
+int
+compdev(a1, a2)
+	COMP_P *a1, *a2;
+{
+	struct l_dev **p1 = (struct l_dev **)a1;
+	struct l_dev **p2 = (struct l_dev **)a2;
+
+	if ((dev_t)((*p1)->rdev) < (dev_t)((*p2)->rdev))
+	    return(-1);
+	if ((dev_t)((*p1)->rdev) > (dev_t)((*p2)->rdev))
+	    return(1);
+	if ((INODETYPE)((*p1)->inode) < (INODETYPE)((*p2)->inode))
+	    return(-1);
+	if ((INODETYPE)((*p1)->inode) > (INODETYPE)((*p2)->inode))
+	    return(1);
+	return(strcmp((*p1)->name, (*p2)->name));
+}
+
+
+/*
+ * doinchild() -- do a function in a child process
+ */
+
+static int
+doinchild(fn, fp, rbuf, rbln)
+	int (*fn)();			/* function to perform */
+	char *fp;			/* function parameter */
+	char *rbuf;			/* response buffer */
+	int rbln;			/* response buffer length */
+{
+	int en, rv;
+
+/*
+ * Check reply buffer size.
+ */
+	if (!Fovhd && rbln > MAXPATHLEN) {
+	    (void) fprintf(stderr,
+		"%s: doinchild error; response buffer too large: %d\n",
+		Pn, rbln);
+	    Exit(1);
+	}
+/*
+ * Set up to handle an alarm signal; handle an alarm signal; build
+ * pipes for exchanging information with a child process; start the
+ * child process; and perform functions in the child process.
+ */
+	if (!Fovhd) {
+	    if (setjmp(Jmp_buf)) {
+
+	    /*
+	     * Process an alarm that has rung.
+	     */
+		(void) alarm(0);
+		(void) signal(SIGALRM, SIG_DFL);
+		(void) childx();
+		errno = ETIMEDOUT;
+		return(1);
+	    } else if (!Cpid) {
+
+	    /*
+	     * Create pipes to exchange function information with a child
+	     * process.
+	     */
+		if (pipe(Pipes) < 0 || pipe(&Pipes[2]) < 0) {
+		    (void) fprintf(stderr, "%s: can't open pipes: %s\n",
+			Pn, strerror(errno));
+		    Exit(1);
+		}
+	    /*
+	     * Fork a child to execute functions.
+	     */
+		if ((Cpid = fork()) == 0) {
+
+		/*
+		 * Begin the child process.
+		 */
+
+		    int r_al, r_rbln;
+		    char r_arg[MAXPATHLEN+1], r_rbuf[MAXPATHLEN+1];
+		    int (*r_fn)();
+		/*
+		 * Close sufficient open file descriptors except Pipes[0] and
+		 * Pipes[3].
+		 */
+
+#if	defined(HAS_DUP2) && defined(HAS_CLOSEFROM)
+		    int rc;
+
+		    rc = dup2(Pipes[0], 0);
+		    if (rc < 0) {
+			(void) fprintf(stderr,
+			    "%s: can't dup Pipes[0] to fd 0: %s\n",
+			    Pn, strerror(errno));
+			Exit(1);
+		    }
+		    Pipes[0] = 0;
+		    rc = dup2(Pipes[3], 1);
+		    if (rc < 0) {
+			(void) fprintf(stderr,
+			    "%s: can't dup Pipes.[3] to fd 1: %s\n",
+			    Pn, strerror(errno));
+			Exit(1);
+		    }
+		    Pipes[3] = 1;
+		    (void) closefrom(2);
+		    Pipes[1] = -1;
+		    Pipes[2] = -1;
+
+#else	/* !defined(HAS_DUP2) && !defined(HAS_CLOSEFROM) */
+		    int fd;
+
+		    for (fd = 0; fd < MaxFd; fd++) {
+			if (fd == Pipes[0] || fd == Pipes[3])
+			    continue;
+			(void) close(fd);
+			if (fd == Pipes[1])
+			    Pipes[1] = -1;
+			else if (fd == Pipes[2])
+			    Pipes[2] = -1;
+		    }
+		    if (Pipes[1] >= 0) {
+			(void) close(Pipes[1]);
+			Pipes[1] = -1;
+		    }
+		    if (Pipes[2] >= 0) {
+			(void) close(Pipes[2]);
+			Pipes[2] = -1;
+		    }
+#endif	/* defined(HAS_DUP2) && defined(HAS_CLOSEFROM) */
+
+		/*
+		 * Read function requests, process them, and return replies.
+		 */
+		    for (;;) {
+			if (read(Pipes[0], (char *)&r_fn, sizeof(r_fn))
+			    != (int)sizeof(r_fn)
+			||  read(Pipes[0], (char *)&r_al, sizeof(int))
+			    != (int)sizeof(int)
+			||  r_al < 1
+			||  r_al > (int)sizeof(r_arg)
+			||  read(Pipes[0], r_arg, r_al) != r_al
+			||  read(Pipes[0], (char *)&r_rbln, sizeof(r_rbln))
+			    != (int)sizeof(r_rbln)
+			||  r_rbln < 1 || r_rbln > (int)sizeof(r_rbuf))
+			    break;
+			rv = r_fn(r_arg, r_rbuf, r_rbln);
+			en = errno;
+			if (write(Pipes[3], (char *)&rv, sizeof(rv))
+			    != sizeof(rv)
+			||  write(Pipes[3], (char *)&en, sizeof(en))
+			    != sizeof(en)
+			||  write(Pipes[3], r_rbuf, r_rbln) != r_rbln)
+			    break;
+		    }
+		    (void) _exit(0);
+		}
+	    /*
+	     * Continue in the parent process to finish the setup.
+	     */
+		if (Cpid < 0) {
+		    (void) fprintf(stderr, "%s: can't fork: %s\n",
+			Pn, strerror(errno));
+		    Exit(1);
+		}
+		(void) close(Pipes[0]);
+		(void) close(Pipes[3]);
+		Pipes[0] = Pipes[3] = -1;
+	    }
+	}
+	if (!Fovhd) {
+	    int len;
+
+	/*
+	 * Send a function to the child and wait for the response.
+	 */
+	    len  = strlen(fp) + 1;
+	    (void) signal(SIGALRM, handleint);
+	    (void) alarm(TmLimit);
+	    if (write(Pipes[1], (char *)&fn, sizeof(fn)) != sizeof(fn)
+	    ||  write(Pipes[1], (char *)&len, sizeof(len)) != sizeof(len)
+	    ||  write(Pipes[1], fp, len) != len
+	    ||  write(Pipes[1], (char *)&rbln, sizeof(rbln)) != sizeof(rbln)
+	    ||  read(Pipes[2], (char *)&rv, sizeof(rv)) != sizeof(rv)
+	    ||  read(Pipes[2], (char *)&en, sizeof(en)) != sizeof(en)
+	    ||  read(Pipes[2], rbuf, rbln) != rbln) {
+		(void) alarm(0);
+		(void) signal(SIGALRM, SIG_DFL);
+		(void) childx();
+		errno = ECHILD;
+		return(-1);
+	    }
+	} else {
+
+	/*
+	 * Do the operation directly -- not in a child.
+	 */
+	    (void) signal(SIGALRM, handleint);
+	    (void) alarm(TmLimit);
+	    rv = fn(fp, rbuf, rbln);
+	    en = errno;
+	}
+/*
+ * Function completed, response collected -- complete the operation.
+ */
+	(void) alarm(0);
+	(void) signal(SIGALRM, SIG_DFL);
+	errno = en;
+	return(rv);
+}
+
+
+/*
+ * dolstat() - do an lstat() function
+ */
+
+static int
+dolstat(path, rbuf, rbln)
+	char *path;			/* path */
+	char *rbuf;			/* response buffer */
+	int rbln;			/* response buffer length */
+
+/* ARGSUSED */
+
+{
+	return(lstat(path, (struct stat *)rbuf));
+}
+
+
+/*
+ * doreadlink() -- do a readlink() function
+ */
+
+static int
+doreadlink(path, rbuf, rbln)
+	char *path;			/* path */
+	char *rbuf;			/* response buffer */
+	int rbln;			/* response buffer length */
+{
+	return(readlink(path, rbuf, rbln));
+}
+
+
+/*
+ * dostat() - do a stat() function
+ */
+
+static int
+dostat(path, rbuf, rbln)
+	char *path;			/* path */
+	char *rbuf;			/* response buffer */
+	int rbln;			/* response buffer length */
+
+/* ARGSUSED */
+
+{
+	return(stat(path, (struct stat *)rbuf));
+}
+
+
+#if	defined(WILLDROPGID)
+/*
+ * dropgid() - drop setgid permission
+ */
+
+void
+dropgid()
+{
+	if (!Setuidroot && Setgid) {
+	    if (setgid(Mygid) < 0) {
+		(void) fprintf(stderr, "%s: can't setgid(%d): %s\n",
+		    Pn, (int)Mygid, strerror(errno));
+		Exit(1);
+	    }
+	    Setgid = 0;
+	}
+}
+#endif	/* defined(WILLDROPGID) */
+
+
+/*
+ * enter_dev_ch() - enter device characters in file structure
+ */
+
+void
+enter_dev_ch(m)
+	char *m;
+{
+	char *mp;
+
+	if (!m || *m == '\0')
+	    return;
+	if (!(mp = mkstrcpy(m, (MALLOC_S *)NULL))) {
+	    (void) fprintf(stderr, "%s: no more dev_ch space at PID %d: \n",
+		Pn, Lp->pid);
+	    safestrprt(m, stderr, 1);
+	    Exit(1);
+	}
+	if (Lf->dev_ch)
+	   (void) free((FREE_P *)Lf->dev_ch);
+	Lf->dev_ch = mp;
+}
+
+
+/*
+ * enter_IPstate() -- enter a TCP or UDP state
+ */
+
+void
+enter_IPstate(ty, nm, nr)
+	char *ty;			/* type -- TCP or UDP */
+	char *nm;			/* state name (may be NULL) */
+	int nr;				/* state number */
+{
+
+#if	defined(USE_LIB_PRINT_TCPTPI)
+	TcpNstates = nr;
+#else	/* !defined(USE_LIB_PRINT_TCPTPI) */
+
+	int al, i, j, oc, nn, ns, off, tx;
+	char *cp;
+	MALLOC_S len;
+/*
+ * Check the type name and set the type index.
+ */
+	if (!ty) {
+	    (void) fprintf(stderr,
+		"%s: no type specified to enter_IPstate()\n", Pn);
+	    Exit(1);
+	}
+	if (!strcmp(ty, "TCP"))
+	    tx = 0;
+	else if (!strcmp(ty, "UDP"))
+	    tx = 1;
+	else {
+	    (void) fprintf(stderr, "%s: unknown type for enter_IPstate: %s\n",
+		Pn, ty);
+	    Exit(1);
+	}
+/*
+ * If the name argument is NULL, reduce the allocated table to its minimum
+ * size.
+ */
+	if (!nm) {
+	    if (tx) {
+		if (UdpSt) {
+		    if (!UdpNstates) {
+			(void) free((MALLOC_P *)UdpSt);
+			UdpSt = (char **)NULL;
+		    }
+		    if (UdpNstates < UdpStAlloc) {
+			len = (MALLOC_S)(UdpNstates * sizeof(char *));
+			if (!(UdpSt = (char **)realloc((MALLOC_P *)UdpSt, len)))
+			{
+			    (void) fprintf(stderr,
+				"%s: can't reduce UdpSt[]\n", Pn);
+			    Exit(1);
+			}
+		    }
+		    UdpStAlloc = UdpNstates;
+		}
+	    } else {
+		if (TcpSt) {
+		    if (!TcpNstates) {
+			(void) free((MALLOC_P *)TcpSt);
+			TcpSt = (char **)NULL;
+		    }
+		    if (TcpNstates < TcpStAlloc) {
+			len = (MALLOC_S)(TcpNstates * sizeof(char *));
+			if (!(TcpSt = (char **)realloc((MALLOC_P *)TcpSt, len)))
+			{
+			    (void) fprintf(stderr,
+				"%s: can't reduce TcpSt[]\n", Pn);
+			    Exit(1);
+			}
+		    }
+		    TcpStAlloc = TcpNstates;
+		}
+	    }
+	    return;
+	}
+/*
+ * Check the name and number.
+ */
+	if ((len = (size_t)strlen(nm)) < 1) {
+	    (void) fprintf(stderr,
+		"%s: bad %s name (\"%s\"), number=%d\n", Pn, ty, nm, nr);
+	    Exit(1);
+	}
+/*
+ * Make a copy of the name.
+ */
+	if (!(cp = mkstrcpy(nm, (MALLOC_S *)NULL))) {
+	    (void) fprintf(stderr,
+		"%s: enter_IPstate(): no %s space for %s\n",
+		Pn, ty, nm);
+	    Exit(1);
+	}
+/*
+ * Set the necessary offset for using nr as an index.  If it is
+ * a new offset, adjust previous entries.
+ */
+	if ((nr < 0) && ((off = -nr) > (tx ? UdpStOff : TcpStOff))) {
+	    if (tx ? UdpSt : TcpSt) {
+
+	    /*
+	     * A new, larger offset (smaller negative state number) could mean
+	     * a previously allocated state table must be enlarged and its
+	     * previous entries moved.
+	     */
+		oc = off - (tx ? UdpStOff : TcpStOff);
+		al = tx ? UdpStAlloc : TcpStAlloc;
+		ns = tx ? UdpNstates : TcpNstates;
+		if ((nn = ns + oc) >= al) {
+		    while ((nn + 5) > al) {
+			al += TCPUDPALLOC;
+		    }
+		    len = (MALLOC_S)(al * sizeof(char *));
+		    if (tx) {
+			if (!(UdpSt = (char **)realloc((MALLOC_P *)UdpSt, len)))
+			    goto no_IP_space;
+			UdpStAlloc = al;
+		    } else {
+			if (!(TcpSt = (char **)realloc((MALLOC_P *)TcpSt, len)))
+			    goto no_IP_space;
+			TcpStAlloc = al;
+		    }
+		    for (i = 0, j = oc; i < oc; i++, j++) {
+			if (tx) {
+			    if (i < UdpNstates)
+				UdpSt[j] = UdpSt[i];
+			    UdpSt[i] = (char *)NULL;
+			} else {
+			    if (i < TcpNstates)
+				TcpSt[j] = TcpSt[i];
+			    TcpSt[i] = (char *)NULL;
+			}
+		    }
+		    if (tx)
+			UdpNstates += oc;
+		    else
+			TcpNstates += oc;
+		}
+	    }
+	    if (tx)
+		UdpStOff = off;
+	    else
+		TcpStOff = off;
+	}
+/*
+ * Enter name as {Tc|Ud}pSt[nr + {Tc|Ud}pStOff].
+ *
+ * Allocate space, as required.
+ */
+	al = tx ? UdpStAlloc : TcpStAlloc;
+	off = tx ? UdpStOff : TcpStOff;
+	nn = nr + off + 1;
+	if (nn > al) {
+	    i = tx ? UdpNstates : TcpNstates;
+	    while ((nn + 5) > al) {
+		al += TCPUDPALLOC;
+	    }
+	    len = (MALLOC_S)(al * sizeof(char *));
+	    if (tx) {
+		if (UdpSt)
+		    UdpSt = (char **)realloc((MALLOC_P *)UdpSt, len);
+		else
+		    UdpSt = (char **)malloc(len);
+		if (!UdpSt) {
+
+no_IP_space:
+
+		    (void) fprintf(stderr, "%s: no %s state space\n", Pn, ty);
+		    Exit(1);
+		}
+		UdpNstates = nn;
+		UdpStAlloc = al;
+	    } else {
+		if (TcpSt)
+		    TcpSt = (char **)realloc((MALLOC_P *)TcpSt, len);
+		else
+		    TcpSt = (char **)malloc(len);
+		if (!TcpSt)
+		    goto no_IP_space;
+		TcpNstates = nn;
+		TcpStAlloc = al;
+	    }
+	    while (i < al) {
+		if (tx)
+		    UdpSt[i] = (char *)NULL;
+		else
+		    TcpSt[i] = (char *)NULL;
+		i++;
+	    }
+	} else {
+	    if (tx) {
+		if (nn > UdpNstates)
+		    UdpNstates = nn;
+	    } else {
+		if (nn > TcpNstates)
+		    TcpNstates = nn;
+	    }
+	}
+	if (tx) {
+	    if (UdpSt[nr + UdpStOff]) {
+
+dup_IP_state:
+
+		(void) fprintf(stderr,
+		    "%s: duplicate %s state %d (already %s): %s\n",
+		    Pn, ty, nr,
+		    tx ? UdpSt[nr + UdpStOff] : TcpSt[nr + TcpStOff],
+		    nm);
+	 	Exit(1);
+	    }
+	    UdpSt[nr + UdpStOff] = cp;
+	} else {
+	    if (TcpSt[nr + TcpStOff])
+		goto dup_IP_state;
+	    TcpSt[nr + TcpStOff] = cp;
+	}
+#endif	/* defined(USE_LIB_PRINT_TCPTPI) */
+
+}
+
+
+/*
+ * enter_nm() - enter name in local file structure
+ */
+
+void
+enter_nm(m)
+	char *m;
+{
+	char *mp;
+
+	if (!m || *m == '\0')
+	    return;
+	if (!(mp = mkstrcpy(m, (MALLOC_S *)NULL))) {
+	    (void) fprintf(stderr, "%s: no more nm space at PID %d for: ",
+		Pn, Lp->pid);
+	    safestrprt(m, stderr, 1);
+	    Exit(1);
+	}
+	if (Lf->nm)
+	    (void) free((FREE_P *)Lf->nm);
+	Lf->nm = mp;
+}
+
+
+/*
+ * Exit() - do a clean exit()
+ */
+
+void
+Exit(xv)
+	int xv;				/* exit() value */
+{
+	(void) childx();
+
+#if	defined(HASDCACHE)
+	if (DCrebuilt && !Fwarn)
+	    (void) fprintf(stderr, "%s: WARNING: %s was updated.\n",
+		Pn, DCpath[DCpathX]);
+#endif	/* defined(HASDCACHE) */
+
+	exit(xv);
+}
+
+
+#if	defined(HASNLIST)
+/*
+ * get_Nl_value() - get Nl value for nickname
+ */
+
+int
+get_Nl_value(nn, d, v)
+	char *nn;			/* nickname of requested entry */
+	struct drive_Nl *d;		/* drive_Nl table that built Nl
+					 * (if NULL, use Build_Nl) */
+	KA_T *v;			/* returned value (if NULL,
+					 * return nothing) */
+{
+	int i;
+
+	if (!Nl || !Nll)
+	    return(-1);
+	if (!d)
+	    d = Build_Nl;
+	for (i = 0; d->nn; d++, i++) {
+	    if (strcmp(d->nn, nn) == 0) {
+		if (v)
+		    *v = (KA_T)Nl[i].n_value;
+		return(i);
+	    }
+	}
+	return(-1);
+}
+#endif	/* defined(HASNLIST) */
+
+
+/*
+ * handleint() - handle an interrupt
+ */
+
+#if	defined(HASINTSIGNAL)
+static int
+#else
+static void
+#endif
+
+/* ARGSUSED */
+
+handleint(sig)
+	int sig;
+{
+	longjmp(Jmp_buf, 1);
+}
+
+
+/*
+ * hashbyname() - hash by name
+ */
+
+int
+hashbyname(nm, mod)
+	char *nm;			/* pointer to NUL-terminated name */
+	int mod;			/* hash modulus */
+{
+	int i, j;
+
+	for (i = j = 0; *nm; nm++) {
+	    i ^= (int)*nm << j;
+	    if (++j > 7)
+		j = 0;
+	}
+	return(((int)(i * 31415)) & (mod - 1));
+}
+
+
+/*
+ * is_nw_addr() - is this network address selected?
+ */
+
+int
+is_nw_addr(ia, p, af)
+	unsigned char *ia;		/* Internet address */
+	int p;				/* port */
+	int af;				/* address family -- e.g., AF_INET,
+					 * AF_INET6 */
+{
+	struct nwad *n;
+
+	if (!(n = Nwad))
+	    return(0);
+	for (; n; n = n->next) {
+	    if (n->proto) {
+		if (strcasecmp(n->proto, Lf->iproto) != 0)
+		    continue;
+	    }
+	    if (af && n->af && af != n->af)
+		continue;
+
+#if	defined(HASIPv6)
+	    if (af == AF_INET6) {
+		if (n->a[15] || n->a[14] || n->a[13] || n->a[12]
+		||  n->a[11] || n->a[10] || n->a[9]  || n->a[8]
+		||  n->a[7]  || n->a[6]  || n->a[5]  || n->a[4]
+		||  n->a[3]  || n->a[2]  || n->a[1]  || n->a[0]) {
+		    if (ia[15] != n->a[15] || ia[14] != n->a[14]
+		    ||  ia[13] != n->a[13] || ia[12] != n->a[12]
+		    ||  ia[11] != n->a[11] || ia[10] != n->a[10]
+		    ||  ia[9]  != n->a[9]  || ia[8]  != n->a[8]
+		    ||  ia[7]  != n->a[7]  || ia[6]  != n->a[6]
+		    ||  ia[5]  != n->a[5]  || ia[4]  != n->a[4]
+		    ||  ia[3]  != n->a[3]  || ia[2]  != n->a[2]
+		    ||  ia[1]  != n->a[1]  || ia[0]  != n->a[0])
+			continue;
+		}
+	    } else if (af == AF_INET)
+#endif	/* defined(HASIPv6) */
+
+	    {
+		if (n->a[3] || n->a[2] || n->a[1] || n->a[0]) {
+		    if (ia[3] != n->a[3] || ia[2] != n->a[2]
+		    ||  ia[1] != n->a[1] || ia[0] != n->a[0])
+			continue;
+		}
+	    }
+
+#if	defined(HASIPv6)
+	    else
+		continue;
+#endif	/* defined(HASIPv6) */
+
+	    if (n->sport == -1 || (p >= n->sport && p <= n->eport)) {
+		n->f = 1;
+		return(1);
+	    }
+	}
+	return(0);
+}
+
+
+/*
+ * mkstrcpy() - make a string copy in malloc()'d space
+ *
+ * return: copy pointer
+ *	   copy length (optional)
+ */
+
+char *
+mkstrcpy(src, rlp)
+	char *src;			/* source */
+	MALLOC_S *rlp;			/* returned length pointer (optional)
+					 * The returned length is an strlen()
+					 * equivalent */
+{
+	MALLOC_S len;
+	char *ns;
+
+	len = (MALLOC_S)(src ? strlen(src) : 0);
+	ns = (char *)malloc(len + 1);
+	if (ns) {
+	    if (src)
+		(void) snpf(ns, len + 1, "%s", src);
+	    else
+		*ns = '\0';
+	}
+	if (rlp)
+	    *rlp = len;
+	return(ns);
+}
+
+
+/*
+ * mkstrcat() - make a catenated copy of up to three strings under optional
+ *		string-by-string count control
+ *
+ * return: copy pointer
+ *	   copy string length (optional)
+ */
+
+char *
+mkstrcat(s1, l1, s2, l2, s3, l3, clp)
+	char *s1;			/* source string 1 */
+	int l1;				/* length of string 1 (-1 if none) */
+	char *s2;			/* source string 2 */
+	int l2;				/* length of string 2 (-1 if none) */
+	char *s3;			/* source string 3 (optional) */
+	int l3	;			/* length of string 3 (-1 if none) */
+	MALLOC_S *clp;			/* pointer to return of copy length
+					 * (optional) */
+{
+	MALLOC_S cl, len1, len2, len3;
+	char *cp;
+
+	if (s1)
+	    len1 = (MALLOC_S)((l1 >= 0) ? l1 : strlen(s1));
+	else
+	    len1 = (MALLOC_S)0;
+	if (s2)
+	    len2 = (MALLOC_S)((l2 >= 0) ? l2 : strlen(s2));
+	else
+	    len2 = (MALLOC_S)0;
+	if (s3)
+	    len3 = (MALLOC_S)((l3 >= 0) ? l3 : strlen(s3));
+	else
+	    len3 = (MALLOC_S)0;
+	cl = len1 + len2 + len3;
+	if ((cp = (char *)malloc(cl + 1))) {
+	    char *tp = cp;
+
+	    if (s1 && len1) {
+		(void) strncpy(tp, s1, len1);
+		tp += len1;
+	    }
+	    if (s2 && len2) {
+		(void) strncpy(tp, s2, len2);
+		tp += len2;
+	    }
+	    if (s3 && len3) {
+		(void) strncpy(tp, s3, len3);
+		tp += len3;
+	    }
+	    *tp = '\0';
+	}
+	if (clp)
+	    *clp = cl;
+	return(cp);
+}
+
+
+/*
+ * is_readable() -- is file readable
+ */
+
+int
+is_readable(path, msg)
+	char *path;			/* file path */
+	int msg;			/* issue warning message if 1 */
+{
+	if (access(path, R_OK) < 0) {
+	    if (!Fwarn && msg == 1)
+		(void) fprintf(stderr, ACCESSERRFMT, Pn, path, strerror(errno));
+	    return(0);
+	}
+	return(1);
+}
+
+
+/*
+ * lstatsafely() - lstat path safely (i. e., with timeout)
+ */
+
+int
+lstatsafely(path, buf)
+	char *path;			/* file path */
+	struct stat *buf;		/* stat buffer address */
+{
+	if (Fblock) {
+	    if (!Fwarn) 
+		(void) fprintf(stderr,
+		    "%s: avoiding stat(%s): -b was specified.\n",
+		    Pn, path);
+	    errno = EWOULDBLOCK;
+	    return(1);
+	}
+	return(doinchild(dolstat, path, (char *)buf, sizeof(struct stat)));
+}
+
+
+/*
+ * Readlink() - read and interpret file system symbolic links
+ */
+
+char *
+Readlink(arg)
+	char *arg;			/* argument to be interpreted */
+{
+	char abuf[MAXPATHLEN+1];
+	int alen;
+	char *ap;
+	char *argp1, *argp2;
+	int i, len, llen, slen;
+	char lbuf[MAXPATHLEN+1];
+	static char *op = (char *)NULL;
+	static int ss = 0;
+	char *s1;
+	static char **stk = (char **)NULL;
+	static int sx = 0;
+	char tbuf[MAXPATHLEN+1];
+/*
+ * See if avoiding kernel blocks.
+ */
+	if (Fblock) {
+	    if (!Fwarn) {
+		(void) fprintf(stderr, "%s: avoiding readlink(", Pn);
+		safestrprt(arg, stderr, 0);
+		(void) fprintf(stderr, "): -b was specified.\n");
+	    }
+	    op = (char *)NULL;
+	    return(arg);
+	}
+/*
+ * Save the original path.
+ */
+	if (!op)
+	    op = arg;
+/*
+ * Evaluate each component of the argument for a symbolic link.
+ */
+	for (alen = 0, ap = abuf, argp1 = argp2 = arg; *argp2; argp1 = argp2 ) {
+	    for (argp2 = argp1 + 1; *argp2 && *argp2 != '/'; argp2++)
+		;
+	    if ((len = argp2 - arg) >= (int)sizeof(tbuf)) {
+
+path_too_long:
+		if (!Fwarn) {
+		    (void) fprintf(stderr,
+			"%s: readlink() path too long: ", Pn);
+		    safestrprt(op ? op : arg, stderr, 1);
+		}
+		op = (char *)NULL;
+		return((char *)NULL);
+	    }
+	    (void) strncpy(tbuf, arg, len);
+	    tbuf[len] = '\0';
+	/*
+	 * Dereference a symbolic link.
+	 */
+	    if ((llen=doinchild(doreadlink,tbuf,lbuf,sizeof(lbuf) - 1)) >= 0) {
+
+	    /*
+	     * If the link is a new absolute path, replace
+	     * the previous assembly with it.
+	     */
+		if (lbuf[0] == '/') {
+		    (void) strncpy(abuf, lbuf, llen);
+		    ap = &abuf[llen];
+		    *ap = '\0';
+		    alen = llen;
+		    continue;
+		}
+		lbuf[llen] = '\0';
+		s1 = lbuf;
+	    } else {
+		llen = argp2 - argp1;
+		s1 = argp1;
+	    }
+	/*
+	 * Make sure two components are separated by a `/'.
+	 *
+	 * If the first component is not a link, don't force
+	 * a leading '/'.
+	 *
+	 * If the first component is a link and the source of
+	 * the link has a leading '/', force a leading '/'.
+	 */
+	    if (*s1 == '/')
+		slen = 1;
+	    else {
+		if (alen > 0) {
+
+		/*
+		 * This is not the first component.
+		 */
+		    if (abuf[alen - 1] == '/')
+			slen = 1;
+		    else
+			slen = 2;
+		} else {
+
+		/*
+		 * This is the first component.
+		 */
+		    if (s1 == lbuf && tbuf[0] == '/')
+			slen = 2;
+		    else
+			slen = 1;
+		}
+	    }
+	/*
+	 * Add to the path assembly.
+	 */
+	    if ((alen + llen + slen) >= (int)sizeof(abuf))
+		goto path_too_long;
+	    if (slen == 2)
+		*ap++ = '/';
+	    (void) strncpy(ap, s1, llen);
+	    ap += llen;
+	    *ap = '\0';
+	    alen += (llen + slen - 1);
+	}
+/*
+ * If the assembled path and argument are the same, free all but the
+ * last string in the stack, and return the argument.
+ */
+	if (strcmp(arg, abuf) == 0) {
+	    for (i = 0; i < sx; i++) {
+		if (i < (sx - 1))
+		    (void) free((FREE_P *)stk[i]);
+		stk[i] = (char *)NULL;
+	    }
+	    sx = 0;
+	    op = (char *)NULL;
+	    return(arg);
+	}
+/*
+ * If the assembled path and argument are different, add it to the
+ * string stack, then Readlink() it.
+ */
+	if (!(s1 = mkstrcpy(abuf, (MALLOC_S *)NULL))) {
+
+no_readlink_space:
+
+	    (void) fprintf(stderr, "%s: no Readlink string space for ", Pn);
+	    safestrprt(abuf, stderr, 1);
+	    Exit(1);
+	}
+	if (sx >= MAXSYMLINKS) {
+
+	/*
+	 * If there are too many symbolic links, report an error, clear
+	 * the stack, and return no path.
+	 */
+	    if (!Fwarn) {
+		(void) fprintf(stderr,
+		    "%s: too many (> %d) symbolic links in readlink() path: ",
+			Pn, MAXSYMLINKS);
+		safestrprt(op ? op : arg, stderr, 1);
+	    }
+	    for (i = 0; i < sx; i++) {
+		(void) free((FREE_P *)stk[i]);
+		stk[i] = (char *)NULL;
+	    }
+	    (void) free((FREE_P *)stk);
+	    stk = (char **)NULL;
+	    ss = sx = 0;
+	    op = (char *)NULL;
+	    return((char *)NULL);
+	}
+	if (++sx > ss) {
+	    if (!stk)
+		stk = (char **)malloc((MALLOC_S)(sizeof(char *) * sx));
+	    else
+		stk = (char **)realloc((MALLOC_P *)stk,
+					(MALLOC_S)(sizeof(char *) * sx));
+	    if (!stk)
+		goto no_readlink_space;
+	    ss = sx;
+	}
+	stk[sx - 1] = s1;
+	return(Readlink(s1));
+}
+
+
+#if	defined(HASSTREAMS)
+/*
+ * readstdata() - read stream's stdata structure
+ */
+
+int
+readstdata(addr, buf)
+	KA_T addr;			/* stdata address in kernel*/
+	struct stdata *buf;		/* buffer addess */
+{
+	if (!addr
+	||  kread(addr, (char *)buf, sizeof(struct stdata))) {
+	    (void) snpf(Namech, Namechl, "no stream data in %s",
+		print_kptr(addr, (char *)NULL, 0));
+	    return(1);
+	}
+	return(0);
+}
+
+
+/*
+ * readsthead() - read stream head
+ */
+
+int
+readsthead(addr, buf)
+	KA_T addr;			/* starting queue pointer in kernel */
+	struct queue *buf;		/* buffer for queue head */
+{
+	KA_T qp;
+
+	if (!addr) {
+	    (void) snpf(Namech, Namechl, "no stream queue head");
+	    return(1);
+	}
+	for (qp = addr; qp; qp = (KA_T)buf->q_next) {
+	    if (kread(qp, (char *)buf, sizeof(struct queue))) {
+		(void) snpf(Namech, Namechl, "bad stream queue link at %s",
+		    print_kptr(qp, (char *)NULL, 0));
+		return(1);
+	    }
+	}
+	return(0);
+}
+
+
+/*
+ * readstidnm() - read stream module ID name
+ */
+
+int
+readstidnm(addr, buf, len)
+	KA_T addr;			/* module ID name address in kernel */
+	char *buf;			/* receiving buffer address */
+	READLEN_T len;			/* buffer length */
+{
+	if (!addr || kread(addr, buf, len)) {
+	    (void) snpf(Namech, Namechl, "can't read module ID name from %s",
+		print_kptr(addr, (char *)NULL, 0));
+	    return(1);
+	}
+	return(0);
+}
+
+
+/*
+ * readstmin() - read stream's module info
+ */
+
+int
+readstmin(addr, buf)
+	KA_T addr;			/* module info address in kernel */
+	struct module_info *buf;	/* receiving buffer address */
+{
+	if (!addr || kread(addr, (char *)buf, sizeof(struct module_info))) {
+	    (void) snpf(Namech, Namechl, "can't read module info from %s",
+		print_kptr(addr, (char *)NULL, 0));
+	    return(1);
+	}
+	return(0);
+}
+
+
+/*
+ * readstqinit() - read stream's queue information structure
+ */
+
+int
+readstqinit(addr, buf)
+	KA_T addr;			/* queue info address in kernel */
+	struct qinit *buf;		/* receiving buffer address */
+{
+	if (!addr || kread(addr, (char *)buf, sizeof(struct qinit))) {
+	    (void) snpf(Namech, Namechl, "can't read queue info from %s",
+		print_kptr(addr, (char *)NULL, 0));
+	    return(1);
+	}
+	return(0);
+}
+#endif	/* HASSTREAMS */
+
+
+/*
+ * safepup() - safely print an unprintable character -- i.e., print it in a
+ *	       printable form
+ *
+ * return: char * to printable equivalent
+ *	   cl = strlen(printable equivalent)
+ */
+
+char *
+safepup(c, cl)
+	unsigned int c;			/* unprintable (i.e., !isprint())
+					 * character  and '\\' */
+	int *cl;			/* returned printable strlen -- NULL if
+					 * no return needed */
+{
+	int len;
+	char *rp;
+	static char up[8];
+
+	if (c < 0x20) {
+	    switch (c) {
+	    case '\b':
+		rp = "\\b";
+		break;
+	    case '\f':
+		rp = "\\f";
+		break;
+	    case '\n':
+		rp = "\\n";
+		break;
+	    case '\r':
+		rp = "\\r";
+		break;
+	    case '\t':
+		rp = "\\t";
+		break;
+	    default:
+		(void) snpf(up, sizeof(up), "^%c", c + 0x40);
+		rp = up;
+	    }
+	    len = 2;
+	} else if (c == 0xff) {
+	    rp = "^?";
+	    len = 2;
+	} else if (c == '\\') {
+	    rp = "\\\\";
+	    len = 2;
+	} else {
+	    (void) snpf(up, sizeof(up), "\\x%02x", (int)(c & 0xff));
+	    rp = up;
+	    len = 4;
+	}
+	if (cl)
+	    *cl = len;
+	return(rp);
+}
+
+
+/*
+ * safestrlen() - calculate a "safe" string length -- i.e., compute space for
+ *		  non-printable characters when printed in a printable form
+ */
+
+int
+safestrlen(sp, flags)
+	char *sp;			/* string pointer */
+	int flags;			/* flags:
+					 *   bit 0: 0 (0) = no NL
+					 *	    1 (1) = add trailing NL
+					 *	 1: 0 (0) = ' ' printable
+					 *	    1 (2) = ' ' not printable
+					 */
+{
+	char c;
+	int len = 0;
+
+	c = (flags & 2) ? ' ' : '\0';
+	if (sp) {
+	    for (; *sp; sp++) {
+		if (!isprint((unsigned char)*sp)
+		||  (*sp == '\\') || (*sp == c))
+		{
+		    if ((*sp < 0x20) || ((unsigned char)*sp == 0xff)
+		    ||  (*sp == '\\'))
+			len += 2;		/* length of \. or ^. form */
+		    else
+			len += 4;		/* length of "\x%02x" printf */
+		} else
+		    len++;
+	    }
+	}
+	return(len);
+}
+
+
+/*
+ * safestrprt() - print a string "safely" to the indicated stream -- i.e.,
+ *		  print unprintable characters in a printable form
+ */
+
+void
+safestrprt(sp, fs, flags)
+	char *sp;			/* string to print pointer pointer */
+	FILE *fs;			/* destination stream -- e.g., stderr
+					 * or stdout */
+	int flags;			/* flags:
+					 *   bit 0: 0 (0) = no NL
+					 *	    1 (1) = add trailing NL
+					 *	 1: 0 (0) = ' ' printable
+					 *	    1 (2) = ' ' not printable
+					 *	 2: 0 (0) = print string as is
+					 *	    1 (4) = surround string
+					 *		    with '"'
+					 *	 4: 0 (0) = print ending '\n'
+					 *	    1 (8) = don't print ending
+					 *		    '\n'
+					 */
+{
+	char c;
+	int lnc, lnt, sl;
+
+#if	defined(HASWIDECHAR)
+	wchar_t w;
+	int wcmx = MB_CUR_MAX;
+#else	/* !defined(HASWIDECHAR) */
+	static int wcmx = 1;
+#endif	/* defined(HASWIDECHAR) */
+
+	c = (flags & 2) ? ' ' : '\0';
+	if (flags & 4)
+	    putc('"', fs);
+	if (sp) {
+	    for (sl = strlen(sp); *sp; sl -= lnc, sp += lnc) {
+
+#if	defined(HASWIDECHAR)
+		if (wcmx > 1) {
+		    lnc = mblen(sp, sl);
+		    if (lnc > 1) {
+			if ((mbtowc(&w, sp, sl) == lnc) && iswprint(w)) {
+			    for (lnt = 0; lnt < lnc; lnt++) {
+				putc((int)*(sp + lnt), fs);
+			    }
+			} else {
+			    for (lnt = 0; lnt < lnc; lnt++) {
+			        fputs(safepup((unsigned int)*(sp + lnt),
+					      (int *)NULL), fs);
+			    }
+			}
+			continue;
+		    } else
+			lnc = 1;
+		} else
+		    lnc = 1;
+#else	/* !defined(HASWIDECHAR) */
+		lnc = 1;
+#endif	/* defined(HASWIDECHAR) */
+
+		if ((*sp != '\\') && isprint((unsigned char)*sp) && *sp != c)
+		    putc((int)(*sp & 0xff), fs);
+		else {
+		    if ((flags & 8) && (*sp == '\n') && !*(sp + 1))
+			break;
+		    fputs(safepup((unsigned int)*sp, (int *)NULL), fs);
+		}
+	    }
+	}
+	if (flags & 4)
+	    putc('"', fs);
+	if (flags & 1)
+	    putc('\n', fs);
+}
+
+
+/*
+ * safestrprtn() - print a specified number of characters from a string
+ *		   "safely" to the indicated stream
+ */
+
+void
+safestrprtn(sp, len, fs, flags)
+	char *sp;			/* string to print pointer pointer */
+	int len;			/* safe number of characters to
+					 * print */
+	FILE *fs;			/* destination stream -- e.g., stderr
+					 * or stdout */
+	int flags;			/* flags:
+					 *   bit 0: 0 (0) = no NL
+					 *	    1 (1) = add trailing NL
+					 *	 1: 0 (0) = ' ' printable
+					 *	    1 (2) = ' ' not printable
+					 *	 2: 0 (0) = print string as is
+					 *	    1 (4) = surround string
+					 *		    with '"'
+					 *	 4: 0 (0) = print ending '\n'
+					 *	    1 (8) = don't print ending
+					 *		    '\n'
+					 */
+{
+	char c, *up;
+	int cl, i;
+
+	if (flags & 4)
+	    putc('"', fs);
+	if (sp) {
+	    c = (flags & 2) ? ' ' : '\0';
+	    for (i = 0; i < len && *sp; sp++) {
+		if ((*sp != '\\') && isprint((unsigned char)*sp) && *sp != c) {
+		    putc((int)(*sp & 0xff), fs);
+		    i++;
+		} else {
+		    if ((flags & 8) && (*sp == '\n') && !*(sp + 1))
+			break;
+		    up = safepup((unsigned int)*sp, &cl);
+		    if ((i + cl) > len)
+			break;
+		    fputs(up, fs);
+		    i += cl;
+		}
+	    }
+	} else
+	    i = 0;
+	for (; i < len; i++)
+	    putc(' ', fs);
+	if (flags & 4)
+	    putc('"', fs);
+	if (flags & 1)
+	    putc('\n', fs);
+}
+
+
+/*
+ * statsafely() - stat path safely (i. e., with timeout)
+ */
+
+int
+statsafely(path, buf)
+	char *path;			/* file path */
+	struct stat *buf;		/* stat buffer address */
+{
+	if (Fblock) {
+	    if (!Fwarn) 
+		(void) fprintf(stderr,
+		    "%s: avoiding stat(%s): -b was specified.\n",
+		    Pn, path);
+	    errno = EWOULDBLOCK;
+	    return(1);
+	}
+	return(doinchild(dostat, path, (char *)buf, sizeof(struct stat)));
+}
+
+
+/*
+ * stkdir() - stack directory name
+ */
+
+void
+stkdir(p)
+	char *p;		/* directory path */
+{
+	MALLOC_S len;
+/*
+ * Provide adequate space for directory stack pointers.
+ */
+	if (Dstkx >= Dstkn) {
+	    Dstkn += 128;
+	    len = (MALLOC_S)(Dstkn * sizeof(char *));
+	    if (!Dstk)
+		Dstk = (char **)malloc(len);
+	    else
+		Dstk = (char **)realloc((MALLOC_P *)Dstk, len);
+	    if (!Dstk) {
+		(void) fprintf(stderr,
+		    "%s: no space for directory stack at: ", Pn);
+		safestrprt(p, stderr, 1);
+		Exit(1);
+	    }
+	}
+/*
+ * Allocate space for the name, copy it there and put its pointer on the stack.
+ */
+	if (!(Dstk[Dstkx] = mkstrcpy(p, (MALLOC_S *)NULL))) {
+	    (void) fprintf(stderr, "%s: no space for: ", Pn);
+	    safestrprt(p, stderr, 1);
+	    Exit(1);
+	}
+	Dstkx++;
+}
+
+
+/*
+ * x2dev() - convert hexadecimal ASCII string to device number
+ */
+
+char *
+x2dev(s, d)
+	char *s;			/* ASCII string */
+	dev_t *d;			/* device receptacle */
+{
+	char *cp, *cp1;
+	int n;
+	dev_t r;
+
+/*
+ * Skip an optional leading 0x.  Count the number of hex digits up to the end
+ * of the string, or to a space, or to a comma.  Return an error if an unknown
+ * character is encountered.  If the count is larger than (2 * sizeof(dev_t))
+ * -- e.g., because of sign extension -- ignore excess leading hex 0xf digits,
+ * but return an error if an excess leading digit isn't 0xf.
+ */
+	if  (strncasecmp(s, "0x", 2) == 0)
+		s += 2;
+	for (cp = s, n = 0; *cp; cp++, n++) {
+	    if (isdigit((unsigned char)*cp))
+		continue;
+	    if ((unsigned char)*cp >= 'a' && (unsigned char)*cp <= 'f')
+		continue;
+	    if ((unsigned char)*cp >= 'A' && (unsigned char)*cp <= 'F')
+		continue;
+	    if (*cp == ' ' || *cp == ',')
+		break;
+	    return((char *)NULL);
+	}
+	if (!n)
+	    return((char *)NULL);
+	if (n > (2 * (int)sizeof(dev_t))) {
+	    cp1 = s;
+	    s += (n - (2 * sizeof(dev_t)));
+	    while (cp1 < s) {
+		if (*cp1 != 'f' && *cp1 != 'F')
+		    return((char *)NULL);
+		cp1++;
+	    }
+	}
+/*
+ * Assemble the validated hex digits of the device number, starting at a point
+ * in the string relevant to sizeof(dev_t).
+ */
+	for (r = 0; s < cp; s++) {
+	    r = r << 4;
+	    if (isdigit((unsigned char)*s))
+		r |= (unsigned char)(*s - '0') & 0xf;
+	    else {
+		if (isupper((unsigned char)*s))
+		    r |= ((unsigned char)(*s - 'A') + 10) & 0xf;
+		else
+		    r |= ((unsigned char)(*s - 'a') + 10) & 0xf;
+	    }
+	}
+	*d = r;
+	return(s);
+}
+@
+
+
+1.28
+log
+@Revision 4.88
+@
+text
+@d35 1
+a35 1
+static char *rcsid = "$Id: misc.c,v 1.27 2013/01/02 17:14:59 abe Exp abe $";
+d250 1
+d296 1
+a296 1
+		    int fd, r_al, r_rbln;
+d303 27
+d347 2
+@
+
+
+1.27
+log
+@Revision 4.87
+@
+text
+@d35 1
+a35 1
+static char *rcsid = "$Id: misc.c,v 1.26 2008/10/21 16:21:41 abe Exp $";
+a75 1
+_PROTOTYPE(static char *safepup,(unsigned int c, int *cl));
+a76 1
+
+d295 1
+a295 1
+		    int fd, nd, r_al, r_rbln;
+d299 1
+a299 1
+		 * Close all open file descriptors except Pipes[0] and
+d302 1
+a302 1
+		    for (fd = 0, nd = GET_MAX_FD(); fd < nd; fd++) {
+d1315 1
+a1315 1
+static char *
+d1318 1
+a1318 1
+					 * character */
+d1351 3
+d1386 5
+a1390 2
+		if (!isprint((unsigned char)*sp) || *sp == c) {
+		    if (*sp < 0x20 || (unsigned char)*sp == 0xff)
+d1464 1
+a1464 1
+		if (isprint((unsigned char)*sp) && *sp != c)
+d1513 1
+a1513 1
+		if (isprint((unsigned char)*sp) && *sp != c) {
+@
+
+
+1.26
+log
+@Revision 4.81
+@
+text
+@d35 1
+a35 1
+static char *rcsid = "$Id: misc.c,v 1.25 2008/04/15 13:24:19 abe Exp abe $";
+d41 2
+a42 1
+#if	defined(HASWIDECHAR) && defined(WIDECHARINCL)
+d44 5
+a48 1
+#endif	/* defined(HASWIDECHAR) && defined(WIDECHARINCL) */
+@
+
+
+1.25
+log
+@Revision 4.79
+@
+text
+@d35 1
+a35 1
+static char *rcsid = "$Id: misc.c,v 1.24 2005/08/08 19:43:41 abe Exp abe $";
+d490 222
+d1189 1
+a1189 1
+		stk = (char **)malloc(sizeof(char *) * sx);
+d1191 2
+a1192 1
+		stk = (char **)realloc(stk, sizeof(char *) * sx);
+@
+
+
+1.24
+log
+@Revision 4.76
+@
+text
+@d35 1
+a35 1
+static char *rcsid = "$Id: misc.c,v 1.23 2004/10/17 21:39:23 abe Exp abe $";
+d136 1
+a136 1
+	int at, sx;
+@
+
+
+1.23
+log
+@Revision 4.73
+@
+text
+@d35 1
+a35 1
+static char *rcsid = "$Id: misc.c,v 1.22 2002/04/29 17:11:04 abe Exp abe $";
+d227 1
+a227 1
+	if ((ino_t)((*p1)->inode) < (ino_t)((*p2)->inode))
+d229 1
+a229 1
+	if ((ino_t)((*p1)->inode) > (ino_t)((*p2)->inode))
+d293 1
+a293 1
+		    char r_arg[MAXPATHLEN], r_rbuf[MAXPATHLEN];
+d340 1
+a340 1
+		    _exit(0);
+d803 1
+a803 1
+	char abuf[MAXPATHLEN];
+d808 1
+a808 1
+	char lbuf[MAXPATHLEN];
+d814 1
+a814 1
+	char tbuf[MAXPATHLEN];
+d838 1
+a838 1
+	    if ((len = argp2 - arg) >= MAXPATHLEN) {
+d1194 1
+a1194 1
+	int ip, lnc, lnt, sl;
+d1373 1
+a1373 1
+	char c, *cp, *cp1;
+@
+
+
+1.22
+log
+@Revision 4.64
+Move GET_MAX_FD definition to proto.h for wider usability.
+@
+text
+@d35 1
+a35 1
+static char *rcsid = "$Id: misc.c,v 1.21 2001/11/01 20:21:18 abe Exp abe $";
+d41 3
+d45 1
+d1194 1
+d1196 7
+d1207 25
+a1231 1
+	    for (; *sp; sp++) {
+@
+
+
+1.21
+log
+@Revision 4.60
+@
+text
+@d35 1
+a35 1
+static char *rcsid = "$Id: misc.c,v 1.20 2001/08/03 15:08:43 abe Exp abe $";
+a59 12
+
+# if	!defined(GET_MAX_FD)
+/*
+ * This is not strictly a prototype, but GET_MAX_FD is the name of the
+ * function that, in lieu of getdtablesize(), returns the maximum file
+ * descriptor plus one (or file descriptor count).  GET_MAX_FD may be
+ * defined in the dialect's machine.h.  If it is not, the following
+ * selects getdtablesize().
+ */
+
+#define	GET_MAX_FD	getdtablesize
+# endif	/* !defined(GET_MAX_FD) */
+@
+
+
+1.20
+log
+@Revision 4.58
+Add quote and NL trim options to safestrprt*() functions.
+@
+text
+@d35 1
+a35 1
+static char *rcsid = "$Id: misc.c,v 1.19 2001/01/02 12:45:48 abe Exp abe $";
+d90 6
+d138 1
+a138 1
+ * childx() - make child process exit
+d144 3
+d148 41
+a188 10
+	    if (setjmp(Jmp_buf)) {
+		(void) alarm(0);
+		(void) signal(SIGALRM, SIG_DFL);
+		if (!Fwarn)
+		    (void) fprintf(stderr,
+			"%s: WARNING -- child process %d may be hung.\n",
+			Pn, (int)Cpid);
+	    } else {
+		(void) kill(Cpid, SIGINT);
+		(void) kill(Cpid, SIGKILL);
+d190 2
+a191 2
+		(void) alarm(TmLimit);
+		(void) wait(NULL);
+d194 2
+a197 1
+	    (void) closePipes();
+d273 1
+a273 1
+	     * An alarm signal has been received.
+d277 1
+a277 16
+		if (setjmp(Jmp_buf)) {
+		    if (!Fwarn && Cpid)
+			(void) fprintf(stderr,
+			    "%s: WARNING -- child process %d may be hung.\n",
+			    Pn, (int)Cpid);
+		} else if (Cpid) {
+		    (void) kill(Cpid, SIGINT);
+		    (void) kill(Cpid, SIGKILL);
+		    (void) signal(SIGALRM, handleint);
+		    (void) alarm(TmLimit);
+		    (void) wait(NULL);
+		    (void) alarm(0);
+		    (void) signal(SIGALRM, SIG_DFL);
+		}
+		Cpid = 0;
+		(void) closePipes();
+@
+
+
+1.19
+log
+@Revision 4.54
+@
+text
+@d35 1
+a35 1
+static char *rcsid = "$Id: misc.c,v 1.18 2000/08/01 17:07:13 abe Exp abe $";
+d1126 5
+a1130 4
+	int flags;			/* flags: bit 0: 0 = no NL
+					 *		 1 = add trailing NL
+					 *	      1: 0 = ' ' printable
+					 *		 1 = ' ' not printable
+d1162 11
+a1172 4
+	int flags;			/* flags: bit 0: 0 = no NL
+					 *		 1 = add trailing NL
+					 *	      1: 0 = ' ' printable
+					 *		 1 = ' ' not printable
+d1178 2
+d1184 3
+a1186 1
+		else
+d1188 1
+d1191 2
+d1210 11
+a1220 4
+	int flags;			/* flags: bit 0: 0 = no NL
+					 *		 1 = add trailing NL
+					 *	      1: 0 = ' ' printable
+					 *		 1 = ' ' not printable
+d1226 2
+d1235 2
+d1248 2
+@
+
+
+1.18
+log
+@Revision 4.51
+Confert to snpf().
+@
+text
+@d35 1
+a35 1
+static char *rcsid = "$Id: misc.c,v 1.17 1999/07/06 13:05:13 abe Exp abe $";
+d43 9
+d791 1
+d806 1
+d810 5
+d826 1
+a826 1
+		    safestrprt(arg, stderr, 1);
+d828 1
+d910 1
+d924 22
+@
+
+
+1.17
+log
+@Revision 4.45
+Pick lint.
+@
+text
+@d35 1
+a35 1
+static char *rcsid = "$Id: misc.c,v 1.16 99/01/25 07:22:25 abe Exp Locker: abe $";
+d661 1
+a661 1
+		(void) strcpy(ns, src);
+d933 2
+a934 2
+	    (void) sprintf(Namech, "no stream data in %s",
+		print_kptr(addr, (char *)NULL));
+d953 1
+a953 1
+	    (void) strcpy(Namech, "no stream queue head");
+d958 2
+a959 2
+		(void) sprintf(Namech, "bad stream queue link at %s",
+		    print_kptr(qp, (char *)NULL));
+d978 2
+a979 2
+	    (void) sprintf(Namech, "can't read module ID name from %s",
+		print_kptr(addr, (char *)NULL));
+d996 2
+a997 2
+	    (void) sprintf(Namech, "can't read module info from %s",
+		print_kptr(addr, (char *)NULL));
+d1014 2
+a1015 2
+	    (void) sprintf(Namech, "can't read queue info from %s",
+		print_kptr(addr, (char *)NULL));
+d1060 1
+a1060 1
+		(void) sprintf(up, "^%c", c + 0x40);
+d1068 1
+a1068 1
+	    (void) sprintf(up, "\\x%02x", (int)(c & 0xff));
+@
+
+
+1.16
+log
+@Revision 4.40
+@
+text
+@d35 1
+a35 1
+static char *rcsid = "$Id: misc.c,v 1.15 98/08/18 08:07:30 abe Exp Locker: abe $";
+d1269 1
+a1269 2
+	    if (isdigit((unsigned char)*cp) || (isalpha((unsigned char)*cp)
+	    &&  (c = toupper((unsigned char)*cp)) >= 'A' && c <= 'F'))
+d1271 4
+d1295 9
+a1303 5
+	    r = (r << 4)
+	      | ((isdigit((unsigned char)*s)
+		? (unsigned char)(*s - '0')
+		: (unsigned char)(toupper((unsigned char)*s) - 'A' + 10))
+		  & 0xf);
+@
+
+
+1.15
+log
+@Revision 4.37
+@
+text
+@d35 1
+a35 1
+static char *rcsid = "$Id: misc.c,v 1.14 98/08/03 08:01:10 abe Exp Locker: abe $";
+d47 1
+d371 17
+d402 1
+a402 4
+ * dostat() - do a *stat() function
+ *
+ * DOSTAT_FUNCTION defines the function -- e.g., stat() or lstat() --
+ * default = lstat().
+d414 1
+a414 6
+
+#if	!defined(DOSTAT_FUNCTION)
+#define	DOSTAT_FUNCTION	lstat
+#endif	/* !defined(DOSTAT_FUNCTION) */
+
+	return(DOSTAT_FUNCTION(path, (struct stat *)rbuf));
+d557 20
+d748 21
+d1205 38
+@
+
+
+1.14
+log
+@Revision 4.36
+@
+text
+@d35 1
+a35 1
+static char *rcsid = "$Id: misc.c,v 1.13 98/05/22 14:01:22 abe Exp Locker: abe $";
+d621 1
+a621 1
+					 * The reurend length is an strlen()
+@
+
+
+1.13
+log
+@Revision 4.33
+@
+text
+@d35 1
+a35 1
+static char *rcsid = "$Id: misc.c,v 1.12 98/03/19 15:29:46 abe Exp Locker: abe $";
+d573 2
+a574 1
+		||  n->a[7]  || n->a[6]  || n->a[5]  || n->a[4]) {
+d580 3
+a582 1
+		    ||  ia[5]  != n->a[5]  || ia[4]  != n->a[4])
+d585 9
+d595 4
+a600 5
+	    if (n->a[3] || n->a[2] || n->a[1] || n->a[0]) {
+		if (ia[3] != n->a[3] || ia[2] != n->a[2]
+		||  ia[1] != n->a[1] || ia[0] != n->a[0])
+		    continue;
+	    }
+@
+
+
+1.12
+log
+@Revision 4.29
+Reduce indentation to 4 spaces.
+@
+text
+@d35 1
+a35 1
+static char *rcsid = "$Id: misc.c,v 1.11 98/03/09 15:59:46 abe Exp Locker: abe $";
+d551 2
+a552 2
+is_nw_addr(ia, p)
+	struct in_addr *ia;		/* Internet address */
+d554 2
+a557 1
+	unsigned char *u;
+a560 1
+	u = (unsigned char *)ia;
+d566 22
+a587 4
+	    if (n->a[0] != 0 || n->a[1] != 0
+	    ||  n->a[2] != 0 || n->a[3] != 0) {
+		if (u[3] != n->a[3] || u[2] != n->a[2]
+		||  u[1] != n->a[1] || u[0] != n->a[0])
+@
+
+
+1.11
+log
+@Revision 4.28
+@
+text
+@d35 1
+a35 1
+static char *rcsid = "$Id: misc.c,v 1.10 98/03/06 07:25:38 abe Exp Locker: abe $";
+d181 1
+a181 1
+		return(-1);
+d183 1
+a183 1
+		return(1);
+d185 1
+a185 1
+		return(-1);
+d187 1
+a187 1
+		return(1);
+d417 6
+a422 6
+		if (setgid(Mygid) < 0) {
+			(void) fprintf(stderr, "%s: can't setgid(%d): %s\n",
+				Pn, (int)Mygid, strerror(errno));
+			Exit(1);
+		}
+		Setgid = 0;
+d559 1
+a559 1
+		return(0);
+d562 14
+a575 15
+		if (n->proto) {
+			if (strcasecmp(n->proto, Lf->iproto) != 0)
+				continue;
+		}
+		if (n->a[0] != 0 || n->a[1] != 0
+		||  n->a[2] != 0 || n->a[3] != 0) {
+			if (u[3] != n->a[3] || u[2] != n->a[2]
+			||  u[1] != n->a[1] || u[0] != n->a[0])
+				continue;
+		}
+		if (n->sport == -1
+		||  (p >= n->sport && p <= n->eport)) {
+			n->f = 1;
+			return(1);
+		}
+d1151 6
+a1156 7
+		if (isdigit((unsigned char)*cp)
+		||  (isalpha((unsigned char)*cp)
+		&&   (c = toupper((unsigned char)*cp)) >= 'A' && c <= 'F'))
+			continue;
+		if (*cp == ' ' || *cp == ',')
+			break;
+		return((char *)NULL);
+d1159 1
+a1159 1
+		return((char *)NULL);
+d1161 7
+a1167 7
+		cp1 = s;
+		s += (n - (2 * sizeof(dev_t)));
+		while (cp1 < s) {
+			if (*cp1 != 'f' && *cp1 != 'F')
+				return((char *)NULL);
+			cp1++;
+		}
+@
+
+
+1.10
+log
+@Revision 4.27
+Order functions alphabetically.
+Add 64 bit kernel address support.
+Add "safe" printing support.
+@
+text
+@d35 1
+a35 1
+static char *rcsid = "$Id: misc.c,v 1.9 98/01/29 15:38:48 abe Exp Locker: abe $";
+d69 1
+a69 2
+_PROTOTYPE(static void safecpy,(char *d, char *s, int sc));
+_PROTOTYPE(static void safecpyn,(char *d, char *s, MALLOC_S sl, int sc));
+d945 5
+a949 2
+ * safestrlen() - calculate a "safe" string length -- i.e., compute space
+ *		  for non-printable characters when printf'd as "\x%02x"
+d952 52
+d1005 1
+a1005 1
+safestrlen(sp)
+d1007 5
+d1013 1
+d1016 1
+d1018 7
+a1024 4
+	    while (*sp) {
+		if (!isprint((unsigned char)*sp++))
+		    len += 4;		/* length of "\x%02x" printf */
+		else
+d1034 1
+a1034 1
+ *		  print unprintable characters in "\x%02x" printf form
+d1038 1
+a1038 1
+safestrprt(sp, fs, nl)
+d1042 5
+a1046 1
+	int nl;				/* 1 if trailing NL required */
+d1048 3
+d1053 1
+a1053 1
+		if (isprint((unsigned char)*sp))
+d1056 1
+a1056 1
+		    (void) fprintf(fs, "\\x%02x", (unsigned int)(*sp & 0xff));
+d1059 1
+a1059 1
+	if (nl)
+d1066 1
+a1066 2
+ *		   "safely" to the indicated stream -- i.e.,  print
+ *		   unprintable characters in "\x%02x" printf form
+d1070 1
+a1070 1
+safestrprtn(sp, len, fs, nl)
+d1076 5
+a1080 1
+	int nl;				/* 1 if trailing NL required */
+d1082 2
+a1083 1
+	int i;
+d1086 1
+d1088 1
+a1088 1
+		if (isprint((unsigned char)*sp)) {
+d1092 2
+a1093 1
+		    if ((i + 4) > len)
+d1095 2
+a1096 2
+		    (void) fprintf(fs, "\\x%02x", (unsigned int)(*sp & 0xff));
+		    i += 4;
+d1103 1
+a1103 1
+	if (nl)
+@
+
+
+1.9
+log
+@Revision 4.25
+@
+text
+@d35 1
+a35 1
+static char *rcsid = "$Id: misc.c,v 1.8 98/01/15 09:19:48 abe Exp Locker: abe $";
+d69 2
+d72 1
+a169 1
+
+a170 89
+ * Exit() - do a clean exit()
+ */
+
+void
+Exit(xv)
+	int xv;				/* exit() value */
+{
+	(void) childx();
+
+#if	defined(HASDCACHE)
+	if (DCrebuilt && !Fwarn)
+	    (void) fprintf(stderr, "%s: WARNING: %s was updated.\n",
+		Pn, DCpath[DCpathX]);
+#endif	/* defined(HASDCACHE) */
+
+	exit(xv);
+}
+
+
+#if	defined(WILLDROPGID)
+/*
+ * dropgid() - drop setgid permission
+ */
+
+void
+dropgid()
+{
+	if (!Setuidroot && Setgid) {
+		if (setgid(Mygid) < 0) {
+			(void) fprintf(stderr, "%s: can't setgid(%d): %s\n",
+				Pn, (int)Mygid, strerror(errno));
+			Exit(1);
+		}
+		Setgid = 0;
+	}
+}
+#endif	/* defined(WILLDROPGID) */
+
+
+#if	defined(HASNLIST)
+/*
+ * get_Nl_value() - get Nl value for nickname
+ */
+
+int
+get_Nl_value(nn, d, v)
+	char *nn;			/* nickname of requested entry */
+	struct drive_Nl *d;		/* drive_Nl table that built Nl
+					 * (if NULL, use Build_Nl) */
+	unsigned long *v;		/* returned value (if NULL,
+					 * return nothing) */
+{
+	int i;
+
+	if (!Nl || !Nll)
+	    return(-1);
+	if (!d)
+	    d = Build_Nl;
+	for (i = 0; d->nn; d++, i++) {
+	    if (strcmp(d->nn, nn) == 0) {
+		if (v)
+		    *v = (unsigned long)Nl[i].n_value;
+		return(i);
+	    }
+	}
+	return(-1);
+}
+#endif	/* defined(HASNLIST) */
+
+
+/*
+ * is_readable() -- is file readable
+ */
+
+int
+is_readable(path, msg)
+	char *path;			/* file path */
+	int msg;			/* issue warning message if 1 */
+{
+	if (access(path, R_OK) < 0) {
+	    if (!Fwarn && msg == 1)
+		(void) fprintf(stderr, ACCESSERRFMT, Pn, path, strerror(errno));
+	    return(0);
+	}
+	return(1);
+}
+
+
+/*
+d371 14
+d409 1
+d411 1
+a411 1
+ * doreadlink() -- do a readlink() function
+d414 2
+a415 5
+static int
+doreadlink(path, rbuf, rbln)
+	char *path;			/* path */
+	char *rbuf;			/* response buffer */
+	int rbln;			/* response buffer length */
+d417 8
+a424 1
+	return(readlink(path, rbuf, rbln));
+d426 1
+a436 1
+	MALLOC_S len;
+d440 6
+a445 6
+		return;
+	len = strlen(m) + 1;
+	if (!(mp = (char *)malloc(len))) {
+		(void) fprintf(stderr, "%s: no more dev_ch space at PID %d\n",
+			Pn, Lp->pid);
+		Exit(1);
+a446 1
+	(void) strcpy(mp, m);
+d448 1
+a448 1
+		(void) free((FREE_P *)Lf->dev_ch);
+a460 1
+	MALLOC_S len;
+d464 6
+a469 6
+		return;
+	len = strlen(m) + 1;
+	if (!(mp = (char *)malloc(len))) {
+		(void) fprintf(stderr, "%s: no more nm space at PID %d\n",
+			Pn, Lp->pid);
+		Exit(1);
+a470 1
+	(void) strcpy(mp, m);
+d472 1
+a472 1
+		(void) free((FREE_P *)Lf->nm);
+d478 51
+d584 107
+d713 6
+a718 5
+		if (!Fwarn)
+		    (void) fprintf(stderr,
+			"%s: avoiding readlink(%s): -b was specified.\n",
+			Pn, arg);
+		return(arg);
+d724 3
+a726 3
+		for (argp2 = argp1 + 1; *argp2 && *argp2 != '/'; argp2++)
+			;
+		if ((len = argp2 - arg) >= MAXPATHLEN) {
+d729 4
+a732 5
+			if (!Fwarn) {
+				(void) fprintf(stderr,
+					"%s: path too long: %s\n", Pn, arg);
+			}
+			return((char *)NULL);
+d734 4
+a737 2
+		(void) strncpy(tbuf, arg, len);
+		tbuf[len] = '\0';
+d741 12
+a752 18
+		if ((llen = doinchild(doreadlink, tbuf, lbuf, sizeof(lbuf) - 1))
+		>= 0) {
+		/*
+		 * If the link is a new absolute path, replace
+		 * the previous assembly with it.
+		 */
+			if (lbuf[0] == '/') {
+				(void) strncpy(abuf, lbuf, llen);
+				ap = &abuf[llen];
+				*ap = '\0';
+				alen = llen;
+				continue;
+			}
+			lbuf[llen] = '\0';
+			s1 = lbuf;
+		} else {
+			llen = argp2 - argp1;
+			s1 = argp1;
+d754 6
+d769 9
+a777 1
+		if (*s1 == '/') {
+d779 2
+a781 1
+			if (alen > 0) {
+d783 7
+a789 17
+			/*
+			 * This is not the first component.
+			 */
+				if (abuf[alen - 1] == '/')
+					slen = 1;
+				else
+					slen = 2;
+			} else {
+
+			/*
+			 * This is the first component.
+			 */
+				if (s1 == lbuf && tbuf[0] == '/')
+					slen = 2;
+				else
+					slen = 1;
+			}
+d791 1
+d795 8
+a802 8
+		if ((alen + llen + slen) >= (int)sizeof(abuf))
+			goto path_too_long;
+		if (slen == 2)
+			*ap++ = '/';
+		(void) strncpy(ap, s1, llen);
+		ap += llen;
+		*ap = '\0';
+		alen += (llen + slen - 1);
+d809 7
+a815 7
+		for (i = 0; i < sx; i++) {
+			if (i < (sx - 1))
+				(void) free((FREE_P *)stk[i]);
+			stk[i] = (char *)NULL;
+		}
+		sx = 0;
+		return(arg);
+d821 1
+a821 1
+	if (!(s1 = (char *)malloc((MALLOC_S)(alen + 1)))) {
+d825 3
+a827 3
+		(void) fprintf(stderr,
+			"%s: no Readlink string space for %s\n", Pn, abuf);
+		Exit(1);
+a828 1
+	(void) strcpy(s1, abuf);
+d830 7
+a836 7
+		if (!stk)
+			stk = (char **)malloc(sizeof(char *) * sx);
+		else
+			stk = (char **)realloc(stk, sizeof(char *) * sx);
+		if (!stk)
+			goto no_readlink_space;
+		ss = sx;
+d850 1
+a850 1
+	struct stdata *addr;		/* stdata address in kernel*/
+d854 4
+a857 4
+	||  kread((KA_T)addr, (char *)buf, sizeof(struct stdata))) {
+		(void) sprintf(Namech, "no stream data in %#lx\n",
+			(unsigned long)addr);
+		return(1);
+d869 1
+a869 1
+	struct queue *addr;		/* starting queue pointer in kernel */
+d872 1
+a872 1
+	struct queue *qp;
+d875 7
+a881 1
+		(void) strcpy(Namech, "no stream queue head");
+d883 1
+a884 7
+	for (qp = addr; qp; qp = buf->q_next) {
+		if (kread((KA_T)qp, (char *)buf, sizeof(struct queue))) {
+			(void) sprintf(Namech, "bad stream queue link at %#lx",
+				(unsigned long)qp);
+			return(1);
+		}
+	}
+d895 1
+a895 1
+	char *addr;			/* module ID name address in kernel */
+d899 4
+a902 4
+	if (!addr ||  kread((KA_T)addr, buf, len)) {
+		(void) sprintf(Namech, "can't read module ID name from %#lx",
+			(unsigned long)addr);
+		return(1);
+d914 1
+a914 1
+	struct module_info *addr;	/* module info address in kernel */
+d917 4
+a920 5
+	if (!addr
+	||  kread((KA_T)addr, (char *)buf, sizeof(struct module_info))) {
+		(void) sprintf(Namech, "can't read module info from %#lx",
+			(unsigned long)addr);
+		return(1);
+d932 1
+a932 1
+	struct qinit *addr;		/* queue info address in kernel */
+d935 4
+a938 5
+	if (!addr
+	||  kread((KA_T)addr, (char *)buf, sizeof(struct qinit))) {
+		(void) sprintf(Namech, "can't read queue info from %#lx",
+			(unsigned long)addr);
+		return(1);
+d943 86
+@
+
+
+1.8
+log
+@Revision 4.23
+Add support for pre-specified dostat() function; default is lstat().
+@
+text
+@d35 1
+a35 1
+static char *rcsid = "$Id: misc.c,v 1.7 97/10/24 08:01:44 abe Exp Locker: abe $";
+d107 1
+a107 1
+		Pn, (n + 1) * sizeof(struct NLIST_TYPE));
+@
+
+
+1.7
+log
+@Revision 4.18
+@
+text
+@d35 1
+a35 1
+static char *rcsid = "$Id: misc.c,v 1.6 97/10/10 08:22:17 abe Exp Locker: abe $";
+d47 1
+a47 1
+_PROTOTYPE(static int dolstat,(char *path, char *buf, int len));
+d458 4
+a461 1
+ * dolstat() - do an lstat() function
+d465 1
+a465 1
+dolstat(path, rbuf, rbln)
+d473 6
+a478 1
+	return(lstat(path, (struct stat *)rbuf));
+d876 1
+a876 1
+	return(doinchild(dolstat, path, (char *)buf, sizeof(struct stat)));
+@
+
+
+1.6
+log
+@Revision 4.17
+Set Internet address found flag.
+@
+text
+@d35 1
+a35 1
+static char *rcsid = "$Id: misc.c,v 1.5 97/06/20 08:38:42 abe Exp Locker: abe $";
+d133 1
+a133 1
+			Pn, Cpid);
+d199 1
+a199 1
+				Pn, Mygid, strerror(errno));
+d318 1
+a318 1
+			    Pn, Cpid);
+d381 1
+a381 1
+			    != sizeof(r_fn)
+d383 1
+a383 1
+			    != sizeof(int)
+d385 1
+a385 1
+			||  r_al > sizeof(r_arg)
+d388 2
+a389 2
+			    != sizeof(r_rbln)
+			||  r_rbln < 1 || r_rbln > sizeof(r_rbuf))
+d499 1
+a499 1
+	if (m == NULL || *m == '\0')
+d502 1
+a502 1
+	if ((mp = (char *)malloc(len)) == NULL) {
+d525 1
+a525 1
+	if (m == NULL || *m == '\0')
+d528 1
+a528 1
+	if ((mp = (char *)malloc(len)) == NULL) {
+d571 1
+a571 1
+	if ((n = Nwad) == NULL)
+d611 1
+a611 1
+	static char **stk = NULL;
+d637 1
+a637 1
+			return(NULL);
+d698 1
+a698 1
+		if ((alen + llen + slen) >= sizeof(abuf))
+d715 1
+a715 1
+			stk[i] = NULL;
+d724 1
+a724 1
+	if ((s1 = (char *)malloc((MALLOC_S)(alen + 1))) == NULL) {
+d734 1
+a734 1
+		if (stk == NULL)
+d738 1
+a738 1
+		if (stk == NULL)
+d757 1
+a757 1
+	if (addr == NULL
+d759 2
+a760 1
+		(void) sprintf(Namech, "no stream data in %#x\n", addr);
+d778 1
+a778 1
+	if (addr == NULL) {
+d784 2
+a785 2
+			(void) sprintf(Namech, "bad stream queue link at %#x",
+				qp);
+d803 3
+a805 3
+	if (addr == NULL ||  kread((KA_T)addr, buf, len)) {
+		(void) sprintf(Namech, "can't read module ID name from %#x",
+			addr);
+d821 1
+a821 1
+	if (addr == NULL
+d823 2
+a824 1
+		(void) sprintf(Namech, "can't read module info from %#x", addr);
+d840 1
+a840 1
+	if (addr == NULL
+d842 2
+a843 1
+		(void) sprintf(Namech, "can't read queue info from %#x", addr);
+d895 3
+a897 2
+		if (isdigit(*cp)
+		||  (isalpha(*cp) && (c = toupper(*cp)) >= 'A' && c <= 'F'))
+d905 1
+a905 1
+	if (n > (2 * sizeof(dev_t))) {
+d919 5
+a923 4
+		r = (r << 4)
+		  | ((isdigit(*s) ? (unsigned char)(*s - '0')
+			          : (unsigned char)(toupper(*s) - 'A' + 10))
+		  		  & 0xf);
+@
+
+
+1.5
+log
+@Revision 4.12
+Cope with sign-extended device numbers.
+@
+text
+@d35 1
+a35 1
+static char *rcsid = "$Id: misc.c,v 1.4 97/06/07 20:06:00 abe Exp Locker: abe $";
+d586 2
+a587 1
+		||  (p >= n->sport && p <= n->eport))
+d589 1
+@
+
+
+1.4
+log
+@Revision 4.10
+Add name as last device table sort key.
+@
+text
+@d35 1
+a35 1
+static char *rcsid = "$Id: misc.c,v 1.3 97/04/23 15:57:54 abe Exp Locker: abe $";
+d876 2
+a877 2
+	char c;
+	short n, nl;
+a878 1
+	unsigned char v;
+d880 7
+d889 5
+a893 6
+	for (nl = (sizeof(dev_t) * 2), n = r = v = 0; *s; s++) {
+		if (isdigit(*s))
+			v = (unsigned char)(*s - '0');
+		else if (isalpha(*s) && (c = toupper(*s)) >= 'A' && c <= 'F')
+			v = (unsigned char)(c - 'A' + 10);
+		else
+d895 1
+a895 3
+		if (++n > nl)
+			return(NULL);
+		r = (r << 4) | (v & 0xf);
+d897 10
+a906 3
+	if (n && ( ! *s || isspace(*s) || *s == ',')) {
+		*d = r;
+		return(s);
+d908 12
+a919 1
+	return(NULL);
+@
+
+
+1.3
+log
+@Revision 4.05
+Close unneeded file descriptors in child process.
+@
+text
+@d35 1
+a35 1
+static char *rcsid = "$Id: misc.c,v 1.3 97/04/21 14:28:42 abe Exp $";
+d276 1
+a276 1
+	return(0);
+@
+
+
+1.2
+log
+@Revision 4.04
+@
+text
+@d35 1
+a35 1
+static char *rcsid = "$Id: misc.c,v 1.1 97/02/24 07:12:25 abe Exp Locker: abe $";
+d41 5
+d51 12
+d65 1
+a65 1
+#else
+d67 1
+a67 1
+#endif
+d352 1
+a353 1
+		    int r_al, r_rbln;
+d355 21
+a375 4
+
+		    (void) close(Pipes[1]);
+		    (void) close(Pipes[2]);
+		    Pipes[1] = Pipes[2] = -1;
+@
+
+
+1.1
+log
+@Initial revision
+@
+text
+@d35 1
+a35 1
+static char *rcsid = "$Id: misc.c,v 1.24 96/12/28 12:01:09 abe Exp $";
+d160 7
+@

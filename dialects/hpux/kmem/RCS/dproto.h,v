@@ -1,0 +1,211 @@
+head	1.7;
+access;
+symbols;
+locks; strict;
+comment	@ * @;
+
+
+1.7
+date	2000.12.04.14.26.14;	author abe;	state Exp;
+branches;
+next	1.6;
+
+1.6
+date	99.04.27.15.54.15;	author abe;	state Exp;
+branches;
+next	1.5;
+
+1.5
+date	99.01.25.07.01.01;	author abe;	state Exp;
+branches;
+next	1.4;
+
+1.4
+date	98.07.14.12.58.24;	author abe;	state Exp;
+branches;
+next	1.3;
+
+1.3
+date	98.03.06.08.21.32;	author abe;	state Exp;
+branches;
+next	1.2;
+
+1.2
+date	97.04.23.15.54.03;	author abe;	state Exp;
+branches;
+next	1.1;
+
+1.1
+date	97.02.24.07.33.57;	author abe;	state Exp;
+branches;
+next	;
+
+
+desc
+@Lsof version 4
+@
+
+
+1.7
+log
+@Revision 4.53
+@
+text
+@/*
+ * dproto.h - /dev/kmem-based HP-UX function prototypes for lsof
+ *
+ * The _PROTOTYPE macro is defined in the common proto.h.
+ */
+
+
+/*
+ * Copyright 1994 Purdue Research Foundation, West Lafayette, Indiana
+ * 47907.  All rights reserved.
+ *
+ * Written by Victor A. Abell
+ *
+ * This software is not subject to any license of the American Telephone
+ * and Telegraph Company or the Regents of the University of California.
+ *
+ * Permission is granted to anyone to use this software for any purpose on
+ * any computer system, and to alter it and redistribute it freely, subject
+ * to the following restrictions:
+ *
+ * 1. Neither the authors nor Purdue University are responsible for any
+ *    consequences of the use of this software.
+ *
+ * 2. The origin of this software must not be misrepresented, either by
+ *    explicit claim or by omission.  Credit to the authors and Purdue
+ *    University must appear in documentation and sources.
+ *
+ * 3. Altered versions must be plainly marked as such, and must not be
+ *    misrepresented as being the original software.
+ *
+ * 4. This notice may not be removed or altered.
+ */
+
+
+/*
+ * $Id: dproto.h,v 1.6 1999/04/27 15:54:15 abe Exp abe $
+ */
+
+
+#if	HPUXV>=800
+_PROTOTYPE(extern void completevfs,(struct l_vfs *vfs, dev_t *dev, struct vfs *v));
+#else
+_PROTOTYPE(extern void completevfs,(struct l_vfs *vfs, dev_t *dev));
+#endif	/* HPUXV>=800 */
+
+_PROTOTYPE(extern int is_file_named,(char *p, int cd));
+_PROTOTYPE(extern int get_max_fd,(void));
+
+#if	defined(DTYPE_LLA)
+_PROTOTYPE(extern void process_lla,(KA_T la));
+#endif
+
+_PROTOTYPE(extern struct l_vfs *readvfs,(struct vnode *lv));
+
+#if	HPUXV>=1030
+_PROTOTYPE(extern void process_stream_sock,(KA_T ip, KA_T pcb, char *pn, enum vtype vt));
+_PROTOTYPE(extern int read_mi,(KA_T sh, KA_T *ip, KA_T *pcb, char **pn));
+#endif	/* HPUXV>=1030 */
+
+#if     defined(HAS_AFS)
+_PROTOTYPE(extern struct vnode *alloc_vcache,(void));
+_PROTOTYPE(extern void ckAFSsym,(struct nlist *nl));
+_PROTOTYPE(extern int hasAFS,(struct vnode *vp));
+_PROTOTYPE(extern int readafsnode,(KA_T va, struct vnode *v, struct afsnode *an));
+#endif  /* defined(HAS_AFS) */
+
+#if	defined(HASVXFS)
+_PROTOTYPE(extern int read_vxnode,(struct vnode *v, struct l_vfs *vfs, dev_t *dev, int *devs, dev_t *rdev, int *rdevs));
+#endif	/* defined(HASVXFS) */
+@
+
+
+1.6
+log
+@Revision 4.43
+@
+text
+@d36 1
+a36 1
+ * $Id: dproto.h,v 1.5 99/01/25 07:01:01 abe Exp Locker: abe $
+d68 1
+a68 1
+_PROTOTYPE(extern int read_vxnode,(struct vnode *v, struct l_vfs *vfs, dev_t *dev));
+@
+
+
+1.5
+log
+@Revision 4.40
+@
+text
+@d2 1
+a2 1
+ * dproto.h - HP-UX function prototypes for lsof
+d36 1
+a36 1
+ * $Id: dproto.h,v 1.4 98/07/14 12:58:24 abe Exp Locker: abe $
+@
+
+
+1.4
+log
+@Revision 4.35
+@
+text
+@d36 1
+a36 1
+ * $Id: dproto.h,v 1.3 98/03/06 08:21:32 abe Exp Locker: abe $
+d46 1
+a46 1
+_PROTOTYPE(extern int is_file_named,(char *p, enum vtype ty));
+@
+
+
+1.3
+log
+@Revision 4.27
+Add HP-UX 11 support, etc.
+@
+text
+@d36 1
+a36 1
+ * $Id: dproto.h,v 1.2 97/04/23 15:54:03 abe Exp Locker: abe $
+d54 5
+@
+
+
+1.2
+log
+@Revision 4.05
+Define private get_max_fd() function.
+@
+text
+@d36 1
+a36 1
+ * $Id: dproto.h,v 1.2 97/04/21 14:41:37 abe Exp $
+d50 1
+a50 1
+_PROTOTYPE(extern void process_lla,(caddr_t la));
+d53 1
+a53 1
+_PROTOTYPE(extern struct l_vfs *readvfs,(struct vfs *la, struct vnode *lv));
+d59 1
+a59 1
+_PROTOTYPE(extern int readafsnode,(caddr_t va, struct vnode *v, struct afsnode *an));
+@
+
+
+1.1
+log
+@Initial revision
+@
+text
+@d36 1
+a36 1
+ * $Id: dproto.h,v 1.11 96/07/29 13:36:07 abe Exp $
+d47 1
+@

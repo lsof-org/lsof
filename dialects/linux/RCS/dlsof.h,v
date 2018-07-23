@@ -1,0 +1,659 @@
+head	1.23;
+access;
+symbols;
+locks; strict;
+comment	@ * @;
+
+
+1.23
+date	2015.07.07.19.46.33;	author abe;	state Exp;
+branches;
+next	1.22;
+
+1.22
+date	2012.04.10.16.39.50;	author abe;	state Exp;
+branches;
+next	1.21;
+
+1.21
+date	2011.09.27.17.38.39;	author abe;	state Exp;
+branches;
+next	1.20;
+
+1.20
+date	2011.09.07.19.07.45;	author abe;	state Exp;
+branches;
+next	1.19;
+
+1.19
+date	2010.01.18.19.03.12;	author abe;	state Exp;
+branches;
+next	1.18;
+
+1.18
+date	2008.10.21.16.17.21;	author abe;	state Exp;
+branches;
+next	1.17;
+
+1.17
+date	2008.04.15.13.32.26;	author abe;	state Exp;
+branches;
+next	1.16;
+
+1.16
+date	2006.03.27.22.57.11;	author abe;	state Exp;
+branches;
+next	1.15;
+
+1.15
+date	2005.08.29.10.23.33;	author abe;	state Exp;
+branches;
+next	1.14;
+
+1.14
+date	2005.08.08.19.52.33;	author abe;	state Exp;
+branches;
+next	1.13;
+
+1.13
+date	2004.07.06.19.19.44;	author abe;	state Exp;
+branches;
+next	1.12;
+
+1.12
+date	2003.06.13.09.51.35;	author abe;	state Exp;
+branches;
+next	1.11;
+
+1.11
+date	2002.01.14.15.55.26;	author abe;	state Exp;
+branches;
+next	1.10;
+
+1.10
+date	2000.12.04.14.31.02;	author abe;	state Exp;
+branches;
+next	1.9;
+
+1.9
+date	99.07.19.14.01.54;	author abe;	state Exp;
+branches;
+next	1.8;
+
+1.8
+date	99.04.15.06.45.29;	author abe;	state Exp;
+branches;
+next	1.7;
+
+1.7
+date	99.01.25.07.06.03;	author abe;	state Exp;
+branches;
+next	1.6;
+
+1.6
+date	98.12.28.09.40.35;	author abe;	state Exp;
+branches;
+next	1.5;
+
+1.5
+date	98.04.29.13.43.12;	author abe;	state Exp;
+branches;
+next	1.4;
+
+1.4
+date	98.03.06.08.23.26;	author abe;	state Exp;
+branches;
+next	1.3;
+
+1.3
+date	98.02.13.12.43.43;	author abe;	state Exp;
+branches;
+next	1.2;
+
+1.2
+date	98.01.15.09.16.54;	author abe;	state Exp;
+branches;
+next	1.1;
+
+1.1
+date	97.12.30.08.15.23;	author abe;	state Exp;
+branches;
+next	;
+
+
+desc
+@/proc-based Linux lsof dialect sources
+@
+
+
+1.23
+log
+@Revision 4.89
+@
+text
+@/*
+ * dlsof.h - Linux header file for /proc-based lsof
+ */
+
+
+/*
+ * Copyright 1997 Purdue Research Foundation, West Lafayette, Indiana
+ * 47907.  All rights reserved.
+ *
+ * Written by Victor A. Abell
+ *
+ * This software is not subject to any license of the American Telephone
+ * and Telegraph Company or the Regents of the University of California.
+ *
+ * Permission is granted to anyone to use this software for any purpose on
+ * any computer system, and to alter it and redistribute it freely, subject
+ * to the following restrictions:
+ *
+ * 1. Neither the authors nor Purdue University are responsible for any
+ *    consequences of the use of this software.
+ *
+ * 2. The origin of this software must not be misrepresented, either by
+ *    explicit claim or by omission.  Credit to the authors and Purdue
+ *    University must appear in documentation and sources.
+ *
+ * 3. Altered versions must be plainly marked as such, and must not be
+ *    misrepresented as being the original software.
+ *
+ * 4. This notice may not be removed or altered.
+ */
+
+
+/*
+ * $Id: dlsof.h,v 1.22 2012/04/10 16:39:50 abe Exp abe $
+ */
+
+
+#if	!defined(LINUX_LSOF_H)
+#define	LINUX_LSOF_H	1
+
+#include <dirent.h>
+#define	DIRTYPE	dirent			/* for arg.c's enter_dir() */
+#define	__USE_GNU			/* to get all O_* symbols in fcntl.h */
+#include <fcntl.h>
+#include <malloc.h>
+#include <signal.h>
+#include <stdlib.h>
+#include <string.h>
+#include <setjmp.h>
+#include <unistd.h>
+#include <netinet/in.h>
+
+# if	defined(GLIBCV) || defined(__UCLIBC__) || defined(NEEDS_NETINET_TCPH)
+#include <netinet/tcp.h>
+# else	/* !defined(GLIBCV) && !defined(__UCLIBC__) && !defined(NEEDS_NETINET_TCPH) */
+#include <linux/tcp.h>
+# endif	/* defined(GLIBCV) || defined(__UCLIBC__) || defined(NEEDS_NETINET_TCPH) */
+
+# if	!defined(HASNORPC_H)
+#include <rpc/rpc.h>
+#include <rpc/pmap_prot.h>
+# endif	/* !defined(HASNORPC_H) */
+ 
+#if	defined(HASSELINUX)
+#include <selinux/selinux.h>
+#endif	/* defined(HASSELINUX) */
+
+#include <sys/sysmacros.h>
+#include <sys/socket.h>
+#include <arpa/inet.h>
+#include <linux/if_ether.h>
+#include <linux/netlink.h>
+
+
+/*
+ * This definition is needed for the common function prototype definitions
+ * in "proto.h", but isn't used in /proc-based lsof.
+ */
+
+typedef	unsigned long	KA_T;
+
+
+/*
+ * Local definitions
+ */
+
+#define	COMP_P		const void
+#define DEVINCR		1024	/* device table malloc() increment */
+#define	FSNAMEL		4
+#define MALLOC_P	void
+#define FREE_P		MALLOC_P
+#define MALLOC_S	size_t
+#define	MAXSYSCMDL	15	/* max system command name length
+				 *   This value should be obtained from a
+				 * header file #define, but no consistent one
+				 * exists.  Some versions of the Linux kernel
+				 * have a hard-coded "char comm[16]" command
+				 * name member of the task structured
+				 * definition in <linux/sched.h>, while others
+				 * have a "char comm[TASK_COMM_LEN]" member
+				 * with TASK_COMM_LEN #define'd to be 16.
+				 *   Hence, a universal, local definition of
+				 * 16 is #define'd here. */
+#define	PROCFS		"/proc"
+#define QSORT_P		void
+#define	READLEN_T	size_t
+
+/*
+ * Definitions that indicate what values are present in a stat(2) or lstat(2)
+ * buffer.
+ */
+
+#define	SB_DEV		0x01		/* st_dev */
+#define	SB_INO		0x02		/* st_ino */
+#define	SB_MODE		0x04		/* st_mode */
+#define	SB_NLINK	0x08		/* st_nlink */
+#define	SB_RDEV		0x10		/* st_rdev */
+#define	SB_SIZE		0x20		/* st_size */
+#define	SB_ALL		(SB_DEV | SB_INO | SB_MODE | SB_NLINK | SB_RDEV | \
+			 SB_SIZE)	/* all values */
+
+#define STRNCPY_L	size_t
+#define	STRNML		32
+
+# if	defined(_FILE_OFFSET_BITS) && _FILE_OFFSET_BITS==64
+#define	SZOFFTYPE	unsigned long long
+					/* size and offset internal storage
+					 * type */
+#define	SZOFFPSPEC	"ll"		/* SZOFFTYPE print specification
+					 * modifier */
+# endif	/* defined(_FILE_OFFSET_BITS) && _FILE_OFFSET_BITS==64 */
+
+#define	XDR_PMAPLIST	(xdrproc_t)xdr_pmaplist
+#define	XDR_VOID	(xdrproc_t)xdr_void
+
+
+/*
+ * Global storage definitions (including their structure definitions)
+ */
+
+struct mounts {
+        char *dir;              	/* directory name (mounted on) */
+	char *fsname;           	/* file system
+					 * (symbolic links unresolved) */
+	char *fsnmres;           	/* file system
+					 * (symbolic links resolved) */
+	size_t dirl;			/* length of directory name */
+        dev_t dev;              	/* directory st_dev */
+	dev_t rdev;			/* directory st_rdev */
+	INODETYPE inode;		/* directory st_ino */
+	mode_t mode;			/* directory st_mode */
+	int ds;				/* directory status -- i.e., SB_*
+					 * values */
+	mode_t fs_mode;			/* file system st_mode */
+	int ty;				/* node type -- e.g., N_REGLR, N_NFS */
+        struct mounts *next;    	/* forward link */
+};
+
+struct sfile {
+	char *aname;			/* argument file name */
+	char *name;			/* file name (after readlink()) */
+	char *devnm;			/* device name (optional) */
+	dev_t dev;			/* device */
+	dev_t rdev;			/* raw device */
+	mode_t mode;			/* S_IFMT mode bits from stat() */
+	int type;			/* file type: 0 = file system
+				 	 *	      1 = regular file */
+	INODETYPE i;			/* inode number */
+	int f;				/* file found flag */
+	struct mounts *mp;		/* mount structure pointer for file
+					 * system type entries */
+#define	SAVE_MP_IN_SFILE	1	/* for ck_file_arg() im arg.c */
+	struct sfile *next;		/* forward link */
+};
+
+extern int HasNFS;
+extern int OffType;
+
+#endif	/* LINUX_LSOF_H	*/
+@
+
+
+1.22
+log
+@Revision 4.86
+@
+text
+@d34 1
+a34 1
+ * $Id: dlsof.h,v 1.21 2011/09/27 17:38:39 abe Exp abe $
+d53 1
+a53 1
+# if	defined(GLIBCV) || defined(__UCLIBC__)
+d55 1
+a55 1
+# else	/* !defined(GLIBCV) && !defined(__UCLIBC__) */
+d57 1
+a57 1
+# endif	/* defined(GLIBCV) || defined(__UCLIBC__) */
+@
+
+
+1.21
+log
+@Revision 4.85 (final)
+@
+text
+@d34 1
+a34 1
+ * $Id: dlsof.h,v 1.20 2011/09/07 19:07:45 abe Exp abe $
+d142 1
+a142 1
+        char *dir;              	/* directory (mounted on) */
+d147 1
+d170 3
+@
+
+
+1.20
+log
+@Revision 4.58: +|-e aoption addition
+@
+text
+@d34 1
+a34 1
+ * $Id: dlsof.h,v 1.19 2010/01/18 19:03:12 abe Exp abe $
+d72 1
+d76 1
+a76 1
+ * This definition is needed for the common function prototype  definitions
+@
+
+
+1.19
+log
+@Revision 4.83
+@
+text
+@d34 1
+a34 1
+ * $Id: dlsof.h,v 1.18 2008/10/21 16:17:21 abe Exp abe $
+d59 1
+d62 1
+@
+
+
+1.18
+log
+@Revision 4.81
+@
+text
+@d34 1
+a34 1
+ * $Id: dlsof.h,v 1.17 2008/04/15 13:32:26 abe Exp abe $
+d53 1
+a53 1
+# if	defined(GLIBCV)
+d55 1
+a55 1
+# else	/* !defined(GLIBCV) */
+d57 1
+a57 1
+# endif	/* defined(GLIBCV) */
+@
+
+
+1.17
+log
+@Revision 4.79
+@
+text
+@d34 1
+a34 1
+ * $Id: dlsof.h,v 1.16 2006/03/27 22:57:11 abe Exp abe $
+d69 1
+@
+
+
+1.16
+log
+@Revision 4.77
+@
+text
+@d34 1
+a34 1
+ * $Id: dlsof.h,v 1.15 2005/08/29 10:23:33 abe Exp abe $
+d43 1
+d61 5
+d168 2
+a169 1
+extern	int	HasNFS;
+@
+
+
+1.15
+log
+@Revision 4.76
+@
+text
+@d34 1
+a34 1
+ * $Id: dlsof.h,v 1.14 2005/08/08 19:52:33 abe Exp abe $
+d83 11
+@
+
+
+1.14
+log
+@Revision 4.76
+@
+text
+@d34 1
+a34 1
+ * $Id: dlsof.h,v 1.13 2004/07/06 19:19:44 abe Exp abe $
+d70 1
+a70 1
+typedef	off_t		KA_T;
+@
+
+
+1.13
+log
+@Revision 4.72
+@
+text
+@d34 1
+a34 1
+ * $Id: dlsof.h,v 1.12 2003/06/13 09:51:35 abe Exp abe $
+d128 1
+a128 1
+	ino_t inode;			/* directory st_ino */
+d146 1
+a146 1
+	ino_t i;			/* inode number */
+@
+
+
+1.12
+log
+@Revision 4.68
+@
+text
+@d34 1
+a34 1
+ * $Id: dlsof.h,v 1.11 2002/01/14 15:55:26 abe Exp abe $
+d86 15
+d130 2
+@
+
+
+1.11
+log
+@Revision 4.61
+@
+text
+@d34 1
+a34 1
+ * $Id: dlsof.h,v 1.10 2000/12/04 14:31:02 abe Exp abe $
+d62 1
+@
+
+
+1.10
+log
+@Revision 4.53
+@
+text
+@d34 1
+a34 1
+ * $Id: dlsof.h,v 1.9 1999/07/19 14:01:54 abe Exp abe $
+d87 9
+@
+
+
+1.9
+log
+@Revision 4.45
+Pick tcp.h location based on library type.
+@
+text
+@d34 1
+a34 1
+ * $Id: dlsof.h,v 1.8 99/04/15 06:45:29 abe Exp Locker: abe $
+d115 1
+@
+
+
+1.8
+log
+@Revision 4.43
+Remove use of any <linux/*.h> files.
+@
+text
+@d34 1
+a34 1
+ * $Id: dlsof.h,v 1.7 99/01/25 07:06:03 abe Exp Locker: abe $
+d51 2
+d54 4
+@
+
+
+1.7
+log
+@Revision 4.40
+@
+text
+@d34 1
+a34 1
+ * $Id: dlsof.h,v 1.6 98/12/28 09:40:35 abe Exp Locker: abe $
+a49 10
+#include <linux/tcp.h>
+#include <endian.h>
+
+# if	__BYTE_ORDER!=__BIG_ENDIAN
+#undef	htonl
+#undef	ntohl
+#define	htonl	BYTEORDER_htonl
+#define	ntohl	BYTEORDER_ntohl
+# endif	/* __BYTE_ORDER!=__BIG_ENDIAN */
+
+d51 1
+a51 6
+
+# if	__BYTE_ORDER!=__BIG_ENDIAN
+#undef	htonl
+#undef	ntohl
+# endif	/* __BYTE_ORDER!=__BIG_ENDIAN */
+
+d109 1
+a109 1
+	umode_t mode;			/* S_IFMT mode bits from stat() */
+@
+
+
+1.6
+log
+@Revision 4.39
+@
+text
+@d34 1
+a34 1
+ * $Id: dlsof.h,v 1.5 98/04/29 13:43:12 abe Exp Locker: abe $
+d42 1
+a86 1
+#define	DOSTAT_FUNCTION	stat	/* ask dostat() (misc.c) to use stat() */
+@
+
+
+1.5
+log
+@Revision 4.32
+@
+text
+@d34 1
+a34 1
+ * $Id: dlsof.h,v 1.4 98/03/06 08:23:26 abe Exp Locker: abe $
+d50 3
+d57 2
+d60 2
+d64 2
+@
+
+
+1.4
+log
+@Revision 4.27
+@
+text
+@d34 1
+a34 1
+ * $Id: dlsof.h,v 1.3 98/02/13 12:43:43 abe Exp Locker: abe $
+d68 1
+a68 1
+#define	KA_T		off_t
+@
+
+
+1.3
+log
+@Revision 4.26
+@
+text
+@d34 1
+a34 1
+ * $Id: dlsof.h,v 1.2 98/01/15 09:16:54 abe Exp Locker: abe $
+d64 2
+a65 2
+ * Dummy definitions needed by /dev/kmem-based lsof, but not
+ * needed for /proc-based lsof.
+a67 1
+struct file;
+@
+
+
+1.2
+log
+@Revision 4.23
+Change DONT_USE_LSTAT to DOSTAT_FUNCTION.
+@
+text
+@d34 1
+a34 1
+ * $Id: dlsof.h,v 1.1 97/12/30 08:15:23 abe Exp Locker: abe $
+d97 10
+a106 6
+        dev_t dev;              	/* st_dev */
+	dev_t rdev;			/* st_rdev */
+        char *dir;              	/* directory */
+        char *fsname;           	/* file system */
+	ino_t inode;			/* st_ino */
+	mode_t mode;			/* st_mode */
+@
+
+
+1.1
+log
+@Initial revision
+@
+text
+@d34 1
+a34 1
+ * $Id$
+a76 1
+#define	DONT_USE_LSTAT	1	/* force dolstat() to use stat() */
+d78 1
+@

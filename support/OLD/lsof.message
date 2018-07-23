@@ -1,0 +1,28 @@
+********************************************************
+* CHECK IN PATCHES/ FOR PATCHES TO LSOF DISTRIBUTIONS. *
+********************************************************
+
+If transfers between your host and lsof.itap.purdue.edu are unacceptably
+slow, you might consider obtaining lsof from one of these mirror sites.
+
+ ftp://ftp.cerias.purdue.edu/pub/tools/unix/sysutils/lsof
+ ftp://ftp.tau.ac.il/pub/unix/admin
+ ftp://ftp.cert.dfn.de/pub/tools/admin/lsof
+ ftp://ftp.fu-berlin.de/pub/unix/tools/lsof
+ ftp://ftp.kaizo.org/pub/lsof/
+ ftp://ftp.tu-darmstadt.de/pub/sysadmin/lsof
+ ftp://ftp.tux.org/pub/sites/vic.cc.purdue.edu/tools/unix/lsof
+ ftp://gd.tuwien.ac.at/utils/admin-tools/lsof
+ ftp://sunsite.ualberta.ca/pub/Mirror/lsof
+ ftp://the.wiretapped.net/pub/security/host-security/lsof/
+
+Make sure that the mirror site you choose carries the latest lsof revision,
+indicated in the lsof_<revision>_W.tar.* files of this directory.
+
+RUNNING AN LSOF MIRROR?  WANT IT LISTED HERE?  SEND ME E-MAIL.
+
+Vic Abell, <abe@purdue.edu>, September 9, 2004
+
+********************************************************
+* CHECK IN PATCHES/ FOR PATCHES TO LSOF DISTRIBUTIONS. *
+********************************************************

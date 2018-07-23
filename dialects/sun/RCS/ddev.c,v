@@ -1,0 +1,2796 @@
+head	1.20;
+access;
+symbols;
+locks; strict;
+comment	@ * @;
+
+
+1.20
+date	2005.08.08.19.55.41;	author abe;	state Exp;
+branches;
+next	1.19;
+
+1.19
+date	2003.06.11.11.43.07;	author abe;	state Exp;
+branches;
+next	1.18;
+
+1.18
+date	2002.02.26.15.22.16;	author abe;	state Exp;
+branches;
+next	1.17;
+
+1.17
+date	2001.08.14.13.08.58;	author abe;	state Exp;
+branches;
+next	1.16;
+
+1.16
+date	2001.03.19.12.19.54;	author abe;	state Exp;
+branches;
+next	1.15;
+
+1.15
+date	2000.12.04.14.35.13;	author abe;	state Exp;
+branches;
+next	1.14;
+
+1.14
+date	2000.08.01.15.02.00;	author abe;	state Exp;
+branches;
+next	1.13;
+
+1.13
+date	99.10.22.08.23.34;	author abe;	state Exp;
+branches;
+next	1.12;
+
+1.12
+date	99.07.28.09.24.11;	author abe;	state Exp;
+branches;
+next	1.11;
+
+1.11
+date	99.07.20.06.50.47;	author abe;	state Exp;
+branches;
+next	1.10;
+
+1.10
+date	99.01.25.07.17.56;	author abe;	state Exp;
+branches;
+next	1.9;
+
+1.9
+date	98.08.03.07.35.53;	author abe;	state Exp;
+branches;
+next	1.8;
+
+1.8
+date	98.03.18.16.21.49;	author abe;	state Exp;
+branches;
+next	1.7;
+
+1.7
+date	98.03.10.07.26.30;	author abe;	state Exp;
+branches;
+next	1.6;
+
+1.6
+date	98.03.06.08.38.13;	author abe;	state Exp;
+branches;
+next	1.5;
+
+1.5
+date	97.10.24.07.52.53;	author abe;	state Exp;
+branches;
+next	1.4;
+
+1.4
+date	97.07.02.11.15.26;	author abe;	state Exp;
+branches;
+next	1.3;
+
+1.3
+date	97.06.07.20.20.31;	author abe;	state Exp;
+branches;
+next	1.2;
+
+1.2
+date	97.04.15.10.46.28;	author abe;	state Exp;
+branches;
+next	1.1;
+
+1.1
+date	97.02.24.07.46.54;	author abe;	state Exp;
+branches;
+next	;
+
+
+desc
+@Lsof version 4
+@
+
+
+1.20
+log
+@Revision 4.76
+@
+text
+@/*
+ * ddev.c - Solaris device support functions for lsof
+ */
+
+
+/*
+ * Copyright 1994 Purdue Research Foundation, West Lafayette, Indiana
+ * 47907.  All rights reserved.
+ *
+ * Written by Victor A. Abell
+ *
+ * This software is not subject to any license of the American Telephone
+ * and Telegraph Company or the Regents of the University of California.
+ *
+ * Permission is granted to anyone to use this software for any purpose on
+ * any computer system, and to alter it and redistribute it freely, subject
+ * to the following restrictions:
+ *
+ * 1. Neither the authors nor Purdue University are responsible for any
+ *    consequences of the use of this software.
+ *
+ * 2. The origin of this software must not be misrepresented, either by
+ *    explicit claim or by omission.  Credit to the authors and Purdue
+ *    University must appear in documentation and sources.
+ *
+ * 3. Altered versions must be plainly marked as such, and must not be
+ *    misrepresented as being the original software.
+ *
+ * 4. This notice may not be removed or altered.
+ */
+
+#ifndef lint
+static char copyright[] =
+"@@(#) Copyright 1994 Purdue Research Foundation.\nAll rights reserved.\n";
+static char *rcsid = "$Id: ddev.c,v 1.19 2003/06/11 11:43:07 abe Exp abe $";
+#endif
+
+
+#include "lsof.h"
+
+
+/*
+ * Local definitions
+ */
+
+#define	LIKE_BLK_SPEC	"like block special"
+#define	LIKE_CHR_SPEC	"like character special"
+
+
+/*
+ * Local static values
+ */
+
+static int Devx = 0;			/* current Devtp[] index */
+
+
+/*
+ * Local function prototypes
+ */
+
+_PROTOTYPE(static void make_devtp,(struct stat *s, char *p));
+_PROTOTYPE(static int rmdupdev,(struct l_dev ***dp, int n, int ty));
+
+
+/*
+ * make_devtp() - make Devtp[] entry
+ */
+
+static void
+make_devtp(s, p)
+	struct stat *s;			/* device lstat() buffer */
+	char *p;			/* device path name */
+{
+
+/*
+ * Make room for another Devtp[] entry.
+ */
+	if (Devx >= Ndev) {
+	    Ndev += DEVINCR;
+	    if (!Devtp)
+		Devtp = (struct l_dev *)malloc(
+			(MALLOC_S)(sizeof(struct l_dev) * Ndev));
+	    else
+		Devtp = (struct l_dev *)realloc((MALLOC_P *)Devtp,
+			(MALLOC_S)(sizeof(struct l_dev) * Ndev));
+	    if (!Devtp) {
+		(void) fprintf(stderr, "%s: no space for character device\n",
+		    Pn);
+		Exit(1);
+	    }
+	}
+/*
+ * Store the device number, inode number, and name in the Devtp[] entry.
+ */
+	Devtp[Devx].inode = (INODETYPE)s->st_ino;
+	if (!(Devtp[Devx].name = mkstrcpy(p, (MALLOC_S *)NULL))) {
+	    (void) fprintf(stderr, "%s: no space for /dev/", Pn);
+	    safestrprt(p, stderr, 1);
+	    Exit(1);
+	}
+	Devtp[Devx].rdev = s->st_rdev;
+	Devtp[Devx].v = 0;
+	Devx++;
+}
+
+
+/*
+ * printdevname() - print block or character device name
+ */
+
+int
+printdevname(dev, rdev, f, nty)
+	dev_t *dev;			/* device */
+	dev_t *rdev;			/* raw device */
+	int f;				/* 1 = print trailing '\n' */
+	int nty;			/* node type: N_BLK or N_CHR */
+{
+	struct clone *c;
+	struct l_dev *dp;
+	struct pseudo *p;
+
+	readdev(0);
+/*
+ * Search device table for a full match.
+ */
+
+#if	defined(HASDCACHE)
+
+printchdevname_again:
+
+#endif	/* defined(HASDCACHE) */
+
+#if	defined(HASBLKDEV)
+	if (nty == N_BLK)
+	    dp = lkupbdev(dev, rdev, 1, 0);
+	else
+#endif	/* defined(HASBLKDEV) */
+
+	dp = lkupdev(dev, rdev, 1, 0);
+	if (dp) {
+	    safestrprt(dp->name, stdout, f);
+	    return(1);
+	}
+/*
+ * Search device table for a match without inode number and dev.
+ */
+
+#if	defined(HASBLKDEV)
+	if (nty == N_BLK)
+	    dp = lkupbdev(&DevDev, rdev, 0, 0);
+	else
+#endif	/* defined(HASBLKDEV) */
+
+	dp = lkupdev(&DevDev, rdev, 0, 0);
+	if (dp) {
+
+	/*
+	 * A match was found.  Record it as a name column addition.
+	 */
+	    char *cp, *ttl;
+	    int len;
+
+	    ttl = (nty == N_BLK) ? LIKE_BLK_SPEC : LIKE_CHR_SPEC;
+	    len = (int)(1 + strlen(ttl) + 1 + strlen(dp->name) + 1);
+	    if (!(cp = (char *)malloc((MALLOC_S)(len + 1)))) {
+		(void) fprintf(stderr, "%s: no nma space for: (%s %s)\n",
+		    Pn, ttl, dp->name);
+		Exit(1);
+	    }
+	    (void) snpf(cp, len + 1, "(%s %s)", ttl, dp->name);
+	    (void) add_nma(cp, len);
+	    (void) free((MALLOC_P *)cp);
+	    return(0);
+	}
+/*
+ * Search for clone parent.
+ */
+	if ((nty == N_CHR) && Lf->is_stream && Clone && (*dev == DevDev)) {
+	    for (c = Clone; c; c = c->next) {
+		if (GET_MAJ_DEV(*rdev) == GET_MIN_DEV(c->cd.rdev)) {
+
+#if	defined(HASDCACHE)
+		    if (DCunsafe && !c->cd.v && !vfy_dev(&c->cd))
+			goto printchdevname_again;
+#endif	/* defined(HASDCACHE) */
+
+		    safestrprt(c->cd.name, stdout, f);
+		    return(1);
+		}	
+	    }
+	}
+/*
+ * Search for pseudo device match on major device only.
+ */
+	if ((nty == N_CHR) && *dev == DevDev) {
+	    for (p = Pseudo; p; p = p->next) {
+		if (GET_MAJ_DEV(*rdev) == GET_MAJ_DEV(p->pd.rdev)) {
+
+# if	defined(HASDCACHE)
+		    if (DCunsafe && !p->pd.v && vfy_dev(&p->pd))
+			goto printchdevname_again;
+# endif	/* defined(HASDCACHE) */
+
+		    safestrprt(p->pd.name, stdout, f);
+		    return(1);
+		}
+	    }
+	}
+
+#if	defined(HASDCACHE)
+/*
+ * If the device cache is "unsafe" and we haven't found any match, reload
+ * the device cache.
+ */
+	if (DCunsafe) {
+	    (void) rereaddev();
+	    goto printchdevname_again;
+	}
+#endif	/* defined(HASDCACHE) */
+
+	return(0);
+}
+
+
+/*
+ * read_clone() - read Solaris clone device information
+ */
+
+void
+read_clone()
+{
+	struct clone *c;
+	char *cn;
+	DIR *dfp;
+	struct DIRTYPE *dp;
+	char *fp = (char *)NULL;
+	MALLOC_S fpl;
+	char *path;
+	MALLOC_S pl;
+	struct pseudo *p;
+	struct stat sb;
+	
+	if (Clone || Pseudo)
+	    return;
+/*
+ * Open the /DVCH_DEVPATH/pseudo directory.
+ */
+	if (!(path = mkstrcat(DVCH_DEVPATH, -1, "/", 1, "pseudo ", -1, &pl))) {
+	    (void) fprintf(stderr, "%s: no space for %s/pseudo\n",
+		DVCH_DEVPATH, Pn);
+	    Exit(1);
+	}
+	path[pl - 1] = '\0';
+	if (!(dfp = OpenDir(path))) {
+
+#if	defined(WARNDEVACCESS)
+	    if (!Fwarn) {
+		(void) fprintf(stderr, "%s: WARNING: can't open: ", Pn);
+		safestrprt(path, stderr, 1);
+	    }
+#endif	/* defined(WARNDEVACCESS) */
+
+	    (void) free((FREE_P *)path);
+	    return;
+	}
+	path[pl - 1] = '/';
+/*
+ * Scan the directory.
+ */
+	for (dp = ReadDir(dfp); dp; dp = ReadDir(dfp)) {
+	    if (dp->d_ino == 0 || dp->d_name[0] == '.')
+		continue;
+	/*
+	 * Form the full path name and stat() it.
+	 */
+	    if (fp) {
+		(void) free((FREE_P *)fp);
+		fp = (char *)NULL;
+	    }
+	    if (!(fp = mkstrcat(path, pl, dp->d_name, -1, (char *)NULL, -1,
+		       &fpl)))
+	    {
+		(void) fprintf(stderr, "%s: no space for: ", Pn);
+		safestrprt(path, stderr, 0);
+		safestrprt(dp->d_name, stderr, 1);
+		Exit(1);
+	    }
+
+#if	defined(USE_STAT)
+	    if (stat(fp, &sb) != 0)
+#else	/* !defined(USE_STAT) */
+	    if (lstat(fp, &sb) != 0)
+#endif	/* defined(USE_STAT) */
+
+	    {
+		if (!Fwarn) {
+		    int errno_save = errno;
+
+		    (void) fprintf(stderr, "%s: can't stat: ", Pn);
+		    safestrprt(fp, stderr, 0);
+		    (void) fprintf(stderr, ": %s\n", strerror(errno_save));
+		}
+		continue;
+	    }
+	/*
+	 * Skip subdirectories and all but character devices.
+	 */
+	    if ((sb.st_mode & S_IFMT) == S_IFDIR
+	    ||  (sb.st_mode & S_IFMT) != S_IFCHR)
+		continue;
+	/*
+	 * Make Devtp[] entry.
+	 */
+	    make_devtp(&sb, fp);
+	 /*
+	  * Create a clone structure entry for "clone*:" devices.
+	  *
+	  * Make special note of network clones -- tcp, and udp.
+	  */
+	    if (strncmp(&fp[pl], "clone", 5) == 0) {
+		if (!(cn = strrchr(&fp[pl], ':')))
+		    continue;
+	    /*
+	     * Allocate a clone structure.
+	     */
+		if (!(c = (struct clone *)malloc(sizeof(struct clone)))) {
+		    (void) fprintf(stderr,
+			"%s: no space for network clone device: ", Pn);
+		    safestrprt(fp, stderr, 1);
+		    Exit(1);
+		}
+	    /*
+	     * Allocate space for the path name.
+	     */
+		if (!(c->cd.name = mkstrcpy(fp, (MALLOC_S *)NULL))) {
+		    (void) fprintf(stderr, "%s: no space for clone name: ", Pn);
+		    safestrprt(fp, stderr, 1);
+		    Exit(1);
+		}
+	    /*
+	     * Save the inode and device numbers.  Clear the verify flag.
+	     */
+		c->cd.inode = (INODETYPE)sb.st_ino;
+		c->cd.rdev = sb.st_rdev;
+		c->cd.v = 0;
+	    /*
+	     * Make special note of a network clone device.
+	     */
+		if (!strcmp(++cn, "tcp") || !strcmp(cn, "udp"))
+		    c->n = cn - fp;
+		else
+		    c->n = 0;
+	    /*
+	     * Link the new clone entry to the rest.
+	     */
+		c->next = Clone;
+		Clone = c;
+		continue;
+	    }
+	/*
+	 * Save pseudo device information.
+	 */
+	    if (GET_MIN_DEV(sb.st_rdev) == 0) {
+
+	    /*
+	     * Allocate space for the pseduo device entry.
+	     */
+		if (!(p = (struct pseudo *) malloc(sizeof(struct pseudo)))) {
+		    (void) fprintf(stderr,
+			"%s: no space for pseudo device: ", Pn);
+		    safestrprt(fp, stderr, 1);
+		    Exit(1);
+		}
+	    /*
+	     * Save the path name, and inode and device numbers.  Clear the
+	     * verify flag.  Link the entry to the pseudo chain.
+	     */
+		p->pd.inode = (INODETYPE)sb.st_ino;
+		p->pd.name = fp;
+		fp = (char *)NULL;
+		p->pd.rdev = sb.st_rdev;
+		p->pd.v = 0;
+		p->next = Pseudo;
+		Pseudo = p;
+	    }
+	}
+	(void) CloseDir(dfp);
+	if (fp)
+	    (void) free((FREE_P *)fp);
+	if (path)
+	    (void) free((FREE_P *)path);
+}
+
+
+/*
+ * readdev() - read names, modes and device types of everything in /dev
+ *	       or /device (Solaris)
+ */
+
+void
+readdev(skip)
+	int skip;			/* skip device cache read if 1 */
+{
+
+#if	defined(HASDCACHE)
+	int dcrd = 0;
+#endif	/* defined(HASDCACHE) */
+
+	DIR *dfp;
+	struct DIRTYPE *dp;
+	char *fp = (char *)NULL;
+	MALLOC_S fpl;
+	int i;
+
+#if	defined(HASBLKDEV)
+	int j = 0;
+#endif	/* defined(HASBLKDEV) */
+
+	char *path = (char *)NULL;
+	char *ppath = (char *)NULL;
+	MALLOC_S pl;
+	struct stat sb;
+
+	if (Sdev)
+	    return;
+
+#if	defined(HASDCACHE)
+/*
+ * Read device cache, as directed.
+ */
+	if (!skip) {
+	    if (DCstate == 2 || DCstate == 3) {
+		if ((dcrd = read_dcache()) == 0)
+		    return;
+	    }
+	} else
+	    dcrd = 1;
+#endif	/* defined(HASDCACHE) */
+
+	if (!(ppath = mkstrcat(DVCH_DEVPATH, -1, "/", 1, "pseudo", -1,
+		      (MALLOC_S *)NULL)))
+	{
+	    (void) fprintf(stderr, "%s: no space for: %s/pseudo\n",
+		Pn, DVCH_DEVPATH);
+	    Exit(1);
+	}
+	read_clone();
+	Dstk = (char **)NULL;
+	Dstkn = Dstkx = 0;
+	(void) stkdir(DVCH_DEVPATH);
+/*
+ * Unstack the next directory.
+ */
+	while (--Dstkx >= 0) {
+	    if (!(dfp = OpenDir(Dstk[Dstkx]))) {
+
+#if	defined(WARNDEVACCESS)
+		if (!Fwarn) {
+		    (void) fprintf(stderr, "%s: WARNING: can't open: ", Pn);
+		    safestrprt(Dstk[Dstkx], stderr, 1);
+		}
+#endif	/* defined(WARNDEVACCESS) */
+
+		(void) free((FREE_P *)Dstk[Dstkx]);
+		Dstk[Dstkx] = (char *)NULL;
+		continue;
+	    }
+	/*
+	 * Create a directory name buffer with a trailing slash.
+	 */
+	    if (path) {
+		(void) free((FREE_P *)path);
+		path = (char *)NULL;
+	    }
+	    if (!(path = mkstrcat(Dstk[Dstkx], -1, "/", 1, (char *)NULL, -1,
+				  &pl)))
+	    {
+		(void) fprintf(stderr, "%s: no space for: ", Pn);
+		safestrprt(Dstk[Dstkx], stderr, 1);
+		Exit(1);
+	    }
+	    (void) free((FREE_P *)Dstk[Dstkx]);
+	    Dstk[Dstkx] = (char *)NULL;
+	/*
+	 * Scan the directory.
+	 */
+	    for (dp = ReadDir(dfp); dp; dp = ReadDir(dfp)) {
+		if (dp->d_ino == 0 || dp->d_name[0] == '.')
+		    continue;
+	    /*
+	     * Form the full path name and get its status.
+	     */
+		if (fp) {
+		    (void) free((FREE_P *)fp);
+		    fp = (char *)NULL;
+		}
+		if (!(fp = mkstrcat(path, pl, dp->d_name, -1, (char *)NULL, -1,
+			   &fpl)))
+		{
+		    (void) fprintf(stderr, "%s: no space for: ", Pn);
+		    safestrprt(path, stderr, 0);
+		    safestrprt(dp->d_name, stderr, 1);
+		    Exit(1);
+		}
+
+#if	defined(USE_STAT)
+		if (stat(fp, &sb) != 0)
+#else	/* !defined(USE_STAT) */
+		if (lstat(fp, &sb) != 0)
+#endif	/* defined(USE_STAT) */
+
+		{
+		    if (errno == ENOENT)	/* symbolic link to nowhere? */
+			continue;
+
+#if	defined(WARNDEVACCESS)
+		    if (!Fwarn) {
+			int errno_save = errno;
+
+			(void) fprintf(stderr, "%s: can't stat ", Pn);
+			safestrprt(fp, stderr, 0);
+			(void) fprintf(stderr, ": %s\n", strerror(errno_save));
+		    }
+#endif	/* defined(WARNDEVACCESS) */
+
+		    continue;
+		}
+	    /*
+	     * If it's a subdirectory, stack its name for later processing.
+	     */
+		if ((sb.st_mode & S_IFMT) == S_IFDIR) {
+
+		/*
+		 * Skip Solaris /DVCH_DEV_PATH/pseudo sub-directory;
+		 * it has been examined in read_clone().
+		 */
+		    if (strcmp(fp, ppath) == 0)
+			continue;
+		    (void) stkdir(fp);
+			continue;
+		}
+		if ((sb.st_mode & S_IFMT) == S_IFCHR) {
+
+		/*
+		 * Make Devtp[] entry.
+		 */
+		    make_devtp(&sb, fp);
+		}
+
+#if	defined(HASBLKDEV)
+		if ((sb.st_mode & S_IFMT) == S_IFBLK) {
+
+		/*
+		 * Save block device information in BDevtp[].
+		 */
+		    if (j >= BNdev) {
+			BNdev += DEVINCR;
+			if (!BDevtp)
+			    BDevtp = (struct l_dev *)malloc(
+				     (MALLOC_S)(sizeof(struct l_dev)*BNdev));
+			else
+			    BDevtp = (struct l_dev *)realloc((MALLOC_P *)BDevtp,
+				     (MALLOC_S)(sizeof(struct l_dev)*BNdev));
+			if (!BDevtp) {
+			    (void) fprintf(stderr,
+				"%s: no space for block device\n", Pn);
+			    Exit(1);
+			}
+		    }
+		    BDevtp[j].rdev = sb.st_rdev;
+		    BDevtp[j].inode = (INODETYPE)sb.st_ino;
+		    BDevtp[j].name = fp;
+		    fp = (char *)NULL;
+		    BDevtp[j].v = 0;
+		    j++;
+		}
+#endif	/* defined(HASBLKDEV) */
+
+	    }
+	    (void) CloseDir(dfp);
+	}
+/*
+ * Free any allocated space.
+ */
+	if (Dstk) {
+	    (void) free((FREE_P *)Dstk);
+	    Dstk = (char **)NULL;
+	    Dstkn = Dstkx = 0;
+	}
+	if (fp)
+	    (void) free((FREE_P *)fp);
+	if (path)
+	    (void) free((FREE_P *)path);
+	if (ppath)
+	    (void) free((FREE_P *)ppath);
+/*
+ * Reduce the BDevtp[] (optional) and Devtp[] tables to their minimum
+ * sizes; allocate and build sort pointer lists; and sort the tables by
+ * device number.
+ */
+
+#if	defined(HASBLKDEV)
+	if (BNdev) {
+	    if (BNdev > j) {
+		BNdev = j;
+		BDevtp = (struct l_dev *)realloc((MALLOC_P *)BDevtp,
+			 (MALLOC_S)(sizeof(struct l_dev) * BNdev));
+	    }
+	    if (!(BSdev = (struct l_dev **)malloc(
+			  (MALLOC_S)(sizeof(struct l_dev *) * BNdev))))
+	    {
+		(void) fprintf(stderr,
+		    "%s: no space for block device sort pointers\n", Pn);
+		Exit(1);
+	    }
+	    for (j = 0; j < BNdev; j++) {
+		BSdev[j] = &BDevtp[j];
+	    }
+	    (void) qsort((QSORT_P *)BSdev, (size_t)BNdev,
+		(size_t)sizeof(struct l_dev *), compdev);
+	    BNdev = rmdupdev(&BSdev, BNdev, 0);
+	} else {
+	    if (!Fwarn)
+		(void) fprintf(stderr,
+		    "%s: WARNING: no block devices found\n", Pn);
+	}
+#endif	/* defined(HASBLKDEV) */
+
+	if (Ndev) {
+	    if (Ndev > Devx) {
+		Ndev = Devx;
+		Devtp = (struct l_dev *)realloc((MALLOC_P *)Devtp,
+			(MALLOC_S)(sizeof(struct l_dev) * Ndev));
+	    }
+	    if (!(Sdev = (struct l_dev **)malloc(
+			 (MALLOC_S)(sizeof(struct l_dev *) * Ndev))))
+	    {
+		(void) fprintf(stderr,
+		    "%s: no space for character device sort pointers\n", Pn);
+		Exit(1);
+	    }
+	    for (i = 0; i < Ndev; i++) {
+		Sdev[i] = &Devtp[i];
+	    }
+	    (void) qsort((QSORT_P *)Sdev, (size_t)Ndev,
+		(size_t)sizeof(struct l_dev *), compdev);
+	    Ndev = rmdupdev(&Sdev, Ndev, 1);
+	} else {
+	    (void) fprintf(stderr, "%s: no character devices found\n", Pn);
+	    Exit(1);
+	}
+
+#if	defined(HASDCACHE)
+/*
+ * Write device cache file, as required.
+ */
+	if (DCstate == 1 || (DCstate == 3 && dcrd))
+		write_dcache();
+#endif	/* defined(HASDCACHE) */
+
+}
+
+
+/*
+ * clr_sect() - clear cached clone and pseudo sections
+ */
+
+void
+clr_sect()
+{
+	if (Clone) {
+	    struct clone *c, *c1;
+
+	    for (c = Clone; c; c = c1) {
+		c1 = c->next;
+		if (c->cd.name)
+		    (void) free((FREE_P *)c->cd.name);
+		(void) free((FREE_P *)c);
+	    }
+	    Clone = (struct clone *)NULL;
+	}
+	if (Pseudo) {
+	    struct pseudo *p, *p1;
+
+	    for (p = Pseudo; p; p = p1) {
+		p1 = p->next;
+		if (p->pd.name)
+		    (void) free((FREE_P *)p->pd.name);
+		(void) free((FREE_P *)p);
+	    }
+	    Pseudo = (struct pseudo *)NULL;
+	}
+}
+
+
+#if	defined(HASDCACHE)
+/*
+ * rw_clone_sect() - read/write the device cache file clone section
+ */
+
+int
+rw_clone_sect(m)
+	int m;				/* mode: 1 = read; 2 = write */
+{
+	char buf[MAXPATHLEN*2], *cp;
+	struct clone *c;
+	int i, len, n;
+
+	if (m == 1) {
+
+	/*
+	 * Read the clone section header and validate it.
+	 */
+	    if (!fgets(buf, sizeof(buf), DCfs)) {
+
+bad_clone_sect:
+
+		if (!Fwarn) {
+		    (void) fprintf(stderr,
+			"%s: bad clone section header in %s: ",
+			Pn, DCpath[DCpathX]);
+		    safestrprt(buf, stderr, 1);
+		}
+		return(1);
+	    }
+	    (void) crc(buf, strlen(buf), &DCcksum);
+	    len = strlen("clone section: ");
+	    if (strncmp(buf, "clone section: ", len) != 0)
+		goto bad_clone_sect;
+	    if ((n = atoi(&buf[len])) < 0)
+		goto bad_clone_sect;
+	/*
+	 * Read the clone section lines and create the Clone list.
+	 */
+	    for (i = 0; i < n; i++) {
+		if (!fgets(buf, sizeof(buf), DCfs)) {
+		    if (!Fwarn) {
+			(void) fprintf(stderr,
+			    "%s: bad clone line in %s: ", Pn, DCpath[DCpathX]);
+			safestrprt(buf, stderr, 1);
+		    }
+		    return(1);
+		}
+		(void) crc(buf, strlen(buf), &DCcksum);
+	    /*
+	     * Allocate a clone structure.
+	     */
+		if (!(c = (struct clone *)calloc(1, sizeof(struct clone)))) {
+		    (void) fprintf(stderr,
+			"%s: no space for cached clone: ", Pn);
+		    safestrprt(buf, stderr, 1);
+		    Exit(1);
+		}
+	    /*
+	     * Enter the clone device number.
+	     *
+	     * New format clone lines (with an inode number) have a leading
+	     * space, so that older lsof versions, not expecting them, will
+	     * not use the new format lines.
+	     */
+		if (buf[0] != ' '
+		||  !(cp = x2dev(&buf[1], &c->cd.rdev)) || *cp++ != ' ')
+		{
+		    if (!Fwarn) {
+			(void) fprintf(stderr,
+			    "%s: bad cached clone device: ", Pn);
+			safestrprt(buf, stderr, 1);
+		    }
+		    return(1);
+		}
+	    /*
+	     * Enter the clone network value.
+	     */
+		for (c->n = 0; *cp != ' '; cp++) {
+		    if (*cp < '0' || *cp > '9') {
+			if (!Fwarn) {
+			    (void) fprintf(stderr,
+				"%s: bad cached clone network flag: ", Pn);
+			    safestrprt(buf, stderr, 1);
+			}
+			return(1);
+		    }
+		    c->n = (c->n * 10) + (int)(*cp - '0');
+		}
+	    /*
+	     * Enter the clone device inode number.
+	     */
+		for (c->cd.inode = (INODETYPE)0, ++cp; *cp != ' '; cp++) {
+		    if (*cp < '0' || *cp > '9') {
+			if (!Fwarn) {
+			    (void) fprintf(stderr,
+				"%s: bad cached clone inode number: ", Pn);
+			    safestrprt(buf, stderr, 1);
+			}
+			return(1);
+		    }
+		    c->cd.inode = (INODETYPE)((c->cd.inode * 10)
+				+ (int)(*cp - '0'));
+		}
+	    /*
+	     * Enter the clone path name.
+	     */
+		if ((len = strlen(++cp)) < 2 || *(cp + len - 1) != '\n') {
+		    if (!Fwarn) {
+			(void) fprintf(stderr,
+			    "%s: bad cached clone path: ", Pn);
+			safestrprt(buf, stderr, 1);
+		    }
+		    return(1);
+		}
+		*(cp + len - 1) = '\0';
+		if (!(c->cd.name = mkstrcpy(cp, (MALLOC_S *)NULL))) {
+		    (void) fprintf(stderr,
+			"%s: no space for cached clone path: ", Pn);
+		    safestrprt(buf, stderr, 1);
+		    Exit(1);
+		}
+		c->cd.v = 0;
+		c->next = Clone;
+		Clone = c;
+	    }
+	    return(0);
+	} else if (m == 2) {
+
+	/*
+	 * Write the clone section header.
+	 */
+	    for (c = Clone, n = 0; c; c = c->next, n++)
+		;
+	    (void) snpf(buf, sizeof(buf), "clone section: %d\n", n);
+	    if (wr2DCfd(buf, &DCcksum))
+		return(1);
+	/*
+	 * Write the clone section lines.
+	 *
+	 *
+	 * New format clone lines (with an inode number) have a leading
+	 * space, so that older lsof versions, not expecting them, will
+	 * not use the new format lines.
+	 */
+	    for (c = Clone; c; c = c->next) {
+		(void) snpf(buf, sizeof(buf), " %lx %d %ld %s\n",
+		    (long)c->cd.rdev, c->n, (long)c->cd.inode, c->cd.name);
+		if (wr2DCfd(buf, &DCcksum))
+		    return(1);
+	    }
+	    return(0);
+	}
+/*
+ * A shouldn't-happen case: mode neither 1 nor 2.
+ */
+	(void) fprintf(stderr, "%s: internal rw_clone_sect error: %d\n",
+	    Pn, m);
+	Exit(1);
+	return(1);		/* to make code analyzers happy */
+}
+
+
+/*
+ * rereaddev() - reread device names, modes and types
+ */
+
+void
+rereaddev()
+{
+	(void) clr_devtab();
+	(void) clr_sect();
+	Devx = 0;
+
+# if	defined(DCACHE_CLR)
+	(void) DCACHE_CLR();
+# endif	/* defined(DCACHE_CLR) */
+
+	readdev(1);
+	DCunsafe = 0;
+}
+
+
+/*
+ * rw_pseudo_sect() - read/write the device cache pseudo section
+ */
+
+int
+rw_pseudo_sect(m)
+	int m;				/* mode: 1 = read; 2 = write */
+{
+	char buf[MAXPATHLEN*2], *cp;
+	struct pseudo *p;
+	int i, len, n;
+
+	if (m == 1) {
+
+	/*
+	 * Read the pseudo section header and validate it.
+	 */
+	    if (!fgets(buf, sizeof(buf), DCfs)) {
+
+bad_pseudo_sect:
+
+		if (!Fwarn) {
+		    (void) fprintf(stderr,
+			"%s: bad pseudo section header in %s: ",
+			Pn, DCpath[DCpathX]);
+		    safestrprt(buf, stderr, 1);
+		}
+		return(1);
+	    }
+	    (void) crc(buf, strlen(buf), &DCcksum);
+	    len = strlen("pseudo section: ");
+	    if (strncmp(buf, "pseudo section: ", len) != 0)
+		goto bad_pseudo_sect;
+	    if ((n = atoi(&buf[len])) < 0)
+		goto bad_pseudo_sect;
+	/*
+	 * Read the pseudo section lines and create the Pseudo list.
+	 */
+	    for (i = 0; i < n; i++) {
+		if (!fgets(buf, sizeof(buf), DCfs)) {
+		    if (!Fwarn) {
+			(void) fprintf(stderr,
+			    "%s: bad pseudo line in %s: ", Pn, DCpath[DCpathX]);
+			safestrprt(buf, stderr, 1);
+		    }
+		    return(1);
+		}
+		(void) crc(buf, strlen(buf), &DCcksum);
+	    /*
+	     * Allocate a pseudo structure.
+	     */
+		if (!(p = (struct pseudo *)calloc(1, sizeof(struct pseudo)))) {
+		    (void) fprintf(stderr,
+			"%s: no space for cached pseudo: ", Pn);
+		    safestrprt(buf, stderr, 1);
+		    Exit(1);
+		}
+	    /*
+	     * Enter the pseudo device number.
+	     *
+	     * New format pseudo lines (with an inode number) have a leading
+	     * space, so that older lsof versions, not expecting them, will
+	     * not use the new format lines.
+	     */
+		if (buf[0] != ' '
+		||  !(cp = x2dev(&buf[1], &p->pd.rdev)) || *cp++ != ' ')
+		{
+		    if (!Fwarn) {
+			(void) fprintf(stderr,
+			    "%s: bad cached pseudo device: ", Pn);
+			safestrprt(buf, stderr, 1);
+		    }
+		    return(1);
+		}
+	    /*
+	     * Enter the pseudo inode number.
+	     */
+		for (p->pd.inode = (INODETYPE)0; *cp != ' '; cp++) {
+		    if (*cp < '0' || *cp > '9') {
+			if (!Fwarn) {
+			    (void) fprintf(stderr,
+				"%s: bad cached pseudo inode number: ", Pn);
+			    safestrprt(buf, stderr, 1);
+			}
+			return(1);
+		    }
+		    p->pd.inode = (INODETYPE)((p->pd.inode * 10)
+				+ (int)(*cp - '0'));
+		}
+	    /*
+	     * Enter the pseudo path name.
+	     *
+	     *
+	     * New format clone lines (with an inode number) have a leading
+	     * space, so that older lsof versions, not expecting them, will
+	     * not use the new format lines.
+	     */
+		if ((len = strlen(++cp)) < 2 || *(cp + len - 1) != '\n') {
+		    if (!Fwarn) {
+			(void) fprintf(stderr,
+			    "%s: bad cached pseudo path: ", Pn);
+			safestrprt(buf, stderr, 1);
+		    }
+		    return(1);
+		}
+		if (!(p->pd.name = (char *)malloc(len))) {
+		    (void) fprintf(stderr,
+			"%s: no space for cached pseudo path: ", Pn);
+		    safestrprt(buf, stderr, 1);
+		    Exit(1);
+		}
+		*(cp + len - 1) = '\0';
+		(void) snpf(p->pd.name, len, "%s", cp);
+		p->pd.v = 0;
+		p->next = Pseudo;
+		Pseudo = p;
+	    }
+	    return(0);
+	} else if (m == 2) {
+
+	/*
+	 * Write the pseudo section header.
+	 */
+	    for (p = Pseudo, n = 0; p; p = p->next, n++)
+		;
+	    (void) snpf(buf, sizeof(buf), "pseudo section: %d\n", n);
+	    if (wr2DCfd(buf, &DCcksum))
+		return(1);
+	/*
+	 * Write the pseudo section lines.
+	 *
+	 *
+	 * New format pseudo lines (with an inode number) have a leading
+	 * space, so that older lsof versions, not expecting them, will
+	 * not use the new format lines.
+	 */
+	    for (p = Pseudo; p; p = p->next) {
+		(void) snpf(buf, sizeof(buf), " %lx %ld %s\n", (long)p->pd.rdev,
+		    (long)p->pd.inode, p->pd.name);
+		if (wr2DCfd(buf, &DCcksum))
+		    return(1);
+	    }
+	    return(0);
+	}
+/*
+ * A shouldn't-happen case: mode neither 1 nor 2.
+ */
+	(void) fprintf(stderr, "%s: internal rw_pseudo_sect error: %d\n",
+	    Pn, m);
+	return(1);
+}
+
+
+/*
+ * vfy_dev() - verify a device table entry (usually when DCunsafe == 1)
+ *
+ * Note: rereads entire device table when an entry can't be verified.
+ */
+
+int
+vfy_dev(dp)
+	struct l_dev *dp;		/* device table pointer */
+{
+	struct stat sb;
+
+	if (!DCunsafe || dp->v)
+	    return(1);
+
+#if	defined(USE_STAT)
+	if (stat(dp->name, &sb) != 0
+#else	/* !defined(USE_STAT) */
+	if (lstat(dp->name, &sb) != 0
+#endif	/* defined(USE_STAT) */
+
+	||  dp->rdev != sb.st_rdev
+	||  dp->inode != (INODETYPE)sb.st_ino) {
+	   (void) rereaddev();
+	   return(0);
+	}
+	dp->v = 1;
+	return(1);
+}
+#endif	/* defined(HASDCACHE) */
+
+
+/*
+ * rmdupdev() - remove duplicate (major/minor/inode) devices
+ */
+
+static int
+rmdupdev(dp, n, ty)
+	struct l_dev ***dp;	/* device table pointers address */
+	int n;			/* number of pointers */
+	int ty;			/* type: 0 = block, 1 = char */
+{
+	struct clone *c, *cp;
+	struct l_dev **d;
+	int i, j, k;
+	struct pseudo *p, *pp;
+
+	for (i = j = 0, d = *dp; i < n ;) {
+	    for (k = i + 1; k < n; k++) {
+		if (d[i]->rdev != d[k]->rdev || d[i]->inode != d[k]->inode)
+		    break;
+		if (ty == 0)
+		    continue;
+	    /*
+	     * See if we're deleting a duplicate clone device.  If so,
+	     * delete its clone table entry.
+	     */
+		for (c = Clone, cp = (struct clone *)NULL;
+		     c;
+		     cp = c, c = c->next)
+		{
+		    if (c->cd.rdev != d[k]->rdev
+		    ||  c->cd.inode != d[k]->inode
+		    ||  strcmp(c->cd.name, d[k]->name))
+			continue;
+		    if (!cp)
+			Clone = c->next;
+		    else
+			cp->next = c->next;
+		    if (c->cd.name)
+			(void) free((FREE_P *)c->cd.name);
+		    (void) free((FREE_P *)c);
+		    break;
+		}
+	    /*
+	     * See if we're deleting a duplicate pseudo device.  If so,
+	     * delete its pseudo table entry.
+	     */
+		for (p = Pseudo, pp = (struct pseudo *)NULL;
+		     p;
+		     pp = p, p = p->next)
+		{
+		    if (p->pd.rdev != d[k]->rdev
+		    ||  p->pd.inode != d[k]->inode
+		    ||  strcmp(p->pd.name, d[k]->name))
+			continue;
+		    if (!pp)
+			Pseudo = p->next;
+		    else
+			pp->next = p->next;
+		    if (p->pd.name)
+			(void) free((FREE_P *)p->pd.name);
+		    (void) free((FREE_P *)p);
+		    break;
+		}
+	    }
+	    if (i != j)
+		d[j] = d[i];
+	    j++;
+	    i = k;
+	}
+	if (n == j)
+	    return(n);
+	if (!(*dp = (struct l_dev **)realloc((MALLOC_P *)*dp,
+		    (MALLOC_S)(j * sizeof(struct l_dev *)))))
+	{
+	    (void) fprintf(stderr, "%s: can't realloc %s device pointers\n",
+		Pn, ty ? "char" : "block");
+	    Exit(1);
+	}
+	return(j);
+}
+@
+
+
+1.19
+log
+@Revision 4.68
+@
+text
+@d35 1
+a35 1
+static char *rcsid = "$Id: ddev.c,v 1.18 2002/02/26 15:22:16 abe Exp abe $";
+d95 1
+a95 1
+	Devtp[Devx].inode = s->st_ino;
+d343 1
+a343 1
+		c->cd.inode = sb.st_ino;
+d378 1
+a378 1
+		p->pd.inode = sb.st_ino;
+a409 1
+	int dn = 0;
+d571 1
+a571 1
+		    BDevtp[j].inode = sb.st_ino;
+d788 1
+a788 1
+		for (c->cd.inode = (ino_t)0, ++cp; *cp != ' '; cp++) {
+d797 2
+a798 1
+		    c->cd.inode = (c->cd.inode * 10) + (ino_t)(*cp - '0');
+d956 1
+a956 1
+		for (p->pd.inode = (ino_t)0; *cp != ' '; cp++) {
+d965 2
+a966 1
+		    p->pd.inode = (p->pd.inode * 10) + (ino_t)(*cp - '0');
+d1054 1
+a1054 1
+	||  dp->inode != sb.st_ino) {
+@
+
+
+1.18
+log
+@Revision 4.62
+@
+text
+@d35 1
+a35 1
+static char *rcsid = "$Id: ddev.c,v 1.17 2001/08/14 13:08:58 abe Exp abe $";
+d184 1
+a184 1
+		    goto printchdevname_again;
+a440 1
+	Devx = 0;
+a664 3
+#if	defined(HASDCACHE)
+
+
+d697 1
+d867 2
+@
+
+
+1.17
+log
+@Revision 4.58
+@
+text
+@d35 1
+a35 1
+static char *rcsid = "$Id: ddev.c,v 1.16 2001/03/19 12:19:54 abe Exp abe $";
+d46 2
+a47 1
+#define	LIKE_NODE_TTL	"like device special "
+d108 1
+a108 1
+ * printchdevname() - print character device name
+d112 1
+a112 1
+printchdevname(dev, rdev, f)
+d116 1
+d133 8
+a140 1
+	if ((dp = lkupdev(dev, rdev, 1, 0))) {
+a146 1
+	if ((dp = lkupdev(&DevDev, rdev, 0, 0))) {
+d148 9
+d158 1
+a158 1
+	 * A raw device match was found.  Record it as a name column addition.
+d160 1
+a160 1
+	    char *cp;
+d163 2
+a164 1
+	    len = (int)(1 + strlen(LIKE_NODE_TTL) + strlen(dp->name) + 1);
+d166 2
+a167 2
+		(void) fprintf(stderr, "%s: no nma space for: (%s%s)\n",
+		    Pn, LIKE_NODE_TTL, dp->name);
+d170 1
+a170 1
+	    (void) snpf(cp, len + 1, "(%s%s)", LIKE_NODE_TTL, dp->name);
+d178 1
+a178 1
+	if (Lf->is_stream && Clone && (*dev == DevDev)) {
+d195 1
+a195 1
+	if (*dev == DevDev) {
+@
+
+
+1.16
+log
+@Anti-lint
+@
+text
+@d35 1
+a35 1
+static char *rcsid = "$Id: ddev.c,v 1.15 2000/12/04 14:35:13 abe Exp abe $";
+d162 1
+a162 1
+		if (major(*rdev) == minor(c->cd.rdev)) {
+d179 1
+a179 1
+		if (major(*rdev) == major(p->pd.rdev)) {
+d345 1
+a345 1
+	    if (minor(sb.st_rdev) == 0) {
+@
+
+
+1.15
+log
+@Revision 4.53
+@
+text
+@d35 1
+a35 1
+static char *rcsid = "$Id: ddev.c,v 1.14 2000/08/01 15:02:00 abe Exp abe $";
+d456 1
+a456 1
+		(void) free((FREE_P *)NULL);
+d840 1
+@
+
+
+1.14
+log
+@Revision 4.51
+Convert to snpf().
+@
+text
+@d2 1
+a2 1
+ * ddev.c - SunOS (Solaris 1.x and 2.x) device support functions for lsof
+d35 1
+a35 1
+static char *rcsid = "$Id: ddev.c,v 1.13 1999/10/22 08:23:34 abe Exp abe $";
+d43 7
+d56 4
+d111 3
+a113 2
+printchdevname(rdev, f)
+	dev_t *rdev;			/* device */
+a117 2
+
+#if	defined(solaris)
+a118 1
+#endif
+d122 1
+a122 1
+ * Search device table for match.
+d131 1
+a131 1
+	if ((dp = lkupdev(rdev, 1, 0))) {
+d136 22
+d160 1
+a160 1
+	if (Lf->is_stream && Clone) {
+a173 2
+
+#if	defined(solaris)
+d177 3
+a179 2
+	for (p = Pseudo; p; p = p->next) {
+	    if (major(*rdev) == major(p->pd.rdev)) {
+d182 2
+a183 2
+		if (DCunsafe && !p->pd.v && vfy_dev(&p->pd))
+		    goto printchdevname_again;
+d186 3
+a188 2
+		safestrprt(p->pd.name, stdout, f);
+		return(1);
+a201 1
+#endif	/* solaris */
+a206 1
+#if	defined(solaris)
+a374 1
+#endif	/* solaris */
+a406 4
+#if	!defined(solaris)
+	struct clone *c;
+#endif	/* !defined(solaris) */
+
+a423 2
+
+#if	defined(solaris)
+a431 2
+#endif	/* defined(solaris) */
+
+a516 1
+#if	defined(solaris)
+a522 2
+#endif	/* solaris */
+
+a531 38
+
+#if	!defined(solaris)
+		/*
+		 * Save information on non-Solaris clone devices.
+		 */
+		    if (major(sb.st_rdev) == CLONEMAJ) {
+
+		    /*
+		     * Allocate space for a clone entry.
+		     */
+			if (!(c = (struct clone *)malloc(sizeof(struct clone))))
+			{
+			    (void) fprintf(stderr,
+				"%s: no space for clone device: ", Pn);
+			    safestrprt(fp, stderr, 1);
+			    Exit(1);
+			}
+		    /*
+		     * Allocate space for the path name.
+		     */
+			if (!(c->cd.name = mkstrcpy(fp, (MALLOC_S *)NULL))) {
+			    (void) fprintf(stderr,
+				"%s: no space for clone name: ", Pn);
+			    safestrprt(fp, stderr, 1);
+			    Exit(1);
+			}
+		    /*
+		     * Fill in the clone entry and link it to the rest.
+		     */
+			c->cd.inode = sb.st_ino;
+			c->n = 0;
+			c->cd.rdev = sb.st_rdev;
+			c->cd.v = 0;
+			c->next = Clone;
+		  	Clone = c;
+		    }
+#endif	/* !solaris */
+
+a668 2
+
+# if	defined(solaris)
+a679 2
+# endif	/* defined(solaris) */
+
+a860 1
+# if	defined(solaris)
+a1010 1
+# endif	/* defined_solaris */
+a1057 2
+
+#if	defined(solaris)
+a1058 1
+#endif	/* defined(solaris) */
+a1086 2
+
+#if	defined(solaris)
+a1107 2
+#endif	/* defined(solaris) */
+
+@
+
+
+1.13
+log
+@Revision 4.46
+@
+text
+@d35 1
+a35 1
+static char *rcsid = "$Id: ddev.c,v 1.12 99/07/28 09:24:11 abe Exp Locker: abe $";
+d840 1
+a840 1
+	    (void) sprintf(buf, "clone section: %d\n", n);
+d852 2
+a853 2
+		(void) sprintf(buf, " %lx %d %ld %s\n", (long)c->cd.rdev, c->n,
+		    (long)c->cd.inode, c->cd.name);
+d998 1
+a998 1
+		(void) strcpy(p->pd.name, cp);
+d1011 1
+a1011 1
+	    (void) sprintf(buf, "pseudo section: %d\n", n);
+d1023 1
+a1023 1
+		(void) sprintf(buf, " %lx %ld %s\n", (long)p->pd.rdev,
+@
+
+
+1.12
+log
+@Revision 4.45
+Add Auspex LFS support.
+@
+text
+@d35 1
+a35 1
+static char *rcsid = "$Id: ddev.c,v 1.11 99/07/20 06:50:47 abe Exp Locker: abe $";
+d302 1
+a302 2
+		cn++;
+		if (strcmp(cn, "tcp")  == 0 || strcmp(cn, "udp") == 0)
+d852 2
+a853 2
+		(void) sprintf(buf, " %x %d %ld %s\n", (int)c->cd.rdev, c->n,
+		    c->cd.inode, c->cd.name);
+d947 1
+a947 1
+	     * New format clone lines (with an inode number) have a leading
+d968 1
+a968 1
+				"%s: bad cached clone inode number: ", Pn);
+d1018 1
+a1018 1
+	 * New format clone lines (with an inode number) have a leading
+d1023 2
+a1024 2
+		(void) sprintf(buf, " %x %ld %s\n", (int)p->pd.rdev,
+		    p->pd.inode, p->pd.name);
+@
+
+
+1.11
+log
+@Revision 4.45
+Pick lint.
+@
+text
+@d35 1
+a35 1
+static char *rcsid = "$Id: ddev.c,v 1.10 99/01/25 07:17:56 abe Exp Locker: abe $";
+d49 1
+a49 1
+_PROTOTYPE(static void make_devtp,(struct stat *s, char *p, MALLOC_S nl));
+d58 1
+a58 1
+make_devtp(s, p, nl)
+a60 1
+	MALLOC_S nl;			/* path name length (including '\0') */
+d267 1
+a267 1
+	    make_devtp(&sb, fp, fpl);
+d515 1
+a515 1
+		    make_devtp(&sb, fp, fpl);
+@
+
+
+1.10
+log
+@Revision 4.40
+@
+text
+@d35 1
+a35 1
+static char *rcsid = "$Id: ddev.c,v 1.9 98/08/03 07:35:53 abe Exp Locker: abe $";
+d705 1
+a705 1
+# endif	defined(solaris)
+@
+
+
+1.9
+log
+@Revision 4.36
+Drop icmp and ip from network clone list.
+@
+text
+@d35 1
+a35 1
+static char *rcsid = "$Id: ddev.c,v 1.8 98/03/18 16:21:49 abe Exp Locker: abe $";
+a50 1
+_PROTOTYPE(static void stkdir,(char ***d, int *n, int *x, char *p));
+d189 1
+a189 1
+	struct dirent *dp;
+d208 1
+a208 1
+	if (!(dfp = opendir(path))) {
+d224 1
+a224 1
+	for (dp = readdir(dfp); dp; dp = readdir(dfp)) {
+d342 1
+a342 1
+	(void) closedir(dfp);
+d367 1
+a367 3
+	struct dirent *dp;
+	char **dstk = (char **)NULL;
+	int dx = 0;
+d414 3
+a416 1
+	(void) stkdir(&dstk, &dn, &dx, DVCH_DEVPATH);
+d420 2
+a421 2
+	while (--dx >= 0) {
+	    if (!(dfp = opendir(dstk[dx]))) {
+d426 1
+a426 1
+		    safestrprt(dstk[dx], stderr, 1);
+d430 2
+d441 2
+a442 1
+	    if (!(path = mkstrcat(dstk[dx], -1, "/", 1, (char *)NULL, -1, &pl)))
+d445 1
+a445 1
+		safestrprt(dstk[dx], stderr, 1);
+d448 2
+a449 2
+	    (void) free((FREE_P *)dstk[dx]);
+	    dstk[dx] = (char *)NULL;
+d453 1
+a453 1
+	    for (dp = readdir(dfp); dp; dp = readdir(dfp)) {
+d508 1
+a508 1
+		    (void) stkdir(&dstk, &dn, &dx, fp);
+d587 1
+a587 1
+	    (void) closedir(dfp);
+d592 5
+a596 2
+	if (dstk)
+	    (void) free((FREE_P *)dstk);
+a1159 41
+}
+
+
+/*
+ * stkdir() - stack directory name
+ */
+
+static void
+stkdir(d, n, x, p)
+	char ***d;		/* array of directory pointers */
+	int *n;			/* number of pointers */
+	int *x;			/* current index */
+	char *p;		/* directory path */
+{
+	MALLOC_S len;
+/*
+ * Provide adequate directory stack space.
+ */
+	if (*x >= *n) {
+	    *n += 10;
+	    len = (MALLOC_S)(*n * sizeof(char *));
+	    if (!*d)
+		*d = (char **)malloc(len);
+	    else
+		*d = (char **)realloc((MALLOC_P *)*d, len);
+	    if (!*d) {
+		(void) fprintf(stderr,
+		    "%s: no space for directory stack for: ", Pn);
+		safestrprt(p, stderr, 1);
+		Exit(1);
+	    }
+	}
+/*
+ * Allocate space for the name, copy it there and put its pointer on the stack.
+ */
+	if (!((*d)[*x] = mkstrcpy(p, (MALLOC_S *)NULL))) {
+	    (void) fprintf(stderr, "%s: no space for: ", Pn);
+	    safestrprt(p, stderr, 1);
+	    Exit(1);
+	}
+	*x += 1;
+@
+
+
+1.8
+log
+@Revision 4.29
+Make printing of clone error message "safe."
+@
+text
+@d35 1
+a35 1
+static char *rcsid = "$Id: ddev.c,v 1.7 98/03/10 07:26:30 abe Exp Locker: abe $";
+d273 1
+a273 1
+	  * Make special note of network clones -- icmp, ip, tcp, and udp.
+d305 1
+a305 2
+		if (strcmp(cn, "icmp") == 0 || strcmp(cn, "ip")  == 0
+		||  strcmp(cn, "tcp")  == 0 || strcmp(cn, "udp") == 0)
+@
+
+
+1.7
+log
+@Revision 4.28
+Pick lint pointed out by gcc -Wall.
+@
+text
+@d35 1
+a35 1
+static char *rcsid = "$Id: ddev.c,v 1.6 98/03/06 08:38:13 abe Exp Locker: abe $";
+d529 2
+a530 2
+				"%s: no space for clone device: %s\n",
+				Pn, path);
+@
+
+
+1.6
+log
+@Revision 4.27
+@
+text
+@d35 1
+a35 1
+static char *rcsid = "$Id: ddev.c,v 1.5 97/10/24 07:52:53 abe Exp Locker: abe $";
+d204 2
+a205 1
+	    (void) fprintf(stderr, "%s: no space for %s/pseudo\n", Pn);
+@
+
+
+1.5
+log
+@Revision 4.18
+@
+text
+@d35 1
+a35 1
+static char *rcsid = "$Id: ddev.c,v 1.4 97/07/02 11:15:26 abe Exp Locker: abe $";
+d86 3
+a88 2
+	if (!(Devtp[Devx].name = (char *)malloc(nl))) {
+	    (void) fprintf(stderr, "%s: no space for /dev/%s\n", Pn, p);
+a90 1
+	(void) strcpy(Devtp[Devx].name, p);
+d125 1
+a125 4
+	    if (f)
+		(void) puts(dp->name);
+	    else
+		(void) fputs(dp->name, stdout);
+d136 2
+a137 2
+			if (DCunsafe && !c->cd.v && !vfy_dev(&c->cd))
+			    goto printchdevname_again;
+d140 3
+a142 6
+			if (f)
+			    (void) puts(c->cd.name);
+			else
+			    (void) fputs(c->cd.name, stdout);
+			return(1);
+		}
+d158 1
+a158 4
+		if (f)
+		    (void) puts(p->pd.name);
+		else
+		    (void) fputs(p->pd.name, stdout);
+d191 4
+a194 2
+	MALLOC_S nl;
+	char path[MAXNAMLEN+1];
+a195 1
+	int pl;
+a196 1
+	STRNCPY_L dnamel;
+d203 5
+a207 1
+	(void) sprintf(path, "%s/pseudo", DVCH_DEVPATH);
+d211 4
+a214 3
+	    if (!Fwarn)
+		(void) fprintf(stderr, "%s: WARNING: can't open %s\n",
+		    Pn, path);
+d217 1
+d220 1
+a220 2
+	(void) strcat(path, "/");
+	pl = strlen(path);
+d230 3
+a232 7
+	    dnamel = strlen(dp->d_name);
+	    if ((nl = pl + dnamel) >= sizeof(path)) {
+		if (!Fwarn)
+		    (void) fprintf(stderr,
+			"%s: /%s/pseudo entry name too long: %s\n",
+			Pn, DVCH_DEVPATH, dp->d_name);
+		continue;
+d234 8
+a241 2
+	    (void) strncpy(&path[pl], dp->d_name, dnamel);
+	    path[nl++] = '\0';
+d244 1
+a244 1
+	    if (stat(path, &sb) != 0)
+d246 1
+a246 1
+	    if (lstat(path, &sb) != 0)
+d250 7
+a256 3
+		if (!Fwarn)
+		    (void) fprintf(stderr, "%s: can't stat %s: %s\n",
+			Pn, path, strerror(errno));
+d268 1
+a268 1
+	    make_devtp(&sb, path, nl);
+d274 3
+a276 3
+	    if (strncmp(&path[pl], "clone", 5) == 0) {
+		if (!(cn = strrchr(&path[pl], ':')))
+			    continue;
+d282 2
+a283 2
+			"%s: no space for network clone device: %s\n",
+			Pn, path);
+d289 3
+a291 3
+		if (!(c->cd.name = (char *)malloc(nl))) {
+		    (void) fprintf(stderr,
+			"%s: no space for clone name: %s\n", Pn, path);
+d295 1
+a295 2
+	     * Save the path name, and inode and device numbers.  Clear the
+	     * verify flag.
+a297 1
+		(void) strcpy(c->cd.name, path);
+d306 1
+a306 1
+		    c->n = cn - path;
+d326 2
+a327 2
+			"%s: no space for pseudo device: %s\n",
+			Pn, path);
+a330 8
+	     * Allocate space for the path name.
+	     */
+		if (!(p->pd.name = (char *)malloc(nl))) {
+		    (void) fprintf(stderr,
+			"%s: no space for pseudo name: %s\n", Pn, path);
+		    Exit(1);
+		}
+	    /*
+d335 2
+a336 1
+		(void) strcpy(p->pd.name, path);
+d344 4
+d371 2
+d379 3
+a381 3
+	MALLOC_S nl;
+	char path[MAXNAMLEN+1];
+	int pl;
+d384 1
+a384 4
+#if	defined(solaris)
+	STRNCPY_L dnamel;
+	char ppath[MAXPATHLEN+1];
+#else	/* !defined(solaris) */
+d386 1
+a386 1
+#endif	/* defined(solaris) */
+d407 7
+a413 1
+	(void) sprintf(ppath, "%s/pseudo", DVCH_DEVPATH);
+d422 1
+a422 2
+	    (void) strcpy(path, dstk[dx]);
+	    if (!(dfp = opendir(path))) {
+d425 4
+a428 3
+		if (!Fwarn)
+		    (void) fprintf(stderr, "%s: WARNING: can't open %s\n",
+		    Pn, path);
+d433 13
+a445 2
+	    (void) strcat(path, "/");
+	    pl = strlen(path);
+d457 6
+a462 8
+
+#if	defined(solaris)
+		dnamel = strlen(dp->d_name);
+		if ((nl = pl + dnamel) >= sizeof(path))
+#else	/* !defined(solaris) */
+		if ((nl = pl + dp->d_namlen) >= sizeof(path))
+#endif	/* solaris */
+
+d464 3
+a466 2
+		    (void) fprintf(stderr, "%s: /dev entry name too long: %s\n",
+			Pn, dp->d_name);
+a469 8
+#if	defined(solaris)
+		(void) strncpy(&path[pl], dp->d_name, dnamel);
+#else
+		(void) strncpy(&path[pl], dp->d_name, (STRNCPY_L)dp->d_namlen);
+#endif	/* solaris */
+
+		path[nl++] = '\0';
+
+d471 1
+a471 1
+		if (stat(path, &sb) != 0)
+d473 1
+a473 1
+		if (lstat(path, &sb) != 0)
+d481 7
+a487 3
+		    if (!Fwarn)
+			(void) fprintf(stderr, "%s: can't stat %s: %s\n",
+			    Pn, path, strerror(errno));
+d502 1
+a502 1
+		    if (strcmp(path, ppath) == 0)
+d506 1
+a506 1
+		    (void) stkdir(&dstk, &dn, &dx, path);
+d514 1
+a514 1
+		    make_devtp(&sb, path, nl);
+d535 1
+a535 1
+			if (!(c->cd.name = (char *)malloc(nl))) {
+d537 2
+a538 1
+				"%s: no space for clone name: %s\n", Pn, path);
+a544 1
+			(void) strcpy(c->cd.name, path);
+d577 2
+a578 6
+		    if (!(BDevtp[j].name = (char *)malloc(nl))) {
+			(void) fprintf(stderr,
+			    "%s: no space for /dev/%s\n", Pn, dp->d_name);
+			Exit(1);
+		    }
+		    (void) strcpy(BDevtp[j].name, path);
+d588 1
+a588 1
+ * Free any directory stack space.
+d590 1
+a590 1
+	if (!dstk)
+d592 6
+d612 1
+a612 1
+		(MALLOC_S)(sizeof(struct l_dev *) * BNdev))))
+d615 1
+a615 1
+		    "%s: no space for block device pointers\n", Pn);
+d638 1
+a638 1
+		(MALLOC_S)(sizeof(struct l_dev *) * Ndev))))
+d641 1
+a641 1
+		    "%s: no space for character device pointers\n", Pn);
+d676 2
+a677 1
+	struct clone *c, *c1;
+a678 5
+#if	defined(solaris)
+	struct pseudo *p, *p1;
+#endif	defined(solaris)
+
+	if (Clone) {
+d690 2
+d726 1
+a726 1
+		if (!Fwarn)
+d728 4
+a731 2
+			"%s: bad clone section header in %s: %s",
+			Pn, DCpath[DCpathX], buf);
+d745 1
+a745 1
+		    if (!Fwarn)
+d747 3
+a749 2
+			    "%s: bad clone line in %s: %s",
+			    Pn, DCpath[DCpathX], buf);
+d758 2
+a759 1
+			"%s: no space for cached clone: %s", Pn, buf);
+d772 1
+a772 1
+		    if (!Fwarn)
+d774 3
+a776 1
+			    "%s: bad cached clone device: %s", Pn, buf);
+d784 1
+a784 1
+			if (!Fwarn)
+d786 3
+a788 2
+				"%s: bad cached clone network flag: %s",
+				Pn, buf);
+d798 1
+a798 1
+			if (!Fwarn)
+d800 3
+a802 2
+				"%s: bad cached clone inode number: %s",
+				Pn, buf);
+d811 1
+a811 1
+		    if (!Fwarn)
+d813 3
+a815 1
+			    "%s: bad cached clone path: %s", Pn, buf);
+d818 2
+a819 1
+		if (!(c->cd.name = (char *)malloc(len))) {
+d821 2
+a822 1
+			"%s: no space for cached clone path: %s", Pn, buf);
+a824 2
+		*(cp + len - 1) = '\0';
+		(void) strcpy(c->cd.name, cp);
+d905 1
+a905 1
+		if (!Fwarn)
+d907 4
+a910 2
+			"%s: bad pseudo section header in %s: %s",
+			Pn, DCpath[DCpathX], buf);
+d924 1
+a924 1
+		    if (!Fwarn)
+d926 3
+a928 2
+			    "%s: bad pseudo line in %s: %s",
+			    Pn, DCpath[DCpathX], buf);
+d937 2
+a938 1
+			"%s: no space for cached pseudo: %s", Pn, buf);
+d951 1
+a951 1
+		    if (!Fwarn)
+d953 3
+a955 1
+			    "%s: bad cached pseudo device: %s", Pn, buf);
+d963 1
+a963 1
+			if (!Fwarn)
+d965 3
+a967 2
+				"%s: bad cached clone inode number: %s",
+				Pn, buf);
+d981 1
+a981 1
+		    if (!Fwarn)
+d983 3
+a985 1
+			    "%s: bad cached pseudo path: %s", Pn, buf);
+d990 2
+a991 1
+			"%s: no space for cached pseudo path: %s", Pn, buf);
+d1148 1
+a1148 1
+	    (MALLOC_S)(j * sizeof(struct l_dev *)))))
+d1169 12
+a1180 9
+	if (!*d) {
+
+	/*
+	 * Allocate first entry.
+	 */
+	    if (!(*d = (char **)malloc(sizeof(char *)))) {
+
+stkdir_nospace:
+
+d1182 2
+a1183 1
+		    "%s: no space for directory stack at %s\n", Pn, p);
+a1185 13
+	    *n = 1;
+	    *x = 0;
+	} else if (*x >= *n) {
+
+	/*
+	 * Allocate additional space as required.
+	 */
+	    *n += 1;
+	    if (!(*d = (char **)realloc((MALLOC_P *)*d,
+		       (MALLOC_S)(*n * sizeof(char *)))))
+	    {
+		goto stkdir_nospace;
+	    }
+d1190 3
+a1192 2
+	if (!((*d)[*x] = (char *)malloc((MALLOC_S)(strlen(p) + 1)))) {
+	    (void) fprintf(stderr, "%s: no space for %s\n", Pn, p);
+a1194 1
+	(void) strcpy((*d)[*x], p);
+@
+
+
+1.4
+log
+@Revision 4.13
+Honor USE_STAT.  Change no block device error to a warning.
+@
+text
+@d35 1
+a35 1
+static char *rcsid = "$Id: ddev.c,v 1.3 97/06/07 20:20:31 abe Exp Locker: abe $";
+d366 1
+a366 1
+	int dcrd;
+a368 1
+	struct clone *c;
+a385 1
+	char *cn;
+a386 1
+	struct pseudo *p;
+d388 2
+d831 1
+a831 1
+		(void) sprintf(buf, " %x %d %ld %s\n", c->cd.rdev, c->n,
+a903 2
+
+bad_pseudo_line:
+d992 2
+a993 2
+		(void) sprintf(buf, " %x %ld %s\n", p->pd.rdev, p->pd.inode,
+		    p->pd.name);
+@
+
+
+1.3
+log
+@Revision 4.10
+Use lstat() instead of stat() to reduce duplicates.
+Remove remaining duplicates.
+@
+text
+@d35 1
+a35 1
+static char *rcsid = "$Id: ddev.c,v 1.2 97/04/15 10:46:28 abe Exp Locker: abe $";
+d232 1
+a232 1
+	 * Form the full path name and lstat() it.
+d244 8
+a251 1
+	    if (lstat(path, &sb) != 0) {
+d466 8
+a473 1
+		if (lstat(path, &sb) != 0) {
+d616 3
+a618 2
+	    (void) fprintf(stderr, "%s: no block devices found\n", Pn);
+	    Exit(1);
+d1026 4
+d1031 2
+@
+
+
+1.2
+log
+@Revision 4.04
+@
+text
+@d35 1
+a35 1
+static char *rcsid = "$Id: ddev.c,v 1.1 97/02/24 07:46:54 abe Exp Locker: abe $";
+d50 1
+d60 1
+a60 1
+	struct stat *s;			/* device stat() buffer */
+d232 1
+a232 1
+	 * Form the full path name and stat() it.
+d244 1
+a244 1
+	    if (stat(path, &sb) != 0) {
+d459 1
+a459 1
+		if (stat(path, &sb) != 0) {
+d600 1
+d625 1
+d1011 1
+a1011 1
+	if (stat(dp->name, &sb) != 0
+d1021 89
+@
+
+
+1.1
+log
+@Initial revision
+@
+text
+@d35 1
+a35 1
+static char *rcsid = "$Id: ddev.c,v 1.25 96/10/28 14:15:44 abe Exp $";
+a42 11
+ * Local definitions
+ */
+
+#if	defined(solaris)
+#define	DVCH_DEVPATH	"/devices"
+#else	/* !defined(solaris) */
+#define	DVCH_DEVPATH	"/dev"
+#endif	/* defined(solaris) */
+
+
+/*
+d68 12
+a79 12
+		Ndev += DEVINCR;
+		if (Devtp == NULL)
+			Devtp = (struct l_dev *)malloc(
+				(MALLOC_S)(sizeof(struct l_dev) * Ndev));
+		else
+			Devtp = (struct l_dev *)realloc((MALLOC_P *)Devtp,
+				(MALLOC_S)(sizeof(struct l_dev) * Ndev));
+		if (Devtp == NULL) {
+			(void) fprintf(stderr,
+				"%s: no space for character device\n", Pn);
+			Exit(1);
+		}
+a83 1
+	Devtp[Devx].rdev = s->st_rdev;
+d85 3
+a87 3
+	if ((Devtp[Devx].name = (char *)malloc(nl)) == NULL) {
+		(void) fprintf(stderr, "%s: no space for /dev/%s\n", Pn, p);
+		Exit(1);
+d90 2
+d112 1
+a112 1
+	readdev();
+d114 17
+d134 13
+a146 8
+		for (c = Clone; c; c = c->next) {
+			if (major(*rdev) == minor(c->rdev)) {
+				if (f)
+					(void) puts(c->nm);
+				else
+					(void) fputs(c->nm, stdout);
+				return(1);
+			}
+d148 1
+d150 2
+d153 1
+a153 1
+ * Search device table for match.
+d155 8
+a162 1
+	if ((dp = lkupdev(rdev, 1)) != (struct l_dev *)NULL) {
+d164 1
+a164 1
+			(void) puts(dp->name);
+d166 1
+a166 1
+			(void) fputs(dp->name, stdout);
+d168 1
+d171 1
+a171 1
+#if	defined(solaris)
+d173 2
+a174 1
+ * Search for pseudo device match on major device only.
+d176 3
+a178 8
+	for (p = Pseudo; p; p = p->next) {
+		if (major(*rdev) == major(p->rdev)) {
+			if (f)
+				(void) puts(p->nm);
+			else
+				(void) fputs(p->nm, stdout);
+			return(1);
+		}
+d180 1
+a198 1
+	static int first = 1;
+d206 2
+a207 3
+	if (!first)
+		return;
+	first = 0;
+d212 1
+a212 1
+	if ((dfp = opendir(path)) == NULL) {
+d215 3
+a217 3
+		if (!Fwarn)
+			(void) fprintf(stderr, "%s: WARNING: can't open %s\n",
+				Pn, path);
+d220 1
+a220 1
+		return;
+d228 2
+a229 2
+		if (dp->d_ino == 0 || dp->d_name[0] == '.')
+			continue;
+d233 16
+a248 17
+		dnamel = strlen(dp->d_name);
+		if ((nl = pl + dnamel) >= sizeof(path)) {
+		    if (!Fwarn)
+			(void) fprintf(stderr,
+				"%s: /%s/pseudo entry name too long: %s\n",
+				Pn, DVCH_DEVPATH, dp->d_name);
+		    continue;
+		}
+		(void) strncpy(&path[pl], dp->d_name, dnamel);
+		path[nl++] = '\0';
+		if (stat(path, &sb) != 0) {
+			if (!Fwarn)
+				(void) fprintf(stderr,
+					"%s: can't stat %s: %s\n",
+					Pn, path, strerror(errno));
+			continue;
+		}
+d252 3
+a254 3
+		if ((sb.st_mode & S_IFMT) == S_IFDIR
+		||  (sb.st_mode & S_IFMT) != S_IFCHR)
+			continue;
+d258 1
+a258 1
+		make_devtp(&sb, path, nl);
+d264 2
+a265 2
+		if (strncmp(&path[pl], "clone", 5) == 0) {
+			if ((cn = strrchr(&path[pl], ':')) == NULL)
+d267 8
+a274 39
+		/*
+		 * Allocate a clone structure.
+		 */
+			if ((c = (struct clone *)malloc(sizeof(struct clone)))
+			== NULL) {
+			    (void) fprintf(stderr,
+				"%s: no space for network clone device: %s\n",
+				Pn, path);
+			    Exit(1);
+			}
+		/*
+		 * Allocate space for the path name.
+		 */
+			if ((c->nm = (char *)malloc(nl)) == NULL) {
+			    (void) fprintf(stderr,
+				"%s: no space for network clone name: %s\n",
+				Pn, path);
+			    Exit(1);
+			}
+		/*
+		 * Save the path name and device number.
+		 */
+			(void) strcpy(c->nm, path);
+			c->rdev = sb.st_rdev;
+		/*
+		 * Make special note of a network clone device.
+		 */
+			cn++;
+			if (strcmp(cn, "icmp") == 0 || strcmp(cn, "ip")  == 0
+			||  strcmp(cn, "tcp")  == 0 || strcmp(cn, "udp") == 0)
+				c->n = cn - path;
+			else
+				c->n = 0;
+		/*
+		 * Link the new clone entry to the rest.
+		 */
+			c->next = Clone;
+			Clone = c;
+			continue;
+d276 32
+d311 1
+a311 1
+		if (minor(sb.st_rdev) == 0) {
+d313 8
+a320 25
+		/*
+		 * Allocate space for the pseduo device entry.
+		 */
+		    if ((p = (struct pseudo *) malloc(sizeof(struct pseudo)))
+		    == NULL) {
+			(void) fprintf(stderr,
+			    "%s: no space for pseudo device: %s\n",
+			    Pn, path);
+			Exit(1);
+		    }
+		/*
+		 * Allocate space for the path name.
+		 */
+		    if ((p->nm = (char *)malloc(nl)) == NULL) {
+			(void) fprintf(stderr,
+			    "%s: no space for pseudo name: %s\n", Pn, path);
+			Exit(1);
+		    }
+		/*
+		 * Fill in the entry and link it to the rest.
+		 */
+		    (void) strcpy(p->nm, path);
+		    p->rdev = sb.st_rdev;
+		    p->next = Pseudo;
+		    Pseudo = p;
+d322 19
+d353 2
+a354 1
+readdev()
+d356 1
+d365 1
+a365 1
+	char **dstk = NULL;
+a366 1
+	static int first = 1;
+d385 2
+a386 3
+	if (!first)
+		return;
+	first = 0;
+d392 2
+a393 1
+	if (DCstate == 2 || DCstate == 3) {
+d395 4
+a398 2
+			return;
+	}
+d413 2
+a414 2
+		(void) strcpy(path, dstk[dx]);
+		if ((dfp = opendir(path)) == NULL) {
+d417 3
+a419 3
+		    if (!Fwarn)
+			(void) fprintf(stderr, "%s: WARNING: can't open %s\n",
+			    Pn, path);
+d422 6
+a427 6
+		    continue;
+		}
+		(void) strcat(path, "/");
+		pl = strlen(path);
+		(void) free((FREE_P *)dstk[dx]);
+		dstk[dx] = NULL;
+d431 6
+a436 6
+		for (dp = readdir(dfp); dp; dp = readdir(dfp)) {
+		    if (dp->d_ino == 0 || dp->d_name[0] == '.')
+			continue;
+		/*
+		 * Form the full path name and get its status.
+		 */
+d439 4
+a442 4
+		    dnamel = strlen(dp->d_name);
+		    if ((nl = pl + dnamel) >= sizeof(path))
+#else
+		    if ((nl = pl + dp->d_namlen) >= sizeof(path))
+d445 6
+a450 6
+		    {
+			(void) fprintf(stderr,
+			    "%s: /dev entry name too long: %s\n",
+			    Pn, dp->d_name);
+			Exit(1);
+		    }
+d452 1
+a452 1
+		    (void) strncpy(&path[pl], dp->d_name, dnamel);
+d454 1
+a454 2
+		    (void) strncpy(&path[pl], dp->d_name,
+			(STRNCPY_L)dp->d_namlen);
+d457 4
+a460 4
+		    path[nl++] = '\0';
+		    if (stat(path, &sb) != 0) {
+			if (errno == ENOENT)	/* symbolic link to nowhere? */
+			    continue;
+d463 3
+a465 3
+			if (!Fwarn)
+			    (void) fprintf(stderr, "%s: can't stat %s: %s\n",
+				Pn, path, strerror(errno));
+d468 13
+d482 7
+a488 1
+		    }
+d490 1
+a490 2
+		 * If it's a subdirectory, stack its name for later
+		 * processing.
+d492 1
+a492 1
+		    if ((sb.st_mode & S_IFMT) == S_IFDIR) {
+d494 6
+a499 1
+#if	defined(solaris)
+d501 1
+a501 2
+		     * Skip Solaris /DVCH_DEV_PATH/pseudo sub-directory;
+		     * it has been examined in read_clone().
+d503 7
+a509 9
+			if (strcmp(path, ppath) == 0)
+			    continue;
+#endif	/* solaris */
+
+			(void) stkdir(&dstk, &dn, &dx, path);
+			    continue;
+		    }
+		    if ((sb.st_mode & S_IFMT) == S_IFCHR) {
+
+d511 1
+a511 1
+		     * Make Devtp[] entry.
+d513 5
+a517 3
+			make_devtp(&sb, path, nl);
+
+#if	!defined(solaris)
+d519 1
+a519 1
+		     * Save information on non-Solaris clone devices.
+d521 8
+a528 31
+			if (major(sb.st_rdev) == CLONEMAJ) {
+
+			/*
+			 * Allocate space for a clone entry.
+			 */
+			    if ((c = (struct clone *)malloc(
+				sizeof(struct clone)))
+			    == NULL) {
+				(void) fprintf(stderr,
+				    "%s: no space for clone device: %s\n",
+				    Pn, path);
+				Exit(1);
+			    }
+			/*
+			 * Allocate space for the path name.
+			 */
+			    if ((c->nm = (char *)malloc(nl)) == NULL) {
+				(void) fprintf(stderr,
+				    "%s: no space for clone name: %s\n",
+				    Pn, path);
+				Exit(1);
+			    }
+			/*
+			 * Fill in the clone entry and link it to the rest.
+			 */
+			    (void) strcpy(c->nm, path);
+			    c->n = 0;
+			    c->rdev = sb.st_rdev;
+			    c->next = Clone;
+		  	    Clone = c;
+			}
+d531 1
+a531 1
+		    }
+d534 1
+a534 1
+		    if ((sb.st_mode & S_IFMT) == S_IFBLK) {
+d536 12
+a547 21
+		    /*
+		     * Save block device information in BDevtp[].
+		     */
+			if (j >= BNdev) {
+			    BNdev += DEVINCR;
+			    if (BDevtp == NULL)
+				BDevtp = (struct l_dev *)malloc(
+				    (MALLOC_S)(sizeof(struct l_dev)*BNdev));
+			    else
+				BDevtp = (struct l_dev *)realloc(
+				    (MALLOC_P *)BDevtp,
+				    (MALLOC_S)(sizeof(struct l_dev)*BNdev));
+			    if (BDevtp == NULL) {
+				(void) fprintf(stderr,
+				    "%s: no space for block device\n", Pn);
+				Exit(1);
+			    }
+			}
+			BDevtp[j].rdev = sb.st_rdev;
+			BDevtp[j].inode = sb.st_ino;
+			if ((BDevtp[j].name = (char *)malloc(nl)) == NULL) {
+d549 1
+a549 1
+				"%s: no space for /dev/%s\n", Pn, dp->d_name);
+a551 2
+			(void) strcpy(BDevtp[j].name, path);
+			j++;
+d553 11
+d566 2
+a567 2
+		}
+		(void) closedir(dfp);
+d572 2
+a573 2
+	if (dstk != NULL)
+		(void) free((FREE_P *)dstk);
+d587 3
+a589 3
+	    if ((BSdev = (struct l_dev **)malloc(
+		(MALLOC_S)(sizeof(struct l_dev *) * BNdev)))
+	    == (struct l_dev **)NULL) {
+d611 3
+a613 3
+	    if ((Sdev = (struct l_dev **)malloc(
+		(MALLOC_S)(sizeof(struct l_dev *) * Ndev)))
+	    == (struct l_dev **)NULL) {
+d656 7
+a662 9
+		for (c = Clone; c; c = c1) {
+			c1 = c->next;
+			if (c->nm) {
+				(void) free((FREE_P *)c->nm);
+				c->nm = NULL;
+			}
+			(void) free((FREE_P *)c);
+		}
+		Clone = NULL;
+d665 1
+a665 1
+#if	defined(solaris)
+d667 7
+a673 9
+		for (p = Pseudo; p; p = p1) {
+			p1 = p->next;
+			if (p->nm) {
+				(void) free((FREE_P *)p->nm);
+				p->nm = NULL;
+			}
+			(void) free((FREE_P *)p);
+		}
+		Pseudo = NULL;
+d675 1
+a675 1
+#endif	defined(solaris)
+d697 1
+a697 1
+	    if (fgets(buf, sizeof(buf), DCfs) == NULL) {
+d717 1
+a717 1
+		if (fgets(buf, sizeof(buf), DCfs) == NULL) {
+d728 1
+a728 2
+		if ((c = (struct clone *)calloc(1, sizeof(struct clone)))
+		== NULL) {
+d735 4
+d740 3
+a742 1
+		if ((cp = x2dev(buf, &c->rdev)) == NULL || *cp++ != ' ') {
+d762 13
+d783 1
+a783 1
+		if ((c->nm = (char *)malloc(len)) == NULL) {
+d789 2
+a790 1
+		(void) strcpy(c->nm, cp);
+d807 5
+d814 2
+a815 1
+		(void) sprintf(buf, "%x %d %s\n", c->rdev, c->n, c->nm);
+d830 18
+d866 1
+a866 1
+	    if (fgets(buf, sizeof(buf), DCfs) == NULL) {
+d886 1
+a886 1
+		if (fgets(buf, sizeof(buf), DCfs) == NULL) {
+d899 1
+a899 2
+		if ((p = (struct pseudo *)calloc(1, sizeof(struct pseudo)))
+		== NULL) {
+d906 4
+d911 3
+a913 1
+		if ((cp = x2dev(buf, &p->rdev)) == NULL || *cp++ != ' ') {
+d920 13
+d934 5
+d940 1
+a940 1
+		if ((len = strlen(cp)) < 2 || *(cp + len - 1) != '\n') {
+d946 1
+a946 1
+		if ((p->nm = (char *)malloc(len)) == NULL) {
+d952 2
+a953 1
+		(void) strcpy(p->nm, cp);
+d970 5
+d977 2
+a978 1
+		(void) sprintf(buf, "%x %s\n", p->rdev, p->nm);
+d992 25
+d1031 1
+a1031 1
+	if (*d == NULL) {
+d1036 1
+a1036 1
+		if ((*d = (char **)malloc(sizeof(char *))) == NULL) {
+d1040 6
+a1045 7
+			(void) fprintf(stderr,
+				"%s: no space for directory stack at %s\n",
+				Pn, p);
+			Exit(1);
+		}
+		*n = 1;
+		*x = 0;
+d1051 6
+a1056 5
+		*n += 1;
+		if ((*d = (char **)realloc((MALLOC_P *)*d,
+		          (MALLOC_S)(*n * sizeof(char *))))
+		== NULL)
+			goto stkdir_nospace;
+d1061 3
+a1063 3
+	if (((*d)[*x] = (char *)malloc((MALLOC_S)(strlen(p) + 1))) == NULL) {
+		(void) fprintf(stderr, "%s: no space for %s\n", Pn, p);
+		Exit(1);
+@

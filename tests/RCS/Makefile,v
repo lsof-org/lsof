@@ -1,0 +1,735 @@
+head	1.17;
+access;
+symbols;
+locks; strict;
+comment	@# @;
+
+
+1.17
+date	2005.05.17.00.40.53;	author abe;	state Exp;
+branches;
+next	1.16;
+
+1.16
+date	2004.01.14.11.28.32;	author abe;	state Exp;
+branches;
+next	1.15;
+
+1.15
+date	2002.12.20.18.57.49;	author abe;	state Exp;
+branches;
+next	1.14;
+
+1.14
+date	2002.10.09.18.15.05;	author abe;	state Exp;
+branches;
+next	1.13;
+
+1.13
+date	2002.04.19.11.56.29;	author abe;	state Exp;
+branches;
+next	1.12;
+
+1.12
+date	2002.04.14.19.14.09;	author abe;	state Exp;
+branches;
+next	1.11;
+
+1.11
+date	2002.04.07.12.23.32;	author abe;	state Exp;
+branches;
+next	1.10;
+
+1.10
+date	2002.04.05.16.14.44;	author abe;	state Exp;
+branches;
+next	1.9;
+
+1.9
+date	2002.04.05.04.56.05;	author abe;	state Exp;
+branches;
+next	1.8;
+
+1.8
+date	2002.04.04.19.20.49;	author abe;	state Exp;
+branches;
+next	1.7;
+
+1.7
+date	2002.04.03.23.49.02;	author abe;	state Exp;
+branches;
+next	1.6;
+
+1.6
+date	2002.03.30.15.38.36;	author abe;	state Exp;
+branches;
+next	1.5;
+
+1.5
+date	2002.03.28.15.26.06;	author abe;	state Exp;
+branches;
+next	1.4;
+
+1.4
+date	2002.03.27.17.25.18;	author abe;	state Exp;
+branches;
+next	1.3;
+
+1.3
+date	2002.03.26.12.50.57;	author abe;	state Exp;
+branches;
+next	1.2;
+
+1.2
+date	2002.03.25.11.24.26;	author abe;	state Exp;
+branches;
+next	1.1;
+
+1.1
+date	2002.03.21.09.56.15;	author abe;	state Exp;
+branches;
+next	;
+
+
+desc
+@Make file for lsof tests
+@
+
+
+1.17
+log
+@Revision 4.75
+@
+text
+@# Makefile for testing lsof
+#
+# V. Abell
+# Purdue University
+#
+# $Id: Makefile,v 1.16 2004/01/14 11:28:32 abe Exp abe $
+
+DEBUG=
+CFLAGS=	${DEBUG} -I. -I..
+
+HDR=	LsofTest.h
+
+CKTSTDB= CkTestDB
+CONFCFL= ./config.cflags
+CONFIG=	./config.cc ${CONFCFL} ./config.xobj
+LTOBJ=	LTlib.o
+LTSRC=	LTlib.c
+LIBOBJ=	${LTOBJ}
+
+BASTST=	LTbasic
+STDTST=	LTnlink LTsock LTszoff LTunix
+OPTTST=	LTbigf LTdnlc LTlock LTnfs 
+
+all:	${CKTSTDB} ${BASTST} ${STDTST} FRC
+	@@./${CKTSTDB}; xv=$$?; \
+	if [ $$xv -ne 0 ]; then \
+	  exit 1 ;\
+	fi
+	@@rm -f config.LT*
+	-@@err=0; \
+	echo ""; \
+	echo "Basic test:"; \
+	./${BASTST}; \
+	if [ $$? -ne 0 ]; then \
+	  exit 1; \
+	fi; \
+	echo ""; \
+	echo "Standard tests:"; \
+	for i in ${STDTST}; do \
+	  ./$$i; \
+	  if [ $$? -ne 0 ]; then \
+	    err=`expr $$err + 1`; \
+	  fi; \
+	done; \
+	if [ $$err -ne 0 ]; then \
+	  echo "Failed tests: $$err"; \
+	  echo ""; \
+	  echo "See 00FAQ and 00TEST for more information."; \
+	else \
+	  echo "All standard tests succeeded."; \
+	  echo ""; \
+	  grep LT_DIAL_darwin ${CONFCFL} > /dev/null 2>&1; \
+	  if [ $$? -ne 0 ]; then \
+	    echo "Suggestion: try the optional tests: \"make opt\""; \
+	    echo ""; \
+	  fi; \
+	fi;
+	@@rm -f config.LT*
+
+auto:	ckDB silent FRC
+
+ckDB:	${CKTSTDB} FRC
+	@@echo "" | ./${CKTSTDB}; xv=$$?; \
+	if [ $$xv -ne 0 ]; then \
+	  exit 1 ;\
+	fi
+
+clean:	FRC
+	rm -f ${BASTST} ${STDTST} ${OPTTST} *.o *.err *.out config.LT*
+
+FRC:
+
+LTbasic: LTbasic.c ${CONFIG} ${LIBOBJ} ${HDR}
+	`cat config.cc` ${CFLAGS} `cat config.cflags` LTbasic.c \
+	${LIBOBJ} `cat config.xobj` -o LTbasic
+
+LTbigf: LTbigf.c ${CONFIG} ${LIBOBJ} ${HDR}
+	`cat config.cc` ${CFLAGS} `cat config.cflags` LTbigf.c \
+	${LIBOBJ} `cat config.xobj` -o LTbigf
+
+LTdnlc: LTdnlc.c ${CONFIG} ${LIBOBJ} ${HDR}
+	`cat config.cc` ${CFLAGS} `cat config.cflags` LTdnlc.c \
+	${LIBOBJ} `cat config.xobj` -o LTdnlc
+
+LTlock: LTlock.c ${CONFIG} ${LIBOBJ} ${HDR}
+	`cat config.cc` ${CFLAGS} `cat config.cflags` LTlock.c \
+	${LIBOBJ} `cat config.xobj` -o LTlock
+
+${LTOBJ}: ${HDR} ${LTSRC} config.cflags config.cc
+	`cat config.cc` ${CFLAGS} `cat config.cflags` -c ${LTSRC} \
+	-o ${LTOBJ}
+
+LTnfs:	LTnfs.c ${CONFIG} ${LIBOBJ} ${HDR}
+	`cat config.cc` ${CFLAGS} `cat config.cflags` LTnfs.c \
+	${LIBOBJ} `cat config.xobj` -o LTnfs
+
+LTnlink: LTnlink.c ${CONFIG} ${LIBOBJ} ${HDR}
+	`cat config.cc` ${CFLAGS} `cat config.cflags` LTnlink.c \
+	${LIBOBJ} `cat config.xobj` -o LTnlink
+
+LTsock: LTsock.c ${CONFIG} ${LIBOBJ} ${HDR}
+	`cat config.cc` ${CFLAGS} `cat config.cflags` LTsock.c \
+	${LIBOBJ} `cat config.xobj` -o LTsock `cat config.ldflags`
+
+LTszoff: LTszoff.c ${CONFIG} ${LIBOBJ} ${HDR}
+	`cat config.cc` ${CFLAGS} `cat config.cflags` LTszoff.c \
+	${LIBOBJ} `cat config.xobj` -o LTszoff
+
+LTunix: LTunix.c ${CONFIG} ${LIBOBJ} ${HDR} config.ldflags
+	`cat config.cc` ${CFLAGS} `cat config.cflags` LTunix.c \
+	${LIBOBJ} `cat config.xobj` -o LTunix `cat config.ldflags`
+
+opt:	${CKTSTDB} ${OPTTST} FRC
+	@@rm -f config.LT*
+	-@@err=0; \
+	echo ""; \
+	echo "Optional tests:"; \
+	for i in ${OPTTST}; do \
+	  ./$$i; \
+	  if [ $$? -ne 0 ]; then \
+	    err=`expr $$err + 1`; \
+	  fi; \
+	done; \
+	if [ $$err -ne 0 ]; then \
+	  echo "Failed tests: $$err"; \
+	else \
+	  echo "All optional tests succeeded."; \
+	fi; \
+	echo "";
+	@@rm -f config.LT*
+
+optional: opt
+
+silent:	${BASTST} ${STDTST} FRC
+	@@rm -f config.LT*
+	@@err=0; \
+	./${BASTST} > /dev/null 2>&1; \
+	if [ $$? -ne 0 ]; then \
+	  exit 1; \
+	fi; \
+	for i in ${STDTST}; do \
+	  ./$$i > /dev/null 2>&1; \
+	  if [ $$? -ne 0 ]; then \
+	    err=`expr $$err + 1`; \
+	  fi; \
+	done; \
+	rm -f config.LT*; \
+	if [ $$err -ne 0 ]; then \
+	  exit 1; \
+	fi
+
+spotless: clean
+	rm -f config.*
+
+standard: all
+
+std: all
+
+test: all
+@
+
+
+1.16
+log
+@Revision 4.70
+@
+text
+@d6 1
+a6 1
+# $Id: Makefile,v 1.15 2002/12/20 18:57:49 abe Exp abe $
+d8 1
+a8 1
+DEBUG=	-O
+@
+
+
+1.15
+log
+@Revision 4.66
+Correct spelling error in echoed comment.
+@
+text
+@d6 1
+a6 1
+# $Id: Makefile,v 1.14 2002/10/09 18:15:05 abe Exp abe $
+d60 3
+a62 1
+auto:	${CKTSTDB} ${BASTST} ${STDTST} FRC
+a66 16
+	@@rm -f config.LT*
+	@@err=0; \
+	./${BASTST} > /dev/null 2>&1; \
+	if [ $$? -ne 0 ]; then \
+	  exit 1; \
+	fi; \
+	for i in ${STDTST}; do \
+	  ./$$i > /dev/null 2>&1; \
+	  if [ $$? -ne 0 ]; then \
+	    err=`expr $$err + 1`; \
+	  fi; \
+	done; \
+	rm -f config.LT*; \
+	if [ $$err -ne 0 ]; then \
+	  exit 1; \
+	fi
+d134 18
+@
+
+
+1.14
+log
+@Revision 4.65
+@
+text
+@d6 1
+a6 1
+# $Id: Makefile,v 1.13 2002/04/19 11:56:29 abe Exp abe $
+d48 1
+a48 1
+	  echo "See 00FAQ and 00TEST for more informaiton."; \
+@
+
+
+1.13
+log
+@Miscellaneous updates
+@
+text
+@d6 1
+a6 1
+# $Id: Makefile,v 1.12 2002/04/14 19:14:09 abe Exp abe $
+d14 2
+a15 1
+CONFIG=	./config.cc ./config.cflags ./config.xobj
+d52 5
+a56 2
+	  echo "Suggestion: try the optional tests: \"make opt\""; \
+	  echo ""; \
+d142 2
+a143 1
+	fi;
+@
+
+
+1.12
+log
+@Check TestDB.
+@
+text
+@d6 1
+a6 1
+# $Id: Makefile,v 1.11 2002/04/07 12:23:32 abe Exp abe $
+d13 1
+a13 3
+LSOF=	../lsof
+
+CKTSTDB=./CkTestDB
+d19 3
+a21 2
+BTESTS=	LTbasic
+TESTS=	LTbigf LTdnlc LTlock LTnfs LTnlink LTsock LTszoff LTunix
+d23 5
+a27 1
+all:	${CKTSTDB} ${LSOF} ${BTESTS} ${TESTS} FRC
+d31 5
+a35 7
+	echo "Basic tests:"; \
+	for i in ${BTESTS}; do \
+	  ./$$i; \
+	  if [ $$? -ne 0 ]; then \
+	    err=`expr $$err + 1`; \
+	  fi; \
+	done; \
+d37 2
+a38 2
+	echo "Other tests:"; \
+	for i in ${TESTS}; do \
+d46 2
+d49 4
+a52 1
+	  echo "All tests succeeded."; \
+d56 2
+a57 2
+${CKTSTDB}: FRC
+	${CKTSTDB}; xv=$$?; \
+d61 16
+d79 1
+a79 1
+	rm -f *.o ${CTSTS} *.err *.out config.LT*
+d123 17
+a139 2
+${LSOF}:
+	cd ..; ${MAKE}
+d141 2
+d145 4
+@
+
+
+1.11
+log
+@Add LTsock
+@
+text
+@d6 1
+a6 1
+# $Id: Makefile,v 1.10 2002/04/05 16:14:44 abe Exp abe $
+d15 1
+d24 1
+a24 1
+all: ${LSOF} ${BTESTS} ${TESTS} FRC
+d49 6
+@
+
+
+1.10
+log
+@Add LTdnlc
+@
+text
+@d6 1
+a6 1
+# $Id: Makefile,v 1.9 2002/04/05 04:56:05 abe Exp abe $
+d21 1
+a21 1
+TESTS=	LTbigf LTdnlc LTlock LTnfs LTnlink LTszoff LTunix
+d81 4
+@
+
+
+1.9
+log
+@Handle LTunix and config.ldflags.
+@
+text
+@d6 1
+a6 1
+# $Id: Makefile,v 1.8 2002/04/04 19:20:49 abe Exp abe $
+d21 1
+a21 1
+TESTS=	LTbigf LTlock LTnfs LTnlink LTszoff LTunix
+d49 5
+d62 3
+a64 4
+clean:	FRC
+	rm -f *.o ${CTSTS} *.err *.out config.LT*
+
+FRC:
+@
+
+
+1.8
+log
+@Delete Perl tests.
+Add C tests.
+@
+text
+@d6 1
+a6 1
+# $Id: Makefile,v 1.7 2002/04/03 23:49:02 abe Exp abe $
+d15 1
+d21 1
+a21 3
+TESTS=	LTbigf LTlock LTnfs LTnlink LTszoff
+TESTF=	config.LTbigf* config.LTlock* config.LTnfs* config.LTnlink* \
+	config.LTszoff* config.usock[12]*
+d24 1
+a24 1
+	@@rm -f ${TESTF}
+d47 1
+a47 1
+	@@rm -f ${TESTF}
+d49 1
+a49 1
+LTbasic: LTbasic.c config.cc config.cflags config.xobj ${LIBOBJ} ${HDR}
+d53 1
+a53 1
+LTbigf: LTbigf.c config.cc config.cflags config.xobj ${LIBOBJ} ${HDR}
+d58 1
+a58 1
+	rm -f *.o ${CTSTS} *.err *.out ${TESTF}
+d62 1
+a62 1
+LTlock: LTlock.c config.cc config.cflags config.xobj ${LIBOBJ} ${HDR}
+d70 1
+a70 1
+LTnfs:	LTnfs.c config.cc config.cflags config.xobj ${LIBOBJ} ${HDR}
+d74 1
+a74 1
+LTnlink: LTnlink.c config.cc config.cflags config.xobj ${LIBOBJ} ${HDR}
+d78 1
+a78 1
+LTszoff: LTszoff.c config.cc config.cflags config.xobj ${LIBOBJ} ${HDR}
+d81 4
+@
+
+
+1.7
+log
+@Miscellaneous updates
+@
+text
+@d6 1
+a6 1
+# $Id: Makefile,v 1.6 2002/03/30 15:38:36 abe Exp abe $
+d19 4
+a22 4
+PERLCONF= ./config.perl
+PERLDIRS= /bin /usr/bin /usr/local/bin /usr/local/perl/bin \
+	  /usr/local/perl5/bin /opt/perl/bin /opt/perl5/bin \
+	  /usr/contrib/bin
+d24 2
+a25 9
+BCTSTS=	LTbasic
+BPTSTS=
+CTSTS=	LTbigf LTlock
+PTSTS= DNLC IPv4sock NFS nlink szoff UNIXsock
+TSTF=	config.LTbigf* config.LTlock* config.NFS* config.nlink* \
+	config.szoff* config.usock[12]*
+
+all: ${LSOF} ${PERLCONF} ${TESTS} ${CTSTS} FRC
+	@@rm -f ${TSTF}
+d28 2
+a29 2
+	echo "Basic C tests:"; \
+	for i in ${BCTSTS}; do \
+d36 2
+a37 10
+	echo "Basic Perl tests:"; \
+	for i in ${BPTSTS}; do \
+	  `cat config.perl` $$i; \
+	  if [ $$? -ne 0 ]; then \
+	    err=`expr $$err + 1`; \
+	  fi; \
+	done; \
+	echo ""; \
+	echo "C tests:"; \
+	for i in ${CTSTS}; do \
+a42 8
+	echo ""; \
+	echo "Perl tests:"; \
+	for i in ${PTSTS}; do \
+	  `cat config.perl` $$i; \
+	  if [ $$? -ne 0 ]; then \
+	    err=`expr $$err + 1`; \
+	  fi; \
+	done; \
+d48 1
+a48 1
+	@@rm -f ${TSTF}
+d59 1
+a59 1
+	rm -f *.o ${CTSTS} *.err *.out ${TSTF}
+d71 12
+a84 14
+
+${PERLCONF}: FRC
+	@@rm -f ${PERLCONF}
+	@@for i in ${PERLDIRS}; do \
+	  if [ ! -s ${PERLCONF} -a -x $$i/perl ]; then \
+	    $$i/perl -e 'require 5;' > /dev/null 2>&1; \
+	    if [ $$? -eq 0 ]; then \
+	      echo $$i/perl > ${PERLCONF}; \
+	    fi; \
+	  fi; \
+	done
+	@@if [ ! -s ${PERLCONF} ]; then \
+	  echo "Perl can't be found!"; \
+	fi
+@
+
+
+1.6
+log
+@Miscellaneous updates
+@
+text
+@d6 1
+a6 1
+# $Id: Makefile,v 1.5 2002/03/28 15:26:06 abe Exp abe $
+d20 3
+a22 1
+PERLDIRS= /bin /usr/bin /usr/local/bin /opt/perl/bin
+d24 3
+a26 2
+BPTSTS=	itself
+CTSTS=	bigszoff locking
+d28 1
+a28 1
+TSTF=	config.bigszoff* config.locking* config.NFS* config.nlink* \
+d35 8
+d73 3
+a75 3
+bigszoff: bigszoff.c config.cc config.cflags config.xobj ${LIBOBJ} ${HDR}
+	`cat config.cc` ${CFLAGS} `cat config.cflags` bigszoff.c \
+	${LIBOBJ} `cat config.xobj` -o bigszoff
+d77 4
+d86 3
+a88 3
+locking: locking.c config.cc config.cflags config.xobj ${LIBOBJ} ${HDR}
+	`cat config.cc` ${CFLAGS} `cat config.cflags` locking.c \
+	${LIBOBJ} `cat config.xobj` -o locking
+d101 3
+a103 4
+	    echo $$i/perl > ${PERLCONF}; \
+	    $$i/perl -e 'require 5;'; \
+	    if [ $$? -ne 0 ]; then \
+	      exit 1; \
+@
+
+
+1.5
+log
+@Miscellaneous updates
+@
+text
+@d6 1
+a6 1
+# $Id: Makefile,v 1.4 2002/03/27 17:25:18 abe Exp abe $
+d22 1
+d24 3
+a26 3
+PERLTSTS= itself IPv4sock NFS szoff UNIXsock
+TSTF=	config.bigszoff* config.locking* config.NFS* config.szoff* \
+	config.usock[12]*
+d31 9
+d49 1
+a49 1
+	for i in ${PERLTSTS}; do \
+@
+
+
+1.4
+log
+@Add UNIXsock; changed tests rule to test; miscellaneous changes.
+@
+text
+@d6 1
+a6 1
+# $Id: Makefile,v 1.3 2002/03/26 12:50:57 abe Exp abe $
+d22 4
+a25 3
+CTSTS=	bigszoff
+PERLTSTS= itself IPv4sock szoff UNIXsock
+TSTF=	config.szoff* config.bigszoff* config.usock[12]*
+d60 4
+@
+
+
+1.3
+log
+@Add IPv4sock Perl test.
+@
+text
+@d6 1
+a6 1
+# $Id: Makefile,v 1.2 2002/03/25 11:24:26 abe Exp abe $
+a21 1
+PERLTSTS= itself szoff IPv4sock
+d23 2
+d27 1
+a27 1
+	@@rm -f config.szoff* config.bigszoff*
+d29 3
+a31 2
+	for i in ${PERLTSTS}; do \
+	  `cat config.perl` $$i; \
+d36 4
+a39 2
+	for i in ${CTSTS}; do \
+	  ./$$i; \
+d49 1
+a49 1
+	@@rm -f config.szoff* config.bigszoff*
+d56 1
+a56 1
+	rm -f *.o ${CTSTS} *.err *.out config.szoff* config.bigszoff*
+d72 2
+a73 3
+	    j=`$$i/perl -e 'print $$]=~/^(\d)/;'`; \
+	    if [ $$j -lt 5 ]; then \
+	      echo "$$i/perl has a version less than 5!"; \
+d84 2
+a85 1
+tests: all
+@
+
+
+1.2
+log
+@Miscellaneous
+@
+text
+@d6 1
+a6 1
+# $Id: Makefile,v 1.1 2002/03/21 09:56:15 abe Exp abe $
+d22 1
+a22 1
+PERLTSTS= itself szoff
+@
+
+
+1.1
+log
+@Initial revision
+@
+text
+@d6 1
+a6 1
+# $Id$
+d8 11
+d22 2
+a23 1
+TESTS=	itself
+d25 2
+a26 1
+all: lsof ${PERLCONF} FRC
+d28 1
+a28 1
+	for i in ${TESTS}; do \
+d34 6
+d45 1
+d47 7
+d56 3
+a58 5
+lsof: FRC
+	@@if [ ! -x ../lsof ]; then \
+	  echo "../lsof can't be found or executed!"; \
+	  exit 1; \
+	fi
+d60 3
+d79 2
+@

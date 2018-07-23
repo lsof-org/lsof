@@ -1,0 +1,606 @@
+head	1.11;
+access;
+symbols;
+locks; strict;
+comment	@ * @;
+
+
+1.11
+date	2000.08.01.15.26.38;	author abe;	state Exp;
+branches;
+next	1.10;
+
+1.10
+date	99.06.22.09.52.18;	author abe;	state Exp;
+branches;
+next	1.9;
+
+1.9
+date	99.04.27.15.52.14;	author abe;	state Exp;
+branches;
+next	1.8;
+
+1.8
+date	99.01.25.07.20.31;	author abe;	state Exp;
+branches;
+next	1.7;
+
+1.7
+date	98.12.28.09.36.10;	author abe;	state Exp;
+branches;
+next	1.6;
+
+1.6
+date	98.11.23.07.41.01;	author abe;	state Exp;
+branches;
+next	1.5;
+
+1.5
+date	98.03.06.08.39.56;	author abe;	state Exp;
+branches;
+next	1.4;
+
+1.4
+date	97.10.23.15.59.36;	author abe;	state Exp;
+branches;
+next	1.3;
+
+1.3
+date	97.06.26.16.25.53;	author abe;	state Exp;
+branches;
+next	1.2;
+
+1.2
+date	97.04.23.15.55.15;	author abe;	state Exp;
+branches;
+next	1.1;
+
+1.1
+date	97.02.24.07.48.41;	author abe;	state Exp;
+branches;
+next	;
+
+
+desc
+@Lsof version 4
+@
+
+
+1.11
+log
+@Revision 4.51
+Convert to snpf().
+@
+text
+@/*
+ * dfile.c - SCO UnixWare file processing functions for lsof
+ */
+
+
+/*
+ * Copyright 1996 Purdue Research Foundation, West Lafayette, Indiana
+ * 47907.  All rights reserved.
+ *
+ * Written by Victor A. Abell
+ *
+ * This software is not subject to any license of the American Telephone
+ * and Telegraph Company or the Regents of the University of California.
+ *
+ * Permission is granted to anyone to use this software for any purpose on
+ * any computer system, and to alter it and redistribute it freely, subject
+ * to the following restrictions:
+ *
+ * 1. Neither the authors nor Purdue University are responsible for any
+ *    consequences of the use of this software.
+ *
+ * 2. The origin of this software must not be misrepresented, either by
+ *    explicit claim or by omission.  Credit to the authors and Purdue
+ *    University must appear in documentation and sources.
+ *
+ * 3. Altered versions must be plainly marked as such, and must not be
+ *    misrepresented as being the original software.
+ *
+ * 4. This notice may not be removed or altered.
+ */
+
+#ifndef lint
+static char copyright[] =
+"@@(#) Copyright 1996 Purdue Research Foundation.\nAll rights reserved.\n";
+static char *rcsid = "$Id: dfile.c,v 1.10 1999/06/22 09:52:18 abe Exp abe $";
+#endif
+
+
+#include "lsof.h"
+
+
+/*
+ * get_max_fd() - get maximum file descriptor plus one
+ */
+
+int
+get_max_fd()
+{
+	struct rlimit r;
+
+	if (getrlimit(RLIMIT_NOFILE, &r))
+	    return(-1);
+	return(r.rlim_cur);
+}
+
+
+/*
+ * process_file() - process file
+ */
+
+void
+process_file(fp)
+	KA_T fp;			/* kernel file structure address */
+{
+	struct file f;
+	int flag;
+
+#if     defined(FILEPTR)
+	FILEPTR = &f;
+#endif  /* defined(FILEPTR) */
+
+	if (kread(fp, (char *)&f, sizeof(f))) {
+	    (void) snpf(Namech, Namechl, "can't read file struct from %s",
+		print_kptr(fp, (char *)NULL, 0));
+	    enter_nm(Namech);
+	    return;
+	}
+	Lf->off = (SZOFFTYPE)f.f_offset;
+
+	if (f.f_count
+
+#if	defined(HAS_F_OPEN)
+	|| f.f_open
+#endif	/* defined(HAS_F_OPEN) */
+
+    	) {
+
+	/*
+	 * Construct access code.
+	 */
+	    if ((flag = (f.f_flag & (FREAD | FWRITE))) == FREAD)
+		Lf->access = 'r';
+	    else if (flag == FWRITE)
+		Lf->access = 'w';
+	    else if (flag == (FREAD | FWRITE))
+		Lf->access = 'u';
+
+#if	defined(HASFSTRUCT)
+	/*
+	 * Save file structure values.
+	 */
+	    if (Fsv & FSV_CT) {
+		Lf->fct = (long)f.f_count;
+		Lf->fsv |= FSV_CT;
+	    }
+	    if (Fsv & FSV_FA) {
+		Lf->fsa = fp;
+		Lf->fsv |= FSV_FA;
+	    }
+	    if (Fsv & FSV_FG) {
+		Lf->ffg = (long)f.f_flag;
+		Lf->fsv |= FSV_FG;
+	    }
+	    if (Fsv & FSV_NI) {
+		Lf->fna = (KA_T)f.f_vnode;
+		Lf->fsv |= FSV_NI;
+	    }
+#endif	/* defined(HASFSTRUCT) */
+
+	/*
+	 * Process structure.
+	 */
+	    process_node((KA_T)f.f_vnode);
+		return;
+	}
+	enter_nm("no more information");
+}
+
+
+/*
+ * Case independent character mappings -- for strcasecmp() and strncasecmp()
+ */
+
+static short CIMap[] = {
+	'\000', '\001', '\002', '\003', '\004', '\005', '\006', '\007',
+	'\010', '\011', '\012', '\013', '\014', '\015', '\016', '\017',
+	'\020', '\021', '\022', '\023', '\024', '\025', '\026', '\027',
+	'\030', '\031', '\032', '\033', '\034', '\035', '\036', '\037',
+	'\040', '\041', '\042', '\043', '\044', '\045', '\046', '\047',
+	'\050', '\051', '\052', '\053', '\054', '\055', '\056', '\057',
+	'\060', '\061', '\062', '\063', '\064', '\065', '\066', '\067',
+	'\070', '\071', '\072', '\073', '\074', '\075', '\076', '\077',
+	'\100', '\141', '\142', '\143', '\144', '\145', '\146', '\147',
+	'\150', '\151', '\152', '\153', '\154', '\155', '\156', '\157',
+	'\160', '\161', '\162', '\163', '\164', '\165', '\166', '\167',
+	'\170', '\171', '\172', '\133', '\134', '\135', '\136', '\137',
+	'\140', '\141', '\142', '\143', '\144', '\145', '\146', '\147',
+	'\150', '\151', '\152', '\153', '\154', '\155', '\156', '\157',
+	'\160', '\161', '\162', '\163', '\164', '\165', '\166', '\167',
+	'\170', '\171', '\172', '\173', '\174', '\175', '\176', '\177',
+	'\200', '\201', '\202', '\203', '\204', '\205', '\206', '\207',
+	'\210', '\211', '\212', '\213', '\214', '\215', '\216', '\217',
+	'\220', '\221', '\222', '\223', '\224', '\225', '\226', '\227',
+	'\230', '\231', '\232', '\233', '\234', '\235', '\236', '\237',
+	'\240', '\241', '\242', '\243', '\244', '\245', '\246', '\247',
+	'\250', '\251', '\252', '\253', '\254', '\255', '\256', '\257',
+	'\260', '\261', '\262', '\263', '\264', '\265', '\266', '\267',
+	'\270', '\271', '\272', '\273', '\274', '\275', '\276', '\277',
+	'\300', '\301', '\302', '\303', '\304', '\305', '\306', '\307',
+	'\310', '\311', '\312', '\313', '\314', '\315', '\316', '\317',
+	'\320', '\321', '\322', '\323', '\324', '\325', '\326', '\327',
+	'\330', '\331', '\332', '\333', '\334', '\335', '\336', '\337',
+	'\340', '\341', '\342', '\343', '\344', '\345', '\346', '\347',
+	'\350', '\351', '\352', '\353', '\354', '\355', '\356', '\357',
+	'\360', '\361', '\362', '\363', '\364', '\365', '\366', '\367',
+	'\370', '\371', '\372', '\373', '\374', '\375', '\376', '\377',
+};
+
+
+/*
+ * strcasecmp() - case insentitive character compare (from BSD)
+ */
+
+int
+strcasecmp(s1, s2)
+	char *s1, *s2;
+{
+	short *mp = CIMap;
+	unsigned char *cp1 = (unsigned char *)s1;
+	unsigned char *cp2 = (unsigned char *)s2;
+
+	while (mp[*cp1] == mp[*cp2]) {
+	    if (*cp1++ == '\0')
+		return(0);
+	    cp2++;
+	}
+	return ((int)(mp[*cp1] - mp[*cp2]));
+}
+
+
+/*
+ * strncasecmp() - case insensitive character compare, limited by length
+ *		   (from BSD)
+ */
+
+int
+strncasecmp(s1, s2, n)
+	char *s1, *s2;
+	int n;
+{
+	short *mp = CIMap;
+	unsigned char *cp1, *cp2;
+
+	if (n) {
+	    cp1 = (unsigned char *)s1;
+	    cp2 = (unsigned char *)s2;
+	    do {
+		if (mp[*cp1] != mp[*cp2])
+		    return((int)(mp[*cp1] - mp[*cp2]));
+		if (*cp1++ == '\0')
+		    break;
+		cp2++;
+	    } while (--n != 0);
+	}
+	return(0);
+}
+@
+
+
+1.10
+log
+@Revision 4.44
+@
+text
+@d35 1
+a35 1
+static char *rcsid = "$Id: dfile.c,v 1.9 99/04/27 15:52:14 abe Exp Locker: abe $";
+d73 2
+a74 2
+	    (void) sprintf(Namech, "can't read file struct from %s",
+		print_kptr(fp, (char *)NULL));
+@
+
+
+1.9
+log
+@Revision 4.43
+@
+text
+@d35 1
+a35 1
+static char *rcsid = "$Id: dfile.c,v 1.8 99/01/25 07:20:31 abe Exp Locker: abe $";
+d114 1
+a114 1
+	    if (Fsv & FSV_NA) {
+d116 1
+a116 1
+		Lf->fsv |= FSV_NA;
+@
+
+
+1.8
+log
+@Revision 4.40
+@
+text
+@d35 1
+a35 1
+static char *rcsid = "$Id: dfile.c,v 1.7 98/12/28 09:36:10 abe Exp Locker: abe $";
+d109 4
+@
+
+
+1.7
+log
+@Revision 4.39
+@
+text
+@d35 1
+a35 1
+static char *rcsid = "$Id: dfile.c,v 1.6 98/11/23 07:41:01 abe Exp Locker: abe $";
+a53 81
+}
+
+
+/*
+ * is_file_named() - is this file named?
+ */
+
+int
+is_file_named(p, ty)
+	char *p;			/* path name; NULL = search by device
+					 * and inode (from *Lf) */
+	vtype_t ty;			/* vnode type */
+{
+	int f;
+	struct sfile *s;
+/*
+ * Search the file chain.
+ */
+	for (f = 0, s = Sfile; s; s = s->next) {
+
+	/*
+	 * Search by path name, as requested.
+	 */
+	    if (p) {
+		if (strcmp(p, s->aname) == 0 || strcmp(p, s->name)  == 0) {
+		    f = 2;
+		    break;
+		}
+		continue;
+	    }
+	/*
+	 * If this is a stream, check for a clone device match.
+	 */
+	    if (Lf->is_stream) {
+		if (HaveCloneMaj && major(s->dev) == CloneMaj
+		&&  Lf->dev_def && major(Lf->dev) == minor(s->dev)) {
+		    f = 3;
+		    break;
+		}
+		continue;
+	    }
+	/*
+	 * Check for a regular file or directory -- the device and
+	 * inode numbers must match.
+	 */
+	    if (s->type && Lf->dev_def) {
+		if (Lf->dev == s->dev && (ino_t)Lf->inode == s->i) {
+		    f = 1;
+		    break;
+		}
+		continue;
+	    }
+	/*
+	 * Check for a file system match.
+	 * Try to avoid matching character files to non-character devices.
+	 */
+	    if (Lf->dev_def && (Lf->dev == s->dev)) {
+		if (!(ty == VCHR && s->mode != S_IFCHR)) {
+		    f = 1;
+		    break;
+		}
+	    }
+	}
+/*
+ * Convert the name if a match occurred.
+ */
+	switch (f) {
+	case 0:
+	    return(0);
+	case 1:
+	    (void) strcpy(Namech, s->name);
+	    if (s->devnm)
+		(void) sprintf(endnm(), " (%s)", s->devnm);
+	    break;
+	case 2:
+	    (void) strcpy(Namech, p);
+	    break;
+	/* case 3:		do nothing for stream clone matches */
+	}
+	s->f = 1;
+	return(1);
+@
+
+
+1.6
+log
+@Revision 4.38
+@
+text
+@d35 1
+a35 1
+static char *rcsid = "$Id: dfile.c,v 1.5 98/03/06 08:39:56 abe Exp $";
+d178 19
+@
+
+
+1.5
+log
+@Revision 4.27
+@
+text
+@d35 1
+a35 1
+static char *rcsid = "$Id: dfile.c,v 1.4 97/10/23 15:59:36 abe Exp Locker: abe $";
+d161 7
+a167 1
+	if (f.f_count) {
+@
+
+
+1.4
+log
+@Revision 4.18
+@
+text
+@d35 1
+a35 1
+static char *rcsid = "$Id: dfile.c,v 1.3 97/06/26 16:25:53 abe Exp Locker: abe $";
+d77 1
+a77 1
+	    if (p != NULL) {
+d111 1
+a111 1
+		if ( ! (ty == VCHR && s->mode != S_IFCHR)) {
+d144 1
+a144 1
+	struct file *fp;		/* kernel file structure address */
+d153 3
+a155 2
+	if (kread((KA_T)fp, (char *)&f, sizeof(f))) {
+	    (void) sprintf(Namech, "can't read file struct from %#x", fp);
+d175 1
+a175 1
+	    process_node((caddr_t)f.f_vnode);
+@
+
+
+1.3
+log
+@Revision 4.13
+Improve comment and while space for CImap[].
+@
+text
+@d35 1
+a35 1
+static char *rcsid = "$Id: dfile.c,v 1.2 97/04/23 15:55:15 abe Exp Locker: abe $";
+d158 1
+a158 1
+	Lf->off = f.f_offset;
+a177 81
+}
+
+
+/*
+ * print_file() - print file
+ */
+
+void
+print_file()
+{
+	char buf[16];
+
+	if (Hdr == 0) {
+	    (void) printf(
+		"COMMAND     PID%s%s     USER   FD   TYPE       DEVICE ",
+		Fpgrp ? "   PGRP" : "",
+
+#if	defined(HASPPID)
+		Fppid ? "   PPID" : ""
+#else	/* !defined(HASPPID) */
+		""
+#endif	/* defined(HASPPID) */
+
+		);
+	    (void) printf("%10s", Foffset ? "OFFSET"
+					  : Fsize ? "SIZE"
+						  : "SIZE/OFF");
+	    (void) puts("      INODE NAME");
+	    Hdr++;
+	}
+	(void) printf("%-*.*s%6d", CMDL, CMDL,
+	    Lp->cmd ? Lp->cmd : "(unknown)", Lp->pid);
+	if (Fpgrp)
+	    printf(" %6d", Lp->pgrp);
+
+#if	defined(HASPPID)
+	if (Fppid)
+	    printf(" %6d", Lp->ppid);
+#endif	/* defined(HASPPID) */
+
+	(void) printf(" %8.8s %4s%c%c %4.4s ",
+			printuid((UID_ARG)Lp->uid, NULL),
+			Lf->fd,
+			Lf->access,
+			Lf->lock,
+			Lf->type
+		);
+	if (Lf->dev_def)
+		(void) printf(" %4d,%6d ", major(Lf->dev), minor(Lf->dev));
+	else {
+		if (Lf->dev_ch) {
+			(void) fputs("  ", stdout);
+			(void) fputs(Lf->dev_ch, stdout);
+			putchar(' ');
+		} else
+			(void) fputs("             ", stdout);
+	}
+	if (Lf->sz_def)
+		(void) printf("%10lu", Lf->sz);
+	else if (Lf->off_def) {
+		if (Lf->off < 100000000l) {
+			(void) sprintf(buf, "0t%ld", Lf->off);
+			(void) printf("%10.10s", buf);
+		} else
+			(void) printf("%#10x", (Lf->off & 0xffffffff));
+	} else
+		(void) fputs("          ", stdout);
+	switch (Lf->inp_ty) {
+	case 1:
+		(void) printf(" %10lu ", Lf->inode);
+		break;
+	case 2:
+		if (Lf->iproto[0] == '\0')
+			(void) fputs("            ", stdout);
+		else
+			(void) printf(" %10.10s ", Lf->iproto);
+		break;
+	default:
+		(void) fputs("            ", stdout);
+	}
+	printname(1);
+@
+
+
+1.2
+log
+@Revision 4.05
+Define private get_max_fd().
+@
+text
+@d35 1
+a35 1
+static char *rcsid = "$Id: dfile.c,v 1.2 97/04/21 14:27:55 abe Exp $";
+d263 1
+a263 1
+ * Case independent character mappings
+d265 1
+@
+
+
+1.1
+log
+@Initial revision
+@
+text
+@d35 1
+a35 1
+static char *rcsid = "$Id: dfile.c,v 1.2 97/01/17 09:28:44 abe Exp $";
+d40 15
+@

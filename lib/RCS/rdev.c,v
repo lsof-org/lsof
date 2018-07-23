@@ -1,0 +1,1312 @@
+head	1.12;
+access;
+symbols;
+locks; strict;
+comment	@ * @;
+
+
+1.12
+date	2008.10.21.16.13.23;	author abe;	state Exp;
+branches;
+next	1.11;
+
+1.11
+date	2005.08.08.19.41.18;	author abe;	state Exp;
+branches;
+next	1.10;
+
+1.10
+date	2002.04.19.11.57.19;	author abe;	state Exp;
+branches;
+next	1.9;
+
+1.9
+date	100.01.14.08.58.41;	author abe;	state Exp;
+branches;
+next	1.8;
+
+1.8
+date	99.06.22.09.56.18;	author abe;	state Exp;
+branches;
+next	1.7;
+
+1.7
+date	99.01.25.10.01.31;	author abe;	state Exp;
+branches;
+next	1.6;
+
+1.6
+date	98.03.06.08.41.00;	author abe;	state Exp;
+branches;
+next	1.5;
+
+1.5
+date	97.07.09.08.31.11;	author abe;	state Exp;
+branches;
+next	1.4;
+
+1.4
+date	97.06.12.18.20.25;	author abe;	state Exp;
+branches;
+next	1.3;
+
+1.3
+date	97.06.08.10.26.38;	author abe;	state Exp;
+branches;
+next	1.2;
+
+1.2
+date	97.05.26.14.59.56;	author abe;	state Exp;
+branches;
+next	1.1;
+
+1.1
+date	97.02.24.07.29.44;	author abe;	state Exp;
+branches;
+next	;
+
+
+desc
+@Lsof version 4
+@
+
+
+1.12
+log
+@Revision 4.81
+@
+text
+@/*
+ * rdev.c -- readdev() function for lsof library
+ */
+
+
+/*
+ * Copyright 1997 Purdue Research Foundation, West Lafayette, Indiana
+ * 47907.  All rights reserved.
+ *
+ * Written by Victor A. Abell
+ *
+ * This software is not subject to any license of the American Telephone
+ * and Telegraph Company or the Regents of the University of California.
+ *
+ * Permission is granted to anyone to use this software for any purpose on
+ * any computer system, and to alter it and redistribute it freely, subject
+ * to the following restrictions:
+ *
+ * 1. Neither the authors nor Purdue University are responsible for any
+ *    consequences of the use of this software.
+ *
+ * 2. The origin of this software must not be misrepresented, either by
+ *    explicit claim or by omission.  Credit to the authors and Purdue
+ *    University must appear in documentation and sources.
+ *
+ * 3. Altered versions must be plainly marked as such, and must not be
+ *    misrepresented as being the original software.
+ *
+ * 4. This notice may not be removed or altered.
+ */
+
+
+#include "../machine.h"
+
+#if	defined(USE_LIB_READDEV)
+
+# if	!defined(lint)
+static char copyright[] =
+"@@(#) Copyright 1997 Purdue Research Foundation.\nAll rights reserved.\n";
+static char *rcsid = "$Id: rdev.c,v 1.11 2005/08/08 19:41:18 abe Exp abe $";
+# endif	/* !defined(lint) */
+
+#include "../lsof.h"
+
+
+_PROTOTYPE(static int rmdupdev,(struct l_dev ***dp, int n, char *nm));
+
+
+/*
+ * To use this source file:
+ *
+ * 1. Define DIRTYPE as:
+ *
+ *	  #define DIRTYPE direct
+ *    or  #define DIRTYPE dirent
+ *
+ * 2. Define HASDNAMLEN if struct DIRTYPE has a d_namlen element, giving
+ *    the length of d_name.
+ *
+ * 3. Define the RDEV_EXPDEV macro to apply special handling to device
+ *    numbers, as required.  For example, for EP/IX 2.1.1:
+ *
+ *	#define RDEV_EXPDEV(n)	expdev(n)
+ *
+ *    to use the expdev() function to expand device numbers.  If
+ *    no RDEV_EXPDEV macro is defined, it defaults to:
+ *
+ *	#define RDEV_EXPDEV(n)	(n)
+ *
+ * 4. Define HASBLKDEV to request that information on S_IFBLK devices be
+ *    recorded in BDevtp[].
+ *
+ *    Define NOWARNBLKDEV to suppress the issuance of a warning when no
+ *    block devices are found.
+ *
+ * 5. Define RDEV_STATFN to be a stat function other than stat() or lstat()
+ *    -- e.g.,
+ *
+ *	#define	RDEV_STATFN	private_stat
+ *
+ * 6. Define HAS_STD_CLONE to request that clone device information be stored
+ *    in standard clone structures (defined in lsof.h and addressed via
+ *    Clone).  If HAS_STD_CLONE is defined, these must also be defined:
+ *
+ *	a.  Define CLONEMAJ to be the name of the constant or
+ *	    variable that defines the clone major device -- e.g.,
+ *
+ *		#define CLONEMAJ CloneMaj
+ *
+ *	b.  Define HAVECLONEMAJ to be the name of the variable that
+ *	    contains the status of the clone major device -- e.g.,
+ *
+ *		#define HAVECLONEMAJ HaveCloneMaj
+ *
+ *    Define HAS_STD_CLONE to be 1 if readdev() is expected to build the
+ *    clone table, the clone table is cached (if HASDCACHE is defined), and
+ *    there is a function to clear the cache table when the device table must
+ *    be reloaded.  (See dvch.c for naming the clone cache build and clear
+ *    functions.)
+ */
+
+
+# if	!defined(RDEV_EXPDEV)
+#define	RDEV_EXPDEV(n)		(n)
+# endif	/* !defined(RDEV_EXPDEV) */
+
+# if	!defined(RDEV_STATFN)
+#  if	defined(USE_STAT)
+#define	RDEV_STATFN	stat
+#  else	/* !defined(USE_STAT) */
+#define	RDEV_STATFN	lstat
+#  endif	/* defined(USE_STAT) */
+# endif	/* !defined(RDEV_STATFN) */
+
+
+/*
+ * readdev() - read device names, modes and types
+ */
+
+void
+readdev(skip)
+	int skip;			/* skip device cache read if 1 */
+{
+
+# if	defined(HAS_STD_CLONE) && HAS_STD_CLONE==1
+	struct clone *c;
+# endif	/* defined(HAS_STD_CLONE) && HAS_STD_CLONE==1 */
+
+# if	defined(HASDCACHE)
+	int dcrd;
+# endif	/* defined(HASDCACHE) */
+
+	DIR *dfp;
+	int dnamlen;
+	struct DIRTYPE *dp;
+	char *fp = (char *)NULL;
+	int i = 0;
+
+# if	defined(HASBLKDEV)
+	int j = 0;
+# endif	/* defined(HASBLKDEV) */
+
+	char *path = (char *)NULL;
+	MALLOC_S pl;
+	struct stat sb;
+
+	if (Sdev)
+	    return;
+
+# if	defined(HASDCACHE)
+/*
+ * Read device cache, as directed.
+ */
+	if (!skip) {
+	    if (DCstate == 2 || DCstate == 3) {
+		if ((dcrd = read_dcache()) == 0)
+		    return;
+	    }
+	} else
+	    dcrd = 1;
+# endif	/* defined(HASDCACHE) */
+
+	Dstkn = Dstkx = 0;
+	Dstk = (char **)NULL;
+	(void) stkdir("/dev");
+/*
+ * Unstack the next /dev or /dev/<subdirectory> directory.
+ */
+	while (--Dstkx >= 0) {
+	    if (!(dfp = OpenDir(Dstk[Dstkx]))) {
+
+# if	defined(WARNDEVACCESS)
+		if (!Fwarn) {
+		    (void) fprintf(stderr, "%s: WARNING: can't open: ", Pn);
+		    safestrprt(Dstk[Dstkx], stderr, 1);
+		}
+# endif	/* defined(WARNDEVACCESS) */
+
+		(void) free((FREE_P *)Dstk[Dstkx]);
+		Dstk[Dstkx] = (char *)NULL;
+		continue;
+	    }
+	    if (path) {
+		(void) free((FREE_P *)path);
+		path = (char *)NULL;
+	    }
+	    if (!(path = mkstrcat(Dstk[Dstkx], -1, "/", 1, (char *)NULL, -1,
+				  &pl)))
+	    {
+		(void) fprintf(stderr, "%s: no space for: ", Pn);
+		safestrprt(Dstk[Dstkx], stderr, 1);
+		Exit(1);
+	    }
+	    (void) free((FREE_P *)Dstk[Dstkx]);
+	    Dstk[Dstkx] = (char *)NULL;
+	/*
+	 * Scan the directory.
+	 */
+	    for (dp = ReadDir(dfp); dp; dp = ReadDir(dfp)) {
+		if (dp->d_ino == 0 || dp->d_name[0] == '.')
+		    continue;
+	    /*
+	     * Form the full path name and get its status.
+	     */
+
+# if	defined(HASDNAMLEN)
+		dnamlen = (int)dp->d_namlen;
+# else	/* !defined(HASDNAMLEN) */
+		dnamlen = (int)strlen(dp->d_name);
+# endif	/* defined(HASDNAMLEN) */
+
+		if (fp) {
+		    (void) free((FREE_P *)fp);
+		    fp = (char *)NULL;
+		}
+		if (!(fp = mkstrcat(path, pl, dp->d_name, dnamlen,
+				    (char *)NULL, -1, (MALLOC_S *)NULL)))
+		{
+		    (void) fprintf(stderr, "%s: no space for: ", Pn);
+		    safestrprt(path, stderr, 0);
+		    safestrprtn(dp->d_name, dnamlen, stderr, 1);
+		    Exit(1);
+		}
+		if (RDEV_STATFN(fp, &sb) != 0) {
+		    if (errno == ENOENT)	/* a sym link to nowhere? */
+			continue;
+
+# if	defined(WARNDEVACCESS)
+		    if (!Fwarn) {
+			int errno_save = errno;
+
+			(void) fprintf(stderr, "%s: can't stat ", Pn);
+			safestrprt(fp, stderr, 0);
+			(void) fprintf(stderr, ": %s\n", strerror(errno_save));
+		    }
+# endif	/* defined(WARNDEVACCESS) */
+
+		    continue;
+		}
+	    /*
+	     * If it's a subdirectory, stack its name for later
+	     * processing.
+	     */
+		if ((sb.st_mode & S_IFMT) == S_IFDIR) {
+		    (void) stkdir(fp);
+		    continue;
+		}
+		if ((sb.st_mode & S_IFMT) == S_IFCHR) {
+
+		/*
+		 * Save character device information in Devtp[].
+		 */
+		    if (i >= Ndev) {
+			Ndev += DEVINCR;
+			if (!Devtp)
+			    Devtp = (struct l_dev *)malloc(
+				    (MALLOC_S)(sizeof(struct l_dev)*Ndev));
+			else
+			    Devtp = (struct l_dev *)realloc((MALLOC_P *)Devtp,
+				    (MALLOC_S)(sizeof(struct l_dev)*Ndev));
+			if (!Devtp) {
+			    (void) fprintf(stderr,
+				"%s: no space for character device\n", Pn);
+			    Exit(1);
+			}
+		    }
+		    Devtp[i].rdev = RDEV_EXPDEV(sb.st_rdev);
+		    Devtp[i].inode = (INODETYPE)sb.st_ino;
+		    if (!(Devtp[i].name = mkstrcpy(fp, (MALLOC_S *)NULL))) {
+			(void) fprintf(stderr,
+			    "%s: no space for device name: ", Pn);
+			safestrprt(fp, stderr, 1);
+			Exit(1);
+		    }
+		    Devtp[i].v = 0;
+
+# if	defined(HAS_STD_CLONE) && HAS_STD_CLONE==1
+		    if (HAVECLONEMAJ && GET_MAJ_DEV(Devtp[i].rdev) == CLONEMAJ)
+		    {
+
+		    /*
+		     * Record clone device information.
+		     */
+			if (!(c = (struct clone *)malloc(sizeof(struct clone))))
+			{
+			    (void) fprintf(stderr,
+				"%s: no space for clone device: ", Pn);
+			    safestrprt(fp, stderr, 1);
+			    Exit(1);
+			}
+			c->dx = i;
+			c->next = Clone;
+			Clone = c;
+		    }
+# endif	/* defined(HAS_STD_CLONE) && HAS_STD_CLONE==1 */
+
+		    i++;
+		}
+
+# if	defined(HASBLKDEV)
+		if ((sb.st_mode & S_IFMT) == S_IFBLK) {
+
+		/*
+		 * Save block device information in BDevtp[].
+		 */
+		    if (j >= BNdev) {
+			BNdev += DEVINCR;
+			if (!BDevtp)
+			    BDevtp = (struct l_dev *)malloc(
+				     (MALLOC_S)(sizeof(struct l_dev)*BNdev));
+			else
+			    BDevtp = (struct l_dev *)realloc((MALLOC_P *)BDevtp,
+				     (MALLOC_S)(sizeof(struct l_dev)*BNdev));
+			if (!BDevtp) {
+			    (void) fprintf(stderr,
+				"%s: no space for block device\n", Pn);
+			    Exit(1);
+			}
+		    }
+		    BDevtp[j].name = fp;
+		    fp = (char *)NULL;
+		    BDevtp[j].inode = (INODETYPE)sb.st_ino;
+		    BDevtp[j].rdev = RDEV_EXPDEV(sb.st_rdev);
+		    BDevtp[j].v = 0;
+		    j++;
+		}
+# endif	/* defined(HASBLKDEV) */
+
+	    }
+	    (void) CloseDir(dfp);
+	}
+/*
+ * Free any allocated space.
+ */
+	if (!Dstk) {
+	    (void) free((FREE_P *)Dstk);
+	    Dstk = (char **)NULL;
+	}
+	if (fp)
+	    (void) free((FREE_P *)fp);
+	if (path)
+	    (void) free((FREE_P *)path);
+
+# if	defined(HASBLKDEV)
+/*
+ * Reduce the BDevtp[] (optional) and Devtp[] tables to their minimum
+ * sizes; allocate and build sort pointer lists; and sort the tables by
+ * device number.
+ */
+	if (BNdev) {
+	    if (BNdev > j) {
+		BNdev = j;
+		BDevtp = (struct l_dev *)realloc((MALLOC_P *)BDevtp,
+			 (MALLOC_S)(sizeof(struct l_dev) * BNdev));
+	    }
+	    if (!(BSdev = (struct l_dev **)malloc(
+			  (MALLOC_S)(sizeof(struct l_dev *) * BNdev))))
+	    {
+		(void) fprintf(stderr,
+		    "%s: no space for block device sort pointers\n", Pn);
+		Exit(1);
+	    }
+	    for (j = 0; j < BNdev; j++) {
+		BSdev[j] = &BDevtp[j];
+	    }
+	    (void) qsort((QSORT_P *)BSdev, (size_t)BNdev,
+		(size_t)sizeof(struct l_dev *), compdev);
+	    BNdev = rmdupdev(&BSdev, BNdev, "block");
+	}
+	
+#  if	!defined(NOWARNBLKDEV)
+	else {
+	    if (!Fwarn)
+		(void) fprintf(stderr,
+		    "%s: WARNING: no block devices found\n", Pn);
+	}
+#  endif	/* !defined(NOWARNBLKDEV) */
+# endif	/* defined(HASBLKDEV) */
+
+	if (Ndev) {
+	    if (Ndev > i) {
+		Ndev = i;
+		Devtp = (struct l_dev *)realloc((MALLOC_P *)Devtp,
+			(MALLOC_S)(sizeof(struct l_dev) * Ndev));
+	    }
+	    if (!(Sdev = (struct l_dev **)malloc(
+			 (MALLOC_S)(sizeof(struct l_dev *) * Ndev))))
+	    {
+		(void) fprintf(stderr,
+		    "%s: no space for character device sort pointers\n", Pn);
+		Exit(1);
+	    }
+	    for (i = 0; i < Ndev; i++) {
+		Sdev[i] = &Devtp[i];
+	    }
+	    (void) qsort((QSORT_P *)Sdev, (size_t)Ndev,
+		(size_t)sizeof(struct l_dev *), compdev);
+	    Ndev = rmdupdev(&Sdev, Ndev, "char");
+	} else {
+	    (void) fprintf(stderr, "%s: no character devices found\n", Pn);
+	    Exit(1);
+	}
+
+# if	defined(HASDCACHE)
+/*
+ * Write device cache file, as required.
+ */
+	if (DCstate == 1 || (DCstate == 3 && dcrd))
+	    write_dcache();
+# endif	/* defined(HASDCACHE) */
+
+}
+
+
+# if	defined(HASDCACHE)
+/*
+ * rereaddev() - reread device names, modes and types
+ */
+
+void
+rereaddev()
+{
+	(void) clr_devtab();
+
+# if	defined(DCACHE_CLR)
+	(void) DCACHE_CLR();
+# endif	/* defined(DCACHE_CLR) */
+
+	readdev(1);
+	DCunsafe = 0;
+}
+#endif	/* defined(HASDCACHE) */
+
+
+/*
+ * rmdupdev() - remove duplicate (major/minor/inode) devices
+ */
+
+static int
+rmdupdev(dp, n, nm)
+	struct l_dev ***dp;	/* device table pointers address */
+	int n;			/* number of pointers */
+	char *nm;		/* device table name for error message */
+{
+
+# if	defined(HAS_STD_CLONE) && HAS_STD_CLONE==1
+	struct clone *c, *cp;
+# endif	/* defined(HAS_STD_CLONE) && HAS_STD_CLONE==1 */
+
+	int i, j, k;
+	struct l_dev **p;
+
+	for (i = j = 0, p = *dp; i < n ;) {
+	    for (k = i + 1; k < n; k++) {
+		if (p[i]->rdev != p[k]->rdev || p[i]->inode != p[k]->inode)
+		    break;
+
+# if	defined(HAS_STD_CLONE) && HAS_STD_CLONE==1
+	    /*
+	     * See if we're deleting a duplicate clone device.  If so,
+	     * delete its clone table entry.
+	     */
+		for (c = Clone, cp = (struct clone *)NULL;
+		     c;
+		     cp = c, c = c->next)
+		{
+		    if (&Devtp[c->dx] != p[k])
+			continue;
+		    if (!cp)
+			Clone = c->next;
+		    else
+			cp->next = c->next;
+		    (void) free((FREE_P *)c);
+		    break;
+		}
+# endif	/* defined(HAS_STD_CLONE) && HAS_STD_CLONE==1 */
+
+	    }
+	    if (i != j)
+		p[j] = p[i];
+	    j++;
+	    i = k;
+	}
+	if (n == j)
+	    return(n);
+	if (!(*dp = (struct l_dev **)realloc((MALLOC_P *)*dp,
+		    (MALLOC_S)(j * sizeof(struct l_dev *)))))
+	{
+	    (void) fprintf(stderr, "%s: can't realloc %s device pointers\n",
+		Pn, nm);
+	    Exit(1);
+	}
+	return(j);
+}
+
+
+# if	defined(HASDCACHE)
+/*
+ * vfy_dev() - verify a device table entry (usually when DCunsafe == 1)
+ *
+ * Note: rereads entire device table when an entry can't be verified.
+ */
+
+int
+vfy_dev(dp)
+	struct l_dev *dp;		/* device table pointer */
+{
+	struct stat sb;
+
+	if (!DCunsafe || dp->v)
+	    return(1);
+	if (RDEV_STATFN(dp->name, &sb) != 0
+	||  dp->rdev != RDEV_EXPDEV(sb.st_rdev)
+	||  dp->inode != sb.st_ino) {
+	   (void) rereaddev();
+	   return(0);
+	}
+	dp->v = 1;
+	return(1);
+}
+# endif	/* defined(HASDCACHE) */
+#else	/* !defined(USE_LIB_READDEV) */
+char rdev_d1[] = "d"; char *rdev_d2 = rdev_d1;
+#endif	/* defined(USE_LIB_READDEV) */
+@
+
+
+1.11
+log
+@Revision 4.76
+@
+text
+@d40 1
+a40 1
+static char *rcsid = "$Id: rdev.c,v 1.10 2002/04/19 11:57:19 abe Exp abe $";
+d523 1
+a523 1
+static char d1[] = "d"; static char *d2 = d1;
+@
+
+
+1.10
+log
+@Replace major() with GET_MAJ_DEV().
+@
+text
+@d40 1
+a40 1
+static char *rcsid = "$Id: rdev.c,v 1.9 100/01/14 08:58:41 abe Exp abe $";
+d268 1
+a268 1
+		    Devtp[i].inode = sb.st_ino;
+d322 1
+a322 1
+		    BDevtp[j].inode = sb.st_ino;
+@
+
+
+1.9
+log
+@Revision 4.48
+Implement NOWARNBLKDEV.
+@
+text
+@d40 1
+a40 1
+static char *rcsid = "$Id: rdev.c,v 1.8 99/06/22 09:56:18 abe Exp Locker: abe $";
+d278 2
+a279 1
+		    if (HAVECLONEMAJ && major(Devtp[i].rdev) == CLONEMAJ) {
+@
+
+
+1.8
+log
+@Revision 4.44
+@
+text
+@d40 1
+a40 1
+static char *rcsid = "$Id: rdev.c,v 1.7 99/01/25 10:01:31 abe Exp Locker: abe $";
+d73 3
+d368 4
+a371 1
+	} else {
+d376 1
+@
+
+
+1.7
+log
+@Revision 4.40
+@
+text
+@d40 1
+a40 1
+static char *rcsid = "$Id: rdev.c,v 1.6 98/03/06 08:41:00 abe Exp Locker: abe $";
+d77 20
+d100 1
+a100 1
+#if	!defined(RDEV_EXPDEV)
+d102 1
+a102 1
+#endif	/* !defined(RDEV_EXPDEV) */
+d104 2
+a105 2
+#if	!defined(RDEV_STATFN)
+# if	defined(USE_STAT)
+d107 1
+a107 1
+# else	/* !defined(USE_STAT) */
+d109 2
+a110 2
+# endif	/* defined(USE_STAT) */
+#endif	/* !defined(RDEV_STATFN) */
+d121 6
+a126 1
+#if	defined(HASDCACHE)
+d128 1
+a128 1
+#endif	/* defined(HASDCACHE) */
+d131 1
+d133 1
+d136 1
+a136 1
+#if	defined(HASBLKDEV)
+d138 1
+a138 1
+#endif	/* defined(HASBLKDEV) */
+d140 2
+a141 7
+#if	!defined(HASDNAMLEN)
+	STRNCPY_L dnamlen;
+#endif	/* !defined(HASDNAMLEN) */
+
+	MALLOC_S nl;
+	char path[MAXNAMLEN+1];
+	int pl;
+d147 1
+a147 1
+#if	defined(HASDCACHE)
+d158 1
+a158 1
+#endif	/* defined(HASDCACHE) */
+d167 1
+a167 2
+	    (void) strcpy(path, Dstk[Dstkx]);
+	    if (!(dfp = OpenDir(path))) {
+d169 1
+a169 1
+#if	defined(WARNDEVACCESS)
+d171 2
+a172 2
+		    (void) fprintf(stderr, "%s: WARNING: can't open ", Pn);
+		    safestrprt(path, stderr, 1);
+d174 1
+a174 1
+#endif	/* defined(WARNDEVACCESS) */
+d180 11
+a190 2
+	    (void) strcat(path, "/");
+	    pl = strlen(path);
+d203 5
+a207 6
+#if	defined(HASDNAMLEN)
+		if ((nl = pl + dp->d_namlen) >= sizeof(path))
+#else	/* !defined(HASDNAMLEN) */
+		dnamlen = strlen(dp->d_name);
+		if ((nl = pl + dnamlen) >= sizeof(path))
+#endif	/* defined(HASDNAMLEN) */
+d209 6
+d216 3
+a218 3
+		    (void) fprintf(stderr,
+			"%s: /dev entry name too long: ", Pn);
+		    safestrprt(dp->d_name, stderr, 1);
+d221 1
+a221 12
+		(void) strncpy(&path[pl], dp->d_name,
+
+#if	defined(HASDNAMLEN)
+		    (STRNCPY_L)dp->d_namlen
+#else	/* !defined(HASDNAMLEN) */
+		    dnamlen
+#endif	/* !defined(HASDNAMLEN) */
+
+		);
+
+		path[nl++] = '\0';
+		if (RDEV_STATFN(path, &sb) != 0) {
+d225 1
+a225 1
+#if	defined(WARNDEVACCESS)
+d230 1
+a230 1
+			safestrprt(path, stderr, 0);
+d233 1
+a233 1
+#endif	/* defined(WARNDEVACCESS) */
+d242 1
+a242 1
+		    (void) stkdir(path);
+d266 1
+a266 1
+		    if (!(Devtp[i].name = mkstrcpy(path, (MALLOC_S *)NULL))) {
+d269 1
+a269 1
+			safestrprt(path, stderr, 1);
+d273 20
+d296 1
+a296 1
+#if	defined(HASBLKDEV)
+d316 3
+a319 7
+		    BDevtp[j].inode = sb.st_ino;
+		    if (!(BDevtp[j].name = mkstrcpy(path, (MALLOC_S *)NULL))) {
+			(void) fprintf(stderr,
+			    "%s: no space for block device name: ", Pn);
+			safestrprt(path, stderr, 1);
+			Exit(1);
+		    }
+d323 1
+a323 1
+#endif	/* defined(HASBLKDEV) */
+d329 1
+a329 1
+ * Free any directory stack space.
+d335 6
+a345 2
+
+#if	defined(HASBLKDEV)
+d353 1
+a353 1
+		 (MALLOC_S)(sizeof(struct l_dev *) * BNdev))))
+d356 1
+a356 1
+		    "%s: no space for block device pointers\n", Pn);
+d370 1
+a370 1
+#endif	/* defined(HASBLKDEV) */
+d379 1
+a379 1
+		 (MALLOC_S)(sizeof(struct l_dev *) * Ndev))))
+d382 1
+a382 1
+		    "%s: no space for character device pointers\n", Pn);
+d396 1
+a396 1
+#if	defined(HASDCACHE)
+d401 2
+a402 2
+		write_dcache();
+#endif	/* defined(HASDCACHE) */
+d407 1
+a407 1
+#if	defined(HASDCACHE)
+d437 5
+d449 21
+d479 1
+a479 1
+	    (MALLOC_S)(j * sizeof(struct l_dev *)))))
+d489 1
+a489 1
+#if	defined(HASDCACHE)
+@
+
+
+1.6
+log
+@Revision 4.27
+@
+text
+@d40 1
+a40 1
+static char *rcsid = "$Id: rdev.c,v 1.5 97/07/09 08:31:11 abe Exp Locker: abe $";
+a46 1
+_PROTOTYPE(static void stkdir,(char ***d, int *n, int *x, char *p));
+a105 1
+	int dn = 0;
+a106 2
+	char **dstk = (char **)NULL;
+	int dx = 0;
+d138 3
+a140 1
+	(void) stkdir(&dstk, &dn, &dx, "/dev");
+d144 3
+a146 3
+	while (--dx >= 0) {
+	    (void) strcpy(path, dstk[dx]);
+	    if (!(dfp = opendir(path))) {
+d155 2
+d161 2
+a162 2
+	    (void) free((FREE_P *)dstk[dx]);
+	    dstk[dx] = (char *)NULL;
+d166 1
+a166 1
+	    for (dp = readdir(dfp); dp; dp = readdir(dfp)) {
+d218 1
+a218 1
+		    (void) stkdir(&dstk, &dn, &dx, path);
+d286 1
+a286 1
+	    (void) closedir(dfp);
+d291 4
+a294 2
+	if (!dstk)
+	    (void) free((FREE_P *)dstk);
+a415 43
+}
+
+
+
+/*
+ * stkdir() - stack directory name
+ */
+
+static void
+stkdir(d, n, x, p)
+	char ***d;		/* array of directory pointers */
+	int *n;			/* number of pointers */
+	int *x;			/* current index */
+	char *p;		/* directory path */
+{
+	MALLOC_S len;
+/*
+ * Provide adequate space for directory stack pointers.
+ */
+	if (*x >= *n) {
+	    *n += 10;
+	    len = (MALLOC_S)(*n * sizeof(char *));
+	    if (!*d)
+		*d = (char **)malloc(len);
+	    else
+		*d = (char **)realloc((MALLOC_P *)*d, len);
+	    if (!*d) {
+		(void) fprintf(stderr,
+		    "%s: no space for directory stack at: ", Pn);
+		safestrprt(p, stderr, 1);
+		Exit(1);
+	    }
+	}
+/*
+ * Allocate space for the name, copy it there and put its pointer on the stack.
+ */
+	if (!((*d)[*x] = mkstrcpy(p, (MALLOC_S *)NULL))) {
+	    (void) fprintf(stderr, "%s: no space for ", Pn);
+	    safestrprt(p, stderr, 1);
+	    Exit(1);
+	}
+	(void) strcpy((*d)[*x], p);
+	*x += 1;
+@
+
+
+1.5
+log
+@Revision 4.13
+Honor USE_STAT.  Consider the absence of block devices a cause for
+a warning message, not a fatal exit.
+@
+text
+@d40 1
+a40 1
+static char *rcsid = "$Id: rdev.c,v 1.4 97/06/12 18:20:25 abe Exp Locker: abe $";
+d109 1
+a109 1
+	char **dstk = NULL;
+d148 1
+a148 1
+	    if ((dfp = opendir(path)) == NULL) {
+d151 4
+a154 3
+		if (!Fwarn)
+		    (void) fprintf(stderr, "%s: WARNING: can't open %s\n",
+			Pn, path);
+d162 1
+a162 1
+	    dstk[dx] = NULL;
+d168 1
+a168 1
+				continue;
+d182 3
+a184 2
+			"%s: /dev entry name too long: %s\n", Pn, dp->d_name);
+			Exit(1);
+d202 7
+a208 3
+		    if (!Fwarn)
+			(void) fprintf(stderr, "%s: can't stat %s: %s\n",
+			    Pn, path, strerror(errno));
+d228 1
+a228 1
+			if (Devtp == NULL)
+d234 1
+a234 1
+			if (Devtp == NULL) {
+d242 4
+a245 3
+		    if ((Devtp[i].name = (char *)malloc(nl)) == NULL) {
+			(void) fprintf(stderr, "%s: no space for /dev/%s\n",
+			    Pn, dp->d_name);
+a247 1
+		    (void) strcpy(Devtp[i].name, path);
+d260 1
+a260 1
+			if (BDevtp == NULL)
+d266 1
+a266 1
+			if (BDevtp == NULL) {
+d274 4
+a277 3
+		    if ((BDevtp[j].name = (char *)malloc(nl)) == NULL) {
+			(void) fprintf(stderr, "%s: no space for /dev/%s\n",
+			    Pn, dp->d_name);
+a279 1
+		    (void) strcpy(BDevtp[j].name, path);
+d291 1
+a291 1
+	if (dstk != NULL)
+d306 3
+a308 3
+	    if ((BSdev = (struct l_dev **)malloc(
+		(MALLOC_S)(sizeof(struct l_dev *) * BNdev)))
+	    == (struct l_dev **)NULL) {
+d332 3
+a334 3
+	    if ((Sdev = (struct l_dev **)malloc(
+		(MALLOC_S)(sizeof(struct l_dev *) * Ndev)))
+	    == (struct l_dev **)NULL) {
+d429 12
+a440 9
+	if (*d == NULL) {
+
+	/*
+	 * Allocate first entry.
+	 */
+	    if ((*d = (char **)malloc(sizeof(char *))) == NULL) {
+
+stkdir_nospace:
+
+d442 2
+a443 1
+		    "%s: no space for directory stack at %s\n", Pn, p);
+a445 12
+	    *n = 1;
+	    *x = 0;
+	} else if (*x >= *n) {
+
+	/*
+	 * Allocate additional space as required.
+	 */
+	    *n += 1;
+	    if ((*d = (char **)realloc((MALLOC_P *)*d,
+		          (MALLOC_S)(*n * sizeof(char *))))
+	    == NULL)
+		goto stkdir_nospace;
+d450 3
+a452 2
+	if (((*d)[*x] = (char *)malloc((MALLOC_S)(strlen(p) + 1))) == NULL) {
+	    (void) fprintf(stderr, "%s: no space for %s\n", Pn, p);
+@
+
+
+1.4
+log
+@Revision 4.12
+Fix BDevtp[] index bug.
+@
+text
+@d40 1
+a40 1
+static char *rcsid = "$Id: rdev.c,v 1.3 97/06/08 10:26:38 abe Exp Locker: abe $";
+d74 2
+a75 1
+ * 5. Define RDEV_STATFN to be a stat function other than lstat() -- e.g.,
+d77 1
+a77 1
+ *	#define	RDEV_STATFN	stat
+d86 3
+d90 1
+d314 3
+a316 2
+	    (void) fprintf(stderr, "%s: no block devices found\n", Pn);
+	    Exit(1);
+@
+
+
+1.3
+log
+@Revision 4.10
+Adjust readdev(); use lstat() by default; eliminate duplicates.
+@
+text
+@d40 1
+a40 1
+static char *rcsid = "$Id: rdev.c,v 1.3 97/06/07 20:06:47 abe Exp $";
+d269 1
+a269 1
+		    BDevtp[i].v = 0;
+@
+
+
+1.2
+log
+@Revision 4.03
+@
+text
+@d40 1
+a40 1
+static char *rcsid = "$Id: rdev.c,v 1.1 97/02/24 07:29:44 abe Exp Locker: abe $";
+d45 2
+d73 4
+d84 3
+d88 1
+d190 1
+a190 1
+		if (stat(path, &sb) != 0) {
+d307 1
+d332 1
+d369 3
+d373 33
+d470 1
+a470 1
+	if (stat(dp->name, &sb) != 0
+@
+
+
+1.1
+log
+@Initial revision
+@
+text
+@d40 1
+a40 1
+static char *rcsid = "$Id$";
+d80 1
+a80 1
+ * readdev() - read names, modes and device types of everything in /dev
+d84 2
+a85 1
+readdev()
+d112 1
+a112 1
+		return;
+d118 2
+a119 1
+	if (DCstate == 2 || DCstate == 3) {
+d121 4
+a124 2
+			return;
+	}
+d132 2
+a133 2
+		(void) strcpy(path, dstk[dx]);
+		if ((dfp = opendir(path)) == NULL) {
+d136 3
+a138 4
+			if (!Fwarn)
+				(void) fprintf(stderr,
+					"%s: WARNING: can't open %s\n",
+					Pn, path);
+d141 6
+a146 6
+			continue;
+		}
+		(void) strcat(path, "/");
+		pl = strlen(path);
+		(void) free((FREE_P *)dstk[dx]);
+		dstk[dx] = NULL;
+d150 2
+a151 2
+		for (dp = readdir(dfp); dp; dp = readdir(dfp)) {
+			if (dp->d_ino == 0 || dp->d_name[0] == '.')
+d153 3
+a155 3
+		/*
+		 * Form the full path name and get its status.
+		 */
+d158 1
+a158 1
+			if ((nl = pl + dp->d_namlen) >= sizeof(path))
+d160 2
+a161 2
+			dnamlen = strlen(dp->d_name);
+			if ((nl = pl + dnamlen) >= sizeof(path))
+d164 6
+a169 7
+			{
+				(void) fprintf(stderr,
+					"%s: /dev entry name too long: %s\n",
+					Pn, dp->d_name);
+				Exit(1);
+			}
+			(void) strncpy(&path[pl], dp->d_name,
+d172 1
+a172 1
+				(STRNCPY_L)dp->d_namlen
+d174 1
+a174 1
+				dnamlen
+d177 1
+a177 1
+			);
+d179 4
+a182 4
+			path[nl++] = '\0';
+			if (stat(path, &sb) != 0) {
+				if (errno == ENOENT)	/* a symbolic link */
+					continue;	/* to nowhere? */
+d185 3
+a187 4
+				if (!Fwarn)
+					(void) fprintf(stderr,
+						"%s: can't stat %s: %s\n",
+						Pn, path, strerror(errno));
+d190 12
+a201 2
+				continue;
+			}
+d203 1
+a203 2
+		 * If it's a subdirectory, stack its name for later
+		 * processing.
+d205 12
+a216 3
+			if ((sb.st_mode & S_IFMT) == S_IFDIR) {
+				(void) stkdir(&dstk, &dn, &dx, path);
+				continue;
+d218 12
+a229 1
+			if ((sb.st_mode & S_IFMT) == S_IFCHR) {
+a230 31
+			/*
+			 * Save character device information in Devtp[].
+			 */
+			    if (i >= Ndev) {
+				Ndev += DEVINCR;
+				if (Devtp == NULL)
+				    Devtp = (struct l_dev *)malloc(
+					(MALLOC_S)(sizeof(struct l_dev)*Ndev));
+				else
+				    Devtp = (struct l_dev *)realloc(
+					(MALLOC_P *)Devtp,
+					(MALLOC_S)(sizeof(struct l_dev)*Ndev));
+				if (Devtp == NULL) {
+				    (void) fprintf(stderr,
+					"%s: no space for character device\n",
+					Pn);
+				    Exit(1);
+				}
+			    }
+			    Devtp[i].rdev = RDEV_EXPDEV(sb.st_rdev);
+			    Devtp[i].inode = sb.st_ino;
+			    if ((Devtp[i].name = (char *)malloc(nl)) == NULL) {
+				(void) fprintf(stderr,
+					"%s: no space for /dev/%s\n",
+					Pn, dp->d_name);
+				Exit(1);
+			    }
+			    (void) strcpy(Devtp[i].name, path);
+			    i++;
+			}
+
+d232 1
+a232 1
+			if ((sb.st_mode & S_IFMT) == S_IFBLK) {
+d234 15
+a248 29
+			/*
+			 * Save block device information in BDevtp[].
+			 */
+			    if (j >= BNdev) {
+				BNdev += DEVINCR;
+				if (BDevtp == NULL)
+				    BDevtp = (struct l_dev *)malloc(
+					(MALLOC_S)(sizeof(struct l_dev)*BNdev));
+				else
+				    BDevtp = (struct l_dev *)realloc(
+					(MALLOC_P *)BDevtp,
+					(MALLOC_S)(sizeof(struct l_dev)*BNdev));
+				if (BDevtp == NULL) {
+					(void) fprintf(stderr,
+					    "%s: no space for block device\n",
+					    Pn);
+					Exit(1);
+				}
+			    }
+			    BDevtp[j].rdev = RDEV_EXPDEV(sb.st_rdev);
+			    BDevtp[j].inode = sb.st_ino;
+			    if ((BDevtp[j].name = (char *)malloc(nl)) == NULL) {
+				(void) fprintf(stderr,
+					"%s: no space for /dev/%s\n",
+					Pn, dp->d_name);
+				Exit(1);
+			    }
+			    (void) strcpy(BDevtp[j].name, path);
+			    j++;
+d250 12
+d264 2
+a265 2
+		}
+		(void) closedir(dfp);
+d271 1
+a271 1
+		(void) free((FREE_P *)dstk);
+d337 1
+d339 20
+d374 1
+a374 1
+		if ((*d = (char **)malloc(sizeof(char *))) == NULL) {
+d378 6
+a383 7
+			(void) fprintf(stderr,
+				"%s: no space for directory stack at %s\n",
+				Pn, p);
+			Exit(1);
+		}
+		*n = 1;
+		*x = 0;
+d389 2
+a390 2
+		*n += 1;
+		if ((*d = (char **)realloc((MALLOC_P *)*d,
+d392 2
+a393 2
+		== NULL)
+			goto stkdir_nospace;
+d399 2
+a400 2
+		(void) fprintf(stderr, "%s: no space for %s\n", Pn, p);
+		Exit(1);
+d405 27
+@

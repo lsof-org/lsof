@@ -1,0 +1,511 @@
+head	1.8;
+access;
+symbols;
+locks; strict;
+comment	@ * @;
+
+
+1.8
+date	2008.10.21.16.12.36;	author abe;	state Exp;
+branches;
+next	1.7;
+
+1.7
+date	2002.02.26.15.16.41;	author abe;	state Exp;
+branches;
+next	1.6;
+
+1.6
+date	2001.08.14.12.25.05;	author abe;	state Exp;
+branches;
+next	1.5;
+
+1.5
+date	2000.12.04.14.05.26;	author abe;	state Exp;
+branches;
+next	1.4;
+
+1.4
+date	99.06.22.09.55.51;	author abe;	state Exp;
+branches;
+next	1.3;
+
+1.3
+date	98.03.06.08.40.57;	author abe;	state Exp;
+branches;
+next	1.2;
+
+1.2
+date	97.05.26.14.59.55;	author abe;	state Exp;
+branches;
+next	1.1;
+
+1.1
+date	97.02.24.07.29.39;	author abe;	state Exp;
+branches;
+next	;
+
+
+desc
+@Lsof version 4
+@
+
+
+1.8
+log
+@Revision 4.81
+@
+text
+@/*
+ * pdvn.c -- print device name functions for lsof library
+ */
+
+
+/*
+ * Copyright 1997 Purdue Research Foundation, West Lafayette, Indiana
+ * 47907.  All rights reserved.
+ *
+ * Written by Victor A. Abell
+ *
+ * This software is not subject to any license of the American Telephone
+ * and Telegraph Company or the Regents of the University of California.
+ *
+ * Permission is granted to anyone to use this software for any purpose on
+ * any computer system, and to alter it and redistribute it freely, subject
+ * to the following restrictions:
+ *
+ * 1. Neither the authors nor Purdue University are responsible for any
+ *    consequences of the use of this software.
+ *
+ * 2. The origin of this software must not be misrepresented, either by
+ *    explicit claim or by omission.  Credit to the authors and Purdue
+ *    University must appear in documentation and sources.
+ *
+ * 3. Altered versions must be plainly marked as such, and must not be
+ *    misrepresented as being the original software.
+ *
+ * 4. This notice may not be removed or altered.
+ */
+
+
+#include "../machine.h"
+
+#if	defined(USE_LIB_PRINTDEVNAME)
+
+# if	!defined(lint)
+static char copyright[] =
+"@@(#) Copyright 1997 Purdue Research Foundation.\nAll rights reserved.\n";
+static char *rcsid = "$Id: pdvn.c,v 1.7 2002/02/26 15:16:41 abe Exp abe $";
+# endif	/* !defined(lint) */
+
+#include "../lsof.h"
+
+#else	/* !defined(USE_LIB_PRINTDEVNAME) */
+char pdvn_d1[] = "d"; char *pdvn_d2 = pdvn_d1;
+#endif	/* defined(USE_LIB_PRINTDEVNAME) */
+
+
+/*
+ * To use this source file:
+ *
+ * 1. Define USE_LIB_PRINTDEVNAME, or both.
+ *
+ * 2. Define HAS_STD_CLONE to enable standard clone searches in
+ *    printdevname().
+ *
+ * 3. Define HASBLDKDEV to enable block device processing.
+ */
+
+
+/*
+ * Local definitions
+ */
+
+#define	LIKE_BLK_SPEC	"like block special"
+#define	LIKE_CHR_SPEC	"like character special"
+
+
+# if	defined(USE_LIB_PRINTDEVNAME)
+/*
+ * printdevname() - print block or character device name
+ */
+
+int
+printdevname(dev, rdev, f, nty)
+	dev_t *dev;			/* device */
+	dev_t *rdev;			/* raw device */
+	int f;				/* 1 = print trailing '\n' */
+	int nty;			/* node type: N_BLK or N_CHR */
+{
+
+#  if	defined(HAS_STD_CLONE)
+	struct clone *c;
+#  endif	/* defined(HAS_STD_CLONE) */
+
+	struct l_dev *dp;
+	int r = 1;
+
+#  if	defined(HASDCACHE)
+
+printdevname_again:
+
+#  endif	/* defined(HASDCACHE) */
+
+# if	defined(HAS_STD_CLONE)
+/*
+ * Search for clone if this is a character device on the same device as
+ * /dev (or /devices).
+ */
+	if ((nty == N_CHR) && Lf->is_stream && Clone && (*dev == DevDev)) {
+	    r = 0;	/* Don't let lkupdev() rebuild the device cache,
+			 * because when it has been rebuilt we want to
+			 * search again for clones. */
+	    readdev(0);
+	    for (c = Clone; c; c = c->next) {
+		if (GET_MAJ_DEV(*rdev) == GET_MIN_DEV(Devtp[c->dx].rdev)) {
+
+#  if	defined(HASDCACHE)
+		    if (DCunsafe && !Devtp[c->dx].v && !vfy_dev(&Devtp[c->dx]))
+			goto printdevname_again;
+#  endif	/* defined(HASDCACHE) */
+
+		    safestrprt(Devtp[c->dx].name, stdout, f);
+		    return(1);
+		}
+	    }
+	}
+# endif	/* defined(HAS_STD_CLONE) */
+
+/*
+ * Search appropriate device table for a full match.
+ */
+
+# if	defined(HASBLKDEV)
+	if (nty == N_BLK)
+	    dp = lkupbdev(dev, rdev, 1, r);
+	else
+# endif	/* defined(HASBLKDEV) */
+
+	dp = lkupdev(dev, rdev, 1, r);
+	if (dp) {
+	    safestrprt(dp->name, stdout, f);
+	    return(1);
+	}
+/*
+ * Search device table for a match without inode number and dev.
+ */
+
+# if	defined(HASBLKDEV)
+	if (nty == N_BLK)
+	    dp = lkupbdev(&DevDev, rdev, 0, r);
+	else
+# endif	/* defined(HASBLKDEV) */
+
+	dp = lkupdev(&DevDev, rdev, 0, r);
+	if (dp) {
+	/*
+	 * A match was found.  Record it as a name column addition.
+	 */
+	    char *cp, *ttl;
+	    int len;
+
+	    ttl = (nty == N_BLK) ? LIKE_BLK_SPEC : LIKE_CHR_SPEC;
+	    len = (int)(1 + strlen(ttl) + 1 + strlen(dp->name) + 1);
+	    if (!(cp = (char *)malloc((MALLOC_S)(len + 1)))) {
+		(void) fprintf(stderr, "%s: no nma space for: (%s %s)\n",
+		    Pn, ttl, dp->name);
+		Exit(1);
+	    }
+	    (void) snpf(cp, len + 1, "(%s %s)", ttl, dp->name);
+	    (void) add_nma(cp, len);
+	    (void) free((MALLOC_P *)cp);
+	    return(0);
+	}
+
+# if	defined(HASDCACHE)
+/*
+ * We haven't found a match.
+ *
+ * If rebuilding the device cache was suppressed and the device cache is
+ * "unsafe," rebuild it.
+ */
+	if (!r && DCunsafe) {
+	    (void) rereaddev();
+	    goto printdevname_again;
+	}
+# endif	/* defined(HASDCACHE) */
+
+	return(0);
+}
+#endif	/* defined(USE_LIB_PRINTDEVNAME) */
+@
+
+
+1.7
+log
+@Revision 4.62
+@
+text
+@d40 1
+a40 1
+static char *rcsid = "$Id: pdvn.c,v 1.6 2001/08/14 12:25:05 abe Exp abe $";
+d46 1
+a46 1
+static char d1[] = "d"; static char *d2 = d1;
+@
+
+
+1.6
+log
+@Revision 4.58
+@
+text
+@d35 1
+a35 1
+#if	defined(HASBLKDEV) || defined(USE_LIB_PRINTCHDEVNAME)
+d40 1
+a40 1
+static char *rcsid = "$Id: pdvn.c,v 1.5 2000/12/04 14:05:26 abe Exp abe $";
+d45 1
+a45 1
+#else	/* !defined(HASBLKDEV) && !defined(USE_LIB_PRINTCHDEVNAME) */
+d47 1
+a47 1
+#endif	/* defined(HASBLKDEV) || defined(USE_LIB_PRINTCHDEVNAME) */
+d53 1
+a53 1
+ * 1.  Define HASBLKDEV, or USE_LIB_PRINCHDEVNAME, or both.
+d55 4
+a58 2
+ * 2.  Define HAS_STD_CLONE to enable standard clone searches in
+ *     printchdevname().
+d66 2
+a67 1
+#define	LIKE_NODE_TTL	"like device special "
+d70 1
+a70 1
+#if	defined(HASBLKDEV)
+d72 1
+a72 1
+ * printbdevname() - print block device name
+d76 1
+a76 1
+printbdevname(dev, rdev, f)
+a78 22
+	int f;				/* 1 = follow with '\n' */
+{
+	struct l_dev *dp;
+
+	if ((dp = lkupbdev(dev, rdev, 1, 1))) {
+	    safestrprt(dp->name, stdout, f);
+	    return(1);
+	}
+	return(0);
+}
+#endif	/* defined(HASBLKDEV) */
+
+
+#if	defined(USE_LIB_PRINTCHDEVNAME)
+/*
+ * printchdevname() - print character device name
+ */
+
+int
+printchdevname(dev, rdev, f)
+	dev_t *dev;			/* device */
+	dev_t *rdev;			/* raw device */
+d80 1
+d83 1
+a83 1
+# if	defined(HAS_STD_CLONE)
+d85 1
+a85 1
+# endif	/* defined(HAS_STD_CLONE) */
+d90 1
+a90 1
+# if	defined(HASDCACHE)
+d92 1
+a92 1
+printchdevname_again:
+d94 1
+a94 1
+# endif	/* defined(HASDCACHE) */
+d96 1
+a96 1
+#if	defined(HAS_STD_CLONE)
+d98 2
+a99 1
+ * Search for clone.
+d101 1
+a101 1
+	if (Lf->is_stream && Clone && (*dev == DevDev)) {
+d109 1
+a109 1
+# if	defined(HASDCACHE)
+d111 2
+a112 2
+			goto printchdevname_again;
+# endif	/* defined(HASDCACHE) */
+d119 1
+a119 1
+#endif	/* defined(HAS_STD_CLONE) */
+d122 1
+a122 1
+ * Search device table for a full match.
+d124 9
+a132 1
+	if ((dp = lkupdev(dev, rdev, 1, r))) {
+a138 1
+	if ((dp = lkupdev(&DevDev, rdev, 0, r))) {
+d140 8
+d149 1
+a149 1
+	 * A raw device match was found.  Record it as a name column addition.
+d151 1
+a151 1
+	    char *cp;
+d154 2
+a155 1
+	    len = (int)(1 + strlen(LIKE_NODE_TTL) + strlen(dp->name) + 1);
+d157 2
+a158 2
+		(void) fprintf(stderr, "%s: no nma space for: (%s%s)\n",
+		    Pn, LIKE_NODE_TTL, dp->name);
+d161 1
+a161 1
+	    (void) snpf(cp, len + 1, "(%s%s)", LIKE_NODE_TTL, dp->name);
+d167 1
+a167 1
+#if	defined(HASDCACHE)
+d171 2
+a172 2
+ * If lkupdev()'s rebuilding the device cache was suppressed
+ * and the device cache is "unsafe," rebuild it.
+d176 1
+a176 1
+	    goto printchdevname_again;
+d178 1
+a178 1
+#endif	/* defined(HASDCACHE) */
+d182 1
+a182 1
+#endif	/* defined(USE_LIB_PRINTCHDEVNAME) */
+@
+
+
+1.5
+log
+@Revision 4.53
+@
+text
+@d40 1
+a40 1
+static char *rcsid = "$Id: pdvn.c,v 1.4 1999/06/22 09:55:51 abe Exp abe $";
+d124 1
+a124 1
+		if (major(*rdev) == minor(Devtp[c->dx].rdev)) {
+@
+
+
+1.4
+log
+@Revision 4.44
+@
+text
+@d40 1
+a40 1
+static char *rcsid = "$Id: pdvn.c,v 1.3 98/03/06 08:40:57 abe Exp Locker: abe $";
+d60 7
+d73 3
+a75 2
+printbdevname(rdev, f)
+	dev_t *rdev;			/* device */
+d80 1
+a80 1
+	if ((dp = lkupbdev(rdev, 1, 1))) {
+d95 3
+a97 2
+printchdevname(rdev, f)
+	dev_t *rdev;			/* device */
+d118 1
+a118 1
+	if (Lf->is_stream && Clone) {
+d139 1
+a139 1
+ * Search device table for match.
+d141 1
+a141 1
+	if ((dp = lkupdev(rdev, 1, r))) {
+d144 22
+@
+
+
+1.3
+log
+@Revision 4.27
+@
+text
+@d40 1
+a40 1
+static char *rcsid = "$Id: pdvn.c,v 1.2 97/05/26 14:59:55 abe Exp Locker: abe $";
+d50 10
+d89 1
+a89 1
+	int f;				/* 1 = follow with '\n' */
+d91 5
+d97 1
+d99 34
+a132 1
+	if ((dp = lkupdev(rdev, 1, 1))) {
+d136 14
+@
+
+
+1.2
+log
+@Revision 4.03
+@
+text
+@d40 1
+a40 1
+static char *rcsid = "$Id: pdvn.c,v 1.1 97/02/24 07:29:39 abe Exp Locker: abe $";
+d63 1
+a63 4
+	    if (f)
+		(void) puts(dp->name);
+	    else
+		(void) fputs(dp->name, stdout);
+d84 1
+a84 4
+	    if (f)
+		(void) puts(dp->name);
+	    else
+		(void) fputs(dp->name, stdout);
+@
+
+
+1.1
+log
+@Initial revision
+@
+text
+@d40 1
+a40 1
+static char *rcsid = "$Id$";
+d62 6
+a67 6
+	if ((dp = lkupbdev(rdev, 1)) != (struct l_dev *)NULL) {
+		if (f)
+			(void) puts(dp->name);
+		else
+			(void) fputs(dp->name, stdout);
+		return(1);
+d86 6
+a91 6
+	if ((dp = lkupdev(rdev, 1)) != (struct l_dev *)NULL) {
+		if (f)
+			(void) puts(dp->name);
+		else
+			(void) fputs(dp->name, stdout);
+		return(1);
+@

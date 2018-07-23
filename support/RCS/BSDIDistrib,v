@@ -1,0 +1,40 @@
+head     1.1;
+branch   ;
+access   ;
+symbols  ;
+locks    ; strict;
+comment  @# @;
+
+
+1.1
+date     97.02.24.16.52.16;  author abe;  state Exp;
+branches ;
+next     ;
+
+
+desc
+@Lsof version 4
+@
+
+
+
+1.1
+log
+@Initial revision
+@
+text
+@#!/bin/ksh
+#
+# BSDIDistrib -- make BSDI distribution of lsof 4.x
+#
+# Usage: BSDIDistrib [<suffix>]
+#
+#	 <suffix>	optional suffix for identification
+
+if test $# -gt 1
+then
+  echo "Usage: [<suffix>]"
+  exit 1
+fi
+$HOME/src/lsof4/support/GenericDistrib bsdi $1
+@

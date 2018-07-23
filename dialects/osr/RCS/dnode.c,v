@@ -1,0 +1,1854 @@
+head	1.21;
+access;
+symbols;
+locks; strict;
+comment	@ * @;
+
+
+1.21
+date	2006.03.28.22.09.23;	author abe;	state Exp;
+branches;
+next	1.20;
+
+1.20
+date	2005.08.08.19.54.32;	author abe;	state Exp;
+branches;
+next	1.19;
+
+1.19
+date	2002.02.26.15.21.34;	author abe;	state Exp;
+branches;
+next	1.18;
+
+1.18
+date	2002.01.28.11.24.28;	author abe;	state Exp;
+branches;
+next	1.17;
+
+1.17
+date	2002.01.16.15.05.25;	author abe;	state Exp;
+branches;
+next	1.16;
+
+1.16
+date	2001.11.01.20.29.57;	author abe;	state Exp;
+branches;
+next	1.15;
+
+1.15
+date	2001.08.14.12.50.36;	author abe;	state Exp;
+branches;
+next	1.14;
+
+1.14
+date	2000.12.04.14.32.49;	author abe;	state Exp;
+branches;
+next	1.13;
+
+1.13
+date	2000.08.01.13.10.27;	author abe;	state Exp;
+branches;
+next	1.12;
+
+1.12
+date	99.06.22.08.21.45;	author abe;	state Exp;
+branches;
+next	1.11;
+
+1.11
+date	99.05.04.09.02.08;	author abe;	state Exp;
+branches;
+next	1.10;
+
+1.10
+date	99.01.25.07.11.00;	author abe;	state Exp;
+branches;
+next	1.9;
+
+1.9
+date	98.12.28.09.38.48;	author abe;	state Exp;
+branches;
+next	1.8;
+
+1.8
+date	98.05.22.07.15.25;	author abe;	state Exp;
+branches;
+next	1.7;
+
+1.7
+date	98.03.18.16.09.32;	author abe;	state Exp;
+branches;
+next	1.6;
+
+1.6
+date	98.03.06.08.25.34;	author abe;	state Exp;
+branches;
+next	1.5;
+
+1.5
+date	97.11.26.09.13.58;	author abe;	state Exp;
+branches;
+next	1.4;
+
+1.4
+date	97.10.23.15.48.18;	author abe;	state Exp;
+branches;
+next	1.3;
+
+1.3
+date	97.07.09.08.15.53;	author abe;	state Exp;
+branches;
+next	1.2;
+
+1.2
+date	97.04.17.08.07.01;	author abe;	state Exp;
+branches;
+next	1.1;
+
+1.1
+date	97.02.24.07.44.31;	author abe;	state Exp;
+branches;
+next	;
+
+
+desc
+@Lsof version 4
+@
+
+
+1.21
+log
+@Revision 4.77
+@
+text
+@/*
+ * dnode.c - SCO OpenServer node functions for lsof
+ */
+
+
+/*
+ * Copyright 1995 Purdue Research Foundation, West Lafayette, Indiana
+ * 47907.  All rights reserved.
+ *
+ * Written by Victor A. Abell
+ *
+ * This software is not subject to any license of the American Telephone
+ * and Telegraph Company or the Regents of the University of California.
+ *
+ * Permission is granted to anyone to use this software for any purpose on
+ * any computer system, and to alter it and redistribute it freely, subject
+ * to the following restrictions:
+ *
+ * 1. Neither the authors nor Purdue University are responsible for any
+ *    consequences of the use of this software.
+ *
+ * 2. The origin of this software must not be misrepresented, either by
+ *    explicit claim or by omission.  Credit to the authors and Purdue
+ *    University must appear in documentation and sources.
+ *
+ * 3. Altered versions must be plainly marked as such, and must not be
+ *    misrepresented as being the original software.
+ *
+ * 4. This notice may not be removed or altered.
+ */
+
+#ifndef lint
+static char copyright[] =
+"@@(#) Copyright 1995 Purdue Research Foundation.\nAll rights reserved.\n";
+static char *rcsid = "$Id: dnode.c,v 1.20 2005/08/08 19:54:32 abe Exp abe $";
+#endif
+
+
+#include "lsof.h"
+
+
+_PROTOTYPE(static struct l_dev * finddev,(dev_t *dev, dev_t *rdev, int stream));
+
+
+/*
+ * finddev() - look up device by device number
+ */
+
+static struct l_dev *
+finddev(dev, rdev, stream)
+	dev_t *dev;			/* device */
+	dev_t *rdev;			/* raw device */
+	int stream;			/* stream if 1 */
+{
+	struct clone *c;
+	struct l_dev *dp;
+/*
+ * Search device table for match.
+ */
+
+#if	defined(HASDCACHE)
+
+finddev_again:
+
+#endif	/* defined(HASDCACHE) */
+
+	if ((dp = lkupdev(dev, rdev, 0, 0)))
+	    return(dp);
+/*
+ * Search for clone.
+ */
+	if (stream && Clone) {
+	    for (c = Clone; c; c = c->next) {
+		if (GET_MAJ_DEV(*rdev) == GET_MIN_DEV(Devtp[c->dx].rdev)) {
+
+#if	defined(HASDCACHE)
+		    if (DCunsafe && !Devtp[c->dx].v && !vfy_dev(&Devtp[c->dx]))
+			goto finddev_again;
+#endif	/* defined(HASDCACHE) */
+
+		    return(&Devtp[c->dx]);
+		}
+	    }
+	}
+	return((struct l_dev *)NULL);
+}
+
+
+/*
+ * process_node() - process node
+ */
+
+void
+process_node(na)
+	KA_T na;			/* inode kernel space address */
+{
+	char *cp, tbuf[32];
+	short dl;
+	struct l_dev *dp;
+	unsigned char *fa = (unsigned char *)NULL;
+	struct filock fl;
+	KA_T flf, flp;
+	int fp, lp;
+	struct inode i;
+	short ity, udpsf, udpsl;
+	int j, k, l;
+	KA_T ka, qp;
+	unsigned char *la = (unsigned char *)NULL;
+	struct mounts *lm;
+	struct module_info mi;
+	unsigned short *n;
+	KA_T p;
+	struct inpcb pcb;
+	int port;
+	int pt = -1;
+	struct queue q;
+	struct qinit qi;
+	struct stdata sd;
+	char *tn;
+	int type;
+	struct udpdev udp;
+	short udptm = 0;
+
+#if	defined(HAS_NFS)
+	struct rnode r;
+#endif	/* defined(HAS_NFS) */
+
+#if	OSRV>=500
+	short hpps = 0;
+	unsigned short *n1;
+	struct pipeinode pi;
+#endif	/* OSRV>=500 */
+
+/*
+ * Read the inode.
+ */
+	if ( ! na) {
+	    enter_nm("no inode address");
+	    return;
+	}
+	if (readinode(na, &i)) {
+	    enter_nm(Namech);
+	    return;
+	}
+
+#if	defined(HASNCACHE)
+	Lf->na = na;
+#endif	/* defined(HASNCACHE) */
+
+#if	defined(HASFSTRUCT)
+	Lf->fna = na;
+	Lf->fsv |= FSV_NI;
+#endif	/* defined(HASFSTRUCT) */
+
+/*
+ * Identify the node type.
+ */
+	if (HaveSockdev && (i.i_ftype & IFMT) == IFCHR
+	&&  GET_MAJ_DEV(i.i_rdev) == Sockdev)
+	{
+
+	/*
+	 * Process a socket.
+	 */
+	    process_socket(&i);
+	    return;
+	}
+	if (Selinet)
+	    return;
+	ity = i.i_fstyp;
+	type = i.i_ftype & IFMT;
+	if (ity < 1 || ity > Fsinfomax || !Fsinfo[ity-1]) {
+
+#if	OSRV>=500
+	    if (ity) {
+#endif	/* OSRV>=500 */
+
+		(void) snpf(Namech,Namechl,"unknown fstyp (%d) in inode",ity);
+		enter_nm(Namech);
+		return;
+
+#if	OSRV>=500
+	    }
+#endif	/* OSRV>=500 */
+
+	}
+	if (ity && strcasecmp(Fsinfo[ity-1], "HS") == 0)
+	    Ntype = N_HSFS;
+
+#if	defined(HAS_NFS)
+	 else if (ity && strcasecmp(Fsinfo[ity-1], "NFS") == 0) {
+
+	/*
+	 * Get information on NFS file.
+	 */
+	    Ntype = N_NFS;
+	    Lf->is_nfs = 1;
+	    if (Fnfs)
+			Lf->sf |= SELNFS;
+	    if (!i.i_fsptr || readrnode((KA_T)i.i_fsptr, &r)) {
+		(void) snpf(Namech, Namechl, "can't read rnode (%s)",
+		    print_kptr((KA_T)i.i_fsptr, (char *)NULL, 0));
+		enter_nm(Namech);
+		return;
+	    }
+
+# if    defined(HASNCACHE)
+	    Lf->na = (KA_T)i.i_fsptr;
+# endif /* defined(HASNCACHE) */
+
+	}
+#endif	/* defined(HAS_NFS) */
+
+	else {
+
+	/*
+	 * Determine the node type from the inode file type.
+	 */
+	    switch (type) {
+	    case IFBLK:
+		Ntype = N_BLK;
+		break;
+	    case IFCHR:
+		Ntype = N_CHR;
+		break;
+	    case IFIFO:
+		Ntype = N_FIFO;
+		break;
+	    case IFMPB:
+	    case IFMPC:
+		Ntype = N_MPC;
+		break;
+	    case IFNAM:
+		Ntype = N_NM;
+		break;
+	    }
+	}
+/*
+ * Obtain lock information.
+ */
+	if ((flf = (KA_T)i.i_filocks)) {
+	    flp = flf;
+	    do {
+		if ((kread(flp, (char *)&fl, sizeof(fl))))
+		    break;
+		if (fl.set.l_pid != (pid_t)Lp->pid)
+		    continue;
+		if (fl.set.l_whence == (short)0 &&  fl.set.l_start == (off_t)0
+		&&  fl.set.l_len == 0x7fffffff)
+		    l = 1;
+		else
+		    l = 0;
+
+#if	OSRV<500
+		if (i.i_flag & IXLOCKED)
+#else	/* OSRV>=500 */
+		if (fl.flags & F_XOUT)
+#endif	/* OSRV<500 */
+
+		    Lf->lock = l ? 'X' : 'x';
+		else if (fl.set.l_type == F_RDLCK)
+		    Lf->lock = l ? 'R' : 'r';
+		else if (fl.set.l_type == F_WRLCK)
+		    Lf->lock = l ? 'W' : 'w';
+		else if (fl.set.l_type == (F_RDLCK | F_WRLCK))
+		    Lf->lock = 'u';
+		break;
+	    } while ((flp = (KA_T)fl.next) && flp != flf);
+	}
+
+#if	OSRV>=500
+/*
+ * See if a FIFO node is an HPPS node -- 3.2v5.0.0 and higher.
+ */
+	if (Ntype == N_FIFO && ity && strcasecmp(Fsinfo[ity-1], "HPPS") == 0)
+	{
+	    hpps = 1;
+	    if (i.i_fsptr) {
+		enter_dev_ch(print_kptr((KA_T)i.i_fsptr, (char )NULL, 0));
+		if (kread((KA_T)i.i_fsptr, (char *)&pi, sizeof(pi)) == 0)
+		    hpps = 2;
+	    }
+	}
+#endif	/* OSRV>=500 */
+
+/*
+ * Determine the device.
+ */
+	switch (Ntype) {
+	case N_BLK:
+	    Lf->dev = i.i_dev;
+	    Lf->rdev = i.i_rdev;
+	    Lf->dev_def = Lf->rdev_def = 1;
+	    break;
+	case N_FIFO:
+	case N_HSFS:
+	case N_NM:
+	case N_REGLR:
+
+#if	OSRV>=500
+	    if (hpps)
+		break;
+#endif	/* OSRV>=500 */
+
+	    Lf->dev = i.i_dev;
+	    Lf->dev_def = 1;
+	    break;
+	case N_CHR:
+	    Lf->dev = i.i_dev;
+	    Lf->rdev = i.i_rdev;
+	    Lf->dev_def = Lf->rdev_def = 1;
+	    if (i.i_sptr) {
+
+	    /*
+	     * Namech may be:
+	     *    /dev/* name if it exists for i.i_rdev;
+	     *    cdevsw[].d_name if it exists for GET_MAJ_DEV(i.i_rdev);
+	     *    "STR:" otherwise.
+	     */
+		(void) snpf(Namech, Namechl, "STR:");
+		Lf->is_stream = 1;
+		k = strlen(Namech);
+		cp = (char *)NULL;
+		if ((dp = finddev(&Lf->dev, &Lf->rdev, 1))) {
+		    (void) snpf(&Namech[k], Namechl - k, dp->name);
+		    k += strlen(dp->name);
+		    if ((cp = strrchr(dp->name, '/')))
+			cp++;
+		} else if ((j = GET_MAJ_DEV(i.i_rdev))
+			<  Cdevcnt && (cp = Cdevsw[j]))
+		{
+		    (void) snpf(Namech, Namechl, "%s", cp);
+		    k += strlen(cp);
+		}
+	    /*
+	     * Get the module names of all queue elements of the stream's
+	     * sd_wrq queue.  Skip module names that end in "head", 
+	     * match the last component of the /dev name, or match the
+	     * cdevsw[].d_name.
+	     */
+		p = (KA_T)NULL;
+		if (!kread((KA_T)i.i_sptr, (char *)&sd, sizeof(sd))) {
+		    dl = sizeof(tbuf) - 1;
+		    tbuf[dl] = '\0';
+		    qp = (KA_T)sd.sd_wrq;
+		    for (j = 0; qp && j < 20; j++, qp = (KA_T)q.q_next) {
+			if (kread(qp, (char *)&q, sizeof(q)))
+				break;
+			if (!(ka = (KA_T)q.q_qinfo)
+			||  kread(ka, (char *)&qi, sizeof(qi)))
+				continue;
+			if (!(ka = (KA_T)qi.qi_minfo)
+			||  kread(ka, (char *)&mi, sizeof(mi)))
+				continue;
+			if (!(ka = (KA_T)mi.mi_idname)
+			||  kread(ka, tbuf, dl))
+				continue;
+			if ((l = strlen(tbuf)) < 1)
+				continue;
+			if (l >= 4 && strcmp(&tbuf[l - 4], "head") == 0)
+				continue;
+			if (cp && strcmp(cp, tbuf) == 0) {
+				if (q.q_ptr && pt < 0) {
+
+				/*
+				 * If this is a TCP or UDP module and the
+				 * queue structure has a private pointer in
+				 * q_ptr, save it as a PCB address.
+				 */
+				    if (strcasecmp(cp, "tcp") == 0) {
+					pt = 0;
+					(void) snpf(Lf->iproto,
+					    sizeof(Lf->iproto), "TCP");
+				    } else if (strcasecmp(cp, "udp") == 0) {
+					pt = 1;
+					(void) snpf(Lf->iproto,
+					    sizeof(Lf->iproto), "UDP");
+				    }
+				    if (pt >= 0)
+					p = (KA_T)q.q_ptr;
+				    else
+					pt = -1;
+				}
+				continue;
+			    }
+			if (k) {
+				if ((k + 2) > (Namechl - 1))
+				    break;
+				(void) snpf(&Namech[k], Namechl - k, "->");
+				k += 2;
+			}
+			if ((k + l) > (Namechl - 1))
+				break;
+			(void) snpf(&Namech[k], Namechl - k, tbuf);
+			k += l;
+		    }
+		}
+		if (p && pt >= 0) {
+
+		/*
+		 * If the stream has a TCP or UDP module with a PCB pointer,
+		 * print any associated local and foreign Internet addresses.
+		 */
+		    if (kread(p, (char *)&pcb, sizeof(pcb)))
+			break;
+		    if (Fnet)
+			Lf->sf |= SELNET;
+		    if ((k + 1) > (Namechl - 1))
+			break;
+		    if (pt == 1 && pcb.inp_ppcb) {
+
+		    /*
+		     * If this is a UDP stream, get the udpdev structure at the
+		     * PCB's per-protocol address.  It may contain addresses.
+		     */
+			if (kread((KA_T)pcb.inp_ppcb, (char *)&udp, sizeof(udp))
+			== 0) {
+
+#if	OSRV>=500
+			    if (udp.ud_lsin.sin_addr.s_addr != INADDR_ANY
+			    ||  udp.ud_lsin.sin_port != 0)
+				udpsl = 1;
+			    else
+				udpsl = 0;
+#endif	/* OSRV>=500 */
+
+			    if (udp.ud_fsin.sin_addr.s_addr != INADDR_ANY
+			    ||  udp.ud_fsin.sin_port != 0)
+				udpsf = 1;
+			    else
+				udpsf = 0;
+			}
+		    } else
+			udpsf = udpsl = 0;
+		/*
+		 * Enter the local address from the PCB.  If there is none,
+		 * and if this is a 5.0.0 or greater UDP stream, and if it
+		 * has a local address set, use it.
+		 */
+		    la = (unsigned char *)&pcb.inp_laddr;
+		    lp = (int)ntohs(pcb.inp_lport);
+
+#if	OSRV>=500
+		    if (((struct in_addr *)la)->s_addr == INADDR_ANY
+		    &&  lp == 0 && udpsl) {
+			la = (unsigned char *)&udp.ud_lsin.sin_addr;
+			lp = (int)ntohs(udp.ud_lsin.sin_port);
+		    }
+
+#endif	/* OSRV>=500 */
+
+		/*
+		 * Enter the foreign address from the PCB.  If there is
+		 * none, and if this is a 5.0.0 or greater UDP stream, and
+		 * if it has a local address set, use it.
+		 */
+		    if (pcb.inp_faddr.s_addr!=INADDR_ANY || pcb.inp_fport!=0) {
+			fa = (unsigned char *)&pcb.inp_faddr;
+			fp = (int)ntohs(pcb.inp_fport);
+		    } else if (udpsf) {
+			fa = (unsigned char *)&udp.ud_fsin.sin_addr;
+			fp = (int)ntohs(udp.ud_fsin.sin_port);
+			udptm = 1;
+		    }
+		    if (fa || la) {
+			(void) ent_inaddr(la, lp, fa, fp, AF_INET);
+			 if (udptm && !Lf->nma)
+			     (void) udp_tm(udp.ud_ftime);
+		    }
+		    if (!i.i_number)
+			Lf->inp_ty = 2;
+		}
+	    } else {
+		if (ity) {
+		    if (strcasecmp(Fsinfo[ity-1], "COM") == 0)
+			Ntype = N_COM;
+		    else
+			Ntype = N_CHR;
+		} else {
+		    Ntype = N_CHR;
+		    if (!finddev(&i.i_dev, &i.i_rdev, 0)
+		    &&  HaveEventMajor
+		    &&  GET_MAJ_DEV(i.i_rdev) == EventMajor)
+			(void) snpf(Namech, Namechl,
+			    "clone %d:/dev/event", GET_MIN_DEV(i.i_rdev));
+		}
+	    }
+	    break;
+
+#if	defined(HAS_NFS)
+	case N_NFS:
+
+#if	OSRV<500
+	    Lf->dev = (dev_t)_makedev(~GET_MAJ_DEV(i.i_dev),
+				      GET_MIN_DEV(i.i_dev));
+	    Lf->rdev = (dev_t)_makedev(~GET_MAJ_DEV(i.i_rdev),
+				       GET_MIN_DEV(i.i_rdev));
+#else	/* OSRV>=500 */
+	    Lf->dev = i.i_dev;
+	    Lf->rdev = i.i_rdev;
+#endif	/* OSRV<500 */
+
+	    Lf->dev_def = Lf->rdev_def = 1;
+	    break;
+#endif	/* defined(HAS_NFS) */
+
+	}
+/*
+ * Determine the inode number.
+ */
+	switch (Ntype) {
+	case N_HSFS:
+
+#if	OSRV<500
+	/*
+	 * High Sierra inode numbers for versions below 5.0.0, as reported
+	 * by "ls -i" and stat(2), are the lower 16 bits of i_number.
+	 */
+	    if ((Lf->inode = (unsigned long)(i.i_number & 0xffff)))
+#else	/* OSRV>=500 */
+	    if ((Lf->inode = (unsigned long)i.i_number))
+#endif	/* OSRV<500 */
+
+		Lf->inp_ty = 1;
+	    break;
+
+#if	defined(HAS_NFS)
+	case N_NFS:
+
+#if	OSRV<500
+	    n = (unsigned short *)&r.r_fh.fh_pad[14];
+	    if ((Lf->inode = (unsigned long)ntohs(*n)))
+		Lf->inp_ty = 1;
+	    else if ((Lf->inode = (unsigned long)r.r_fh.fh_u.fh_fgen_u))
+#else	/* OSRV>=500 */
+		n = (unsigned short *)&r.r_fh.fh_u.fh_fid_u[4];
+	    n1 = (unsigned short *)&r.r_fh.fh_u.fh_fid_u[2];
+	    if ((Lf->inode = (unsigned long)*n))
+		Lf->inp_ty = 1;
+	    else if ((Lf->inode = (unsigned long)*n1))
+#endif	/* OSRV<500 */
+
+		Lf->inp_ty = 1;
+	    break;
+#endif	/* defined(HAS_NFS) */
+
+	case N_BLK:
+	case N_CHR:
+	case N_COM:
+	case N_FIFO:
+	case N_NM:
+	case N_REGLR:
+
+#if	OSRV>=500
+	/*
+	 * Inodes for some 5.0.x HPPS FIFOs have an i_number that is the same
+	 * as i_fsptr.  If it is, ignore it, because i_fsptr has already been
+	 * recorded for the DEVICE column.
+	 */
+	    if (hpps && i.i_fsptr && i.i_number
+	    && (unsigned long)i.i_fsptr == (unsigned long)i.i_number)
+		break;
+#endif	/* OSRV>=500 */
+
+	    if (i.i_number) {
+		Lf->inode = (unsigned long)i.i_number;
+		Lf->inp_ty = 1;
+	    }
+	    break;
+	}
+/*
+ * Determine the file size.
+ */
+	if (Foffset)
+	    Lf->off_def = 1;
+	else {
+	    switch (Ntype) {
+	    case N_BLK:
+		if (!Fsize)
+		    Lf->off_def = 1;
+		break;
+	    case N_CHR:
+	    case N_COM:
+		if (!Fsize)
+		    Lf->off_def = 1;
+		break;
+	    case N_FIFO:
+
+#if	OSRV>=500
+		if (hpps == 2) {
+		    Lf->sz = (SZOFFTYPE)pi.count;
+		    Lf->sz_def = 1;
+		    break;
+		}
+#endif	/* OSRV>=500 */
+
+		if (!Fsize)
+		    Lf->off_def = 1;
+		break;
+	    case N_HSFS:
+
+#if	defined(HAS_NFS)
+	    case N_NFS:
+		Lf->sz = (SZOFFTYPE)i.i_size;
+		Lf->sz_def = 1;
+		break;
+#endif	/* defined(HAS_NFS) */
+
+	    case N_REGLR:
+		if (type == IFREG || type == IFDIR) {
+		    Lf->sz = (SZOFFTYPE)i.i_size;
+		    Lf->sz_def = 1;
+		}
+		break;
+	    }
+	}
+/*
+ * Record link count.
+ */
+	if (Fnlink) {
+	    Lf->nlink = (long)i.i_nlink;
+	    Lf->nlink_def = 1;
+	    if (Nlink && (Lf->nlink < Nlink))
+		Lf->sf |= SELNLINK;
+	}
+/*
+ * Format the type name.
+ */
+	switch (type) {
+	case IFDIR:
+	    tn = "DIR";
+	    break;
+	case IFBLK:
+	    tn = "BLK";
+	    break;
+	case IFCHR:
+	    tn = "CHR";
+	    break;
+	case IFREG:
+	    tn = "REG";
+	    break;
+	case IFMPC:
+	    tn = "MPC";
+	    break;
+	case IFMPB:
+	    tn = "MPB";
+	    break;
+	case IFNAM:
+	    if (i.i_rdev == S_INSEM)
+		tn = "XSEM";
+	    else if (i.i_rdev == S_INSHD)
+		tn = "XSD";
+	    else {
+		tn = "XNAM";
+		(void) snpf(Namech, Namechl,
+		    "unknown Xenix special file type: %x", i.i_rdev);
+	    }
+	    break;
+	case IFIFO:
+	    tn = "FIFO";
+	    break;
+
+#if	defined(IFLNK)
+	case IFLNK:
+	    tn = "LINK";
+	    break;
+#endif	/* defined(IFLNK) */
+
+	default:
+	    (void) snpf(Lf->type, sizeof(Lf->type), "%04o",
+		((type >> 12) & 0xfff));
+	    tn = NULL;
+	}
+	if (tn)
+	    (void) snpf(Lf->type, sizeof(Lf->type), "%s", tn);
+/*
+ * Save the file system names.
+ */
+	switch (Ntype) {
+	case N_BLK:
+	case N_CHR:
+	case N_FIFO:
+	case N_HSFS:
+
+#if	defined(HAS_NFS)
+	case N_NFS:
+#endif	/* defined(HAS_NFS) */
+
+	case N_NM:
+	case N_REGLR:
+	    if (Lf->dev_def) {
+
+	    /*
+	     * Defer the local mount info table search until printname().
+	     */
+		Lf->lmi_srch = 1;
+	    }
+	    break;
+	}
+	Lf->ntype = Ntype;
+
+#if     defined(HASBLKDEV)
+/*
+ * If this is a IFBLK file and it's missing an inode number, try to
+ * supply one.
+ */
+	if ((Lf->inp_ty == 0) && (type == IFBLK))
+	    find_bl_ino();
+#endif  /* defined(HASBLKDEV) */
+
+/*
+ * If this is a IFCHR file and it's missing an inode number, try to
+ * supply one.
+ */
+	if ((Lf->inp_ty == 0) && (type == IFCHR))
+	    find_ch_ino();
+/*
+ * Test for specified file.
+ */
+	if (Sfile && is_file_named((char *)NULL,
+		((type == IFCHR) || (type == IFBLK) || (type == IFNAM)) ? 1
+									: 0))
+	    Lf->sf |= SELNM;
+
+#if	OSRV>=500
+/*
+ * If this is an HPPS node and no other name characters have been
+ * entered, enter HPPS as the name.
+ */
+	if (hpps && Namech[0] == '\0')
+	    (void) snpf(Namech, Namechl, "HPPS");
+#endif	/* OSRV>=500 */
+
+/*
+ * Enter name characters.
+ */
+	if (Namech[0])
+	    enter_nm(Namech);
+}
+@
+
+
+1.20
+log
+@Revision 4.76
+@
+text
+@d35 1
+a35 1
+static char *rcsid = "$Id: dnode.c,v 1.19 2002/02/26 15:21:34 abe Exp abe $";
+d670 2
+a671 5
+	    if (type > 9999)
+		(void) snpf(Lf->type, sizeof(Lf->type), "*%03d", type % 1000);
+	    else
+		(void) snpf(Lf->type, sizeof(Lf->type), "%4d", type);
+	    (void) snpf(Namech, Namechl, "unknown inode type: %x", type);
+@
+
+
+1.19
+log
+@Revision 4.62
+@
+text
+@d35 1
+a35 1
+static char *rcsid = "$Id: dnode.c,v 1.18 2002/01/28 11:24:28 abe Exp abe $";
+d470 1
+a470 1
+		    if (i.i_number == 0)
+@
+
+
+1.18
+log
+@Revision 4.62
+Correct block device reporting bugs.
+@
+text
+@d35 1
+a35 1
+static char *rcsid = "$Id: dnode.c,v 1.17 2002/01/16 15:05:25 abe Exp abe $";
+d684 1
+@
+
+
+1.17
+log
+@Update ent_inaddr() usage.
+@
+text
+@d35 1
+a35 1
+static char *rcsid = "$Id: dnode.c,v 1.16 2001/11/01 20:29:57 abe Exp abe $";
+d291 3
+a293 2
+	    Lf->dev = i.i_rdev;
+	    Lf->dev_def = 1;
+d309 1
+a309 1
+	    Lf->dev = DevDev;
+d496 2
+d500 1
+d503 1
+a503 1
+	    Lf->dev_def = 1;
+d547 1
+@
+
+
+1.16
+log
+@Revision 4.60
+@
+text
+@d35 1
+a35 1
+static char *rcsid = "$Id: dnode.c,v 1.15 2001/08/14 12:50:36 abe Exp abe $";
+d465 1
+a465 1
+			(void) ent_inaddr(la, lp, fa, fp, AF_INET, -1);
+@
+
+
+1.15
+log
+@Revision 4.58
+@
+text
+@d35 1
+a35 1
+static char *rcsid = "$Id: dnode.c,v 1.14 2000/12/04 14:32:49 abe Exp abe $";
+d465 1
+a465 1
+			(void) ent_inaddr(la, lp, fa, fp, AF_INET);
+@
+
+
+1.14
+log
+@Revision 4.53
+@
+text
+@d35 1
+a35 1
+static char *rcsid = "$Id: dnode.c,v 1.13 2000/08/01 13:10:27 abe Exp abe $";
+d74 1
+a74 1
+		if (major(*rdev) == minor(Devtp[c->dx].rdev)) {
+d159 1
+a159 1
+	&&  major(i.i_rdev) == Sockdev)
+d233 3
+d296 1
+d316 1
+a316 1
+	     *    cdevsw[].d_name if it exists for major(i.i_rdev);
+d328 2
+a329 1
+		} else if ((j = major(i.i_rdev)) < Cdevcnt && (cp = Cdevsw[j]))
+d482 1
+a482 1
+		    &&  major(i.i_rdev) == EventMajor)
+d484 1
+a484 1
+			    "clone %d:/dev/event", minor(i.i_rdev));
+d493 2
+a494 1
+	    Lf->dev = (dev_t)_makedev(~major(i.i_dev), minor(i.i_dev));
+d546 1
+d643 11
+d669 1
+a669 1
+	    (void) snpf(Namech, Namechl, "unknown inode type");
+d686 1
+d718 1
+a718 1
+				   ((type == IFCHR) || (type == IFBLK)) ? 1
+@
+
+
+1.13
+log
+@Revision 4.51
+Convert to snpf().
+@
+text
+@d35 1
+a35 1
+static char *rcsid = "$Id: dnode.c,v 1.12 1999/06/22 08:21:45 abe Exp abe $";
+d42 1
+a42 1
+_PROTOTYPE(static struct l_dev * finddev,(dev_t *dev, int stream));
+d50 1
+a50 1
+finddev(dev, stream)
+d52 1
+d67 1
+a67 1
+	if ((dp = lkupdev(dev, 0, 0)))
+d74 1
+a74 1
+		if (major(*dev) == minor(Devtp[c->dx].rdev)) {
+d304 3
+a306 2
+	    Lf->dev = i.i_rdev;
+	    Lf->dev_def = 1;
+d319 1
+a319 1
+		if ((dp = finddev(&i.i_rdev, 1))) {
+d475 1
+a475 1
+		    if (!finddev(&i.i_rdev, 0)
+d685 1
+a685 1
+	if (Lf->inp_ty == 0 && type == IFBLK && Lf->dev_def)
+d693 1
+a693 1
+	if (Lf->inp_ty == 0 && type == IFCHR && Lf->dev_def)
+d698 3
+a700 1
+	if (Sfile && is_file_named(NULL, (type == IFCHR) ? 1 : 0))
+@
+
+
+1.12
+log
+@Revision 4.44
+@
+text
+@d35 1
+a35 1
+static char *rcsid = "$Id: dnode.c,v 1.11 99/05/04 09:02:08 abe Exp Locker: abe $";
+d177 1
+a177 1
+		(void) sprintf(Namech, "unknown fstyp (%d) in inode", ity);
+d200 2
+a201 2
+		(void) sprintf(Namech, "can't read rnode (%s)",
+		    print_kptr((KA_T)i.i_fsptr, (char *)NULL));
+d275 1
+a275 1
+		enter_dev_ch(print_kptr((KA_T)i.i_fsptr, (char )NULL));
+d313 1
+a313 1
+		(void) strcpy(Namech, "STR:");
+d318 1
+a318 1
+		    (void) strcpy(&Namech[k], dp->name);
+d324 1
+a324 1
+		    (void) strcpy(Namech, cp);
+d364 2
+a365 1
+					(void) strcpy(Lf->iproto, "TCP");
+d368 2
+a369 1
+					(void) strcpy(Lf->iproto, "UDP");
+d379 1
+a379 1
+				if ((k + 2) > (MAXPATHLEN - 1))
+d381 1
+a381 1
+				(void) strcpy(&Namech[k], "->");
+d384 1
+a384 1
+			if ((k + l) > (MAXPATHLEN - 1))
+d386 1
+a386 1
+			(void) strcpy(&Namech[k], tbuf);
+d400 1
+a400 1
+		    if ((k + 1) > (MAXPATHLEN - 1))
+d476 1
+a476 1
+			(void) sprintf(Namech,
+d646 1
+a646 1
+		(void) sprintf(Lf->type, "*%03d", type % 1000);
+d648 2
+a649 2
+		(void) sprintf(Lf->type, "%4d", type);
+	    (void) strcpy(Namech, "unknown inode type");
+d653 1
+a653 1
+	    (void) strcpy(Lf->type, tn);
+d705 1
+a705 1
+	    (void) strcpy(Namech, "HPPS");
+@
+
+
+1.11
+log
+@Revision 4.43
+@
+text
+@d35 1
+a35 1
+static char *rcsid = "$Id: dnode.c,v 1.10 99/01/25 07:11:00 abe Exp Locker: abe $";
+d151 1
+a151 1
+	Lf->fsv |= FSV_NA;
+@
+
+
+1.10
+log
+@Revision 4.40
+@
+text
+@d35 1
+a35 1
+static char *rcsid = "$Id: dnode.c,v 1.9 98/12/28 09:38:48 abe Exp Locker: abe $";
+d600 9
+@
+
+
+1.9
+log
+@Revision 4.39
+@
+text
+@d35 1
+a35 1
+static char *rcsid = "$Id: dnode.c,v 1.8 98/05/22 07:15:25 abe Exp Locker: abe $";
+d685 1
+a685 1
+	if (Sfile && is_file_named(NULL, type))
+@
+
+
+1.8
+log
+@Revision 4.33
+@
+text
+@d35 1
+a35 1
+static char *rcsid = "$Id: dnode.c,v 1.7 98/03/18 16:09:32 abe Exp Locker: abe $";
+d145 1
+a145 1
+# if    defined(HASNCACHE)
+d147 6
+a152 1
+# endif /* defined(HASNCACHE) */
+@
+
+
+1.7
+log
+@Revision 4.29
+Defer local mount info lookup to printname().
+@
+text
+@d35 1
+a35 1
+static char *rcsid = "$Id: dnode.c,v 1.6 98/03/06 08:25:34 abe Exp Locker: abe $";
+d99 1
+a99 1
+	struct in_addr *fa = (struct in_addr *)NULL;
+d107 1
+a107 1
+	struct in_addr *la = (struct in_addr *)NULL;
+d425 1
+a425 1
+		    la = &pcb.inp_laddr;
+d429 3
+a431 2
+		    if (la->s_addr == INADDR_ANY && lp == 0 && udpsl) {
+			la = &udp.ud_lsin.sin_addr;
+d443 1
+a443 1
+			fa = &pcb.inp_faddr;
+d446 1
+a446 1
+			fa = &udp.ud_fsin.sin_addr;
+d451 1
+a451 1
+			(void) ent_inaddr(la, lp, fa, fp);
+@
+
+
+1.6
+log
+@Revision 4.27
+@
+text
+@d35 1
+a35 1
+static char *rcsid = "$Id: dnode.c,v 1.5 97/11/26 09:13:58 abe Exp Locker: abe $";
+d651 5
+a655 8
+		for (lm = Mtab; lm; lm = lm->next) {
+		    if (Lf->dev == lm->dev) {
+			Lf->fsdir = lm->dir;
+			Lf->fsdev = lm->fsname;
+			Lf->fs_ino = lm->inode;
+			break;
+		    }
+		}
+@
+
+
+1.5
+log
+@Revision 4.21
+Correct indentation.
+@
+text
+@d35 1
+a35 1
+static char *rcsid = "$Id: dnode.c,v 1.4 97/10/23 15:48:18 abe Exp Locker: abe $";
+d94 1
+a94 1
+	caddr_t na;			/* inode kernel space address */
+d96 1
+a96 1
+	char *cp, dev_ch[32];
+d100 2
+a101 1
+	struct filock fl, *flf, *flp;
+d111 2
+a112 1
+	struct inpcb *p, pcb;
+d137 2
+a138 2
+		enter_nm("no inode address");
+		return;
+d140 3
+a142 3
+	if (readinode((struct inode *)na, &i)) {
+		enter_nm(Namech);
+		return;
+d146 1
+a146 1
+	Lf->na = (unsigned long)na;
+d159 2
+a160 2
+		process_socket(&i);
+		return;
+d163 1
+a163 1
+		return;
+d166 1
+a166 1
+	if (ity < 1 || ity > Fsinfomax || Fsinfo[ity-1] == NULL) {
+d182 1
+a182 1
+		Ntype = N_HSFS;
+d190 3
+a192 3
+		Ntype = N_NFS;
+		Lf->is_nfs = 1;
+		if (Fnfs)
+d194 6
+a199 6
+		if (i.i_fsptr == NULL || readrnode((caddr_t)i.i_fsptr, &r)) {
+			(void) sprintf(Namech, "can't read rnode (%#x)",
+			    i.i_fsptr);
+			enter_nm(Namech);
+			return;
+		}
+d202 1
+a202 1
+		Lf->na = (unsigned long)i.i_fsptr;
+d213 15
+a227 16
+		switch (type) {
+
+		case IFBLK:
+			Ntype = N_BLK;
+			break;
+		case IFCHR:
+			Ntype = N_CHR;
+			break;
+		case IFIFO:
+			Ntype = N_FIFO;
+			break;
+		case IFMPB:
+		case IFMPC:
+			Ntype = N_MPC;
+			break;
+		}
+d232 1
+a232 1
+	if ((flf = (struct filock *)i.i_filocks)) {
+d235 1
+a235 1
+		if ((kread((KA_T)flp, (char *)&fl, sizeof(fl))))
+d259 1
+a259 1
+	    } while ((flp = fl.next) && flp != flf);
+d268 6
+a273 7
+		hpps = 1;
+		if (i.i_fsptr) {
+		    (void) sprintf(dev_ch, "0x%08x", i.i_fsptr);
+		    enter_dev_ch(dev_ch);
+		    if (kread((KA_T)i.i_fsptr, (char *)&pi, sizeof(pi)) == 0)
+			hpps = 2;
+		}
+d282 3
+a284 3
+		Lf->dev = i.i_rdev;
+		Lf->dev_def = 1;
+		break;
+d290 2
+a291 2
+		if (hpps)
+		    break;
+d294 3
+a296 3
+		Lf->dev = i.i_dev;
+		Lf->dev_def = 1;
+		break;
+d298 3
+a300 3
+		Lf->dev = i.i_rdev;
+		Lf->dev_def = 1;
+		if (i.i_sptr) {
+d302 33
+a334 34
+		/*
+		 * Namech may be:
+		 *    /dev/* name if it exists for i.i_rdev;
+		 *    cdevsw[].d_name if it exists for major(i.i_rdev);
+		 *    "STR:" otherwise.
+		 */
+		    (void) strcpy(Namech, "STR:");
+		    Lf->is_stream = 1;
+		    k = strlen(Namech);
+		    cp = NULL;
+		    if ((dp = finddev(&i.i_rdev, 1)) != NULL) {
+			(void) strcpy(&Namech[k], dp->name);
+			k += strlen(dp->name);
+			if ((cp = strrchr(dp->name, '/')) != NULL)
+			    cp++;
+		    } else if ((j = major(i.i_rdev)) < Cdevcnt
+			   &&  (cp = Cdevsw[j]) != NULL)
+		    {
+			(void) strcpy(Namech, cp);
+			k += strlen(cp);
+		    }
+		/*
+		 * Get the module names of all queue elements of the stream's
+		 * sd_wrq queue.  Skip module names that end in "head", 
+		 * match the last component of the /dev name, or match the
+		 * cdevsw[].d_name.
+		 */
+		    p = NULL;
+		    if (kread((KA_T)i.i_sptr, (char *)&sd, sizeof(sd)) == 0) {
+			dl = sizeof(dev_ch) - 1;
+			dev_ch[dl] = '\0';
+			qp = (KA_T)sd.sd_wrq;
+			for (j = 0; qp && j < 20; j++, qp = (KA_T)q.q_next) {
+			    if (kread(qp, (char *)&q, sizeof(q)))
+d336 2
+a337 2
+			    if ((ka = (KA_T)q.q_qinfo) == (KA_T)NULL
+			    ||  kread(ka, (char *)&qi, sizeof(qi)))
+d339 2
+a340 2
+			    if ((ka = (KA_T)qi.qi_minfo) == (KA_T)NULL
+			    ||  kread(ka, (char *)&mi, sizeof(mi)))
+d342 2
+a343 2
+			    if ((ka = (KA_T)mi.mi_idname) == (KA_T)NULL
+			    ||  kread(ka, dev_ch, dl))
+d345 1
+a345 1
+			    if ((l = strlen(dev_ch)) < 1)
+d347 1
+a347 1
+			    if (l >= 4 && strcmp(&dev_ch[l - 4], "head") == 0)
+d349 1
+a349 1
+			    if (cp && strcmp(cp, dev_ch) == 0) {
+d365 1
+a365 1
+					p = (struct inpcb *)q.q_ptr;
+d371 1
+a371 1
+			    if (k) {
+d376 2
+a377 2
+			    }
+			    if ((k + l) > (MAXPATHLEN - 1))
+d379 2
+a380 3
+			    (void) strcpy(&Namech[k], dev_ch);
+			    k += l;
+			}
+d382 2
+a383 1
+		    if (p && pt >= 0) {
+d385 12
+d398 2
+a399 3
+		     * If the stream has a TCP or UDP module with a PCB
+		     * pointer, print any associated local and foreign
+		     * Internet addresses.
+d401 2
+a402 7
+			if (kread((KA_T)p, (char *)&pcb, sizeof(pcb)))
+			    break;
+			if (Fnet)
+			    Lf->sf |= SELNET;
+			if ((k + 1) > (MAXPATHLEN - 1))
+			    break;
+			if (pt == 1 && pcb.inp_ppcb) {
+a403 10
+			/*
+			 * If this is a UDP stream, get the udpdev structure
+			 * at the PCB's per-protocol address.  It may contain
+			 * addresses.
+			 */
+			    if (kread((KA_T)pcb.inp_ppcb, (char *)&udp,
+				       sizeof(udp))
+			    == 0)
+			    {
+
+d405 5
+a409 6
+				if (udp.ud_lsin.sin_addr.s_addr != INADDR_ANY ||
+				    udp.ud_lsin.sin_port != 0
+				)
+				    udpsl = 1;
+				else
+				    udpsl = 0;
+d412 15
+a426 16
+				if (udp.ud_fsin.sin_addr.s_addr != INADDR_ANY ||
+				    udp.ud_fsin.sin_port != 0
+				)
+				    udpsf = 1;
+				else
+				    udpsf = 0;
+			    }
+			} else
+			    udpsf = udpsl = 0;
+		    /*
+		     * Enter the local address from the PCB.  If there is none,
+		     * and if this is a 5.0.0 or greater UDP stream, and if it
+		     * has a local address set, use it.
+		     */
+			la = &pcb.inp_laddr;
+			lp = (int)ntohs(pcb.inp_lport);
+d429 4
+a432 4
+			if (la->s_addr == INADDR_ANY && lp == 0 && udpsl) {
+			    la = &udp.ud_lsin.sin_addr;
+			    lp = (int)ntohs(udp.ud_lsin.sin_port);
+			}
+d436 12
+a447 21
+		    /*
+		     * Enter the foreign address from the PCB.  If there is
+		     * none, and if this is a 5.0.0 or greater UDP stream, and
+		     * if it has a local address set, use it.
+		     */
+			if (pcb.inp_faddr.s_addr != INADDR_ANY
+			||  pcb.inp_fport != 0) {
+			    fa = &pcb.inp_faddr;
+			    fp = (int)ntohs(pcb.inp_fport);
+			} else if (udpsf) {
+			    fa = &udp.ud_fsin.sin_addr;
+			    fp = (int)ntohs(udp.ud_fsin.sin_port);
+			    udptm = 1;
+			}
+			if (fa || la) {
+			    (void) ent_inaddr(la, lp, fa, fp);
+			    if (udptm && !Lf->nma)
+				(void) udp_tm(udp.ud_ftime);
+			}
+			if (i.i_number == 0)
+				Lf->inp_ty = 2;
+d449 4
+a452 13
+		} else {
+		    if (ity) {
+			if (strcasecmp(Fsinfo[ity-1], "COM") == 0)
+			    Ntype = N_COM;
+			else
+			    Ntype = N_CHR;
+		    } else {
+			Ntype = N_CHR;
+			if (!finddev(&i.i_rdev, 0)
+			&&  HaveEventMajor
+			&&  major(i.i_rdev) == EventMajor)
+			    (void) sprintf(Namech, "clone %d:/dev/event",
+				minor(i.i_rdev));
+d454 2
+d457 16
+a472 1
+		break;
+d478 1
+a478 1
+		Lf->dev = (dev_t)_makedev(~major(i.i_dev), minor(i.i_dev));
+d480 1
+a480 1
+		Lf->dev = i.i_dev;
+d483 2
+a484 2
+		Lf->dev_def = 1;
+		break;
+d499 1
+a499 1
+		if ((Lf->inode = (unsigned long)(i.i_number & 0xffff)))
+d501 1
+a501 1
+		if ((Lf->inode = (unsigned long)i.i_number))
+d504 2
+a505 2
+		    Lf->inp_ty = 1;
+		break;
+d511 4
+a514 4
+		n = (unsigned short *)&r.r_fh.fh_pad[14];
+		if ((Lf->inode = (unsigned long)ntohs(*n)))
+		    Lf->inp_ty = 1;
+		else if ((Lf->inode = (unsigned long)r.r_fh.fh_u.fh_fgen_u))
+d517 4
+a520 4
+		n1 = (unsigned short *)&r.r_fh.fh_u.fh_fid_u[2];
+		if ((Lf->inode = (unsigned long)*n))
+		    Lf->inp_ty = 1;
+		else if ((Lf->inode = (unsigned long)*n1))
+d523 2
+a524 2
+		    Lf->inp_ty = 1;
+		break;
+d538 3
+a540 3
+		if (hpps && i.i_fsptr && i.i_number
+		&& (unsigned long)i.i_fsptr == (unsigned long)i.i_number)
+		    break;
+d543 5
+a547 5
+		if (i.i_number) {
+		    Lf->inode = (unsigned long)i.i_number;
+		    Lf->inp_ty = 1;
+		}
+		break;
+d553 1
+a553 1
+		Lf->off_def = 1;
+d555 11
+a565 11
+		switch (Ntype) {
+		case N_BLK:
+			if (!Fsize)
+				Lf->off_def = 1;
+			break;
+		case N_CHR:
+		case N_COM:
+			if (!Fsize)
+				Lf->off_def = 1;
+			break;
+		case N_FIFO:
+d568 5
+a572 5
+			if (hpps == 2) {
+				Lf->sz = (SZOFFTYPE)pi.count;
+				Lf->sz_def = 1;
+				break;
+			}
+d575 4
+a578 4
+			if (!Fsize)
+				Lf->off_def = 1;
+			break;
+		case N_HSFS:
+d581 4
+a584 4
+		case N_NFS:
+			Lf->sz = (SZOFFTYPE)i.i_size;
+			Lf->sz_def = 1;
+			break;
+d587 4
+a590 5
+		case N_REGLR:
+			if (type == IFREG || type == IFDIR)
+				Lf->sz = (SZOFFTYPE)i.i_size;
+				Lf->sz_def = 1;
+			break;
+d592 2
+d600 2
+a601 2
+		tn = "DIR";
+		break;
+d603 2
+a604 2
+		tn = "BLK";
+		break;
+d606 2
+a607 2
+		tn = "CHR";
+		break;
+d609 2
+a610 2
+		tn = "REG";
+		break;
+d612 2
+a613 2
+		tn = "MPC";
+		break;
+d615 2
+a616 2
+		tn = "MPB";
+		break;
+d618 2
+a619 2
+		tn = "FIFO";
+		break;
+d623 2
+a624 2
+		tn = "LINK";
+		break;
+d628 6
+a633 6
+		if (type > 9999)
+			(void) sprintf(Lf->type, "*%03d", type % 1000);
+		else
+			(void) sprintf(Lf->type, "%4d", type);
+		(void) strcpy(Namech, "unknown inode type");
+		tn = NULL;
+d636 1
+a636 1
+		(void) strcpy(Lf->type, tn);
+d650 8
+a657 9
+		if (Lf->dev_def) {
+			for (lm = Mtab; lm; lm = lm->next) {
+				if (Lf->dev == lm->dev) {
+					Lf->fsdir = lm->dir;
+					Lf->fsdev = lm->fsname;
+					Lf->fs_ino = lm->inode;
+					break;
+				}
+			}
+d659 2
+a660 1
+		break;
+d670 1
+a670 1
+		find_bl_ino();
+d678 1
+a678 1
+		find_ch_ino();
+d683 1
+a683 1
+		Lf->sf |= SELNM;
+d691 1
+a691 1
+		(void) strcpy(Namech, "HPPS");
+d698 1
+a698 1
+		enter_nm(Namech);
+@
+
+
+1.4
+log
+@Revision 4.18
+@
+text
+@d35 1
+a35 1
+static char *rcsid = "$Id: dnode.c,v 1.3 97/07/09 08:15:53 abe Exp Locker: abe $";
+d151 1
+a151 1
+	       &&  major(i.i_rdev) == Sockdev)
+@
+
+
+1.3
+log
+@Revision 4.13
+Change SCO UNIX to SCO OpenServer.  Change SCOV to OSRV.
+Handle 5.0.4 HPPS inode numbers properly.
+@
+text
+@d35 1
+a35 1
+static char *rcsid = "$Id: dnode.c,v 1.3 97/06/28 06:29:37 abe Exp $";
+d577 1
+a577 1
+				Lf->sz = (unsigned long)pi.count;
+d590 1
+a590 1
+			Lf->sz = (unsigned long)i.i_size;
+d597 1
+a597 1
+				Lf->sz = (unsigned long)i.i_size;
+@
+
+
+1.2
+log
+@Revision 4.04
+@
+text
+@d2 1
+a2 1
+ * dnode.c - SCO Unix node functions for lsof
+d35 1
+a35 1
+static char *rcsid = "$Id: dnode.c,v 1.1 97/02/24 07:44:31 abe Exp Locker: abe $";
+d125 1
+a125 1
+#if	SCOV>=500
+d129 1
+a129 1
+#endif	/* SCOV>=500 */
+d166 1
+a166 1
+#if	SCOV>=500
+d168 1
+a168 1
+#endif	/* SCOV>=500 */
+d174 1
+a174 1
+#if	SCOV>=500
+d176 1
+a176 1
+#endif	/* SCOV>=500 */
+d244 1
+a244 1
+#if	SCOV<500
+d246 1
+a246 1
+#else	/* SCOV>=500 */
+d248 1
+a248 1
+#endif	/* SCOV<500 */
+d261 1
+a261 1
+#if	SCOV>=500
+d275 1
+a275 1
+#endif	/* SCOV>=500 */
+d289 1
+a289 1
+#if	SCOV>=500
+d291 2
+a292 2
+			break;
+#endif	/* SCOV>=500 */
+d409 1
+a409 1
+#if	SCOV>=500
+d416 1
+a416 1
+#endif	/* SCOV>=500 */
+d435 1
+a435 1
+#if	SCOV>=500
+d441 1
+a441 1
+#endif	/* SCOV>=500 */
+d485 1
+a485 1
+#if	SCOV<500
+d487 1
+a487 1
+#else	/* SCOV>=500 */
+d489 1
+a489 1
+#endif	/* SCOV<500 */
+d502 1
+a502 1
+#if	SCOV<500
+d505 1
+a505 1
+	 * by "ls -i" and stat(2), is the lower 16 bits of i_number.
+d508 1
+a508 1
+#else	/* SCOV>=500 */
+d510 1
+a510 1
+#endif	/* SCOV<500 */
+d518 1
+a518 1
+#if	SCOV<500
+d523 1
+a523 1
+#else	/* SCOV>=500 */
+d529 1
+a529 1
+#endif	/* SCOV<500 */
+d539 14
+a552 1
+		if ((Lf->inode = (unsigned long)i.i_number))
+d554 1
+d575 1
+a575 1
+#if	SCOV>=500
+d579 1
+d581 1
+a581 1
+#endif	/* SCOV>=500 */
+d692 1
+a692 1
+#if	SCOV>=500
+d699 1
+a699 1
+#endif	/* SCOV>=500 */
+@
+
+
+1.1
+log
+@Initial revision
+@
+text
+@d35 1
+a35 1
+static char *rcsid = "$Id: dnode.c,v 1.22 96/12/29 14:06:56 abe Exp $";
+d59 9
+a67 2
+	if ((dp = lkupdev(dev, 0)) != (struct l_dev *)NULL)
+		return(dp);
+d72 9
+a80 3
+		for (c = Clone; c; c = c->next) {
+			if (major(*dev) == minor(Devtp[c->dx].rdev))
+				return(&Devtp[c->dx]);
+d82 1
+@
