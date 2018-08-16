@@ -1,5 +1,0 @@
-#!/bin/ksh
-#
-# db.i2a2 - rdist Sun sources to db.i2a2
-
-$HOME/src/lsof4/support/GenericRdist db.i2a2 sun ssh

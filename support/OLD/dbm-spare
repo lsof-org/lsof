@@ -1,5 +1,0 @@
-#!/bin/ksh
-#
-# dbm-spare.i2a2 - rdist Sun sources to dbm-spare.i2a2
-
-$HOME/src/lsof4/support/GenericRdist dbm-spare.i2a2 sun ssh
