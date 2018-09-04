@@ -429,6 +429,7 @@ readmnt()
 	struct mounts *mp;
 	FILE *ms;
 	int nfs;
+	int mqueue;
 	struct stat sb;
 	static char *vbuf = (char *)NULL;
 	static size_t vsz = (size_t)0;
@@ -524,6 +525,12 @@ readmnt()
 	    if (*dn != '/')
 		continue;
 	    dnl = strlen(dn);
+
+	/*
+	 * Test Mqueue directory
+	 */
+	    mqueue = strcmp(fp[2], "mqueue");
+
 	/*
 	 * Test for duplicate and NFS directories.
 	 */
@@ -635,8 +642,12 @@ readmnt()
 		mp->ty = N_NFS;
 		if (HasNFS < 2)
 		    HasNFS = 2;
-	    } else
+	    } else if (!mqueue) {
+		mp->ty = N_MQUEUE;
+		MqueueDev = mp->dev;
+	    } else {
 		mp->ty = N_REGLR;
+	    }
 
 #if	defined(HASMNTSUP)
 	/*

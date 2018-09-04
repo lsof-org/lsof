@@ -174,6 +174,7 @@ struct sfile {
 };
 
 extern int HasNFS;
+extern dev_t MqueueDev;
 extern int OffType;
 
 #endif	/* LINUX_LSOF_H	*/

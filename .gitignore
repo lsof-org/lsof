@@ -98,6 +98,7 @@ LTunix
 #
 # Dialect specific test related files
 #
+dialects/linux/tests/mq_open
 dialects/linux/tests/open_with_flags
 dialects/linux/tests/pipe
 dialects/linux/tests/pty

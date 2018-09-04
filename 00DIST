@@ -4982,5 +4982,11 @@ July 14, 2018
 		information with +|-E option. The option handles
 		INET sockets using IPC.
 
+		[linux] Added support for POSIX MQ of Linux
+		implementation.  A POSIX message queue (MQ) is
+		represented in a fd on Linux.  lsof reported it as a
+		regular file. lsof with this change reports it as a
+		file with PSXMQ type if mqueue file system is mounted.
+
 Masatake YAMATO <yamato@redhat.com>, a member of lsof-org
 May 8, 2019
