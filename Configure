@@ -1624,6 +1624,10 @@ kernel generation process.
 	LSOF_TSTBIGF=" "
 	LSOF_VERS=12000
 	;;
+      13*)
+	LSOF_TSTBIGF=" "
+	LSOF_VERS=12000
+	;;
       *)
 	echo Unknown FreeBSD release: `uname -r`
 	rm -f $LSOF_HLP
