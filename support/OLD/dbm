@@ -1,5 +1,0 @@
-#!/bin/ksh
-#
-# dbm.i2a2 - rdist Sun sources to fe2.itsp (aka dbm.i2a2)
-
-$HOME/src/lsof4/support/GenericRdist fe2.itsp sun ssh

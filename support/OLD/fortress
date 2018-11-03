@@ -1,5 +1,0 @@
-#!/bin/ksh
-#
-# fortress - rdist Sun sources to fortress.rcac
-
-$HOME/src/lsof4/support/GenericRdist fortress.rcac.purdue.edu aix ssh

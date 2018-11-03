@@ -1,5 +1,0 @@
-#!/bin/ksh
-#
-# dbm-dev.i2a2 - rdist Sun sources to dbm-dev.i2a2
-
-$HOME/src/lsof4/support/GenericRdist dbm-dev.i2a2 sun ssh

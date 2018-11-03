@@ -1,4 +1,0 @@
-+sort_res.perl5		Perl 5 script to display top resource usage
-+				-Default is 20 top entries
-+				-e.g. sort_res.perl5 30
-+

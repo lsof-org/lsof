@@ -1,3 +1,0 @@
-
-( /export/home/abe/src/lsof4/support/binaries ) -> ( localhost )
-	install -oremove /var/ftpd/pub/tools/unix/lsof/binaries;
