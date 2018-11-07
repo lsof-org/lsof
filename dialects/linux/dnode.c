@@ -210,6 +210,41 @@ enter_pinfo()
 }
 
 
+/*
+ * find_pepti() -- find pipe end point info
+ */
+
+pxinfo_t *
+find_pepti(pid, lf, pp)
+	int pid;			/* pid of the process owning lf */
+	struct lfile *lf;		/* pipe's lfile */
+	pxinfo_t *pp;			/* previous pipe info (NULL == none) */
+{
+	struct lfile *ef;		/* pipe end local file structure */
+	int h;				/* hash result */
+	pxinfo_t *pi;			/* pipe info pointer */
+	struct lproc *ep;
+
+	if (Pinfo) {
+	    if (pp)
+		pi = pp;
+	     else {
+		h = HASHPINFO(lf->inode);
+		pi = Pinfo[h];
+	    }
+	    while (pi) {
+		if (pi->ino == lf->inode) {
+		    ef = pi->lf;
+		    ep = &Lproc[pi->lpx];
+		    if ((strcmp(lf->fd, ef->fd)) || (pid != ep->pid))
+			return(pi);
+		}
+		pi = pi->next;
+	    }
+	}
+	return((pxinfo_t *)NULL);
+}
+
 #if	defined(HASPTYEPT)
 
 
@@ -389,42 +424,6 @@ is_pty_ptmx(dev)
 	return 0;
 }
 #endif	/* defined(HASPTYEPT) */
-
-
-/*
- * find_pepti() -- find pipe end point info
- */
-
-pxinfo_t *
-find_pepti(pid, lf, pp)
-	int pid;			/* pid of the process owning lf */
-	struct lfile *lf;		/* pipe's lfile */
-	pxinfo_t *pp;			/* previous pipe info (NULL == none) */
-{
-	struct lfile *ef;		/* pipe end local file structure */
-	int h;				/* hash result */
-	pxinfo_t *pi;			/* pipe info pointer */
-	struct lproc *ep;
-
-	if (Pinfo) {
-	    if (pp)
-		pi = pp;
-	     else {
-		h = HASHPINFO(lf->inode);
-		pi = Pinfo[h];
-	    }
-	    while (pi) {
-		if (pi->ino == lf->inode) {
-		    ef = pi->lf;
-		    ep = &Lproc[pi->lpx];
-		    if ((strcmp(lf->fd, ef->fd)) || (pid != ep->pid))
-			return(pi);
-	 	}
-		pi = pi->next;
-	    }
-	}
-	return((pxinfo_t *)NULL);
-}
 #endif	/* defined(HASEPTOPTS) */
 
 
