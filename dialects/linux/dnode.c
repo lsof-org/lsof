@@ -124,6 +124,28 @@ check_lock()
 
 
 #if	defined(HASEPTOPTS)
+static void
+endpoint_pxinfo_hash(pxinfo_t **pinfo_hash, const size_t nbuckets,
+		     void (* free_elt) (void *))
+{
+	int h;				/* hash index */
+	pxinfo_t *pi, *pp;		/* temporary pointers */
+
+	if (!pinfo_hash)
+	    return;
+	for (h = 0; h < nbuckets; h++) {
+	    if ((pi = pinfo_hash[h])) {
+		do {
+		    pp = pi->next;
+		    (void) (* free_elt)
+		    ((FREE_P *)pi);
+		    pi = pp;
+		} while (pi);
+		pinfo_hash[h] = (pxinfo_t *)NULL;
+	    }
+	}
+}
+
 /*
  * clear_pinfo() -- clear allocated pipe info
  */
@@ -131,21 +153,7 @@ check_lock()
 void
 clear_pinfo()
 {
-	int h;				/* hash index */
-	pxinfo_t *pi, *pp;		/* temporary pointers */
-
-	if (!Pinfo)
-	    return;
-	for (h = 0; h < PINFOBUCKS; h++) {
-	    if ((pi = Pinfo[h])) {
-		do {
-		    pp = pi->next;
-		    (void) free((FREE_P *)pi);
-		    pi = pp;
-		} while (pi);
-		Pinfo[h] = (pxinfo_t *)NULL;
-	    }
-	}
+	endpoint_pxinfo_hash(Pinfo, PINFOBUCKS, free);
 }
 
 
@@ -255,21 +263,7 @@ find_pepti(pid, lf, pp)
 void
 clear_ptyinfo()
 {
-	int h;				/* hash index */
-	pxinfo_t *pi, *pp;		/* temporary pointers */
-
-	if (!PtyInfo)
-	    return;
-	for (h = 0; h < PINFOBUCKS; h++) {
-	    if ((pi = PtyInfo[h])) {
-		do {
-		    pp = pi->next;
-		    (void) free((FREE_P *)pi);
-		    pi = pp;
-		} while (pi);
-		PtyInfo[h] = (pxinfo_t *)NULL;
-	    }
-	}
+	endpoint_pxinfo_hash(PtyInfo, PINFOBUCKS, free);
 }
 
 
