@@ -146,6 +146,49 @@ endpoint_pxinfo_hash(pxinfo_t **pinfo_hash, const size_t nbuckets,
 	}
 }
 
+static void
+endpoint_enter(pxinfo_t **pinfo_hash, const char *table_name, int id)
+{
+	int h;
+	struct lfile *lf;		/* local file structure pointer */
+	struct lproc *lp;		/* local proc structure pointer */
+	pxinfo_t *np, *pi, *pe;		/* inode hash pointers */
+
+    /*
+     * Make sure this is a unique entry.
+     */
+	for (h = HASHPINFO(id), pi = pinfo_hash[h], pe = (pxinfo_t *)NULL;
+	     pi;
+	     pe = pi, pi = pi->next
+	    ) {
+	    lf = pi->lf;
+	    lp = &Lproc[pi->lpx];
+	    if (pi->ino == id) {
+		if ((lp->pid == Lp->pid) && !strcmp(lf->fd, Lf->fd))
+		    return;
+	    }
+	}
+   /*
+    * Allocate, fill and link a new pipe info structure used for pty
+    * to the end of the pty device hash chain.
+    */
+	if (!(np = (pxinfo_t *)malloc(sizeof(pxinfo_t)))) {
+	    (void) fprintf(stderr,
+		"%s: no space for pipeinfo for %s, PID %d, FD %s\n",
+		table_name,
+		Pn, Lp->pid, Lf->fd);
+	    Exit(1);
+	}
+	np->ino = id;
+	np->lf = Lf;
+	np->lpx = Lp - Lproc;
+	np->next = (pxinfo_t *)NULL;
+	if (pe)
+	    pe->next = np;
+	else
+	    pinfo_hash[h] = np;
+}
+
 /*
  * clear_pinfo() -- clear allocated pipe info
  */
@@ -167,11 +210,6 @@ clear_pinfo()
 static void
 enter_pinfo()
 {
-	int h;				/* hash result */
-	struct lfile *lf;		/* local file structure pointer */
-	struct lproc *lp;		/* local proc structure pointer */
-	pxinfo_t *np, *pi, *pe;		/* pipe info pointers */
-
 	if (!Pinfo) {
 	/*
 	 * Allocate pipe info hash buckets.
@@ -183,38 +221,7 @@ enter_pinfo()
 		    Exit(1);
 	    }
 	}
-    /*
-     * Make sure this is a unique entry.
-     */
-	for (h = HASHPINFO(Lf->inode), pi = Pinfo[h], pe = (pxinfo_t *)NULL;
-	     pi;
-	     pe = pi, pi = pi->next
-	) {
-	    lf = pi->lf;
-	    lp = &Lproc[pi->lpx];
-	    if (pi->ino == Lf->inode) {
-		if ((lp->pid == Lp->pid) && !strcmp(lf->fd, Lf->fd))
-		    return;
-	    }
-	}
-   /*
-    * Allocate, fill and link a new pipe info structure to the end of
-    * the pipe inode hash chain.
-    */
-	if (!(np = (pxinfo_t *)malloc(sizeof(pxinfo_t)))) {
-	    (void) fprintf(stderr,
-		"%s: no space for pipeinfo, PID %d, FD %s\n",
-		Pn, Lp->pid, Lf->fd);
-	    Exit(1);
-	}
-	np->ino = Lf->inode;
-	np->lf = Lf;
-	np->lpx = Lp - Lproc;
-	np->next = (pxinfo_t *)NULL;
-	if (pe)
-	    pe->next = np;
-	else
-	    Pinfo[h] = np;
+	endpoint_enter(Pinfo, "pipeinfo", Lf->inode);
 }
 
 
@@ -278,16 +285,10 @@ void
 enter_ptmxi(mn)
 	int mn;				/* minor number of device */
 {
-	int h;				/* hash result */
-	struct lfile *lf;		/* local file structure pointer */
-	struct lproc *lp;		/* local proc structure pointer */
-	pxinfo_t *np, *pi, *pe;		/* inode hash pointers */
-
-	if (!PtyInfo) {
-
 	/*
 	 * Allocate pipe info hash buckets (but used for pty).
 	 */
+	if (!PtyInfo) {
 	    if (!(PtyInfo = (pxinfo_t **)calloc(PINFOBUCKS,
 			    sizeof(pxinfo_t *))))
 	    {
@@ -296,38 +297,7 @@ enter_ptmxi(mn)
 		    Exit(1);
 	    }
 	}
-    /*
-     * Make sure this is a unique entry.
-     */
-	for (h = HASHPINFO(mn), pi = PtyInfo[h], pe = (pxinfo_t *)NULL;
-	     pi;
-	     pe = pi, pi = pi->next
-	) {
-	    lf = pi->lf;
-	    lp = &Lproc[pi->lpx];
-	    if (pi->ino == mn) {
-		if ((lp->pid == Lp->pid) && !strcmp(lf->fd, Lf->fd))
-		    return;
-	    }
-	}
-   /*
-    * Allocate, fill and link a new pipe info structure used for pty
-    * to the end of the pty device hash chain.
-    */
-	if (!(np = (pxinfo_t *)malloc(sizeof(pxinfo_t)))) {
-	    (void) fprintf(stderr,
-		"%s: no space for pipeinfo for pty, PID %d, FD %s\n",
-		Pn, Lp->pid, Lf->fd);
-	    Exit(1);
-	}
-	np->ino = mn;
-	np->lf = Lf;
-	np->lpx = Lp - Lproc;
-	np->next = (pxinfo_t *)NULL;
-	if (pe)
-	    pe->next = np;
-	else
-	    PtyInfo[h] = np;
+	endpoint_enter(PtyInfo, "pty", mn);
 }
 
 
