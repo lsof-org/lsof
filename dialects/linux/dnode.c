@@ -189,6 +189,30 @@ endpoint_enter(pxinfo_t **pinfo_hash, const char *table_name, int id)
 	    pinfo_hash[h] = np;
 }
 
+static pxinfo_t *
+endpoint_find(pxinfo_t **pinfo_hash,
+	      int (* is_acceptable) (pxinfo_t *, int, struct lfile *),
+	      int pid, struct lfile *lf, int id, pxinfo_t *pp)
+{
+	int h;				/* hash result */
+	pxinfo_t *pi;			/* pipe info pointer */
+
+	if (pinfo_hash) {
+	    if (pp)
+		pi = pp;
+	    else {
+		h = HASHPINFO(id);
+		pi = pinfo_hash[h];
+	    }
+	    while (pi) {
+		if (pi->ino == id && is_acceptable(pi, pid, lf))
+		    return (pi);
+		pi = pi->next;
+	    }
+	}
+	return ((pxinfo_t *)NULL);
+}
+
 /*
  * clear_pinfo() -- clear allocated pipe info
  */
@@ -226,6 +250,19 @@ enter_pinfo()
 
 
 /*
+ * pepti_accept_other_than_self() -- a helper function return true if
+ * fd associated with pi is not the same as fd associated with lf.
+ */
+
+static int
+pepti_accept_other_than_self(pxinfo_t *pi, int pid, struct lfile *lf)
+{
+	struct lfile *ef = pi->lf;
+	struct lproc *ep = &Lproc[pi->lpx];
+	return (strcmp(lf->fd, ef->fd)) || (pid != ep->pid);
+}
+
+/*
  * find_pepti() -- find pipe end point info
  */
 
@@ -235,29 +272,9 @@ find_pepti(pid, lf, pp)
 	struct lfile *lf;		/* pipe's lfile */
 	pxinfo_t *pp;			/* previous pipe info (NULL == none) */
 {
-	struct lfile *ef;		/* pipe end local file structure */
-	int h;				/* hash result */
-	pxinfo_t *pi;			/* pipe info pointer */
-	struct lproc *ep;
-
-	if (Pinfo) {
-	    if (pp)
-		pi = pp;
-	     else {
-		h = HASHPINFO(lf->inode);
-		pi = Pinfo[h];
-	    }
-	    while (pi) {
-		if (pi->ino == lf->inode) {
-		    ef = pi->lf;
-		    ep = &Lproc[pi->lpx];
-		    if ((strcmp(lf->fd, ef->fd)) || (pid != ep->pid))
-			return(pi);
-		}
-		pi = pi->next;
-	    }
-	}
-	return((pxinfo_t *)NULL);
+	return endpoint_find(Pinfo,
+			     pepti_accept_other_than_self,
+			     pid, lf, lf->inode, pp);
 }
 
 #if	defined(HASPTYEPT)
@@ -300,6 +317,27 @@ enter_ptmxi(mn)
 	endpoint_enter(PtyInfo, "pty", mn);
 }
 
+/*
+ * ptyepti_accept_ptmx() -- a helper function return whether lfile is pty ptmx or not
+ */
+
+static int
+ptyepti_accept_ptmx(pxinfo_t *pi, int pid, struct lfile *lf)
+{
+	struct lfile *ef = pi->lf;
+	return is_pty_ptmx(ef->rdev);
+}
+
+/*
+ * ptyepti_accept_slave() -- a helper function returns whether lfile is pty slave or not
+ */
+
+static int
+ptyepti_accept_slave(pxinfo_t *pi, int pid, struct lfile *lf)
+{
+	struct lfile *ef = pi->lf;
+	return is_pty_slave(GET_MAJ_DEV(ef->rdev));
+}
 
 /*
  * find_ptyepti() -- find pseudoterminal end point info
@@ -315,33 +353,9 @@ find_ptyepti(pid, lf, m, pp)
 	pxinfo_t *pp;			/* previous pseudoterminal info
 					 * (NULL == none) */
 {
-	struct lfile *ef;		/* pseudoterminal end local file */
-	int h;				/* hash result */
-	INODETYPE mn;			/* minor number */
-	pxinfo_t *pi;			/* pseudoterminal info pointer */
-	struct lproc *ep;
-
-
-	mn = m ? GET_MIN_DEV(lf->rdev) : lf->tty_index;
-	if (PtyInfo) {
-	    if (pp)
-		pi = pp;
-	    else {
-		h = HASHPINFO(mn);
-		pi = PtyInfo[h];
-	    }
-	    while (pi) {
-		if (pi->ino == mn) {
-		    ef = pi->lf;
-		    ep = &Lproc[pi->lpx];
-		    if ((m && is_pty_ptmx(ef->rdev))
-		    ||  ((!m) && is_pty_slave(GET_MAJ_DEV(ef->rdev))))
-			return(pi);
-		}
-		pi = pi->next;
-	     }
-	}
-	return((pxinfo_t *)NULL);
+	return endpoint_find(PtyInfo,
+			     m ? ptyepti_accept_ptmx : ptyepti_accept_slave,
+			     pid, lf, m ? GET_MIN_DEV(lf->rdev) : lf->tty_index, pp);
 }
 
 
