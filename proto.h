@@ -122,7 +122,7 @@ _PROTOTYPE(extern void process_uxsinfo,(int f));
 #  if	defined(HASPTYEPT)
 _PROTOTYPE(extern void clear_ptyinfo,(void));
 _PROTOTYPE(extern void enter_ptmxi,(int mn));
-_PROTOTYPE(extern pxinfo_t *find_ptyepti,(struct lfile *lf,int m,pxinfo_t *pp));
+_PROTOTYPE(extern pxinfo_t *find_ptyepti,(int pid, struct lfile *lf,int m,pxinfo_t *pp));
 _PROTOTYPE(extern int is_pty_slave,(int sm));
 _PROTOTYPE(extern int is_pty_ptmx,(dev_t dev));
 _PROTOTYPE(extern void process_ptyinfo,(int f));

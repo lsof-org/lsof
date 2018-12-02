@@ -307,7 +307,8 @@ enter_ptmxi(mn)
  */
 
 pxinfo_t *
-find_ptyepti(lf, m, pp)
+find_ptyepti(pid, lf, m, pp)
+	int pid;
 	struct lfile *lf;		/* pseudoterminal's lfile */
 	int m;				/* minor number type:
 					 *     0 == use tty_index
@@ -319,6 +320,7 @@ find_ptyepti(lf, m, pp)
 	int h;				/* hash result */
 	INODETYPE mn;			/* minor number */
 	pxinfo_t *pi;			/* pseudoterminal info pointer */
+	struct lproc *ep;
 
 
 	mn = m ? GET_MIN_DEV(lf->rdev) : lf->tty_index;
@@ -332,12 +334,10 @@ find_ptyepti(lf, m, pp)
 	    while (pi) {
 		if (pi->ino == mn) {
 		    ef = pi->lf;
-		    if (((m && is_pty_ptmx(ef->rdev))
+		    ep = &Lproc[pi->lpx];
+		    if ((m && is_pty_ptmx(ef->rdev))
 		    ||  ((!m) && is_pty_slave(GET_MAJ_DEV(ef->rdev))))
-		    &&   strcmp(lf->fd, ef->fd)
-		    ) {
 			return(pi);
-		    }
 		}
 		pi = pi->next;
 	     }

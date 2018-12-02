@@ -1,5 +1,6 @@
 HELPERS = \
 	pipe \
+	pty \
 	\
 	$(NULL)
 

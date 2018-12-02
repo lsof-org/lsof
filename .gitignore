@@ -99,3 +99,4 @@ LTunix
 # Dialect specific test related files
 #
 dialects/linux/tests/pipe
+dialects/linux/tests/pty

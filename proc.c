@@ -1443,7 +1443,7 @@ process_ptyinfo(f)
 		 */
 		    pc = 1;
 		    do {
-			if ((pp = find_ptyepti(Lf, !mos, pp))) {
+			if ((pp = find_ptyepti(Lp->pid, Lf, !mos, pp))) {
 
 			/*
 			 * This pseudoterminal endpoint is linked to the
@@ -1468,7 +1468,7 @@ process_ptyinfo(f)
 		    Lp->pss |= PS_SEC;
 		    pc = 1;
 		    do {
-			if ((pp = find_ptyepti(Lf, !mos, pp))) {
+			if ((pp = find_ptyepti(Lp->pid, Lf, !mos, pp))) {
 			    prt_ptyinfo(pp, (mos && pc), 0);
 			    pp = pp->next;
 			    pc = 0;
