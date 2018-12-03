@@ -424,7 +424,6 @@ find_pepti(pid, lf, pp)
 	    }
 	}
 	return((pxinfo_t *)NULL);
-
 }
 #endif	/* defined(HASEPTOPTS) */
 
