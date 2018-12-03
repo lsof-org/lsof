@@ -38,6 +38,9 @@ static char *rcsid = "$Id: proc.c,v 1.50 2018/02/14 14:20:14 abe Exp $";
 
 #include "lsof.h"
 
+#if	defined(HASEPTOPTS)
+_PROTOTYPE(static void prt_pinfo,(pxinfo_t *pp, int ps));
+#endif  /* defined(HASEPTOPTS) */
 #if	defined(HASPTYEPT)
 _PROTOTYPE(static void prt_ptyinfo,(pxinfo_t *pp, int prt_edev, int ps));
 #endif	/* defined(HASPTYEPT) */
@@ -970,10 +973,6 @@ process_pinfo(f)
 					 *     1 == process end point
 					 */
 {
-	struct lproc *ep;		/* pipe endpoint process */
-	struct lfile *ef;		/* pipe endpoint file */
-	int i;				/* temporary index */
-	char nma[1024];			/* name addition buffer */
 	pxinfo_t *pp;			/* previous pipe info */
 	
 	if (!FeptE)
@@ -1002,25 +1001,7 @@ process_pinfo(f)
 			 * file.  Add its PID and FD to the name column
 			 * addition.
 			 */
-			    ep = &Lproc[pp->lpx];
-			    ef = pp->lf;
-			    for (i = 0; i < (FDLEN - 1); i++) {
-				if (ef->fd[i] != ' ')
-				    break;
-			    }
-			    (void) snpf(nma, sizeof(nma) - 1, "%d,%.*s,%s%c",
-				ep->pid, CmdLim, ep->cmd,&ef->fd[i],
-				ef->access);
-			    (void) add_nma(nma, strlen(nma));
-			    if (FeptE == 2) {
-
-			    /*
-			     * Endpoint files have been selected, so mark this
-			     * one for selection later. Set the type to PIPE.
-			     */
-				ef->chend = CHEND_PIPE;
-				ep->ept |= EPT_PIPE_END;
-			    }
+			    prt_pinfo(pp, (FeptE == 2));
 			    pp = pp->next;
 			}
 		    } while (pp);
@@ -1037,22 +1018,50 @@ process_pinfo(f)
 		    Lp->pss |= PS_SEC;
 		    do {
 			if ((pp = find_pepti(Lp->pid, Lf, pp))) {
-			    ep = &Lproc[pp->lpx];
-			    ef = pp->lf;
-			    for (i = 0; i < (FDLEN - 1); i++) {
-				if (ef->fd[i] != ' ')
-				    break;
-			    }
-			    (void) snpf(nma, sizeof(nma) - 1, "%d,%.*s,%s%c",
-				ep->pid, CmdLim, ep->cmd, &ef->fd[i],
-				ef->access);
-			    (void) add_nma(nma, strlen(nma));
+			    prt_pinfo(pp, 0);
 			    pp = pp->next;
 			}
 		    } while (pp);
 		}
 		break;
 	    }
+	}
+}
+
+/*
+ * prt_pinfo() -- print pipe information
+ */
+
+static void
+prt_pinfo(pp, ps)
+	pxinfo_t *pp;			/* peer info */
+	int ps;				/* processing status:
+					 *    0 == process immediately
+					 *    1 == process later */
+{
+	struct lproc *ep;		/* pipe endpoint process */
+	struct lfile *ef;		/* pipe endpoint file */
+	int i;				/* temporary index */
+	char nma[1024];			/* name addition buffer */
+
+	ep = &Lproc[pp->lpx];
+	ef = pp->lf;
+	for (i = 0; i < (FDLEN - 1); i++) {
+	    if (ef->fd[i] != ' ')
+		break;
+	}
+	(void) snpf(nma, sizeof(nma) - 1, "%d,%.*s,%s%c",
+	    ep->pid, CmdLim, ep->cmd, &ef->fd[i],
+	    ef->access);
+	(void) add_nma(nma, strlen(nma));
+	if (ps) {
+
+	/*
+	* Endpoint files have been selected, so mark this
+	* one for selection later. Set the type to PIPE.
+	*/
+	    ef->chend = CHEND_PIPE;
+	    ep->ept |= EPT_PIPE_END;
 	}
 }
 #endif	/* defined(HASEPTOPTS) */
