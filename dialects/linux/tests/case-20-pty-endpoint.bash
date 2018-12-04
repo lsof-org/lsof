@@ -60,6 +60,15 @@ fi
 	    $lsof +E -p "$parent" |
 		grep -E -q "pty *$child .* ${fdm}r *CHR .* /dev/pts/$names $parent,pty,${fdm}r"
 	} && {
+	    # pty     17592 yamato    3r   CHR    5,2      0t0       1129 /dev/ptmx ->/dev/pts/16 17592,pty,4r 17593,pty,3r
+	    $lsof +E -p "$child" |
+		grep -E -q "pty *$parent .* ${fdm}r *CHR .* /dev/ptmx ->/dev/pts/$names ($parent,pty,${fds}r $child,pty,${fdm}r)|($child,pty,${fdm}r $parent,pty,${fds}r)"
+	} && {
+	    # pty     17593 yamato    3r   CHR 136,16      0t0         19 /dev/pts/16 17592,pty,3r
+	    echo expected pattern: "pty *$child .* ${fdm}r *CHR .* /dev/pts/$names $parent,pty,${fdm}r"
+	    $lsof +E -p "$child" |
+		grep -E -q "pty *$child .* ${fdm}r *CHR .* /dev/pts/$names $parent,pty,${fdm}r"
+	} && {
 	    kill "$child"
 	    exit 0
 	}
