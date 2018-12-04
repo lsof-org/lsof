@@ -354,8 +354,21 @@ int
 is_pty_slave(sm)
 	int sm;				/* slave major device number */
 {
+	/* linux/Documentation/admin-guide/devices.txt
+	   -------------------------------------------
+	   136-143 char	Unix98 PTY slaves
+		  0 = /dev/pts/0	First Unix98 pseudo-TTY
+		  1 = /dev/pts/1	Second Unix98 pseudo-TTY
+		    ...
+
+		These device nodes are automatically generated with
+		the proper permissions and modes by mounting the
+		devpts filesystem onto /dev/pts with the appropriate
+		mount options (distribution dependent, however, on
+		*most* distributions the appropriate options are
+		"mode=0620,gid=<gid of the "tty" group>".) */
 	if ((UNIX98_PTY_SLAVE_MAJOR <= sm)
-	&&  (sm < (UNIX98_PTY_SLAVE_MAJOR + UNIX98_PTY_SLAVE_MAJOR))
+	&&  (sm < (UNIX98_PTY_SLAVE_MAJOR + UNIX98_PTY_MAJOR_COUNT))
 	) {
 	    return 1;
 	}
