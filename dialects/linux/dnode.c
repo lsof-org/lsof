@@ -213,6 +213,21 @@ endpoint_find(pxinfo_t **pinfo_hash,
 	return ((pxinfo_t *)NULL);
 }
 
+
+/*
+ * endpoint_accept_other_than_self() -- a helper function return true if
+ * fd associated with pi is not the same as fd associated with lf.
+ */
+
+static int
+endpoint_accept_other_than_self(pxinfo_t *pi, int pid, struct lfile *lf)
+{
+	struct lfile *ef = pi->lf;
+	struct lproc *ep = &Lproc[pi->lpx];
+	return (strcmp(lf->fd, ef->fd)) || (pid != ep->pid);
+}
+
+
 /*
  * clear_pinfo() -- clear allocated pipe info
  */
@@ -250,19 +265,6 @@ enter_pinfo()
 
 
 /*
- * pepti_accept_other_than_self() -- a helper function return true if
- * fd associated with pi is not the same as fd associated with lf.
- */
-
-static int
-pepti_accept_other_than_self(pxinfo_t *pi, int pid, struct lfile *lf)
-{
-	struct lfile *ef = pi->lf;
-	struct lproc *ep = &Lproc[pi->lpx];
-	return (strcmp(lf->fd, ef->fd)) || (pid != ep->pid);
-}
-
-/*
  * find_pepti() -- find pipe end point info
  */
 
@@ -273,7 +275,7 @@ find_pepti(pid, lf, pp)
 	pxinfo_t *pp;			/* previous pipe info (NULL == none) */
 {
 	return endpoint_find(Pinfo,
-			     pepti_accept_other_than_self,
+			     endpoint_accept_other_than_self,
 			     pid, lf, lf->inode, pp);
 }
 
