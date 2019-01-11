@@ -4920,6 +4920,7 @@ July 14, 2018
 		[darwin] Fix a typo causing a build error.
 		Fix a potential memory leak.
 		[linux] use tirpc for rpc if libc doesn't provide rpc.h.
+		Fix a typo in man page.
 
 Masatake YAMATO <yamato@redhat.com>, a member of lsof-org
 May 6, 2019
