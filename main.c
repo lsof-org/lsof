@@ -1386,6 +1386,13 @@ main(argc, argv)
 			    if (Lp->ept & EPT_NETS)
 				(void) process_netsinfo(0);
 
+# if	defined(HASIPv6)
+			/*
+			 * Process INET6 socket endpoints.
+			 */
+			    if (Lp->ept & EPT_NETS6)
+				(void) process_nets6info(0);
+# endif	/* defined(HASIPv6) */
 		    }
 		/*
 		 * In a second pass, look for unselected endpoint files,
@@ -1427,6 +1434,13 @@ main(argc, argv)
 			    if (Lp->ept & EPT_NETS_END)
 				(void) process_netsinfo(1);
 
+#if	defined(HASIPv6)
+			/*
+			 * Process INET6 socket endpoints.
+			 */
+			    if (Lp->ept & EPT_NETS6_END)
+				(void) process_nets6info(1);
+# endif	/* defined(HASIPv6) */
 		    }
 		    Lf = lf;
 		}
@@ -1473,6 +1487,10 @@ main(argc, argv)
 # endif	/* defined(HASPTYEPT) */
 
 		(void) clear_netsinfo();
+
+# if	defined(HASIPv6)
+		(void) clear_nets6info();
+# endif	/* defined(HASIPv6) */
 #endif	/* defined(HASEPTOPTS) */
 
 		if (rc) {
