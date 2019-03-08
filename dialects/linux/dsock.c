@@ -4404,6 +4404,7 @@ process_proc_sock(p, pbr, s, ss, l, lss)
 		    (INODETYPE)s->st_ino);
 		tbuf[sizeof(tbuf) - 1] = '\0';
 		enter_dev_ch(tbuf);
+		Lf->inode = (INODETYPE)s->st_ino;
 	    }
 	    af = AF_INET6;
 	    if (!IN6_IS_ADDR_UNSPECIFIED(&tp6->faddr) || tp6->fport)
