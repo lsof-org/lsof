@@ -129,6 +129,10 @@ _PROTOTYPE(extern pxinfo_t *find_ptyepti,(int pid, struct lfile *lf,int m,pxinfo
 _PROTOTYPE(extern int is_pty_slave,(int sm));
 _PROTOTYPE(extern int is_pty_ptmx,(dev_t dev));
 _PROTOTYPE(extern void process_ptyinfo,(int f));
+_PROTOTYPE(extern void clear_evtfdinfo,(void));
+_PROTOTYPE(extern void enter_evtfdinfo,(int id));
+_PROTOTYPE(extern pxinfo_t *find_evtfdinfo,(int pid, struct lfile *lf,pxinfo_t *pp));
+_PROTOTYPE(extern void process_evtfdinfo,(int f));
 #  endif	/* defined(HASPTYEPT) */
 _PROTOTYPE(extern void clear_netsinfo,(void));
 _PROTOTYPE(extern void process_netsinfo,(int f));

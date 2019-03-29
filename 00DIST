@@ -4999,5 +4999,8 @@ July 14, 2018
                 [FreeBSD] update to include <sys/_lock.h> on recent -CURRENT
 		since it is no longer implicitly included via header pollution.
 
+		[linux] Added Linux display of eventfd endpoint information
+		with +|-E option. The option handles eventfd using IPC.
+
 Masatake YAMATO <yamato@redhat.com>, a member of the lsof-org team at GitHub
 May 8, 2019

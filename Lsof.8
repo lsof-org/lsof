@@ -642,7 +642,7 @@ option.)
 .B +|-E
 .B +E
 specifies that Linux pipe, Linux UNIX socket, Linux INET(6) socket closed in a local host, Linux pseudoterminal files,
-and POSIX Message Queueue implementation in Linux
+POSIX Message Queueue implementation in Linux, and Linux eventfd
 should be displayed with endpoint information and the files of the endpoints should also be displayed.
 .IP
 Note 1: UNIX socket file endpoint information is only available when the
@@ -711,6 +711,10 @@ IPC; both endpoints bind to the same local IPv4 or IPv6 address.
 .IP
 POSIX Message Queue file endpoint information is displayed in the NAME
 column in the same form as that of pipe.
+.IP
+eventfd endpoint information is displayed in the NAME column in
+the same form as that of pipe. This feature works on Linux kernels
+above 5.2.0.
 .IP
 Multiple occurrences of this information can appear in a file's
 NAME column.

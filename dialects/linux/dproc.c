@@ -45,15 +45,25 @@ static char *rcsid = "$Id: dproc.c,v 1.31 2018/03/26 21:52:29 abe Exp $";
 #define	FDINFO_FLAGS		1	/* fdinfo flags available */
 #define	FDINFO_POS		2	/* fdinfo position available */
 
-#if	defined(HASEPTOPTS) && defined(HASPTYEPT)
-#define FDINFO_TTY_INDEX	4	/* fdinfo tty-index available */
-#endif	/* defined(HASEPTOPTS) && defined(HASPTYEPT) */
+#if	defined(HASEPTOPTS)
+#define FDINFO_EVENTFD_ID	4	/* fdinfo eventfd-id available */
+#if	defined(HASPTYEPT)
+#define FDINFO_TTY_INDEX	8	/* fdinfo tty-index available */
+#endif  /* defined(HASPTYEPT) */
+#endif	/* defined(HASEPTOPTS) */
 
-#if	defined(HASEPTOPTS) && defined(HASPTYEPT)
-#define FDINFO_ALL		(FDINFO_FLAGS | FDINFO_POS | FDINFO_TTY_INDEX)
-#else   /* !(defined(HASEPTOPTS) && defined(HASPTYEPT)) */
-#define FDINFO_ALL		(FDINFO_FLAGS | FDINFO_POS )
-#endif	/* defined(HASEPTOPTS) && defined(HASPTYEPT) */
+#define FDINFO_BASE		(FDINFO_FLAGS | FDINFO_POS )
+#if	defined(HASEPTOPTS)
+#if     defined(HASPTYEPT)
+#define FDINFO_ALL		(FDINFO_BASE | FDINFO_TTY_INDEX | FDINFO_EVENTFD_ID)
+#else  /* !defined(HASPTYEPT) */
+#define FDINFO_ALL		(FDINFO_BASE | FDINFO_EVENTFD_ID)
+#endif  /* defined(HASPTYEPT) */
+#define FDINFO_OPTIONAL		(FDINFO_ALL & ~FDINFO_BASE)
+#else   /* !defined(HASEPTOPTS) */
+#define FDINFO_ALL		FDINFO_BASE
+#endif	/* defined(HASEPTOPTS) */
+
 
 #define	LSTAT_TEST_FILE		"/"
 #define LSTAT_TEST_SEEK		1
@@ -71,9 +81,12 @@ struct l_fdinfo {
 	int flags;			/* flags: line value */
 	off_t pos;			/* pos: line value */
 
-#if	defined(HASEPTOPTS) && defined(HASPTYEPT)
+#if	defined(HASEPTOPTS)
+	int eventfd_id;
+#if	defined(HASPTYEPT)
 	int tty_index;			/* pty line index */
-#endif	/* defined(HASEPTOPTS) && defined(HASPTYEPT) */
+#endif  /* defined(HASPTYEPT) */
+#endif	/* defined(HASEPTOPTS) */
 
 };
 
@@ -446,9 +459,12 @@ get_fdinfo(p, msk, fi)
 	if (!fi)
 	    return(0);
 
-#if	defined(HASEPTOPTS) && defined(HASPTYEPT)
+#if	defined(HASEPTOPTS)
+	fi->eventfd_id = -1;
+#if	defined(HASPTYEPT)
 	fi->tty_index = -1;
-#endif	/* defined(HASEPTOPTS) && defined(HASPTYEPT) */
+#endif	/* defined(HASPTYEPT) */
+#endif	/* defined(HASEPTOPTS) */
 
 	if (!p || !*p || !(fs = fopen(p, "r")))
 	    return(0);
@@ -485,29 +501,45 @@ get_fdinfo(p, msk, fi)
 		if ((rv |= FDINFO_POS) == FDINFO_ALL)
 		    break;
 
-#if	defined(HASEPTOPTS) && defined(HASPTYEPT)
-	    } else if (!strcmp(fp[0], "tty-index:")) {
-
+#if	defined(HASEPTOPTS)
+	    } else if (
+		       !strcmp(fp[0], "eventfd-id:")
+#if	defined(HASPTYEPT)
+		       || !strcmp(fp[0], "tty-index:")
+#endif	/* defined(HASPTYEPT) */
+		       ) {
+	      int val;
 	    /*
-	     * Process a "tty-index:" line.
+	     * Process a "tty-index:" or "eventfd-id:" line.
 	     */
 		ep = (char *)NULL;
 		if ((ul = strtoul(fp[1], &ep, 0)) == ULONG_MAX
 		||  !ep || *ep)
 		     continue;
-		fi->tty_index = (int)ul;
-		if (fi->tty_index < 0) {
 
+		val = (int)ul;
+		if (val < 0) {
 		/*
 		 * Oops! If integer overflow occurred, reset the field.
 		 */
-		     fi->tty_index = -1;
+		     val = -1;
 		}
-		if ((rv |= FDINFO_TTY_INDEX) == msk)
- 		    break;
-#endif	/* defined(HASEPTOPTS) && defined(HASPTYEPT) */
 
+		if (fp[0][0] == 'e') {
+		    fi->eventfd_id = val;
+		    rv |= FDINFO_EVENTFD_ID;
+		}
+#if	defined(HASPTYEPT)
+		else {
+		    fi->tty_index = val;
+		    rv |= FDINFO_TTY_INDEX;
+		}
+#endif	/* defined(HASPTYEPT) */
+
+		if ((rv|FDINFO_OPTIONAL) == msk)
+		  break;
 	    }
+#endif	/* defined(HASEPTOPTS) */
 	}
 	fclose(fs);
 /*
@@ -1254,9 +1286,22 @@ process_id(idp, idpl, cmd, uid, pid, ppid, pgid, tid, tcmd)
 		if (pn) {
 		    process_proc_node(lnk ? pbuf : path, path, &sb, ss, &lsb,
 				      ls);
-		    if ((Lf->ntype == N_ANON_INODE) && rest && *rest)
-			enter_nm(rest);
-
+		    if ((Lf->ntype == N_ANON_INODE)) {
+			if (rest && *rest) {
+			    if (fi.eventfd_id != -1
+				&& strcmp(rest, "[eventfd]") == 0) {
+				(void) snpf(rest,
+					    sizeof(pbuf) - (rest - pbuf),
+					    "[eventfd:%d]", fi.eventfd_id);
+			    }
+			    enter_nm(rest);
+			}
+			if (FeptE && fi.eventfd_id != -1) {
+			    enter_evtfdinfo(fi.eventfd_id);
+			    Lf->eventfd_id = fi.eventfd_id;
+			    Lf->sf |= SELEVTFDINFO;
+			}
+		    }
 #if	defined(HASEPTOPTS) && defined(HASPTYEPT)
 		    else if (FeptE
 			 &&  Lf->rdev_def
