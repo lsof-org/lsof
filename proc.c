@@ -168,6 +168,9 @@ alloc_lfile(nm, num)
 
 #if	defined(HASEPTOPTS)
 	Lf->chend = 0;
+#if	defined(HASPTYEPT)
+	Lf->tty_index  = -1;
+#endif	/* defined(HASPTYEPT) */
 #endif	/* defined(HASEPTOPTS) */
 
 #if	defined(HASSOOPT)
