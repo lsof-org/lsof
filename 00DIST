@@ -4914,5 +4914,9 @@ July 14, 2018
 		Many documentations are not updated yet.
 		URLs in -v output and -h output are updated.
 
+4.92.2		???
+
+		Made FreeBSD 13 adjustment.
+
 Masatake YAMATO <yamato@redhat.com>, a member of lsof-org
 May 6, 2019
