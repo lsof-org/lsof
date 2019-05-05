@@ -303,7 +303,12 @@ static struct utmp dummy_utmp;		/* to get login name length */
 # endif	/* !defined(LOGINML) */
 
 #define	LPROCINCR	128		/* Lproc[] allocation increment */
-#define	LSOF_URL	"ftp://lsof.itap.purdue.edu/pub/tools/unix/lsof/"
+#define	LSOF_GITHUB_URL	"https://github.com/lsof-org"
+#define	LSOF_REPO	"lsof-legacy"
+#define	LSOF_BRANCH	"cleanup"
+#define	LSOF_REPO_URL	LSOF_GITHUB_URL "/" LSOF_REPO
+#define	LSOF_FAQ_URL	LSOF_REPO_URL "/blob/" LSOF_BRANCH "/00FAQ"
+#define	LSOF_MAN_URL	LSOF_REPO_URL "/blob/" LSOF_BRANCH "/Lsof.8"
 #define	MIN_AF_ADDR	sizeof(struct in_addr)
 					/* minimum AF_* address length */
 

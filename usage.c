@@ -340,9 +340,9 @@ usage(xv, fh, version)
 
 	if (Fhelp || xv) {
 	    (void) fprintf(stderr, "%s %s\n latest revision: %s\n",
-		Pn, LSOF_VERSION, LSOF_URL);
-	    (void) fprintf(stderr, " latest FAQ: %sFAQ\n", LSOF_URL);
-	    (void) fprintf(stderr, " latest man page: %slsof_man\n", LSOF_URL);
+		Pn, LSOF_VERSION, LSOF_REPO_URL);
+	    (void) fprintf(stderr, " latest FAQ: %s\n", LSOF_FAQ_URL);
+	    (void) fprintf(stderr, " latest (non-formatted) man page: %s\n", LSOF_MAN_URL);
 	    (void) fprintf(stderr,
 		" usage: [-?ab%sh%slnNoOP%s%stUvV%s]",
 
@@ -919,11 +919,11 @@ usage(xv, fh, version)
 	 */
 	    (void) fprintf(stderr, "%s version information:\n", Pn);
 	    (void) fprintf(stderr, "    revision: %s\n", LSOF_VERSION);
-	    (void) fprintf(stderr, "    latest revision: %s\n", LSOF_URL);
-	    (void) fprintf(stderr, "    latest FAQ: %sFAQ\n",
-		LSOF_URL);
-	    (void) fprintf(stderr, "    latest man page: %slsof_man\n",
-		LSOF_URL);
+	    (void) fprintf(stderr, "    latest revision: %s\n", LSOF_REPO_URL);
+	    (void) fprintf(stderr, "    latest FAQ: %s\n",
+		LSOF_FAQ_URL);
+	    (void) fprintf(stderr, "    latest (non-formatted) man page: %s\n",
+		LSOF_MAN_URL);
 
 #if	defined(LSOF_CINFO)
 	    if ((cp = isnullstr(LSOF_CINFO)))
