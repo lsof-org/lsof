@@ -1,7 +1,7 @@
 # lsof-legacy
-lsof-org team (or lsof at GitHub team) takes over the maintainership
-of lsof originally maintained by Vic Abell. This repository is for
-maintaining the final source tree of lsof received from Vic.
+lsof-org at GitHub team takes over the maintainership of lsof originally
+maintained by Vic Abell. This repository is for maintaining the final
+source tree of lsof received from Vic.
 
 This repository has two branches "master" and "cleanup".
 
@@ -31,4 +31,4 @@ GNU/Linux. We will merge the fruits of "lsof-linux" repository to
 "lsof5" repository in the future. If you are using GNU/Linux, you may
 want to use the code in "lsof-linux" repository.
 
-lsof at GitHub team
+lsof-org at GitHub team
