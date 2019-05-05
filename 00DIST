@@ -4897,3 +4897,22 @@ Supplement	Regenerated the 4.04 distribution to correct a non-
 
 Vic Abell <abe@purdue.edu>
 July 14, 2018
+
+
+4.92.1		May 6, 2019
+
+		!!!NOTE!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+		!                                                        !
+		!  The maintainership is switched from Vic to lsof-org   !
+		!  at GitHub team officially.                            !
+		!  We thank Vic for working on lsof over the years.      !
+		!                                                        !
+		!  lsof-org at GitHub team (https://github.com/lsof-org) !
+		!!!NOTE!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+		This is just for testing "Release" feature of GitHub.
+		Many documentations are not updated yet.
+		URLs in -v output and -h output are updated.
+
+Masatake YAMATO <yamato@redhat.com>, a member of lsof-org
+May 6, 2019
