@@ -1,3 +1,7 @@
+[![Cirrus CI FreeBSD 11 Build Status](https://api.cirrus-ci.com/github/lsof-org/lsof-legacy.svg?task=freebsd11&branch=cleanup)](https://cirrus-ci.com/github/lsof-org/lsof-legacy)
+<!-- [![Cirrus CI FreeBSD 12 Build Status](https://api.cirrus-ci.com/github/lsof-org/lsof-legacy.svg?task=freebsd12&branch=cleanup)](https://cirrus-ci.com/github/lsof-org/lsof-legacy) -->
+[![Cirrus CI FreeBSD 13 Build Status](https://api.cirrus-ci.com/github/lsof-org/lsof-legacy.svg?task=freebsd13&branch=cleanup)](https://cirrus-ci.com/github/lsof-org/lsof-legacy)
+
 # lsof-legacy
 lsof-org at GitHub team takes over the maintainership of lsof originally
 maintained by Vic Abell. This repository is for maintaining the final
