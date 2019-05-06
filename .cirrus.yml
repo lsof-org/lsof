@@ -1,0 +1,26 @@
+# freebsd13_task:
+#   freebsd_instance:
+#     image: freebsd-13-0-current-amd64-v20190503
+#   timeout_in: 120m
+#   install_script: pkg install -y gcc git bash
+#   script:
+#     - ./Configure freebsd
+#     - make
+
+freebsd12_task:
+  freebsd_instance:
+    image: freebsd-12-0-release-amd64
+  timeout_in: 120m
+  install_script: pkg install -y gcc git bash
+  script:
+    - ./Configure freebsd
+    - make
+
+freebsd11_task:
+  freebsd_instance:
+    image: freebsd-11-2-release-amd64
+  timeout_in: 120m
+  install_script: pkg install -y gcc git bash
+  script:
+    - ./Configure freebsd
+    - make
