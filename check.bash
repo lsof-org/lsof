@@ -5,3 +5,4 @@ echo $BASH_VERSION
 shopt
 export -p
 
+./lsof -v
