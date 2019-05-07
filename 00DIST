@@ -4928,7 +4928,9 @@ July 14, 2018
 		endpoint information.
 		Update the description about -fg and -fG options on linux.
 
-		Consult git log for more details.
+4.93.1		???
+
+		Fix a broken symbolic link.
 
 Masatake YAMATO <yamato@redhat.com>, a member of lsof-org
 May 7, 2019
