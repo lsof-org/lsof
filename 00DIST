@@ -2,8 +2,11 @@
 	    Notes for the distribution of lsof version 4
 
 ********************************************************************
-| The latest release of lsof is always available via anonymous ftp |
-| from lsof.itap.purdue.edu.  Look in pub/tools/unix/lsof.         |
+| The latest release of lsof is always available from
+| https://github.com/lsof-org/lsof/releases
+|
+| From 4.92.1, git is introduced to manage changes.
+| You can consult the details of changes with git.
 ********************************************************************
 
 		Contents
