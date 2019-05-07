@@ -15,6 +15,7 @@ freebsd12_task:
   script:
     - ./Configure freebsd
     - make
+    - bash ./check.bash freebsd
 
 freebsd11_task:
   freebsd_instance:
@@ -24,3 +25,4 @@ freebsd11_task:
   script:
     - ./Configure freebsd
     - make
+    - bash ./check.bash freebsd
