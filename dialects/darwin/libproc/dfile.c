@@ -43,7 +43,7 @@ static char *rcsid = "$Id: dfile.c,v 1.9 2018/02/14 14:27:57 abe Exp $";
 #include "lsof.h"
 
 #if	defined(PROC_FP_GUARDED)
-#extern	struct pff_tab	Pgf_tab[];
+extern	struct pff_tab	Pgf_tab[];
 #endif	/* defined(PROC_FP_GUARDED) */
 
 
