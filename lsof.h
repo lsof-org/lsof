@@ -304,7 +304,7 @@ static struct utmp dummy_utmp;		/* to get login name length */
 
 #define	LPROCINCR	128		/* Lproc[] allocation increment */
 #define	LSOF_GITHUB_URL	"https://github.com/lsof-org"
-#define	LSOF_REPO	"lsof-legacy"
+#define	LSOF_REPO	"lsof"
 #define	LSOF_BRANCH	"master"
 #define	LSOF_REPO_URL	LSOF_GITHUB_URL "/" LSOF_REPO
 #define	LSOF_FAQ_URL	LSOF_REPO_URL "/blob/" LSOF_BRANCH "/00FAQ"

@@ -1,9 +1,9 @@
-[![Cirrus CI FreeBSD 11 Build Status](https://api.cirrus-ci.com/github/lsof-org/lsof-legacy.svg?task=freebsd11&branch=master)](https://cirrus-ci.com/github/lsof-org/lsof-legacy)
-[![Cirrus CI FreeBSD 12 Build Status](https://api.cirrus-ci.com/github/lsof-org/lsof-legacy.svg?task=freebsd12&branch=master)](https://cirrus-ci.com/github/lsof-org/lsof-legacy)
-[![Travis CI Linux Build Status](https://travis-ci.org/lsof-org/lsof-legacy.svg?branch=master)](https://travis-ci.org/lsof-org/lsof-legacy)
-[![Coveralls Linux Coverage Status on Travis CI](https://coveralls.io/repos/github/lsof-org/lsof-legacy/badge.svg?branch=master)](https://coveralls.io/github/lsof-org/lsof-legacy?branch=master)
+[![Cirrus CI FreeBSD 11 Build Status](https://api.cirrus-ci.com/github/lsof-org/lsof.svg?task=freebsd11&branch=master)](https://cirrus-ci.com/github/lsof-org/lsof)
+[![Cirrus CI FreeBSD 12 Build Status](https://api.cirrus-ci.com/github/lsof-org/lsof.svg?task=freebsd12&branch=master)](https://cirrus-ci.com/github/lsof-org/lsof)
+[![Travis CI Linux Build Status](https://travis-ci.org/lsof-org/lsof.svg?branch=master)](https://travis-ci.org/lsof-org/lsof)
+[![Coveralls Linux Coverage Status on Travis CI](https://coveralls.io/repos/github/lsof-org/lsof/badge.svg?branch=master)](https://coveralls.io/github/lsof-org/lsof?branch=master)
 
-# lsof-legacy
+# lsof
 lsof-org at GitHub team takes over the maintainership of lsof
 originally maintained by Vic Abell. This repository is for maintaining
 the final source tree of lsof inherited from Vic. "legacy" branch
@@ -27,7 +27,7 @@ part of them. The current status of maintaince is as follows:
 </dl>
 
 If you are interested in maintaining a dialect, let us know via the
-issue tracker of GitHub (https://github.com/lsof-org/lsof-legacy).  If
+issue tracker of GitHub (https://github.com/lsof-org/lsof).  If
 we cannot find a volunteer for a dialect, we will remove the dialect.
 
 We are running another repository, lsof-org/"lsof-linux" derived from
