@@ -581,12 +581,24 @@ clear_uxsinfo()
 	int h;				/* hash index */
 	uxsin_t *ui, *up;		/* remporary pointers */
 
+#if	defined(HASEPTOPTS) && defined(HASUXSOCKEPT)
+	pxinfo_t *pp, *pnp;
+#endif	/* defined(HASEPTOPTS) && defined(HASUXSOCKEPT) */
+
 	if (!Uxsin)
 	    return;
 	for (h = 0; h < INOBUCKS; h++) {
 	    if ((ui = Uxsin[h])) {
 		do {
 		    up = ui->next;
+
+#if	defined(HASEPTOPTS) && defined(HASUXSOCKEPT)
+		    for (pp = ui->pxinfo; pp; pp = pnp) {
+		        pnp = pp->next;
+		        (void) free((FREE_P *)pp);
+		    }
+#endif	/* defined(HASEPTOPTS) && defined(HASUXSOCKEPT) */
+
 		    if (ui->path)
 			(void) free((FREE_P *)ui->path);
 		    if (ui->pcb)

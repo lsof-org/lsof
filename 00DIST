@@ -2,8 +2,11 @@
 	    Notes for the distribution of lsof version 4
 
 ********************************************************************
-| The latest release of lsof is always available via anonymous ftp |
-| from lsof.itap.purdue.edu.  Look in pub/tools/unix/lsof.         |
+| The latest release of lsof is always available from
+| https://github.com/lsof-org/lsof/releases
+|
+| From 4.92.1, git is introduced to manage changes.
+| You can consult the details of changes with git.
 ********************************************************************
 
 		Contents
@@ -4914,13 +4917,18 @@ July 14, 2018
 		Many documentations are not updated yet.
 		URLs in -v output and -h output are updated.
 
-4.92.2		???
+4.93.0		May 7, 2019
 
 		[freebsd] Made FreeBSD 13 adjustment.
 		[darwin] Fix a typo causing a build error.
 		Fix a potential memory leak.
 		[linux] use tirpc for rpc if libc doesn't provide rpc.h.
 		Fix a typo in man page.
+		[linux] fix memory leaks detected by valgrind about unix
+		endpoint information.
+		Update the description about -fg and -fG options on linux.
+
+		Consult git log for more details.
 
 Masatake YAMATO <yamato@redhat.com>, a member of lsof-org
-May 6, 2019
+May 7, 2019
