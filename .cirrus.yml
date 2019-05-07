@@ -13,7 +13,7 @@ freebsd12_task:
   timeout_in: 120m
   install_script: pkg install -y gcc git bash
   script:
-    - ./Configure freebsd
+    - ./Configure -n freebsd
     - make
     - bash ./check.bash freebsd
 
@@ -23,6 +23,6 @@ freebsd11_task:
   timeout_in: 120m
   install_script: pkg install -y gcc git bash
   script:
-    - ./Configure freebsd
+    - ./Configure -n freebsd
     - make
     - bash ./check.bash freebsd
