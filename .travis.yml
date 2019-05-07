@@ -9,11 +9,12 @@ language: c
 
 os:
   - linux
+  - osx
 
 compiler:
   - gcc
   - clang
-  
+
 sudo: true
 
 addons:
@@ -27,9 +28,25 @@ before_install:
     gem install lcoveralls
 
 script:
-  - if [ $TRAVIS_OS_NAME = linux ]; then dialect=linux; fi; ./Configure -n $dialect
-  - if [ $CC = 'gcc' ]; then CC_EXTRA="--coverage"; fi; make CDEF="${CC_EXTRA}" CC="${CC} ${CC_EXTRA}"
-  - sudo bash ./check.bash $TRAVIS_OS_NAME
+  - |
+    case $TRAVIS_OS_NAME in
+        linux) dialect=linux;;
+        osx)   dialect=darwin;;
+    esac
+    ./Configure -n $dialect
+
+  - |
+    if [ $CC = 'gcc' ]; then
+        CC_EXTRA="--coverage"
+    fi
+    make CDEF="${CC_EXTRA}" CC="${CC} ${CC_EXTRA}"
+
+  - |
+    case $TRAVIS_OS_NAME in
+        linux) dialect=linux;;
+        osx)   dialect=darwin;;
+    esac
+    sudo bash ./check.bash $dialect
 
 after_success:
   - |

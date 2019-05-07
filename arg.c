@@ -772,8 +772,10 @@ enter_efsys(e, rdlnk)
  * Enter file system path on list, avoiding duplicates.
  */
 	for (ep = Efsysl; ep; ep = ep->next) {
-	   if (!strcmp(ep->path, path))
-		return(0);
+	   if (!strcmp(ep->path, path)) {
+		(void)free((FREE_P *)path);
+		return (0);
+	   }
 	}
 	if (!(ep = (efsys_list_t *)malloc((MALLOC_S)(sizeof(efsys_list_t))))) {
 	   (void) fprintf(stderr, "%s: no space for \"-e %s\" entry\n",

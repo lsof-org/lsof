@@ -1212,8 +1212,10 @@ no_readlink_space:
 		stk[i] = (char *)NULL;
 	    }
 	    (void) free((FREE_P *)stk);
+	    (void) free((FREE_P *)s1);
 	    stk = (char **)NULL;
 	    ss = sx = 0;
+	    s1 = (char *)NULL;
 	    op = (char *)NULL;
 	    return((char *)NULL);
 	}
