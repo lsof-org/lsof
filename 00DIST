@@ -4932,5 +4932,9 @@ July 14, 2018
 
 		Fix a broken symbolic link.
 
+4.93.2		May 8, 2019
+
+		Update the version number embedded in lsof executable.
+
 Masatake YAMATO <yamato@redhat.com>, a member of lsof-org
-May 7, 2019
+May 8, 2019
