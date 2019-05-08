@@ -383,13 +383,15 @@ is_pty_ptmx(dev)
  */
 
 pxinfo_t *
-find_pepti(lf, pp)
+find_pepti(pid, lf, pp)
+	int pid;			/* pid of the process owning lf */
 	struct lfile *lf;		/* pipe's lfile */
 	pxinfo_t *pp;			/* previous pipe info (NULL == none) */
 {
 	struct lfile *ef;		/* pipe end local file structure */
 	int h;				/* hash result */
 	pxinfo_t *pi;			/* pipe info pointer */
+	struct lproc *ep;
 
 	if (Pinfo) {
 	    if (pp)
@@ -401,7 +403,8 @@ find_pepti(lf, pp)
 	    while (pi) {
 		if (pi->ino == lf->inode) {
 		    ef = pi->lf;
-		    if (strcmp(lf->fd, ef->fd))
+		    ep = &Lproc[pi->lpx];
+		    if ((strcmp(lf->fd, ef->fd)) || (pid != ep->pid))
 			return(pi);
 	 	}
 		pi = pi->next;

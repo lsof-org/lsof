@@ -112,7 +112,7 @@ _PROTOTYPE(extern void find_ch_ino,(void));
 
 # if	defined(HASEPTOPTS)
 _PROTOTYPE(extern void clear_pinfo,(void));
-_PROTOTYPE(extern pxinfo_t *find_pepti,(struct lfile *lf, pxinfo_t *pp));
+_PROTOTYPE(extern pxinfo_t *find_pepti,(int pid, struct lfile *lf, pxinfo_t *pp));
 _PROTOTYPE(extern void process_pinfo,(int f));
 #  if	defined(HASUXSOCKEPT)
 _PROTOTYPE(extern void clear_uxsinfo,(void));

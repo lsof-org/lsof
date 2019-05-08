@@ -992,7 +992,7 @@ process_pinfo(f)
 		 * its being a pipe.  Look up the pipe's endpoints.
 		 */
 		    do {
-			if ((pp = find_pepti(Lf, pp))) {
+			if ((pp = find_pepti(Lp->pid, Lf, pp))) {
 
 			/*
 			 * This pipe endpoint is linked to the selected pipe
@@ -1033,7 +1033,7 @@ process_pinfo(f)
 		    Lf->sf = Selflags;
 		    Lp->pss |= PS_SEC;
 		    do {
-			if ((pp = find_pepti(Lf, pp))) {
+			if ((pp = find_pepti(Lp->pid, Lf, pp))) {
 			    ep = &Lproc[pp->lpx];
 			    ef = pp->lf;
 			    for (i = 0; i < (FDLEN - 1); i++) {
