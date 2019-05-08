@@ -24,7 +24,7 @@ part of them. The current status of maintaince is as follows:
 <dt>linux</dt>
 <dd>fully maintained, and tested on Travis CI</dd>
 <dt>darwin</dt>
-<dd>not maintained, and tested on Travis CI</dd>
+<dd>not maintained, but tested on Travis CI</dd>
 </dl>
 
 If you are interested in maintaining a dialect, let us know via the
