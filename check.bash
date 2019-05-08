@@ -1,4 +1,4 @@
-set -e
+set -ex
 
 echo $1
 echo $BASH_VERSION
