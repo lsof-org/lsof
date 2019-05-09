@@ -67,6 +67,10 @@ struct pff_tab Pff_tab[] = {
 	{ (long)O_SYNC,		FF_SYNC		},
 	{ (long)O_ASYNC,	FF_ASYNC	},
 
+#if	defined(O_CLOEXEC)
+	{ (long)O_CLOEXEC,	POF_CLOEXEC	},
+#endif	/* defined(O_CLOEXEC) */
+
 #if	defined(O_DIRECT)
 	{ (long)O_DIRECT,	FF_DIRECT	},
 #endif	/* defined(O_DIRECT) */
