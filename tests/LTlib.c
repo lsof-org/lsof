@@ -188,6 +188,14 @@ static char copyright[] =
 #include <sys/mkdev.h>
 #endif	/* defined(LT_DIAL_uw) */
 
+#if	defined(LT_DIAL_linux)
+/*
+ * Linux-specific items
+ */
+
+#include <sys/sysmacros.h>
+#endif	/* defined(LT_DIAL_linux) */
+
 
 /*
  * Global variables
