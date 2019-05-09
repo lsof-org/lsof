@@ -46,7 +46,17 @@ script:
         linux) dialect=linux;;
         osx)   dialect=darwin;;
     esac
-    sudo bash ./check.bash $dialect
+    tdir=dialects/${dialect}/tests
+    if [ -f ${tdir}/Makefile ]; then
+        make -C "${tdir}"
+    fi
+
+  - |
+    case $TRAVIS_OS_NAME in
+        linux) dialect=linux;;
+        osx)   dialect=darwin;;
+    esac
+    sudo -E bash ./check.bash $dialect
 
 after_success:
   - |

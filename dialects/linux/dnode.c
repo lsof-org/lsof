@@ -307,7 +307,8 @@ enter_ptmxi(mn)
  */
 
 pxinfo_t *
-find_ptyepti(lf, m, pp)
+find_ptyepti(pid, lf, m, pp)
+	int pid;
 	struct lfile *lf;		/* pseudoterminal's lfile */
 	int m;				/* minor number type:
 					 *     0 == use tty_index
@@ -319,6 +320,7 @@ find_ptyepti(lf, m, pp)
 	int h;				/* hash result */
 	INODETYPE mn;			/* minor number */
 	pxinfo_t *pi;			/* pseudoterminal info pointer */
+	struct lproc *ep;
 
 
 	mn = m ? GET_MIN_DEV(lf->rdev) : lf->tty_index;
@@ -332,12 +334,10 @@ find_ptyepti(lf, m, pp)
 	    while (pi) {
 		if (pi->ino == mn) {
 		    ef = pi->lf;
-		    if (((m && is_pty_ptmx(ef->rdev))
+		    ep = &Lproc[pi->lpx];
+		    if ((m && is_pty_ptmx(ef->rdev))
 		    ||  ((!m) && is_pty_slave(GET_MAJ_DEV(ef->rdev))))
-		    &&   strcmp(lf->fd, ef->fd)
-		    ) {
 			return(pi);
-		    }
 		}
 		pi = pi->next;
 	     }
@@ -354,8 +354,21 @@ int
 is_pty_slave(sm)
 	int sm;				/* slave major device number */
 {
+	/* linux/Documentation/admin-guide/devices.txt
+	   -------------------------------------------
+	   136-143 char	Unix98 PTY slaves
+		  0 = /dev/pts/0	First Unix98 pseudo-TTY
+		  1 = /dev/pts/1	Second Unix98 pseudo-TTY
+		    ...
+
+		These device nodes are automatically generated with
+		the proper permissions and modes by mounting the
+		devpts filesystem onto /dev/pts with the appropriate
+		mount options (distribution dependent, however, on
+		*most* distributions the appropriate options are
+		"mode=0620,gid=<gid of the "tty" group>".) */
 	if ((UNIX98_PTY_SLAVE_MAJOR <= sm)
-	&&  (sm < (UNIX98_PTY_SLAVE_MAJOR + UNIX98_PTY_SLAVE_MAJOR))
+	&&  (sm < (UNIX98_PTY_SLAVE_MAJOR + UNIX98_PTY_MAJOR_COUNT))
 	) {
 	    return 1;
 	}
@@ -383,13 +396,15 @@ is_pty_ptmx(dev)
  */
 
 pxinfo_t *
-find_pepti(lf, pp)
+find_pepti(pid, lf, pp)
+	int pid;			/* pid of the process owning lf */
 	struct lfile *lf;		/* pipe's lfile */
 	pxinfo_t *pp;			/* previous pipe info (NULL == none) */
 {
 	struct lfile *ef;		/* pipe end local file structure */
 	int h;				/* hash result */
 	pxinfo_t *pi;			/* pipe info pointer */
+	struct lproc *ep;
 
 	if (Pinfo) {
 	    if (pp)
@@ -401,14 +416,14 @@ find_pepti(lf, pp)
 	    while (pi) {
 		if (pi->ino == lf->inode) {
 		    ef = pi->lf;
-		    if (strcmp(lf->fd, ef->fd))
+		    ep = &Lproc[pi->lpx];
+		    if ((strcmp(lf->fd, ef->fd)) || (pid != ep->pid))
 			return(pi);
 	 	}
 		pi = pi->next;
 	    }
 	}
 	return((pxinfo_t *)NULL);
-
 }
 #endif	/* defined(HASEPTOPTS) */
 

@@ -168,6 +168,9 @@ alloc_lfile(nm, num)
 
 #if	defined(HASEPTOPTS)
 	Lf->chend = 0;
+#if	defined(HASPTYEPT)
+	Lf->tty_index  = -1;
+#endif	/* defined(HASPTYEPT) */
 #endif	/* defined(HASEPTOPTS) */
 
 #if	defined(HASSOOPT)
@@ -924,7 +927,7 @@ link_lfile()
 
 # if	defined(HASPTYEPT)
 /*
- * Process pseudoterminal endpoint files the same way by clearing the SELPINFO
+ * Process pseudoterminal endpoint files the same way by clearing the SELPTYINFO
  * flag and setting the EPT_PTY flag, letting a later call to process_ptyinfo()
  * set selection flags.
  */
@@ -992,7 +995,7 @@ process_pinfo(f)
 		 * its being a pipe.  Look up the pipe's endpoints.
 		 */
 		    do {
-			if ((pp = find_pepti(Lf, pp))) {
+			if ((pp = find_pepti(Lp->pid, Lf, pp))) {
 
 			/*
 			 * This pipe endpoint is linked to the selected pipe
@@ -1033,7 +1036,7 @@ process_pinfo(f)
 		    Lf->sf = Selflags;
 		    Lp->pss |= PS_SEC;
 		    do {
-			if ((pp = find_pepti(Lf, pp))) {
+			if ((pp = find_pepti(Lp->pid, Lf, pp))) {
 			    ep = &Lproc[pp->lpx];
 			    ef = pp->lf;
 			    for (i = 0; i < (FDLEN - 1); i++) {
@@ -1443,7 +1446,7 @@ process_ptyinfo(f)
 		 */
 		    pc = 1;
 		    do {
-			if ((pp = find_ptyepti(Lf, !mos, pp))) {
+			if ((pp = find_ptyepti(Lp->pid, Lf, !mos, pp))) {
 
 			/*
 			 * This pseudoterminal endpoint is linked to the
@@ -1468,7 +1471,7 @@ process_ptyinfo(f)
 		    Lp->pss |= PS_SEC;
 		    pc = 1;
 		    do {
-			if ((pp = find_ptyepti(Lf, !mos, pp))) {
+			if ((pp = find_ptyepti(Lp->pid, Lf, !mos, pp))) {
 			    prt_ptyinfo(pp, (mos && pc), 0);
 			    pp = pp->next;
 			    pc = 0;
