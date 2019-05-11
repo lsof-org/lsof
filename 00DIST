@@ -124,6 +124,9 @@
 		4.90, February 14, 2018
 		4.91, March 26, 2018
 		4.92, May 5, 2018
+		4.93.0 May 7, 2019
+		4.93.1 May 7, 2019
+		4.93.2 May 8, 2019
 
 
 Dialects Supported
@@ -4935,6 +4938,45 @@ July 14, 2018
 4.93.2		May 8, 2019
 
 		Update the version number embedded in lsof executable.
+
+?.??.?		???
+
+		(All changes in this version are ported from
+		lsof-org/lsof-linux repository at GitHub).
+
+		Introduced a new test harness. The harness can run
+		test cases specific to a dialect. It is designed for
+		running test cases on CI environment like Travis-CI.
+		However, it is runnable locally with following command
+		line:
+			$ ./check.sh DIALECT
+		after making lsof executable.
+
+		[linux] Fixed a bug +|-E options output for pipe.
+		If two processes use the same fd number for a pipe
+		connecting them, the option didn't print the
+		information about it.
+
+		[linux] Fixed a bug +|-E options output for PTY.
+		If two processes use the same fd number for a PTY
+		connecting them, the option didn't print the
+		information about it.
+
+		[linux] Fixed a bug +|-E options output for PTY.
+		The code for detecting a slave device was incorrect.
+
+		[linux] Fixed a potential bug +|-E options output for
+		PTY. A structure field for the feature was not
+		initialized.
+
+		[linux] Added a code for decoding O_PATH flag in +fg
+		option.
+
+		[linux] Added a code for decoding O_CLOEXEC flag as CX
+		in +fg option.
+
+		[linux] Added a code for decoding O_TMPFILE flag as
+		TMPF in +fg option.
 
 Masatake YAMATO <yamato@redhat.com>, a member of lsof-org
 May 8, 2019
