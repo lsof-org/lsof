@@ -641,7 +641,7 @@ option.)
 .TP \w'names'u+4
 .B +|-E
 .B +E
-specifies that Linux pipe, Linux UNIX socket, Linux INET socket closed in a local host, Linux pseudoterminal files,
+specifies that Linux pipe, Linux UNIX socket, Linux INET(6) socket closed in a local host, Linux pseudoterminal files,
 and POSIX Message Queueue implementation in Linux
 should be displayed with endpoint information and the files of the endpoints should also be displayed.
 .IP
@@ -707,7 +707,7 @@ and
 .I mode
 are the same as with pipe endpoint information. The endpoint
 information is available only if the socket is used for local
-IPC; both endpoints bind to the same local IPv4 address.
+IPC; both endpoints bind to the same local IPv4 or IPv6 address.
 .IP
 POSIX Message Queue file endpoint information is displayed in the NAME
 column in the same form as that of pipe.

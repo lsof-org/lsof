@@ -4992,5 +4992,9 @@ July 14, 2018
 		endpoint information with +|-E option. mqueue file system
 		must be mounted to display the information.
 
+		[linux] Added Linux display of INET6 socket endpoint
+		information with +|-E option. The option handles
+		INET6 sockets using IPC.
+
 Masatake YAMATO <yamato@redhat.com>, a member of lsof-org
 May 8, 2019

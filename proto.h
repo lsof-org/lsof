@@ -132,6 +132,10 @@ _PROTOTYPE(extern void process_ptyinfo,(int f));
 #  endif	/* defined(HASPTYEPT) */
 _PROTOTYPE(extern void clear_netsinfo,(void));
 _PROTOTYPE(extern void process_netsinfo,(int f));
+#if	defined(HASIPv6)
+_PROTOTYPE(extern void clear_nets6info,(void));
+_PROTOTYPE(extern void process_nets6info,(int f));
+# endif	/* defined(HASIPv6) */
 # endif	/* defined(HASEPTOPTS) */
 
 _PROTOTYPE(extern void free_lproc,(struct lproc *lp));

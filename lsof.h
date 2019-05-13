@@ -95,6 +95,10 @@ struct l_dev {
 #define	CHEND_NETS	0x08		/* INET socket endpoint ID */
 #define	CHEND_PSXMQ	0x10		/* Posix MQ endpoint ID */
 
+# if	defined(HASIPv6)
+#define	CHEND_NETS6	0x20		/* INET6 socket endpoint ID */
+# endif	/* defined(HASIPv6) */
+
 #define	EPT_PIPE	0x01		/* process has pipe file */
 #define	EPT_PIPE_END	0x02		/* process has pipe end point file */
 #define	EPT_PTY		0x04		/* process has a pseudoterminal file */
@@ -114,6 +118,12 @@ struct l_dev {
 #define	EPT_PSXMQ	0x100		/* process has a POSIX MQ file*/
 #define	EPT_PSXMQ_END	0x200		/* process has a POSIX MQ end point
 					 * file*/
+
+# if	defined(HASIPv6)
+#define	EPT_NETS6	0x400		/* process has a INET6 socket file */
+#define	EPT_NETS6_END	0x800		/* process has a INET6 socket end point
+					 * file */
+# endif	/* defined(HASIPv6) */
 # endif	/* defined(HASEPTOPTS) */
 
 
@@ -530,6 +540,8 @@ extern int ZoneColW;
 					 * cleared in link_lfile() */
 #define SELPSXMQINFO	0x80000		/* selected for POSIX MQ socket info;
 					   cleared in link_lfile() */
+#define	SELNETS6INFO	0x100000	/* selected for INET6 socket info;
+					 * cleared in link_lfile() */
 
 #define	SELALL		(SELCMD|SELCNTX|SELFD|SELNA|SELNET|SELNM|SELNFS|SELPID|SELUID|SELUNX|SELZONE|SELTASK)
 #define	SELPROC		(SELCMD|SELCNTX|SELPGID|SELPID|SELUID|SELZONE|SELTASK)

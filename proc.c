@@ -960,6 +960,18 @@ link_lfile()
 		Lp->ept |= EPT_NETS;
 		Lf->sf &= ~SELNETSINFO;
 	    }
+
+#if	defined(HASIPv6)
+/*
+ * Process locally used INET6 socket endpoint files the same way by clearing the
+ * SENETS6INFO flag and setting the EPT_NETS6 flag, letting a later call to
+ * process_nets6info() set selection flags.
+ */
+	    if (Lf->sf & SELNETS6INFO) {
+		Lp->ept |= EPT_NETS6;
+		Lf->sf &= ~SELNETS6INFO;
+	    }
+# endif	/* defined(HASIPv6) */
 	}
 #endif	/* defined(HASEPTOPTS) */
 
