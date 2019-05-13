@@ -66,6 +66,18 @@ static char *rcsid = "$Id: dsock.c,v 1.43 2018/03/26 21:52:29 abe Exp $";
 #define TCPUDPHASH(ino)	((int)((ino * 31415) >> 3) & (TcpUdp_bucks - 1))
 #define TCPUDP6HASH(ino) ((int)((ino * 31415) >> 3) & (TcpUdp6_bucks - 1))
 
+#define IPCBUCKS 128			/* IPC hash bucket count -- must be
+					 * a power of two */
+
+/* If a socket is used for IPC, we store both end points for the socket
+ * to the same hash backet. This makes seaching the counter part of
+ * an end point easier. See get_netpeeri(). */
+#define TCPUDP_IPC_HASH(tp) ((int)(((((tp)->faddr			\
+				      + (tp)->laddr,			\
+				      + (tp)->fport			\
+				      + (tp)->lport			\
+				      + (tp)->proto) * 31415) >> 3)	\
+				   & (IPCBUCKS - 1)))
 
 /*
  * Local structures
@@ -146,7 +158,12 @@ struct tcp_udp {			/* IPv4 TCP and UDP socket
 	unsigned long txq, rxq;		/* transmit & receive queue values */
 	int proto;			/* 0 = TCP, 1 = UDP, 2 = UDPLITE */
 	int state;			/* protocol state */
-	struct tcp_udp *next;
+	struct tcp_udp *next;		/* in TcpUdp inode hash table */
+#if	defined(HASEPTOPTS)
+	pxinfo_t *pxinfo;		/* inode information */
+	struct tcp_udp *ipc_next;	/* in TcpUdp local ipc hash table */
+	struct tcp_udp *ipc_peer;	/* locally connected peer(s) info */
+#endif	/* defined(HASEPTOPTS) */
 };
 
 #if	defined(HASIPv6)
@@ -215,6 +232,12 @@ static struct tcp_udp **TcpUdp = (struct tcp_udp **)NULL;
 static int TcpUdp_bucks = 0;		/* dynamically sized hash bucket
 					 * count for TCP and UDP -- will
 					 * be a power of two */
+#if	defined(HASEPTOPTS)
+static struct tcp_udp **TcpUdpIPC = (struct tcp_udp **)NULL;
+					/* IPv4 TCP & UDP info for socket used
+					   for IPC, hashed by (addr, port paris
+					   and protocol */
+#endif	/* defined(HASEPTOPTS) */
 
 #if	defined(HASIPv6)
 static char *Raw6path = (char *)NULL;	/* path to raw IPv6 /proc information */
@@ -260,6 +283,11 @@ _PROTOTYPE(static void get_uxpeeri,(void));
 _PROTOTYPE(static void parse_diag,(struct unix_diag_msg *dm, int len));
 _PROTOTYPE(static void prt_uxs,(uxsin_t *p, int mk));
 #endif	/* defined(HASEPTOPTS) && defined(HASUXSOCKEPT) */
+
+#if	defined(HASEPTOPTS)
+_PROTOTYPE(static void enter_netsinfo,(struct tcp_udp *tp));
+_PROTOTYPE(static void get_netpeeri,(void));
+#endif	/* defined(HASEPTOPTS) */
 
 _PROTOTYPE(static struct icmpin *check_icmp,(INODETYPE i));
 _PROTOTYPE(static struct ipxsin *check_ipx,(INODETYPE i));
@@ -493,6 +521,64 @@ check_tcpudp(i, p)
 	return((struct tcp_udp *)NULL);
 }
 
+/*
+ * check_inet() - check for locally used INET domain socket
+ */
+
+static struct tcp_udp *
+check_inet(i)
+	INODETYPE i;			/* socket file's inode number */
+{
+	int h;
+	struct tcp_udp *tp;
+
+	h = TCPUDPHASH(i);
+	for (tp = TcpUdp[h]; tp; tp = tp->next) {
+	    if (i == tp->inode)
+		return(tp);
+	}
+	return((struct tcp_udp *)NULL);
+}
+
+/*
+ * clear_netsinfo -- clear allocated INET socket info
+ */
+
+void
+clear_netsinfo()
+{
+	int h;				/* hash index */
+	struct tcp_udp *ti, *tp;	/* temporary pointers */
+
+#if	defined(HASEPTOPTS)
+	pxinfo_t *pp, *pnp;
+#endif	/* defined(HASEPTOPTS) */
+
+	if (TcpUdp) {
+	    for (h = 0; h < TcpUdp_bucks; h++) {
+		if ((ti = TcpUdp[h])) {
+		    do {
+			tp = ti->next;
+
+#if	defined(HASEPTOPTS)
+			for (pp = ti->pxinfo; pp; pp = pnp) {
+			    pnp = pp->next;
+			    (void) free((FREE_P *)pp);
+			}
+#endif	/* defined(HASEPTOPTS) */
+
+			(void) free((FREE_P *)ti);
+			ti = tp;
+		    } while (ti);
+		    TcpUdp[h] = (struct tcp_udp *)NULL;
+		}
+	    }
+	}
+	if (TcpUdpIPC) {
+	    for (h = 0; h < IPCBUCKS; h++)
+		TcpUdpIPC[h] = (struct tcp_udp *)NULL;
+	}
+}
 
 #if	defined(HASIPv6)
 /*
@@ -1175,6 +1261,195 @@ process_uxsinfo(f)
 #endif	/* defined(HASEPTOPTS) && defined(HASUXSOCKEPT) */
  
  
+#if	defined(HASEPTOPTS)
+/*
+ * enter_netsinfo() -- enter inet socket info
+ * 	entry	Lf = local file structure pointer
+ * 		Lp = local process structure pointer
+ */
+
+static void
+enter_netsinfo (tp)
+	struct tcp_udp *tp;
+{
+	pxinfo_t *pi;			/* pxinfo_t structure pointer */
+	struct lfile *lf;		/* local file structure pointer */
+	struct lproc *lp;		/* local proc structure pointer */
+	pxinfo_t *np;			/* new pxinfo_t structure pointer */
+
+	for (pi = tp->pxinfo; pi; pi = pi->next) {
+	    lf = pi->lf;
+	    lp = &Lproc[pi->lpx];
+	    if (pi->ino == Lf->inode) {
+		if ((lp->pid == Lp->pid) && !strcmp(lf->fd, Lf->fd))
+		    return;
+	    }
+	}
+	if (!(np = (pxinfo_t *)malloc(sizeof(pxinfo_t)))) {
+	    (void) fprintf(stderr,
+			   "%s: no space for pipeinfo in netsinfo, PID %d\n",
+			   Pn, Lp->pid);
+	    Exit(1);
+	}
+	np->ino = Lf->inode;
+	np->lf = Lf;
+	np->lpx = Lp - Lproc;
+	np->next = tp->pxinfo;
+	tp->pxinfo = np;
+}
+
+/*
+ * find_netsepti(lf) -- find locally used INET socket endpoint info
+ */
+
+static struct tcp_udp *
+find_netsepti(lf)
+	struct lfile *lf;		/* socket's lfile */
+{
+	struct tcp_udp *tp;
+
+	tp = check_inet(lf->inode);
+	return(tp ? tp->ipc_peer: (struct tcp_udp *)NULL);
+}
+
+/*
+ * get_netpeeri() - get INET socket peer inode information
+ */
+
+static void
+get_netpeeri()
+{
+	int h;
+	struct tcp_udp *np, *tp;
+
+	for (h = 0; h < IPCBUCKS; h++) {
+	    for (tp = TcpUdpIPC[h]; tp; tp = tp->ipc_next) {
+		if (tp->ipc_peer)
+		    continue;
+		for (np = TcpUdpIPC[h]; np; np = np->ipc_next) {
+		    if (np->ipc_peer)
+			continue;
+		    if (tp->faddr == np->laddr &&
+			tp->laddr == np->faddr &&
+			tp->fport == np->lport &&
+			tp->lport == np->fport &&
+			tp->proto == np->proto) {
+			tp->ipc_peer = np;
+			np->ipc_peer = tp;
+			break;
+		    }
+		}
+	    }
+	}
+}
+
+/*
+ * prt_nets() -- print locally used INET socket information
+ */
+
+static void
+prt_nets(p, mk)
+	struct tcp_udp *p;		/* peer info */
+	int mk;				/* 1 == mark for later processing */
+{
+	struct lproc *ep;		/* socket endpoint process */
+	struct lfile *ef;		/* socket endpoint file */
+	int i;				/* temporary index */
+	char nma[1024];			/* character buffer */
+	pxinfo_t *pp;			/* previous pipe info of socket */
+
+	for (pp = p->pxinfo; pp; pp = pp->next) {
+
+	/*
+	 * Add a linked socket's PID, command name and FD to the name column
+	 * addition.
+	 */
+	    ep = &Lproc[pp->lpx];
+	    ef = pp->lf;
+	    for (i = 0; i < (FDLEN - 1); i++) {
+		if (ef->fd[i] != ' ')
+		    break;
+	    }
+	    (void) snpf(nma, sizeof(nma) - 1, "%d,%.*s,%s%c",
+			ep->pid, CmdLim, ep->cmd, &ef->fd[i], ef->access);
+	    (void) add_nma(nma, strlen(nma));
+	    if (mk && FeptE == 2) {
+
+	    /*
+	     * Endpoint files have been selected, so mark this
+	     * one for selection later.
+	     */
+		ef->chend = CHEND_NETS;
+		ep->ept |= EPT_NETS_END;
+	    }
+	}
+}
+
+/*
+ * process_netsinfo() -- process locally used INET socket information, adding
+ *			it to selected INET socket files and selecting INET
+ *			socket end point files (if requested)
+ */
+
+void
+process_netsinfo(f)
+	int f;				/* function:
+					 *     0 == process selected socket
+					 *     1 == process socket end point
+					 */
+{
+	struct tcp_udp *p;		/* peer INET socket info pointer */
+	struct tcp_udp*tp;		/* temporary INET socket info pointer */
+
+	if (!FeptE)
+	    return;
+	for (Lf = Lp->file; Lf; Lf = Lf->next) {
+	    if (strcmp(Lf->type,
+#if	defined(HASIPv6)
+		       "IPv4"
+#else	/* !defined(HASIPv6) */
+		       "inet"
+#endif	/* defined(HASIPv6) */
+		      ))
+		continue;
+	    switch (f) {
+	    case 0:
+
+	    /*
+	     * Process already selected socket.
+	     */
+		if (is_file_sel(Lp, Lf)) {
+
+		/*
+		 * This file has been selected by some criterion other than its
+		 * being a socket.  Look up the socket's endpoints.
+		 */
+		    p = find_netsepti(Lf);
+		    if (p && p->inode)
+			prt_nets(p, 1);
+		}
+		break;
+	    case 1:
+		if (!is_file_sel(Lp, Lf) && (Lf->chend & CHEND_NETS)) {
+
+		/*
+		 * This is an unselected end point INET socket file.  Select it
+		 * and add its end point information to peer's name column
+		 * addition.
+		 */
+		    Lf->sf = Selflags;
+		    Lp->pss |= PS_SEC;
+		    p = find_netsepti(Lf);
+		    if (p && p->inode)
+			prt_nets(p, 0);
+		}
+		break;
+	    }
+	}
+}
+#endif
+    /* defined(HASEPTOPTS) */
+
 /*
  * get_icmp() - get ICMP net info
  */
@@ -2230,6 +2505,11 @@ get_tcpudp(p, pr, clr)
 	struct tcp_udp *np, *tp;
 	static char *vbuf = (char *)NULL;
 	static size_t vsz = (size_t)0;
+
+#if	defined(HASEPTOPTS)
+	pxinfo_t *pp, *pnp;
+#endif	/* defined(HASEPTOPTS) */
+
 /*
  * Delete previous table contents.
  */
@@ -2238,10 +2518,23 @@ get_tcpudp(p, pr, clr)
 		for (h = 0; h < TcpUdp_bucks; h++) {
 		    for (tp = TcpUdp[h]; tp; tp = np) {
 			np = tp->next;
+
+#if	defined(HASEPTOPTS)
+			for (pp = tp->pxinfo; pp; pp = pnp) {
+			    pnp = pp->next;
+			    (void) free((FREE_P *)pp);
+			}
+#endif	/* defined(HASEPTOPTS) */
+
 			(void) free((FREE_P *)tp);
 		    }
 		    TcpUdp[h] = (struct tcp_udp *)NULL;
 		}
+#if	defined(HASEPTOPTS)
+		if (FeptE)
+		    for (h = 0; h < IPCBUCKS; h++)
+			TcpUdpIPC[h] = (struct tcp_udp *)NULL;
+#endif	/* defined(HASEPTOPTS) */
 	    }
 /*
  * If no hash buckets have been allocated, do so now.
@@ -2277,6 +2570,14 @@ get_tcpudp(p, pr, clr)
 		    Pn, (int)(TcpUdp_bucks * sizeof(struct tcp_udp *)));
 		Exit(1);
 	    }
+#if	defined(HASEPTOPTS)
+	    if (FeptE && (!(TcpUdpIPC = (struct tcp_udp **)calloc(IPCBUCKS,
+								  sizeof(struct tcp_udp *))))) {
+		(void) fprintf(stderr,
+			       "%s: can't allocate %d bytes for TCP&UDP local IPC hash buckets\n",
+			       Pn, (int)(IPCBUCKS * sizeof(struct tcp_udp *)));
+	    }
+#endif	/* defined(HASEPTOPTS) */
 	}
 /*
  * Open the /proc/net file, assign a page size buffer to the stream, and
@@ -2377,7 +2678,27 @@ get_tcpudp(p, pr, clr)
 	    tp->state = (int)state;
 	    tp->next = TcpUdp[h];
 	    TcpUdp[h] = tp;
+#if	defined(HASEPTOPTS)
+	    tp->pxinfo = (pxinfo_t *)NULL;
+	    if (FeptE) {
+		tp->ipc_peer = (struct tcp_udp *)NULL;
+		if (tp->state == TCP_ESTABLISHED) {
+		    int i = TCPUDP_IPC_HASH(tp);
+		    tp->ipc_next = TcpUdpIPC[i];
+		    TcpUdpIPC[i] = tp;
+		}
+	    }
+#endif	/* defined(HASEPTOPTS) */
 	}
+
+#if	defined(HASEPTOPTS)
+/*
+ * If endpoint info has been requested, link INET socket peer info.
+ */
+	if (FeptE)
+	    get_netpeeri();
+#endif	/* defined(HASEPTOPTS) */
+
 	(void) fclose(fs);
 }
 
@@ -4188,6 +4509,7 @@ process_proc_sock(p, pbr, s, ss, l, lss)
 		    (INODETYPE)s->st_ino);
 		tbuf[sizeof(tbuf) - 1] = '\0';
 		enter_dev_ch(tbuf);
+		Lf->inode = (INODETYPE)s->st_ino;
 	    }
 	    if (tp->faddr || tp->fport) {
 		fs.s_addr = tp->faddr;
@@ -4208,6 +4530,13 @@ process_proc_sock(p, pbr, s, ss, l, lss)
 	    Lf->lts.sq = tp->txq;
 	    Lf->lts.rqs = Lf->lts.sqs = 1;
 #endif  /* defined(HASTCPTPIQ) */
+
+#if	defined(HASEPTOPTS)
+	    if (FeptE && tp->ipc_peer) {
+		(void) enter_netsinfo(tp);
+		Lf->sf |= SELNETSINFO;
+	    }
+#endif	/* defined(HASEPTOPTS) */
 
 	    return;
 	}

@@ -4978,5 +4978,9 @@ July 14, 2018
 		[linux] Added a code for decoding O_TMPFILE flag as
 		TMPF in +fg option.
 
+		[linux] Added Linux display of INET socket endpoint
+		information with +|-E option. The option handles
+		INET sockets using IPC.
+
 Masatake YAMATO <yamato@redhat.com>, a member of lsof-org
 May 8, 2019
