@@ -641,13 +641,18 @@ option.)
 .TP \w'names'u+4
 .B +|-E
 .B +E
-specifies that Linux pipe, Linux UNIX socket, Linux INET socket closed in a local host, and Linux pseudoterminal files
+specifies that Linux pipe, Linux UNIX socket, Linux INET socket closed in a local host, Linux pseudoterminal files,
+and POSIX Message Queueue implementation in Linux
 should be displayed with endpoint information and the files of the endpoints should also be displayed.
-Note: UNIX socket file endpoint information is only available when the
+.IP
+Note 1: UNIX socket file endpoint information is only available when the
 compile flags line of
 .B \-v
 output contains HASUXSOCKEPT, and psudoterminal endpoint information is only
 available when the compile flags line contains HASPTYEPT.
+.IP
+Note 2: POSIX Message Queue file endpoint information is only available when mqueue
+file system is mounted.
 .IP
 Pipe endpoint information is displayed in the NAME column in the
 form ``\fIPID,cmd,FDmode\fP'', where
@@ -703,6 +708,9 @@ and
 are the same as with pipe endpoint information. The endpoint
 information is available only if the socket is used for local
 IPC; both endpoints bind to the same local IPv4 address.
+.IP
+POSIX Message Queue file endpoint information is displayed in the NAME
+column in the same form as that of pipe.
 .IP
 Multiple occurrences of this information can appear in a file's
 NAME column.

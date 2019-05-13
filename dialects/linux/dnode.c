@@ -97,6 +97,7 @@ static pxinfo_t **Pinfo = (pxinfo_t **)NULL;	/* pipe endpoint hash buckets */
 static pxinfo_t **PtyInfo = (pxinfo_t **)NULL;	/* pseudoterminal endpoint hash
 						 * buckets */
 # endif	/* defined(HASPTYEPT) */
+static pxinfo_t **PSXMQinfo = (pxinfo_t **)NULL;/* posix msg queue endpoint hash buckets */
 #endif	/* defined(HASEPTOPTS) */
 
 
@@ -404,8 +405,59 @@ is_pty_ptmx(dev)
 	return 0;
 }
 #endif	/* defined(HASPTYEPT) */
-#endif	/* defined(HASEPTOPTS) */
 
+
+/*
+ * clear_psxmqinfo -- clear allocate posix mq info
+ */
+
+void
+clear_psxmqinfo()
+{
+	endpoint_pxinfo_hash(PSXMQinfo, PINFOBUCKS, free);
+}
+
+
+/*
+ * enter_psxmqinfo() -- enter posix mq info
+ *
+ *	entry	Lf = local file structure pointer
+ *		Lp = local process structure pointer
+ */
+
+void
+enter_psxmqinfo()
+{
+	if (!PSXMQinfo) {
+	/*
+	 * Allocate posix mq info hash buckets.
+	 */
+	    if (!(PSXMQinfo = (pxinfo_t **)calloc(PINFOBUCKS, sizeof(pxinfo_t *))))
+	    {
+		(void) fprintf(stderr,
+		    "%s: no space for %d posix mq info buckets\n", Pn, PINFOBUCKS);
+		    Exit(1);
+	    }
+	}
+	endpoint_enter(PSXMQinfo, "psxmqinfo", Lf->inode);
+}
+
+
+/*
+ * find_psxmqinfo() -- find posix mq end point info
+ */
+
+pxinfo_t *
+find_psxmqinfo(pid, lf, pp)
+	int pid;			/* pid of the process owning lf */
+	struct lfile *lf;		/* posix mq's lfile */
+	pxinfo_t *pp;			/* previous posix mq info (NULL == none) */
+{
+	return endpoint_find(PSXMQinfo,
+			     endpoint_accept_other_than_self,
+			     pid, lf, lf->inode, pp);
+}
+#endif	/* defined(HASEPTOPTS) */
 
 
 /*
@@ -765,6 +817,9 @@ process_proc_node(p, pbr, s, ss, l, ls)
 	    if ((Lf->ntype == N_FIFO) && FeptE) {
 	    	(void) enter_pinfo();
 		Lf->sf |= SELPINFO;
+	    } else if ((Lf->dev == MqueueDev) && FeptE) {
+		(void) enter_psxmqinfo();
+		Lf->sf |= SELPSXMQINFO;
 	    }
 #endif	/* defined(HASEPTOPTS) */
 

@@ -4988,5 +4988,9 @@ July 14, 2018
 		regular file. lsof with this change reports it as a
 		file with PSXMQ type if mqueue file system is mounted.
 
+		[linux] Added Linux display of POSIX message queue
+		endpoint information with +|-E option. mqueue file system
+		must be mounted to display the information.
+
 Masatake YAMATO <yamato@redhat.com>, a member of lsof-org
 May 8, 2019
