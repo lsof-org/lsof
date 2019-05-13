@@ -1,6 +1,6 @@
 #!/bin/sh
 
-name=$(basename $0 .sh)
+name=$(basename $0 .bash)
 lsof=$1
 report=$2
 tdir=$3
