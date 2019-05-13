@@ -46,6 +46,8 @@ int HasNFS = 0;				/* NFS mount point status:
 					 *          and its device number is
 					 *          known
 					 */
+dev_t MqueueDev = -1;			/* The number for the device behind
+					 * mqueue mount point */
 int OffType = 0;			/* offset type:
 					 *     0 == unknown
 					 *     1 == lstat's st_size

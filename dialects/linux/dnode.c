@@ -826,7 +826,10 @@ process_proc_node(p, pbr, s, ss, l, ls)
 		tn = "FIFO";
 		break;
 	    case S_IFREG:
-		tn = "REG";
+		if (Lf->dev == MqueueDev)
+		    tn = "PSXMQ";
+		else
+		    tn = "REG";
 		break;
 	    case S_IFLNK:
 		tn = "LINK";
