@@ -1,4 +1,4 @@
- freebsd13_task:
+freebsd13_task:
    freebsd_instance:
      image: freebsd-13-0-current-amd64-v20190517
    timeout_in: 120m
@@ -6,6 +6,7 @@
    script:
      - ./Configure -n freebsd
      - make
+     - bash ./check.bash freebsd
 
 freebsd12_task:
   freebsd_instance:
