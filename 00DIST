@@ -138,7 +138,7 @@ version 3, itself a major revision of version 2.  Version 4 has
 been tested on:
 
 	Apple Darwin 9 and Mac OS X 10.[567]
-	FreeBSD 10.3, 11.0 and 12.0 for AMD64-based systems
+	FreeBSD 10.3, 11.0, 12.0 and 13.0 for AMD64-based systems
 	Solaris 9
 
 (The pub/tools/unix/lsof/contrib directory on lsof.itap.purdue.edu
@@ -4995,6 +4995,9 @@ July 14, 2018
 		[linux] Added Linux display of INET6 socket endpoint
 		information with +|-E option. The option handles
 		INET6 sockets using IPC.
+      
+                [FreeBSD] update to include <sys/_lock.h> on recent -CURRENT
+		since it is no longer implicitly included via header pollution.
 
 Masatake YAMATO <yamato@redhat.com>, a member of lsof-org
 May 8, 2019
