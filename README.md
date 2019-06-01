@@ -1,7 +1,7 @@
 <!-- Use "lsof-legacy" in cirrus and coveralls because of historical reason  -->
-[![Cirrus CI FreeBSD 11 Build Status](https://api.cirrus-ci.com/github/lsof-org/lsof-legacy.svg?task=freebsd11&branch=master)](https://cirrus-ci.com/github/lsof-org/lsof-legacy)
-[![Cirrus CI FreeBSD 12 Build Status](https://api.cirrus-ci.com/github/lsof-org/lsof-legacy.svg?task=freebsd12&branch=master)](https://cirrus-ci.com/github/lsof-org/lsof-legacy)
-[![Cirrus CI FreeBSD 13 Build Status](https://api.cirrus-ci.com/github/lsof-org/lsof-legacy.svg?task=freebsd13&branch=master)](https://cirrus-ci.com/github/lsof-org/lsof-legacy)
+[![Cirrus CI FreeBSD 11 Build Status](https://api.cirrus-ci.com/github/lsof-org/lsof.svg?task=freebsd11&branch=master)](https://cirrus-ci.com/github/lsof-org/lsof-legacy)
+[![Cirrus CI FreeBSD 12 Build Status](https://api.cirrus-ci.com/github/lsof-org/lsof.svg?task=freebsd12&branch=master)](https://cirrus-ci.com/github/lsof-org/lsof-legacy)
+[![Cirrus CI FreeBSD 13 Build Status](https://api.cirrus-ci.com/github/lsof-org/lsof.svg?task=freebsd13&branch=master)](https://cirrus-ci.com/github/lsof-org/lsof-legacy)
 [![Travis CI Linux Build Status](https://travis-ci.org/lsof-org/lsof.svg?branch=master)](https://travis-ci.org/lsof-org/lsof)
 [![Coveralls Linux Coverage Status on Travis CI](https://coveralls.io/repos/github/lsof-org/lsof/badge.svg?branch=master)](https://coveralls.io/github/lsof-org/lsof?branch=master)
 
