@@ -1,4 +1,3 @@
-<!-- Use "lsof-legacy" in cirrus and coveralls because of historical reason  -->
 [![Cirrus CI FreeBSD 11 Build Status](https://api.cirrus-ci.com/github/lsof-org/lsof.svg?task=freebsd11&branch=master)](https://cirrus-ci.com/github/lsof-org/lsof)
 [![Cirrus CI FreeBSD 12 Build Status](https://api.cirrus-ci.com/github/lsof-org/lsof.svg?task=freebsd12&branch=master)](https://cirrus-ci.com/github/lsof-org/lsof)
 [![Cirrus CI FreeBSD 13 Build Status](https://api.cirrus-ci.com/github/lsof-org/lsof.svg?task=freebsd13&branch=master)](https://cirrus-ci.com/github/lsof-org/lsof)
