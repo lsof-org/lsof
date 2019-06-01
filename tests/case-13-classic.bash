@@ -33,10 +33,12 @@ base=$(pwd)
 	s=1
     fi
 
-    if ! [ s = 0 ]; then
-	echo >> $report
-	cat $f >> $report
-    fi
+    {
+	echo
+	echo "output"
+	echo .............................................................................
+	cat $f
+    }  >> $report
     rm $f
 
     exit $s

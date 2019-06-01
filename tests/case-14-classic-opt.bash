@@ -32,12 +32,12 @@ base=$(pwd)
 
     # TODO: LTnfs
 
-    if ! [ s = 0 ]; then
+    {
 	echo
 	echo "output"
 	echo .............................................................................
 	cat $f
-    fi  >> $report
+    }  >> $report
     rm $f
 
     exit $s
