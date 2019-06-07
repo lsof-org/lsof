@@ -5,7 +5,7 @@
 [![Coveralls Linux Coverage Status on Travis CI](https://coveralls.io/repos/github/lsof-org/lsof/badge.svg?branch=master)](https://coveralls.io/github/lsof-org/lsof?branch=master)
 
 # lsof
-lsof-org at GitHub team takes over the maintainership of lsof
+The lsof-org team at GitHub takes over the maintainership of lsof
 originally maintained by Vic Abell. This repository is for maintaining
 the final source tree of lsof inherited from Vic. "legacy" branch
 keeps the original source tree. We will not introduce any changes to
@@ -42,4 +42,4 @@ GNU/Linux. We will merge the fruits of "lsof-linux" repository to this
 repository incrementally. If you are using GNU/Linux, you may want to
 use the code in "lsof-linux" repository.
 
-lsof-org at GitHub team
+The lsof-org team at GitHub
