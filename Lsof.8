@@ -1373,7 +1373,7 @@ Inhibiting the conversion may make
 run a little faster.
 It is also useful when port name lookup is not working properly.
 .TP \w'names'u+4
-.BI +|\-r " [t[m<fmt>]]"
+.BI +|\-r " [t[c<N>][m<fmt>]]"
 puts
 .I lsof
 in repeat mode.
@@ -1388,6 +1388,10 @@ the prefix to the option.
 If the prefix is a `\-', repeat mode is endless.
 .I Lsof
 must be terminated with an interrupt or quit signal.
+`c<N>' is for specifying the limits of repeating; if the number of
+iterations reaches at `<N>',
+.I Lsof
+stops itself.
 .IP
 If the prefix is `+', repeat mode will end the first cycle no open files
 are listed \- and of course when
