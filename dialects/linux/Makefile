@@ -63,7 +63,7 @@ install: all ${MANLCL} FRC
 	@echo 'like this:'
 	@echo ''
 	@echo '    install -m 4xxx -o root -g $${GRP} $${PROG} $${BIN}'
-	@echo '    install -m 444 $${MAN} $${DOC}'
+	@echo '    install -m 444 $${MANLCL} $${DOC}'
 	@echo ''
 	@echo 'You will have to complete the 4xxx modes, the GRP value, and'
 	@echo 'the skeletons for the BIN and DOC strings, given at the'
