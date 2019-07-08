@@ -28,7 +28,7 @@ fi
 
 # Define man file names.
 
-MS=Lsof.8
+MS=lsof-man.8
 MD=${SD}/support/lsof.8
 MF=${SD}/support/lsof_${V}.man
 

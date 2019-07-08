@@ -68,6 +68,7 @@ lsof
 tags
 tests/config.*
 version.h
+lsof.8
 
 #
 # Symbolic links to a diaclt implementation

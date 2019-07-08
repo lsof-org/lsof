@@ -32,7 +32,8 @@ OBJ=	dfile.o dmnt.o dnode.o dproc.o dsock.o dstore.o \
 	arg.o main.o misc.o node.o print.o proc.o store.o usage.o \
 	util.o
 
-MAN=	lsof.8
+MAN=	lsof-man.8
+MANLCL=	lsof.8
 
 OTHER=	
 
@@ -42,6 +43,10 @@ SOURCE=	Makefile ${OTHER} ${MAN} ${HDR} ${SRC}
 
 all: ${PROG}
 
+${MANLCL}: ${MAN}
+	rm -f ${MANLCL}
+	soelim < ${MAN} > ${MANLCL}
+
 ${PROG}: ${P} ${LIB} ${OBJ}
 	${CC} -o $@ ${OBJ} ${CFGL}
 
@@ -50,7 +55,7 @@ clean: FRC
 	rm -f machine.h.old new_machine.h
 	(cd lib; ${MAKE} -f Makefile.skel clean)
 
-install: all FRC
+install: all ${MANLCL} FRC
 	@echo ''
 	@echo 'Please write your own install rule.  Lsof should be installed'
 	@echo 'setuid to root if you wish any lsof user to be able to examine'

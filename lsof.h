@@ -337,7 +337,7 @@ static struct utmp dummy_utmp;		/* to get login name length */
 #define	LSOF_BRANCH	"master"
 #define	LSOF_REPO_URL	LSOF_GITHUB_URL "/" LSOF_REPO
 #define	LSOF_FAQ_URL	LSOF_REPO_URL "/blob/" LSOF_BRANCH "/00FAQ"
-#define	LSOF_MAN_URL	LSOF_REPO_URL "/blob/" LSOF_BRANCH "/Lsof.8"
+#define	LSOF_MAN_URL	LSOF_REPO_URL "/blob/" LSOF_BRANCH "/lsof-man.8"
 #define	MIN_AF_ADDR	sizeof(struct in_addr)
 					/* minimum AF_* address length */
 

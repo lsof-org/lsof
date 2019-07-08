@@ -50,7 +50,7 @@ cat > $R << .DISTFILE
 	except ( ./00TEST ./.neverCust ./.neverInv );
 	except ( ./ChangeLog ./Makefile );
 	except ( ./lsof ./lsof32 ./lsof64 ./lsof_old /lsof_32.old );
-	except ( ./lsof_64.old ./Lsof.8 );
+	except ( ./lsof_64.old ./lsof-man.8 );
 	except ( ./ddev.c ./dfile.c ./dlsof.h ./dmnt.c ./dnode.c ./dnode1.c );
 	except ( ./dnode2.c ./dproc.c ./dproto.h ./dsock.c ./dstore.c );
 	except ( ./kernelbase.h ./machine.h ./version.h ./zipme );

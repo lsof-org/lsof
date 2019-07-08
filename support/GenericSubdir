@@ -36,7 +36,7 @@ fi
 
 DIR=lsof_${V}.${DIALECT}
 F="00.README.FIRST 00CREDITS 00DCACHE 00DIALECTS 00DIST 00FAQ 00LSOF-L 00PORTING 00QUICKSTART 00README 00TEST 00XCONFIG AFSConfig ChangeLog Configure Customize Inventory arg.c lsof_fields.h lsof.h main.c misc.c node.c print.c proc.c proto.h regex.h store.c usage.c util.c version"
-MS=Lsof.8
+MS=lsof-man.8
 MD=lsof.8
 MF=lsof.man
 

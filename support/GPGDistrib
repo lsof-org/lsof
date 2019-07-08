@@ -71,7 +71,7 @@ echo "Creating lsof ${V} GPG distribution ..."
 # Define source files to copy.
 
 F="00.README.FIRST 00CREDITS 00DCACHE 00DIALECTS 00DIST 00FAQ 00LSOF-L 00MANIFEST 00PORTING 00QUICKSTART 00README 00TEST 00XCONFIG AFSConfig ChangeLog Configure Customize Inventory dialects arg.c lib lsof.h lsof_fields.h main.c misc.c node.c print.c proc.c proto.h regex.h scripts store.c tests usage.c util.c version"
-MS=Lsof.8
+MS=lsof-man.8
 MD=${DN}/${SN}/lsof.8
 MF=${DN}/${SN}/lsof.man
 
