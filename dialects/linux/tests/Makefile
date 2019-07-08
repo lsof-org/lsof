@@ -1,4 +1,5 @@
 HELPERS = \
+	eventfd \
 	mq_fork \
 	mq_open \
 	pipe \

@@ -99,6 +99,8 @@ struct l_dev {
 #define	CHEND_NETS6	0x20		/* INET6 socket endpoint ID */
 # endif	/* defined(HASIPv6) */
 
+#define CHEND_EVTFD	0x40		/* eventfd endpoint ID */
+
 #define	EPT_PIPE	0x01		/* process has pipe file */
 #define	EPT_PIPE_END	0x02		/* process has pipe end point file */
 #define	EPT_PTY		0x04		/* process has a pseudoterminal file */
@@ -124,6 +126,10 @@ struct l_dev {
 #define	EPT_NETS6_END	0x800		/* process has a INET6 socket end point
 					 * file */
 # endif	/* defined(HASIPv6) */
+
+#define	EPT_EVTFD	0x1000		/* process has a eventfd file*/
+#define	EPT_EVTFD_END	0x2000		/* process has a eventfd end point
+					 * file*/
 # endif	/* defined(HASEPTOPTS) */
 
 
@@ -542,6 +548,8 @@ extern int ZoneColW;
 					   cleared in link_lfile() */
 #define	SELNETS6INFO	0x100000	/* selected for INET6 socket info;
 					 * cleared in link_lfile() */
+#define	SELEVTFDINFO	0x200000	/* selected for evetnfd info;
+					 * cleared in link_lfile() */
 
 #define	SELALL		(SELCMD|SELCNTX|SELFD|SELNA|SELNET|SELNM|SELNFS|SELPID|SELUID|SELUNX|SELZONE|SELTASK)
 #define	SELPROC		(SELCMD|SELCNTX|SELPGID|SELPID|SELUID|SELZONE|SELTASK)
@@ -817,6 +825,8 @@ struct lfile {
 # if	defined(HASEPTOPTS)
 	unsigned char chend;		/* communication channel endpoint
 					 * file */
+	int eventfd_id;			/* evntfd id taken from
+					   /proc/$pid/fdinfo */
 #  if	defined(HASPTYEPT)
 	int tty_index;			/* pseudoterminal index of slave side
 					 * (if this is the master side) */

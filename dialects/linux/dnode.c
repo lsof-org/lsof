@@ -97,6 +97,7 @@ static pxinfo_t **PtyInfo = (pxinfo_t **)NULL;	/* pseudoterminal endpoint hash
 						 * buckets */
 # endif	/* defined(HASPTYEPT) */
 static pxinfo_t **PSXMQinfo = (pxinfo_t **)NULL;/* posix msg queue endpoint hash buckets */
+static pxinfo_t **EvtFDinfo = (pxinfo_t **)NULL;/* envetfd endpoint hash buckets */
 #endif	/* defined(HASEPTOPTS) */
 
 
@@ -455,6 +456,58 @@ find_psxmqinfo(pid, lf, pp)
 	return endpoint_find(PSXMQinfo,
 			     endpoint_accept_other_than_self,
 			     pid, lf, lf->inode, pp);
+}
+
+/*
+ * clear_evtfdinfo -- clear allocate eventfd info
+ */
+
+void
+clear_evtfdinfo()
+{
+	endpoint_pxinfo_hash(EvtFDinfo, PINFOBUCKS, free);
+}
+
+
+/*
+ * enter_evtfdinfo() -- enter eventfd info
+ *
+ *	entry	Lf = local file structure pointer
+ *		Lp = local process structure pointer
+ */
+
+void
+enter_evtfdinfo(int id)
+{
+	if (!EvtFDinfo) {
+	/*
+	 * Allocate eventfd info hash buckets.
+	 */
+	    if (!(EvtFDinfo = (pxinfo_t **)calloc(PINFOBUCKS, sizeof(pxinfo_t *))))
+	    {
+		(void) fprintf(stderr,
+		    "%s: no space for %d envet fd info buckets\n", Pn, PINFOBUCKS);
+		    Exit(1);
+	    }
+	}
+	endpoint_enter(EvtFDinfo, "evtfdinfo", id);
+}
+
+
+/*
+ * find_evtfdinfo() -- find eventfd end point info
+ */
+
+pxinfo_t *
+find_evtfdinfo(pid, lf, pp)
+	int pid;			/* pid of the process owning lf */
+	struct lfile *lf;		/* eventfd's lfile */
+	pxinfo_t *pp;			/* previous eventfd info (NULL == none) */
+{
+	void *r = endpoint_find(EvtFDinfo,
+			     endpoint_accept_other_than_self,
+			     pid, lf, lf->eventfd_id, pp);
+	return r;
 }
 #endif	/* defined(HASEPTOPTS) */
 
