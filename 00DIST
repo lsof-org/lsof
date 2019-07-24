@@ -4995,9 +4995,12 @@ July 14, 2018
 		[linux] Added Linux display of INET6 socket endpoint
 		information with +|-E option. The option handles
 		INET6 sockets using IPC.
-      
-                [FreeBSD] update to include <sys/_lock.h> on recent -CURRENT
+
+		[FreeBSD] update to include <sys/_lock.h> on recent -CURRENT
 		since it is no longer implicitly included via header pollution.
+
+		[linux] Added Linux display of eventfd endpoint information
+		with +|-E option. The option handles eventfd using IPC.
 
 		Enhanced -r option. With `c<N>' specifier, lsof can stop itself
 		when the number of iterations reaches at <N>.
