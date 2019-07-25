@@ -5002,5 +5002,8 @@ July 14, 2018
 		[linux] Added Linux display of eventfd endpoint information
 		with +|-E option. The option handles eventfd using IPC.
 
+		Enhanced -r option. With `c<N>' specifier, lsof can stop itself
+		when the number of iterations reaches at <N>.
+
 Masatake YAMATO <yamato@redhat.com>, a member of the lsof-org team at GitHub
 May 8, 2019

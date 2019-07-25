@@ -323,6 +323,8 @@ int Procsrch = 0;		/* 1 if searching for any proc file system
 int PrPass = 0;			/* print pass: 0 = compute column widths
 				 *	       1 = print */
 int RptTm = 0;			/* repeat time -- set by -r */
+int RptMaxCount = 0;		/* count of repeasts: 0 = no limit
+				 * -- set by -r */
 struct l_dev **Sdev = (struct l_dev **)NULL;
 				/* pointer to Devtp[] pointers, sorted
 				 * by device */

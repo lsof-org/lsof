@@ -83,6 +83,7 @@ main(argc, argv)
 	struct str_lst *str, *strt;
 	int version = 0;
 	int xover = 0;
+	int pr_count = 0;
 
 #if	defined(HAS_STRFTIME)
 	char *fmt = (char *)NULL;
@@ -782,6 +783,16 @@ main(argc, argv)
 		     break;
 		while(*cp && (*cp == ' '))
 		    cp++;
+
+		if (*cp == 'c') {
+		    cp++;
+		    for (i = 0;
+			 *cp && isdigit((unsigned char)*cp);
+			 cp++)
+			i = (i * 10) + ((int)*cp - '0');
+		    RptMaxCount = i;
+		}
+
 		if (*cp != LSOF_FID_MARK) {
 		    GOx1 = GObk[0];
 		    GOx2 = GObk[1] + n;
@@ -1551,6 +1562,8 @@ main(argc, argv)
 		Hdr = Nlproc = 0;
 		CkPasswd = 1;
 	    }
+	    if (RptMaxCount && (++pr_count == RptMaxCount))
+		RptTm = 0;
 	} while (RptTm);
 /*
  * See if all requested information was displayed.  Return zero if it

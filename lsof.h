@@ -1073,6 +1073,7 @@ extern int Procsrch;
 
 extern int PrPass;
 extern int RptTm;
+extern int RptMaxCount;
 extern struct l_dev **Sdev;
 extern int SelAll;
 extern int Selflags;
