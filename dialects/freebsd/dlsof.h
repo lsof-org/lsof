@@ -108,6 +108,10 @@ typedef	struct device	*device_t;
 
 #define KLD_MODULE
 
+/*
+ * include <sys/param.h> for refcount API
+ */
+#include <sys/param.h>
 
 #include <sys/conf.h>
 
