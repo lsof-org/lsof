@@ -109,9 +109,9 @@ typedef	struct device	*device_t;
 #define KLD_MODULE
 
 /*
- * include <sys/param.h> for refcount API
+ * include <stdbool.h> for refount(9)
  */
-#include <sys/param.h>
+#include <stdbool.h>
 
 #include <sys/conf.h>
 
