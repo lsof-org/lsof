@@ -38,6 +38,7 @@
 #if	!defined(FREEBSD_LSOF_H)
 #define	FREEBSD_LSOF_H	1
 
+#include <stddef.h>
 #include <stdlib.h>
 #include <dirent.h>
 #include <nlist.h>
