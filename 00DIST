@@ -5008,5 +5008,9 @@ July 14, 2018
 		[linux] Fixed accessing an uninitialized local variable.
 		Detected by valgrind.
 
+		[linux] fix a crash when printing the endpoint for unaccepted
+		unix socket with +E option.
+		This closes the github issue #74 reported by @jolmg.
+
 Masatake YAMATO <yamato@redhat.com>, a member of the lsof-org team at GitHub
 May 8, 2019
