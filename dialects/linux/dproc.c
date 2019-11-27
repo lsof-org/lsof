@@ -1195,6 +1195,7 @@ process_id(idp, idpl, cmd, uid, pid, ppid, pgid, tid, tcmd)
 		zeromem((char *)&sb, sizeof(sb));
 		lnk = ss = 0;
 		if (!Fwarn) {
+		    ls = 0;
 		    (void) snpf(nmabuf, sizeof(nmabuf), "(readlink: %s)",
 			strerror(errno));
 		    nmabuf[sizeof(nmabuf) - 1] = '\0';
