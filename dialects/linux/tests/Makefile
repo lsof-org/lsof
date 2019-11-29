@@ -4,6 +4,7 @@ HELPERS = \
 	mq_open \
 	pipe \
 	pty \
+	ux \
 	\
 	open_with_flags \
 	\

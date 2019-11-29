@@ -1299,15 +1299,15 @@ process_uxsinfo(f)
 			if (tp->icons) {
 			    if (tp->icstat) {
 				p = tp->icons;
-				while (p != tp) {
-				    if (p && p->inode)
+				while (p && p != tp) {
+				    if (p->inode)
 					prt_uxs(p, 1);
 				    p = p->icons;
 				}
 			    } else {
-				for (p = tp->icons; !p->icstat; p = p->icons)
+				for (p = tp->icons; p && !p->icstat; p = p->icons)
 				    ; /* DO NOTHING */
-				if (p->icstat && p->inode)
+				if (p && p->inode)
 				    prt_uxs (p, 1);
 			    }
 			}
@@ -1331,15 +1331,15 @@ process_uxsinfo(f)
 			if (tp->icons) {
 			    if (tp->icstat) {
 				p = tp->icons;
-				while (p != tp) {
-				    if (p  && p->inode)
+				while (p && p != tp) {
+				    if (p->inode)
 					prt_uxs(p, 0);
 				    p = p->icons;
 				}
 			    } else {
-				for (p = tp->icons; !p->icstat; p = p->icons)
+				for (p = tp->icons; p && !p->icstat; p = p->icons)
 				    ; /* DO NOTHING */
-				if (p->icstat && p->inode)
+				if (p && p->inode)
 				    prt_uxs(p, 0);
 			    }
 			}
