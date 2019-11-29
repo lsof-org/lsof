@@ -35,11 +35,9 @@ Many texts in the source tree still refers purdue.edu as the home of
 lsof development. It should be https://github.com/lsof-org/lsof, the
 new home. The updating is in progress.
 
-We are running another repository, lsof-org/"lsof-linux" derived from
-lsof-4.91 that is also released by Vic. To the repository, we have
-introduced some new features and fixes for building specific to
-GNU/Linux. We will merge the fruits of "lsof-linux" repository to this
-repository incrementally. If you are using GNU/Linux, you may want to
-use the code in "lsof-linux" repository.
+We ran another repository, lsof-org/"lsof-linux" derived from
+lsof-4.91 that was also released by Vic. The repository is no more
+used; all the changes made in the repository are now in lsof-org/"lsof"
+repository.
 
 The lsof-org team at GitHub
