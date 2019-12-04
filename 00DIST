@@ -5012,5 +5012,8 @@ July 14, 2018
 		unix socket with +E option.
 		This closes the github issue #74 reported by @jolmg.
 
+		[linux] abort execution when failing in memory allocation for
+		socket private data.
+
 Masatake YAMATO <yamato@redhat.com>, a member of the lsof-org team at GitHub
 May 8, 2019
