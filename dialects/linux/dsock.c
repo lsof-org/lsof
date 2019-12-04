@@ -4512,10 +4512,8 @@ process_proc_sock(p, pbr, s, ss, l, lss)
 	    (void) snpf(Lf->type, sizeof(Lf->type), "unix");
 	    if (up->pcb)
 		enter_dev_ch(up->pcb);
-	    if (ss & SB_INO) {
-		Lf->inode = (INODETYPE)s->st_ino;
-		Lf->inp_ty = 1;
-	    }
+	    Lf->inode = (INODETYPE)s->st_ino;
+	    Lf->inp_ty = 1;
 
 #if	defined(HASEPTOPTS) && defined(HASUXSOCKEPT)
 	    if (FeptE) {
