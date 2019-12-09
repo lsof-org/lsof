@@ -62,7 +62,7 @@ dkms.conf
 *.gcda
 *.gcno
 *~
-Makefile
+/Makefile
 TAGS
 lsof
 tags
