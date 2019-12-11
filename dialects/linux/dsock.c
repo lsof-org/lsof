@@ -2856,6 +2856,7 @@ get_tcpudp(p, pr, clr)
 		(void) fprintf(stderr,
 			       "%s: can't allocate %d bytes for TCP&UDP local IPC hash buckets\n",
 			       Pn, (int)(IPCBUCKS * sizeof(struct tcp_udp *)));
+		Exit(1);
 	    }
 #endif	/* defined(HASEPTOPTS) */
 	}
@@ -3236,6 +3237,7 @@ get_tcpudp6(p, pr, clr)
 		(void) fprintf(stderr,
 			       "%s: can't allocate %d bytes for TCP6&UDP6 local IPC hash buckets\n",
 			       Pn, (int)(IPCBUCKS * sizeof(struct tcp_udp6 *)));
+		Exit(1);
 	    }
 #endif	/* defined(HASEPTOPTS) */
 	}
@@ -3411,6 +3413,7 @@ get_unix(p)
 		(void) fprintf(stderr,
 		    "%s: can't allocate %d bytes for Unix socket info\n",
 		    Pn, (int)(INOBUCKS * sizeof(uxsin_t *)));
+		Exit(1);
 	    }
 	}
 /*
@@ -4512,10 +4515,8 @@ process_proc_sock(p, pbr, s, ss, l, lss)
 	    (void) snpf(Lf->type, sizeof(Lf->type), "unix");
 	    if (up->pcb)
 		enter_dev_ch(up->pcb);
-	    if (ss & SB_INO) {
-		Lf->inode = (INODETYPE)s->st_ino;
-		Lf->inp_ty = 1;
-	    }
+	    Lf->inode = (INODETYPE)s->st_ino;
+	    Lf->inp_ty = 1;
 
 #if	defined(HASEPTOPTS) && defined(HASUXSOCKEPT)
 	    if (FeptE) {
