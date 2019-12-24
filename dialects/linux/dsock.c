@@ -5117,6 +5117,12 @@ sockty2str(ty, rf)
 	    break;
 #endif	/* defined(SOCK_SEQPACKET) */
 
+#if	defined(SOCK_DCCP)
+	case SOCK_DCCP:
+	    sr = "DCCP";
+	    break;
+#endif	/* defined(SOCK_DCCP) */
+
 #if	defined(SOCK_PACKET)
 	case SOCK_PACKET:
 	    sr = "PACKET";
