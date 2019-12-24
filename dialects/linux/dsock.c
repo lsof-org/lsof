@@ -197,7 +197,6 @@ struct tcp_udp6 {			/* IPv6 TCP and UDP socket
 };
 #endif	/* defined(HASIPv6) */
 
-# if	defined(HASEPTOPTS)
 typedef struct uxsin {			/* UNIX socket information */
 	INODETYPE inode;		/* node number */
 	char *pcb;			/* protocol control block */
@@ -218,7 +217,6 @@ typedef struct uxsin {			/* UNIX socket information */
 
 	struct uxsin *next;
 } uxsin_t;
-# endif	/* defined(HASEPTOPTS) */
 
 /*
  * Local static values
