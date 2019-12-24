@@ -360,6 +360,7 @@ doinchild(fn, fp, rbuf, rbln)
 			    != (int)sizeof(r_rbln)
 			||  r_rbln < 1 || r_rbln > (int)sizeof(r_rbuf))
 			    break;
+			zeromem (r_rbuf, r_rbln);
 			rv = r_fn(r_arg, r_rbuf, r_rbln);
 			en = errno;
 			if (write(Pipes[3], (char *)&rv, sizeof(rv))
