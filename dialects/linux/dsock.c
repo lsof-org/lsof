@@ -54,6 +54,9 @@ static char copyright[] =
 #define SOCKET_BUFFER_SIZE (getpagesize() < 8192L ? getpagesize() : 8192L)
 #endif	/* defined(HASEPTOPTS) && defined(HASUXSOCKEPT) */
 
+#if	defined(HASSOSTATE)
+#include <linux/net.h>			/* for SS_* */
+#endif  /* defined(HASSOSTATE) */
 
 /*
  * Local definitions
@@ -206,6 +209,8 @@ typedef struct uxsin {			/* UNIX socket information */
 	INODETYPE sb_ino;		/* stat(2) buffer node number */
 	dev_t sb_rdev;			/* stat(2) raw device number */
 	uint32_t ty;			/* socket type */
+	unsigned int opt;		/* socket options */
+	unsigned int ss;		/* socket state */
 
 #  if	defined(HASEPTOPTS) && defined(HASUXSOCKEPT)
 	struct uxsin *icons;		/* incoming socket conections */
@@ -363,6 +368,9 @@ _PROTOTYPE(static void print_ax25info,(struct ax25sin *ap));
 _PROTOTYPE(static void print_ipxinfo,(struct ipxsin *ip));
 _PROTOTYPE(static char *sockty2str,(uint32_t ty, int *rf));
 _PROTOTYPE(static char *nlproto2str,(unsigned int pr));
+#if	defined(HASSOSTATE)
+_PROTOTYPE(static char *sockss2str,(unsigned int ss));
+#endif	/* defined(HASSOSTATE) */
 
 #if	defined(HASIPv6)
 _PROTOTYPE(static struct rawsin *check_raw6,(INODETYPE i));
@@ -759,6 +767,9 @@ check_unix(i)
 {
 	int h;
 	uxsin_t *up;
+
+	if (!Uxsin)
+	    return NULL;
 
 	h = INOHASH(i);
 	for (up = Uxsin[h]; up; up = up->next) {
@@ -3519,6 +3530,21 @@ get_unix(p)
 		ty = (uint32_t)UINT_MAX;
 	    }
 	/*
+	 * Record socket state.
+	 */
+	    unsigned long proc_flags = 0UL;
+	    ep = (char *)NULL;
+	    if (fp[3] && *fp[3]
+	    &&  (proc_flags = strtoul(fp[3], &ep, 16)) == ULONG_MAX)
+	        proc_flags = 0UL;
+
+	    unsigned long proc_st = 0UL;
+	    ep = (char *)NULL;
+	    if (fp[5] && *fp[5]
+	    &&  ((proc_st = strtoul(fp[5], &ep, 16)) == ULONG_MAX))
+	        proc_st = 0UL;
+
+	/*
 	 * Allocate and fill a Unix socket info structure; link it to its
 	 * hash bucket.
 	 */
@@ -3533,6 +3559,8 @@ get_unix(p)
 	    up->pcb = pcb;
 	    up->sb_def = 0;
 	    up->ty = ty;
+	    up->opt = (unsigned int)proc_flags;
+	    up->ss = (unsigned int)proc_st;
 	    if ((up->path = path) && (*path == '/')) {
 
 	    /*
@@ -3730,6 +3758,31 @@ print_ipxinfo(ip)
 
 
 /*
+ * print_unix() - print state of UNIX domain socket
+ */
+
+static void
+print_unix(int nl)
+{
+	if (Ftcptpi & TCPTPI_STATE) {
+#if	defined(HASSOSTATE) && defined(HASSOOPT)
+	    char *cp = (Lf->lts.opt == __SO_ACCEPTCON)? "LISTEN": sockss2str(Lf->lts.ss);
+
+	    if (Ffield)
+		(void) printf("%cST=%s%c", LSOF_FID_TCPTPI, cp, Terminator);
+	    else {
+		putchar('(');
+		(void) fputs(cp, stdout);
+		putchar(')');
+	    }
+#endif	/* defined(HASSOSTATE) && defined(HASSOOPT) */
+	}
+	if (nl)
+	    putchar('\n');
+}
+
+
+/*
  * print_tcptpi() - print TCP/TPI state
  */
 
@@ -3742,6 +3795,10 @@ print_tcptpi(nl)
 	int ps = 0;
 	int s;
 
+	if (!strcmp(Lf->type, "unix"))  {
+	    print_unix(nl);
+	    return;
+	}
 	if ((Ftcptpi & TCPTPI_STATE) && Lf->lts.type == 0) {
 	    if (!TcpSt)
 		(void) build_IPstates();
@@ -4423,6 +4480,13 @@ process_proc_sock(p, pbr, s, ss, l, lss)
 	    Lf->inode = (INODETYPE)s->st_ino;
 	    Lf->inp_ty = 1;
 
+	    Lf->lts.type = up->ty;
+#if	defined(HASSOOPT)
+	    Lf->lts.opt = up->opt;
+#endif	/* defined(HASSOOPT) */
+#if	defined(HASSOSTATE)
+	    Lf->lts.ss = up->ss;
+#endif	/* defined(HASSOSTATE) */
 #if	defined(HASEPTOPTS) && defined(HASUXSOCKEPT)
 	    if (FeptE) {
 		(void) enter_uxsinfo(up);
@@ -5189,3 +5253,34 @@ nlproto2str(unsigned int pr)
 
 	return cp;
 }
+
+/*
+ * Sockss2str() -- convert socket state number to a string
+ *
+ * returns "UNKNOWN" for unknown state.
+ */
+#if	defined(HASSOSTATE)
+static char *
+sockss2str(unsigned int ss)
+{
+	char *sr;
+	switch (Lf->lts.ss) {
+	case SS_UNCONNECTED:
+	    sr = "UNCONNECTED";
+	    break;
+	case SS_CONNECTING:
+	    sr = "CONNECTING";
+	    break;
+	case SS_CONNECTED:
+	    sr = "CONNECTED";
+	    break;
+	case SS_DISCONNECTING:
+	    sr = "DISCONNECTING";
+	    break;
+	default:
+	    sr = "UNKNOWN";
+	    break;
+	}
+	return sr;
+}
+#endif	/* defined(HASSOSTATE) */

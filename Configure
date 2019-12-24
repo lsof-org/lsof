@@ -3014,6 +3014,18 @@ return(0); }
 	LSOF_CFGF="$LSOF_CFGF -DHASPTYEPT"
       fi	# }
     fi	# }
+
+  # Test for (unix) socket state support.
+
+    if test -f ${LSOF_INCLUDE}/linux/net.h # {
+    then
+      grep -q SS_CONNECTED ${LSOF_INCLUDE}/linux/net.h
+      if test $? -eq 0 # {
+      then
+        LSOF_CFGF="$LSOF_CFGF -DHASSOSTATE -DHASSOOPT"
+      fi	# }
+    fi	# }
+
     LSOF_DIALECT_DIR="linux"
     LSOF_CFGF="$LSOF_CFGF -D_FILE_OFFSET_BITS=64 -D_LARGEFILE64_SOURCE"
     ;;
