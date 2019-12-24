@@ -628,37 +628,6 @@ struct pff_tab {			/* print file flags table structure */
 };
 # endif	/* defined(HASFSTRUCT) */
 
-# if	defined(HASEPTOPTS)
-typedef struct pxinfo {			/* hashed pipe, UNIX socket or pseudo-
-					 * terminal inode information */
-	INODETYPE ino;			/* file's inode */
-	struct lfile *lf;		/* connected peer file */
-	int lpx;			/* connected process index */
-	struct pxinfo *next;		/* next entry for hashed inode */
-} pxinfo_t;
-
-typedef struct uxsin {			/* UNIX socket information */
-	INODETYPE inode;		/* node number */
-	char *pcb;			/* protocol control block */
-	char *path;			/* file path */
-	unsigned char sb_def;		/* stat(2) buffer definitions */
-	dev_t sb_dev;			/* stat(2) buffer device */
-	INODETYPE sb_ino;		/* stat(2) buffer node number */
-	dev_t sb_rdev;			/* stat(2) raw device number */
-	uint32_t ty;			/* socket type */
-
-#  if	defined(HASEPTOPTS) && defined(HASUXSOCKEPT)
-	struct uxsin *icons;		/* incoming socket conections */
-	unsigned int icstat;		/* incoming connection status
-					 * 0 == none */
-	pxinfo_t *pxinfo;		/* inode information */
-	struct uxsin *peer;	        /* connected peer(s) info */
-#  endif	/* defined(HASEPTOPTS) && defined(HASUXSOCKEPT) */
-
-	struct uxsin *next;
-} uxsin_t;
-# endif	/* defined(HASEPTOPTS) */
-
 
 struct seluid {
 	uid_t uid;			/* User ID */

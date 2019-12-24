@@ -197,6 +197,28 @@ struct tcp_udp6 {			/* IPv6 TCP and UDP socket
 };
 #endif	/* defined(HASIPv6) */
 
+# if	defined(HASEPTOPTS)
+typedef struct uxsin {			/* UNIX socket information */
+	INODETYPE inode;		/* node number */
+	char *pcb;			/* protocol control block */
+	char *path;			/* file path */
+	unsigned char sb_def;		/* stat(2) buffer definitions */
+	dev_t sb_dev;			/* stat(2) buffer device */
+	INODETYPE sb_ino;		/* stat(2) buffer node number */
+	dev_t sb_rdev;			/* stat(2) raw device number */
+	uint32_t ty;			/* socket type */
+
+#  if	defined(HASEPTOPTS) && defined(HASUXSOCKEPT)
+	struct uxsin *icons;		/* incoming socket conections */
+	unsigned int icstat;		/* incoming connection status
+					 * 0 == none */
+	pxinfo_t *pxinfo;		/* inode information */
+	struct uxsin *peer;	        /* connected peer(s) info */
+#  endif	/* defined(HASEPTOPTS) && defined(HASUXSOCKEPT) */
+
+	struct uxsin *next;
+} uxsin_t;
+# endif	/* defined(HASEPTOPTS) */
 
 /*
  * Local static values
