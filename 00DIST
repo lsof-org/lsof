@@ -5015,5 +5015,7 @@ July 14, 2018
 		[linux] abort execution when failing in memory allocation for
 		socket private data.
 
+		[linux] decode the name of DCCP socket type.
+
 Masatake YAMATO <yamato@redhat.com>, a member of the lsof-org team at GitHub
 May 8, 2019
