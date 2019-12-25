@@ -537,8 +537,10 @@ provided test systems where I was able to do development work.
 	Karel Zak
 	Donald Zoch
 	Malcom Zung
-	Waldemar Zurowski and
+	Waldemar Zurowski
 	@eranik (github account)
+	Ivan Melnikov and
+	@jolmg  (github account)
 
 If I have omitted a contributor's name, the fault is wholly mine,
 and I apologize for the error.
@@ -546,3 +548,6 @@ and I apologize for the error.
 
 Vic Abell <abe@purdue.edu>
 March 27, 2018
+
+Masatake YAMATO <yamato@redhat.com> (since revision 4.92.1)
+December 24, 2019
