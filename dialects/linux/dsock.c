@@ -5147,6 +5147,24 @@ nlproto2str(unsigned int pr)
 	    cp = "ECRYPTFS";
 	    break;
 #endif	/* defined(NETLINK_ECRYPTFS) */
+
+#if	defined(NETLINK_RDMA)
+	case NETLINK_RDMA:
+	    cp = "RDMA";
+	    break;
+#endif	/* defined(NETLINK_RDMA) */
+
+#if	defined(NETLINK_CRYPTO)
+	case NETLINK_CRYPTO:
+	    cp = "CRYPTO";
+	    break;
+#endif	/* defined(NETLINK_CRYPTO) */
+
+#if	defined(NETLINK_SMC)
+	case NETLINK_SMC:
+	    cp = "SMC";
+	    break;
+#endif	/* defined(NETLINK_SMC) */
 	}
 
 	return cp;

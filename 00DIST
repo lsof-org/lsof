@@ -5017,5 +5017,8 @@ July 14, 2018
 
 		[linux] decode the name of DCCP socket type.
 
+		[linux] decode more netlink protocol numbers (RDMA, CRYPTO, and
+		SMC).
+
 Masatake YAMATO <yamato@redhat.com>, a member of the lsof-org team at GitHub
 May 8, 2019
