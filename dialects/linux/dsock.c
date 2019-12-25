@@ -342,6 +342,7 @@ _PROTOTYPE(static int isainb,(char *a, char *b));
 _PROTOTYPE(static void print_ax25info,(struct ax25sin *ap));
 _PROTOTYPE(static void print_ipxinfo,(struct ipxsin *ip));
 _PROTOTYPE(static char *sockty2str,(uint32_t ty, int *rf));
+_PROTOTYPE(static char *nlproto2str,(unsigned int pr));
 
 #if	defined(HASIPv6)
 _PROTOTYPE(static struct rawsin *check_raw6,(INODETYPE i));
@@ -4029,128 +4030,12 @@ process_proc_sock(p, pbr, s, ss, l, lss)
 	     */
 
 	    (void) snpf(Lf->type, sizeof(Lf->type), "netlink");
-	    switch (np->pr) {
-
-#if	defined(NETLINK_ROUTE)
-	    case NETLINK_ROUTE:
-		cp = "ROUTE";
-		break;
-#endif	/* defined(NETLINK_ROUTE) */
-
-#if	defined(NETLINK_UNUSED)
-	    case NETLINK_UNUSED:
-		cp = "UNUSED";
-		break;
-#endif	/* defined(NETLINK_UNUSED) */
-
-#if	defined(NETLINK_USERSOCK)
-	    case NETLINK_USERSOCK:
-		cp = "USERSOCK";
-		break;
-#endif	/* defined(NETLINK_USERSOCK) */
-
-#if	defined(NETLINK_FIREWALL)
-	    case NETLINK_FIREWALL:
-		cp = "FIREWALL";
-		break;
-#endif	/* defined(NETLINK_FIREWALL) */
-
-#if	defined(NETLINK_INET_DIAG)
-	    case NETLINK_INET_DIAG:
-		cp = "INET_DIAG";
-		break;
-#endif	/* defined(NETLINK_INET_DIAG) */
-
-#if	defined(NETLINK_NFLOG)
-	    case NETLINK_NFLOG:
-		cp = "NFLOG";
-		break;
-#endif	/* defined(NETLINK_NFLOG) */
-
-#if	defined(NETLINK_XFRM)
-	    case NETLINK_XFRM:
-		cp = "XFRM";
-		break;
-#endif	/* defined(NETLINK_XFRM) */
-
-#if	defined(NETLINK_SELINUX)
-	    case NETLINK_SELINUX:
-		cp = "SELINUX";
-		break;
-#endif	/* defined(NETLINK_SELINUX) */
-
-#if	defined(NETLINK_ISCSI)
-	    case NETLINK_ISCSI:
-		cp = "ISCSI";
-		break;
-#endif	/* defined(NETLINK_ISCSI) */
-
-#if	defined(NETLINK_AUDIT)
-	    case NETLINK_AUDIT:
-		cp = "AUDIT";
-		break;
-#endif	/* defined(NETLINK_AUDIT) */
-
-#if	defined(NETLINK_FIB_LOOKUP)
-	    case NETLINK_FIB_LOOKUP:
-		cp = "FIB_LOOKUP";
-		break;
-#endif	/* defined(NETLINK_FIB_LOOKUP) */
-
-#if	defined(NETLINK_CONNECTOR)
-	    case NETLINK_CONNECTOR:
-		cp = "CONNECTOR";
-		break;
-#endif	/* defined(NETLINK_CONNECTOR) */
-
-#if	defined(NETLINK_NETFILTER)
-	    case NETLINK_NETFILTER:
-		cp = "NETFILTER";
-		break;
-#endif	/* defined(NETLINK_NETFILTER) */
-
-#if	defined(NETLINK_IP6_FW)
-	    case NETLINK_IP6_FW:
-		cp = "IP6_FW";
-		break;
-#endif	/* defined(NETLINK_IP6_FW) */
-
-#if	defined(NETLINK_DNRTMSG)
-	    case NETLINK_DNRTMSG:
-		cp = "DNRTMSG";
-		break;
-#endif	/* defined(NETLINK_DNRTMSG) */
-
-#if	defined(NETLINK_KOBJECT_UEVENT)
-	    case NETLINK_KOBJECT_UEVENT:
-		cp = "KOBJECT_UEVENT";
-		break;
-#endif	/* defined(NETLINK_KOBJECT_UEVENT) */
-
-#if	defined(NETLINK_GENERIC)
-	    case NETLINK_GENERIC:
-		cp = "GENERIC";
-		break;
-#endif	/* defined(NETLINK_GENERIC) */
-
-#if	defined(NETLINK_SCSITRANSPORT)
-	    case NETLINK_SCSITRANSPORT:
-		cp = "SCSITRANSPORT";
-		break;
-#endif	/* defined(NETLINK_SCSITRANSPORT) */
-
-#if	defined(NETLINK_ECRYPTFS)
-	    case NETLINK_ECRYPTFS:
-		cp = "ECRYPTFS";
-		break;
-#endif	/* defined(NETLINK_ECRYPTFS) */
-
-	    default:
-		(void) snpf(Namech, Namechl, "unknown protocol: %d", np->pr);
-		cp = (char *)NULL;
-	    }
+	    cp = nlproto2str(np->pr);
 	    if (cp)
 		(void) snpf(Namech, Namechl, "%s", cp);
+	    else
+		(void) snpf(Namech, Namechl, "unknown protocol: %d", np->pr);
+
 	    Lf->inode = (INODETYPE)s->st_ino;
 	    Lf->inp_ty = 1;
 	    if (Namech[0])
@@ -5135,4 +5020,134 @@ sockty2str(ty, rf)
 	}
 	*rf = f;
 	return(sr);
+}
+
+
+/*
+ * Nlproto2str() -- convert netlink protocol number to a string
+ *
+ * return NULL if the number is unknown.
+ */
+
+static char *
+nlproto2str(unsigned int pr)
+{
+	char *cp = NULL;
+	switch (pr) {
+#if	defined(NETLINK_ROUTE)
+	case NETLINK_ROUTE:
+	    cp = "ROUTE";
+	    break;
+#endif	/* defined(NETLINK_ROUTE) */
+
+#if	defined(NETLINK_UNUSED)
+	case NETLINK_UNUSED:
+	    cp = "UNUSED";
+	    break;
+#endif	/* defined(NETLINK_UNUSED) */
+
+#if	defined(NETLINK_USERSOCK)
+	case NETLINK_USERSOCK:
+	    cp = "USERSOCK";
+	    break;
+#endif	/* defined(NETLINK_USERSOCK) */
+
+#if	defined(NETLINK_FIREWALL)
+	case NETLINK_FIREWALL:
+	    cp = "FIREWALL";
+	    break;
+#endif	/* defined(NETLINK_FIREWALL) */
+
+#if	defined(NETLINK_INET_DIAG)
+	case NETLINK_INET_DIAG:
+	    cp = "INET_DIAG";
+	    break;
+#endif	/* defined(NETLINK_INET_DIAG) */
+
+#if	defined(NETLINK_NFLOG)
+	case NETLINK_NFLOG:
+	    cp = "NFLOG";
+	    break;
+#endif	/* defined(NETLINK_NFLOG) */
+
+#if	defined(NETLINK_XFRM)
+	case NETLINK_XFRM:
+	    cp = "XFRM";
+	    break;
+#endif	/* defined(NETLINK_XFRM) */
+
+#if	defined(NETLINK_SELINUX)
+	case NETLINK_SELINUX:
+	    cp = "SELINUX";
+	    break;
+#endif	/* defined(NETLINK_SELINUX) */
+
+#if	defined(NETLINK_ISCSI)
+	case NETLINK_ISCSI:
+	    cp = "ISCSI";
+	    break;
+#endif	/* defined(NETLINK_ISCSI) */
+
+#if	defined(NETLINK_AUDIT)
+	case NETLINK_AUDIT:
+	    cp = "AUDIT";
+	    break;
+#endif	/* defined(NETLINK_AUDIT) */
+
+#if	defined(NETLINK_FIB_LOOKUP)
+	case NETLINK_FIB_LOOKUP:
+	    cp = "FIB_LOOKUP";
+	    break;
+#endif	/* defined(NETLINK_FIB_LOOKUP) */
+
+#if	defined(NETLINK_CONNECTOR)
+	case NETLINK_CONNECTOR:
+	    cp = "CONNECTOR";
+	    break;
+#endif	/* defined(NETLINK_CONNECTOR) */
+
+#if	defined(NETLINK_NETFILTER)
+	case NETLINK_NETFILTER:
+	    cp = "NETFILTER";
+	    break;
+#endif	/* defined(NETLINK_NETFILTER) */
+
+#if	defined(NETLINK_IP6_FW)
+	case NETLINK_IP6_FW:
+	    cp = "IP6_FW";
+	    break;
+#endif	/* defined(NETLINK_IP6_FW) */
+
+#if	defined(NETLINK_DNRTMSG)
+	case NETLINK_DNRTMSG:
+	    cp = "DNRTMSG";
+	    break;
+#endif	/* defined(NETLINK_DNRTMSG) */
+
+#if	defined(NETLINK_KOBJECT_UEVENT)
+	case NETLINK_KOBJECT_UEVENT:
+	    cp = "KOBJECT_UEVENT";
+	    break;
+#endif	/* defined(NETLINK_KOBJECT_UEVENT) */
+
+#if	defined(NETLINK_GENERIC)
+	case NETLINK_GENERIC:
+	    cp = "GENERIC";
+	    break;
+#endif	/* defined(NETLINK_GENERIC) */
+
+#if	defined(NETLINK_SCSITRANSPORT)
+	case NETLINK_SCSITRANSPORT:
+	    cp = "SCSITRANSPORT";
+	    break;
+#endif	/* defined(NETLINK_SCSITRANSPORT) */
+
+#if	defined(NETLINK_ECRYPTFS)
+	case NETLINK_ECRYPTFS:
+	    cp = "ECRYPTFS";
+	    break;
+#endif	/* defined(NETLINK_ECRYPTFS) */
+	}
+
+	return cp;
 }
