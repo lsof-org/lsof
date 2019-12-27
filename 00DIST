@@ -5020,5 +5020,20 @@ July 14, 2018
 		[linux] decode more netlink protocol numbers (RDMA, CRYPTO, and
 		SMC).
 
+		[linux] print the connection state of unix domain socket
+		Lsof can print the state of TCP socket like:
+
+		         nc      22247 yamato    3u  IPv4 471409      0t0        TCP localhost:38802->localhost:9999 (ESTABLISHED)
+
+		This change exnteds this feature to support unix domain sockets.
+		LISTEN, UNCONNECTED, CONNECTING, CONNECTED, DISCONNECTING,
+		and UNKNOWN can be taken as a state.
+		An example of output:
+
+		         evince    17333  yamato    1u  unix 0x0000000054183795      0t0  89141 type=STREAM (CONNECTED)
+
+		This feature is enabled by default.
+		To turn off printing state information, use -T option.
+
 Masatake YAMATO <yamato@redhat.com>, a member of the lsof-org team at GitHub
 May 8, 2019
