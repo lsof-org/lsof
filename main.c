@@ -1245,7 +1245,7 @@ main(argc, argv)
  */
 	if (GOx1 < argc) {
 	    if (ck_file_arg(GOx1, argc, argv, Ffilesys, 0, (struct stat *)NULL))
-		usage(1, 0, 0);
+		Exit(1);
 	}
 /*
  * Do dialect-specific initialization.
