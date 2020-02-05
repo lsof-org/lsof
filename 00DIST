@@ -5035,5 +5035,9 @@ July 14, 2018
 		This feature is enabled by default.
 		To turn off printing state information, use -T option.
 
+		Don't display command usage even when a file (or directory) listed
+		in command line doesn't exist.
+		This closes the github issue #90 reported by @rowlap.
+
 Masatake YAMATO <yamato@redhat.com>, a member of the lsof-org team at GitHub
 May 8, 2019
