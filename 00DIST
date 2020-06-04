@@ -5039,5 +5039,13 @@ July 14, 2018
 		in command line doesn't exist.
 		This closes the github issue #90 reported by @rowlap.
 
+		[linux] Allow reproducible builds
+		In a reproducible build all varied information is removed.  This
+		change does so, by checking if the standard SOURCE_DATE_EPOCH
+		variable is set.  If it is, we are attempting a reproducible build
+		and will strip varying information.
+		About the standard, see https://reproducible-builds.org/specs/source-date-epoch/
+		Provided in github pull request #93 by @T4cC0re.
+
 Masatake YAMATO <yamato@redhat.com>, a member of the lsof-org team at GitHub
 May 8, 2019
