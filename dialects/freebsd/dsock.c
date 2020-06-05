@@ -181,7 +181,7 @@ process_socket(sa)
 #endif	/* FREEBSDV<4050 */
 
 #if	defined(HASIPv6) && !defined(HASINRIAIPv6)
-	struct in6pcb in6p;
+	struct inpcb in6p;
 #endif	/* defined(HASIPv6) && !defined(HASINRIAIPv6) */
 
 	(void) snpf(Lf->type, sizeof(Lf->type), "sock");
