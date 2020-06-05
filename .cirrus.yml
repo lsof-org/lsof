@@ -1,6 +1,6 @@
 freebsd13_task:
   freebsd_instance:
-    image: freebsd-13-0-current-amd64-v20190531
+    image: freebsd-13-0-current-amd64-v20200604
   timeout_in: 120m
   install_script: pkg install -y git bash
   script:
@@ -10,7 +10,7 @@ freebsd13_task:
 
 freebsd12_task:
   freebsd_instance:
-    image: freebsd-12-0-release-amd64
+    image: freebsd-12-1-release-amd64
   timeout_in: 120m
   install_script: pkg install -y git bash
   script:
@@ -20,7 +20,7 @@ freebsd12_task:
 
 freebsd11_task:
   freebsd_instance:
-    image: freebsd-11-2-release-amd64
+    image: freebsd-11-3-release-amd64
   timeout_in: 120m
   install_script: pkg install -y git bash
   script:
