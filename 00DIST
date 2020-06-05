@@ -5001,6 +5001,9 @@ July 14, 2018
 
 		[linux] Added Linux display of eventfd endpoint information
 		with +|-E option. The option handles eventfd using IPC.
+                
+                [FreeBSD] include <stdbool.h> for recent change requiring
+                refcount(9).
 
 		Enhanced -r option. With `c<N>' specifier, lsof can stop itself
 		when the number of iterations reaches at <N>.
