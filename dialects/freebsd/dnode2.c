@@ -48,7 +48,13 @@ static char copyright[] =
  *
  * Note: clang's complaint about VOP_FSYNC can't be avoided.
  */
-#define	VOP_UNLOCK(vp, f)	((void)0)
+#include <sys/param.h>
+#if __FreeBSD_version >= 1300074
+#define VOP_UNLOCK_FLAGS(vp, f) ((void)0)
+#define VOP_UNLOCK(vp)  ((void)0)
+#else
+#define VOP_UNLOCK(vp, f)       ((void)0)
+#endif
 # endif	/* defined(__clang__) */
 
 #define	KLD_MODULE		/* for ARM: prevent "ARM_NARCH is 0 " error */

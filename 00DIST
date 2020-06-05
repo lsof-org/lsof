@@ -5041,6 +5041,9 @@ July 14, 2018
 		Don't display command usage even when a file (or directory) listed
 		in command line doesn't exist.
 		This closes the github issue #90 reported by @rowlap.
+		
+		[FreeBSD] merge all the FreeBSD specific fixes from the FreeBSD sysutils/lsof port
+
 
 Masatake YAMATO <yamato@redhat.com>, a member of the lsof-org team at GitHub
 May 8, 2019
