@@ -15,6 +15,23 @@ killBoth()
     kill -9 $2
 } 2> /dev/null > /dev/null
 
+waitForSyscall()
+{
+    local pid=$1
+    local pat=$2
+    local niterations=$3
+    local i
+
+    for i in $(seq 0 $niterations); do
+	sleep 1
+	if grep -q "$pat" /proc/$pid/stack; then
+	    break
+	fi
+    done
+}
+
+waitForSyscall $server 'select\|poll' 10
+
 fserver=/tmp/${name}-server-$$-before
 $lsof -n -Ts -P -U -a -p $server > $fserver
 # nc        22512 yamato    3u  unix 0x000000008f6993b8      0t0     470697 /tmp/a type=STREAM (LISTEN)
