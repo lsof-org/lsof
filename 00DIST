@@ -5052,6 +5052,8 @@ July 14, 2018
 		and will strip varying information.
 		About the standard, see https://reproducible-builds.org/specs/source-date-epoch/
 		Provided in github pull request #93 by @T4cC0re.
-
+		
+		[freebsd] update for r363214
+		- no user visible changes
 Masatake YAMATO <yamato@redhat.com>, a member of the lsof-org team at GitHub
 May 8, 2019
