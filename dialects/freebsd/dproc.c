@@ -321,7 +321,7 @@ gather_proc_info()
 	    if (!fd.fd_files
 	    ||  kread((KA_T)fd.fd_files, (char *)&fdt, sizeof(fdt)))
 		continue;
-	    if (!fd.fd_refcnt || fd.fd_lastfile > fdt.fdt_nfiles)
+	    if (!fd.fd_refcnt)
 		continue;
 #else	/* !defined(HAS_FDESCENTTBL) */
 	    if (!fd.fd_refcnt || fd.fd_lastfile > fd.fd_nfiles)
