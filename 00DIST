@@ -5055,5 +5055,18 @@ July 14, 2018
 		
 		[freebsd] update for r363214
 		- no user visible changes
+
+		Added the way to include (or exclude) all numbered file descriptors
+		in -d option. "fd" is a pseudo file descriptor name for the purpose.
+		See the following output on Linux; lsof doesn't print cwd, rtd, txt,
+		and mem files.
+
+		  # ./lsof -p $$ -a -d fd
+		  COMMAND    PID USER   FD   TYPE DEVICE SIZE/OFF NODE NAME
+		  bash    866421 root    0u   CHR  136,1      0t0    4 /dev/pts/1
+		  bash    866421 root    1u   CHR  136,1      0t0    4 /dev/pts/1
+		  bash    866421 root    2u   CHR  136,1      0t0    4 /dev/pts/1
+		  bash    866421 root  255u   CHR  136,1      0t0    4 /dev/pts/1
+
 Masatake YAMATO <yamato@redhat.com>, a member of the lsof-org team at GitHub
 May 8, 2019

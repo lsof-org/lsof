@@ -388,7 +388,8 @@ ck_fd_status(nm, num)
 			return(1);
 		    continue;
 		}
-		if (num >= fp->lo && num <= fp->hi)
+		if ((num >= fp->lo && num <= fp->hi)
+		    || (fp->nm && strcmp(fp->nm, "fd") == 0))
 		    return(1);
 	    }
 	    return(0);
@@ -402,7 +403,8 @@ ck_fd_status(nm, num)
 		    return(2);
 		continue;
 	    }
-	    if (num >= fp->lo && num <= fp->hi)
+	    if ((num >= fp->lo && num <= fp->hi)
+		|| (fp->nm && strcmp(fp->nm, "fd") == 0))
 		return(2);
 	}
 	return(0);
