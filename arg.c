@@ -958,6 +958,12 @@ enter_fd_lst(nm, lo, hi, excl)
  */
 	f->hi = hi;
 	f->lo = lo;
+	if (f->nm && strcmp(f->nm, "fd") == 0) {
+	    (void) free((FREE_P *)f->nm);
+	    f->nm = NULL;
+	    f->hi = INT_MAX;
+	    f->lo = 0;
+	}
 	f->next = Fdl;
 	Fdl = f;
 	FdlTy = excl;
