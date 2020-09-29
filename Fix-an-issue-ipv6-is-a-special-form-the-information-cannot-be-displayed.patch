@@ -1,0 +1,25 @@
+From bf8978a6fba21452aaac2830390d095bccdff9be Mon Sep 17 00:00:00 2001
+From: zhrf2020  <244695981@qq.com>
+Date: Tue, 29 Sep 2020 08:55:16 -0400
+Subject: [PATCH] Fix an issue ipv6 is a special form, the information cannot be displayed
+
+---
+ dialects/linux/dsock.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/dialects/linux/dsock.c b/dialects/linux/dsock.c
+index 9109b2f..e3ae441 100644
+--- a/dialects/linux/dsock.c
++++ b/dialects/linux/dsock.c
+@@ -2443,7 +2443,7 @@ net6a2in6(as, ad)
+ 	    buf[8] = '\0';
+ 	    ep = (char *)NULL;
+ 	    if ((ad->s6_addr32[i] = (uint32_t)strtoul(buf, &ep, 16))
+-	    ==  (uint32_t)UINT32_MAX || !ep || *ep)
++	    >  (uint32_t)UINT32_MAX || !ep || *ep)
+ 		break;
+ 	}
+ 	return((*as || (i != 4) || len) ? 1 : 0);
+-- 
+1.8.3.1
+
