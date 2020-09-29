@@ -3633,7 +3633,7 @@ net6a2in6(as, ad)
 	    buf[8] = '\0';
 	    ep = (char *)NULL;
 	    if ((ad->s6_addr32[i] = (uint32_t)strtoul(buf, &ep, 16))
-	    ==  (uint32_t)UINT32_MAX || !ep || *ep)
+	    >  (uint32_t)UINT32_MAX || !ep || *ep)
 		break;
 	}
 	return((*as || (i != 4) || len) ? 1 : 0);
