@@ -1,129 +1,129 @@
 set -e
 
-if [ $# = 0 ]; then
-    echo Usage: $0 DIALECT 1>&2
-    exit 1
-fi
+die() { e=$1 ; shift ; printf >&2 '%s\n' "$*" ; exit $e ; }
 
-if ! [ -d dialects/$1 ]; then
-    echo No such dialect: $1 1>&2
-    exit 1
-fi
+(( $# )) ||
+    die 1 "Usage: $0 DIALECT"
 
-echo
-echo RUNTIME ENVIRONMENT INFORMATION
-echo =============================================================================
+tmp=/tmp/check-$$-
+__cleanup() { rm -f -- "$tmp"* ; }
+trap __cleanup EXIT
+
 dialect=$1
-echo $dialect
-echo $BASH_VERSION
-shopt
+ddir=dialects/$dialect
+lsof=$(pwd)/lsof
+
+[[ -d $ddir ]] ||
+    die 1 "No such dialect: $dialect"
+
+printf '\nRUNTIME ENVIRONMENT INFORMATION\n=============================================================================\n'
+printf '%s\n' "$dialect"
+printf '%s\n' "$BASH_VERSION"
 export
 
+printf '\nOTHER RUNTIME INFORMATION\n'
+shopt
 uname
 
-lsof=$(pwd)/lsof
-$lsof -v
+printf '\nDETAILS OF lsof PROGRAM\n'
+ls -ld "$lsof"
+"$lsof" -v
 
 export CI=1
-
-tdir=dialects/${dialect}/tests
 
 nfailed=0
 nsuccessful=0
 nskipped=0
 ncases=0
-REPORTS=
+failing_reports=()
+skipped_reports=()
 
 run_one()
 {
     local x=$1
-    local d=$2
+    local d=${1%/*}
     local name
     local prefix
     local report
-    local s
+    local s r
 
     chmod a+x $x
     name=$(basename $x .bash)
-    if [ ${x%%/*} = "dialects" ]; then
-	prefix=${dialect}-
+    if [[ $x = dialects/* ]]; then
+	prefix=$dialect-
     fi
-    report=/tmp/${prefix}$name-$$.report
+    report=$tmp$prefix$name.report
 
     printf "%s ... " $name
 
-    set +e
-    bash ./$x $lsof $report $d $dialect
-    s=$?
-    set -e
     ncases=$((ncases + 1))
-    if [ "$s" = 0 ]; then
+    if
+        bash "$x" "$lsof" "$report" "$d" "$dialect"
+    then
+        r=$?
 	s=ok
-	nsuccessful=$(($nsuccessful + 1))
+	((nsuccessful++))
 	rm -f "$report"
-    elif [ "$s" = 2 ]; then
-	s=skipped
-	nskipped=$((nskipped + 1))
-	REPORTS="${REPORTS} ${report}"
     else
-	s=failed
-	nfailed=$((nfailed + 1))
-	REPORTS="${REPORTS} ${report}"
+        r=$?
+        if (( r == 2 )); then
+            s=skipped
+            skipped_reports[nskipped++]=$report
+        else
+            s=failed
+            failing_reports[nfailed++]=$report
+        fi
     fi
 
-    printf "%s\n" $s
+    printf "%s\n" "$s"
 }
 
 echo
-echo STARTING TEST '(' dialect neutral ')'
-echo =============================================================================
-for x in tests/case-*.bash; do
-    run_one $x ./tests
+echo "STARTING TEST (dialect-neutral)"
+echo "============================================================================="
+for x in 'tests/case-'*.bash; do
+    run_one "$x"
 done
 
 echo
-echo STARTING TEST '(' $dialect specific ')'
-echo =============================================================================
-for x in  dialects/${dialect}/tests/case-*.bash; do
-    run_one $x $tdir
+echo "STARTING TEST ($dialect-specific)"
+echo "============================================================================="
+
+for x in "$ddir/tests/case-"*.bash; do
+    run_one "$x"
 done
 
 report()
 {
-    for r in "$@"; do
-	echo
-	echo $r
-	echo -----------------------------------------------------------------------------
-	cat $r
-	rm $r
+    for r do
+	printf '\n%s\n-----------------------------------------------------------------------------\n' "$r"
+	cat "$r"
     done
+    rm -f -- "$@"
 }
 
-echo
-echo TEST SUMMARY
-echo =============================================================================
-printf "successful: %d\n" $nsuccessful
-printf "skipped: %d\n" $nskipped
-printf "failed: %d\n" $nfailed
+printf '\nTEST SUMMARY\n=============================================================================\n'
+printf "successful: %d\n" "$nsuccessful"
+printf "skipped: %d\n" "$nskipped"
+printf "failed: %d\n" "$nfailed"
 
-if [ $nfailed = 0 ]; then
-    printf "All %d test cases are passed successfully\n" $ncases
-    if [ $nskipped = 0 ]; then
-	:
-    elif [ $nskipped = 1 ]; then
-	printf "but 1 case is skipped\n"
-	report $REPORTS
-    else
-	printf "but %d cases are skipped\n" $nskipped
-	report $REPORTS
+is_are=( are is )
+has_have=( have has )
+was_were=( were was )
+s_s=( s '' )
+
+if (( nfailed == 0 )); then
+    printf "All %d test case%s %s passed successfully\n" $((ncases)) "${s_s[ncases]-$s_s}" "${has_have[ncases]-$has_have}"
+    if (( nskipped != 0 )); then
+        printf "but %d case%s %s skipped\n" $((nskipped)) "${s_s[nskipped]-$s_s}" "${was_were[nskipped]-$was_were}"
+	report "${skipped_reports[@]}"
     fi
     exit 0
-elif [ $nfailed = 1 ]; then
-    printf "%d of %d case is failed\n" $nfailed $ncases
-    report $REPORTS
-    exit 1
 else
-    printf "%d of %d cases are failed\n" $nfailed $ncases
-    report $REPORTS
+    printf "%d of %d case%s %s failed\n" $((nfailed)) $((ncases)) "${s_s[ncases]-$s_s}" "${has_have[nfailed]-$has_have}"
+    if (( nskipped != 0 )); then
+        printf "and %d case%s %s skipped\n" $((nskipped)) "${s_s[nskipped]-$s_s}" "${was_were[nskipped]-$was_were}"
+    fi
+    report "${failing_reports[@]}" "${skipped_reports[@]}"
     exit 1
 fi

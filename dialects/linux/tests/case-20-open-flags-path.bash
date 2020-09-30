@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/intentionally/invalid/path/to/bash
 
 pat=".*DIR[ \t]\+.*PATH.*[ \t]\+.*/tmp$"
-source $3/util-open-flags.bash "$@" "$pat" /tmp path
+source "$3"/util-open-flags.bash "$@" "$pat" /tmp path

@@ -1,14 +1,31 @@
-name=$(basename $0 .bash)
+#!/intentionally/invalid/path/to/bash
+
+#name=$( basename "$0" .bash )  <= IGNORED
 lsof=$1
 report=$2
-base=$(pwd)
 
+[[ -n $report && $report != - ]] && exec >> "$report"
 
-if [ $(${lsof} -r 1c1 -p $$ | tee -a $report | grep -e '=======' | wc -l) != 1 ]; then
+#[[ -n $report && $report != - ]] || report=/dev/stderr
+#exec 2>&1
+
+if msg=$( "$lsof" -r 1c1 -p $$ ) &&
+   num=$( <<<"$msg" grep -cFx ======= ) &&
+   (( num == 1 )); then
+    :
+else
+    printf 'Expected %u reports (each terminated by "======="), got %u\n' 1 "$num"
+    printf '%s\n' "$msg"
     exit 1
 fi
 
-if [ $(${lsof} -r 1c5 -p $$ | tee -a $report | grep -e '=======' | wc -l) != 5 ]; then
+if msg=$( "$lsof" -r 1c5 -p $$ ) &&
+   num=$( <<<"$msg" grep -cFx ======= ) &&
+   (( num == 5 )); then
+    :
+else
+    printf 'Expected %u reports (each terminated by "======="), got %u\n' 5 "$num"
+    printf '%s\n' "$msg"
     exit 1
 fi
 

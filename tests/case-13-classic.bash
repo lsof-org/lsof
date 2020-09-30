@@ -1,45 +1,34 @@
-name=$(basename $0 .bash)
-lsof=$1
+#!/intentionally/invalid/path/to/bash
+
+name=$( basename "$0" .bash )
+#lsof=$1  <= IGNORED
 report=$2
-base=$(pwd)
 
-(
-    f=/tmp/${name}-$$
-    cd tests
-    make > $f 2>&1
+[[ -n $report && $report != - ]] && exec >> "$report"
 
-    if ! grep -q "LTbasic \.\.\. OK" $f; then
-	echo '"LTbasic ... OK" is not found in the output' >> $report
-	s=1
+s=0
+# shellcheck disable=SC1037
+f=/tmp/$name-$$-
+cd tests
+
+# TODO: check the return status of 'make'?
+make > "$f" 2>&1
+
+for p in "LTbasic ... OK" \
+         "LTnlink ... OK" \
+         "LTsock ... OK"  \
+         "LTszoff ... OK" \
+         "LTunix ... OK" 
+do
+    if ! grep -q -F "$p" < "$f"; then
+        printf '"%s" is not found in the output\n' "$p"
+        s=1
     fi
+done
 
-    if ! grep -q "LTnlink \.\.\. OK" $f; then
-	echo '"LTnlink ... OK" is not found in the output' >> $report
-	s=1
-    fi
+printf '\noutput\n.............................................................................\n'
+cat "$f"
 
-    if ! grep -q "LTsock \.\.\. OK" $f; then
-	echo '"LTsock ... OK" is not found in the output' >> $report
-	s=1
-    fi
+rm -f -- "$f"
 
-    if ! grep -q "LTszoff \.\.\. OK" $f; then
-	echo '"LTszoff ... OK" is not found in the output' >> $report
-	s=1
-    fi
-
-    if ! grep -q "LTunix \.\.\. OK" $f; then
-	echo '"LTunix ... OK" is not found in the output' >> $report
-	s=1
-    fi
-
-    {
-	echo
-	echo "output"
-	echo .............................................................................
-	cat $f
-    }  >> $report
-    rm $f
-
-    exit $s
-)
+exit "$s"

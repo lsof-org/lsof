@@ -1,11 +1,13 @@
-#!/bin/sh
+#!/intentionally/invalid/path/to/bash
 
-name=$(basename $0 .bash)
+# name=$( basename "$0" .bash ) <= IGNORED
 lsof=$1
 report=$2
 tdir=$3
 
-uname -r >> $report
+[[ -n $report && $report != - ]] && exec >> "$report"
+
+uname -r
 uname -r | sed -ne 's/^\([0-9]\+\)\.\([0-9]\+\)\.\([0-9]\+\).*/\1 \2/p' | {
     read major minor
     if [ "$major" -lt 4 ]; then
@@ -16,63 +18,63 @@ uname -r | sed -ne 's/^\([0-9]\+\)\.\([0-9]\+\)\.\([0-9]\+\).*/\1 \2/p' | {
 	echo "pty endpoint features doesn't work on Linux $major.$minor"
 	exit 2
     fi
-} >> $report
+}
 s=$?
 if ! [ $s = 0 ]; then
     exit $s
 fi
 
-TARGET=$tdir/pty
-if ! [ -x $TARGET ]; then
-    echo "target executable ( $TARGET ) is not found" >> $report
+target=$tdir/pty
+if [[ ! -x $target ]] ; then
+    echo "target executable ( $target ) is not found"
     exit 1
 fi
 
-{ ./$TARGET & } | {
+{ $target & } | {
     read parent child fdm fds names;
     if [ -z "$parent" ] || [ -z "$child" ] || [ -z "$fdm" ] || [ -z "$fds" ] || [ -z "$names" ]; then
-	echo "unexpected output form target ( $TARGET )" >> $report
+	echo "unexpected output form target ($target)"
 	exit 1
     fi
+
+    echo parent: "$parent"
+    echo child:  "$child"
+    echo fdm:    "$fdm"
+    echo fds:    "$fds"
+    echo nams:   "$names"
+    echo cmdline: "$lsof" +E -p "$parent"
+
+    "$lsof" +E -p "$parent"
+
     {
-	echo parent: $parent
-	echo child:  $child
-	echo fdm:    $fdm
-	echo fds:    $fds
-	echo nams:   $names
-	echo cmdline: "$lsof +E -p $parent"
-    } >> $report
-    $lsof +E -p "$parent" >> $report
-    {
-	{
-	    # pty     17592 yamato    3r   CHR    5,2      0t0       1129 /dev/ptmx ->/dev/pts/16 17592,pty,4r 17593,pty,3r
-	    echo expected pattern: "pty *$parent .* ${fdm}r *CHR .* /dev/ptmx ->/dev/pts/$names ($parent,pty,${fds}r $child,pty,${fdm}r)|($child,pty,${fdm}r $parent,pty,${fds}r)"
-	    $lsof +E -p "$parent" |
-		grep -E -q "pty *$parent .* ${fdm}r *CHR .* /dev/ptmx ->/dev/pts/$names ($parent,pty,${fds}r $child,pty,${fdm}r)|($child,pty,${fdm}r $parent,pty,${fds}r)"
-	} && {
-	    # pty     17592 yamato    4r   CHR 136,16      0t0         19 /dev/pts/16 17592,pty,3r
-	    echo expected pattern: "pty *$parent .* ${fds}r *CHR .* /dev/pts/$names $parent,pty,${fdm}r"
-	    $lsof +E -p "$parent" |
-		grep -E -q "pty *$parent .* ${fds}r *CHR .* /dev/pts/$names $parent,pty,${fdm}r"
-	} && {
-	    # pty     17593 yamato    3r   CHR 136,16      0t0         19 /dev/pts/16 17592,pty,3r
-	    echo expected pattern: "pty *$child .* ${fdm}r *CHR .* /dev/pts/$names $parent,pty,${fdm}r"
-	    $lsof +E -p "$parent" |
-		grep -E -q "pty *$child .* ${fdm}r *CHR .* /dev/pts/$names $parent,pty,${fdm}r"
-	} && {
-	    # pty     17592 yamato    3r   CHR    5,2      0t0       1129 /dev/ptmx ->/dev/pts/16 17592,pty,4r 17593,pty,3r
-	    $lsof +E -p "$child" |
-		grep -E -q "pty *$parent .* ${fdm}r *CHR .* /dev/ptmx ->/dev/pts/$names ($parent,pty,${fds}r $child,pty,${fdm}r)|($child,pty,${fdm}r $parent,pty,${fds}r)"
-	} && {
-	    # pty     17593 yamato    3r   CHR 136,16      0t0         19 /dev/pts/16 17592,pty,3r
-	    echo expected pattern: "pty *$child .* ${fdm}r *CHR .* /dev/pts/$names $parent,pty,${fdm}r"
-	    $lsof +E -p "$child" |
-		grep -E -q "pty *$child .* ${fdm}r *CHR .* /dev/pts/$names $parent,pty,${fdm}r"
-	} && {
-	    kill "$child"
-	    exit 0
-	}
-    } >> $report
+        # pty     17592 yamato    3r   CHR    5,2      0t0       1129 /dev/ptmx ->/dev/pts/16 17592,pty,4r 17593,pty,3r
+        echo expected pattern: "pty *$parent .* ${fdm}r *CHR .* /dev/ptmx ->/dev/pts/$names ($parent,pty,${fds}r $child,pty,${fdm}r)|($child,pty,${fdm}r $parent,pty,${fds}r)"
+        "$lsof" +E -p "$parent" |
+            grep -E -q "pty *$parent .* ${fdm}r *CHR .* /dev/ptmx ->/dev/pts/$names ($parent,pty,${fds}r $child,pty,${fdm}r)|($child,pty,${fdm}r $parent,pty,${fds}r)"
+    } && {
+        # pty     17592 yamato    4r   CHR 136,16      0t0         19 /dev/pts/16 17592,pty,3r
+        echo expected pattern: "pty *$parent .* ${fds}r *CHR .* /dev/pts/$names $parent,pty,${fdm}r"
+        "$lsof" +E -p "$parent" |
+            grep -E -q "pty *$parent .* ${fds}r *CHR .* /dev/pts/$names $parent,pty,${fdm}r"
+    } && {
+        # pty     17593 yamato    3r   CHR 136,16      0t0         19 /dev/pts/16 17592,pty,3r
+        echo expected pattern: "pty *$child .* ${fdm}r *CHR .* /dev/pts/$names $parent,pty,${fdm}r"
+        "$lsof" +E -p "$parent" |
+            grep -E -q "pty *$child .* ${fdm}r *CHR .* /dev/pts/$names $parent,pty,${fdm}r"
+    } && {
+        # pty     17592 yamato    3r   CHR    5,2      0t0       1129 /dev/ptmx ->/dev/pts/16 17592,pty,4r 17593,pty,3r
+        "$lsof" +E -p "$child" |
+            grep -E -q "pty *$parent .* ${fdm}r *CHR .* /dev/ptmx ->/dev/pts/$names ($parent,pty,${fds}r $child,pty,${fdm}r)|($child,pty,${fdm}r $parent,pty,${fds}r)"
+    } && {
+        # pty     17593 yamato    3r   CHR 136,16      0t0         19 /dev/pts/16 17592,pty,3r
+        echo expected pattern: "pty *$child .* ${fdm}r *CHR .* /dev/pts/$names $parent,pty,${fdm}r"
+        "$lsof" +E -p "$child" |
+            grep -E -q "pty *$child .* ${fdm}r *CHR .* /dev/pts/$names $parent,pty,${fdm}r"
+    } && {
+        kill "$child"
+        exit 0
+    }
+
     kill "$child"
     exit 1
 }

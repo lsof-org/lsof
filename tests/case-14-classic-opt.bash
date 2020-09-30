@@ -1,44 +1,43 @@
-#!/bin/sh
+#!/intentionally/invalid/path/to/bash
 
-name=$(basename $0 .bash)
-lsof=$1
+name=$( basename "$0" .bash )
+#lsof=$1    <= IGNORED
 report=$2
 dialect=$4
-base=$(pwd)
 
-(
-    s=0
-    f=/tmp/${name}-$$
-    cd tests
-    make opt > $f 2>&1
+[[ -n $report && $report != - ]] && exec >> "$report"
 
-    if ! grep -q "LTbigf \.\.\. OK" $f; then
-	echo '"LTbigf ... OK" is not found in the output' >> $report
-	s=1
-    fi
+f=/tmp/$name-$$.
+__cleanup() { rm -f -- "$f"* ; } ; trap __cleanup EXIT
 
-    # TODO: don't ignore "OK".
-    if ! grep -q "LTdnlc \.\.\. .*/tests found: 100.00%" $f; then
-	echo '"LTdnlc ... .*/tests found: 100.00%" is not found in the output' >> $report
-	s=1
-    fi
+cd tests
 
-    if [ -n "$CI" ] && [ "$dialect" = "darwin" ]; then
-	:			# TODO: temporary skip this
-    elif ! grep -q "LTlock \.\.\. OK" $f; then
-	echo '"LTlock ... OK" is not found in the output' >> $report
-	s=1
-    fi
+make opt > "$f" 2>&1
+s=$?
 
-    # TODO: LTnfs
+if ! grep -q "LTbigf \.\.\. OK" < "$f"; then
+    echo '"LTbigf ... OK" is not found in the output'
+    s=1
+fi
 
-    {
-	echo
-	echo "output"
-	echo .............................................................................
-	cat $f
-    }  >> $report
-    rm $f
+# TODO: don't ignore "OK".
+if ! grep -q "LTdnlc \.\.\. .*/tests found: 100.00%" < "$f"; then
+    echo '"LTdnlc ... .*/tests found: 100.00%" is not found in the output'
+    s=1
+fi
 
-    exit $s
-)
+if [[ -n "$CI" && "$dialect" = darwin ]] ; then
+    :			# TODO: temporarily skip this
+elif ! grep -q "LTlock \.\.\. OK" < "$f"; then
+    echo '"LTlock ... OK" is not found in the output'
+    s=1
+fi
+
+# TODO: LTnfs
+
+echo
+echo "output"
+echo .............................................................................
+cat "$f"
+
+exit "$s"

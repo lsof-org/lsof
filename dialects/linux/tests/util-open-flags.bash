@@ -1,26 +1,34 @@
+#!/sourced/by/bash
+
 lsof=$1
 report=$2
 tdir=$3
-dialect=$4
+# dialect=$4    <= IGNORED
 pat=$5
 tfile=$6
 
 shift 6
 
-TARGET=$tdir/open_with_flags
-if ! [ -x $TARGET ]; then
-    echo "target executable ( $TARGET ) is not found" >> $report
+[[ -n $report && $report != - ]] && exec >> "$report"
+
+target=$tdir/open_with_flags
+if [[ ! -x $target ]]; then
+    echo "target executable ($target) is not found"
     exit 1
 fi
 
-$TARGET $tfile "$@" &
+"$target" "$tfile" "$@" &
 pid=$!
+__cleanup() { kill "$pid" ; }
+trap __cleanup EXIT
 
-echo "expected: $pat" >> $report
-echo "lsof output:" >> $report
-$lsof +fg -p $pid | tee -a $report | grep -q "$pat"
-result=$?
-
-kill $pid
-
-exit $result
+if  msg=$( "$lsof" +fg -p "$pid" ) &&
+    grep -q "$pat" <<< "$msg"
+then
+    :
+else
+    r=$?
+    printf 'Expected pattern: %s\n' "$pat"
+    printf 'lsof output:\n%s\n' "$msg"
+    exit $r
+fi

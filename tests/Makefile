@@ -22,48 +22,36 @@ STDTST=	LTnlink LTsock LTszoff LTunix
 OPTTST=	LTbigf LTdnlc LTlock LTnfs 
 
 all:	${CKTSTDB} ${BASTST} ${STDTST} FRC
-	@./${CKTSTDB}; xv=$$?; \
-	if [ $$xv -ne 0 ]; then \
-	  exit 1 ;\
-	fi
+	@./${CKTSTDB} || exit 1
 	@rm -f config.LT*
 	-@err=0; \
-	echo ""; \
+	echo ; \
 	echo "Basic test:"; \
-	./${BASTST}; \
-	if [ $$? -ne 0 ]; then \
-	  exit 1; \
-	fi; \
-	echo ""; \
+	./${BASTST}; || exit 1
+	@echo ; \
 	echo "Standard tests:"; \
 	for i in ${STDTST}; do \
-	  ./$$i; \
-	  if [ $$? -ne 0 ]; then \
-	    err=`expr $$err + 1`; \
-	  fi; \
+	  ./$$i || err=`expr $$err + 1`; \
 	done; \
-	if [ $$err -ne 0 ]; then \
-	  echo "Failed tests: $$err"; \
-	  echo ""; \
-	  echo "See 00FAQ and 00TEST for more information."; \
-	else \
+	if [ $$err = 0 ]; then \
 	  echo "All standard tests succeeded."; \
-	  echo ""; \
-	  grep LT_DIAL_darwin ${CONFCFL} > /dev/null 2>&1; \
-	  if [ $$? -ne 0 ]; then \
+	  echo ; \
+	  if ! grep LT_DIAL_darwin ${CONFCFL} > /dev/null 2>&1 ; then \
 	    echo "Suggestion: try the optional tests: \"make opt\""; \
-	    echo ""; \
+	    echo ; \
 	  fi; \
-	fi;
-	@rm -f config.LT*
+	else \
+	  echo "Failed tests: $$err"; \
+	  echo ; \
+	  echo "See 00FAQ and 00TEST for more information."; \
+	fi; \
+	rm -f config.LT* ; \
+        [ $$rr = 0 ]
 
 auto:	ckDB silent FRC
 
 ckDB:	${CKTSTDB} FRC
-	@echo "" | ./${CKTSTDB}; xv=$$?; \
-	if [ $$xv -ne 0 ]; then \
-	  exit 1 ;\
-	fi
+	@echo "" | ./${CKTSTDB} || exit 1
 
 clean:	FRC
 	rm -f ${BASTST} ${STDTST} ${OPTTST} *.o *.err *.out config.LT*
@@ -112,42 +100,31 @@ LTunix: LTunix.c ${CONFIG} ${LIBOBJ} ${HDR} config.ldflags
 
 opt:	${CKTSTDB} ${OPTTST} FRC
 	@rm -f config.LT*
-	-@err=0; \
-	echo ""; \
+	-@echo ; \
 	echo "Optional tests:"; \
+	err=0; \
 	for i in ${OPTTST}; do \
-	  ./$$i; \
-	  if [ $$? -ne 0 ]; then \
-	    err=`expr $$err + 1`; \
-	  fi; \
+	  ./$$i || err=`expr $$err + 1`; \
 	done; \
-	if [ $$err -ne 0 ]; then \
+	if [ $$err != 0 ]; then \
 	  echo "Failed tests: $$err"; \
 	else \
 	  echo "All optional tests succeeded."; \
 	fi; \
-	echo "";
+	echo ;
 	@rm -f config.LT*
 
 optional: opt
 
 silent:	${BASTST} ${STDTST} FRC
 	@rm -f config.LT*
+	@./${BASTST} > /dev/null 2>&1 || exit 1;
 	@err=0; \
-	./${BASTST} > /dev/null 2>&1; \
-	if [ $$? -ne 0 ]; then \
-	  exit 1; \
-	fi; \
-	for i in ${STDTST}; do \
-	  ./$$i > /dev/null 2>&1; \
-	  if [ $$? -ne 0 ]; then \
-	    err=`expr $$err + 1`; \
-	  fi; \
+        for i in ${STDTST}; do \
+	  ./$$i > /dev/null 2>&1 || err=`expr $$err + 1`; \
 	done; \
 	rm -f config.LT*; \
-	if [ $$err -ne 0 ]; then \
-	  exit 1; \
-	fi
+	[ $$err = 0 ] || exit 1
 
 spotless: clean
 	rm -f config.*
