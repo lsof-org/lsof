@@ -75,6 +75,7 @@
 #include <ctype.h>
 #include <errno.h>
 #include <signal.h>
+#include <inttypes.h>
 
 #include <sys/types.h>
 
