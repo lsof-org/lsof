@@ -5068,5 +5068,14 @@ July 14, 2018
 		  bash    866421 root    2u   CHR  136,1      0t0    4 /dev/pts/1
 		  bash    866421 root  255u   CHR  136,1      0t0    4 /dev/pts/1
 
+		docs: fixed minor grammatical error in instructions in Customize file
+		The change is provided by @hardikpnsp.
+
+		man page: improve phrasing and add examples
+		The change is provided by Martin D Kealey.
+
+		man page: improve explanation of -t implying -w
+		The change is provided by Martin D Kealey.
+
 Masatake YAMATO <yamato@redhat.com>, a member of the lsof-org team at GitHub
-May 8, 2019
+October 4, 2020
