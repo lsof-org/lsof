@@ -5076,5 +5076,8 @@ July 14, 2018
 		man page: improve explanation of -t implying -w
 		The change is provided by Martin D Kealey.
 
+		test cases, [linux]: fix tests for large inode-numbers (i >= 2^32)
+		The change is provided by Henry Peteet.
+
 Masatake YAMATO <yamato@redhat.com>, a member of the lsof-org team at GitHub
 October 4, 2020
