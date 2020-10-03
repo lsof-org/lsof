@@ -1676,13 +1676,25 @@ FAQ (The \fBFAQ\fP section gives its location.)
 On Linux this option also prints the state of UNIX domain sockets.
 .TP \w'names'u+4
 .B \-t
-specifies that
-.I lsof
-should produce terse output with process identifiers only and no header \-
-e.g., so that the output may be piped to
-.IR kill (1).
+produce terse output comprising only process identifiers (without a
+header), so that it is easy to use programmatically. e.g.
+.nf
+
+	# reload anything using old SSL
+	lsof -t /lib/*/libssl.so.* | xargs -r kill -HUP
+
+	# get list of processes and then iterate over them (Bash only)
+	mapfile -t pids < <(
+	    lsof -wt /var/log/your.log
+	)
+	for pid in "${pids[@]}" ; do
+	    your_command -p "$pid"
+	done
+
+.fi
+The
 .B \-t
-selects the
+option implies the
 .B \-w
 option.
 .TP \w'names'u+4
@@ -1767,7 +1779,7 @@ them when already enabled is acceptable.
 .IP
 The
 .B \-t
-option selects the
+option implies the
 .B \-w
 option.
 .TP \w'names'u+4
