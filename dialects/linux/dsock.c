@@ -3632,9 +3632,38 @@ net6a2in6(as, ad)
 	    (void) strncpy(buf, as, 8);
 	    buf[8] = '\0';
 	    ep = (char *)NULL;
-	    if ((ad->s6_addr32[i] = (uint32_t)strtoul(buf, &ep, 16))
-	    ==  (uint32_t)UINT32_MAX || !ep || *ep)
+
+	    errno = 0;
+	    unsigned long ul_addr = strtoul(buf, &ep, 16);
+	    if (!ep || *ep)
 		break;
+	    else if (ul_addr == ULONG_MAX && errno == ERANGE)
+	    {
+		/* Quoted from strtoul(3)
+		   ---------------------------------------------------
+		   The strtoul() function returns either the result of
+		   the conversion or, if there was a leading minus
+		   sign, the negation of the result of the conversion
+		   represented as an unsigned value, unless the
+		   original (nonnegated) value would overflow; in the
+		   latter case, strtoul() returns ULONG_MAX and sets
+		   errno to ERANGE.
+		   ---------------------------------------------------
+		   NOTE: even if the value doesn't overflow, a
+		   negative is not acceptable. */
+		break;
+	    }
+	    else if (ul_addr > (unsigned long)UINT32_MAX)
+	    {
+		/* This will never happen:
+		   The maximum length of BUF is 8 characters.
+		   The possible maximum value represented by BUF is
+		   "FFFFFFFF". This is UINT32_MAX.
+		   If you agree with what I write here, make a pull
+		   request for removing this block. */
+		break;
+	    }
+	    ad->s6_addr32[i] = (uint32_t)ul_addr;
 	}
 	return((*as || (i != 4) || len) ? 1 : 0);
 }

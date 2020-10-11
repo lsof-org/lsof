@@ -5067,6 +5067,7 @@ July 14, 2018
 		  bash    866421 root    2u   CHR  136,1      0t0    4 /dev/pts/1
 		  bash    866421 root  255u   CHR  136,1      0t0    4 /dev/pts/1
 
+
 		docs: fixed minor grammatical error in instructions in Customize file
 		The change is provided by @hardikpnsp.
 
@@ -5078,6 +5079,32 @@ July 14, 2018
 
 		test cases, [linux]: fix tests for large inode-numbers (i >= 2^32)
 		The change is provided by Henry Peteet.
+
+		[linux] handle ffff:ffff in ipv6 addr correctly
+		The listen address and port of an AF_INET6 socket were not display if
+		the socket listened at an ipv6 address including ffff:ffff.
+
+		Here is a command session demonstrating the bug:
+
+		    # ip -6 addr add abcd:ef10:ffff:ffff:ffff:ffff:ffff:ff62 dev lo
+		    # nc -6      -l  abcd:ef10:ffff:ffff:ffff:ffff:ffff:ff62 8888 &
+		    [1] 6762
+		    # ./lsof -p 6762 -a -d fd -P -n
+		    COMMAND  PID   USER   FD   TYPE DEVICE SIZE/OFF    NODE NAME
+		    nc      6762 yamato    0u   CHR  136,6      0t0       9 /dev/pts/6
+		    nc      6762 yamato    1u   CHR  136,6      0t0       9 /dev/pts/6
+		    nc      6762 yamato    2u   CHR  136,6      0t0       9 /dev/pts/6
+		    nc      6762 yamato    3u  sock    0,9      0t0 5833594 protocol: TCPv6
+
+		The last line should be:
+
+		    nc      6762 yamato    3u  IPv6 5833594      0t0  TCP [abcd:ef10:ffff:ffff:ffff:ffff:ffff:ff62]:8888 (LISTEN)
+
+		The original code decoding an ipv6 address uses UINT32_MAX constant
+		incorrect way.
+
+		@zhrf2020 reported this bug in #102.
+		@zhrf2020 provided the initial version of fix, #109.
 
 Masatake YAMATO <yamato@redhat.com>, a member of the lsof-org team at GitHub
 October 4, 2020
