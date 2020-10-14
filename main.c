@@ -554,6 +554,10 @@ main(argc, argv)
 
 			    if (i == LSOF_FIX_TERM)
 				Terminator = '\0';
+
+			    if (i == LSOF_FIX_OFFSET)
+				Foffset = 1;
+
 			    break;
 			}
 		    }
