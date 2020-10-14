@@ -795,6 +795,29 @@ is a plus sign (`+'), these characters request file structure information:
 	\fBc\fR	file structure use count (not Linux)
 	\fBf\fR	file structure address (not Linux)
 	\fBg\fR	file flag abbreviations (Linux 2.6.22 and up)
+
+		Abbrev.	Flag in C code (see open(2))
+
+		\fBW\fR		O_WRONLY
+		\fBRW\fR		O_RDWR
+		\fBCR\fR		O_CREAT
+		\fBEXCL\fR		O_EXCL
+		\fBNTTY\fR		O_NOCTTY
+		\fBTR\fR		O_TRUNC
+		\fBAP\fR		O_APPEND
+		\fBND\fR		O_NDELAY
+		\fBSYN\fR		O_SYNC
+		\fBASYN\fR		O_ASYNC
+		\fBDIR\fR		O_DIRECT
+		\fBDTY\fR		O_DIRECTORY
+		\fBNFLK\fR		O_NOFOLLOW
+		\fBNATM\fR		O_NOATIME
+		\fBDSYN\fR		O_DSYNC
+		\fBRSYN\fR		O_RSYNC
+		\fBLG\fR		O_LARGEFILE
+		\fBCX\fR		O_CLOEXEC
+		\fBTMPF\fR		O_TMPFILE
+
 	\fBG\fR	file flags in hexadecimal (Linux 2.6.22 and up)
 	\fBn\fR	file structure node address (not Linux)
 .fi
@@ -4515,6 +4538,7 @@ modload(8),
 mount(8),
 netstat(1),
 ofiles(8L),
+open(2),
 perl(1),
 ps(1),
 readlink(2),

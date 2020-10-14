@@ -5106,5 +5106,9 @@ July 14, 2018
 		@zhrf2020 reported this bug in #102.
 		@zhrf2020 provided the initial version of fix, #109.
 
+
+		man page,[linux]: enumerate abbreviated flags printed with '+f g' option
+
+
 Masatake YAMATO <yamato@redhat.com>, a member of the lsof-org team at GitHub
 October 4, 2020
