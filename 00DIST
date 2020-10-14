@@ -5139,5 +5139,19 @@ July 14, 2018
 		man page,[linux]: enumerate abbreviated flags printed with '+f g' option
 
 
+		Make -Fo option work
+		-Fo option is for printing file offset. For regular files,
+		the option didn't work.
+
+		Here is a command session demonstrating the fix:
+
+		    # ./lsof -Fo -o0| grep ^o | sort | uniq -c
+		    90586 o0t0
+		       87 o0t101
+		       84 o0t103
+		...
+		@JustAnotherArchivist reported this bug in #118.
+
+
 Masatake YAMATO <yamato@redhat.com>, a member of the lsof-org team at GitHub
 October 4, 2020
