@@ -4951,35 +4951,44 @@ July 14, 2018
 			$ ./check.sh DIALECT
 		after making lsof executable.
 
+
 		[linux] Fixed a bug +|-E options output for pipe.
 		If two processes use the same fd number for a pipe
 		connecting them, the option didn't print the
 		information about it.
+
 
 		[linux] Fixed a bug +|-E options output for PTY.
 		If two processes use the same fd number for a PTY
 		connecting them, the option didn't print the
 		information about it.
 
+
 		[linux] Fixed a bug +|-E options output for PTY.
 		The code for detecting a slave device was incorrect.
+
 
 		[linux] Fixed a potential bug +|-E options output for
 		PTY. A structure field for the feature was not
 		initialized.
 
+
 		[linux] Added a code for decoding O_PATH flag in +fg
 		option.
+
 
 		[linux] Added a code for decoding O_CLOEXEC flag as CX
 		in +fg option.
 
+
 		[linux] Added a code for decoding O_TMPFILE flag as
 		TMPF in +fg option.
+
 
 		[linux] Added Linux display of INET socket endpoint
 		information with +|-E option. The option handles
 		INET sockets using IPC.
+
 
 		[linux] Added support for POSIX MQ of Linux
 		implementation.  A POSIX message queue (MQ) is
@@ -4987,40 +4996,52 @@ July 14, 2018
 		regular file. lsof with this change reports it as a
 		file with PSXMQ type if mqueue file system is mounted.
 
+
 		[linux] Added Linux display of POSIX message queue
 		endpoint information with +|-E option. mqueue file system
 		must be mounted to display the information.
+
 
 		[linux] Added Linux display of INET6 socket endpoint
 		information with +|-E option. The option handles
 		INET6 sockets using IPC.
 
+
 		[FreeBSD] update to include <sys/_lock.h> on recent -CURRENT
 		since it is no longer implicitly included via header pollution.
+
 
 		[linux] Added Linux display of eventfd endpoint information
 		with +|-E option. The option handles eventfd using IPC.
 
+
 		[FreeBSD] include <stdbool.h> for recent change requiring
 		refcount(9).
+
 
 		Enhanced -r option. With `c<N>' specifier, lsof can stop itself
 		when the number of iterations reaches at <N>.
 
+
 		[linux] Fixed accessing an uninitialized local variable.
 		Detected by valgrind.
+
 
 		[linux] fix a crash when printing the endpoint for unaccepted
 		unix socket with +E option.
 		This closes the github issue #74 reported by @jolmg.
 
+
 		[linux] abort execution when failing in memory allocation for
 		socket private data.
 
+
 		[linux] decode the name of DCCP socket type.
+
 
 		[linux] decode more netlink protocol numbers (RDMA, CRYPTO, and
 		SMC).
+
 
 		[linux] print the connection state of unix domain socket
 		Lsof can print the state of TCP socket like:
@@ -5041,6 +5062,7 @@ July 14, 2018
 		in command line doesn't exist.
 		This closes the github issue #90 reported by @rowlap.
 
+
 		[FreeBSD] merge all the FreeBSD specific fixes from the FreeBSD sysutils/lsof port
 
 
@@ -5052,8 +5074,10 @@ July 14, 2018
 		About the standard, see https://reproducible-builds.org/specs/source-date-epoch/
 		Provided in github pull request #93 by @T4cC0re.
 
+
 		[freebsd] update for r363214
 		- no user visible changes
+
 
 		Added the way to include (or exclude) all numbered file descriptors
 		in -d option. "fd" is a pseudo file descriptor name for the purpose.
@@ -5068,17 +5092,22 @@ July 14, 2018
 		  bash    866421 root  255u   CHR  136,1      0t0    4 /dev/pts/1
 
 
+
 		docs: fixed minor grammatical error in instructions in Customize file
 		The change is provided by @hardikpnsp.
+
 
 		man page: improve phrasing and add examples
 		The change is provided by Martin D Kealey.
 
+
 		man page: improve explanation of -t implying -w
 		The change is provided by Martin D Kealey.
 
+
 		test cases, [linux]: fix tests for large inode-numbers (i >= 2^32)
 		The change is provided by Henry Peteet.
+
 
 		[linux] handle ffff:ffff in ipv6 addr correctly
 		The listen address and port of an AF_INET6 socket were not display if
