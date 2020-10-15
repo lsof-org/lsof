@@ -1286,7 +1286,7 @@ process_id(idp, idpl, cmd, uid, pid, ppid, pgid, tid, tcmd)
 		if (pn) {
 		    process_proc_node(lnk ? pbuf : path, path, &sb, ss, &lsb,
 				      ls);
-		    if ((Lf->ntype == N_ANON_INODE)) {
+		    if (Lf->ntype == N_ANON_INODE) {
 			if (rest && *rest) {
 			    if (fi.eventfd_id != -1
 				&& strcmp(rest, "[eventfd]") == 0) {
