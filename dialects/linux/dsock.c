@@ -1072,7 +1072,7 @@ fill_uxpino(si, pi)
 
 	if ((up = check_unix(si))) {
 	    if (!up->peer) {
-		if (pp = check_unix(pi))
+		if ((pp = check_unix(pi)))
 		    up->peer = pp;
 	    }
 	}
