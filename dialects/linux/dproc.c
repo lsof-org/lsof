@@ -51,16 +51,18 @@ static char copyright[] =
 #endif  /* defined(HASPTYEPT) */
 #endif	/* defined(HASEPTOPTS) */
 
-#define FDINFO_BASE		(FDINFO_FLAGS | FDINFO_POS )
+#define FDINFO_PID		0x10	/* pidfd pid available */
+
+#define FDINFO_BASE		(FDINFO_FLAGS | FDINFO_POS)
 #if	defined(HASEPTOPTS)
 #if     defined(HASPTYEPT)
-#define FDINFO_ALL		(FDINFO_BASE | FDINFO_TTY_INDEX | FDINFO_EVENTFD_ID)
+#define FDINFO_ALL		(FDINFO_BASE | FDINFO_TTY_INDEX | FDINFO_EVENTFD_ID | FDINFO_PID)
 #else  /* !defined(HASPTYEPT) */
-#define FDINFO_ALL		(FDINFO_BASE | FDINFO_EVENTFD_ID)
+#define FDINFO_ALL		(FDINFO_BASE | FDINFO_EVENTFD_ID | FDINFO_PID)
 #endif  /* defined(HASPTYEPT) */
 #define FDINFO_OPTIONAL		(FDINFO_ALL & ~FDINFO_BASE)
 #else   /* !defined(HASEPTOPTS) */
-#define FDINFO_ALL		FDINFO_BASE
+#define FDINFO_ALL		(FDINFO_BASE | FDINFO_PID)
 #endif	/* defined(HASEPTOPTS) */
 
 
@@ -87,6 +89,7 @@ struct l_fdinfo {
 #endif  /* defined(HASPTYEPT) */
 #endif	/* defined(HASEPTOPTS) */
 
+	int pid;			/* for pidfd */
 };
 
 
@@ -464,6 +467,7 @@ get_fdinfo(p, msk, fi)
 	fi->tty_index = -1;
 #endif	/* defined(HASPTYEPT) */
 #endif	/* defined(HASEPTOPTS) */
+	fi->pid = -1;
 
 	if (!p || !*p || !(fs = fopen(p, "r")))
 	    return(0);
@@ -500,16 +504,18 @@ get_fdinfo(p, msk, fi)
 		if ((rv |= FDINFO_POS) == FDINFO_ALL)
 		    break;
 
-#if	defined(HASEPTOPTS)
 	    } else if (
-		       !strcmp(fp[0], "eventfd-id:")
+		       !strcmp(fp[0], "Pid:")
+#if	defined(HASEPTOPTS)
+		       || !strcmp(fp[0], "eventfd-id:")
 #if	defined(HASPTYEPT)
 		       || !strcmp(fp[0], "tty-index:")
 #endif	/* defined(HASPTYEPT) */
+#endif	/* defined(HASEPTOPTS) */
 		       ) {
 		int val;
 	    /*
-	     * Process a "tty-index:" or "eventfd-id:" line.
+	     * Process a "tty-index:" "eventfd-id:" or "Pid:" line.
 	     */
 		ep = (char *)NULL;
 		if ((ul = strtoul(fp[1], &ep, 0)) == ULONG_MAX
@@ -524,21 +530,28 @@ get_fdinfo(p, msk, fi)
 		     val = -1;
 		}
 
-		if (fp[0][0] == 'e') {
+		char c = fp[0][0];
+		switch (c) {
+#if	defined(HASEPTOPTS)
+		case 'e':	/* eventfd-id */
 		    fi->eventfd_id = val;
 		    rv |= FDINFO_EVENTFD_ID;
-		}
+		    break;
 #if	defined(HASPTYEPT)
-		else {
+		case 't':	/* tty-index: */
 		    fi->tty_index = val;
 		    rv |= FDINFO_TTY_INDEX;
-		}
+		    break;
 #endif	/* defined(HASPTYEPT) */
-
+#endif	/* defined(HASEPTOPTS) */
+		case 'P':	/* Pid: */
+		    fi->pid = val;
+		    rv |= FDINFO_PID;
+		    break;
+		}
 		if ((rv|FDINFO_OPTIONAL) == msk)
 		  break;
 	    }
-#endif	/* defined(HASEPTOPTS) */
 	}
 	fclose(fs);
 /*
@@ -1296,6 +1309,12 @@ process_id(idp, idpl, cmd, uid, pid, ppid, pgid, tid, tcmd)
 					    "[eventfd:%d]", fi.eventfd_id);
 			    }
 #endif	/* defined(HASPTYEPT) */
+			    if (fi.pid != -1
+				&& strcmp(rest, "[pidfd]") == 0) {
+				(void) snpf (rest,
+					     sizeof(pbuf) - (rest - pbuf),
+					     "[pidfd:%d]", fi.pid);
+			    }
 			    enter_nm(rest);
 			}
 #if	defined(HASEPTOPTS)
