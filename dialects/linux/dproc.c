@@ -41,13 +41,13 @@ static char copyright[] =
  * Local definitions
  */
 
-#define	FDINFO_FLAGS		1	/* fdinfo flags available */
-#define	FDINFO_POS		2	/* fdinfo position available */
+#define	FDINFO_FLAGS		0x1	/* fdinfo flags available */
+#define	FDINFO_POS		0x2	/* fdinfo position available */
 
 #if	defined(HASEPTOPTS)
-#define FDINFO_EVENTFD_ID	4	/* fdinfo eventfd-id available */
+#define FDINFO_EVENTFD_ID	0x4	/* fdinfo eventfd-id available */
 #if	defined(HASPTYEPT)
-#define FDINFO_TTY_INDEX	8	/* fdinfo tty-index available */
+#define FDINFO_TTY_INDEX	0x8	/* fdinfo tty-index available */
 #endif  /* defined(HASPTYEPT) */
 #endif	/* defined(HASEPTOPTS) */
 
