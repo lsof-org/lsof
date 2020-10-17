@@ -5153,5 +5153,10 @@ July 14, 2018
 		@JustAnotherArchivist reported this bug in #118.
 
 
+		man page: fix definition of the `o` field on programmatic output
+		The change is provided by @JustAnotherArchivist who reported
+		the original issue in #118.
+
+
 Masatake YAMATO <yamato@redhat.com>, a member of the lsof-org team at GitHub
 October 4, 2020
