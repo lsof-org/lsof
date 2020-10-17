@@ -5158,5 +5158,23 @@ July 14, 2018
 		the original issue in #118.
 
 
+		[linux]: show the pid monitored by a pidfd
+		With this change, lsof prints pidfd in the following form:
+
+		    [pidfd:%d]
+
+		where %d represents the pid monitored by the pidfd.
+
+		Example output:
+
+		    # ./lsof -p 12573 -p 12710 | grep pidfd
+		    dbus-brok 12573  jet   11u  a_inode               0,13         0     13312 [pidfd:12575]
+		    dbus-brok 12710  jet   10u  a_inode               0,13         0     13312 [pidfd:12711]
+
+		fd 11 of pid 12573 monitors pid 12575.
+		fd 10 of pid 12710 monitors pid 12711.
+		This change closed #116.
+
+
 Masatake YAMATO <yamato@redhat.com>, a member of the lsof-org team at GitHub
 October 4, 2020
