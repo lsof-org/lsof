@@ -507,7 +507,7 @@ get_fdinfo(p, msk, fi)
 		       || !strcmp(fp[0], "tty-index:")
 #endif	/* defined(HASPTYEPT) */
 		       ) {
-	      int val;
+		int val;
 	    /*
 	     * Process a "tty-index:" or "eventfd-id:" line.
 	     */
