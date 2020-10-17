@@ -1288,19 +1288,23 @@ process_id(idp, idpl, cmd, uid, pid, ppid, pgid, tid, tcmd)
 				      ls);
 		    if (Lf->ntype == N_ANON_INODE) {
 			if (rest && *rest) {
+#if	defined(HASEPTOPTS)
 			    if (fi.eventfd_id != -1
 				&& strcmp(rest, "[eventfd]") == 0) {
 				(void) snpf(rest,
 					    sizeof(pbuf) - (rest - pbuf),
 					    "[eventfd:%d]", fi.eventfd_id);
 			    }
+#endif	/* defined(HASPTYEPT) */
 			    enter_nm(rest);
 			}
+#if	defined(HASEPTOPTS)
 			if (FeptE && fi.eventfd_id != -1) {
 			    enter_evtfdinfo(fi.eventfd_id);
 			    Lf->eventfd_id = fi.eventfd_id;
 			    Lf->sf |= SELEVTFDINFO;
 			}
+#endif	/* defined(HASPTYEPT) */
 		    }
 #if	defined(HASEPTOPTS) && defined(HASPTYEPT)
 		    else if (FeptE
