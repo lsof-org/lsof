@@ -5176,5 +5176,12 @@ July 14, 2018
 		This change closed #116.
 
 
+		Don't select the file descriptor field by default.
+		The version 4.88 introduced the change for selecting the file
+		descriptor field by default. However, the change is not
+		suitable for users who wants to print only PID field.
+		@po5857 suggests the use case and the way to improve the man page.
+
+
 Masatake YAMATO <yamato@redhat.com>, a member of the lsof-org team at GitHub
 October 4, 2020

@@ -3272,6 +3272,7 @@ ends each process and file set with a NL (012) character.
 .PP
 .I Lsof
 always produces one field, the PID (`p') field.
+In repeat mode, the marker (`m') is also produced.
 All other fields may be declared optionally in the field identifier
 character list that follows the
 .B \-F
@@ -3282,6 +3283,15 @@ does not normally list \- e.g., PPID, selected with
 .BR \-R " \-"
 specification of the field character \- e.g., ``\fB\-FR\fP'' \-
 also selects the listing of the item.
+.PP
+.I Lsof
+version from 4.88 to 4.93.2 always produced one more field,
+the file descriptor (`f') field. However,
+.I lsof
+in this version doesn't produce it. This change is for supporting
+the use case that a user needs only the PID field, and doesn't
+need the file descriptor field. Specify `f' explicitly if you
+need the field.
 .PP
 It is entirely possible to select a set of fields that cannot
 easily be parsed \- e.g., if the field descriptor field is not
@@ -3312,7 +3322,7 @@ The single character listed first is the field identifier.
 	C	file structure share count
 	d	file's device character code
 	D	file's major/minor device number (0x<hexadecimal>)
-	f	file descriptor (always selected)
+	f	file descriptor
 	F	file structure address (0x<hexadecimal>)
 	G	file flaGs (0x<hexadecimal>; names if \fB+fg\fP follows)
 	g	process group ID
@@ -3321,7 +3331,7 @@ The single character listed first is the field identifier.
 	k	link count
 	l	file's lock status
 	L	process login name
-	m	marker between repeated output
+	m	marker between repeated output (always selected in repeat mode)
 	M	the task comMand name
 	n	file name, comment, Internet address
 	N	node identifier (ox<hexadecimal>
