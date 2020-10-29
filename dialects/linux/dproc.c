@@ -479,7 +479,7 @@ get_fdinfo(p, msk, fi)
 		continue;
 	    if (!fp[0] || !*fp[0] || !fp[1] || !*fp[1])
 		continue;
-	    if (!strcmp(fp[0], "flags:")) {
+	    if ((msk & FDINFO_FLAGS) && !strcmp(fp[0], "flags:")) {
 
 	    /*
 	     * Process a "flags:" line.
@@ -491,7 +491,7 @@ get_fdinfo(p, msk, fi)
 		fi->flags = (unsigned int)ul;
 		if ((rv |= FDINFO_FLAGS) == msk)
 		    break;
-	    } else if (!strcmp(fp[0], "pos:")) {
+	    } else if ((msk & FDINFO_POS) && !strcmp(fp[0], "pos:")) {
 
 	    /*
 	     * Process a "pos:" line.
@@ -501,15 +501,15 @@ get_fdinfo(p, msk, fi)
 		||  !ep || *ep)
 		    continue;
 		fi->pos = (off_t)ull;
-		if ((rv |= FDINFO_POS) == FDINFO_ALL)
+		if ((rv |= FDINFO_POS) == msk)
 		    break;
 
 	    } else if (
-		       !strcmp(fp[0], "Pid:")
+		       ((msk & FDINFO_PID) && !strcmp(fp[0], "Pid:"))
 #if	defined(HASEPTOPTS)
-		       || !strcmp(fp[0], "eventfd-id:")
+		       || ((msk & FDINFO_EVENTFD_ID) && !strcmp(fp[0], "eventfd-id:"))
 #if	defined(HASPTYEPT)
-		       || !strcmp(fp[0], "tty-index:")
+		       || ((msk & FDINFO_TTY_INDEX) && !strcmp(fp[0], "tty-index:"))
 #endif	/* defined(HASPTYEPT) */
 #endif	/* defined(HASEPTOPTS) */
 		       ) {
@@ -549,7 +549,7 @@ get_fdinfo(p, msk, fi)
 		    rv |= FDINFO_PID;
 		    break;
 		}
-		if ((rv|FDINFO_OPTIONAL) == msk)
+		if (rv == msk)
 		  break;
 	    }
 	}
@@ -1268,9 +1268,22 @@ process_id(idp, idpl, cmd, uid, pid, ppid, pgid, tid, tcmd)
 	    }
 	    if (pn || (efs && lfr && oty)) {
 		if (oty) {
+		    int fdinfo_mask = FDINFO_BASE;
 		    (void) make_proc_path(ipath, j, &pathi, &pathil,
 					  fp->d_name);
-		    if ((av = get_fdinfo(pathi,FDINFO_ALL,&fi)) & FDINFO_POS) {
+
+#if	defined(HASEPTOPTS)
+		    if (rest && rest[0] == '[' && rest[1] == 'e' && rest[2] == 'v')
+			fdinfo_mask |= FDINFO_EVENTFD_ID;
+#if	defined(HASPTYEPT)
+		    if (1)
+			fdinfo_mask |= FDINFO_TTY_INDEX;
+#endif  /* defined(HASPTYEPT) */
+#endif	/* defined(HASEPTOPTS) */
+		    if (rest && rest[0] == '[' && rest[1] == 'p')
+			fdinfo_mask |= FDINFO_PID;
+
+		    if ((av = get_fdinfo(pathi,fdinfo_mask,&fi)) & FDINFO_POS) {
 			if (efs) {
 			    if (Foffset) {
 				lfr->off = (SZOFFTYPE)fi.pos;
