@@ -475,6 +475,7 @@ get_fdinfo(p, msk, fi)
  * Read the fdinfo file.
  */
 	while (fgets(buf, sizeof(buf), fs)) {
+	    int opt_flg = 0;
 	    if (get_fields(buf, (char *)NULL, &fp, (int *)NULL, 0) < 2)
 		continue;
 	    if (!fp[0] || !*fp[0] || !fp[1] || !*fp[1])
@@ -505,11 +506,14 @@ get_fdinfo(p, msk, fi)
 		    break;
 
 	    } else if (
-		       ((msk & FDINFO_PID) && !strcmp(fp[0], "Pid:"))
+		       ((msk & FDINFO_PID) && !strcmp(fp[0], "Pid:")
+			&& ((opt_flg = FDINFO_PID)))
 #if	defined(HASEPTOPTS)
-		       || ((msk & FDINFO_EVENTFD_ID) && !strcmp(fp[0], "eventfd-id:"))
+		       || ((msk & FDINFO_EVENTFD_ID) && !strcmp(fp[0], "eventfd-id:")
+			   && ((opt_flg = FDINFO_EVENTFD_ID)))
 #if	defined(HASPTYEPT)
-		       || ((msk & FDINFO_TTY_INDEX) && !strcmp(fp[0], "tty-index:"))
+		       || ((msk & FDINFO_TTY_INDEX) && !strcmp(fp[0], "tty-index:")
+			   && ((opt_flg = FDINFO_TTY_INDEX)))
 #endif	/* defined(HASPTYEPT) */
 #endif	/* defined(HASEPTOPTS) */
 		       ) {
@@ -530,23 +534,20 @@ get_fdinfo(p, msk, fi)
 		     val = -1;
 		}
 
-		char c = fp[0][0];
-		switch (c) {
+		rv |= opt_flg;
+		switch (opt_flg) {
 #if	defined(HASEPTOPTS)
-		case 'e':	/* eventfd-id */
+		case FDINFO_EVENTFD_ID:
 		    fi->eventfd_id = val;
-		    rv |= FDINFO_EVENTFD_ID;
 		    break;
 #if	defined(HASPTYEPT)
-		case 't':	/* tty-index: */
+		case FDINFO_TTY_INDEX:
 		    fi->tty_index = val;
-		    rv |= FDINFO_TTY_INDEX;
 		    break;
 #endif	/* defined(HASPTYEPT) */
 #endif	/* defined(HASEPTOPTS) */
-		case 'P':	/* Pid: */
+		case FDINFO_PID:
 		    fi->pid = val;
-		    rv |= FDINFO_PID;
 		    break;
 		}
 		if (rv == msk)
