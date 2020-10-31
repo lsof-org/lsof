@@ -98,6 +98,7 @@ LTunix
 #
 # Dialect specific test related files
 #
+dialects/linux/tests/epoll
 dialects/linux/tests/eventfd
 dialects/linux/tests/mq_fork
 dialects/linux/tests/mq_open
