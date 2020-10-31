@@ -5183,5 +5183,26 @@ July 14, 2018
 		@po5857 suggests the use case and the way to improve the man page.
 
 
+		[linux]: enumerate fds monitored by an eventpoll fd
+		With this change, lsof prints an eventpoll fd in the following form:
+
+		    [eventpoll:<fd0>,<fd1>,...,<fdn>...]
+
+		Here fdX is a file descriptor monitored by the eventpoll fd.
+		If an eventpoll fd monitors too many file descriptors, lsof
+		truncates the list of fds. "..." at the end of list implies
+		the truncation.
+
+		Example output:
+
+			# sudo ./lsof -p 1 -a -d 10,11,12
+			COMMAND PID USER   FD      TYPE DEVICE SIZE/OFF  NODE NAME
+			systemd   1 root   10u  a_inode   0,13        0 11624 [eventpoll:11,12]
+			systemd   1 root   11r      REG    0,4        0 17680 /proc/1/mountinfo
+			systemd   1 root   12r  a_inode   0,13        0 11624 inotify
+
+		systemd monitors fd 11 and fd 12 via eventpoll fd 10.
+
+
 Masatake YAMATO <yamato@redhat.com>, a member of the lsof-org team at GitHub
 October 4, 2020

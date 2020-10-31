@@ -52,17 +52,18 @@ static char copyright[] =
 #endif	/* defined(HASEPTOPTS) */
 
 #define FDINFO_PID		0x10	/* pidfd pid available */
+#define FDINFO_TFD		0x20	/* fd monitored by eventpoll fd */
 
 #define FDINFO_BASE		(FDINFO_FLAGS | FDINFO_POS)
 #if	defined(HASEPTOPTS)
 #if     defined(HASPTYEPT)
-#define FDINFO_ALL		(FDINFO_BASE | FDINFO_TTY_INDEX | FDINFO_EVENTFD_ID | FDINFO_PID)
+#define FDINFO_ALL		(FDINFO_BASE | FDINFO_TTY_INDEX | FDINFO_EVENTFD_ID | FDINFO_PID | FDINFO_TFD)
 #else  /* !defined(HASPTYEPT) */
-#define FDINFO_ALL		(FDINFO_BASE | FDINFO_EVENTFD_ID | FDINFO_PID)
+#define FDINFO_ALL		(FDINFO_BASE | FDINFO_EVENTFD_ID | FDINFO_PID | FDINFO_TFD)
 #endif  /* defined(HASPTYEPT) */
 #define FDINFO_OPTIONAL		(FDINFO_ALL & ~FDINFO_BASE)
 #else   /* !defined(HASEPTOPTS) */
-#define FDINFO_ALL		(FDINFO_BASE | FDINFO_PID)
+#define FDINFO_ALL		(FDINFO_BASE | FDINFO_PID | FDINFO_TFD)
 #endif	/* defined(HASEPTOPTS) */
 
 
@@ -90,6 +91,10 @@ struct l_fdinfo {
 #endif	/* defined(HASEPTOPTS) */
 
 	int pid;			/* for pidfd */
+
+#define EPOLL_MAX_TFDS 32
+	int tfds [ EPOLL_MAX_TFDS ];
+	size_t tfd_count;
 };
 
 
@@ -123,7 +128,8 @@ _PROTOTYPE(static int process_id,(char *idp, int idpl, char *cmd, UID_ARG uid,
 				  int pid, int ppid, int pgid, int tid,
 				  char *tcmd));
 _PROTOTYPE(static int statEx,(char *p, struct stat *s, int *ss));
- 
+
+_PROTOTYPE(static void snp_eventpoll, (char *p, int len, int *tfds, int tfd_count));
 
 #if	defined(HASSELINUX)
 _PROTOTYPE(static int cmp_cntx_eq,(char *pcntx, char *ucntx));
@@ -468,6 +474,7 @@ get_fdinfo(p, msk, fi)
 #endif	/* defined(HASPTYEPT) */
 #endif	/* defined(HASEPTOPTS) */
 	fi->pid = -1;
+	fi->tfd_count = 0;
 
 	if (!p || !*p || !(fs = fopen(p, "r")))
 	    return(0);
@@ -508,6 +515,8 @@ get_fdinfo(p, msk, fi)
 	    } else if (
 		       ((msk & FDINFO_PID) && !strcmp(fp[0], "Pid:")
 			&& ((opt_flg = FDINFO_PID)))
+		       || ((msk & FDINFO_TFD) && !strcmp(fp[0], "tfd:")
+			   && ((opt_flg = FDINFO_TFD)))
 #if	defined(HASEPTOPTS)
 		       || ((msk & FDINFO_EVENTFD_ID) && !strcmp(fp[0], "eventfd-id:")
 			   && ((opt_flg = FDINFO_EVENTFD_ID)))
@@ -519,7 +528,7 @@ get_fdinfo(p, msk, fi)
 		       ) {
 		int val;
 	    /*
-	     * Process a "tty-index:" "eventfd-id:" or "Pid:" line.
+	     * Process a "tty-index:", "eventfd-id:", "Pid:", or "tfid:" line.
 	     */
 		ep = (char *)NULL;
 		if ((ul = strtoul(fp[1], &ep, 0)) == ULONG_MAX
@@ -549,8 +558,26 @@ get_fdinfo(p, msk, fi)
 		case FDINFO_PID:
 		    fi->pid = val;
 		    break;
+		case FDINFO_TFD:
+		    if (fi->tfd_count < EPOLL_MAX_TFDS) {
+			fi->tfds [fi->tfd_count] = val;
+			fi->tfd_count++;
+		    }
+		    break;
 		}
-		if (rv == msk)
+
+		if ((
+			/* There can be more than one tfd: lines.
+			   So even if we found one, we can not exit the loop.
+			   However, we can assume tfd lines are continuous. */
+			opt_flg != FDINFO_TFD
+			&& (rv == msk || (rv & FDINFO_TFD))
+		    )
+		    || (
+			/* Too many tfds. */
+			opt_flg == FDINFO_TFD
+			&& rv == msk && fi->tfd_count == EPOLL_MAX_TFDS
+		    ))
 		  break;
 	    }
 	}
@@ -1273,12 +1300,19 @@ process_id(idp, idpl, cmd, uid, pid, ppid, pgid, tid, tcmd)
 		    (void) make_proc_path(ipath, j, &pathi, &pathil,
 					  fp->d_name);
 
+		    if (rest && rest[0] == '['
+			&& rest[1] == 'e' && rest[2] == 'v' && rest[3] == 'e'
+			&& rest[4] == 'n' && rest[5] == 't') {
 #if	defined(HASEPTOPTS)
-		    if (rest && rest[0] == '[' && rest[1] == 'e' && rest[2] == 'v')
-			fdinfo_mask |= FDINFO_EVENTFD_ID;
+			if (rest[6] == 'f')
+			    fdinfo_mask |= FDINFO_EVENTFD_ID;
+#endif	/* defined(HASEPTOPTS) */
+			else if (rest[6] == 'p')
+			    fdinfo_mask |= FDINFO_TFD;
+		    }
+#if	defined(HASEPTOPTS)
 #if	defined(HASPTYEPT)
-		    if (1)
-			fdinfo_mask |= FDINFO_TTY_INDEX;
+		    fdinfo_mask |= FDINFO_TTY_INDEX;
 #endif  /* defined(HASPTYEPT) */
 #endif	/* defined(HASEPTOPTS) */
 		    if (rest && rest[0] == '[' && rest[1] == 'p')
@@ -1329,6 +1363,12 @@ process_id(idp, idpl, cmd, uid, pid, ppid, pgid, tid, tcmd)
 					     sizeof(pbuf) - (rest - pbuf),
 					     "[pidfd:%d]", fi.pid);
 			    }
+			    if (fi.tfd_count > 0
+				&& strcmp(rest, "[eventpoll]") == 0) {
+				snp_eventpoll (rest, sizeof(pbuf) - (rest - pbuf),
+					       fi.tfds, fi.tfd_count);
+			    }
+
 			    enter_nm(rest);
 			}
 #if	defined(HASEPTOPTS)
@@ -1794,4 +1834,86 @@ statEx(p, s, ss)
 	errno = ensv;
 	*ss = 0;
 	return(1);
+}
+
+static int
+cal_order (int n)
+{
+	int i = 0;
+	do {
+	    n /= 10;
+	    i++;
+	} while (n);
+	return i;
+}
+
+static int
+snp_eventpoll_fds(char *p, int len, int *tfds, int count)
+{
+	int wl = 0;
+	int i;
+
+	if (len > 0)
+	    p[0] = '\0';
+
+	for (i = 0; i < count; i++) {
+	    int is_last_item = (i == count - 1);
+	    int needs = cal_order (tfds [i]) + (is_last_item? 0: 3);
+
+	    if ((len - wl + (wl? 2: 0)) <= needs) {
+		/* No space to print the tfd. */
+		break;
+	    }
+
+	    if (wl) {
+		/* Rewrite the last "..." to ",". */
+		wl -= 3;
+		p[wl++] = ',';
+	    }
+	    wl += snpf(p + wl, len - wl,
+		       (is_last_item? "%d": "%d..."), tfds[i]);
+	}
+
+	return wl;
+}
+
+static int
+fd_compare(const void *a, const void *b)
+{
+	int ia = *(int *)a, ib = *(int *)b;
+
+	return ia - ib;
+}
+
+static void
+snp_eventpoll(char *p, int len, int *tfds, int tfd_count)
+{
+	/* Reserve the area for prefix: "[eventpoll:" */
+	len -= 11;
+	/* Reserve the area for postfix */
+	len -= ((tfd_count == EPOLL_MAX_TFDS)
+		? 4 /* "...]" */
+		: 1 /* "]" */
+	       ) + 1 /* for the last \0 */
+	;
+
+	if (len > 1) {
+	    qsort (tfds, tfd_count, sizeof (tfds[0]), fd_compare);
+
+	    p[10] = ':'; /* "[eventpoll]" => "[eventpoll:" */
+	    int wl = snp_eventpoll_fds(p + 11, len, tfds, tfd_count);
+
+	    const char *postfix = (
+		/* If the buffer doesn't have enough space, snp_eventpoll_fds puts
+		 * "..." at the end of the buffer. In that case we don't
+		 have to "..." here. */
+		(wl > 3 && p [11 + wl - 1] == '.')
+		? "]"
+		: ((tfd_count == EPOLL_MAX_TFDS)
+		   /* File descriptors more than EPOLL_MAX_TFDS are associated to
+		    * the eventpoll fd. */
+		   ? "...]"
+		   : "]"));
+	    strcpy(p + 11 + wl, postfix);
+	}
 }
