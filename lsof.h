@@ -557,6 +557,18 @@ extern int ZoneColW;
 #define	SELFILE		(SELFD|SELNFS|SELNLINK|SELNM)	/* file selecters */
 #define	SELNW		(SELNA|SELNET|SELUNX)		/* network selecters */
 
+
+/*
+ * Exit Status
+ */
+
+enum ExitStatus {
+	LSOF_SUCCESS,
+	LSOF_ERROR,
+	LSOF_SEARCH_FAILURE = LSOF_ERROR
+};
+
+
 /*
  * Structure definitions
  */
