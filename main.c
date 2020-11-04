@@ -64,11 +64,12 @@ main(argc, argv)
 	int argc;
 	char *argv[];
 {
-	int rv, gopt_rv;
+	enum ExitStatus rv;
+	int gopt_rv;
 	int ad, c, i, n, se1, se2, ss;
 	char *cp;
 	int err = 0;
-	int ev = 0;
+	enum ExitStatus ev = LSOF_SUCCESS;
 	int fh = 0;
 	char *fmtr = (char *)NULL;
 	long l;
@@ -771,8 +772,10 @@ main(argc, argv)
 		Fport = (GOp == '-') ? 0 : 1;
 		break;
 	    case 'r':
-		if (GOp == '+')
-		    ev = rc = 1;
+		if (GOp == '+') {
+		    ev = LSOF_ERROR;
+		    rc = 1;
+		}
 		if (!GOv || *GOv == '-' || *GOv == '+') {
 		    RptTm = RPTTM;
 		    if (GOv) {
@@ -1532,7 +1535,7 @@ main(argc, argv)
 		    if (!n)
 			break;
 		    else
-			ev = 0;
+			ev = LSOF_SUCCESS;
 		}
 
 #if	defined(HAS_STRFTIME)
@@ -1582,7 +1585,7 @@ main(argc, argv)
  * was; one, if not.  If -V was specified, report what was not displayed.
  */
 	(void) childx();
-	rv = 0;
+	rv = LSOF_SUCCESS;
 	for (str = Cmdl; str; str = str->next) {
 
 	/*
@@ -1590,7 +1593,7 @@ main(argc, argv)
 	 */
 	    if (str->f)
 		continue;
-	    rv = 1;
+	    rv = LSOF_SEARCH_FAILURE;
 	    if (Fverbose) {
 		(void) printf("%s: command not located: ", Pn);
 		safestrprt(str->str, stdout, 1);
@@ -1603,7 +1606,7 @@ main(argc, argv)
 	 */
 	    if (CmdRx[i].mc)
 		continue;
-	    rv = 1;
+	    rv = LSOF_SEARCH_FAILURE;
 	    if (Fverbose) {
 		(void) printf("%s: no command found for regex: ", Pn);
 		safestrprt(CmdRx[i].exp, stdout, 1);
@@ -1616,7 +1619,7 @@ main(argc, argv)
 	 */
 	    if (sfp->f)
 		continue;
-	    rv = 1;
+	    rv = LSOF_SEARCH_FAILURE;
 	    if (Fverbose) {
 		(void) printf("%s: no file%s use located: ", Pn,
 		    sfp->type ? "" : " system");
@@ -1629,7 +1632,7 @@ main(argc, argv)
 	 * Report on proc file system search results.
 	 */
 	    if (Procsrch && !Procfind) {
-		rv = 1;
+		rv = LSOF_SEARCH_FAILURE;
 		if (Fverbose) {
 		    (void) printf("%s: no file system use located: ", Pn);
 		    safestrprt(Mtprocfs ? Mtprocfs->dir : HASPROCFS, stdout, 1);
@@ -1640,7 +1643,7 @@ main(argc, argv)
 
 		for (pfi = Procfsid; pfi; pfi = pfi->next) {
 		    if (!pfi->f) {
-			rv = 1;
+			rv = LSOF_SEARCH_FAILURE;
 			if (Fverbose) {
 			    (void) printf("%s: no file use located: ", Pn);
 			    safestrprt(pfi->nm, stdout, 1);
@@ -1684,7 +1687,7 @@ main(argc, argv)
 	    }
 	    for (np = Nwad; np; np = np->next) {
 		if (!np->f && (cp = np->arg)) {
-		    rv = 1;
+		    rv = LSOF_SEARCH_FAILURE;
 		    if (Fverbose) {
 			(void) printf("%s: Internet address not located: ", Pn);
 			safestrprt(cp ? cp : "(unknown)", stdout, 1);
@@ -1697,7 +1700,7 @@ main(argc, argv)
 	/*
 	 * Report no Internet files located.
 	 */
-	    rv = 1;
+	    rv = LSOF_SEARCH_FAILURE;
 	    if (Fverbose)
 		(void) printf("%s: no Internet files located\n", Pn);
 	}
@@ -1710,7 +1713,7 @@ main(argc, argv)
 	 */
 	    for (i = 0; i < TcpNstates; i++) {
 		if (TcpStI[i] == 1) {
-		    rv = 1;
+		    rv = LSOF_SEARCH_FAILURE;
 		    if (Fverbose)
 			(void) printf("%s: TCP state not located: %s\n",
 			    Pn, TcpSt[i]);
@@ -1724,7 +1727,7 @@ main(argc, argv)
 	 */
 	    for (i = 0; i < UdpNstates; i++) {
 		if (UdpStI[i] == 1) {
-		    rv = 1;
+		    rv = LSOF_SEARCH_FAILURE;
 		    if (Fverbose)
 			(void) printf("%s: UDP state not located: %s\n",
 			    Pn, UdpSt[i]);
@@ -1738,7 +1741,7 @@ main(argc, argv)
 	/*
 	 * Report no NFS files located.
 	 */
-	    rv = 1;
+	    rv = LSOF_SEARCH_FAILURE;
 	    if (Fverbose)
 		(void) printf("%s: no NFS files located\n", Pn);
 	}
@@ -1749,7 +1752,7 @@ main(argc, argv)
 	 */
 	    if (Spid[i].f || Spid[i].x)
 		continue;
-	    rv = 1;
+	    rv = LSOF_SEARCH_FAILURE;
 	    if (Fverbose)
 		(void) printf("%s: process ID not located: %d\n",
 		    Pn, Spid[i].i);
@@ -1761,7 +1764,7 @@ main(argc, argv)
 	/*
 	 * Report no tasks located.
 	 */
-	    rv = 1;
+	    rv = LSOF_SEARCH_FAILURE;
 	    if (Fverbose)
 		(void) printf("%s: no tasks located\n", Pn);
 	}
@@ -1776,7 +1779,7 @@ main(argc, argv)
 	    for (i = 0; i < HASHZONE; i++) {
 		for (zp = ZoneArg[i]; zp; zp = zp->next) {
 		    if (!zp->f) {
-			rv = 1;
+			rv = LSOF_SEARCH_FAILURE;
 			if (Fverbose) {
 			    (void) printf("%s: zone not located: ", Pn);
 			    safestrprt(zp->zn, stdout, 1);
@@ -1795,7 +1798,7 @@ main(argc, argv)
 	 */
 	    for (cntxp = CntxArg; cntxp; cntxp = cntxp->next) {
 		if (!cntxp->f) {
-		    rv = 1;
+		    rv = LSOF_SEARCH_FAILURE;
 		    if (Fverbose) {
 			(void) printf("%s: context not located: ", Pn);
 			safestrprt(cntxp->cntx, stdout, 1);
@@ -1812,7 +1815,7 @@ main(argc, argv)
 	 */
 	    if (Spgid[i].f || Spgid[i].x)
 		continue;
-	    rv = 1;
+	    rv = LSOF_SEARCH_FAILURE;
 	    if (Fverbose)
 		(void) printf("%s: process group ID not located: %d\n",
 		    Pn, Spgid[i].i);
@@ -1824,7 +1827,7 @@ main(argc, argv)
 	 */
 	    if (Suid[i].excl || Suid[i].f)
 		continue;
-	    rv = 1;
+	    rv = LSOF_SEARCH_FAILURE;
 	    if (Fverbose) {
 		if (Suid[i].lnm) {
 		    (void) printf("%s: login name (UID %lu) not located: ",
@@ -1838,7 +1841,7 @@ main(argc, argv)
 	if (!rv && rc)
 	    rv = ev;
 	if (!rv && ErrStat)
-	    rv = 1;
+	    rv = LSOF_ERROR;
 	Exit(rv);
 	return(rv);		/* to make code analyzers happy */
 }
