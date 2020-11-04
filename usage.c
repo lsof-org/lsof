@@ -494,7 +494,7 @@ usage(xv, fh, version)
 	    (void) fprintf(stderr,
 		"Use the ``-h'' option to get more help information.\n");
 	    if (!fh)
-    		Exit(xv);
+		Exit(xv);
 	}
 	if (Fhelp) {
 	    (void) fprintf(stderr,
@@ -749,13 +749,13 @@ usage(xv, fh, version)
 		"",
 #endif	/* defined(HASSOOPT) || defined(HASSOSTATE) || defined(HASTCPOPT)*/
 
-#if 	defined(HASTCPTPIQ)
+#if	defined(HASTCPTPIQ)
 		"q",
 #else	/* !defined(HASTCPTPIQ) */
 		" ",
 #endif	/* defined(HASTCPTPIQ) */
 
-#if 	defined(HASTCPTPIW)
+#if	defined(HASTCPTPIW)
 		"w",
 #else	/* !defined(HASTCPTPIW) */
 		"",
@@ -767,13 +767,13 @@ usage(xv, fh, version)
 		"",
 #endif	/* defined(HASSOOPT) || defined(HASSOSTATE) || defined(HASTCPOPT)*/
 
-#if 	defined(HASTCPTPIQ)
+#if	defined(HASTCPTPIQ)
 		"Q,",
 #else	/* !defined(HASTCPTPIQ) */
 		"",
 #endif	/* defined(HASTCPTPIQ) */
 
-#if 	defined(HASTCPTPIW)
+#if	defined(HASTCPTPIW)
 		",Win"
 #else	/* !defined(HASTCPTPIW) */
 		""

@@ -171,7 +171,7 @@ childx()
 			    "%s: WARNING -- child process %d may be hung.\n",
 			    Pn, (int)Cpid);
 		    break;
-	        }
+		}
 	    /*
 	     * Send the next signal to the child process, after the first pass
 	     * through the loop.
@@ -736,7 +736,7 @@ dup_IP_state:
 		    Pn, ty, nr,
 		    tx ? UdpSt[nr + UdpStOff] : TcpSt[nr + TcpStOff],
 		    nm);
-	 	Exit(1);
+		Exit(1);
 	    }
 	    UdpSt[nr + UdpStOff] = cp;
 	} else {
@@ -1488,7 +1488,7 @@ safestrprt(sp, fs, flags)
 			    }
 			} else {
 			    for (lnt = 0; lnt < lnc; lnt++) {
-			        fputs(safepup((unsigned int)*(sp + lnt),
+				fputs(safepup((unsigned int)*(sp + lnt),
 					      (int *)NULL), fs);
 			    }
 			}
