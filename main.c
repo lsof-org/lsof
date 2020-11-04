@@ -64,7 +64,8 @@ main(argc, argv)
 	int argc;
 	char *argv[];
 {
-	int ad, c, i, n, rv, se1, se2, ss;
+	int rv, gopt_rv;
+	int ad, c, i, n, se1, se2, ss;
 	char *cp;
 	int err = 0;
 	int ev = 0;
@@ -253,8 +254,8 @@ main(argc, argv)
 /*
  * Loop through options.
  */
-	while ((c = GetOpt(argc, argv, options, &rv)) != EOF) {
-	    if (rv) {
+	while ((c = GetOpt(argc, argv, options, &gopt_rv)) != EOF) {
+	    if (gopt_rv) {
 		err = 1;
 		continue;
 	    }
