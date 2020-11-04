@@ -339,13 +339,13 @@ readdev(skip)
 			    (void) fprintf(stderr,
 				"%s: no space for clone device: ", Pn);
 			    safestrprt(fp, stderr, 1);
-			    exit(1);
+			    Exit(1);
 			}
 			if (!(c->cd.name = mkstrcpy(fp, (MALLOC_S)NULL))) {
 			    (void) fprintf(stderr,
 				"%s: no space for clone name: ", Pn);
 			    safestrprt(fp, stderr, 1);
-			    exit(1);
+			    Exit(1);
 			}
 			c->cd.inode = (INODETYPE)sb.st_ino;
 			c->cd.rdev = sb.st_rdev;
