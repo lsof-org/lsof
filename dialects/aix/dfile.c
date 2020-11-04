@@ -120,7 +120,7 @@ hashSfile()
 	    (void) fprintf(stderr,
 		"%s: can't allocate space for %d (dev,ino) hash buckets\n",
 		Pn, SFDIHASH);
-	    Exit(1);
+	    Error();
 	}
 	if (!(HbyFrd = (struct hsfile *)calloc((MALLOC_S)SFRDHASH,
 					       sizeof(struct hsfile))))
@@ -128,7 +128,7 @@ hashSfile()
 	    (void) fprintf(stderr,
 		"%s: can't allocate space for %d rdev hash buckets\n",
 		Pn, SFRDHASH);
-	    Exit(1);
+	    Error();
 	}
 	if (!(HbyFsd = (struct hsfile *)calloc((MALLOC_S)SFFSHASH,
 					       sizeof(struct hsfile))))
@@ -136,7 +136,7 @@ hashSfile()
 	    (void) fprintf(stderr,
 		"%s: can't allocate space for %d file sys hash buckets\n",
 		Pn, SFFSHASH);
-	    Exit(1);
+	    Error();
 	}
 	if (!(HbyMPC = (struct hsfile *)calloc((MALLOC_S)SFMPCHASH,
 					       sizeof(struct hsfile))))
@@ -144,7 +144,7 @@ hashSfile()
 	    (void) fprintf(stderr,
 		"%s: can't allocate space for %d MPC file hash buckets\n",
 		Pn, SFMPCHASH);
-	    Exit(1);
+	    Error();
 	}
 	if (!(HbyNm = (struct hsfile *)calloc((MALLOC_S)SFNMHASH,
 					      sizeof(struct hsfile))))
@@ -152,7 +152,7 @@ hashSfile()
 	    (void) fprintf(stderr,
 		"%s: can't allocate space for %d name hash buckets\n",
 		Pn, SFNMHASH);
-	    Exit(1);
+	    Error();
 	}
 	hs++;
 /*
@@ -216,7 +216,7 @@ hashSfile()
 			(void) fprintf(stderr,
 			    "%s: can't allocate hsfile bucket for: %s\n",
 			    Pn, s->aname);
-			Exit(1);
+			Error();
 		    }
 		    sn->s = s;
 		    sn->next = sh->next;
@@ -478,7 +478,7 @@ readvfs(vn)
 	if (!(vp = (struct l_vfs *)malloc((MALLOC_S)sizeof(struct l_vfs)))) {
 	    (void) fprintf(stderr, "%s: PID %d, no space for vfs\n",
 		Pn, Lp->pid);
-	    Exit(1);
+	    Error();
 	}
 	vp->dir = (char *)NULL;
 	vp->fsname = (char *)NULL;
@@ -504,7 +504,7 @@ vfs_exit:
 	if (!(mp = (void *)malloc((MALLOC_S)ul))) {
 	    (void) fprintf(stderr, "%s: PID %d, no space for mount data\n",
 		Pn, Lp->pid);
-	    Exit(1);
+	    Error();
 	}
 	if (kread((KA_T)v.vfs_mdata, (char *)mp, (int)ul)) {
 	    (void) free((FREE_P *)mp);
@@ -563,7 +563,7 @@ vfs_exit:
 readvfs_aix1:
 		(void) fprintf(stderr, "%s: PID %d, readvfs, no space\n",
 		    Pn, Lp->pid);
-		Exit(1);
+		Error();
 	    }
 	} else
 	    vp->dir = (char *)NULL;

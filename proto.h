@@ -108,6 +108,7 @@ _PROTOTYPE(extern int enter_uid,(char *us));
 _PROTOTYPE(extern void ent_inaddr,(unsigned char *la, int lp, unsigned char *fa, int fp, int af));
 _PROTOTYPE(extern int examine_lproc,(void));
 _PROTOTYPE(extern void Exit,(int xv)) exiting;
+_PROTOTYPE(extern void Error,()) exiting;
 _PROTOTYPE(extern void find_ch_ino,(void));
 
 # if	defined(HASEPTOPTS)

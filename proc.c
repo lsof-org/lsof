@@ -71,7 +71,7 @@ add_nma(cp, len)
 	if (!Lf->nma) {
 	    (void) fprintf(stderr, "%s: no name addition space: PID %ld, FD %s",
 		Pn, (long)Lp->pid, Lf->fd);
-	    Exit(1);
+	    Error();
 	}
 	if (nl) {
 	    Lf->nma[nl] = ' ';
@@ -110,7 +110,7 @@ alloc_fflbuf(bp, al, lr)
 	if (!*bp) {
 	    (void) fprintf(stderr, "%s: no space (%d) for print flags\n",
 		Pn, sz);
-	    Exit(1);
+	    Error();
 	}
 	*al = sz;
 	return(*bp);
@@ -152,7 +152,7 @@ alloc_lfile(nm, num)
 	} else if (!(Lf = (struct lfile *)malloc(sizeof(struct lfile)))) {
 	    (void) fprintf(stderr, "%s: no local file space at PID %d\n",
 		Pn, Lp->pid);
-	    Exit(1);
+	    Error();
 	}
 /*
  * Initialize the structure.
@@ -295,7 +295,7 @@ alloc_lproc(pid, pgid, ppid, uid, cmd, pss, sf)
 		(void) fprintf(stderr,
 		    "%s: no malloc space for %d local proc structures\n",
 		    Pn, LPROCINCR);
-		Exit(1);
+		Error();
 	    }
 	    sz = LPROCINCR;
 	} else if ((Nlproc + 1) > sz) {
@@ -306,7 +306,7 @@ alloc_lproc(pid, pgid, ppid, uid, cmd, pss, sf)
 		(void) fprintf(stderr,
 		    "%s: no realloc space for %d local proc structures\n",
 		    Pn, sz);
-		Exit(1);
+		Error();
 	    }
 	}
 	Lp = &Lproc[Nlproc++];
@@ -334,7 +334,7 @@ alloc_lproc(pid, pgid, ppid, uid, cmd, pss, sf)
 	    (void) fprintf(stderr, "%s: PID %d, no space for command name: ",
 		Pn, pid);
 	    safestrprt(cmd, stderr, 1);
-	    Exit(1);
+	    Error();
 	}
 
 #if	defined(HASZONES)

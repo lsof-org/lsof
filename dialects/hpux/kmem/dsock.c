@@ -864,7 +864,7 @@ process_socket(sa)
 			    (void) fprintf(stderr,
 				"%s: no space (%d) for UNIX socket address\n",
 				Pn, dbl);
-			    Exit(1);
+			    Error();
 			}
 		    }
 		    if (kread((KA_T)db.db_base, dbf, db.db_size) == 0) {

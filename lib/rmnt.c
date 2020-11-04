@@ -102,7 +102,7 @@ readmnt()
  */
 	if (!(mfp = setmntent(MOUNTED, "r"))) {
 	    (void) fprintf(stderr, "%s: can't access %s\n", Pn, MOUNTED);
-	    Exit(1);
+	    Error();
 	}
 /*
  * Read mount table entries.
@@ -179,7 +179,7 @@ no_space_for_mount:
 		(void) fprintf(stderr, " (");
 		safestrprt(mp->mnt_dir, stderr, 0);
 		(void) fprintf(stderr, ")\n");
-		Exit(1);
+		Error();
 	    }
 	    mtp->dir = dn;
 	    dn = (char *)NULL;
@@ -198,7 +198,7 @@ no_space_for_mount:
 	    {
 		(void) fprintf(stderr, "%s: no space for fstype (%s): %s\n",
 		    Pn, mtp->dir, mp->RMNT_FSTYPE);
-		Exit(1);
+		Error();
 	    }
 	    (void) strcpy(mtp->MOUNTS_FSTYPE, mp->RMNT_FSTYPE);
 # endif	/* defined(RMNT_FSTYP) && defined(MOUNTS_FSTYP) */

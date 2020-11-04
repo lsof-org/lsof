@@ -127,14 +127,14 @@ alloc_bdcache()
 				       sizeof(struct l_dev))))
 	{
 	    (void) fprintf(stderr, "%s: no space for block devices\n", Pn);
-	    Exit(1);
+	    Error();
 	}
 	if (!(BSdev = (struct l_dev **)malloc((MALLOC_S)(sizeof(struct l_dev *)
 				       * BNdev))))
 	{
 	    (void) fprintf(stderr, "%s: no space for block device pointers\n",
 		Pn);
-	    Exit(1);
+	    Error();
 	}
 }
 # endif	/* defined(HASBLKDEV) */
@@ -151,14 +151,14 @@ alloc_dcache()
 				      sizeof(struct l_dev))))
 	{
 	    (void) fprintf(stderr, "%s: no space for devices\n", Pn);
-	    Exit(1);
+	    Error();
 	}
 	if (!(Sdev = (struct l_dev **)malloc((MALLOC_S)(sizeof(struct l_dev *)
 				      * Ndev))))
 	{
 	    (void) fprintf(stderr, "%s: no space for device pointers\n",
 		Pn);
-	    Exit(1);
+	    Error();
 	}
 }
 
@@ -615,7 +615,7 @@ dcpath(rw, npw)
  * will have been issued to stderr.
  */
 	if (merr)
-	    Exit(1);
+	    Error();
 /*
  * Return the index of the first defined path.  Since DCpath[] is arranged
  * in priority order, searching it beginning to end follows priority.
@@ -760,7 +760,7 @@ close_exit:
 	 */
 	    (void) fprintf(stderr, "%s: internal error: open_dcache=%d\n",
 		Pn, m);
-	    Exit(1);
+	    Error();
 	}
 	return(1);
 }
@@ -965,7 +965,7 @@ read_dhdr:
 		(void) fprintf(stderr,
 		    "%s: device %d: no space for path: line ", Pn, i + 1);
 		safestrprt(buf, stderr, 1+4+8);
-		Exit(1);
+		Error();
 	    }
 	    Devtp[i].v = 0;
 	    Sdev[i] = &Devtp[i];
@@ -1053,7 +1053,7 @@ read_dhdr:
 		    (void) fprintf(stderr,
 			"%s: block dev %d: no space for path: line", Pn, i + 1);
 		    safestrprt(buf, stderr, 1+4+8);
-		    Exit(1);
+		    Error();
 		}
 	        BDevtp[i].v = 0;
 	        BSdev[i] = &BDevtp[i];
@@ -1208,7 +1208,7 @@ bad_clone_index:
 			"%s: clone %d: no space for cached clone: line ", Pn,
 			i + 1);
 		    safestrprt(buf, stderr, 1+4+8);
-		    Exit(1);
+		    Error();
 		}
 		c->dx = j;
 		c->next = Clone;
@@ -1255,7 +1255,7 @@ bad_clone_index:
  */
 	(void) fprintf(stderr, "%s: internal rw_clone_sect error: %d\n",
 	    Pn, m);
-	Exit(1);
+	Error();
 	return(1);		/* This useless return(1) keeps some
 				 * compilers happy. */
 }

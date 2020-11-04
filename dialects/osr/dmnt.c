@@ -70,7 +70,7 @@ readmnt()
  */
 	if ((fd = open(MNTTAB, O_RDONLY, 0)) < 0) {
 	    (void) fprintf(stderr, "%s: can't open %s\n", Pn, MNTTAB);
-	    Exit(1);
+	    Error();
 	}
 /*
  * Read the first mount table entry.
@@ -159,7 +159,7 @@ no_space_for_mount:
 		    (void) fprintf(stderr, " (");
 		    safestrprt(dvnm, stderr, 0);
 		    (void) fprintf(stderr, ")\n");
-		    Exit(1);
+		    Error();
 		}
 	    }
 	/*

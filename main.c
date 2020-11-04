@@ -141,7 +141,7 @@ main(argc, argv)
 	while (((i = open("/dev/null", O_RDWR, 0)) >= 0) && (i < 2))
 	    ;
 	if (i < 0)
-	    Exit(1);
+	    Error();
 	if (i > 2)
 	    (void) close(i);
 	(void) umask(0);
@@ -164,7 +164,7 @@ main(argc, argv)
 	    Setuidroot = 1;
 	if (!(Namech = (char *)malloc(MAXPATHLEN + 1))) {
 	    (void) fprintf(stderr, "%s: no space for name buffer\n", Pn);
-	    Exit(1);
+	    Error();
 	}
 	Namechl = (size_t)(MAXPATHLEN + 1);
 /*
@@ -827,7 +827,7 @@ main(argc, argv)
 			(void) fprintf(stderr,
 			    "%s: no space (%d) for <fmt> result: \"%s\"\n",
 			    Pn, (int)fmtl, cp);
-			    Exit(1);
+			    Error();
 		    }
 		    if (util_strftime(fmtr, fmtl - 1, fmt) < 1) {
 			(void) fprintf(stderr, "%s: illegal <fmt>: \"%s\"\n",
@@ -1174,7 +1174,7 @@ main(argc, argv)
 			 (MALLOC_S)(sizeof(struct seluid) * Nuid))))
 	    {
 		(void) fprintf(stderr, "%s: can't realloc UID table\n", Pn);
-		Exit(1);
+		Error();
 	    }
 	    Mxuid = Nuid;
 	}
@@ -1247,7 +1247,7 @@ main(argc, argv)
 		    (void) fprintf(stderr, "%s: can't stat(/dev): %s\n", Pn,
 		    strerror(se2));
 		}
-		Exit(1);
+		Error();
 	    }
 	}
 	DevDev = sb.st_dev;
@@ -1256,7 +1256,7 @@ main(argc, argv)
  */
 	if (GOx1 < argc) {
 	    if (ck_file_arg(GOx1, argc, argv, Ffilesys, 0, (struct stat *)NULL))
-		Exit(1);
+		Error();
 	}
 /*
  * Do dialect-specific initialization.
@@ -1333,7 +1333,7 @@ main(argc, argv)
 		    if (!slp) {
 			(void) fprintf(stderr,
 			    "%s: no space for %d sort pointers\n", Pn, Nlproc);
-			Exit(1);
+			Error();
 		    }
 		}
 		for (i = 0; i < Nlproc; i++) {
@@ -1986,7 +1986,7 @@ sv_fmt_str(f)
 	if (!(cp = (char *)malloc(l))) {
 	    (void) fprintf(stderr,
 		"%s: can't allocate %d bytes for format: %s\n", Pn, (int)l, f);
-	    Exit(1);
+	    Error();
 	}
 	(void) snpf(cp, l, "%s", f);
 	return(cp);

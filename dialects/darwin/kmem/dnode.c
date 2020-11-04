@@ -82,7 +82,7 @@ getvpath(va, rv)
 	    if (!(bp = (char *)malloc((MALLOC_S)bl))) {
 		(void) fprintf(stderr, "%s: no space (%d) for path assembly\n",
 		    Pn, (int)bl);
-		Exit(1);
+		Error();
 	    }
 	}
 	pp = bp + bl - 1;
@@ -220,7 +220,7 @@ getvpath(va, rv)
 		if (!(cb = (char *)malloc((MALLOC_S)(MAXPATHLEN + 1)))) {
 		    (void) fprintf(stderr, "%s: no space (%d) for CWD\n",
 			Pn, (int)bl);
-		    Exit(1);
+		    Error();
 		}
 		if (!getcwd(cb, (size_t)(MAXPATHLEN + 1))) {
 		    if (!Fwarn) {
@@ -285,7 +285,7 @@ getvpath_alloc:
 	if (!(ap = (char *)malloc(pl + 1))) {
 	    (void) fprintf(stderr, "%s: no getvpath space (%d)\n",
 		Pn, pl + 1);
-	    Exit(1);
+	    Error();
 	}
 	(void) memmove(ap, pp, pl + 1);
 	return(ap);

@@ -298,7 +298,7 @@ process_node(va)
 #endif	/* defined(HAS_AFS) */
 
 			      );
-		Exit(1);
+		Error();
 	    }
 	}
 /*

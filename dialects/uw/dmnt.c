@@ -103,7 +103,7 @@ no_space_for_mount:
 		(void) fprintf(stderr, " (");
 		safestrprt(me.mnt_mountp, stderr, 0);
 		(void) fprintf(stderr, ")\n");
-		Exit(1);
+		Error();
 	    }
 	    if (!(ln = Readlink(dn))) {
 		if (!Fwarn) {

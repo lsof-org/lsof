@@ -123,7 +123,7 @@ Dev2Udev(c)
  */
 	if ((n = getmntinfo(&mb, MNT_NOWAIT)) <= 0) {
 	    (void) fprintf(stderr, "%s: no mount information\n", Pn);
-	    Exit(1);
+	    Error();
 	}
 	for (; n; n--, mb++) {
 
@@ -149,7 +149,7 @@ Dev2Udev_no_space:
 		(void) fprintf(stderr, " (");
 		safestrprt(mb->f_mntfromname, stderr, 0);
 		(void) fprintf(stderr, ")\n");
-		Exit(1);
+		Error();
 	    }
 	    if (!(ln = Readlink(dn))) {
 		if (!Fwarn) {
@@ -223,7 +223,7 @@ Dev2Udev_no_space:
 
 	}
 	(void) fprintf(stderr, "%s: can't determine user device random seed.\n",	    Pn);
-	Exit(1);
+	Error();
 
 # endif	/* !defined(HAS_CONF_MINOR) */
 
@@ -284,7 +284,7 @@ no_space_for_mount:
 		(void) fprintf(stderr, " (");
 		safestrprt(mb->f_mntfromname, stderr, 0);
 		(void) fprintf(stderr, ")\n");
-		Exit(1);
+		Error();
 	    }
 	    if (!(ln = Readlink(dn))) {
 		if (!Fwarn) {
@@ -414,14 +414,14 @@ readvfs(vm)
 	if (!(vp = (struct l_vfs *)malloc(sizeof(struct l_vfs)))) {
 	    (void) fprintf(stderr, "%s: PID %d, no space for vfs\n",
 		Pn, Lp->pid);
-	    Exit(1);
+	    Error();
 	}
 	if (!(vp->dir = mkstrcpy(m.m_stat.f_mntonname, (MALLOC_S *)NULL))
 	||  !(vp->fsname = mkstrcpy(m.m_stat.f_mntfromname, (MALLOC_S *)NULL)))
 	{
 	    (void) fprintf(stderr, "%s: PID %d, no space for mount names\n",
 		Pn, Lp->pid);
-	    Exit(1);
+	    Error();
 	}
 	vp->addr = vm;
 	vp->fsid = m.m_stat.f_fsid;
@@ -442,7 +442,7 @@ readvfs(vm)
 		    (void) fprintf(stderr,
 			"%s: no space for fs type name: ", Pn);
 		    safestrprt(m.m_stat.f_fstypename, stderr, 1);
-		    Exit(1);
+		    Error();
 		}
 	    } else
 		vp->typnm = "";

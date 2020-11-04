@@ -178,7 +178,7 @@ endpoint_enter(pxinfo_t **pinfo_hash, const char *table_name, int id)
 		"%s: no space for pipeinfo for %s, PID %d, FD %s\n",
 		table_name,
 		Pn, Lp->pid, Lf->fd);
-	    Exit(1);
+	    Error();
 	}
 	np->ino = id;
 	np->lf = Lf;
@@ -258,7 +258,7 @@ enter_pinfo()
 	    {
 		(void) fprintf(stderr,
 		    "%s: no space for %d pipe info buckets\n", Pn, PINFOBUCKS);
-		    Exit(1);
+		    Error();
 	    }
 	}
 	endpoint_enter(Pinfo, "pipeinfo", Lf->inode);
@@ -314,7 +314,7 @@ enter_ptmxi(mn)
 	    {
 		(void) fprintf(stderr,
 		    "%s: no space for %d pty info buckets\n", Pn, PINFOBUCKS);
-		    Exit(1);
+		    Error();
 	    }
 	}
 	endpoint_enter(PtyInfo, "pty", mn);
@@ -436,7 +436,7 @@ enter_psxmqinfo()
 	    {
 		(void) fprintf(stderr,
 		    "%s: no space for %d posix mq info buckets\n", Pn, PINFOBUCKS);
-		    Exit(1);
+		    Error();
 	    }
 	}
 	endpoint_enter(PSXMQinfo, "psxmqinfo", Lf->inode);
@@ -487,7 +487,7 @@ enter_evtfdinfo(int id)
 	    {
 		(void) fprintf(stderr,
 		    "%s: no space for %d envet fd info buckets\n", Pn, PINFOBUCKS);
-		    Exit(1);
+		    Error();
 	    }
 	}
 	endpoint_enter(EvtFDinfo, "evtfdinfo", id);
@@ -606,7 +606,7 @@ get_fields(ln, sep, fr, eb, en)
 		    (void) fprintf(stderr,
 			"%s: can't allocate %d bytes for field pointers.\n",
 			Pn, (int)len);
-		    Exit(1);
+		    Error();
 		}
 	    }
 	    fp[n++] = bp;
@@ -657,7 +657,7 @@ get_locks(p)
 		(void) fprintf(stderr,
 		    "%s: can't allocate %d lock hash bytes\n",
 		    Pn, (int)(sizeof(struct llock *) * PIDBUCKS));
-		Exit(1);
+		Error();
 	    }
 	}
 /*
@@ -751,7 +751,7 @@ get_locks(p)
 		(void) fprintf(stderr,
 		    "%s: can't allocate llock: PID %d; dev %x; inode %s\n",
 		    Pn, pid, (int)dev, buf);
-		Exit(1);
+		Error();
 	    }
 	    lp->pid = pid;
 	    lp->dev = dev;

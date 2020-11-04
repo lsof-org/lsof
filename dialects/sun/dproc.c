@@ -176,7 +176,7 @@ close_kvm()
 	if (Kd) {
 	    if (kvm_close(Kd) != 0) {
 		(void) fprintf(stderr, "%s: kvm_close failed\n", Pn);
-		Exit(1);
+		Error();
 	    }
 	    Kd = (kvm_t *)NULL;
 	}
@@ -430,7 +430,7 @@ gather_proc_info()
 		    {
 			(void) fprintf(stderr,
 			    "%s: no space for zone name hash\n", Pn);
-			Exit(1);
+			Error();
 		    }
 		}
 		for (zp = ZoneNm[zh]; zp; zp = zp->next) {
@@ -446,13 +446,13 @@ gather_proc_info()
 		    {
 			(void) fprintf(stderr,
 			    "%s: no zone name cache space: %s\n", Pn, zn);
-			Exit(1);
+			Error();
 		    }
 		    if (!(zp->zn = mkstrcpy(zn, (MALLOC_S *)NULL))) {
 			(void) fprintf(stderr,
 			    "%s: no zone name space at PID %d: %s\n",
 			    Pn, (int)Lp->pid, zn);
-			Exit(1);
+			Error();
 		    }
 		    zp->next = ZoneNm[zh];
 		    ZoneNm[zh] = zp;
@@ -613,7 +613,7 @@ get_kernel_access()
 	    if (sysinfo(SI_ISALIST, isa, (long)sizeof(isa)) < 0) {
 		(void) fprintf(stderr, "%s: can't get ISA list: %s\n",
 		    Pn, strerror(errno));
-		Exit(1);
+		Error();
 	    }
 	    for (cp = isa; *cp;) {
 		if (strncmp(cp, ARCH64B, strlen(ARCH64B)) == 0) {
@@ -631,7 +631,7 @@ get_kernel_access()
 		(void) fprintf(stderr,
 		    "      but this machine has booted a %d bit kernel.\n",
 		    (int)kbits);
-		Exit(1);
+		Error();
 	    }
 	}
 #endif	/* solaris>=70000 */
@@ -640,7 +640,7 @@ get_kernel_access()
  * Get kernel symbols.
  */
 	if (Nmlst && !is_readable(Nmlst, 1))
-	    Exit(1);
+	    Error();
 	(void) build_Nl(Drive_Nl);
 
 #if	defined(HAS_AFS)
@@ -654,7 +654,7 @@ get_kernel_access()
 	    if (!(nl = (struct nlist *)malloc(Nll))) {
 		(void) fprintf(stderr, "%s: no space (%d) for Nl[] copy\n",
 		    Pn, Nll);
-		Exit(1);
+		Error();
 	    }
 	    (void) memcpy((void *)nl, (void *)Nl, (size_t)Nll);
 	}
@@ -663,7 +663,7 @@ get_kernel_access()
 	if (nlist(Nmlst ? Nmlst : N_UNIX, Nl) < 0) {
 	    (void) fprintf(stderr, "%s: can't read namelist from %s\n",
 		Pn, Nmlst ? Nmlst : N_UNIX);
-	    Exit(1);
+	    Error();
 	}
 
 #if	defined(HAS_AFS)
@@ -735,7 +735,7 @@ get_kernel_access()
  * See if the non-KMEM memory file is readable.
  */
 	if (Memory && !is_readable(Memory, 1))
-	    Exit(1);
+	    Error();
 #endif	/* defined(WILLDROPGID) */
 
 /*
@@ -753,7 +753,7 @@ get_kernel_access()
 	    (void) fprintf(stderr,
 		"%s: can't read kernel base address from %s\n",
 		Pn, print_kptr(v, (char *)NULL, 0));
-	    Exit(1);
+	    Error();
 	}
 #endif	/* solaris>=20500 */
 
@@ -823,7 +823,7 @@ enter_zone_arg(zn)
 	    if (!(ZoneArg = (znhash_t **)calloc(HASHZONE, sizeof(znhash_t *))))
 	    {
 		(void) fprintf(stderr, "%s: no space for zone arg hash\n", Pn);
-		Exit(1);
+		Error();
 	    }
 	}
 /*
@@ -848,7 +848,7 @@ enter_zone_arg(zn)
  */
 	if (!(zpn = (znhash_t *)malloc((MALLOC_S)sizeof(znhash_t)))) {
 	    (void) fprintf(stderr, "%s no hash space for zone: %s\n", Pn, zn);
-	    Exit(1);
+	    Error();
 	}
 	zpn->f = 0;
 	zpn->zn = zn;
@@ -984,7 +984,7 @@ kread(addr, buf, len)
 			return(1);
 		    if (!(kp = (kvmhash_t *)malloc(sizeof(kvmhash_t)))) {
 			(void) fprintf(stderr, "%s: no kvmhash_t space\n", Pn);
-			Exit(1);
+			Error();
 		    }
 		    kp->nxt = KVMhb[h];
 		    pa = kp->pa = (pa & ~(KPHYS)PSMask);
@@ -1055,14 +1055,14 @@ open_kvm()
 		Nmlst ? Nmlst : "default",
 		Memory  ? Memory  : "default",
 		strerror(errno));
-	    Exit(1);
+	    Error();
 	}
 
 #if	solaris>=20501 && solaris<70000
 	if ((Kmd = open((Memory ? Memory : KMEM), O_RDONLY)) < 0) {
 	    (void) fprintf(stderr, "%s: open(\"/dev/mem\"): %s\n", Pn,
 		strerror(errno));
-	    Exit(1);
+	    Error();
 	}
 #endif	/* solaris>=20501 && solaris<70000 */
 
@@ -1326,20 +1326,20 @@ readfsinfo()
 	if ((Fsinfomax = sysfs(GETNFSTYP)) == -1) {
 	    (void) fprintf(stderr, "%s: sysfs(GETNFSTYP) error: %s\n",
 		Pn, strerror(errno));
-	    Exit(1);
+	    Error();
 	}
 	if (Fsinfomax == 0)
 		return;
 	if (!(Fsinfo = (char **)malloc((MALLOC_S)(Fsinfomax * sizeof(char *)))))
 	{
 	    (void) fprintf(stderr, "%s: no space for sysfs info\n", Pn);
-	    Exit(1);
+	    Error();
 	}
 	for (i = 1; i <= Fsinfomax; i++) {
 	    if (sysfs(GETFSTYP, i, buf) == -1) {
 		(void) fprintf(stderr, "%s: sysfs(GETFSTYP) error: %s\n",
 		    Pn, strerror(errno));
-		Exit(1);
+		Error();
 	    }
 	    if (buf[0] == '\0') {
 		Fsinfo[i-1] = "";
@@ -1350,7 +1350,7 @@ readfsinfo()
 	    if (!(Fsinfo[i-1] = (char *)malloc((MALLOC_S)len))) {
 		(void) fprintf(stderr,
 		    "%s: no space for file system entry %s\n", Pn, buf);
-		Exit(1);
+		Error();
 	    }
 	    (void) snpf(Fsinfo[i-1], len, "%s", buf);
 
@@ -1395,7 +1395,7 @@ readkam(addr)
 		     (void) fprintf(stderr,
 			"%s: no space (%d) for KVM hash buckets\n",
 			Pn, (int)(KVMHASHBN * sizeof(kvmhash_t *)));
-		    Exit(1);
+		    Error();
 		}
 	    } else if (!addr) {
 		for (i = 0; i < KVMHASHBN; i++) {
@@ -1456,7 +1456,7 @@ read_proc()
 		    P = (struct proc *)malloc(len);
 		if (!P) {
 		    (void) fprintf(stderr, "%s: no proc table space\n", Pn);
-		    Exit(1);
+		    Error();
 		}
 	    /*
 	     * Pre-allocate PGID and PID number space.
@@ -1469,7 +1469,7 @@ read_proc()
 			Pgid = (int *)malloc(len);
 		    if (!Pgid) {
 			(void) fprintf(stderr, "%s: no PGID table space\n", Pn);
-			Exit(1);
+			Error();
 		    }
 		}
 		if (Pid)
@@ -1478,7 +1478,7 @@ read_proc()
 		    Pid = (int *)malloc(len);
 		if (!Pid) {
 		    (void) fprintf(stderr, "%s: no PID table space\n", Pn);
-		    Exit(1);
+		    Error();
 		}
 		Npa = n;
 	    }
@@ -1491,7 +1491,7 @@ read_proc()
 		if (!PrAct || kread(PrAct, (char *)&paf, sizeof(pa))) {
 		    (void) fprintf(stderr, "%s: can't read practive from %s\n",
 			Pn, print_kptr(PrAct, (char *)NULL, 0));
-		    Exit(1);
+		    Error();
 		}
 		ct = 1;
 		ctl = knp << 3;
@@ -1505,7 +1505,7 @@ read_proc()
 		if (kvm_setproc(Kd) != 0) {
 		    (void) fprintf(stderr, "%s: kvm_setproc: %s\n", Pn,
 			strerror(errno));
-		    Exit(1);
+		    Error();
 		}
 	    }
 	/*
@@ -1523,7 +1523,7 @@ read_proc()
 		    if (!(P = (struct proc *)realloc((MALLOC_P *)P, len))) {
 			(void) fprintf(stderr,
 			    "%s: no more (%d) proc space\n", Pn, Npa);
-			Exit(1);
+			Error();
 		    }
 		/*
 		 * Expand the PGID and PID tables.
@@ -1533,13 +1533,13 @@ read_proc()
 			if (!(Pgid = (int *)realloc((MALLOC_P *)Pgid, len))) {
 			    (void) fprintf(stderr,
 				"%s: no more (%d) PGID space\n", Pn, Npa);
-			    Exit(1);
+			    Error();
 			}
 		    }
 		    if (!(Pid = (int *)realloc((MALLOC_P *)Pid, len))) {
 			(void) fprintf(stderr,
 			    "%s: no more (%d) PID space\n", Pn, Npa);
-			Exit(1);
+			Error();
 		    }
 		}
 	    /*
@@ -1631,7 +1631,7 @@ read_proc()
  */
 	if (try >= PROCTRYLM) {
 	    (void) fprintf(stderr, "%s: can't read proc table\n", Pn);
-	    Exit(1);
+	    Error();
 	}
 	if (Np < Npa && !RptTm) {
 
@@ -1643,7 +1643,7 @@ read_proc()
 	    if (!(P = (struct proc *)realloc((MALLOC_P *)P, len))) {
 		(void) fprintf(stderr, "%s: can't reduce proc table to %d\n",
 		    Pn, Np);
-		Exit(1);
+		Error();
 	    }
 	/*
 	 * Reduce the Solaris PGID and PID tables to their minimum if
@@ -1654,13 +1654,13 @@ read_proc()
 		if (!(Pgid = (int *)realloc((MALLOC_P *)Pgid, len))) {
 		    (void) fprintf(stderr,
 			"%s: can't reduce PGID table to %d\n", Pn, Np);
-		    Exit(1);
+		    Error();
 		}
 	    }
 	    if (!(Pid = (int *)realloc((MALLOC_P *)Pid, len))) {
 		(void) fprintf(stderr,
 		    "%s: can't reduce PID table to %d\n", Pn, Np);
-		Exit(1);
+		Error();
 	    }
 	    Npa = Np;
 	}
@@ -1680,7 +1680,7 @@ restoregid()
 		(void) fprintf(stderr,
 		    "%s: can't set effective GID to %d: %s\n",
 		    Pn, (int)Savedgid, strerror(errno));
-		Exit(1);
+		Error();
 	    }
 	    Setgid = 1;
 	}
@@ -1824,7 +1824,7 @@ ncache_isroot(va, cp)
 	    if (!vc) {
 		(void) fprintf(stderr, "%s: no space for root vnode table\n",
 		    Pn);
-		Exit(1);
+		Error();
 	    }
 	}
 	vc[vcn++] = va;
@@ -1911,7 +1911,7 @@ ncache_load()
 	    if (!(khl = (nc_hash_t *)malloc((MALLOC_S)len))) {
 		(void) fprintf(stderr,
 		    "%s: can't allocate DNLC hash space: %d\n", Pn, len);
-		Exit(1);
+		Error();
 	    }
 	/*
 	 * Allocate space for a kernel DNLC entry, plus additional name space
@@ -1922,7 +1922,7 @@ ncache_load()
 	    {
 		(void) fprintf(stderr,
 		    "%s: can't allocate DNLC ncache_t space\n", Pn);
-		Exit(1);
+		Error();
 	    }
 	    nmo = offsetof(struct ncache, name);
 	/*
@@ -1949,7 +1949,7 @@ no_local_space:
 
 		(void) fprintf(stderr,
 		    "%s: no space for %d byte local name cache\n", Pn, len);
-		Exit(1);
+		Error();
 	    }
 	} else {
 
@@ -2030,7 +2030,7 @@ no_local_space:
 			) {
 			    (void) fprintf(stderr,
 				"%s: can't extend DNLC ncache_t buffer\n", Pn);
-			    Exit(1);
+			    Error();
 			}
 		    }
 		    cp = &nc->name[XNC + 1];
@@ -2046,7 +2046,7 @@ no_local_space:
 		    (void) fprintf(stderr,
 			"%s: can't allocate %d bytes for name cache name\n",
 			Pn, len + 1);
-		    Exit(1);
+		    Error();
 		}
 		(void) strncpy(cp, nc->name, len);
 		cp[len] = '\0';
@@ -2061,7 +2061,7 @@ no_local_space:
 		    ) {
 			(void) fprintf(stderr,
 			    "%s: can't enlarge local name cache\n", Pn);
-			Exit(1);
+			Error();
 		    }
 		    lc = &Ncache[n];
 		}
@@ -2123,7 +2123,7 @@ no_local_space:
 	    (void) fprintf(stderr,
 		"%s: no space for %d name cache hash pointers\n",
 		Pn, Nhl + Nlu);
-	    Exit(1);
+	    Error();
 	}
 	for (i = 0, lc = Ncache; i < Nlu; i++, lc++) {
 	    for (hp = ncachehash(lc->vp), h = 1; *hp; hp++) {

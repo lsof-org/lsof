@@ -305,7 +305,7 @@ load_flinfo()
 		(void) fprintf(stderr,
 		    "%s: can't allocate %d byte local lock hash buckets\n",
 		    Pn, L_FLINFO_HSZ * sizeof(struct l_flinfo *));
-		Exit(1);
+		Error();
 	    }
 	}
 /*
@@ -328,7 +328,7 @@ load_flinfo()
 	    if (!(lfi = (struct l_flinfo *)malloc(sizeof(struct l_flinfo)))) {
 		(void) fprintf(stderr,
 		    "%s: no space for local vnode lock info struct\n", Pn);
-		Exit(1);
+		Error();
 	    }
 	    lfi->vp = fi.vp;
 	    lfi->lp = (struct l_lock *)NULL;
@@ -347,7 +347,7 @@ load_flinfo()
 		if (!(ll = (struct l_lock *)malloc(sizeof(struct l_lock)))) {
 		    (void) fprintf(stderr,
 			"%s: no space for local lock struct\n", Pn);
-		    Exit(1);
+		    Error();
 		}
 		ll->next = lfi->lp;
 		lfi->lp = ll;
@@ -418,13 +418,13 @@ process_node(va)
 	 */
 	    if (!(v = (struct vnode *)malloc(sizeof(struct vnode)-1+Vnmxp))) {
 		(void) fprintf(stderr, "%s: no space for vnode buffer\n", Pn);
-		Exit(1);
+		Error();
 	    }
 
 #if	DUV>=30000
 	    if (!(fv = (struct vnode *)malloc(sizeof(struct vnode)-1+Vnmxp))) {
 		(void) fprintf(stderr, "%s: no space for fvnode buffer\n", Pn);
-		Exit(1);
+		Error();
 	    }
 #endif	/* DUV>=30000 */
 

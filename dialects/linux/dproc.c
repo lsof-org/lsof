@@ -177,7 +177,7 @@ enter_cntx_arg(cntx)
  */
 	if (!(cntxp = (cntxlist_t *)malloc((MALLOC_S)sizeof(cntxlist_t)))) {
 	    (void) fprintf(stderr, "%s: no space for context: %s\n", Pn, cntx);
-	    Exit(1);
+	    Error();
 	}
 	cntxp->f = 0;
 	cntxp->cntx = cntx;
@@ -205,7 +205,7 @@ alloc_cbf(len, cbf, cbfa)
 	if (!*cbf) {
 	    (void) fprintf(stderr,
 		"%s: can't allocate command %d bytes\n", Pn, (int)len);
-	     Exit(1);
+	     Error();
 	}
 	return(len);
 }
@@ -247,7 +247,7 @@ gather_proc_info()
 		(void) fprintf(stderr,
 		    "%s: can't allocate %d bytes for \"%s/\"<pid>\n",
 		    Pn, (int)pidpathl, PROCFS);
-		Exit(1);
+		Error();
 	    }
 	    (void) snpf(pidpath, pidpathl, "%s/", PROCFS);
 	}
@@ -310,7 +310,7 @@ gather_proc_info()
 	if (!ps) {
 	    if (!(ps = opendir(PROCFS))) {
 		(void) fprintf(stderr, "%s: can't open %s\n", Pn, PROCFS);
-		Exit(1);
+		Error();
 	    }
 	} else
 	    (void) rewinddir(ps);
@@ -327,7 +327,7 @@ gather_proc_info()
 		    (void) fprintf(stderr,
 			"%s: can't allocate %d bytes for \"%s/%s/\"\n",
 			Pn, (int)pidpathl, PROCFS, dp->d_name);
-		    Exit(1);
+		    Error();
 		}
 	    }
 	    (void) snpf(pidpath + pidx, pidpathl - pidx, "%s/", dp->d_name);
@@ -397,7 +397,7 @@ gather_proc_info()
 				    tidpathl);
 				(void) fprintf(stderr, " for \"%s/%s/stat\"\n",
 				    taskpath, dp->d_name);
-				Exit(1);
+				Error();
 			    }
 			}
 			(void) snpf(tidpath, tidpathl, "%s/%s/stat", taskpath,
@@ -733,7 +733,7 @@ make_proc_path(pp, pl, np, nl, sf)
 		(void) fprintf(stderr,
 		    "%s: can't allocate %d bytes for %s%s\n",
 		    Pn, (int)rl, pp, sf);
-		Exit(1);
+		Error();
 	    }
 	    *nl = rl;
 	    *np = cp;
@@ -867,7 +867,7 @@ open_proc_stream(p, m, buf, sz, act)
 	int act;			/* fopen() failure action:
 					 *     0 : return (FILE *)NULL
 					 *   <>0 : fprintf() an error message
-					 *         and Exit(1)
+					 *         and Error()
 					 */
 {
 	FILE *fs;			/* opened stream */
@@ -881,7 +881,7 @@ open_proc_stream(p, m, buf, sz, act)
 		return((FILE *)NULL);
 	    (void) fprintf(stderr, "%s: can't fopen(%s, \"%s\"): %s\n",
 		Pn, p, m, strerror(errno));
-	    Exit(1);
+	    Error();
 	}
 /*
  * Return the stream if no buffer change is required.
@@ -904,7 +904,7 @@ open_proc_stream(p, m, buf, sz, act)
 		(void) fprintf(stderr,
 		    "%s: can't allocate %d bytes for %s stream buffer\n",
 		    Pn, (int)tsz, p);
-		Exit(1);
+		Error();
 	    }
 	    *sz = tsz;
 	}
@@ -914,7 +914,7 @@ open_proc_stream(p, m, buf, sz, act)
 	if (setvbuf(fs, *buf, _IOFBF, tsz)) {
 	    (void) fprintf(stderr, "%s: setvbuf(%s)=%d failure: %s\n",
 		Pn, p, (int)tsz, strerror(errno));
-	    Exit(1);
+	    Error();
 	}
 	return(fs);
 }
@@ -1002,7 +1002,7 @@ process_id(idp, idpl, cmd, uid, pid, ppid, pgid, tid, tcmd)
 		    "%s: PID %d, TID %d, no space for task name: ",
 		    Pn, pid, tid);
 		safestrprt(tcmd, stderr, 1);
-		Exit(1);
+		Error();
 	    }
 	}
 #endif	/* defined(HASTASKS) */
@@ -1184,7 +1184,7 @@ process_id(idp, idpl, cmd, uid, pid, ppid, pgid, tid, tcmd)
 			(void) fprintf(stderr,
 			    "%s: no context error space: PID %ld",
 			    Pn, (long)Lp->pid);
-			Exit(1);
+			Error();
 		    }
 		}
 	    } else if (CntxArg) {
@@ -1508,7 +1508,7 @@ process_proc_map(p, s, ss)
 		    (void) fprintf(stderr,
 			"%s: can't allocate %d bytes for saved maps, PID %d\n",
 			Pn, (int)len, Lp->pid);
-		    Exit(1);
+		    Error();
 		}
 	    }
 	    sm[ns].dev = dev;
@@ -1798,7 +1798,7 @@ statEx(p, s, ss)
 		(void) fprintf(stderr,
 		    "%s: PID %ld: no statEx path space: %s\n",
 		    Pn, (long)Lp->pid, p);
-		Exit(1);
+		Error();
 	    }
 	    ca = sz + 1;
 	}

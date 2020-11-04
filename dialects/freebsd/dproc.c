@@ -96,7 +96,7 @@ enter_vn_text(va, n)
 	    if (!Vp) {
 		(void) fprintf(stderr, "%s: no txt ptr space, PID %d\n",
 		    Pn, Lp->pid);
-		Exit(1);
+		Error();
 	    }
 	}
 /*
@@ -235,7 +235,7 @@ gather_proc_info()
 		kvm_geterr(Kd)
 
 	    );
-	    Exit(1);
+	    Error();
 	}
 /*
  * Examine proc structures and their associated information.
@@ -397,7 +397,7 @@ gather_proc_info()
 		if (!ofb) {
 		    (void) fprintf(stderr, "%s: PID %d, no file * space\n",
 			Pn, p->P_PID);
-		    Exit(1);
+		    Error();
 		}
 		ofbb = nb;
 	    }
@@ -424,7 +424,7 @@ gather_proc_info()
 		    if (!pof) {
 			(void) fprintf(stderr,
 			    "%s: PID %d, no file flag space\n", Pn, p->P_PID);
-			Exit(1);
+			Error();
 		    }
 		    pofb = nb;
 		}
@@ -497,7 +497,7 @@ get_kernel_access()
 	    if (!(Nmlst = get_nlist_path(1))) {
 		(void) fprintf(stderr,
 		    "%s: can't get kernel name list path\n", Pn);
-		Exit(1);
+		Error();
 	    }
 	}
 #endif	/* defined(N_UNIX) */
@@ -515,7 +515,7 @@ get_kernel_access()
  */
 	if ((Memory && !is_readable(Memory, 1))
 	||  (Nmlst && !is_readable(Nmlst, 1)))
-	    Exit(1);
+	    Error();
 #endif	/* defined(WILLDROPGID) */
 
 /*
@@ -541,13 +541,13 @@ get_kernel_access()
 #endif	/* defined(_PATH_MEM) */
 
 		strerror(errno));
-	    Exit(1);
+	    Error();
 	}
 	(void) build_Nl(Drive_Nl);
 	if (kvm_nlist(Kd, Nl) < 0) {
 	    (void) fprintf(stderr, "%s: can't read namelist from %s\n",
 		Pn, Nmlst);
-	    Exit(1);
+	    Error();
 	}
 
 #if	defined(X_BADFILEOPS)
@@ -598,7 +598,7 @@ get_nlist_path(ap)
 		(void) fprintf(stderr,
 		    "%s: can't allocate %d bytes for boot file path: %s\n",
 		    Pn, (int)bfl, bf);
-		Exit(1);
+		Error();
 	    }
 	    (void) snpf(bfc, bfl, "%s", bf);
 	    return(bfc);
