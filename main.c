@@ -1305,7 +1305,7 @@ main(argc, argv)
  */
 	if (MntSup == 1) {
 	    (void) readmnt();
-	    Exit(0);
+	    Exit(LSOF_SUCCESS);
 	}
 #endif	/* defined(HASMNTSUP) */
 
