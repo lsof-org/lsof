@@ -202,7 +202,7 @@ _PROTOTYPE(extern void safestrprtn,(char *sp, int len, FILE *fs, int flags));
 _PROTOTYPE(extern void safestrprt,(char *sp, FILE *fs, int flags));
 _PROTOTYPE(extern int statsafely,(char *path, struct stat *buf));
 _PROTOTYPE(extern void stkdir,(char *p));
-_PROTOTYPE(extern void usage,(int xv, int fh, int version));
+_PROTOTYPE(extern void usage,(int err, int fh, int version));
 _PROTOTYPE(extern int util_strftime,(char *fmtr, int fmtl, char *fmt));
 _PROTOTYPE(extern int vfy_dev,(struct l_dev *dp));
 _PROTOTYPE(extern char *x2dev,(char *s, dev_t *d));

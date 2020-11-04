@@ -329,15 +329,15 @@ report_WARNDEVACCESS(pfx, verb, punct)
  */
 
 void
-usage(xv, fh, version)
-	int xv;				/* exit value */
+usage(err, fh, version)
+	int err;			/* it is called as part of error handlng? */
 	int fh;				/* ``-F ?'' status */
 	int version;			/* ``-v'' status */
 {
 	char buf[MAXPATHLEN+1], *cp, *cp1, *cp2;
 	int col, i;
 
-	if (Fhelp || xv) {
+	if (Fhelp || err) {
 	    (void) fprintf(stderr, "%s %s\n latest revision: %s\n",
 		Pn, LSOF_VERSION, LSOF_REPO_URL);
 	    (void) fprintf(stderr, " latest FAQ: %s\n", LSOF_FAQ_URL);
@@ -490,11 +490,11 @@ usage(xv, fh, version)
 
 	    (void) fprintf(stderr, " [--] [names]\n");
 	}
-	if (xv && !Fhelp) {
+	if (err && !Fhelp) {
 	    (void) fprintf(stderr,
 		"Use the ``-h'' option to get more help information.\n");
 	    if (!fh)
-		Exit(xv);
+		Exit(err? LSOF_ERROR: LSOF_SUCCESS);
 	}
 	if (Fhelp) {
 	    (void) fprintf(stderr,
@@ -972,5 +972,5 @@ usage(xv, fh, version)
 
 	    (void) report_HASDCACHE(1, "    ", "\t");
 	}
-	Exit(xv);
+	Exit(err? LSOF_ERROR: LSOF_SUCCESS);
 }
