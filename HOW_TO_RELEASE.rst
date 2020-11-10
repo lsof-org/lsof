@@ -25,13 +25,13 @@ is small, increment MICRO. If it is large, increment MINOR.
 Merge the changes.
 
 If you just want to make a release for a version already released in
-another dialect, you don't need this step. Relase the version number.
+another dialect, you don't need this step. Release the version number.
 
 e.g.
 
      conditions and situations:
      @masatake already released 4.94.0 for linux.
-     No uesr visible change is commited to our git repo.
+     No user visible change is committed to our git repo.
      You may want to make the same release but for dialect freebsd.
 
      In this case, you can use 4.94.0 as the version number.  If the
@@ -73,7 +73,7 @@ e.g.
 4.2.1 Fill "Tag version"
 ........................................................................
 
-Fill with the version number given in th step 2.
+Fill with the version number given in the step 2.
 
 4.2.2 Fill "Release title"
 ........................................................................
@@ -88,7 +88,7 @@ e.g. lsof-4.94.0-linux
 Copy and paste the changes described in 00DIST since the last release in
 your dialect.
 
-4.2.4 Put the source archive generaeted step in 3.
+4.2.4 Put the source archive generated step in 3.
 ........................................................................
 
 Click "Attach binaries by dropping them here or selecting them. ", then
