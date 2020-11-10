@@ -9,7 +9,7 @@
 #
 #	[<suffix>]	optional suffix for version number
 
-cd $HOME/src/lsof4
+cd $(dirname $0)/..
 
 # Get version number.
 
@@ -55,7 +55,7 @@ trap 'rm -rf $DIR $TAR $TARC; exit' 1 2 3 15
 # create a gzip'd tar archive of it.
 
 rm -rf $TAR $TARC
-$HOME/src/lsof4/support/GenericSubdir $1 $2
+./support/GenericSubdir $1 $2
 echo "Making $TAR ...\c"
 tar cf $TAR $DIR
 echo " done"

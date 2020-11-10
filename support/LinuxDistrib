@@ -11,4 +11,10 @@ then
   echo "Usage: [<suffix>]"
   exit 1
 fi
-$HOME/src/lsof4/support/GenericDistrib2 linux $1
+
+if ! test -d support; then
+  echo "run this script at the top directory of source tree"
+  exit 1
+fi
+
+$(dirname $0)/GenericDistrib2 linux $1
