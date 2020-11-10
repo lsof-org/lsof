@@ -8,7 +8,7 @@
 #
 #	[<suffix>]	optional suffix for version number
 
-cd $HOME/src/lsof4
+cd $(dirname $0)/..
 
 # Get version number.
 
