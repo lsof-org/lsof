@@ -35,7 +35,12 @@ fi
 # Set variable names.
 
 DIR=lsof_${V}.${DIALECT}
-F="00.README.FIRST 00CREDITS 00DCACHE 00DIALECTS 00DIST 00FAQ 00LSOF-L 00PORTING 00QUICKSTART 00README 00TEST 00XCONFIG AFSConfig ChangeLog Configure Customize Inventory arg.c lsof_fields.h lsof.h main.c misc.c node.c print.c proc.c proto.h regex.h store.c usage.c util.c version"
+F=
+F="$F 0..README.BEFORE.README.FIRST README.md check.bash"
+F="$F 00.README.FIRST 00CREDITS 00DCACHE 00DIALECTS 00DIST 00FAQ 00LSOF-L 00PORTING 00QUICKSTART 00README 00TEST 00XCONFIG"
+F="$F AFSConfig ChangeLog Configure Customize Inventory"
+F="$F arg.c lsof_fields.h lsof.h main.c misc.c node.c print.c proc.c proto.h regex.h store.c usage.c util.c"
+F="$F version"
 MS=Lsof.8
 MD=lsof.8
 MF=lsof.man
