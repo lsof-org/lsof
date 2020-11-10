@@ -4938,7 +4938,7 @@ July 14, 2018
 
 		Update the version number embedded in lsof executable.
 
-?.??.?		???
+4.94.0		November 11, 2020
 
 		(All changes in this version are ported from
 		lsof-org/lsof-linux repository at GitHub).
@@ -5209,4 +5209,4 @@ July 14, 2018
 
 
 The lsof-org team at GitHub
-October 4, 2020
+November 11, 2020
