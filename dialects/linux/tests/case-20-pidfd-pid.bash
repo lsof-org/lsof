@@ -7,6 +7,7 @@ tdir=$3
 
 TARGET=$tdir/pidfd
 
+{
 $TARGET | (
     read pid fd
     if [[ $pid = -1 && $fd = -1 ]]; then
@@ -23,4 +24,5 @@ $TARGET | (
     fi
     kill $pid
     exit $r
-) >> $report 2>&1
+)
+} >> $report 2>&1
