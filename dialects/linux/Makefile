@@ -60,6 +60,8 @@ clean: FRC
 	rm -f Makefile.bak ${PROG} a.out core errs lint.out tags *.o version.h ${CFGDN}
 	rm -f machine.h.old new_machine.h
 	(cd lib; ${MAKE} -f Makefile.skel clean)
+	(cd tests; ${MAKE} clean)
+	(cd dialects/linux/tests; ${MAKE} clean)
 
 install: all FRC
 	@echo ''
