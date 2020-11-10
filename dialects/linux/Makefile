@@ -59,6 +59,9 @@ ${PROG}: ${P} ${LIB} ${OBJ}
 check: all
 	bash ./check.bash linux
 
+dist: clean
+	test -d .git && bash support/GenericDistrib2 linux
+
 clean: FRC
 	rm -f Makefile.bak ${PROG} a.out core errs lint.out tags *.o version.h ${CFGDN}
 	rm -f machine.h.old new_machine.h
