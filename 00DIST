@@ -5204,5 +5204,9 @@ July 14, 2018
 		systemd monitors fd 11 and fd 12 via eventpoll fd 10.
 
 
+		[linux]: implement "make check"
+		The target runs check.bash.
+
+
 Masatake YAMATO <yamato@redhat.com>, a member of the lsof-org team at GitHub
 October 4, 2020
