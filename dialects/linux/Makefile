@@ -56,6 +56,9 @@ all: ${PROG}
 ${PROG}: ${P} ${LIB} ${OBJ}
 	${CC} -o $@ ${OBJ} ${CFGL}
 
+check: all
+	bash ./check.bash linux
+
 clean: FRC
 	rm -f Makefile.bak ${PROG} a.out core errs lint.out tags *.o version.h ${CFGDN}
 	rm -f machine.h.old new_machine.h
