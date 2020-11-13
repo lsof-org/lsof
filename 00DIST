@@ -5207,6 +5207,14 @@ July 14, 2018
 		[linux]: implement "make check"
 		The target runs check.bash.
 
+4.9?.?		November 14, 2020
+
+		[n+obsd] fix syntax error
+		Corrected end of comment.
+		This change closes #138.
+		@albert-github reported this issue in #138,
+		and provided the fix in #140
+
 
 The lsof-org team at GitHub
 November 11, 2020
