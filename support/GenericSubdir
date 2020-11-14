@@ -74,6 +74,7 @@ echo " done"
 echo "Removing extraneous stuff from dialects/${DIALECT} ...\c"
 rm -rf $DIR/dialects/${DIALECT}/distfile.kvm
 rm -rf $DIR/dialects/${DIALECT}/Makefile.LOCAL
+rm -rf $DIR/dialects/${DIALECT}/version.h
 find ${DIR}/dialects -name OLD -exec rm -rf {} \; > /dev/null 2>&1
 find ${DIR}/dialects -name NEW -exec rm -rf {} \; > /dev/null 2>&1
 find ${DIR}/dialects -name support -exec rm -rf {} \; > /dev/null 2>&1
