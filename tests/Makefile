@@ -27,7 +27,7 @@ all:	${CKTSTDB} ${BASTST} ${STDTST} FRC
 	  exit 1 ;\
 	fi
 	@rm -f config.LT*
-	-@err=0; \
+	@err=0; \
 	echo ""; \
 	echo "Basic test:"; \
 	./${BASTST}; \
@@ -54,8 +54,11 @@ all:	${CKTSTDB} ${BASTST} ${STDTST} FRC
 	    echo "Suggestion: try the optional tests: \"make opt\""; \
 	    echo ""; \
 	  fi; \
-	fi;
-	@rm -f config.LT*
+	fi; \
+	rm -f config.LT*; \
+	if [ $$err -ne 0 ]; then \
+	  exit 1; \
+	fi
 
 auto:	ckDB silent FRC
 
@@ -112,7 +115,7 @@ LTunix: LTunix.c ${CONFIG} ${LIBOBJ} ${HDR} config.ldflags
 
 opt:	${CKTSTDB} ${OPTTST} FRC
 	@rm -f config.LT*
-	-@err=0; \
+	@err=0; \
 	echo ""; \
 	echo "Optional tests:"; \
 	for i in ${OPTTST}; do \
@@ -126,8 +129,11 @@ opt:	${CKTSTDB} ${OPTTST} FRC
 	else \
 	  echo "All optional tests succeeded."; \
 	fi; \
-	echo "";
-	@rm -f config.LT*
+	echo ""; \
+	rm -f config.LT*; \
+	if [ $$err -ne 0 ]; then \
+	  exit 1; \
+	fi
 
 optional: opt
 
