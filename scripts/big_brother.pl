@@ -1,7 +1,7 @@
-#!/usr/local/bin/perl -w
+#!/usr/bin/perl -w
 #+##############################################################################
 #                                                                              #
-# File: big_brother.perl                                                       #
+# File: big_brother.pl                                                         #
 #                                                                              #
 # Description: check the network sockets with lsof to detect new connections   #
 #									       #

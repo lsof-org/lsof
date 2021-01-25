@@ -1,6 +1,6 @@
-#!/usr/local/bin/perl
+#!/usr/bin/perl
 #
-# count_pf.perl5 -- run lsof in repeat mode and count processes and
+# count_pf.pl    -- run lsof in repeat mode and count processes and
 #		    files
 
 sub interrupt { print "\n"; exit 0; }

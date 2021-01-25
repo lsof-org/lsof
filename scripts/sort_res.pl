@@ -1,5 +1,5 @@
 #!/usr/bin/perl
-# sort_res.perl5 - Script to group & sort lsof output by resource
+# sort_res.pl - Script to group & sort lsof output by resource
 #
 # Copyright (c) 2004, 2005 - Fabian Frederick <fabian.frederick@gmx.fr>
 #
@@ -23,8 +23,8 @@
 #	-lsof path recovery comes from standard perl scripts in there.
 #
 # Usage :
-#	perl sort_res.perl5 -> display used resources + size
-#	or perl sort_res.perl5 <program name>
+#	perl sort_res.pl -> display used resources + size
+#	or perl sort_res.pl <program name>
 #
 # 12/2005 (FabF) 
 #	-size reset in loop (script was broken in 4.76)

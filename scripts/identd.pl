@@ -1,17 +1,16 @@
-#!/usr/local/bin/perl
+#!/usr/bin/perl
 ###################################################################
-# identd.perl5 : An implementation of RFC 1413 Ident Server
+# identd.pl    : An implementation of RFC 1413 Ident Server
 #                using Vic Abell's lsof.
 #
 # - Started from inetd with 'nowait' option. This entry in 
 #   /etc/inetd.conf will suffice :
 #
-#   ident   stream  tcp     nowait  root    /usr/local/bin/identd.perl5 -t200
+#   ident   stream  tcp     nowait  root    /usr/local/bin/identd.pl -t200
 #
 # - Multiple instances of the server are not a performance penalty
 #   since they shall use lsof's cacheing mechanism. (compare with
 #   Peter Eriksson's pidentd)
-# - assumes 'lsof' binary in /usr/local/sbin
 # - Command line arguments :
 #   -t TIMEOUT Number of seconds to wait for a query before aborting.
 #              Default is 120.

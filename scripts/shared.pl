@@ -1,8 +1,6 @@
-#!/usr/local/bin/perl
+#!/usr/bin/perl
 #
-# $Id: shared.perl5,v 1.4 2001/11/18 12:20:46 abe Exp $
-#
-# shared.perl5 -- sample Perl 5 script to list processes that share
+# shared.pl    -- sample Perl 5 script to list processes that share
 #		  file descriptors or files, using `lsof +ffn -F..."
 #		  output
 #
