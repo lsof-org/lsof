@@ -33,7 +33,6 @@
 #	-removing unuseful line number arg.
 #	-display global size
 
-require 'getopts.pl';
 my @args = @_;
 
 # Set path to lsof.
