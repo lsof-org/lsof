@@ -16,13 +16,15 @@
 #              Default is 120.
 #
 # Kapil Chowksey <kchowksey@hss.hns.com>
+# Nicholas Bamber <nicholas@periapt.co.uk>
 ###################################################################
-
+use strict;
 use Socket;
-require 'getopts.pl';
+use Getopt::Long;
 
 # Set path to lsof.
 
+my $LSOF;
 if (($LSOF = &isexec("../lsof")) eq "") {	# Try .. first
     if (($LSOF = &isexec("lsof")) eq "") {	# Then try . and $PATH
 	print "can't execute $LSOF\n"; exit 1
@@ -33,18 +35,16 @@ if (($LSOF = &isexec("../lsof")) eq "") {	# Try .. first
 close(STDERR);
 open(STDERR, ">/dev/null");
 
-$Timeout = "120";
+my $Timeout = "120";
 
-&Getopts('t:');
-if ($opt_t) {
-    $Timeout = $opt_t;
-}
+GetOptions('timeout=i'=>\$Timeout);
 
-($port, $iaddr) = sockaddr_in(getpeername(STDIN));
-$peer_addr = inet_ntoa($iaddr);
+my ($port, $iaddr) = sockaddr_in(getpeername(STDIN));
+my $peer_addr = inet_ntoa($iaddr);
+my $query;
 
 # read ident-query from socket (STDIN) with a timeout.
-$timeout = int($Timeout);
+my $timeout = int($Timeout);
 eval {
     local $SIG{ALRM} = sub { die "alarm\n" };
     alarm $timeout;
@@ -60,8 +60,8 @@ if ($@) {
 # remove all white-spaces from query
 $query =~ s/\s//g;
 
-$serv_port = "";
-$cli_port = "";
+my $serv_port = "";
+my $cli_port = "";
 ($serv_port,$cli_port) = split(/,/,$query);
 
 if ($serv_port =~ /^[0-9]+$/) {
@@ -86,8 +86,8 @@ if ($cli_port =~ /^[0-9]+$/) {
 
 open(LSOFP,"$LSOF -nPDi -T -FLn -iTCP@".$peer_addr.":".$cli_port."|");
 
-$user = "UNKNOWN";
-while ($a_line = <LSOFP>) {
+my $user = "UNKNOWN";
+while (my $a_line = <LSOFP>) {
     # extract user name.
     if ($a_line =~ /^L.*/) {
         ($user) = ($a_line =~ /^L(.*)/);
