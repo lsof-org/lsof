@@ -5216,5 +5216,19 @@ July 14, 2018
 		and provided the fix in #140
 
 
+		Don't ignore failures in test/Makefile
+		Tobias Geerinckx-Rice <me@tobias.gr> provides the fix.
+
+
+		Update perl scripts for the past few decades of progress
+		Generally, perl is available on base systems - people who are manually
+		installing perl into /usr/local/bin are the exception rather than the
+		rule. In addition, Perl 5 was release in 1994, so Perl 4 isn't relevant
+		any more. We've also standardized on the .pl extension, rather than
+		.perl5 or whatever.
+		Provided by @dilinger (Andres Salomon) in #149.
+		A commit in the pull request includes work of Nicholas Bamber.
+
+
 The lsof-org team at GitHub
 November 11, 2020
