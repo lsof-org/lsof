@@ -1,9 +1,9 @@
-#!/usr/local/bin/perl
+#!/usr/bin/perl
 #
-# watch_a_file.perl -- use lsof -F output to watch a specific file
+# watch_a_file.pl   -- use lsof -F output to watch a specific file
 #		       (or file system)
 #
-# usage:	watch_a_file.perl file_name
+# usage:	watch_a_file.pl file_name
 
 ## Interrupt handler
 

@@ -1,8 +1,6 @@
-#!/usr/local/bin/perl
+#!/usr/bin/perl
 #
-# $Id: idrlogin.perl5,v 1.5 2001/11/18 12:20:46 abe Exp $
-#
-# idrlogin.perl5 -- sample Perl 5 script to identify the network source of a
+# idrlogin.pl    -- sample Perl 5 script to identify the network source of a
 #		    network (remote) login via rlogind, sshd, or telnetd 
 
 

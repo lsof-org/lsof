@@ -1,8 +1,6 @@
-#!/usr/local/bin/perl4
+#!/usr/bin/perl
 #
-# $Id: list_fields.perl,v 1.5 2000/07/14 17:03:37 abe Exp $
-#
-# list_fields.perl -- sample Perl script to list lsof full field output
+# list_fields.pl   -- sample Perl script to list lsof full field output
 #		      (i.e., -F output without -0)
 #
 # This script has been tested under perl versions 4.036 and 5.001e.

@@ -1,8 +1,6 @@
-#!/usr/local/bin/perl
+#!/usr/bin/perl
 #
-# $Id: list_NULf.perl5,v 1.5 2000/07/14 17:03:37 abe Exp $
-#
-# list_NULf.perl5 -- sample Perl 5 script to list lsof NUL-terminated
+# list_NULf.pl    -- sample Perl 5 script to list lsof NUL-terminated
 #		     full field output (i.e., -F0 output)
 #
 # This script has been tested under perl version 5.001e.
