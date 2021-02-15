@@ -929,8 +929,6 @@ usage(xv, fh, version)
 		(void) fprintf(stderr, "    configuration info: %s\n", cp);
 #endif	/* defined(LSOF_CINFO) */
 
-	    if ((cp = isnullstr(LSOF_CCDATE)))
-		(void) fprintf(stderr, "    constructed: %s\n", cp);
 	    cp = isnullstr(LSOF_HOST);
 	    if (!(cp1 = isnullstr(LSOF_LOGNAME)))
 		cp1 = isnullstr(LSOF_USER);

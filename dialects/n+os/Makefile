@@ -87,7 +87,6 @@ version.h:	FRC
 	@echo '#define	LSOF_BLDCMT	"${LSOF_BLDCMT}"' > version.h;
 	@echo '#define	LSOF_CC		"${CC}"' >> version.h
 	@echo '#define	LSOF_CCV	"${CCV}"' >> version.h
-	@echo '#define	LSOF_CCDATE	"'`date`'"' >> version.h
 	@echo '#define	LSOF_CCFLAGS	"'`echo ${CFLAGS} | sed 's/\\\\(/\\(/g' | sed 's/\\\\)/\\)/g' | sed 's/"/\\\\"/g'`'"' >> version.h
 	@echo '#define	LSOF_LDFLAGS	"${CFGL}"' >> version.h
 	@if [ "X${LSOF_LOGNAME}" = "X" ]; then \

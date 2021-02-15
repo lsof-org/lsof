@@ -5229,6 +5229,15 @@ July 14, 2018
 		Provided by @dilinger (Andres Salomon) in #149.
 		A commit in the pull request includes work of Nicholas Bamber.
 
+		Drop LSOF_CCDATE across all dialects to ensure reproducible builds
+		Simplify things for reproducible builds by just getting rid of
+		the embedded date/time string. With LSOF_CCDATE gone, keeping
+		SOURCE_DATE_EPOCH around doesn't make much sense, so drop that as
+		well. Folks doing reproducible builds should still override the
+		LSOF_HOST, LSOF_LOGNAME, LSOF_SYSINFO, and LSOF_USER variables (as
+		they were previously doing before SOURCE_DATE_EPOCH).
+		Provided by @dilinger (Andres Salomon) in #150.
+
 
 The lsof-org team at GitHub
 November 11, 2020
