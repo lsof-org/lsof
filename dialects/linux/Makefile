@@ -40,17 +40,6 @@ SHELL=	/bin/sh
 
 SOURCE=	Makefile ${OTHER} ${MAN} ${HDR} ${SRC}
 
-ifneq ($(SOURCE_DATE_EPOCH),)
-	LSOF_HOST=   none
-	LSOF_LOGNAME=        none
-	LSOF_SYSINFO=        none
-	LSOF_USER=   none
-	BUILD_DATE=     $(shell date --utc --date=@$(SOURCE_DATE_EPOCH))
-	export LSOF_HOST LSOF_LOGNAME LSOF_SYSINFO LSOF_USER
-else
-	BUILD_DATE=     $(shell date)
-endif
-
 all: ${PROG}
 
 ${PROG}: ${P} ${LIB} ${OBJ}
@@ -97,7 +86,6 @@ version.h:	FRC
 	@echo '#define	LSOF_BLDCMT	"${LSOF_BLDCMT}"' > version.h;
 	@echo '#define	LSOF_CC		"${CC}"' >> version.h
 	@echo '#define	LSOF_CCV	"${CCV}"' >> version.h
-	@echo '#define	LSOF_CCDATE	"$(BUILD_DATE)"' >> version.h
 	@echo '#define	LSOF_CCFLAGS	"'`echo ${CFLAGS} | sed 's/\\\\(/\\(/g' | sed 's/\\\\)/\\)/g' | sed 's/"/\\\\"/g'`'"' >> version.h
 	@echo '#define	LSOF_CINFO	"${CINFO}"' >> version.h
 	@if [ "X${LSOF_HOST}" = "X" ]; then \
