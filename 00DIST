@@ -5246,5 +5246,8 @@ July 14, 2018
 		again. Fix the header inclusion order. Also add the new way of finding
 		dev_t on more recent FreeBSD versions.
 
+
+		[FreeBSD] add support for msdosfs on FreeBSD
+
 The lsof-org team at GitHub
 November 11, 2020

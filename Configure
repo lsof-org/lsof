@@ -2011,6 +2011,11 @@ FBSD_MINOR3
 	  then
 	    LSOF_CFGF="$LSOF_CFGF -DHASFUSEFS"
 	  fi	# }
+	# Do msdosfs test.
+	  if test -r ${FREEBSD_SYS}/fs/msdosfs/denode.h # {
+	  then
+	    LSOF_CFGF="$LSOF_CFGF -DHASMSDOSFS"
+	  fi    # }
 	# Do ZFS test.  Try for the newer OpenSolaris files first -- i.e.,
 	# the ones in ${FREEBSD_SYS}/cddl/contrib/opensolaris.  If that fails,
 	# try for the older ones in ${FREEBSD}/contrib/opensolaris.
