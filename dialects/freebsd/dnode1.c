@@ -54,13 +54,13 @@ static char copyright[] =
 #define	dev_t	void *
 #  endif	/* FREEBSDV>=4000 && defined(__alpha__) */
 
-#include "cd9660_node.h"
-
 # if	defined(HAS_NO_ISO_DEV)
 #define	_KERNEL
 #include <isofs/cd9660/iso.h>
 #undef	_KERNEL
 # endif	/* defined(HAS_NO_ISO_DEV) */
+
+#include "cd9660_node.h"
 
 #  if	FREEBSDV>=4000 && defined(__alpha__)
 #undef	dev_t
@@ -121,7 +121,11 @@ read_iso_node(v, d, dd, ino, nl, sz)
 	{
 
 # if	defined(HAS_NO_SI_UDEV)
+#   if	defined(HAS_CONF_MINOR) || defined(HAS_CDEV2PRIV)
+	    *d = Dev2Udev((KA_T)im.im_dev);
+#   else	/* !defined(HAS_CONF_MINOR) && !defined(HAS_CDEV2PRIV) */
 	    *d = Dev2Udev(&udev);
+#   endif	/* defined(HAS_CONF_MINOR) || defined(HAS_CDEV2PRIV) */
 # else	/* !defined(HAS_NO_SI_UDEV) */
 	    *d = udev.si_udev;
 # endif	/* defined(HAS_NO_SI_UDEV) */
@@ -144,6 +148,7 @@ read_iso_node(v, d, dd, ino, nl, sz)
 
 
 #if	defined(HASFUSEFS)
+#undef VTOI
 #include <fs/fuse/fuse_node.h>
 /*
  * read_fuse_node() -- read FUSE file system fuse_node

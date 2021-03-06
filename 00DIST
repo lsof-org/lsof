@@ -5239,5 +5239,12 @@ July 14, 2018
 		Provided by @dilinger (Andres Salomon) in #150.
 
 
+		[FreeBSD] get the ISO9660 filesystem working again
+
+		The ISO9660 filesystem broke starting with FreeBSD 7 due to the header
+		location changing. Fix the header search path to get it to be detected
+		again. Fix the header inclusion order. Also add the new way of finding
+		dev_t on more recent FreeBSD versions.
+
 The lsof-org team at GitHub
 November 11, 2020
