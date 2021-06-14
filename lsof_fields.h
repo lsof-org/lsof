@@ -79,7 +79,7 @@
 
 #define	LSOF_FID_FD		'f'
 #define	LSOF_FIX_FD		5
-#define	LSOF_FNM_FD		"file descriptor (always selected)"
+#define	LSOF_FNM_FD		"file descriptor"
 
 #define	LSOF_FID_FA		'F'
 #define	LSOF_FIX_FA		6
