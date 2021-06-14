@@ -5239,5 +5239,12 @@ July 14, 2018
 		Provided by @dilinger (Andres Salomon) in #150.
 
 
+		Fix FD field description.
+		In 811dc78 the output format was changed to not printf the `f`
+		field by default, however the field description in `lsof_fields.h`,
+		as seen in `-F?` output still included the `(always selected)` text.
+		Provided by @algorythmic (Grisha Levit) in #158.
+
+
 The lsof-org team at GitHub
 November 11, 2020
