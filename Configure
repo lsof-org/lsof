@@ -1,4 +1,4 @@
-#!/bin/sh 
+#!/bin/sh
 #
 # Configure -- configure lsof
 #
@@ -311,7 +311,7 @@ do
       echo "rm -f ${LSOF_LIB}/${LSOF_LIBMKF}"
       exit 0
       ;;
- 
+
     -d|-dialects)
       if test -r ./00DIALECTS -a -r ./version	# {
       then
@@ -1031,7 +1031,7 @@ case $LSOF_TGT in	# {
       done	# }
 
     # Do other libproc-based Darwin lsof setups.
-      
+
       if test -r ${LSOF_INCLUDE}/utmpx.h	# {
       then
 	LSOF_CFGF="$LSOF_CFGF -DHASUTMPX"
@@ -1043,7 +1043,7 @@ case $LSOF_TGT in	# {
 	rm -f $LSOF_HLP
 	exit 1
       fi	# }
-    
+
     # Configure for /dev/kmem-based Darwin lsof.
 
       echo "Configuring /dev/kmem-based Darwin lsof"
@@ -1637,7 +1637,7 @@ kernel generation process.
     fi	# }
 
     # Clear LSOF_UNSUP message for supported versions of FreeBSD.
-    
+
     case $LSOF_VERS in  # {
     4090|8020|8030|8040|9000|10000|11000|12000|13000)
       LSOF_UNSUP=""
@@ -2516,7 +2516,7 @@ LOCKF_OWNER4
     else
       if test "X$HPUX_BASE" = "X/dev/kmem"	# {
       then
-    
+
 	# Configure for /dev/kmem-based HP-UX lsof.
 
 	if test "X$HPUX_BOOTFILE" = "X"	# {
@@ -3044,7 +3044,7 @@ return(0); }
     fi	# }
     if test "X$LSOF_VERS" = "X"	# {
     then
-      
+
       # Validate the NetBSD version.
 
       case $LSOF_VSTR in	# {
@@ -3808,7 +3808,7 @@ return(0); }
       then
 	mkdir dialects/n+obsd/include
       fi	# }
-      rm -f $LSOF_TMP1 $LSOF_TMP2 $LSOF_TMP3 $LSOF_TMP4 
+      rm -f $LSOF_TMP1 $LSOF_TMP2 $LSOF_TMP3 $LSOF_TMP4
       echo "/^struct netcred" > $LSOF_TMP1
       echo "1,.-1d" >> $LSOF_TMP1
       echo "/^};" >> $LSOF_TMP1
@@ -4260,7 +4260,7 @@ return(0); }
       then
 	mkdir dialects/n+obsd/include
       fi	# }
-      rm -f $LSOF_TMP1 $LSOF_TMP2 $LSOF_TMP3 $LSOF_TMP4 
+      rm -f $LSOF_TMP1 $LSOF_TMP2 $LSOF_TMP3 $LSOF_TMP4
       echo "/^struct netcred" > $LSOF_TMP1
       echo "1,.-1d" >> $LSOF_TMP1
       echo "/^};" >> $LSOF_TMP1
@@ -4736,7 +4736,7 @@ return(0); }
 	    $LSOF_CC ${LSOF_TMPC}.c -m64 -o ${LSOF_TMPC}.x > /dev/null 2>&1
 	    if test $? -eq 0	# {
 	    then
-	      /bin/file ${LSOF_TMPC}.x | /bin/grep 64 > /dev/null 
+	      /bin/file ${LSOF_TMPC}.x | /bin/grep 64 > /dev/null
 	      if test $? -eq 0	# {
 	      then
 		LSOF_TMP1="-m64"
@@ -4752,7 +4752,7 @@ return(0); }
 	      $LSOF_CC ${LSOF_TMPC}.c -mcpu=v9 -o ${LSOF_TMPC}.x > /dev/null 2>&1
 	      if test $? -eq 0	# {
 	      then
-		/bin/file ${LSOF_TMPC}.x | /bin/grep 64 > /dev/null 
+		/bin/file ${LSOF_TMPC}.x | /bin/grep 64 > /dev/null
 		if test $? -eq 0	# {
 		then
 		  LSOF_TMP1="-mcpu=v9"
@@ -4808,7 +4808,7 @@ return(0); }
 	      LSOF_TMP4=`$LSOF_CC ${LSOF_TMPC}.c $LSOF_TMP3 -o ${LSOF_TMPC}.x 2>&1`
 	      if test $? -eq 0	# {
 	      then
-		/bin/file ${LSOF_TMPC}.x | /bin/grep 64 > /dev/null 
+		/bin/file ${LSOF_TMPC}.x | /bin/grep 64 > /dev/null
 		if test $? -ne 0	# {
 		then
 		  LSOF_TMP3=""
@@ -5435,7 +5435,7 @@ return(0); }
 
 # Handle unknown abbreviation.
 
-  *) 
+  *)
     echo "Can't configure for $LSOF_TGT."
     cat $LSOF_HLP
     rm -f $LSOF_HLP

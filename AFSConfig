@@ -16,7 +16,7 @@ trap 'rm -f $AH $AV; $ISIG; exit 1'  1 2 3 15
 stty -a 2>&1 | grep isig > /dev/null
 if test $? -eq 0
 then
-  stty -a 2>&1 | egrep -e -isig > /dev/null
+  stty -a 2>&1 | grep -E -e -isig > /dev/null
   if test $? -eq 0
   then
     ISIG="stty -isig"
@@ -26,7 +26,7 @@ fi
 
 # Decide how to use echo.
 
-ECHO=`echo -n ""`
+ECHO=$(echo -n "")
 if test "X$ECHO" = "X-n "
 then
   EC="\c"
@@ -41,12 +41,12 @@ fi
 CELL=""
 if test -r /usr/vice/etc/ThisCell
 then
-  cell=`awk '{print $1}' /usr/vice/etc/ThisCell`
+  cell=$(awk '{print $1}' /usr/vice/etc/ThisCell)
   if test -d /afs/$cell
   then
     CELL=$cell
   else
-    CELL=`echo $cell | sed 's/\([^.]*\)\..*/\1/'`
+    CELL=$(echo $cell | sed 's/\([^.]*\)\..*/\1/')
     if test "X$CELL" != "X"
     then
       if test ! -d /afs/$CELL
@@ -101,7 +101,7 @@ echo "====================================================================="
 echo ""
 if test -r $AH
 then
-  AHP=`cat $AH`
+  AHP=$(cat $AH)
   if test -r $AHP
   then
     if test -r $AHP/afs/afs.h
@@ -232,7 +232,7 @@ what <sysname> applies to your configuration.
     echo ""
     echo $EO "AFS header file path: $EC"
     read ANS EXCESS
-    fc=`expr "${ANS}X" : '\(.\).*'`
+    fc=$(expr "${ANS}X" : '\(.\).*')
     if test "X$fc" = "X/"
     then
       if test -r $ANS/afs/afs.h
@@ -264,7 +264,7 @@ then
   echo ""
   echo "====================================================================="
   echo ""
-  AVN=`cat $AV`
+  AVN=$(cat $AV)
   cat << .CAT_MARK
 The AFS version was previously specified as: $AVN
 .CAT_MARK
@@ -293,8 +293,8 @@ fi
 
 if test -r $AFSD
 then
-  ANS=`strings $AFSD | grep "Base configuration afs" | sed 's/^.*ion afs\([^ ]*\) .*/\1/'`
-  TV=`echo $ANS | sed 's/^\([0-9]*\)\.\([0-9]*\)\(.*\)/\1 \2 \3/' | awk '{printf "%d.%d%s\n",$1,$2,$3}'`
+  ANS=$(strings $AFSD | grep "Base configuration afs" | sed 's/^.*ion afs\([^ ]*\) .*/\1/')
+  TV=$(echo $ANS | sed 's/^\([0-9]*\)\.\([0-9]*\)\(.*\)/\1 \2 \3/' | awk '{printf "%d.%d%s\n",$1,$2,$3}')
   if test "X$ANS" = "X$TV"
   then
     echo ""
@@ -337,7 +337,7 @@ do
   echo ""
   echo $EO "Please enter the AFS version number: $EC"
   read ANS EXCESS
-  TV=`echo $ANS | sed 's/^\([0-9]*\)\.\([0-9]*\)\(.*\)/\1 \2 \3/' | awk '{printf "%d.%d%s\n",$1,$2,$3}'`
+  TV=$(echo $ANS | sed 's/^\([0-9]*\)\.\([0-9]*\)\(.*\)/\1 \2 \3/' | awk '{printf "%d.%d%s\n",$1,$2,$3}')
   if test "X$ANS" = "X$TV"
   then
     echo $TV > $AV
