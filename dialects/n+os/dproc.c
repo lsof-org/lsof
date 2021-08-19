@@ -372,7 +372,7 @@ get_kernel_access()
 	 * the AFS module name list file.  Make sure that other symbols that
 	 * appear in both name list files have the same values.
 	 */
-		if (get_Nl_value("arFID", Drive_Nl, &v[0]) >= 0 
+		if (get_Nl_value("arFID", Drive_Nl, &v[0]) >= 0
 		&&  get_Nl_value("avol",  Drive_Nl, &v[1]) >= 0
 		&&  get_Nl_value("avol",  Drive_Nl, &v[2]) >= 0
 		&&  (!vo[0] || !v[1] || !v[2]))
@@ -552,7 +552,7 @@ process_map(map)
  * Look for non-map and non-sub-map vm map entries that have an object
  * with a shadow whose pager pointer addresses a non-swap-file istruct
  * that has a vnode pointer.  Process the unique vnodes found.
- */ 
+ */
 #if	STEPV<40
 	vme = vmm.header;
 	ne = vmm.nentries;

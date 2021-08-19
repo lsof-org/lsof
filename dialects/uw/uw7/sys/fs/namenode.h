@@ -1,11 +1,11 @@
 /*
- * Copyright (c) 1998 The Santa Cruz Operation, Inc.. All Rights Reserved. 
- *                                                                         
- *        THIS IS UNPUBLISHED PROPRIETARY SOURCE CODE OF THE               
- *                   SANTA CRUZ OPERATION INC.                             
- *                                                                         
- *   The copyright notice above does not evidence any actual or intended   
- *   publication of such source code.                                      
+ * Copyright (c) 1998 The Santa Cruz Operation, Inc.. All Rights Reserved.
+ *
+ *        THIS IS UNPUBLISHED PROPRIETARY SOURCE CODE OF THE
+ *                   SANTA CRUZ OPERATION INC.
+ *
+ *   The copyright notice above does not evidence any actual or intended
+ *   publication of such source code.
  */
 
 #ifndef _FS_NAMEFS_NAMENODE_H	/* wrapper symbol for kernel use */

@@ -212,7 +212,7 @@ fill_portmap()
  * and UDP members.
  */
 	for (; p; p = p->pml_next) {
-	
+
 	/*
 	 * Determine the port map entry's protocol; ignore all but TCP and UDP.
 	 */
@@ -893,7 +893,7 @@ print_file()
 			FsColW = len;
 		} else
 		    (void) printf(" %*.*s", FsColW, FsColW, cp);
-		    
+
 	    }
 # endif	/* !defined(HASNOFSADDR) */
 
@@ -1973,7 +1973,7 @@ printiproto(p)
 	}
 	if (s)
 	    (void) snpf(Lf->iproto, sizeof(Lf->iproto), "%.*s", IPROTOL-1, s);
-	else {	
+	else {
 	    if (m < 0) {
 		for (i = 0, m = 1; i < IPROTOL-2; i++)
 		    m *= 10;
@@ -2105,7 +2105,7 @@ printname(nl)
 		    NcacheReload = 0;
 		}
 		if ((cp = ncache_lookup(buf, sizeof(buf), &fp))) {
-		    char *cp1; 
+		    char *cp1;
 
 		    if (*cp == '\0')
 			goto print_nma;
@@ -2745,13 +2745,13 @@ printunkaf(fam, ty)
 #endif	/* defined(pseudo_AF_KEY) */
 
 #if	defined(AF_KEY)		/* Security Association DB socket */
-	case AF_KEY:			
+	case AF_KEY:
 	    s = "KEY";
 	    break;
 #endif	/* defined(AF_KEY) */
 
 #if	defined(AF_NCA)		/* NCA socket */
-	case AF_NCA:			
+	case AF_NCA:
 	    s = "NCA";
 	    break;
 #endif	/* defined(AF_NCA) */
@@ -2763,7 +2763,7 @@ printunkaf(fam, ty)
 #endif	/* defined(AF_POLICY) */
 
 #if	defined(AF_PPP)		/* PPP socket */
-	case AF_PPP:			
+	case AF_PPP:
 	    s = "PPP";
 	    break;
 #endif	/* defined(AF_PPP) */

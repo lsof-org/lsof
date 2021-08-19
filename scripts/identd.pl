@@ -3,7 +3,7 @@
 # identd.pl    : An implementation of RFC 1413 Ident Server
 #                using Vic Abell's lsof.
 #
-# - Started from inetd with 'nowait' option. This entry in 
+# - Started from inetd with 'nowait' option. This entry in
 #   /etc/inetd.conf will suffice :
 #
 #   ident   stream  tcp     nowait  root    /usr/local/bin/identd.pl -t200
@@ -108,7 +108,7 @@ print $serv_port.", ".$cli_port." : ERROR : NO-USER"."\n";
 # $path   = absolute or relative path to file to test for executabiity.
 #	    Paths that begin with neither '/' nor '.' that arent't found as
 #	    simple references are also tested with the path prefixes of the
-#	    PATH environment variable.  
+#	    PATH environment variable.
 
 sub
 isexec {

@@ -512,7 +512,7 @@ readfsinfo()
 	    (void) fprintf(stderr, "%s: sysfs(GETNFSTYP) error: %s\n",
 		Pn, strerror(errno));
 	    Exit(1);
-	} 
+	}
 	if (Fsinfomax == 0)
 	    return;
 	if (!(Fsinfo = (char **)malloc((MALLOC_S)(Fsinfomax * sizeof(char *)))))

@@ -568,7 +568,7 @@ struct int_lst {
 typedef struct lsof_rx {		/* regular expression table entry */
 	char *exp;			/* original regular expression */
 	regex_t cx;			/* compiled expression */
-	int mc;				/* match count */ 
+	int mc;				/* match count */
 } lsof_rx_t;
 extern lsof_rx_t *CmdRx;
 extern int NCmdRxU;
@@ -638,7 +638,7 @@ extern struct str_lst *Cmdl;
 extern int CmdLim;
 extern int Cmdni;
 extern int Cmdnx;
- 
+
 # if	defined(HASSELINUX)
 typedef struct cntxlist {
 	char *cntx;			/* zone name */
@@ -909,7 +909,7 @@ extern struct lfile *Lf, *Plf;
 
 struct lproc {
 	char *cmd;			/* command name */
- 
+
 # if	defined(HASSELINUX)
 	char *cntx;			/* security context */
 # endif	/* defined(HASSELINUX) */

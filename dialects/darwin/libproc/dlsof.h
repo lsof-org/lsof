@@ -79,7 +79,7 @@ typedef	uintptr_t	KA_T;
 #define	FREE_P		MALLOC_P
 #define	MALLOC_S	size_t
 #define	MAXSYSCMDL	(MAXCOMLEN - 1)	/* max system command name length */
-#define	MOUNTED		MNT_MNTTAB 
+#define	MOUNTED		MNT_MNTTAB
 #define	QSORT_P		void
 #define	READLEN_T	int
 #define	STRNCPY_L	size_t
@@ -126,7 +126,7 @@ struct sfile {
 
 };
 
-#define	XDR_VOID	(const xdrproc_t)xdr_void 
+#define	XDR_VOID	(const xdrproc_t)xdr_void
 #define	XDR_PMAPLIST	(const xdrproc_t)xdr_pmaplist
 
 #  if	!defined(offsetof)

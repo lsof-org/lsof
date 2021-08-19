@@ -48,7 +48,7 @@
  *
  * A field is displayed in the form:
  *		<ID_character><data><field_terminator>
- *	
+ *
  * Output fields are normally terminated with a NL ('\n'), but the field
  * terminator can be set to NUL with the -0 (zero) option to lsof.
  *

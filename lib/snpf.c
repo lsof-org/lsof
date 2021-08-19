@@ -336,7 +336,7 @@ nextch:
 		    else
 			 len = (len * 10) + (int)(ch - '0');
 		    goto nextch;
-		case '*': 
+		case '*':
 		   if (pointflag)
 			maxwidth = va_arg(args, int);
 		    else
@@ -546,7 +546,7 @@ fmtllnum(bp, ep, value, base, dosign, ljust, len, zpad)
 	    base = -base;
 	}
 	do {
-	    convert[place++] = 
+	    convert[place++] =
 		(caps ? "0123456789ABCDEF" : "0123456789abcdef")
 		    [uvalue % (unsigned)base];
 	    uvalue = (uvalue / (unsigned)base);
@@ -618,7 +618,7 @@ fmtnum(bp, ep, value, base, dosign, ljust, len, zpad)
 	    base = -base;
 	}
 	do {
-	    convert[place++] = 
+	    convert[place++] =
 		(caps ? "0123456789ABCDEF" : "0123456789abcdef")
 		    [uvalue % (unsigned)base];
 	    uvalue = (uvalue / (unsigned)base);

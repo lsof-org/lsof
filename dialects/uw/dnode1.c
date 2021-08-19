@@ -45,7 +45,7 @@ static char copyright[] =
 					 * length st_buffer[] element in the
 					 * stack_trace struct, defined in
 					 * <sys/percpu.h> */
-					 
+
 #endif	/* !defined(DYNAMIC_STACK_TRACE) */
 
 #undef	IFMT

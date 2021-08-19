@@ -343,7 +343,7 @@ gather_proc_info()
 	 * Get the PID's command name.
 	 */
 	    (void) make_proc_path(pidpath, n, &path, &pathl, "stat");
-	    if ((prv = read_id_stat(path, pid, &cmd, &ppid, &pgid)) < 0) 
+	    if ((prv = read_id_stat(path, pid, &cmd, &ppid, &pgid)) < 0)
 		cmd = "(unknown)";
 
 #if	defined(HASTASKS)
@@ -1704,7 +1704,7 @@ read_id_stat_exit:
 	    if (ch == '(')		/* a '(' advances the balance count */
 		pc++;
 	    if (ch == ')') {
-	    
+
 	    /*
 	     * Balance parentheses when a closure is encountered.  When
 	     * they are balanced, this is the end of the command.

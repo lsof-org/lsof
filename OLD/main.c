@@ -235,7 +235,7 @@ main(argc, argv)
 #else	/* !defined(HASZONES) */
 	    "",
 #endif	/* defined(HASZONES) */
- 
+
 #if	defined(HASSELINUX)
 	    "Z:"
 #else	/* !defined(HASSELINUX) */
@@ -477,7 +477,7 @@ main(argc, argv)
 			||  FieldSel[i].id == LSOF_FID_NI)
 			    continue;
 #endif	/* !defined(HASFSTRUCT) */
- 
+
 #if	defined(HASSELINUX)
 			if ((FieldSel[i].id == LSOF_FID_CNTX) && !CntxStatus)
 			    continue;
@@ -987,7 +987,7 @@ main(argc, argv)
 		}
 		break;
 #endif	/* defined(HASZONES) */
- 
+
 #if	defined(HASSELINUX)
 	    case 'Z':
 		if (!CntxStatus) {
@@ -1162,7 +1162,7 @@ main(argc, argv)
  */
 	if ((Cmdl && Cmdni) || CmdRx)
 	    Selflags |= SELCMD;
- 
+
 #if	defined(HASSELINUX)
 	if (CntxArg)
 	    Selflags |= SELCNTX;
@@ -1479,7 +1479,7 @@ main(argc, argv)
 	    }
 	}
 	for (i = 0; i < NCmdRxU; i++) {
-	
+
 	/*
 	 * Check command regular expressions.
 	 */
@@ -1668,7 +1668,7 @@ main(argc, argv)
 	    }
 	}
 #endif	/* defined(HASZONES) */
- 
+
 #if	defined(HASSELINUX)
 	if (CntxArg) {
 

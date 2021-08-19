@@ -73,7 +73,7 @@ static char copyright[] =
  * Define major and minor extraction macros that work on 64 bit AIX
  * architectures.
  */
- 
+
 #define	major_S(d)	(ISDEVNO64(d) ? major64(d) : minor(d & ~SDEV_REMOTE))
 #define	minor_S(d)	(ISDEVNO64(d) ? (minor64(d) & ~SDEV_REMOTE) : minor(d))
 #undef	X2DEV_T
@@ -95,7 +95,7 @@ static char copyright[] =
 #define	minor_S(dev)	dv_subunit(dev)
 #define	unit_S(dev)	dv_unit(dev)
 #define	minor_X(dp, em)	dv_subunit(x2dev(dp, em))
-#define	unit_X(dp, em)	dv_unit(x2dev(dp, em))	
+#define	unit_X(dp, em)	dv_unit(x2dev(dp, em))
 #endif	/* defined(LT_DIAL_bsdi) */
 
 
@@ -413,7 +413,7 @@ ConvStatDev(dev, ldev)
 /*
  * Use the pre-defined *_S() macros to do the decomposition.
  */
-    ldev->maj = (unsigned int)major_S(*dev);    
+    ldev->maj = (unsigned int)major_S(*dev);
     ldev->min = (unsigned int)minor_S(*dev);
     ldev->unit = (unsigned int)unit_S(*dev);
     return((char *)NULL);

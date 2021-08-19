@@ -533,7 +533,7 @@ Consult the 00DCACHE and 00FAQ files of the lsof distribution for
 more information.
 
 The current path options are:
-  
+
 .CAT_MARK
 
     grep HASENVDC $OLD | tail $TA | egrep "^#define"

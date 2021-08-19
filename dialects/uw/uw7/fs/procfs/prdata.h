@@ -17,7 +17,7 @@ extern "C" {
 #include <util/ksynch.h>        /* REQUIRED */
 #include <util/types.h>         /* REQUIRED */
 
-#elif defined(_KERNEL) 
+#elif defined(_KERNEL)
 
 #include <sys/vnode.h>          /* SVR4.2COMPAT */
 #include <sys/uio.h>            /* SVR4.0COMPAT */
@@ -37,13 +37,13 @@ extern "C" {
 typedef struct prcommon {
         lock_t  prc_mutex;      /* Lock for prc_flags and prc_rdwriters */
         uchar_t prc_flags;      /* flags */
-        ulong_t prc_rdwriters;  /* # holding or queued for process r/w lock 
+        ulong_t prc_rdwriters;  /* # holding or queued for process r/w lock
 
 
 
 */
         sv_t    prc_rdwrdone;   /* sync object to wait for r/w refs done */
-        sv_t    prc_stopsv;     /* sync object to wait for proc or LWP stop 
+        sv_t    prc_stopsv;     /* sync object to wait for proc or LWP stop
 
 
 
@@ -91,7 +91,7 @@ typedef enum prnodetype {
 } prnodetype_t;
 
 typedef struct prnode {
-        lock_t          pr_mutex;       /* Locks pr_flags and child 
+        lock_t          pr_mutex;       /* Locks pr_flags and child
 pr_files */
         prnodetype_t    pr_type;        /* Node type */
         mode_t          pr_mode;        /* File mode */
@@ -100,9 +100,9 @@ pr_files */
         prcommon_t      *pr_common;     /* common data structure */
         prcommon_t      *pr_pcommon;    /* process common data structure */
         struct vnode    *pr_parent;     /* Parent directory */
-        struct vnode    **pr_files;     /* Contained files (for directory) 
+        struct vnode    **pr_files;     /* Contained files (for directory)
 */
-        struct vnode    *pr_next;       /* List in chain of (invalid) 
+        struct vnode    *pr_next;       /* List in chain of (invalid)
 vnodes */
         uint_t          pr_index;       /* Position within parent */
         struct vnode    pr_vnode;       /* Embedded vnode */
@@ -125,7 +125,7 @@ typedef struct prntable {
         char            *prn_comp;      /* Name within directory */
         prnodetype_t    prn_ctype;      /* Node type of result vnode */
         int             prn_zvisible;   /* Visibility if a zombie */
-        int             prn_nasvisible; /* Visibility if no address space 
+        int             prn_nasvisible; /* Visibility if no address space
 */
         vtype_t         prn_ftype;      /* File type of result vnode */
         mode_t          prn_mode;       /* File mode of result vnode */
@@ -167,7 +167,7 @@ extern caddr_t  prgetpsaddr(lwp_t *);
 extern void     prdebugon(lwp_t *);
 extern void     prdebugoff(lwp_t *);
 extern void     prgetpfamily(const user_t *up, struct pfamily *fp);
-extern int      prwritectl_family(ulong_t, vnode_t *, uio_t *, int, cred_t 
+extern int      prwritectl_family(ulong_t, vnode_t *, uio_t *, int, cred_t
 *);
 extern boolean_t pr_p_rdwr(prcommon_t *, boolean_t);
 extern void     pr_v_rdwr(prcommon_t *);
@@ -216,7 +216,7 @@ extern void     prchlvl(lid_t);
 /*
  * Determine whether or not a set (of arbitrary size) is empty.
  */
-#define prisempty(sp) setisempty((ulong_t *)(sp), 
+#define prisempty(sp) setisempty((ulong_t *)(sp),
 sizeof(*(sp))/sizeof(ulong_t))
 
 #endif /* _KERNEL */

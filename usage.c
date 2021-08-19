@@ -892,7 +892,7 @@ usage(xv, fh, version)
 		if (FieldSel[i].id == LSOF_FID_ZONE)
 		    continue;
 #endif	/* !defined(HASZONES) */
- 
+
 #if	defined(HASSELINUX)
 		if ((FieldSel[i].id == LSOF_FID_CNTX) && !CntxStatus)
 		    continue;

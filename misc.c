@@ -1044,7 +1044,7 @@ lstatsafely(path, buf)
 	struct stat *buf;		/* stat buffer address */
 {
 	if (Fblock) {
-	    if (!Fwarn) 
+	    if (!Fwarn)
 		(void) fprintf(stderr,
 		    "%s: avoiding stat(%s): -b was specified.\n",
 		    Pn, path);
@@ -1584,7 +1584,7 @@ statsafely(path, buf)
 	struct stat *buf;		/* stat buffer address */
 {
 	if (Fblock) {
-	    if (!Fwarn) 
+	    if (!Fwarn)
 		(void) fprintf(stderr,
 		    "%s: avoiding stat(%s): -b was specified.\n",
 		    Pn, path);

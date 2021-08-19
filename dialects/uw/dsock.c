@@ -840,7 +840,7 @@ process_socket(pr, q)
 		} else {
 		    Lf->lts.type = 1;
 		    Lf->lts.state.i = (int)inp.inp_tstate;
-		} 
+		}
 	    } else
 		enter_nm("no address for this protocol");
 	} else
