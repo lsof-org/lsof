@@ -1215,7 +1215,7 @@ main(argc, argv)
 	    Selflags = SelAll;
 	} else {
 	    if (GOx1 >= argc && (Selflags & (SELNA|SELNET)) != 0
-	    &&  (Selflags & ~(SELNA|SELNET)) == 0)
+	    && (Selflags & ~(SELNA|SELNET)) == 0)
 		Selinet = 1;
 	    AllProc = 0;
 	}
@@ -1928,7 +1928,7 @@ GetOpt(ct, opt, rules, err)
 	 * option following the possible value, so that the next call
 	 * to GetOpt() will find it.
 	 */
-	    if(opt[GOx1][GOx2 + 1] != '\0') {
+	    if (opt[GOx1][GOx2 + 1] != '\0') {
 		GObk[0] = GOx1;
 		GObk[1] = ++GOx2;
 		GOv = &opt[GOx1++][GOx2];

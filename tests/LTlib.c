@@ -681,7 +681,7 @@ GetOpt(ct, opt, rules, em, pn)
      * value belongs to the option, position to the option following the
      * possible value, so that the next call to GetOpt() will find it.
      */
-	if(opt[GOx1][GOx2 + 1] != '\0') {
+	if (opt[GOx1][GOx2 + 1] != '\0') {
 	    GOv = &opt[GOx1++][GOx2];
 	} else if (++GOx1 >= ct)
 	    GOv = (char *)NULL;

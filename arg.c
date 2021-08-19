@@ -1733,7 +1733,7 @@ unacc_port:
 		     * If no protocol has been specified, look up the port
 		     * numbers for the service name for both TCP and UDP.
 		     */
-			if((se = getservbyname(sn, "tcp")))
+			if ((se = getservbyname(sn, "tcp")))
 			    pt = (int)ntohs(se->s_port);
 			if ((se1 = getservbyname(sn, "udp")))
 			    pu = (int)ntohs(se1->s_port);

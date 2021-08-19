@@ -555,7 +555,7 @@ fmtllnum(bp, ep, value, base, dosign, ljust, len, zpad)
 	padlen = len - place;
 	if (padlen < 0)
 	    padlen = 0;
-	if(ljust)
+	if (ljust)
 	    padlen = -padlen;
 	if (zpad && padlen > 0) {
 	    if (signvalue) {
