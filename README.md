@@ -38,8 +38,8 @@ the "legacy" branch. This branch is just for reference.
 to "master" branch.
 
 lsof had supported many OSes. A term "dialect" represents code for
-supporting OSes. Because of limitted resources, we will maintain the
-part of them. The current status of maintaince is as follows:
+supporting OSes. Because of limited resources, we will maintain the
+part of them. The current status of maintenance is as follows:
 
 <dl>
 <dt>freebsd</dt>
@@ -51,7 +51,7 @@ part of them. The current status of maintaince is as follows:
 </dl>
 
 If you are interested in maintaining a dialect, let us know via the
-issue tracker of GitHub (https://github.com/lsof-org/lsof/issues).  If
+issue tracker of GitHub (https://github.com/lsof-org/lsof/issues). If
 we cannot find a volunteer for a dialect, we will remove the dialect.
 
 Many texts in the source tree still refers purdue.edu as the home of

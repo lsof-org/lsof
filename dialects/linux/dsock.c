@@ -1041,7 +1041,7 @@ enter_uxsinfo (up)
 static void
 fill_uxicino (si, ic)
 	INODETYPE si;			/* UNIX socket inode number */
-	INODETYPE ic;			/* incomining UNIX socket connection 
+	INODETYPE ic;			/* incoming UNIX socket connection
 					 * inode number */
 {
 	uxsin_t *psi;			/* pointer to socket's information */
