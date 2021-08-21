@@ -126,6 +126,8 @@
 		4.93.0 May 7, 2019
 		4.93.1 May 7, 2019
 		4.93.2 May 8, 2019
+		4.94.0 November 11, 2020
+
 
 
 Dialects Supported
@@ -5244,9 +5246,11 @@ July 14, 2018
 		location changing. Fix the header search path to get it to be detected
 		again. Fix the header inclusion order. Also add the new way of finding
 		dev_t on more recent FreeBSD versions.
+		Provided by Damjan Jovanovic in #151.
 
 
 		[FreeBSD] add support for msdosfs on FreeBSD
+		Provided by Damjan Jovanovic in #151.
 
 
 		Fix FD field description.
@@ -5261,6 +5265,13 @@ July 14, 2018
 		a SIGBUS. #160 reported an actual crash on armv7a + glibc-2.33 platform.
 		See also https://sourceware.org/bugzilla/show_bug.cgi?id=27993.
 		Reported by @10ne1 in #160.
+
+
+		Clean up source code and documentats.
+		- remove trailing whitespace,
+		- fix some issues in scripts found through shellcheck, and
+		- fix spelling
+		Provided by @a1346054 in #163.
 
 
 The lsof-org team at GitHub
