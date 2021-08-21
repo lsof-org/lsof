@@ -413,7 +413,7 @@ usage(xv, fh, version)
 	    (void) snpf(buf, sizeof(buf), "+c w  COMMAND width (%d)", CMDL);
 	    (void) fprintf(stderr, "  %-25.25s", buf);
 
-	    (void) fprintf(stderr, "  %s\n", 
+	    (void) fprintf(stderr, "  %s\n",
 
 #if	defined(HASNCACHE)
 		"-C no kernel name cache");

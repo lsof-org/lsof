@@ -308,7 +308,7 @@ examine_stream(vs, q, mch, mn, sn, sqp)
 		    }
 		    if (!ab) {
 			(void) fprintf(stderr,
-			    "%s: no space for stream chain", Pn); 
+			    "%s: no space for stream chain", Pn);
 			Exit(1);
 		    }
 		}

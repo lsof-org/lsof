@@ -497,7 +497,7 @@ get_kernel_access()
 	    rv = knlist(Nl);
 	else
 #endif	/* DUV>=40000 */
-	
+
             rv = nlist(Nmlst, Nl);
 	if (rv == -1) {
 	    (void) fprintf(stderr,
@@ -969,7 +969,7 @@ vpo2vp(vpo)
 	if (!ka || kread(ka, (char *)&bfa, sizeof(bfa)))
 	    return(ka);
 	return((KA_T)bfa.vp);
-} 
+}
 #endif	/* DUV>=50000 */
 
 

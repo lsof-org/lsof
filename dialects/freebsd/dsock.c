@@ -366,7 +366,7 @@ process_socket(sa)
 			    (s.so_snd.sb_state & SBS_CANTSENDMORE) ?
 #else	/* !defined(HASSBSTATE) */
 			    (s.so_state & SS_CANTSENDMORE) ?
-#endif	/* defined(HASSBSTATE) */ 
+#endif	/* defined(HASSBSTATE) */
 
 				", CANTSENDMORE" : "",
 #if	defined(HASSBSTATE)
@@ -407,7 +407,7 @@ process_socket(sa)
 			fp = (int)ntohs(inp.inp_fport);
 		    }
 		}
-		
+
 #if	defined(HASIPv6) && defined(HASINRIAIPv6)
 		else {
 		    la = (unsigned char *)&inp.inp_laddr6;
@@ -551,7 +551,7 @@ process_socket(sa)
 		unl = ua->sun_len - offsetof(struct sockaddr_un, sun_path);
 # else	/* FREEBSDV<4060 */
 		unl = sizeof(ua->sun_path) - 1;
-# endif	/* FREEBSDV>4060 */ 
+# endif	/* FREEBSDV>4060 */
 		if ((unl < 0) || (unl >= sizeof(ua->sun_path)))
 		    unl = sizeof(ua->sun_path) - 1;
 		ua->sun_path[unl] = '\0';

@@ -62,7 +62,7 @@
  * complaint about register use.
  */
 
-#include <machine/pcpu.h>       
+#include <machine/pcpu.h>
 #define PCPU_MD_FIELDS                                                  \
 	struct alpha_pcb pc_idlepcb;            /* pcb for idling */    \
 	u_int64_t       pc_idlepcbphys;         /* pa of pc_idlepcb */  \

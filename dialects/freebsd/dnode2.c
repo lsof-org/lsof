@@ -149,7 +149,7 @@ readzfsnode(za, zi, vr)
  * A gcc work-around
  */
 
-int     _cv_timedwait_sbt(struct cv *cvp, struct lock_object *lock,       
+int     _cv_timedwait_sbt(struct cv *cvp, struct lock_object *lock,
             sbintime_t sbt, sbintime_t pr, int flags)
 {
 	return(0);

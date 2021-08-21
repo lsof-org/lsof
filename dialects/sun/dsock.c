@@ -972,7 +972,7 @@ process_VSOCK(va, v, so)
 		if (Ftcptpi & TCPTPI_FLAGS) {
 		    union {
 			uint_t flags;
-			uint_t 
+			uint_t
 			    udpb_debug : 1,	   /* SO_DEBUG option */
 			    udpb_dontroute : 1,	   /* SO_DONTROUTE option */
 			    udpb_broadcast : 1,	   /* SO_BROADCAST option */

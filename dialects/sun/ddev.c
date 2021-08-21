@@ -185,7 +185,7 @@ printchdevname_again:
 
 		    safestrprt(c->cd.name, stdout, f);
 		    return(1);
-		}	
+		}
 	    }
 	}
 /*
@@ -238,7 +238,7 @@ read_clone()
 	MALLOC_S pl;
 	struct pseudo *p;
 	struct stat sb;
-	
+
 	if (Clone || Pseudo)
 	    return;
 /*

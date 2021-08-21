@@ -298,7 +298,7 @@ static CTF_exception_t CTF_exceptions[] = {
     { ZNODE_TYPE_NAME,		"z_size"  },
     { NULL,			NULL	  }
 };
-    
+
 
 /*
  * ZFS function prototypes
@@ -1590,7 +1590,7 @@ vfs_read_error:
 /*
  * See if this Solaris node is served by spec_vnodeops.
  */
-	if (Spvops && Spvops == (KA_T)v->v_op) 
+	if (Spvops && Spvops == (KA_T)v->v_op)
 	    Ntype = N_SPEC;
 /*
  * Determine the Solaris lock state.
@@ -1611,7 +1611,7 @@ vfs_read_error:
  */
 	switch (Ntype) {
 	case N_SPEC:
-	
+
 	/*
 	 * A N_SPEC node is a node that resides in in an underlying file system
 	 * type -- e.g. NFS, HSFS.  Its vnode points to an snode.  Subsequent
@@ -2023,7 +2023,7 @@ vfs_read_error:
 		    return;
 		break;
 #endif	/* defined(HAS_AFS) */
-	
+
 #if	solaris>=20500
 	    case N_AUTO:
 
@@ -2890,7 +2890,7 @@ vfs_read_error:
 		break;
 	    }
 	    if (dns) {
-		if ((Lf->inode = (INODETYPE)dn.door_index)) 
+		if ((Lf->inode = (INODETYPE)dn.door_index))
 		    Lf->inp_ty = 1;
 	    }
 	    break;
@@ -3499,7 +3499,7 @@ vfs_read_error:
 	&&  nn.nm_mountpt)
 	{
 	    if (!readvnode((KA_T)nn.nm_mountpt, &fv) && fv.v_vfsp) {
-		if ((nvfs = readvfs((KA_T)fv.v_vfsp, (struct vfs *)NULL, 
+		if ((nvfs = readvfs((KA_T)fv.v_vfsp, (struct vfs *)NULL,
 				    nn.nm_filevp))
 		&&  !nvfs->dir)
 		{
@@ -5100,7 +5100,7 @@ read_nzn(na, nza, zn)
 		zn->z_size = zp.zp_size;
 	    }
 	} else {
-	   
+
 	/*
 	 * Make sure z_link and z_size are defined when z_phys isn't.
 	 */

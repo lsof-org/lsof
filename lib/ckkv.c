@@ -56,7 +56,7 @@ ckkv(d, er, ev, ea)
 					 * test */
 {
 
-# if	defined(HASKERNIDCK) 
+# if	defined(HASKERNIDCK)
 	struct utsname u;
 
 	if (Fwarn)

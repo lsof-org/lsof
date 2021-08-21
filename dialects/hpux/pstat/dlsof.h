@@ -83,7 +83,7 @@
 #define	_APP32_64BIT_OFF_T	TMP_APP32_64BIT_OFF_T
 #undef	TMP_APP32_64BIT_OFF_T
 # endif
- 
+
 #include <sys/tihdr.h>
 #include <sys/un.h>
 
@@ -122,7 +122,7 @@ typedef	unsigned long long	KA_T;
 #define	XDR_VOID	(xdrproc_t)xdr_void
 
 
-/* 
+/*
  * Local macros
  */
 

@@ -518,7 +518,7 @@ readdev(skip)
  * and/or their "/dev/fd" filesystem.  The problem is that when applied to
  * "/dev/fs", getdirentries() returns the wrong size, which can cause readdir()
  * to run off the end of it's internal buffer and return bogus file names.
- * 
+ *
  * The changes from the original NetBSD file are:
  *
  * - uses of the field dd_flags in the DIR structure have been removed since

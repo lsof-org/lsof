@@ -299,7 +299,7 @@ FindUsocks()
 		    ti = -1;
 		    break;
 		}
-		ti = (ti * 10) + (int)*tcp - (int)'0'; 
+		ti = (ti * 10) + (int)*tcp - (int)'0';
 	    }
 	    for (tj = 0; tj < 2; tj++) {
 		if (ff[tj])

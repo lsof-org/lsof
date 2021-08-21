@@ -516,7 +516,7 @@ HPUX_IPC_S_PATCH	If this environment variable has a value of "1", the
 			"N", ipc_s lacks ipc_ipis; any other non-NULL value is
 			considered an error; a NULL value, HPUX_IPC_S_PATCH is
 			determined by testing.
-			
+
 			default: determined with q4 and grep
 
 HPUX_KERNBITS		specifies the number of bits (32 or 64) in the HP-UX

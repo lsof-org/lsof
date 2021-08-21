@@ -5240,7 +5240,6 @@ July 14, 2018
 
 
 		[FreeBSD] get the ISO9660 filesystem working again
-
 		The ISO9660 filesystem broke starting with FreeBSD 7 due to the header
 		location changing. Fix the header search path to get it to be detected
 		again. Fix the header inclusion order. Also add the new way of finding
@@ -5248,6 +5247,21 @@ July 14, 2018
 
 
 		[FreeBSD] add support for msdosfs on FreeBSD
+
+
+		Fix FD field description.
+		In 811dc78 the output format was changed to not printf the `f`
+		field by default, however the field description in `lsof_fields.h`,
+		as seen in `-F?` output still included the `(always selected)` text.
+		Provided by @algorythmic (Grisha Levit) in #158.
+
+
+		Adjust alignment of buffer passed to stat().
+		The original code passes char[] buffer to stat(). This can be cause
+		a SIGBUS. #160 reported an actual crash on armv7a + glibc-2.33 platform.
+		See also https://sourceware.org/bugzilla/show_bug.cgi?id=27993.
+		Reported by @10ne1 in #160.
+
 
 The lsof-org team at GitHub
 November 11, 2020

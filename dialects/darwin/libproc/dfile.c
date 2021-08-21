@@ -456,8 +456,8 @@ process_pipe_common(pi)
 		(SZOFFTYPE)pi->pipeinfo.pipe_stat.vst_size);
 	}
 }
-	
-	
+
+
 void
 process_pipe(pid, fd)
 	int pid;			/* PID */

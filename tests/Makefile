@@ -19,7 +19,7 @@ LIBOBJ=	${LTOBJ}
 
 BASTST=	LTbasic
 STDTST=	LTnlink LTsock LTszoff LTunix
-OPTTST=	LTbigf LTdnlc LTlock LTnfs 
+OPTTST=	LTbigf LTdnlc LTlock LTnfs
 
 all:	${CKTSTDB} ${BASTST} ${STDTST} FRC
 	@./${CKTSTDB}; xv=$$?; \
