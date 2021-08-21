@@ -63,6 +63,7 @@ dkms.conf
 *.gcno
 *~
 /Makefile
+lib/Makefile
 TAGS
 lsof
 tags
