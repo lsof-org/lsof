@@ -2011,6 +2011,11 @@ FBSD_MINOR3
 	  then
 	    LSOF_CFGF="$LSOF_CFGF -DHASFUSEFS"
 	  fi	# }
+	# Do msdosfs test.
+	  if test -r ${FREEBSD_SYS}/fs/msdosfs/denode.h # {
+	  then
+	    LSOF_CFGF="$LSOF_CFGF -DHASMSDOSFS"
+	  fi    # }
 	# Do ZFS test.  Try for the newer OpenSolaris files first -- i.e.,
 	# the ones in ${FREEBSD_SYS}/cddl/contrib/opensolaris.  If that fails,
 	# try for the older ones in ${FREEBSD}/contrib/opensolaris.
@@ -2303,15 +2308,24 @@ LOCKF_OWNER4
     fi	# }
     if test -r ${FREEBSD_SYS}/isofs/cd9660/cd9660_node.h	# {
     then
+      ISOFS_DIR="${FREEBSD_SYS}/isofs/cd9660"
+    else
+      if test -r ${FREEBSD_SYS}/fs/cd9660/cd9660_node.h		# {
+      then
+        ISOFS_DIR="${FREEBSD_SYS}/fs/cd9660"
+      fi	# }
+    fi	# }
+    if test "X$ISOFS_DIR" != "X"				# {
+    then
       rm -f cd9660_node.h
-      grep -q "^#ifdef [_]*KERNEL" ${FREEBSD_SYS}/isofs/cd9660/cd9660_node.h
+      grep -q "^#ifdef [_]*KERNEL" ${ISOFS_DIR}/cd9660_node.h
       if test $? -eq 0	# {
       then
-	ln -s ${FREEBSD_SYS}/isofs/cd9660/cd9660_node.h cd9660_node.h
+	ln -s ${ISOFS_DIR}/cd9660_node.h cd9660_node.h
       else
 	sed -e '/^ \* Prototypes for ISOFS vnode operations/,$c\
 	\ The ISOFS prototypes were removed by Configure. */' \
-	< ${FREEBSD_SYS}/isofs/cd9660/cd9660_node.h > cd9660_node.h
+	< ${ISOFS_DIR}/cd9660_node.h > cd9660_node.h
 	echo "" >> cd9660_node.h
       fi	# }
       LSOF_CFGF="$LSOF_CFGF -DHAS9660FS"

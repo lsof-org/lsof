@@ -72,3 +72,7 @@ _PROTOTYPE(extern int read_fuse_node,(struct vnode *v, dev_t *d, int *dd, INODET
 #if	defined(HAS9660FS)
 _PROTOTYPE(extern int read_iso_node,(struct vnode *v, dev_t *d, int *dd, INODETYPE *ino, long *nl, SZOFFTYPE *sz));
 #endif	/* defined(HAS9660FS) */
+
+#if	defined(HASMSDOSFS)
+_PROTOTYPE(extern int read_msdos_node,(struct vnode *v, dev_t *d, int *dd, INODETYPE *ino, long *nl, SZOFFTYPE *sz));
+#endif	/* defined(HASMSDOSFS) */

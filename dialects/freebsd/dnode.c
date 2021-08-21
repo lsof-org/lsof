@@ -331,6 +331,14 @@ process_node(va)
 	SZOFFTYPE fuse_sz;
 #endif	/* defined(HASFUSEFS) */
 
+#if	defined(HASMSDOSFS)
+	dev_t msdos_dev;
+	int msdos_dev_def, msdos_stat;
+	INODETYPE msdos_ino;
+	long msdos_links;
+	SZOFFTYPE msdos_sz;
+#endif	/* defined(HASMSDOSFS) */
+
 #if	FREEBSDV>=5000
 # if	defined(HAS_UFS1_2)
 	int ufst;
@@ -349,7 +357,8 @@ process_node(va)
 	char vtbuf[32];
 	char *vtbp;
 	enum vtagtype { VT_DEVFS, VT_FDESC, VT_FUSEFS, VT_ISOFS, VT_PSEUDOFS,
-			VT_NFS, VT_NULL, VT_TMPFS, VT_UFS, VT_ZFS, VT_UNKNOWN
+			VT_NFS, VT_NULL, VT_TMPFS, VT_UFS, VT_ZFS, VT_MSDOSFS,
+			VT_UNKNOWN
 		      };
 
 # if	defined(HAS_TMPFS)
@@ -427,6 +436,10 @@ process_overlaid_node:
 #if	defined(HASFUSEFS)
 	fuse_dev_def = fuse_stat = 0;
 #endif	/* defined(HASFUSEFS) */
+
+#if	defined(HASMSDOSFS)
+	msdos_dev_def = msdos_stat = 0;
+#endif /* defined(HASMSDOSFS) */
 
 #if	FREEBSDV<5000
 	m = (struct mfsnode *)NULL;
@@ -602,6 +615,8 @@ process_overlaid_node:
 		vtag = VT_FUSEFS;
 	    else if (!strcmp(vtbuf, "tmpfs"))
 		vtag = VT_TMPFS;
+	    else if (!strcmp(vtbuf, "msdosfs"))
+		vtag = VT_MSDOSFS;
 	} else
 	    vtbp = "(unknown)";
 #else	/* FREEBSDV<5000 */
@@ -663,6 +678,20 @@ process_overlaid_node:
 	    fuse_stat = 1;
 	    break;
 #endif	/* defined(HASFUSEFS) */
+
+#if	defined(HASMSDOSFS)
+	case VT_MSDOSFS:
+	    if (read_msdos_node(v, &msdos_dev, &msdos_dev_def, &msdos_ino,
+				&msdos_links, &msdos_sz))
+	    {
+		(void) snpf(Namech, Namechl, "can't read denode at: %s",
+		    print_kptr((KA_T)v->v_data, (char *)NULL, 0));
+		enter_nm(Namech);
+		return;
+	    }
+	    msdos_stat = 1;
+	    break;
+#endif	/* defined(HASMSDOSFS) */
 
 #if	defined(HAS9660FS)
 	case VT_ISOFS:
@@ -1039,6 +1068,13 @@ process_overlaid_node:
 	}
 #endif	/* defined(HASFUSEFS) */
 
+#if	defined(HASMSDOSFS)
+	else if (msdos_stat && msdos_dev_def) {
+	    dev = msdos_dev;
+	    devs = Lf->inp_ty = 1;
+	}
+#endif	/* defined(HASMSDOSFS) */
+
 #if	FREEBSDV>=5000
 	else if (d) {
 	    if (vfs) {
@@ -1135,6 +1171,13 @@ process_overlaid_node:
 	    Lf->inp_ty = 1;
 	}
 #endif	/* defined(HASFUSEFS) */
+
+#if	defined(HASMSDOSFS)
+	else if (msdos_stat) {
+	    Lf->inode = msdos_ino;
+	    Lf->inp_ty = 1;
+	}
+#endif	/* defined(HASMSDOSFS) */
 
 #if	defined(HASPROCFS)
 # if	FREEBSDV>=2000
@@ -1277,6 +1320,12 @@ process_overlaid_node:
 		    }
 #endif	/* defined(HASFUSEFS) */
 
+#if	defined(HASMSDOSFS)
+		    else if (msdos_stat) {
+			Lf->sz = (SZOFFTYPE)msdos_sz;
+			Lf->sz_def = 1;
+		    }
+#endif	/* defined(HASMSDOSFS) */
 		}
 		else if ((type == VCHR || type == VBLK) && !Fsize)
 		    Lf->off_def = 1;
@@ -1341,6 +1390,13 @@ process_overlaid_node:
 		    Lf->nlink_def = 1;
 		}
 #endif	/* defined(HASFUSEFS) */
+
+#if	defined(HASMSDOSFS)
+		else if (msdos_stat) {
+		    Lf->nlink = msdos_links;
+		    Lf->nlink_def = 1;
+		}
+#endif	/* defined(HASMSDOSFS) */
 
 #if	FREEBSDV>=5000
 		else if (d) {
