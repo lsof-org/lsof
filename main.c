@@ -235,7 +235,7 @@ main(argc, argv)
 #else	/* !defined(HASZONES) */
 	    "",
 #endif	/* defined(HASZONES) */
- 
+
 #if	defined(HASSELINUX)
 	    "Z:"
 #else	/* !defined(HASSELINUX) */
@@ -477,7 +477,7 @@ main(argc, argv)
 			||  FieldSel[i].id == LSOF_FID_NI)
 			    continue;
 #endif	/* !defined(HASFSTRUCT) */
- 
+
 #if	defined(HASSELINUX)
 			if ((FieldSel[i].id == LSOF_FID_CNTX) && !CntxStatus)
 			    continue;
@@ -1001,7 +1001,7 @@ main(argc, argv)
 		}
 		break;
 #endif	/* defined(HASZONES) */
- 
+
 #if	defined(HASSELINUX)
 	    case 'Z':
 		if (!CntxStatus) {
@@ -1176,7 +1176,7 @@ main(argc, argv)
  */
 	if ((Cmdl && Cmdni) || CmdRx)
 	    Selflags |= SELCMD;
- 
+
 #if	defined(HASSELINUX)
 	if (CntxArg)
 	    Selflags |= SELCNTX;
@@ -1215,7 +1215,7 @@ main(argc, argv)
 	    Selflags = SelAll;
 	} else {
 	    if (GOx1 >= argc && (Selflags & (SELNA|SELNET)) != 0
-	    &&  (Selflags & ~(SELNA|SELNET)) == 0)
+	    && (Selflags & ~(SELNA|SELNET)) == 0)
 		Selinet = 1;
 	    AllProc = 0;
 	}
@@ -1589,7 +1589,7 @@ main(argc, argv)
 	    }
 	}
 	for (i = 0; i < NCmdRxU; i++) {
-	
+
 	/*
 	 * Check command regular expressions.
 	 */
@@ -1778,7 +1778,7 @@ main(argc, argv)
 	    }
 	}
 #endif	/* defined(HASZONES) */
- 
+
 #if	defined(HASSELINUX)
 	if (CntxArg) {
 
@@ -1928,7 +1928,7 @@ GetOpt(ct, opt, rules, err)
 	 * option following the possible value, so that the next call
 	 * to GetOpt() will find it.
 	 */
-	    if(opt[GOx1][GOx2 + 1] != '\0') {
+	    if (opt[GOx1][GOx2 + 1] != '\0') {
 		GObk[0] = GOx1;
 		GObk[1] = ++GOx2;
 		GOv = &opt[GOx1++][GOx2];

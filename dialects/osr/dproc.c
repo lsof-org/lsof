@@ -123,7 +123,7 @@ gather_proc_info()
 	unsigned int uid;
 
 #if	defined(HASFSTRUCT)
-	static MALLOC_S npofb = 0; 
+	static MALLOC_S npofb = 0;
 	char *pof;
 	static char *pofb = (char *)NULL;
 #endif	/* defined(HASFSTRUCT) */
@@ -906,7 +906,7 @@ readfsinfo()
 	    (void) fprintf(stderr, "%s: sysfs(GETNFSTYP) error: %s\n",
 		Pn, strerror(errno));
 	    Exit(1);
-	} 
+	}
 	if (Fsinfomax == 0)
 	    return;
 	if (!(Fsinfo = (char **)malloc((MALLOC_S)(Fsinfomax * sizeof(char *)))))
@@ -1410,7 +1410,7 @@ LNC_enter(le, nm, nl, fs)
 	    lc->u.ln.rp = le->u.ln.rp;
 	    lc->u.ln.dp = le->u.ln.dp;
 	} else {
-	
+
 	/*
 	 * Make a device-inode entry.
 	 */
@@ -1932,7 +1932,7 @@ SYSV_load()
  * Do first-time setup, as required.
  */
 	if (s5nce == 0) {
-	
+
 	/*
 	 * Quit if the SYSV name cache address is unknown.
 	 */
@@ -1943,7 +1943,7 @@ SYSV_load()
 	 */
 
 #  if	OSRV<500
-	    s5nce = Var.v_s5cacheents;	
+	    s5nce = Var.v_s5cacheents;
 #  else	/* OSRV>=500 */
 	    if (get_Nl_value("nsfnc", Drive_Nl, &v) < 0 || !v
 	    ||  kread(v, (char *)&s5nce, sizeof(s5nce)))

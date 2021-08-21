@@ -407,7 +407,7 @@ process_overlaid_node:
 
 #if	defined(HASKERNFS)
 	case VT_KERNFS:
-	
+
 	/*
 	 * Read the kernfs_node.
 	 */
@@ -978,7 +978,7 @@ process_overlaid_node:
 		    case INODE:
 
 #if	defined(HASI_FFS)
-			
+
 			Lf->sz = (SZOFFTYPE)i.i_ffs_size;
 			Lf->sz_def = 1;
 			break;
@@ -1116,9 +1116,9 @@ process_overlaid_node:
 # endif	/* defined(HASI_E2FS_PTR) */
 
 		    break;
-	
+
 #endif	/* defined(HASEXT2FS) */
-		
+
 		}
 		break;
 	    }
@@ -1364,7 +1364,7 @@ process_overlaid_node:
 	    } else if (nty == PFSNODE) {
 		for (pfi = Procfsid; pfi; pfi = pfi->next) {
 		    if ((pfi->pid && pfi->pid == p.pfs_pid)
-		    
+
 # if	defined(HASPINODEN)
 		    ||  ((Lf->inp_ty == 1) && (pfi->inode == Lf->inode))
 # endif	/* defined(HASPINODEN) */

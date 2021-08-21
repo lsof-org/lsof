@@ -378,7 +378,7 @@ process_node(va)
 # endif	/* FREEBSDV>=2000 */
 #endif	/* defined(HASPROCFS) */
 
-#if	defined(HASPSEUDOFS) 
+#if	defined(HASPSEUDOFS)
 	struct pfs_node pn;
 	struct pfs_node *pnp;
 #endif	/* defined(HASPSEUDOFS) */
@@ -442,7 +442,7 @@ process_overlaid_node:
 	p = (struct pfsnode *)NULL;
 #endif	/* defined(HASPROCFS) */
 
-#if	defined(HASPSEUDOFS) 
+#if	defined(HASPSEUDOFS)
 	pnp = (struct pfs_node *)NULL;
 #endif	/* defined(HASPSEUDOFS) */
 

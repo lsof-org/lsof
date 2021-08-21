@@ -120,7 +120,7 @@ completevfs(vfs, dev)
  * with statsafely().
  */
 	if (v && v->vfs_name[0]) {
-		
+
 	    struct stat sb;
 
 	    if (!(vfs->dir = mkstrcpy(v->vfs_name, (MALLOC_S *)NULL))) {
@@ -232,7 +232,7 @@ readvfs(lv)
 # if	HPUXV<1000
 		(void) completevfs(vp, (dev_t *)&m.m_dev, &v);
 # else	/* HPUXV>=1000 */
-		(void) completevfs(vp, v.vfs_dev ? (dev_t *)&v.vfs_dev 
+		(void) completevfs(vp, v.vfs_dev ? (dev_t *)&v.vfs_dev
 						 : (dev_t *)&m.m_dev,
 				   &v);
 # endif	/* HPUXV<1000 */

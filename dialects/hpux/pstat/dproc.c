@@ -670,7 +670,7 @@ no_txtvm_space:
 		link_lfile();
 	}
 }
- 
+
 
 /*
  * read_det() -- read the pst_filedetails structure

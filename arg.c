@@ -288,7 +288,7 @@ ck_file_arg(i, ac, av, fv, rs, sbp)
 		    }
 		    sfp->i = (INODETYPE)sb.st_ino;
 		    sfp->mode = sb.st_mode & S_IFMT;
-		
+
 #if	defined(CKFA_EXPDEV)
 		/*
 		 * Expand device numbers before saving, so that they match the
@@ -487,7 +487,7 @@ ctrl_dcache(c)
 	char *c;			/* control string */
 {
 	int rc = 0;
-	
+
 	if (!c) {
 	    (void) fprintf(stderr,
 		"%s: no device cache option control string\n", Pn);
@@ -1646,7 +1646,7 @@ unacc_address:
 			n.af = AF_INET;
 		    he = lkup_hostnm(hn, &n);
 #endif	/* defined(HASIPv6) */
-		
+
 		    if (!he) {
 			fprintf(stderr, "%s: unknown host name (%s) in: -i ",
 			    Pn, hn);
@@ -1733,7 +1733,7 @@ unacc_port:
 		     * If no protocol has been specified, look up the port
 		     * numbers for the service name for both TCP and UDP.
 		     */
-			if((se = getservbyname(sn, "tcp")))
+			if ((se = getservbyname(sn, "tcp")))
 			    pt = (int)ntohs(se->s_port);
 			if ((se1 = getservbyname(sn, "udp")))
 			    pu = (int)ntohs(se1->s_port);
@@ -2055,7 +2055,7 @@ no_IorX_space:
 	cp = ssc;
 	err = 0;
 	while (*cp) {
-	
+
 	/*
 	 * Determine inclusion or exclusion for this state name.
 	 */

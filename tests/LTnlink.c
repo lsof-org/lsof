@@ -449,7 +449,7 @@ FindFile(opt, ff, ie, tfdc, ibuf, xlnk, szbuf)
 		    ti = -1;
 		    break;
 		}
-		ti = (ti * 10) + (int)*tcp - (int)'0'; 
+		ti = (ti * 10) + (int)*tcp - (int)'0';
 	    }
 	    if (Fd != ti)
 		break;

@@ -252,7 +252,7 @@ getnodety(v)
 	/*
 	 * Caution: this AFS test should be the last one.
 	 */
-	
+
 	else if (avops) {
 	    if (avops == (unsigned long)v->v_op)
 		return(N_AFS);
@@ -489,7 +489,7 @@ process_node(va)
 	    if (!v->v_data || readrnode((KA_T)v->v_data, &r)) {
 		(void) snpf(Namech, Namechl,
 		    "vnode at %s: can't read rnode (%s)",
-		    print_kptr(va, tbuf, sizeof(tbuf)), 
+		    print_kptr(va, tbuf, sizeof(tbuf)),
 		    print_kptr((KA_T)v->v_data, (char *)NULL, 0));
 		enter_nm(Namech);
 		return;

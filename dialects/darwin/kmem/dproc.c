@@ -615,7 +615,7 @@ read_procs()
 	MALLOC_S msz;
 	struct proc *p;
 	struct phash *ph, *phn;
- 
+
 	if (!Akp) {
 
 	/*

@@ -76,5 +76,5 @@ readj2lino(ga, li)
 	li->size = i.i_size;
 	li->dev_def = li->nlink_def = li->number_def = li->size_def = 1;
 	return(0);
-} 
+}
 #endif	/* defined(HAS_JFS2) */

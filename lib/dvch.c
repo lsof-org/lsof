@@ -421,7 +421,7 @@ dcpath(rw, npw)
 	    /*
 	     * ``%h'' converts to the home directory.
 	     */
-	
+
 	    case 'h':
 		if (!p && !(p = getpwuid(Myuid))) {
 		    if (!Fwarn)
@@ -520,7 +520,7 @@ dcpath(rw, npw)
 				"%s: WARNING: ignoring environment: %s",
 				Pn, HASPERSDCPATH);
 			    safestrprt(cp2, stderr, 1);
-			} 
+			}
 			wpp = 0;
 		    }
 		}

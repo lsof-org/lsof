@@ -300,7 +300,7 @@ struct sfile {
 
 };
 
-#define	XDR_VOID	(const xdrproc_t)xdr_void 
+#define	XDR_VOID	(const xdrproc_t)xdr_void
 #define	XDR_PMAPLIST	(const xdrproc_t)xdr_pmaplist
 
 

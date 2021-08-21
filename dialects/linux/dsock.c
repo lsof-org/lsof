@@ -1041,7 +1041,7 @@ enter_uxsinfo (up)
 static void
 fill_uxicino (si, ic)
 	INODETYPE si;			/* UNIX socket inode number */
-	INODETYPE ic;			/* incomining UNIX socket connection 
+	INODETYPE ic;			/* incoming UNIX socket connection
 					 * inode number */
 {
 	uxsin_t *psi;			/* pointer to socket's information */
@@ -1137,7 +1137,7 @@ get_diagmsg(sockfd)
 
 
 /*
- * get_uxpeeri() - get UNIX socket peer inode information 
+ * get_uxpeeri() - get UNIX socket peer inode information
  */
 
 static void
@@ -1173,9 +1173,9 @@ get_uxpeeri()
 		goto get_uxpeeri_exit;
 	    hp = (struct nlmsghdr *)rb;
 	    while (NLMSG_OK(hp, nb)) {
-		if(hp->nlmsg_type == NLMSG_DONE)
+		if (hp->nlmsg_type == NLMSG_DONE)
 		    goto get_uxpeeri_exit;
-		if(hp->nlmsg_type == NLMSG_ERROR) {
+		if (hp->nlmsg_type == NLMSG_ERROR) {
 		    (void) fprintf(stderr,
 			"%s: netlink UNIX socket msg peer info error\n", Pn);
 		    goto get_uxpeeri_exit;
@@ -1231,7 +1231,7 @@ parse_diag(dm, len)
 		}
 		break;
 	    case UNIX_DIAG_ICONS:
-		icct = RTA_PAYLOAD(rp), 
+		icct = RTA_PAYLOAD(rp),
 		icp = (uint32_t *)RTA_DATA(rp);
 
 		for (i = 0; i < icct; i += sizeof(uint32_t), icp++) {
@@ -1382,8 +1382,8 @@ process_uxsinfo(f)
 	}
 }
 #endif	/* defined(HASEPTOPTS) && defined(HASUXSOCKEPT) */
- 
- 
+
+
 #if	defined(HASEPTOPTS)
 /*
  * enter_netsinfo_common() -- enter inet or inet6 socket info
@@ -2060,7 +2060,7 @@ get_ipx(p)
 	(void) fclose(xs);
 }
 
- 
+
 /*
  * get_netlink() - get /proc/net/netlink info
  */
@@ -2075,7 +2075,7 @@ get_netlink(p)
 	INODETYPE inode;
 	struct nlksin *np, *lp;
 	static char *vbuf = (char *)NULL;
-	static size_t vsz = (size_t)0;	
+	static size_t vsz = (size_t)0;
 	FILE *xs;
 /*
  * Do second time cleanup or first time setup.
@@ -2784,7 +2784,7 @@ get_sctpaddrs(fp, i, nf, x)
 		break;
 	    if (cp)
 		cp = (char *)realloc((MALLOC_P *)cp, al + tl + 1);
-	    else 
+	    else
 		cp = (char *)malloc(al + tl + 1);
 	    if (!cp)
 		break;
@@ -2852,7 +2852,7 @@ get_tcpudp(p, pr, clr)
  * If no hash buckets have been allocated, do so now.
  */
 	} else {
-	
+
 	/*
 	 * Open the /proc/net/sockstat file and establish the hash bucket
 	 * count from its "sockets: used" line.
@@ -2895,7 +2895,7 @@ get_tcpudp(p, pr, clr)
 /*
  * Open the /proc/net file, assign a page size buffer to the stream, and
  * read it.
- */ 
+ */
 	if (!(fs = open_proc_stream(p, "r", &vbuf, &vsz, 0)))
 	    return;
 	nf = 12;
@@ -3220,7 +3220,7 @@ get_tcpudp6(p, pr, clr)
 #endif	/* defined(HASEPTOPTS) */
 	    }
 	} else {
-	
+
 	/*
 	 * Open the /proc/net/sockstat6 file and establish the hash bucket
 	 * count from its "TCP6: inuse" and "UDP6: inuse" lines.
@@ -3731,7 +3731,7 @@ print_ax25info(ap)
 	    (void) snpf(&pbuf[pl], sizeof(pbuf) - pl, "(Sq=%lu ", ap->sq);
 	    pl = strlen(pbuf);
 	    cp = "";
-	} else 
+	} else
 	    cp = "(";
 	if (ap->rqs) {
 	    (void) snpf(&pbuf[pl], sizeof(pbuf) - pl, "%sRq=%lu ", cp, ap->rq);
@@ -3977,7 +3977,7 @@ process_proc_sock(p, pbr, s, ss, l, lss)
 	if ((ss & SB_INO)
 	&&  (ap = check_ax25((INODETYPE)s->st_ino))
 	) {
-	
+
 	/*
 	 * The inode is connected to an AX25 /proc record.
 	 *
@@ -4107,7 +4107,7 @@ process_proc_sock(p, pbr, s, ss, l, lss)
 	     * Store the state, optionally prefixed by a space, in the
 	     * form "st=x...x".
 	     */
-	    
+
 		if (nl > (len = ((cp == Namech) ? 0 : 1) + 3 + rp->spl)) {
 		    (void) snpf(cp, nl, "%sst=%s",
 			(cp == Namech) ? "" : " ", rp->sp);
@@ -4312,7 +4312,7 @@ process_proc_sock(p, pbr, s, ss, l, lss)
 		cp = "SLOW";
 		break;
 #endif	/* defined(ETH_P_SLOW) */
-	
+
 #if	defined(ETH_P_WCCP)
 	    case ETH_P_WCCP:
 		cp = "WCCP";
@@ -4531,7 +4531,7 @@ process_proc_sock(p, pbr, s, ss, l, lss)
 	    Namech[Namechl - 1] = '\0';
 	    (void) enter_nm(Namech);
 	    if (Sfile) {
-	    
+
 	    /*
 	     * See if this UNIX domain socket was specified as a search
 	     * argument.
@@ -4648,7 +4648,7 @@ process_proc_sock(p, pbr, s, ss, l, lss)
 	     * Store the state, optionally prefixed by a space, in the
 	     * form "st=x...x".
 	     */
-	    
+
 		if (nl > (len = ((cp == Namech) ? 0 : 1) + 3 + rp->spl)) {
 		    (void) snpf(cp, nl, "%sst=%s",
 			(cp == Namech) ? "" : " ", rp->sp);
@@ -4906,10 +4906,10 @@ process_proc_sock(p, pbr, s, ss, l, lss)
 		    sp->addr ? sp->addr : "",
 		    (sp->laddrs || sp->lport) ? " " : "",
 		    sp->laddrs ? sp->laddrs : "",
-		    sp->lport ? "[" : "", 
-		    sp->lport ? sp->lport : "", 
+		    sp->lport ? "[" : "",
+		    sp->lport ? sp->lport : "",
 		    sp->lport ? "]" : ""
-		 ); 
+		 );
 	    } else {
 
 	    /*
@@ -4922,16 +4922,16 @@ process_proc_sock(p, pbr, s, ss, l, lss)
 		    (sp->addr && sp->assocID) ? "," : "",
 		    sp->assocID ? sp->assocID : "",
 		    sp->laddrs ? sp->laddrs : "",
-		    sp->lport ? "[" : "", 
-		    sp->lport ? sp->lport : "", 
-		    sp->lport ? "]" : "", 
+		    sp->lport ? "[" : "",
+		    sp->lport ? sp->lport : "",
+		    sp->lport ? "]" : "",
 		    ((sp->laddrs || sp->lport) && (sp->raddrs || sp->rport))
 			? "<->" : "",
 		    sp->raddrs ? sp->raddrs : "",
-		    sp->rport ? "[" : "", 
-		    sp->rport ? sp->rport : "", 
+		    sp->rport ? "[" : "",
+		    sp->rport ? sp->rport : "",
 		    sp->rport ? "]" : ""
-		 ); 
+		 );
 	    }
 	    if (Namech[0])
 		enter_nm(Namech);
@@ -5007,7 +5007,7 @@ process_proc_sock(p, pbr, s, ss, l, lss)
 		prp = &Namech[i];
 		sz = (ssize_t)(Namechl - i - 1);
 	    }
-	    if ((getxattr(pbr, "system.sockprotoname", prp, sz)) < 0) 
+	    if ((getxattr(pbr, "system.sockprotoname", prp, sz)) < 0)
 		enter_nm("can't identify protocol");
 	    else
 		enter_nm(Namech);

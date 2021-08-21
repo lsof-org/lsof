@@ -22,9 +22,9 @@
 #undef	TCP_NODELAY
 #undef	TCP_MAXSEG
 
-typedef struct kcondvar {     
-	uint32_t _dummy1[6];  
-} kcondvar_t; 
+typedef struct kcondvar {
+	uint32_t _dummy1[6];
+} kcondvar_t;
 
 typedef struct mntinfo {
 	kmutex_t mi_lock;

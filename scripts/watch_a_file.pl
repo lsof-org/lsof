@@ -72,7 +72,7 @@ exit 1;
 # $path   = absolute or relative path to file to test for executabiity.
 #	    Paths that begin with neither '/' nor '.' that arent't found as
 #	    simple references are also tested with the path prefixes of the
-#	    PATH environment variable.  
+#	    PATH environment variable.
 
 sub
 isexec {

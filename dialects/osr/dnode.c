@@ -333,7 +333,7 @@ process_node(na)
 		}
 	    /*
 	     * Get the module names of all queue elements of the stream's
-	     * sd_wrq queue.  Skip module names that end in "head", 
+	     * sd_wrq queue.  Skip module names that end in "head",
 	     * match the last component of the /dev name, or match the
 	     * cdevsw[].d_name.
 	     */

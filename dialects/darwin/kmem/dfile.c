@@ -89,7 +89,7 @@ struct pshminfo {
     off_t pshm_length;
     mode_t pshm_mode;
     uid_t pshm_uid;
-    gid_t pshm_gid;       
+    gid_t pshm_gid;
     char pshm_name[PSHMNAMLEN + 1];
     void *pshm_memobject;
 };

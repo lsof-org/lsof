@@ -64,7 +64,7 @@ main(argc, argv)
 	    pn++;
     else
 	    pn = argv[0];
-	
+
     (void) printf("%s ... %s\n", pn, LT_DONT_DO_TEST);
     return(0);
 }
@@ -341,7 +341,7 @@ main(argc, argv)
 	(void) PrtMsgX(em, Pn, cleanup, 1);
 /*
  * Construct the path.  If LT_BIGSZOFF_PATH is defined in the environment,
- * use it. otherwise construct a path in the CWD. 
+ * use it. otherwise construct a path in the CWD.
  */
     if (!(Path = LTopt_p)) {
 	(void) snprintf(buf, sizeof(buf), "./config.LTbigf%ld",

@@ -356,7 +356,7 @@ readdev(skip)
 		(size_t)sizeof(struct l_dev *), compdev);
 	    BNdev = rmdupdev(&BSdev, BNdev, "block");
 	}
-	
+
 #  if	!defined(NOWARNBLKDEV)
 	else {
 	    if (!Fwarn)

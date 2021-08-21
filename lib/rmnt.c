@@ -64,7 +64,7 @@ static char copyright[] =
  *     containing an integer file system type, and MOUNTS_STAT_FSTYPE to
  *     specify the member name of the integer in the local mounts structure
  *     where RMNT_STAT_FSTYPE is to be copied.
- *     
+ *
  */
 
 #if	!defined(RMNT_EXPDEV)

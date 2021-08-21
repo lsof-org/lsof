@@ -135,7 +135,7 @@ project has so far generated only two kernel modification:
     *  An experimental modification to /usr/src/linux/fs/stat.c
        allows lstat(2) to return file position information for
        /proc/<PID>/fd/<FD> files.
-       
+
        Contact me for this modification.
 
 
@@ -462,15 +462,15 @@ A few basic philosophies govern the coding of lsof 4 functions:
        the cost of nearly-duplicate code.
 
        When #if/#else/#endif constructs are necessary:
-       
+
        o  Use the form
 
 		#if	defined(s<symbol>)
-	
+
 	  in preference to
-	
+
 		#ifdef	<symbol>
-	
+
 	  to allow easier addition of tests to the #if.
 
        o  Indent them to signify their level -- e.g.,
@@ -486,7 +486,7 @@ A few basic philosophies govern the coding of lsof 4 functions:
     *  Document copiously.
 
     *  Aim for ANSI-C compatibility:
-    
+
        o  Use function prototypes for all functions, hiding them
 	  from compilers that cannot handle them with the _PROTOTYPE()
 	  macro.
@@ -950,7 +950,7 @@ possibilities
 			file system support.
 
     HAS_LGRP_ROOT_CONFLICT
-			indicates the Solaris 9 or Solaris 10 system has 
+			indicates the Solaris 9 or Solaris 10 system has
 			a conflict over the lgrp_root symbol in the
 			<sys/lgrp.h> and <sys/lgrp_user.h> header files.
 

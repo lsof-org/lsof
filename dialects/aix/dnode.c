@@ -879,7 +879,7 @@ process_clone_again:
 #if	defined(HAS_SANFS)
 	case N_SANFS:
 	    if (sans) {
-	    
+
 	    /*
 	     * DEBUG: this code is insufficient.  It can't be completed until
 	     * IBM makes the SANFS header files available in /usr/include.

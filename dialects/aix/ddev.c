@@ -89,7 +89,7 @@ getchan(p)
 	int ch;
 	char *s;
 
-	if (!(s = strrchr(p, '/'))) 
+	if (!(s = strrchr(p, '/')))
 		return(-1);
 	if (*(++s) == '\0')
 		return(-1);

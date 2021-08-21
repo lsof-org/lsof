@@ -251,7 +251,7 @@ ckkv(d, er, ev, ea)
 
 #define	OSLEVEL		"oslevel"
 #define	OSLEVELPATH	"/usr/bin/oslevel"
-	
+
 	if (stat(OSLEVELPATH, &sb)) {
 
 #  if	AIXV<4100
@@ -538,7 +538,7 @@ gather_proc_info()
 	     */
 		ckscko = (sf & SelProc) ? 0 : 1;
 	    }
-	    
+
 #else	/* AIXV>=4300 */
 	/*
 	 * For AIX 4.3 and above, skip processes excluded by the procsinfo
@@ -602,7 +602,7 @@ gather_proc_info()
 		 * from the PROCINFO structure.  Try the offsets 0, 48, and
 		 * -48.  Note: these offsets are heuristic attempts to adjust
 		 * to differences in the user struct as observed on two systems
-		 * whose <sys/user.h> header files differed.  U_maxofile 
+		 * whose <sys/user.h> header files differed.  U_maxofile
 		 * follows U_loader by the same number of elements in both
 		 * user structs, so the U_loader offset should be the same as
 		 * the U_maxofile offset.

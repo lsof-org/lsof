@@ -53,7 +53,7 @@
 
 #include <sys/filedesc.h>
 #include <sys/mbuf.h>
-  
+
 # if	defined(HAS_LWP_H)
 #include <sys/lwp.h>
 # endif	/* defined(HAS_LWP_H) */
@@ -185,7 +185,7 @@ struct nameidata;	/* to satisfy a function prototype in msdosfsmount.h */
 #  endif	/* !defined(TF_ECN_PERMIT) */
 
 #  if	!defined(TF_RCVD_CE)
-#define	TF_RCVD_CE	0x00010000	/* send ECE in subsequent segs */ 
+#define	TF_RCVD_CE	0x00010000	/* send ECE in subsequent segs */
 #  endif	/* !defined(TF_RCVD_CE) */
 
 #  if	!defined(TF_SEND_CWR)
@@ -516,7 +516,7 @@ struct mounts {
 
 extern int Np;				/* number of kernel processes */
 
-# if	defined(HASKVMGETPROC2) 
+# if	defined(HASKVMGETPROC2)
 struct kinfo_proc2 *P;			/* local process table copy */
 # else	/* ! defined(HASKVMGETPROC2) */
 struct kinfo_proc *P;			/* local process table copy */
