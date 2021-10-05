@@ -24,7 +24,7 @@ lsof \- list open files
 ] [
 .BI +|\-e " s"
 ] [
-.B +|-E
+.B +|\-E
 ] [
 .B +|\-f [cfgGn]
 ] [
@@ -66,7 +66,7 @@ lsof \- list open files
 ] [
 .BI \-Z " [Z]"
 ] [
-.B --
+.B \-\-
 ] [\fInames\fP]
 .SH DESCRIPTION
 .I Lsof
@@ -643,7 +643,7 @@ is added in parentheses to the end of the NAME column.
 .BI +|\-m " m"
 option.)
 .TP \w'names'u+4
-.B +|-E
+.B +|\-E
 .B +E
 specifies that Linux pipe, Linux UNIX socket, Linux INET(6) socket closed in a local host, Linux pseudoterminal files,
 POSIX Message Queueue implementation in Linux, and Linux eventfd
@@ -671,7 +671,7 @@ is the endpoint file's access mode.
 .IP
 Pseudoterminal
 endpoint information is displayed in the NAME column as
-``->/dev/pts\fImin\fP\ \fIPID,cmd,FDmode\fP'' or ``\fIPID,cmd,FDmode\fP''.
+``\->/dev/pts\fImin\fP\ \fIPID,cmd,FDmode\fP'' or ``\fIPID,cmd,FDmode\fP''.
 The first form is for a master device; the second, for a slave device.
 .I min
 is a slave device's minor device number; and
@@ -687,7 +687,7 @@ output contains HASPTYEPT. In addition, this feature works on Linux kernels abov
 UNIX socket file endpoint information is displayed in the NAME column
 in the form
 .br
-``type=\fITYPE\fP\ ->INO=\fIINODE\fP\ \fIPID,cmd,FDmode\fP'', where
+``type=\fITYPE\fP\ \->INO=\fIINODE\fP\ \fIPID,cmd,FDmode\fP'', where
 .I TYPE
 is the socket type;
 .I INODE
@@ -705,7 +705,7 @@ output contains HASUXSOCKEPT.
 INET socket file endpoint information is inserted to the value at the
 NAME column in th form
 .br
-...`` -> \fIPID,cmd,FDmode\fP'' ..., where
+...`` \-> \fIPID,cmd,FDmode\fP'' ..., where
 .I "PID, cmd, FD"
 and
 .I mode
@@ -723,7 +723,7 @@ above 5.2.0.
 Multiple occurrences of this information can appear in a file's
 NAME column.
 .IP
-.B -E
+.B \-E
 specifies that endpoint supported files should be displayed
 with endpoint information, but not the files of the endpoints.
 .TP \w'names'u+4
@@ -1572,11 +1572,11 @@ option (without a following protocol and state name list)
 are mutually exclusive; they can't both be specified.
 When neither is specified,
 .I lsof
-displays whatever value \- size or offset \- is appropriate and
+displays whatever value - size or offset - is appropriate and
 available for the type of file.
 .IP
-Since some types of files don't have true sizes \- sockets, FIFOs,
-pipes, etc.\& \- lsof displays for their sizes the content amounts in
+Since some types of files don't have true sizes - sockets, FIFOs,
+pipes, etc.\& - lsof displays for their sizes the content amounts in
 their associated kernel buffers, if possible.
 .TP \w'names'u+4
 .BI \-S " [t]"
@@ -1704,14 +1704,14 @@ header), so that it is easy to use programmatically. e.g.
 .nf
 
 	# reload anything using old SSL
-	lsof -t /lib/*/libssl.so.* | xargs -r kill -HUP
+	lsof \-t /lib/*/libssl.so.* | xargs \-r kill \-HUP
 
 	# get list of processes and then iterate over them (Bash only)
-	mapfile -t pids < <(
-	    lsof -wt /var/log/your.log
+	mapfile \-t pids < <(
+	    lsof \-wt /var/log/your.log
 	)
 	for pid in "${pids[@]}" ; do
-	    your_command -p "$pid"
+	    your_command \-p "$pid"
 	done
 
 .fi
@@ -2334,8 +2334,8 @@ or hexadecimal leading ``\\x'' form (e.g., ``\\xab'').
 Space is non\-printable in the COMMAND column (``\\x20'')
 and printable elsewhere.
 .PP
-For some dialects \- if HASSETLOCALE is defined in the dialect's
-machine.h header file \-
+For some dialects - if HASSETLOCALE is defined in the dialect's
+machine.h header file -
 .I lsof
 will print the extended 8 bit characters of a language locale.
 The
@@ -2346,16 +2346,16 @@ in which the extended characters are considered printable by
 .IR isprint (3).
 Otherwise
 .I lsof
-considers the extended characters non\-printable and prints them according
-to its rules for non\-printable characters, stated above.
+considers the extended characters non-printable and prints them according
+to its rules for non-printable characters, stated above.
 Consult your dialect's
 .IR setlocale (3)
 man page for the names of other environment variables that may
-be used in place of LANG \- e.g., LC_ALL, LC_CTYPE, etc.
+be used in place of LANG - e.g., LC_ALL, LC_CTYPE, etc.
 .PP
 .I Lsof's
-language locale support for a dialect also covers wide characters \- e.g.,
-UTF-8 \- when HASSETLOCALE and HASWIDECHAR are defined in the dialect's
+language locale support for a dialect also covers wide characters - e.g.,
+UTF-8 - when HASSETLOCALE and HASWIDECHAR are defined in the dialect's
 machine.h header file, and when a suitable language locale has been defined
 in the appropriate environment variable for the
 .I lsof
@@ -2614,7 +2614,7 @@ or ``MPB'' for a multiplexed block file;
 .IP
 or ``MPC'' for a multiplexed character file;
 .IP
-or ``NOFD'' for a Linux /proc/<PID>/fd directory that can't be opened \--
+or ``NOFD'' for a Linux /proc/<PID>/fd directory that can't be opened --
 the directory path appears in the NAME column, followed by an error
 message;
 .IP
@@ -2836,7 +2836,7 @@ or
 has been specified to
 .BR +f ,
 this field contains the contents of the f_flag[s] member of the kernel
-file structure and the kernel's per\-process open file flags (if available);
+file structure and the kernel's per-process open file flags (if available);
 \&`G' causes them to be displayed in hexadecimal;
 \&`g', as short\-hand names;
 two lists may be displayed with entries separated by commas, the
@@ -2863,7 +2863,7 @@ the following table:
 	DIR		direct
 	DLY		delay
 	DOCL		do clone
-	DSYN		data\-only integrity
+	DSYN		data-only integrity
 	DTY		must be a directory
 	EVO		event only
 	EX		open for exec
@@ -2874,7 +2874,7 @@ the following table:
 	GTTY		accessed via /dev/tty
 	HUP		HUP in progress
 	KERN		kernel
-	KIOC		kernel\-issued ioctl
+	KIOC		kernel-issued ioctl
 	LCK		has lock
 	LG		large file
 	MBLK		stream message block
@@ -2930,10 +2930,10 @@ the following table:
 this list of names was derived from F* #define's in dialect header files
 <fcntl.h>, <linux</fs.h>, <sys/fcntl.c>, <sys/fcntlcom.h>, and <sys/file.h>;
 see the lsof.h header file for a list showing the correspondence
-between the above short\-hand names and the header file definitions;
+between the above short-hand names and the header file definitions;
 .IP
-the second list (after the semicolon) may contain short\-hand names
-for kernel per\-process open file flags from this table:
+the second list (after the semicolon) may contain short-hand names
+for kernel per-process open file flags from this table:
 .IP
 .nf
 	ALLC		allocated
@@ -2941,13 +2941,13 @@ for kernel per\-process open file flags from this table:
 	BHUP		activity stopped by SIGHUP
 	BW		the file has been written
 	CLSG		closing
-	CX		close\-on-exec (see fcntl(F_SETFD))
+	CX		close-on-exec (see fcntl(F_SETFD))
 	LCK		lock was applied
-	MP		memory\-mapped
-	OPIP		open pending \- in progress
+	MP		memory-mapped
+	OPIP		open pending - in progress
 	RSVW		reserved wait
 	SHMT		UF_FSHMAT set (AIX)
-	USE		in use (multi\-threaded)
+	USE		in use (multi-threaded)
 .fi
 .TP
 NODE\-ID
@@ -3851,7 +3851,7 @@ The permissions are set by the local system administrator when
 .I lsof
 is installed.
 .PP
-The first and rarer permission is setuid\-root.
+The first and rarer permission is setuid-root.
 It comes into effect when
 .I lsof
 is executed; its effective UID is then
@@ -4383,7 +4383,7 @@ locks that might be described by multiple lock structures.
 .I Lsof
 can't search for files with restrictive access permissions by
 .I name
-unless it is installed with root set\-UID permission.
+unless it is installed with root set-UID permission.
 Otherwise it is limited to searching for files to which its user
 or its set-GID group (if any) has access permission.
 .PP
@@ -4489,7 +4489,7 @@ distribution.
 .PP
 That latest version of the file is found at:
 .IP
-https://github.com/lsof-org/lsof/blob/master/00FAQ
+https://github.com/lsof\-org/lsof/blob/master/00FAQ
 .SH FILES
 .TP \w'.lsof_hostname'u+4
 .I /dev/kmem
@@ -4511,7 +4511,7 @@ is the first component of the host's name returned by
 .SH AUTHORS
 .I Lsof
 was written by Victor A.\&Abell <abe@purdue.edu> of Purdue University.
-Since version 4.93.0, the lsof-org team at GitHub maintains lsof.
+Since version 4.93.0, the lsof\-org team at GitHub maintains lsof.
 Many others have contributed to
 .IR lsof .
 They're listed in the
@@ -4524,7 +4524,7 @@ The latest distribution of
 .I lsof
 is available at
 .IP
-https://github.com/lsof-org/lsof/releases
+https://github.com/lsof\-org/lsof/releases
 .SH SEE ALSO
 .PP
 Not all the following manual pages may exist in every UNIX

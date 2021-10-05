@@ -5273,6 +5273,12 @@ July 14, 2018
 		- fix spelling
 		Provided by @a1346054 in #163.
 
+		man page: fix hyphen issues
+		Properly use '-' and '\-' in the man page, ensuring that users
+		can cut & paste commandline options without issue. Original
+		patch from Raoul Gunnar Borenius <borenius@dfn.de>, and
+		submitted/expanded by @dilinger (Andres Salomon) in #168.
+
 
 The lsof-org team at GitHub
 November 11, 2020
