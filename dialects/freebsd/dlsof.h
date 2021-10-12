@@ -559,7 +559,7 @@ typedef	u_long		KA_T;
  * Global storage definitions (including their structure definitions)
  */
 
-struct file * Cfp;
+extern struct file * Cfp;
 
 # if	FREEBSDV>=2000
 extern kvm_t *Kd;
