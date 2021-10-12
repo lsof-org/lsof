@@ -43,7 +43,7 @@ part of them. The current status of maintenance is as follows:
 
 <dl>
 <dt>freebsd</dt>
-<dd>partially maintained, but testing on Cirrus CI is temporary disabled</dd>
+<dd>partially maintained and tested on Cirrus CI</dd>
 <dt>linux</dt>
 <dd>fully maintained, and tested on Travis CI</dd>
 <dt>darwin</dt>

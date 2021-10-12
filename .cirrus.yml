@@ -1,29 +1,13 @@
-# freebsd13_task:
-#   freebsd_instance:
-#     image: freebsd-13-0-current-amd64-v20200604
-#   timeout_in: 120m
-#   install_script: pkg install -y git bash
-#   script:
-#     - ./Configure -n freebsd
-#     - make
-#     - bash ./check.bash freebsd
-
-# freebsd12_task:
-#   freebsd_instance:
-#     image: freebsd-12-1-release-amd64
-#   timeout_in: 120m
-#   install_script: pkg install -y git bash
-#   script:
-#     - ./Configure -n freebsd
-#     - make
-#     - bash ./check.bash freebsd
-
-# freebsd11_task:
-#   freebsd_instance:
-#     image: freebsd-11-3-release-amd64
-#   timeout_in: 120m
-#   install_script: pkg install -y git bash
-#   script:
-#     - ./Configure -n freebsd
-#     - make
-#     - bash ./check.bash freebsd
+task:
+  freebsd_instance:
+    cpu: 1
+    matrix:
+      - image: freebsd-13-0-release-amd64
+      - image: freebsd-12-2-release-amd64
+      - image: freebsd-11-4-release-amd64
+  install_script: pkg install -y bash
+  build_script:
+    - ./Configure -n freebsd
+    - make
+  test_script:
+    - bash ./check.bash freebsd
