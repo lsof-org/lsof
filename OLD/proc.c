@@ -331,7 +331,7 @@ alloc_lproc(pid, pgid, ppid, uid, cmd, pss, sf)
  */
 	Lp->zn = (char *)NULL;
 #endif	/* defined(HASZONES) */
- 
+
 #if	defined(HASSELINUX)
 /*
  * Clear the security context pointer.  The dialect's own code will
@@ -601,7 +601,7 @@ is_cmd_excl(cmd, pss, sf)
 /*
  * The command is not excluded if no command selection was requested,
  * or if its name matches any -c <command> specification.
- * 
+ *
  */
 	if ((Selflags & SELCMD) == 0)
 	    return(0);
@@ -956,7 +956,7 @@ process_pinfo(f)
 	int i;				/* temporary index */
 	char nma[1024];			/* name addition buffer */
 	pxinfo_t *pp;			/* previous pipe info */
-	
+
 	if (!FeptE)
 	    return;
 	for (Lf = Lp->file; Lf; Lf = Lf->next) {
@@ -1172,7 +1172,7 @@ print_proc()
 	    if (FieldSel[LSOF_FIX_ZONE].st && Fzone && Lp->zn)
 		(void) printf("%c%s%c", LSOF_FID_ZONE, Lp->zn, Terminator);
 #endif	/* defined(HASZONES) */
- 
+
 #if	defined(HASSELINUX)
 	    if (FieldSel[LSOF_FIX_CNTX].st && Fcntx && Lp->cntx && CntxStatus)
 		(void) printf("%c%s%c", LSOF_FID_CNTX, Lp->cntx, Terminator);

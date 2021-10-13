@@ -209,7 +209,7 @@ print_file_error:
  */
     if ((em = ConvStatDev(&tfsb.st_dev, &tfdc)))
 	PrtMsgX(em, Pn, cleanup, 1);
-    (void) snprintf(ibuf, sizeof(ibuf) - 1, "%u", (unsigned int)tfsb.st_ino);
+    (void) snprintf(ibuf, sizeof(ibuf) - 1, "%" PRIu64, (uint64_t)tfsb.st_ino);
     ibuf[sizeof(szbuf) - 1] = '\0';
     (void) snprintf(xlnk, sizeof(xlnk) - 1, "%d", (int)tfsb.st_nlink);
     ibuf[sizeof(szbuf) - 1] = '\0';
@@ -449,7 +449,7 @@ FindFile(opt, ff, ie, tfdc, ibuf, xlnk, szbuf)
 		    ti = -1;
 		    break;
 		}
-		ti = (ti * 10) + (int)*tcp - (int)'0'; 
+		ti = (ti * 10) + (int)*tcp - (int)'0';
 	    }
 	    if (Fd != ti)
 		break;

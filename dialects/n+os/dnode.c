@@ -380,7 +380,7 @@ process_node(va)
 	/*
 	 * Caution: this AFS test should be the last one.
 	 */
-	
+
 	else if (avops) {
 	    if ((KA_T)v->v_op == avops)
 		Ntype = N_AFS;

@@ -774,7 +774,7 @@
   So consult 00FAQ first if you encounter a NAME column message you
   don't understand.  (00FAQ is a possible source of information
   about other unfamiliar things in lsof output, too.)
-  
+
   If you can't find help in 00FAQ, you can use grep to look in the
   lsof source files for the message -- e.g.,
 
@@ -820,7 +820,7 @@ A.  Selection Options
 
 	-a	tells lsof to AND the set of selection options that
 		are specified.  Normally lsof ORs them.
-		
+
 		For example, if you specify the -p<PID> and -u<UID>
 		options, lsof will display all files for the
 		specified PID or for the specified UID.
@@ -1014,7 +1014,7 @@ D.  Miscellaneous Lsof Options
 		for arguments to the last option.  Example:
 
 		    $ lsof -g -- 1
-		
+
 		Where `1' is a file path, not PGID ID 1.
 
 

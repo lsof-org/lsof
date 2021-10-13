@@ -62,7 +62,7 @@
  * For gcc's sake, some redefinitions after including <sys/types.h> insure
  * the off64_t and offset_t types are aligned on an 8 byte boundary.
  */
- 
+
 #  if	AIXV>=4300
 #define	_KERNEL	1
 #  endif	/* AIXV>=4300 */

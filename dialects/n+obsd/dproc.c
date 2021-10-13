@@ -186,7 +186,7 @@ gather_proc_info()
 	P = kvm_getproc2(Kd, KERN_PROC_ALL, 0, KVMPROCSZ2, &Np);
 #else	/* !defined(HASKVMGETPROC2) */
 	P = kvm_getprocs(Kd, KERN_PROC_ALL, 0, &Np);
-#endif	/* defined(HASKVMGETPROC2) &/
+#endif	/* defined(HASKVMGETPROC2) */
 
 	if (!P) {
 	    (void) fprintf(stderr, "%s: can't read process table: %s\n",

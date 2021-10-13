@@ -293,7 +293,15 @@ doinchild(fn, fp, rbuf, rbln)
 		 */
 
 		    int r_al, r_rbln;
-		    char r_arg[MAXPATHLEN+1], r_rbuf[MAXPATHLEN+1];
+		    char r_arg[MAXPATHLEN+1];
+		    union {
+			    char r_rbuf[MAXPATHLEN+1];
+			    /*
+			     * This field is only for adjusting the alignment of r_rbuf that
+			     * can be used as an argument for stat().
+			     */
+			    struct stat _;
+		    } r;
 		    int (*r_fn)();
 		/*
 		 * Close sufficient open file descriptors except Pipes[0] and
@@ -358,16 +366,16 @@ doinchild(fn, fp, rbuf, rbln)
 			||  read(Pipes[0], r_arg, r_al) != r_al
 			||  read(Pipes[0], (char *)&r_rbln, sizeof(r_rbln))
 			    != (int)sizeof(r_rbln)
-			||  r_rbln < 1 || r_rbln > (int)sizeof(r_rbuf))
+			||  r_rbln < 1 || r_rbln > (int)sizeof(r.r_rbuf))
 			    break;
-			zeromem (r_rbuf, r_rbln);
-			rv = r_fn(r_arg, r_rbuf, r_rbln);
+			zeromem (r.r_rbuf, r_rbln);
+			rv = r_fn(r_arg, r.r_rbuf, r_rbln);
 			en = errno;
 			if (write(Pipes[3], (char *)&rv, sizeof(rv))
 			    != sizeof(rv)
 			||  write(Pipes[3], (char *)&en, sizeof(en))
 			    != sizeof(en)
-			||  write(Pipes[3], r_rbuf, r_rbln) != r_rbln)
+			||  write(Pipes[3], r.r_rbuf, r_rbln) != r_rbln)
 			    break;
 		    }
 		    (void) _exit(0);
@@ -1036,7 +1044,7 @@ lstatsafely(path, buf)
 	struct stat *buf;		/* stat buffer address */
 {
 	if (Fblock) {
-	    if (!Fwarn) 
+	    if (!Fwarn)
 		(void) fprintf(stderr,
 		    "%s: avoiding stat(%s): -b was specified.\n",
 		    Pn, path);
@@ -1576,7 +1584,7 @@ statsafely(path, buf)
 	struct stat *buf;		/* stat buffer address */
 {
 	if (Fblock) {
-	    if (!Fwarn) 
+	    if (!Fwarn)
 		(void) fprintf(stderr,
 		    "%s: avoiding stat(%s): -b was specified.\n",
 		    Pn, path);

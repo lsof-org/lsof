@@ -1,7 +1,9 @@
 HELPERS = \
+	epoll \
 	eventfd \
 	mq_fork \
 	mq_open \
+	pidfd \
 	pipe \
 	pty \
 	ux \

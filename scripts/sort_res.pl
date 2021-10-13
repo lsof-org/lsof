@@ -1,5 +1,5 @@
 #!/usr/bin/perl
-# sort_res.perl5 - Script to group & sort lsof output by resource
+# sort_res.pl - Script to group & sort lsof output by resource
 #
 # Copyright (c) 2004, 2005 - Fabian Frederick <fabian.frederick@gmx.fr>
 #
@@ -18,22 +18,21 @@
 # distribution in the file COPYING); if not, write to the Free Software
 # Foundation,Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
-# Note : 
+# Note :
 #	-This script uses lsof released by Victor A. Abell
 #	-lsof path recovery comes from standard perl scripts in there.
 #
 # Usage :
-#	perl sort_res.perl5 -> display used resources + size
-#	or perl sort_res.perl5 <program name>
+#	perl sort_res.pl -> display used resources + size
+#	or perl sort_res.pl <program name>
 #
-# 12/2005 (FabF) 
+# 12/2005 (FabF)
 #	-size reset in loop (script was broken in 4.76)
 #	-isexec looking in .. (like other scripts)
 #	-display for one or all processes
 #	-removing unuseful line number arg.
 #	-display global size
 
-require 'getopts.pl';
 my @args = @_;
 
 # Set path to lsof.
@@ -49,11 +48,11 @@ if (($LSOF = &isexec("../lsof")) eq "") {    # Some distros use lsof
 if ($ARGV[0] ne ""){
     $cmd="$LSOF -nPl -Fcns -c".$ARGV[0]."|";
 }else{
-    $cmd="$LSOF -nPl -Fcns|";	
+    $cmd="$LSOF -nPl -Fcns|";
 }
 
 #Parse lsof output to gather command, resource name, pid and size
-#Some extradata stand to keep script genericity 
+#Some extradata stand to keep script genericity
 $i=0;
 if (open(FILE, $cmd)){
     while (defined ($line=<FILE>)){
@@ -94,7 +93,7 @@ foreach $k (@ks){
 	$dgroup{$i} = { name => $data{$k}{name}, size => $data{$k}{size}};
 	$cname = $data{$k}{name};
 	$i++;
-    }	
+    }
 }
 
 #Size sort on resource hash
@@ -113,7 +112,7 @@ printf("Total KB : %10d\n", $gsize/1024);
 # $path   = absolute or relative path to file to test for executabiity.
 #	    Paths that begin with neither '/' nor '.' that arent't found as
 #	    simple references are also tested with the path prefixes of the
-#	    PATH environment variable.  
+#	    PATH environment variable.
 
 sub
 isexec {

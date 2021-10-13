@@ -1,4 +1,3 @@
-
 			    Lsof Credits
 
 I owe an enormous debt to the users of lsof who have contributed
@@ -542,10 +541,24 @@ provided test systems where I was able to do development work.
 	Donald Zoch
 	Malcom Zung
 	Waldemar Zurowski
-	@eranik (github account) and
+	@eranik (github account)
 	@jolmg  (github account)
 	yasu@utahime.org (email)
 	jamie@catflap.org (email)
+	@hardikpnsp (github account)
+	Martin D Kealey
+	Henry Peteet
+	@zhrf2020
+	@JustAnotherArchivist
+	@po5857
+	@albert-github
+	Tobias Geerinckx-Rice
+	Andres Salomon
+	Nicholas Bamber
+	Grisha Levit
+	@10ne1 (github account)
+	@a1346054 and
+	Damjan Jovanovic
 
 If I have omitted a contributor's name, the fault is wholly mine,
 and I apologize for the error.
@@ -555,4 +568,4 @@ Vic Abell <abe@purdue.edu>
 March 27, 2018
 
 Masatake YAMATO <yamato@redhat.com> (since revision 4.92.1)
-December 24, 2019
+October 4, 2020

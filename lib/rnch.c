@@ -710,7 +710,7 @@ no_local_space:
 # else	/* !defined(NCACHE_NODEID) */
 	    lc->pa = ncache_addr(lc->dp);
 # endif	/* defined(NCACHE_NODEID) */
-	
+
 	}
 }
 

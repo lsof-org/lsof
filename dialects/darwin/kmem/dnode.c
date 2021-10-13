@@ -855,7 +855,7 @@ process_node(va)
 	     * Save node number.
 	     */
 		Lf->inode = (INODETYPE)sb.st_ino;
-		Lf->inp_ty = 1; 
+		Lf->inp_ty = 1;
 	    /*
 	     * Optionally save link count.
 	     */

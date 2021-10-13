@@ -1060,7 +1060,7 @@ open_kvm()
 
 #if	solaris>=20501 && solaris<70000
 	if ((Kmd = open((Memory ? Memory : KMEM), O_RDONLY)) < 0) {
-	    (void) fprintf(stderr, "%s: open(\"/dev/mem\"): %s\n", Pn, 
+	    (void) fprintf(stderr, "%s: open(\"/dev/mem\"): %s\n", Pn,
 		strerror(errno));
 	    Exit(1);
 	}
@@ -1095,7 +1095,7 @@ open_kvm()
  * avl_node_t.  These avl_nodes connect to other avl nodes embedded in
  * objects of the same type.  The avl_tree contains knowledge about the
  * size of the structure and the offset of the AVL node in the object
- * so we can convert between AVL nodes and (in this case) struct seg. 
+ * so we can convert between AVL nodes and (in this case) struct seg.
  *
  * This code was provided by Casper Dik <Casper.Dik@holland.sun.com>.
  */
@@ -1196,7 +1196,7 @@ process_text(pa)
 		if (kread((KA_T)s.s_data, (char *)&vn, sizeof(vn)))
 		    break;
 		if (vn.vp) {
-			
+
 		/*
 		 * This is a virtual node segment.
 		 *
@@ -1270,7 +1270,7 @@ process_text(pa)
 		if (kread((KA_T)s.s_data, (char *)&vn, sizeof(vn)))
 		    break;
 		if (vn.vp) {
-			
+
 		/*
 		 * This is a virtual node segment.
 		 *
@@ -1327,7 +1327,7 @@ readfsinfo()
 	    (void) fprintf(stderr, "%s: sysfs(GETNFSTYP) error: %s\n",
 		Pn, strerror(errno));
 	    Exit(1);
-	} 
+	}
 	if (Fsinfomax == 0)
 		return;
 	if (!(Fsinfo = (char **)malloc((MALLOC_S)(Fsinfomax * sizeof(char *)))))

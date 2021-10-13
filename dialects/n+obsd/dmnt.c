@@ -37,10 +37,10 @@ static char copyright[] =
 
 #if     defined(NETBSDV) && defined(HASSTATVFS)
 /*
- * NetBSD needs the statvfs structure to be defined without the 
+ * NetBSD needs the statvfs structure to be defined without the
  * pre-definition of _KERNEL.
  */
-  
+
 #include <sys/statvfs.h>
 #endif  /* defined(NETBSDV) && defined(HASSTATVFS) */
 

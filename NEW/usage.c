@@ -413,7 +413,7 @@ usage(xv, fh, version)
 	    (void) snpf(buf, sizeof(buf), "+c w  COMMAND width (%d)", CMDL);
 	    (void) fprintf(stderr, "  %-25.25s", buf);
 
-	    (void) fprintf(stderr, "  %s\n", 
+	    (void) fprintf(stderr, "  %s\n",
 
 #if	defined(HASNCACHE)
 		"-C no kernel name cache");
@@ -710,8 +710,6 @@ usage(xv, fh, version)
 		(void) fprintf(stderr, "    configuration info: %s\n", cp);
 #endif	/* defined(LSOF_CINFO) */
 
-	    if ((cp = isnullstr(LSOF_CCDATE)))
-		(void) fprintf(stderr, "    constructed: %s\n", cp);
 	    cp = isnullstr(LSOF_HOST);
 	    if (!(cp1 = isnullstr(LSOF_LOGNAME)))
 		cp1 = isnullstr(LSOF_USER);

@@ -1,12 +1,12 @@
 set -e
 
 if [ $# = 0 ]; then
-    echo Usage: $0 DIALECT 1>&2
+    echo "Usage: $0 DIALECT" 1>&2
     exit 1
 fi
 
 if ! [ -d dialects/$1 ]; then
-    echo No such dialect: $1 1>&2
+    echo "No such dialect: $1" 1>&2
     exit 1
 fi
 
@@ -14,8 +14,8 @@ echo
 echo RUNTIME ENVIRONMENT INFORMATION
 echo =============================================================================
 dialect=$1
-echo $dialect
-echo $BASH_VERSION
+echo "$dialect"
+echo "$BASH_VERSION"
 shopt
 export
 
@@ -46,7 +46,7 @@ run_one()
     chmod a+x $x
     name=$(basename $x .bash)
     if [ ${x%%/*} = "dialects" ]; then
-	prefix=${dialect}-
+        prefix=${dialect}-
     fi
     report=/tmp/${prefix}$name-$$.report
 
@@ -58,17 +58,17 @@ run_one()
     set -e
     ncases=$((ncases + 1))
     if [ "$s" = 0 ]; then
-	s=ok
-	nsuccessful=$(($nsuccessful + 1))
-	rm -f "$report"
+        s=ok
+        nsuccessful=$((nsuccessful + 1))
+        rm -f "$report"
     elif [ "$s" = 2 ]; then
-	s=skipped
-	nskipped=$((nskipped + 1))
-	REPORTS="${REPORTS} ${report}"
+        s=skipped
+        nskipped=$((nskipped + 1))
+        REPORTS="${REPORTS} ${report}"
     else
-	s=failed
-	nfailed=$((nfailed + 1))
-	REPORTS="${REPORTS} ${report}"
+        s=failed
+        nfailed=$((nfailed + 1))
+        REPORTS="${REPORTS} ${report}"
     fi
 
     printf "%s\n" $s
@@ -91,11 +91,11 @@ done
 report()
 {
     for r in "$@"; do
-	echo
-	echo $r
-	echo -----------------------------------------------------------------------------
-	cat $r
-	rm $r
+        echo
+        echo $r
+        echo -----------------------------------------------------------------------------
+        cat $r
+        rm $r
     done
 }
 
@@ -109,13 +109,13 @@ printf "failed: %d\n" $nfailed
 if [ $nfailed = 0 ]; then
     printf "All %d test cases are passed successfully\n" $ncases
     if [ $nskipped = 0 ]; then
-	:
+        :
     elif [ $nskipped = 1 ]; then
-	printf "but 1 case is skipped\n"
-	report $REPORTS
+        printf "but 1 case is skipped\n"
+        report $REPORTS
     else
-	printf "but %d cases are skipped\n" $nskipped
-	report $REPORTS
+        printf "but %d cases are skipped\n" $nskipped
+        report $REPORTS
     fi
     exit 0
 elif [ $nfailed = 1 ]; then

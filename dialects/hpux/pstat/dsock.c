@@ -136,7 +136,7 @@ make_sock(f, sh, s)
 	size_t sz;
 /*
  * Zero the destination pst_socket structure  and propagate its file and node
- * IDs from the stream head.  Also propagate the linger time. 
+ * IDs from the stream head.  Also propagate the linger time.
  */
 	(void)memset((void *)s, 0, sizeof(struct pst_socket));
 	s->pst_hi_fileid = sh->val.head.pst_hi_fileid;
@@ -1102,7 +1102,7 @@ process_socket(f, s)
 	    Lf->sz_def = 1;
 	} else
 	    Lf->off_def = 1;
-	
+
 #if     defined(HASTCPTPIQ)
 /*
  * Enter queue sizes.
@@ -1155,7 +1155,7 @@ process_socket(f, s)
 	    if (Fnet && (!FnetTy || (FnetTy != 6)))
 		Lf->sf |= SELNET;
 	    (void) snpf(Lf->type, sizeof(Lf->type),
-	    
+
 #if	defined(HASIPv6)
 		"IPv4"
 #else	/* !defined(HASIPv6) */
@@ -1460,7 +1460,7 @@ process_stream(f, ckscko)
 	    if (s[hx].type == PS_STR_HEAD)
 		break;
 	}
-	if (hx >= nsn) { 
+	if (hx >= nsn) {
 	    enter_nm("no stream head located");
 	    return;
 	}

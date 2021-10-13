@@ -63,6 +63,7 @@ dkms.conf
 *.gcno
 *~
 /Makefile
+lib/Makefile
 TAGS
 lsof
 tags
@@ -98,10 +99,12 @@ LTunix
 #
 # Dialect specific test related files
 #
+dialects/linux/tests/epoll
 dialects/linux/tests/eventfd
 dialects/linux/tests/mq_fork
 dialects/linux/tests/mq_open
 dialects/linux/tests/open_with_flags
+dialects/linux/tests/pidfd
 dialects/linux/tests/pipe
 dialects/linux/tests/pty
 dialects/linux/tests/ux

@@ -1,8 +1,6 @@
-#!/usr/local/bin/perl
+#!/usr/bin/perl
 #
-# $Id: shared.perl5,v 1.4 2001/11/18 12:20:46 abe Exp $
-#
-# shared.perl5 -- sample Perl 5 script to list processes that share
+# shared.pl    -- sample Perl 5 script to list processes that share
 #		  file descriptors or files, using `lsof +ffn -F..."
 #		  output
 #
@@ -387,7 +385,7 @@ sub Sort_by_PID_and_FD {
 # $path   = absolute or relative path to file to test for executabiity.
 #	    Paths that begin with neither '/' nor '.' that arent't found as
 #	    simple references are also tested with the path prefixes of the
-#	    PATH environment variable.  
+#	    PATH environment variable.
 
 sub
 isexec {

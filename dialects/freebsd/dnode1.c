@@ -54,13 +54,13 @@ static char copyright[] =
 #define	dev_t	void *
 #  endif	/* FREEBSDV>=4000 && defined(__alpha__) */
 
-#include "cd9660_node.h"
-
 # if	defined(HAS_NO_ISO_DEV)
 #define	_KERNEL
 #include <isofs/cd9660/iso.h>
 #undef	_KERNEL
 # endif	/* defined(HAS_NO_ISO_DEV) */
+
+#include "cd9660_node.h"
 
 #  if	FREEBSDV>=4000 && defined(__alpha__)
 #undef	dev_t
@@ -121,7 +121,11 @@ read_iso_node(v, d, dd, ino, nl, sz)
 	{
 
 # if	defined(HAS_NO_SI_UDEV)
+#   if	defined(HAS_CONF_MINOR) || defined(HAS_CDEV2PRIV)
+	    *d = Dev2Udev((KA_T)im.im_dev);
+#   else	/* !defined(HAS_CONF_MINOR) && !defined(HAS_CDEV2PRIV) */
 	    *d = Dev2Udev(&udev);
+#   endif	/* defined(HAS_CONF_MINOR) || defined(HAS_CDEV2PRIV) */
 # else	/* !defined(HAS_NO_SI_UDEV) */
 	    *d = udev.si_udev;
 # endif	/* defined(HAS_NO_SI_UDEV) */
@@ -144,6 +148,7 @@ read_iso_node(v, d, dd, ino, nl, sz)
 
 
 #if	defined(HASFUSEFS)
+#undef VTOI
 #include <fs/fuse/fuse_node.h>
 /*
  * read_fuse_node() -- read FUSE file system fuse_node
@@ -171,3 +176,80 @@ read_fuse_node(v, d, dd, ino, nl, sz)
 	return(0);
 }
 #endif	/* defined(HASFUSEFS) */
+
+
+#if     defined(HASMSDOSFS)
+#include <fs/msdosfs/bpb.h>
+#include <fs/msdosfs/direntry.h>
+#include <fs/msdosfs/denode.h>
+#include <fs/msdosfs/fat.h>
+#define _KERNEL
+#include <fs/msdosfs/msdosfsmount.h>
+#undef _KERNEL
+/*
+ * read_msdosfs_node() -- read msdos file system denode
+ */
+
+int
+read_msdos_node(v, d, dd, ino, nl, sz)
+	struct vnode *v;		/* containing vnode */
+	dev_t *d;			/* returned device number */
+	int *dd;			/* returned device-defined flag */
+	INODETYPE *ino;			/* returned inode number */
+	long *nl;			/* returned number of links */
+	SZOFFTYPE *sz;			/* returned size */
+{
+	struct denode dep;		/* MSDOSFS node */
+	struct msdosfsmount pmp;
+	struct cdev udev;
+	typedef __uint64_t uoff_t;
+	uint64_t fileid;
+	u_long dirsperblk;
+
+	if (!v->v_data
+	||  kread((KA_T)v->v_data, (char *)&dep, sizeof(dep)))
+	    return(1);
+	if (!dep.de_pmp || kread((KA_T)dep.de_pmp, (char *)&pmp, sizeof(pmp)))
+	    return(1);
+
+#  if   defined(HAS_NO_SI_UDEV)
+#   if  defined(HAS_CONF_MINOR) || defined(HAS_CDEV2PRIV)
+	*d = Dev2Udev((KA_T)pmp.pm_dev);
+#   else	/* !defined(HAS_CONF_MINOR) && !defined(HAS_CDEV2PRIV) */
+	if (!pmp.pm_dev || kread((KA_T)pmp.pm_dev, (char *)&udev, sizeof(udev)))
+	    return(1);
+	*d = Dev2Udev(&udev);
+#   endif	/* defined(HAS_CONF_MINOR) || defined(HAS_CDEV2PRIV) */
+#   else	/* !defined(HAS_NO_SI_UDEV) */
+	if (!pmp.pm_dev || kread((KA_T)pmp.pm_dev, (char *)&udev, sizeof(udev)))
+	    return(1);
+	*d = udev.si_udev;
+#  endif	/* defined(HAS_NO_SI_UDEV) */
+
+
+	dirsperblk = pmp.pm_BytesPerSec / sizeof(struct direntry);
+	/*
+	 * The following computation of the fileid must be the same as that
+	 * used in msdosfs_readdir() to compute d_fileno. If not, pwd
+	 * doesn't work.
+	 */
+	if (dep.de_Attributes & ATTR_DIRECTORY) {
+		fileid = (uint64_t)cntobn(&pmp, dep.de_StartCluster) *
+		    dirsperblk;
+		if (dep.de_StartCluster == MSDOSFSROOT)
+			fileid = 1;
+	} else {
+		fileid = (uint64_t)cntobn(&pmp, dep.de_dirclust) *
+		    dirsperblk;
+		if (dep.de_dirclust == MSDOSFSROOT)
+			fileid = (uint64_t)roottobn(&pmp, 0) * dirsperblk;
+		fileid += (uoff_t)dep.de_diroffset / sizeof(struct direntry);
+	}
+
+	*dd = 1;
+	*ino = (INODETYPE)fileid;
+	*nl = 1;
+	*sz = dep.de_FileSize;
+	return(0);
+}
+#endif  /* defined(HASMSDOSFS) */

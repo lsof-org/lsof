@@ -1,4 +1,3 @@
-
 	    Notes for the distribution of lsof version 4
 
 ********************************************************************
@@ -127,6 +126,8 @@
 		4.93.0 May 7, 2019
 		4.93.1 May 7, 2019
 		4.93.2 May 8, 2019
+		4.94.0 November 11, 2020
+
 
 
 Dialects Supported
@@ -166,7 +167,7 @@ Version 3 of lsof was tested on:
 	OpenBSD 1.2 and 2.0 for x86-based systems
 	Reliant UNIX 5.43 for Pyramid systems
 	RISC/os 4.52 for MIPS R2000-based systems
-	SCO OpenServer Release 1.1, 3.0, and 5.0.x for x86-based 
+	SCO OpenServer Release 1.1, 3.0, and 5.0.x for x86-based
 		systems
 	SCO UnixWare 2.1 and 2.1.1 for x86-based systems
 	Sequent PTX 2.1.[1569], 4.0.[23], 4.1.[024], 4.2[.1],
@@ -730,7 +731,7 @@ Supplement	Regenerated the 4.04 distribution to correct a non-
 
 		Added OpenBSD support for EXT2FS.  This support
 		has yet to be tested.
-		
+
 		Tested lsof under OpenBSD 2.1.
 
 		Activated /kern file system support for NetBSD when
@@ -1516,7 +1517,7 @@ Supplement	Regenerated the 4.04 distribution to correct a non-
 		for the XFS node to accommodate patch 2970.  Igor
 		Schein <ischein@air-boston.com> identified the
 		patch and the required adjustment.
-	
+
 4.32		May 11, 1998
 		Corrected Solaris 2.7 code for reporting PCFS
 		(floppy disk) node numbers.  Casper Dik
@@ -3420,7 +3421,7 @@ Supplement	Regenerated the 4.04 distribution to correct a non-
 		Upgraded EXT2FS and UFS support for NetBSD and
 		OpenBSD to handle new inode information, and the
 		fast UFS1 and UFS2 file systems.
-		
+
 		With the help of Andrew Brown <atatat@atatdot.net>
 		determined the NetBSD snapshot (1.6F) at which
 		<sys/mount.h> could be included under _KERNEL, thus
@@ -3857,7 +3858,7 @@ Supplement	Regenerated the 4.04 distribution to correct a non-
 
 		Added ptyfs support for NetBSD, using modifications
 		provided by Andrew Brown.
-		
+
 		Changed the netbsd Configure stanza to look by default
 		for system header files in both /usr/include and
 		/usr/src.  (The NETBSD_SYS environment variable can
@@ -4341,7 +4342,7 @@ Supplement	Regenerated the 4.04 distribution to correct a non-
 		At the request of Marjo F. Mercado <mmercado@xceedium.com>
 		and Phil Shin <pshin@xceedium.com> applied some speed
 		improvements to lsof, particularly when the files of
-		interest are /Internet files -- i.e., selected with lsof's 
+		interest are /Internet files -- i.e., selected with lsof's
 		"-i" option.  Added a two new options to assist the
 		improvements: 1) "-c^<command>" to tell lsof to exclude the
 		named command(s); and 2) "-stcp|ud>:[^]state' to tell lsof
@@ -4478,7 +4479,7 @@ Supplement	Regenerated the 4.04 distribution to correct a non-
 
 		Made corrections to FAQ typographical errors, suggested
 		by Josh Soref <timeless@gmail.com>.
-		
+
 		Added __UCLIBC__ test to Linux dlsof.h so lsof would compile
 		on an Intel ARM XScale processor.  The addition was provided
 		by Doug Kehn <rdkehn@yahoo.com>.
@@ -4740,7 +4741,7 @@ Supplement	Regenerated the 4.04 distribution to correct a non-
 		non-printing character, particularly a NEWLINE character, and
 		clarified printing of single '\\' characters in command and
 		file names.  Stephane Chazelas <stephane.chazelas@gmail.com>
-		reported the problem. 
+		reported the problem.
 
 		Added support for Linux RDMA and CRYPTO protocal names and UNIX
 		socket type with code from Masatake YAMATO <yamato@redhat.com>.
@@ -4879,7 +4880,7 @@ Supplement	Regenerated the 4.04 distribution to correct a non-
 
 		Corrected Linux command extraction for commands that include
 		parentheses -- e.g., "(sd-pam)".
-		
+
 4.91		March 26, 2018
 
 		A bug has been reported in the PTY endpoint processing of
@@ -4939,7 +4940,7 @@ July 14, 2018
 
 		Update the version number embedded in lsof executable.
 
-?.??.?		???
+4.94.0		November 11, 2020
 
 		(All changes in this version are ported from
 		lsof-org/lsof-linux repository at GitHub).
@@ -4952,35 +4953,44 @@ July 14, 2018
 			$ ./check.sh DIALECT
 		after making lsof executable.
 
+
 		[linux] Fixed a bug +|-E options output for pipe.
 		If two processes use the same fd number for a pipe
 		connecting them, the option didn't print the
 		information about it.
+
 
 		[linux] Fixed a bug +|-E options output for PTY.
 		If two processes use the same fd number for a PTY
 		connecting them, the option didn't print the
 		information about it.
 
+
 		[linux] Fixed a bug +|-E options output for PTY.
 		The code for detecting a slave device was incorrect.
+
 
 		[linux] Fixed a potential bug +|-E options output for
 		PTY. A structure field for the feature was not
 		initialized.
 
+
 		[linux] Added a code for decoding O_PATH flag in +fg
 		option.
+
 
 		[linux] Added a code for decoding O_CLOEXEC flag as CX
 		in +fg option.
 
+
 		[linux] Added a code for decoding O_TMPFILE flag as
 		TMPF in +fg option.
+
 
 		[linux] Added Linux display of INET socket endpoint
 		information with +|-E option. The option handles
 		INET sockets using IPC.
+
 
 		[linux] Added support for POSIX MQ of Linux
 		implementation.  A POSIX message queue (MQ) is
@@ -4988,52 +4998,64 @@ July 14, 2018
 		regular file. lsof with this change reports it as a
 		file with PSXMQ type if mqueue file system is mounted.
 
+
 		[linux] Added Linux display of POSIX message queue
 		endpoint information with +|-E option. mqueue file system
 		must be mounted to display the information.
+
 
 		[linux] Added Linux display of INET6 socket endpoint
 		information with +|-E option. The option handles
 		INET6 sockets using IPC.
 
+
 		[FreeBSD] update to include <sys/_lock.h> on recent -CURRENT
 		since it is no longer implicitly included via header pollution.
 
+
 		[linux] Added Linux display of eventfd endpoint information
 		with +|-E option. The option handles eventfd using IPC.
-                
-                [FreeBSD] include <stdbool.h> for recent change requiring
-                refcount(9).
+
+
+		[FreeBSD] include <stdbool.h> for recent change requiring
+		refcount(9).
+
 
 		Enhanced -r option. With `c<N>' specifier, lsof can stop itself
 		when the number of iterations reaches at <N>.
 
+
 		[linux] Fixed accessing an uninitialized local variable.
 		Detected by valgrind.
+
 
 		[linux] fix a crash when printing the endpoint for unaccepted
 		unix socket with +E option.
 		This closes the github issue #74 reported by @jolmg.
 
+
 		[linux] abort execution when failing in memory allocation for
 		socket private data.
 
+
 		[linux] decode the name of DCCP socket type.
+
 
 		[linux] decode more netlink protocol numbers (RDMA, CRYPTO, and
 		SMC).
 
+
 		[linux] print the connection state of unix domain socket
 		Lsof can print the state of TCP socket like:
 
-		         nc      22247 yamato    3u  IPv4 471409      0t0        TCP localhost:38802->localhost:9999 (ESTABLISHED)
+			 nc      22247 yamato    3u  IPv4 471409      0t0        TCP localhost:38802->localhost:9999 (ESTABLISHED)
 
 		This change exnteds this feature to support unix domain sockets.
 		LISTEN, UNCONNECTED, CONNECTING, CONNECTED, DISCONNECTING,
 		and UNKNOWN can be taken as a state.
 		An example of output:
 
-		         evince    17333  yamato    1u  unix 0x0000000054183795      0t0  89141 type=STREAM (CONNECTED)
+			 evince    17333  yamato    1u  unix 0x0000000054183795      0t0  89141 type=STREAM (CONNECTED)
 
 		This feature is enabled by default.
 		To turn off printing state information, use -T option.
@@ -5041,7 +5063,8 @@ July 14, 2018
 		Don't display command usage even when a file (or directory) listed
 		in command line doesn't exist.
 		This closes the github issue #90 reported by @rowlap.
-		
+
+
 		[FreeBSD] merge all the FreeBSD specific fixes from the FreeBSD sysutils/lsof port
 
 
@@ -5052,8 +5075,211 @@ July 14, 2018
 		and will strip varying information.
 		About the standard, see https://reproducible-builds.org/specs/source-date-epoch/
 		Provided in github pull request #93 by @T4cC0re.
-		
+
+
+
 		[freebsd] update for r363214
 		- no user visible changes
-Masatake YAMATO <yamato@redhat.com>, a member of the lsof-org team at GitHub
-May 8, 2019
+
+
+		Added the way to include (or exclude) all numbered file descriptors
+		in -d option. "fd" is a pseudo file descriptor name for the purpose.
+		See the following output on Linux; lsof doesn't print cwd, rtd, txt,
+		and mem files.
+
+		  # ./lsof -p $$ -a -d fd
+		  COMMAND    PID USER   FD   TYPE DEVICE SIZE/OFF NODE NAME
+		  bash    866421 root    0u   CHR  136,1      0t0    4 /dev/pts/1
+		  bash    866421 root    1u   CHR  136,1      0t0    4 /dev/pts/1
+		  bash    866421 root    2u   CHR  136,1      0t0    4 /dev/pts/1
+		  bash    866421 root  255u   CHR  136,1      0t0    4 /dev/pts/1
+
+
+
+		docs: fixed minor grammatical error in instructions in Customize file
+		The change is provided by @hardikpnsp.
+
+
+		man page: improve phrasing and add examples
+		The change is provided by Martin D Kealey.
+
+
+		man page: improve explanation of -t implying -w
+		The change is provided by Martin D Kealey.
+
+
+		test cases, [linux]: fix tests for large inode-numbers (i >= 2^32)
+		The change is provided by Henry Peteet.
+
+
+		[linux] handle ffff:ffff in ipv6 addr correctly
+		The listen address and port of an AF_INET6 socket were not display if
+		the socket listened at an ipv6 address including ffff:ffff.
+
+		Here is a command session demonstrating the bug:
+
+		    # ip -6 addr add abcd:ef10:ffff:ffff:ffff:ffff:ffff:ff62 dev lo
+		    # nc -6      -l  abcd:ef10:ffff:ffff:ffff:ffff:ffff:ff62 8888 &
+		    [1] 6762
+		    # ./lsof -p 6762 -a -d fd -P -n
+		    COMMAND  PID   USER   FD   TYPE DEVICE SIZE/OFF    NODE NAME
+		    nc      6762 yamato    0u   CHR  136,6      0t0       9 /dev/pts/6
+		    nc      6762 yamato    1u   CHR  136,6      0t0       9 /dev/pts/6
+		    nc      6762 yamato    2u   CHR  136,6      0t0       9 /dev/pts/6
+		    nc      6762 yamato    3u  sock    0,9      0t0 5833594 protocol: TCPv6
+
+		The last line should be:
+
+		    nc      6762 yamato    3u  IPv6 5833594      0t0  TCP [abcd:ef10:ffff:ffff:ffff:ffff:ffff:ff62]:8888 (LISTEN)
+
+		The original code decoding an ipv6 address uses UINT32_MAX constant
+		incorrect way.
+
+		@zhrf2020 reported this bug in #102.
+		@zhrf2020 provided the initial version of fix, #109.
+
+
+		man page,[linux]: enumerate abbreviated flags printed with '+f g' option
+
+
+		Make -Fo option work
+		-Fo option is for printing file offset. For regular files,
+		the option didn't work.
+
+		Here is a command session demonstrating the fix:
+
+		    # ./lsof -Fo -o0| grep ^o | sort | uniq -c
+		    90586 o0t0
+		       87 o0t101
+		       84 o0t103
+		...
+		@JustAnotherArchivist reported this bug in #118.
+
+
+		man page: fix definition of the `o` field on programmatic output
+		The change is provided by @JustAnotherArchivist who reported
+		the original issue in #118.
+
+
+		[linux]: show the pid monitored by a pidfd
+		With this change, lsof prints pidfd in the following form:
+
+		    [pidfd:%d]
+
+		where %d represents the pid monitored by the pidfd.
+
+		Example output:
+
+		    # ./lsof -p 12573 -p 12710 | grep pidfd
+		    dbus-brok 12573  jet   11u  a_inode               0,13         0     13312 [pidfd:12575]
+		    dbus-brok 12710  jet   10u  a_inode               0,13         0     13312 [pidfd:12711]
+
+		fd 11 of pid 12573 monitors pid 12575.
+		fd 10 of pid 12710 monitors pid 12711.
+		This change closed #116.
+
+
+		Don't select the file descriptor field by default.
+		The version 4.88 introduced the change for selecting the file
+		descriptor field by default. However, the change is not
+		suitable for users who wants to print only PID field.
+		@po5857 suggests the use case and the way to improve the man page.
+
+
+		[linux]: enumerate fds monitored by an eventpoll fd
+		With this change, lsof prints an eventpoll fd in the following form:
+
+		    [eventpoll:<fd0>,<fd1>,...,<fdn>...]
+
+		Here fdX is a file descriptor monitored by the eventpoll fd.
+		If an eventpoll fd monitors too many file descriptors, lsof
+		truncates the list of fds. "..." at the end of list implies
+		the truncation.
+
+		Example output:
+
+			# sudo ./lsof -p 1 -a -d 10,11,12
+			COMMAND PID USER   FD      TYPE DEVICE SIZE/OFF  NODE NAME
+			systemd   1 root   10u  a_inode   0,13        0 11624 [eventpoll:11,12]
+			systemd   1 root   11r      REG    0,4        0 17680 /proc/1/mountinfo
+			systemd   1 root   12r  a_inode   0,13        0 11624 inotify
+
+		systemd monitors fd 11 and fd 12 via eventpoll fd 10.
+
+
+		[linux]: implement "make check"
+		The target runs check.bash.
+
+4.9?.?		November 14, 2020
+
+		[n+obsd] fix syntax error
+		Corrected end of comment.
+		This change closes #138.
+		@albert-github reported this issue in #138,
+		and provided the fix in #140
+
+
+		Don't ignore failures in test/Makefile
+		Tobias Geerinckx-Rice <me@tobias.gr> provides the fix.
+
+
+		Update perl scripts for the past few decades of progress
+		Generally, perl is available on base systems - people who are manually
+		installing perl into /usr/local/bin are the exception rather than the
+		rule. In addition, Perl 5 was release in 1994, so Perl 4 isn't relevant
+		any more. We've also standardized on the .pl extension, rather than
+		.perl5 or whatever.
+		Provided by @dilinger (Andres Salomon) in #149.
+		A commit in the pull request includes work of Nicholas Bamber.
+
+		Drop LSOF_CCDATE across all dialects to ensure reproducible builds
+		Simplify things for reproducible builds by just getting rid of
+		the embedded date/time string. With LSOF_CCDATE gone, keeping
+		SOURCE_DATE_EPOCH around doesn't make much sense, so drop that as
+		well. Folks doing reproducible builds should still override the
+		LSOF_HOST, LSOF_LOGNAME, LSOF_SYSINFO, and LSOF_USER variables (as
+		they were previously doing before SOURCE_DATE_EPOCH).
+		Provided by @dilinger (Andres Salomon) in #150.
+
+
+		[FreeBSD] get the ISO9660 filesystem working again
+		The ISO9660 filesystem broke starting with FreeBSD 7 due to the header
+		location changing. Fix the header search path to get it to be detected
+		again. Fix the header inclusion order. Also add the new way of finding
+		dev_t on more recent FreeBSD versions.
+		Provided by Damjan Jovanovic in #151.
+
+
+		[FreeBSD] add support for msdosfs on FreeBSD
+		Provided by Damjan Jovanovic in #151.
+
+
+		Fix FD field description.
+		In 811dc78 the output format was changed to not printf the `f`
+		field by default, however the field description in `lsof_fields.h`,
+		as seen in `-F?` output still included the `(always selected)` text.
+		Provided by @algorythmic (Grisha Levit) in #158.
+
+
+		Adjust alignment of buffer passed to stat().
+		The original code passes char[] buffer to stat(). This can be cause
+		a SIGBUS. #160 reported an actual crash on armv7a + glibc-2.33 platform.
+		See also https://sourceware.org/bugzilla/show_bug.cgi?id=27993.
+		Reported by @10ne1 in #160.
+
+
+		Clean up source code and documentats.
+		- remove trailing whitespace,
+		- fix some issues in scripts found through shellcheck, and
+		- fix spelling
+		Provided by @a1346054 in #163.
+
+		man page: fix hyphen issues
+		Properly use '-' and '\-' in the man page, ensuring that users
+		can cut & paste commandline options without issue. Original
+		patch from Raoul Gunnar Borenius <borenius@dfn.de>, and
+		submitted/expanded by @dilinger (Andres Salomon) in #168.
+
+
+The lsof-org team at GitHub
+November 11, 2020

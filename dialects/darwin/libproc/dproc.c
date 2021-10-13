@@ -744,7 +744,7 @@ process_text(pid)
 
 #define TWD		" twd"          /* per-thread current working directory
 					 * fd name */
-	
+
 static void
 process_threads(pid, n)
 	int pid;			/* PID */

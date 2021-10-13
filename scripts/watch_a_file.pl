@@ -1,9 +1,9 @@
-#!/usr/local/bin/perl
+#!/usr/bin/perl
 #
-# watch_a_file.perl -- use lsof -F output to watch a specific file
+# watch_a_file.pl   -- use lsof -F output to watch a specific file
 #		       (or file system)
 #
-# usage:	watch_a_file.perl file_name
+# usage:	watch_a_file.pl file_name
 
 ## Interrupt handler
 
@@ -72,7 +72,7 @@ exit 1;
 # $path   = absolute or relative path to file to test for executabiity.
 #	    Paths that begin with neither '/' nor '.' that arent't found as
 #	    simple references are also tested with the path prefixes of the
-#	    PATH environment variable.  
+#	    PATH environment variable.
 
 sub
 isexec {

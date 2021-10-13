@@ -48,7 +48,7 @@
  *
  * A field is displayed in the form:
  *		<ID_character><data><field_terminator>
- *	
+ *
  * Output fields are normally terminated with a NL ('\n'), but the field
  * terminator can be set to NUL with the -0 (zero) option to lsof.
  *
@@ -79,7 +79,7 @@
 
 #define	LSOF_FID_FD		'f'
 #define	LSOF_FIX_FD		5
-#define	LSOF_FNM_FD		"file descriptor (always selected)"
+#define	LSOF_FNM_FD		"file descriptor"
 
 #define	LSOF_FID_FA		'F'
 #define	LSOF_FIX_FA		6

@@ -72,7 +72,7 @@ process_socket(i)
 	struct sockaddr_in si;
 	struct un_dev ud;
 #endif	/* OSRV<500 */
-	
+
 	(void) snpf(Lf->type, sizeof(Lf->type), "sock");
 /*
  * Read socket.
@@ -362,7 +362,7 @@ udp_tm(tm)
  */
 	if (!Lbolt)
 	    return;
-	if (Hz < 0 
+	if (Hz < 0
 	||  kread((KA_T)Lbolt, (char *)&lbolt, sizeof(lbolt))
 	||  tm >= lbolt
 	||  (et = (time_t)((lbolt - tm) / Hz)) == 0)

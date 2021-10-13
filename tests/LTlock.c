@@ -424,7 +424,7 @@ cleanup()
 }
 
 
-/* 
+/*
  * lkfile() -- lock the test file
  */
 
@@ -626,7 +626,7 @@ tstwlsof(opt, xlk)
 		    ti = -1;
 		    break;
 		}
-		ti = (ti * 10) + (int)*tcp - (int)'0'; 
+		ti = (ti * 10) + (int)*tcp - (int)'0';
 	    }
 	    if (Fd != ti)
 		break;

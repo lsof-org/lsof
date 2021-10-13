@@ -1,7 +1,7 @@
-#!/usr/local/bin/perl -w
+#!/usr/bin/perl -w
 #+##############################################################################
 #                                                                              #
-# File: big_brother.perl                                                       #
+# File: big_brother.pl                                                         #
 #                                                                              #
 # Description: check the network sockets with lsof to detect new connections   #
 #									       #
@@ -188,7 +188,7 @@ sub timestamp {
 # $path   = absolute or relative path to file to test for executabiity.
 #	    Paths that begin with neither '/' nor '.' that arent't found as
 #	    simple references are also tested with the path prefixes of the
-#	    PATH environment variable.  
+#	    PATH environment variable.
 
 sub
 isexec {
