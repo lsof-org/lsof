@@ -5279,6 +5279,9 @@ July 14, 2018
 		can cut & paste commandline options without issue. Original
 		patch from Raoul Gunnar Borenius <borenius@dfn.de>, and
 		submitted/expanded by @dilinger (Andres Salomon) in #168.
+   
+               [FreeBSD] update for FreeBSD 13 & 14, and various internal changes
+               submitted by @DmitryAndric & @emaste.
 
 
 The lsof-org team at GitHub
