@@ -10,7 +10,7 @@ lsof \- list open files
 .SH SYNOPSIS
 .B lsof
 [
-.B \-?abChlnNOPRtUvVX
+.B \-?abChlnNOPQRtUvVX
 ] [
 .BI \-A " A"
 ] [
@@ -1403,6 +1403,21 @@ Inhibiting the conversion may make
 .I lsof
 run a little faster.
 It is also useful when port name lookup is not working properly.
+.TP \w'names'u+4
+.B \-Q
+ignore failed search terms. When
+.I lsof
+is told to search for users of a file, or for users of a device,
+or for a specific PID, or for certain protocols in use by that PID,
+and so on,
+.I lsof
+will return an error if any of the search results are empty. The
+.B \-Q
+option will change this behavior so that
+.I lsof
+will instead return a successful exit code (0) even if any of the
+search results are empty. In addition, missing search terms will not
+be reported to stderr.
 .TP \w'names'u+4
 .BI +|\-r " [t[c<N>][m<fmt>]]"
 puts
@@ -4205,9 +4220,17 @@ If the
 option is specified,
 .I lsof
 will indicate the search items it failed to list.
+If the
+.B \-Q
+option is specified,
+.I lsof
+will ignore any search item failures and only return an error if
+something unusual and unrecoverable happened.
 .PP
-It returns a zero (0) if no errors were detected and if it was able to
-list some information about all the specified search arguments.
+It returns a zero (0) if no errors were detected and if either the
+.B \-Q
+option was specified or it was able to list some information about
+all the specified search arguments.
 .PP
 .PP
 When
@@ -4270,6 +4293,13 @@ To list all open IPv4 network files in use by the process whose PID is
 .IP
 lsof \-i 4 \-a \-p 1234
 .PP
+If it's okay for PID 1234 to not exist, or for PID 1234 to not have any
+open IPv4 network files, add
+.B \-Q
+:
+.IP
+lsof \-Q \-i 4 \-a \-p 1234
+.PP
 Presuming the UNIX dialect supports IPv6, to list only open IPv6
 network files, use:
 .IP
@@ -4294,9 +4324,14 @@ To list all open files on device /dev/hd4, use:
 .IP
 lsof /dev/hd4
 .PP
-To find the process that has /u/abe/foo open, use:
+To find the process that has /u/abe/foo open without worrying if
+there are none, use:
 .IP
-lsof /u/abe/foo
+lsof \-Q /u/abe/foo
+.PP
+To take action only if a process has /u/abe/foo open, use:
+.IP
+lsof /u/abe/foo \&\& echo "still in use"
 .PP
 To send a SIGHUP to the processes that have /u/abe/bar open, use:
 .IP
