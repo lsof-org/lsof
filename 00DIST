@@ -5283,6 +5283,9 @@ July 14, 2018
                [FreeBSD] update for FreeBSD 13 & 14, and various internal changes
                submitted by @DmitryAndric & @emaste.
 
+               Fix broken LSOF_CFLAGS_OVERRIDE.
+               Provided by Fabrice Fontaine in #172.
+
 
 The lsof-org team at GitHub
 November 11, 2020
