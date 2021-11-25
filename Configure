@@ -1597,7 +1597,7 @@ kernel generation process.
 	then
 	  FREEBSD_SYS="/sys"
 	else
-	  echo "!!!WARNING!!!  No kernel sources in /usr/src/sys or /sys"
+	  echo "!!!WARNING!!!  No kernel sources in /usr/src/sys or /sys (set FREEBSD_SYS)"
 	fi	# }
       fi	# }
     fi	# }
