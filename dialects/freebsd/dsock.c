@@ -174,11 +174,7 @@ process_socket(sa)
 	struct sockaddr_un *ua = NULL;
 	struct sockaddr_un un;
 
-#if	FREEBSDV<4050
-	struct mbuf mb;
-#else	/* FREEBSDV>=4050 */
 	int unl;
-#endif	/* FREEBSDV<4050 */
 
 #if	defined(HASIPv6) && !defined(HASINRIAIPv6)
 	struct inpcb in6p;
@@ -492,11 +488,7 @@ process_socket(sa)
 	    }
 	    if (unp.unp_addr) {
 
-#if	FREEBSDV<4050
-		if (kread((KA_T)unp.unp_addr, (char *)&mb, sizeof(mb)))
-#else	/* FREEBSDV>=4050 */
 		if (kread((KA_T)unp.unp_addr, (char *)&un, sizeof(un)))
-#endif	/* FREEBSDV<4050 */
 
 		{
 		    (void) snpf(Namech, Namechl, "can't read unp_addr at %s",
@@ -504,13 +496,7 @@ process_socket(sa)
 		    break;
 		}
 
-#if	FREEBSDV<4050
-		if (mb.m_hdr.mh_len == sizeof(struct sockaddr_un))
-		    ua = (struct sockaddr_un *) ((char *) &mb
-		       + (mb.m_hdr.mh_data - (caddr_t) unp.unp_addr));
-#else	/* FREEBSDV>=4050 */
 		ua = &un;
-#endif	/* FREEBSDV<4050 */
 
 	    }
 	    if (!ua) {
@@ -542,20 +528,10 @@ process_socket(sa)
 	    }
 	    if (ua->sun_path[0]) {
 
-#if	FREEBSDV<4050
-		if (mb.m_len >= sizeof(struct sockaddr_un))
-		    mb.m_len = sizeof(struct sockaddr_un) - 1;
-		*((char *)ua + mb.m_len) = '\0';
-#else	/* FREEBSDV>=4050 */
-# if	FREEBSDV>4060
 		unl = ua->sun_len - offsetof(struct sockaddr_un, sun_path);
-# else	/* FREEBSDV<4060 */
-		unl = sizeof(ua->sun_path) - 1;
-# endif	/* FREEBSDV>4060 */
 		if ((unl < 0) || (unl >= sizeof(ua->sun_path)))
 		    unl = sizeof(ua->sun_path) - 1;
 		ua->sun_path[unl] = '\0';
-#endif	/* FREEBSDV<4050 */
 
 		if (ua->sun_path[0] && Sfile && is_file_named(ua->sun_path, 0))
 		    Lf->sf |= SELNM;

@@ -49,29 +49,15 @@ struct drive_Nl Drive_Nl[] = {
 
 	{ X_BADFILEOPS,	"badfileops"	},
 
-#if	FREEBSDV<2005
-	{ X_NCACHE,	"_nchhead"	},
-#else	/* FREEBSDV>=2005 */
-# if	FREEBSDV<2010
-	{ X_NCACHE,	"_nclruhead"	},
-# else	/* FREEBSDV>=2010 */
 	{ X_NCACHE,	"_nchashtbl"	},
-# endif	/* FREEBSDV<2010 */
-#endif	/* FREEBSDV<2005 */
 
-#if	FREEBSDV<2010
-	{ X_NCSIZE,	"_numcache"	},
-#else	/* FREEBSDV>=2010 */
 	{ X_NCSIZE,	"_nchash"	},
-#endif	/* FREEBSDV<2010 */
 
 	{ "",		""		},
 	{ NULL,		NULL		}
 };
 
-#if	FREEBSDV>=2000
 kvm_t *Kd = NULL;			/* kvm descriptor */
-#endif	/* FREEBSDV>=2000 */
 
 #if	defined(P_ADDR)
 KA_T Kpa;				/* kernel proc struct address */
@@ -81,9 +67,7 @@ struct l_vfs *Lvfs = NULL;		/* local vfs structure table */
 
 int Np = 0;				/* number of kernel processes */
 
-#if	FREEBSDV>=2000
 struct kinfo_proc *P = NULL;		/* local process table copy */
-#endif	/* FREEBSDV>=2000 */
 
 #if	defined(HASFSTRUCT)
 /*

@@ -154,7 +154,6 @@ get_lock_state(f)
 }
 
 
-#if	FREEBSDV>=2000
 # if	defined(HASPROCFS)
 _PROTOTYPE(static void getmemsz,(pid_t pid));
 
@@ -183,7 +182,6 @@ getmemsz(pid)
 	}
 }
 # endif	/* defined(HASPROCFS) */
-#endif	/* FREEBSDV>=2000 */
 
 
 #if	defined(HASFDESCFS) && HASFDESCFS==1
@@ -279,26 +277,12 @@ process_node(va)
 	struct vnode *v, vb;
 	struct l_vfs *vfs;
 
-#if	FREEBSDV>=2000
 	struct inode ib;
 	struct nfsnode nb;
-# if	FREEBSDV>=4000
-#  if	FREEBSDV<5000
-	struct specinfo si;
-#  else	/* FREEBSDV>=5000 */
 #   if	!defined(HAS_CONF_MINOR) && !defined(HAS_CDEV2PRIV)
 	struct cdev si;
 #   endif	/* !defined(HAS_CONF_MINOR) && !defined(HAS_CDEV2PRIV) */
-#  endif	/* FREEBSDV<5000 */
-# endif	/* FREEBSDV>=4000 */
-#endif	/* FREEBSDV>=2000 */
 
-#if	FREEBSDV<5000
-	struct mfsnode *m;
-# if	FREEBSDV>=2000
-	struct mfsnode mb;
-# endif	/* FREEBSDV>=2000 */
-#endif	/* FREEBSDV<5000 */
 
 #if	defined(HAS9660FS)
 	dev_t iso_dev;
@@ -317,9 +301,7 @@ process_node(va)
 	static int f_tty_s = 0;
 # endif	/* HASFDESCFS==1 */
 
-# if	FREEBSDV>=2000
 	struct fdescnode fb;
-# endif	/* FREEBSDV>=2000 */
 
 #endif	/* defined(HASFDESCFS) */
 
@@ -339,7 +321,6 @@ process_node(va)
 	SZOFFTYPE msdos_sz;
 #endif	/* defined(HASMSDOSFS) */
 
-#if	FREEBSDV>=5000
 # if	defined(HAS_UFS1_2)
 	int ufst;
 	struct ufsmount um;
@@ -365,7 +346,6 @@ process_node(va)
 	struct tmpfs_node tn;
 	struct tmpfs_node *tnp;
 # endif	/* defined(HAS_TMPFS) */
-#endif	/* FREEBSDV>=5000 */
 
 #if	defined(HASNULLFS)
 # if	!defined(HASPRINTDEV)
@@ -382,9 +362,7 @@ process_node(va)
 	static int pgsz = -1;
 	struct vmspace vm;
 
-# if	FREEBSDV>=2000
 	struct pfsnode pb;
-# endif	/* FREEBSDV>=2000 */
 #endif	/* defined(HASPROCFS) */
 
 #if	defined(HASPSEUDOFS)
@@ -441,15 +419,11 @@ process_overlaid_node:
 	msdos_dev_def = msdos_stat = 0;
 #endif /* defined(HASMSDOSFS) */
 
-#if	FREEBSDV<5000
-	m = (struct mfsnode *)NULL;
-#else	/* FREEBSDV>=5000 */
 	cds = 0;
 	d = (struct devfs_dirent *)NULL;
 # if	defined(HAS_UFS1_2)
 	ufst = 0;
 # endif	/* !defined(HAS_UFS1_2) */
-#endif	/* FREEBSDV<5000 */
 
 #if	defined(HASPROCFS)
 	p = (struct pfsnode *)NULL;
@@ -547,7 +521,6 @@ process_overlaid_node:
 	    }
 	}
 
-#if	FREEBSDV>=5000
 /*
  * For FreeBSD 5 and above VCHR and VBLK vnodes get the v_rdev structure.
  */
@@ -561,13 +534,11 @@ process_overlaid_node:
 	) {
 	    cds = 1;
 	}
-#endif	/* FREEBSDV>=5000 */
 
 /*
  * Define the specific node pointer.
  */
 
-#if	FREEBSDV>=5000
 /*
  * Get the pseudo vnode tag type for FreeBSD >= 5.
  */
@@ -619,13 +590,9 @@ process_overlaid_node:
 		vtag = VT_MSDOSFS;
 	} else
 	    vtbp = "(unknown)";
-#else	/* FREEBSDV<5000 */
-	vtag = v->v_tag;
-#endif	/* FREEBSDV>=5000 */
 
 	switch (vtag) {
 
-#if	FREEBSDV>=5000
 	case VT_DEVFS:
 	    if (!v->v_data
 	    ||  kread((KA_T)v->v_data, (char *)&de, sizeof(de)))
@@ -646,14 +613,10 @@ process_overlaid_node:
 		}
 	    }
 	    break;
-#endif	/* FREEBSDV>=5000 */
 
 #if	defined(HASFDESCFS)
 	case VT_FDESC:
 
-# if	FREEBSDV<2000
-	    f = (struct fdescnode *)v->v_data;
-# else	/* FREEBSDV>=2000 */
 	    if (kread((KA_T)v->v_data, (char *)&fb, sizeof(fb)) != 0) {
 		(void) snpf(Namech, Namechl, "can't read fdescnode at: %s",
 		    print_kptr((KA_T)v->v_data, (char *)NULL, 0));
@@ -662,7 +625,6 @@ process_overlaid_node:
 	    }
 	    f = &fb;
 	    break;
-# endif	/* FREEBSDV<2000 */
 #endif	/* defined(HASFDESCFS) */
 
 #if	defined(HASFUSEFS)
@@ -707,29 +669,9 @@ process_overlaid_node:
 	    break;
 #endif	/* defined(HAS9660FS) */
 
-#if	FREEBSDV<5000
-	case VT_MFS:
-
-# if	FREEBSDV<2000
-	    m = (struct mfsnode *)v->v_data;
-# else	/* FREEBSDV>=2000 */
-	    if (!v->v_data
-	    ||  kread((KA_T)v->v_data, (char *)&mb, sizeof(mb))) {
-		(void) snpf(Namech, Namechl, "no mfs node: %s",
-		    print_kptr((KA_T)v->v_data, (char *)NULL, 0));
-		enter_nm(Namech);
-		return;
-	    }
-	    m = &mb;
-# endif	/* FREEBSDV<2000 */
-#endif	/* FREEBSDV<5000 */
-
 	    break;
 	case VT_NFS:
 
-#if	FREEBSDV<2000
-	    n = (struct nfsnode *)v->v_data;
-#else	/* FREEBSDV>=2000 */
 	    if (!v->v_data
 	    ||  kread((KA_T)v->v_data, (char *)&nb, sizeof(nb))) {
 		(void) snpf(Namech, Namechl, "no nfs node: %s",
@@ -738,7 +680,6 @@ process_overlaid_node:
 		return;
 	    }
 	    n = &nb;
-#endif	/* FREEBSDV<2000 */
 
 	    break;
 
@@ -799,9 +740,6 @@ process_overlaid_node:
 #if	defined(HASPROCFS)
 	case VT_PROCFS:
 
-# if	FREEBSDV<2000
-	    p = (struct pfsnode *)v->v_data;
-# else	/* FREEBSDV>=2000 */
 	    if (!v->v_data
 	    ||  kread((KA_T)v->v_data, (char *)&pb, sizeof(pb))) {
 		(void) snpf(Namech, Namechl, "no pfs node: %s",
@@ -810,7 +748,6 @@ process_overlaid_node:
 		return;
 	    }
 	    p = &pb;
-# endif	/* FREEBSDV<2000 */
 
 	    break;
 #endif	/* defined(HASPROCFS) */
@@ -843,9 +780,6 @@ process_overlaid_node:
 
 	case VT_UFS:
 
-#if	FREEBSDV<2000
-	    i = (struct inode *)v->v_data;
-#else	/* FREEBSDV>=2000 */
 	    if (!v->v_data
 	    ||  kread((KA_T)v->v_data, (char *)&ib, sizeof(ib))) {
 		(void) snpf(Namech, Namechl, "no ufs node: %s",
@@ -869,7 +803,6 @@ process_overlaid_node:
 		}
 	    }
 # endif	/* defined(HAS_UFS1_2) */
-#endif	/* FREEBSDV<2000 */
 
 #if	defined(HAS_V_LOCKF)
 	    if (v->v_lockf)
@@ -910,11 +843,7 @@ process_overlaid_node:
 	    if (v->v_type == VBAD || v->v_type == VNON)
 		break;
 
-#if	FREEBSDV<5000
-	    (void) snpf(Namech,Namechl,"unknown file system type: %d",v->v_tag);
-#else	/* FREEBSDV>=5000 */
 	    (void) snpf(Namech, Namechl, "unknown file system type: %s", vtbp);
-#endif	/* FREEBSDV<5000 */
 
 	    enter_nm(Namech);
 	    return;
@@ -932,7 +861,6 @@ process_overlaid_node:
 	    }
 	} else if (i) {
 
-#if	FREEBSDV>=4000
 # if	defined(HAS_NO_IDEV)
 	    if (ums) {
 		dev = Dev2Udev((KA_T)um.um_dev);
@@ -960,14 +888,9 @@ process_overlaid_node:
 		devs = 1;
 	    }
 # endif	/* defined(HAS_NO_IDEV) */
-#else	/* FREEBSDV<4000 */
-	    dev = i->i_dev;
-	    devs = 1;
-#endif	/* FREEBSDV>=4000 */
 
 	    if ((type == VCHR) || (type == VBLK)) {
 
-#if	FREEBSDV>=5000
 # if	defined(HAS_UFS1_2)
 		if (ufst == 1) {
 		    rdev = d1.di_rdev;
@@ -992,11 +915,6 @@ process_overlaid_node:
 
 		    rdevs = 1;
 		}
-#else	/* FREEBSDV<5000 */
-		rdev = i->i_rdev;
-		rdevs = 1;
-#endif	/* FREEBSDV>=5000 */
-
 	    }
 	}
 
@@ -1075,7 +993,6 @@ process_overlaid_node:
 	}
 #endif	/* defined(HASMSDOSFS) */
 
-#if	FREEBSDV>=5000
 	else if (d) {
 	    if (vfs) {
 		dev = vfs->fsid.val[0];
@@ -1112,7 +1029,6 @@ process_overlaid_node:
 		}
 	    }
 	}
-#endif	/* FREEBSDV>=5000 */
 
 #if	defined(HASPSEUDOFS)
 	else if (pnp) {
@@ -1180,12 +1096,10 @@ process_overlaid_node:
 #endif	/* defined(HASMSDOSFS) */
 
 #if	defined(HASPROCFS)
-# if	FREEBSDV>=2000
 	else if (p) {
 	    Lf->inode = (INODETYPE)p->pfs_fileno;
 	    Lf->inp_ty = 1;
 	}
-# endif	/* FREEBSDV>=2000 */
 #endif	/* defined(HASPROCFS) */
 
 #if	defined(HASPSEUDOFS)
@@ -1195,12 +1109,10 @@ process_overlaid_node:
 	}
 #endif	/* defined(HASPSEUDOFS) */
 
-#if	FREEBSDV>=5000
 	else if (d) {
 	    Lf->inode = (INODETYPE)d->de_inode;
 	    Lf->inp_ty = 1;
 	}
-#endif	/* FREEBSDV>=5000 */
 
 # if	defined(HAS_TMPFS)
 	else if (tnp) {
@@ -1230,18 +1142,6 @@ process_overlaid_node:
 #if	defined(HASPROCFS)
 	    case N_PROC:
 
-# if	FREEBSDV<2000
-		if (type == VDIR || !p || !p->pfs_vs
-		||  kread((KA_T)p->pfs_vs, (char *)&vm, sizeof(vm)))
-		    break;
-		if (pgsz < 0)
-		    pgsz = getpagesize();
-		Lf->sz = (SZOFFTYPE)((pgsz * vm.vm_tsize)
-		       +         (pgsz * vm.vm_dsize)
-		       +         (pgsz * vm.vm_ssize));
-		Lf->sz_def = 1;
-		break;
-# else	/* FREEBSDV>=2000 */
 		if (p) {
 		    switch(p->pfs_type) {
 		    case Proot:
@@ -1262,7 +1162,6 @@ process_overlaid_node:
 			break;
 		    }
 		}
-# endif	/* FREEBSDV<2000 */
 #endif	/* defined(HASPROCFS) */
 
 #if	defined(HASPSEUDOFS)
@@ -1297,13 +1196,6 @@ process_overlaid_node:
 			}
 		    }
 #endif  /* defined(HAS_ZFS) */
-
-#if	FREEBSDV<5000
-		    else if (m) {
-			Lf->sz = (SZOFFTYPE)m->mfs_size;
-			Lf->sz_def = 1;
-		    }
-#endif	/* FREEBSDV<5000 */
 
 #if	defined(HAS9660FS)
 		    else if (iso_stat) {
@@ -1398,12 +1290,10 @@ process_overlaid_node:
 		}
 #endif	/* defined(HASMSDOSFS) */
 
-#if	FREEBSDV>=5000
 		else if (d) {
 		    Lf->nlink = d->de_links;
 		    Lf->nlink_def = 1;
 		}
-#endif	/* FREEBSDV>=5000 */
 
 		break;
 
@@ -1500,28 +1390,10 @@ process_overlaid_node:
 	if (type == VBAD)
 	    (void) snpf(Namech, Namechl, "(revoked)");
 
-#if	FREEBSDV<5000
-	else if (m) {
-	    Lf->dev_def = Lf->rdev_def = 0;
-	    (void) snpf(Namech, Namechl, "%#x", m->mfs_baseoff);
-	    (void) snpf(dev_ch, sizeof(dev_ch), "    memory");
-	    enter_dev_ch(dev_ch);
-	}
-#endif	/* FREEBSDV<5000 */
-
-
 #if	defined(HASPROCFS)
 	else if (p) {
 	    Lf->dev_def = Lf->rdev_def = 0;
 
-# if	FREEBSDV<2000
-	    if (type == VDIR)
-		(void) snpf(Namech, Namechl, "/%s", HASPROCFS);
-	    else
-		(void) snpf(Namech, Namechl, "/%s/%0*d", HASPROCFS, PNSIZ,
-		    p->pfs_pid);
-	    enter_nm(Namech);
-# else	/* FREEBSDV>=2000 */
 	    ty = (char *)NULL;
 	    (void) snpf(Namech, Namechl, "/%s", HASPROCFS);
 	    switch (p->pfs_type) {
@@ -1574,7 +1446,6 @@ process_overlaid_node:
 		ty = "PGID";
 		break;
 
-#  if	FREEBSDV>=3000
 	    case Pmap:
 		ep = endnm(&sz);
 		(void) snpf(ep, sz, "/%d/map", p->pfs_pid);
@@ -1585,14 +1456,12 @@ process_overlaid_node:
 		(void) snpf(ep, sz, "/%d/etype", p->pfs_pid);
 		ty = "PETY";
 		break;
-#  endif	/* FREEBSDV>=3000 */
 
 	    }
 	    if (ty)
 		(void) snpf(Lf->type, sizeof(Lf->type), "%s", ty);
 	    enter_nm(Namech);
 
-# endif	/* FREEBSDV<2000 */
 	}
 #endif	/* defined(HASPROCFS) */
 
@@ -1656,7 +1525,6 @@ process_overlaid_node:
 }
 
 
-#if	FREEBSDV>=2020
 /*
  * process_pipe() - process a file structure whose type is DTYPE_PIPE
  */
@@ -1709,7 +1577,6 @@ process_pipe(pa)
 	if (Namech[0])
 	    enter_nm(Namech);
 }
-#endif	/* FREEBSDV>=2020 */
 
 
 #if	defined(HASPTSFN) && defined(DTYPE_PTS)

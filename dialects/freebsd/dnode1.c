@@ -50,9 +50,9 @@ static char copyright[] =
 #undef	doff_t
 #undef	IN_ACCESS
 
-#  if	FREEBSDV>=4000 && defined(__alpha__)
+#  if	defined(__alpha__)
 #define	dev_t	void *
-#  endif	/* FREEBSDV>=4000 && defined(__alpha__) */
+#  endif	/* defined(__alpha__) */
 
 # if	defined(HAS_NO_ISO_DEV)
 #define	_KERNEL
@@ -62,9 +62,9 @@ static char copyright[] =
 
 #include "cd9660_node.h"
 
-#  if	FREEBSDV>=4000 && defined(__alpha__)
+#  if	defined(__alpha__)
 #undef	dev_t
-#  endif	/* FREEBSDV>=4000 && defined(__alpha__) */
+#  endif	/* defined(__alpha__) */
 
 
 /*
@@ -81,36 +81,17 @@ read_iso_node(v, d, dd, ino, nl, sz)
 	SZOFFTYPE *sz;			/* returned size */
 {
 
-# if	FREEBSDV<2000
-	struct iso_node *ip;
-# else	/* FREEBSDV>=2000 */
 	struct iso_node i;
-# endif	/* FREEBSDV<2000 */
 
-# if	FREEBSDV>=4000
-#  if	FREEBSDV<5000
-	struct specinfo udev;
-#  else	/* FREEBSDV>=5000 */
 	struct cdev udev;
 #   if	defined(HAS_NO_ISO_DEV)
 	struct iso_mnt im;
 #   endif	/* defined(HAS_NO_ISO_DEV) */
-#  endif	/* FREEBSDV<5000 */
-# endif	/* FREEBSDV>=4000 */
 
-# if	FREEBSDV<2000
-	ip = (struct iso_node *)v->v_data;
-	*d = ip->i_dev;
-	*dd = 1;
-	*ino = (INODETYPE)ip->i_number;
-	*nl = (long)ip->inode.iso_links;
-	*sz = (SZOFFTYPE)ip->i_size;
-# else	/* FREEBSDV>=2000 */
 	if (!v->v_data
 	||  kread((KA_T)v->v_data, (char *)&i, sizeof(i)))
 	    return(1);
 
-# if	FREEBSDV>=4000
 #  if	defined(HAS_NO_ISO_DEV)
 	if (i.i_mnt && !kread((KA_T)i.i_mnt, (char *)&im, sizeof(im))
 	&&  im.im_dev && !kread((KA_T)im.im_dev, (char *)&udev, sizeof(udev)))
@@ -132,15 +113,10 @@ read_iso_node(v, d, dd, ino, nl, sz)
 
 	    *dd = 1;
 	}
-# else	/* FREEBSDV<4000 */
-	*d = i.i_dev;
-	*dd = 1;
-# endif	/* FREEBSDV>=4000 */
 
 	*ino = (INODETYPE)i.i_number;
 	*nl = (long)i.inode.iso_links;
 	*sz = (SZOFFTYPE)i.i_size;
-# endif	/* FREEBSDV<2000 */
 
 	return(0);
 }

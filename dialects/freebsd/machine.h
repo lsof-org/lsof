@@ -117,11 +117,6 @@ typedef _Bool   bool;
  * recorded in BDevtp[].
  */
 
-# if	FREEBSDV<4000
-#define	HASBLKDEV	1
-# endif	/* FREEBSDV<4000 */
-
-
 /*
  * HASDCACHE is defined for those dialects that support a device cache
  * file.
@@ -321,9 +316,7 @@ typedef _Bool   bool;
  * NOTE: don't forget to define a prototype for this function in dproto.h.
  */
 
-# if	FREEBSDV>=2020
 #define	HASPIPEFN	process_pipe
-# endif	/* FREEBSDV>=2020 */
 
 
 /*
@@ -346,9 +339,7 @@ typedef _Bool   bool;
  * the parent process IDentifier (PPID) of a process.
  */
 
-# if	FREEBSDV>=2000
 #define	HASPPID		1
-# endif	/* FREEBSDV>=2000 */
 
 
 /*
@@ -435,9 +426,7 @@ typedef _Bool   bool;
 /* #define		HASPROCFS	"proc?" */
 /* #define		HASFSTYPE	1 */
 
-# if	FREEBSDV>=2000
 #define	HASPINODEN	1
-# endif	/* FREEBSDV>=2000 */
 
 
 /*
@@ -489,9 +478,7 @@ typedef _Bool   bool;
 
 #define	HASSETLOCALE	1
 
-# if	FREEBSDV>=5200
 #define	HASWIDECHAR	1
-# endif	/* FREEBSDV>=5020 */
 
 /* #define	WIDECHARINCL	<wchar.h>	*/
 
@@ -641,11 +628,7 @@ typedef _Bool   bool;
 /* #define	USE_LIB_READMNT			1	   rmnt.c */
 /* #define	USE_LIB_REGEX			1	   regex.c */
 
-# if	FREEBSDV<2010
-#define	USE_LIB_RNAM				1	/* rnam.c */
-# else	/* FREEBSDV>=2010 */
 #define	USE_LIB_RNMH				1	/* rnmh.c */
-# endif	/* FREEBSDV<2010 */
 
 /* #define	USE_LIB_RNCH			1	   rnch.c */
 /* #define	USE_LIB_SNPF			1	   snpf.c */
