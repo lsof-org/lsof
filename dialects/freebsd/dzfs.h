@@ -72,11 +72,7 @@
 # endif	/* !defined(INODETYPE) */
 
 # if	!defined(FREEBSD_KA_T)
-#  if	FREEBSDV<2000
-typedef	off_t		KA_T;
-#  else	/* FREEBSDV>=2000 */
 typedef	u_long		KA_T;
-#  endif	/* FREEBSDV<2000 */
 #define	FREEBSD_KA_T	1		/* for dlsof.h */
 # endif	/* !defined(FREEBSD_KA_T) */
 

@@ -47,19 +47,13 @@ static int Lmist = 0;					/* Lmi status */
 
 #undef	HAS_MNT_NAMES
 
-#if	FREEBSDV<2000
-static char *mnt_names[] = { "none", "ufs", "nfs", "mfs", "pc", "iso9600",
-			     "procfs", "devfs" };
-#define	HAS_MNT_NAMES	1
-#else	/* FREEBSDV>=2000 */
 # if	defined(MOUNT_NONE)
 static char *mnt_names[] = INITMOUNTNAMES;
 #define	HAS_MNT_NAMES	1
 # endif	/* defined(MOUNT_NONE)) */
-#endif	/* FREEBSDV<2000 */
 
 
-#if	FREEBSDV>=5000 && defined(HAS_NO_SI_UDEV)
+#if	defined(HAS_NO_SI_UDEV)
 /*
  * Dev2Udev() -- convert a kernel device number to a user device number
  */
@@ -234,7 +228,7 @@ Dev2Udev_no_space:
 # endif	/* !defined(HAS_CONF_MINOR) */
 
 }
-#endif	/* FREEBSDV>=5000 && defined(HAS_NO_SI_UDEV) */
+#endif	/* defined(HAS_NO_SI_UDEV) */
 
 
 /*
