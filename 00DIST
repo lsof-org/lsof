@@ -5286,7 +5286,7 @@ July 14, 2018
                [FreeBSD] remove various old FreeBSD versions from support
                submitted by @emaste
 
-               [FreeBSD]onfigure: suggest variable to set if FreeBSD sys not 
+               [FreeBSD] configure: suggest variable to set if FreeBSD sys not 
                found
                submitted by @emaste
 
