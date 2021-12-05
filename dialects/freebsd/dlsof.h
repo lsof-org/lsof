@@ -545,7 +545,11 @@ struct	namecache {
 #   else
 	LIST_ENTRY(namecache) nc_src;   /* source vnode list */
 	TAILQ_ENTRY(namecache) nc_dst;  /* destination vnode list */
+#   if  __FreeBSD_version >= 1300000
+	SLIST_ENTRY(namecache) nc_hash; /* hash chain */
+#   else
 	LIST_ENTRY(namecache) nc_hash;  /* hash chain */
+#   endif
 #   endif
 	struct	vnode *nc_dvp;		/* vnode of parent of name */
 	struct	vnode *nc_vp;		/* vnode the name refers to */
@@ -570,7 +574,11 @@ struct	namecache {
 #define	NCACHE_NMLEN	nc_nlen		/* name length in NCACHE */
 
 #include <stddef.h>
+#   if  __FreeBSD_version >= 1300000
+#define	NCACHE_NXT	nc_hash.sle_next /* link in NCACHE */
+#   else
 #define	NCACHE_NXT	nc_hash.le_next	/* link in NCACHE */
+#   endif
 
 #define	NCACHE_NODEADDR	nc_vp		/* node address in NCACHE */
 #define	NCACHE_PARADDR	nc_dvp		/* parent node address in NCACHE */
