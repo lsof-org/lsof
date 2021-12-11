@@ -173,7 +173,7 @@ main(argc, argv)
  * Create option mask.
  */
 	(void) snpf(options, sizeof(options),
-	    "?a%sbc:%sD:d:%s%sf:F:g:hi:%s%slL:%s%snNo:Op:Pr:%ss:S:tT:u:UvVwx:%s%s%s",
+	    "?a%sbc:%sD:d:%s%sf:F:g:hi:%s%slL:%s%snNo:Op:QPr:%ss:S:tT:u:UvVwx:%s%s%s",
 
 #if	defined(HAS_AFS) && defined(HASAOPT)
 	    "A:",
@@ -768,6 +768,9 @@ main(argc, argv)
 		if (enter_id(PID, GOv))
 		    err = 1;
 		break;
+	    case 'Q':
+		FsearchErr = 0;
+		break;
 	    case 'P':
 		Fport = (GOp == '-') ? 0 : 1;
 		break;
@@ -1259,7 +1262,7 @@ main(argc, argv)
  * Process the file arguments.
  */
 	if (GOx1 < argc) {
-	    if (ck_file_arg(GOx1, argc, argv, Ffilesys, 0, (struct stat *)NULL))
+	    if (ck_file_arg(GOx1, argc, argv, Ffilesys, 0, (struct stat *)NULL, FsearchErr == 0))
 		Error();
 	}
 /*

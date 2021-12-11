@@ -565,8 +565,8 @@ extern int ZoneColW;
 enum ExitStatus {
 	LSOF_SUCCESS,
 	LSOF_ERROR,
-	LSOF_SEARCH_FAILURE = LSOF_ERROR
 };
+#define LSOF_SEARCH_FAILURE (FsearchErr? LSOF_ERROR: LSOF_SUCCESS)
 
 
 /*
@@ -727,6 +727,7 @@ extern int FportMap;
 
 extern int Fpgid;
 extern int Fppid;
+extern int FsearchErr;
 extern int Fsize;
 extern int Fsv;
 extern int FsvByf;

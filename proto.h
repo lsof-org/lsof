@@ -73,7 +73,7 @@ _PROTOTYPE(extern void alloc_lproc,(int pid, int pgid, int ppid, UID_ARG uid, ch
 _PROTOTYPE(extern void build_IPstates,(void));
 _PROTOTYPE(extern void childx,(void));
 _PROTOTYPE(extern int ck_fd_status,(char *nm, int num));
-_PROTOTYPE(extern int ck_file_arg,(int i, int ac, char *av[], int fv, int rs, struct stat *sbp));
+_PROTOTYPE(extern int ck_file_arg,(int i, int ac, char *av[], int fv, int rs, struct stat *sbp, int accept_deleted_file));
 _PROTOTYPE(extern void ckkv,(char *d, char *er, char *ev, char *ea));
 _PROTOTYPE(extern void clr_devtab,(void));
 _PROTOTYPE(extern int compdev,(COMP_P *a1, COMP_P *a2));

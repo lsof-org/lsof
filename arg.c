@@ -117,7 +117,7 @@ FD_range_nondigit:
  */
 
 int
-ck_file_arg(i, ac, av, fv, rs, sbp)
+ck_file_arg(i, ac, av, fv, rs, sbp, accept_deleted_file)
 	int i;			/* first file argument index */
 	int ac;			/* argument count */
 	char *av[];		/* argument vector */
@@ -126,6 +126,8 @@ ck_file_arg(i, ac, av, fv, rs, sbp)
 				 *	0 = undone; 1 = done */
 	struct stat *sbp;	/* if non-NULL, pointer to stat(2) buffer
 				 * when argument count == 1 */
+	int accept_deleted_file; /* if non-zero, don't report an error even
+				  * when the file doesn't exist. */
 {
 	char *ap, *fnm, *fsnm, *path;
 	short err = 0;
@@ -233,8 +235,10 @@ ck_file_arg(i, ac, av, fv, rs, sbp)
 		mmp[nm++] = mp;
 	    }
 	    if (fv == 2 && nm == 0) {
-		(void) fprintf(stderr, "%s: not a file system: ", Pn);
-		safestrprt(av[i], stderr, 1);
+		if (!accept_deleted_file) {
+		    (void) fprintf(stderr, "%s: not a file system: ", Pn);
+		    safestrprt(av[i], stderr, 1);
+		}
 		ErrStat = 1;
 		continue;
 	    }
@@ -271,10 +275,11 @@ ck_file_arg(i, ac, av, fv, rs, sbp)
 		    else {
 			if (statsafely(fnm, &sb) != 0) {
 			    int en = errno;
-
-			    (void) fprintf(stderr, "%s: status error on ", Pn);
-			    safestrprt(fnm, stderr, 0);
-			    (void) fprintf(stderr, ": %s\n", strerror(en));
+			    if (!accept_deleted_file) {
+				(void) fprintf(stderr, "%s: status error on ", Pn);
+				safestrprt(fnm, stderr, 0);
+				(void) fprintf(stderr, ": %s\n", strerror(en));
+			    }
 			    Sfile = sfp->next;
 			    (void) free((FREE_P *)sfp);
 			    ErrStat = 1;
@@ -471,8 +476,15 @@ ck_file_arg(i, ac, av, fv, rs, sbp)
 
 	    } while (mx < nm);
 	}
-	if (!ss)
+
+	if (accept_deleted_file) {
+	    if (!ss & ErrStat == 0)
+		err = 1;
+	    if (ErrStat)
+		ErrStat = 0;
+	} else if (!ss) {
 	    err = 1;
+	}
 	return((int)err);
 }
 
@@ -1047,7 +1059,7 @@ enter_dir(d, descend)
 	av[0] = (dn == d) ? mkstrcpy(dn, (MALLOC_S *)NULL) : dn;
 	av[1] = (char *)NULL;
 	dn = (char *)NULL;
-	if (!ck_file_arg(0, 1, av, 1, 1, &sb)) {
+	if (!ck_file_arg(0, 1, av, 1, 1, &sb, 0)) {
 	    av[0] = (char *)NULL;
 	    fct++;
 	}
@@ -1210,7 +1222,7 @@ enter_dir(d, descend)
 	     * Use ck_file_arg() to record the entry for searching.  Force it
 	     * to consider the entry a file, not a file system.
 	     */
-		if (!ck_file_arg(0, 1, av, 1, 1, &sb)) {
+		if (!ck_file_arg(0, 1, av, 1, 1, &sb, 0)) {
 		    av[0] = (char *)NULL;
 		    fct++;
 		}
