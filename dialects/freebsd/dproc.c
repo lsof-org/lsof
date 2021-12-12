@@ -155,6 +155,63 @@ read_xfiles(struct xfile **xfiles, size_t *count)
 }
 
 
+static void
+process_file_descriptors(
+	struct kinfo_proc *p, short ckscko,
+	struct xfile *xfiles, size_t n_xfiles)
+{
+	struct kinfo_file *kfiles;
+	int n_kfiles = 0;
+	int i;
+
+	kfiles = kinfo_getfile(p->P_PID, &n_kfiles);
+	for (i = 0; i < n_kfiles; i++) {
+	    struct xfile key, *xfile;
+	    key.xf_pid = p->P_PID;
+	    key.xf_fd = kfiles[i].kf_fd;
+	    xfile = bsearch(&key, xfiles, n_xfiles, sizeof(*xfiles), cmp_xfiles_pid_fd);
+	    if (!xfile)
+		continue;
+
+	    if (!ckscko && kfiles[i].kf_fd == KF_FD_TYPE_CWD) {
+		alloc_lfile(CWD, -1);
+		process_node(xfile->xf_vnode);
+		if (Lf->sf)
+		    link_lfile();
+	    } else if (!ckscko && kfiles[i].kf_fd == KF_FD_TYPE_ROOT) {
+		alloc_lfile(RTD, -1);
+		process_node(xfile->xf_vnode);
+		if (Lf->sf)
+		    link_lfile();
+	    } else if (!ckscko && kfiles[i].kf_fd == KF_FD_TYPE_JAIL) {
+		alloc_lfile(" jld", -1);
+		process_node(xfile->xf_vnode);
+		if (Lf->sf)
+		    link_lfile();
+	    } else if (!ckscko && kfiles[i].kf_fd == KF_FD_TYPE_TEXT) {
+		alloc_lfile(" txt", -1);
+		process_node(xfile->xf_vnode);
+		if (Lf->sf)
+		    link_lfile();
+	    } else if (!ckscko && kfiles[i].kf_fd == KF_FD_TYPE_CTTY) {
+		alloc_lfile("ctty", -1);
+		process_node(xfile->xf_vnode);
+		if (Lf->sf)
+		    link_lfile();
+	    } else if (!ckscko && kfiles[i].kf_fd < 0) {
+		if (!Fwarn)
+		    fprintf(stderr, "%s: WARNING -- unsupported fd type %d\n", Pn, kfiles[i].kf_fd);
+	    } else {
+		alloc_lfile(NULL, kfiles[i].kf_fd);
+		process_file(xfile->xf_file);
+		if (Lf->sf)
+		    link_lfile();
+	    }
+	}
+	free(kfiles);
+}
+
+
 /*
  * gather_proc_info() -- gather process information
  */

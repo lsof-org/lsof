@@ -584,4 +584,7 @@ struct	namecache {
 #define	VNODE_VFLAG	v_iflag
 #define	NCACHE_VROOT	VV_ROOT
 
+
+#include <libutil.h>
+
 #endif	/* defined(FREEBSD_LSOF_H) */
