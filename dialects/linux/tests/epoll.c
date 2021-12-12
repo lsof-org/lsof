@@ -51,6 +51,6 @@ main(int argc, char **argv)
 
   printf ("%d %d\n", getpid(), epfd);
   fflush (stdout);
-  getchar ();
+  pause ();
   return 0;
 }
