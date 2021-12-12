@@ -91,6 +91,66 @@ read_xfiles(struct xfile **xfiles, size_t *count)
 	return 1;
 }
 
+/* Based on process_file() in lib/prfd.c */
+static void
+process_kinfo_file(struct kinfo_file *kf, struct xfile *xfile)
+{
+	Lf->off = kf->kf_offset;
+	if (kf->kf_ref_count) {
+	    if ((kf->kf_flags & (KF_FLAG_READ | KF_FLAG_WRITE)) == KF_FLAG_READ)
+		Lf->access = 'r';
+	    else if ((kf->kf_flags & (KF_FLAG_READ | KF_FLAG_WRITE)) == KF_FLAG_WRITE)
+		Lf->access = 'w';
+	    else if ((kf->kf_flags & (KF_FLAG_READ | KF_FLAG_WRITE)) == (KF_FLAG_READ | KF_FLAG_WRITE))
+		Lf->access = 'u';
+	}
+
+	if (Fsv & FSV_CT) {
+	    Lf->fct = (long)kf->kf_ref_count;
+	    Lf->fsv |= FSV_CT;
+	}
+	if (xfile) {
+	    if (Fsv & FSV_FA) {
+		Lf->fsa = xfile->xf_file;
+		Lf->fsv |= FSV_FA;
+	    }
+	    if (Fsv & FSV_FG) {
+		Lf->ffg = (long)xfile->xf_flag;
+		Lf->fsv |= FSV_FG;
+	    }
+	    if (Fsv & FSV_NI) {
+		Lf->fna = (KA_T)xfile->xf_data;
+		Lf->fsv |= FSV_NI;
+	    }
+	}
+	switch (kf->kf_type) {
+	case KF_TYPE_FIFO:
+	case KF_TYPE_VNODE:
+	    process_node(xfile ? xfile->xf_vnode : 0UL);
+	    break;
+	case KF_TYPE_SOCKET:
+	    process_socket(xfile ? xfile->xf_data : 0UL);
+	    break;
+	case KF_TYPE_KQUEUE:
+	    process_kqueue(xfile ? xfile->xf_data : 0UL);
+	    break;
+	case KF_TYPE_PIPE:
+	    if (!Selinet)
+		process_pipe(xfile ? xfile->xf_data : 0UL);
+	    break;
+	case KF_TYPE_PTS:
+	    process_pts(xfile ? xfile->xf_data : 0UL);
+	    break;
+	default:
+	    /* FIXME: unlike struct file, xfile doesn't have f_ops which should be printed here */
+	    snpf(Namech, Namechl,
+		"%p file struct, ty=%d",
+		xfile ? (void*)xfile->xf_file : NULL,
+		kf->kf_type);
+	    enter_nm(Namech);
+	}
+}
+
 
 static void
 process_file_descriptors(
@@ -140,7 +200,7 @@ process_file_descriptors(
 		    fprintf(stderr, "%s: WARNING -- unsupported fd type %d\n", Pn, kfiles[i].kf_fd);
 	    } else {
 		alloc_lfile(NULL, kfiles[i].kf_fd);
-		process_file(xfile->xf_file);
+		process_kinfo_file(&kfiles[i], xfile);
 		if (Lf->sf)
 		    link_lfile();
 	    }
