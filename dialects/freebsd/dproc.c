@@ -107,6 +107,54 @@ enter_vn_text(va, n)
 }
 
 
+static int
+cmp_xfiles_pid_fd(const void *a, const void *b)
+{
+	const struct xfile *aa, *bb;
+
+	aa = (struct xfile *)a;
+	bb = (struct xfile *)b;
+	if (aa->xf_pid < bb->xf_pid) {
+	    return -1;
+	} else if (aa->xf_pid > bb->xf_pid) {
+	    return 1;
+	} else {
+	    if (aa->xf_fd < bb->xf_fd) {
+		return -1;
+	    } else if (aa->xf_fd > bb->xf_fd) {
+		return 1;
+	    } else {
+		return 0;
+	    }
+	}
+}
+
+
+static int
+read_xfiles(struct xfile **xfiles, size_t *count)
+{
+	int mib[2];
+	size_t len;
+
+	mib[0] = CTL_KERN;
+	mib[1] = KERN_FILE;
+	*xfiles = NULL;
+	if (!sysctl(mib, 2, NULL, &len, NULL, 0)) {
+	    *xfiles = malloc(len);
+	    if (*xfiles) {
+		if (!sysctl(mib, 2, *xfiles, &len, NULL, 0)) {
+		    *count = len / sizeof(struct xfile);
+		    return 0;
+		}
+	    }
+	}
+	free(*xfiles);
+	*xfiles = NULL;
+	*count = 0;
+	return 1;
+}
+
+
 /*
  * gather_proc_info() -- gather process information
  */
@@ -164,6 +212,8 @@ gather_proc_info()
 	uid_t uid;
 
 	struct kinfo_proc *p;
+	struct xfile *xfiles;
+	size_t n_xfiles;
 
 #if	defined(HASFSTRUCT) && !defined(HAS_FILEDESCENT)
 	static char *pof = (char *)NULL;
@@ -248,6 +298,11 @@ gather_proc_info()
 	    Error();
 	}
 	Np = len / sizeof(struct kinfo_proc);
+	if (read_xfiles(&xfiles, &n_xfiles) && !Fwarn)
+	    fprintf(stderr, "%s: WARNING -- reading xfile list failed: %s\n",
+		Pn, strerror(errno));
+	qsort(xfiles, n_xfiles, sizeof(*xfiles), cmp_xfiles_pid_fd);
+
 /*
  * Examine proc structures and their associated information.
  */
@@ -478,9 +533,11 @@ gather_proc_info()
 	 */
 	    if (!Ftask) {
 		if (examine_lproc())
-		    return;
+		    break;
 	    }
 	}
+
+	free(xfiles);
 }
 
 
