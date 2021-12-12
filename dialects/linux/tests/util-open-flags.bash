@@ -13,7 +13,7 @@ if ! [ -x $TARGET ]; then
     exit 1
 fi
 
-$TARGET $tfile "$@" &
+$TARGET $tfile "$@" 2>> $report &
 pid=$!
 
 echo "expected: $pat" >> $report
