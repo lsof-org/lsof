@@ -24,7 +24,7 @@ $TARGET | {
 	echo done
     } >> $report
     if $lsof -p $pid -a -d $epfd |
-	    grep -q "epoll *[0-9]* *.* *${epfd}u *a_inode *[0-9]*,[0-9]* *[0-9]* *[0-9]* *\[eventpoll:0,1,2\]"; then
+	    grep -q "epoll *[0-9]* *.* *${epfd}u *a_inode *[0-9]*,[0-9]* *[0-9]* *[0-9]* *\[eventpoll:5,6\]"; then
 	kill $pid
 	exit 0
     else
