@@ -33,6 +33,8 @@ nsuccessful=0
 nskipped=0
 ncases=0
 REPORTS=
+REPORTS_SKIPPED=
+
 
 run_one()
 {
@@ -64,7 +66,7 @@ run_one()
     elif [ "$s" = 2 ]; then
         s=skipped
         nskipped=$((nskipped + 1))
-        REPORTS="${REPORTS} ${report}"
+        REPORTS_SKIPPED="${REPORTS_SKIPPED} ${report}"
     else
         s=failed
         nfailed=$((nfailed + 1))
@@ -92,7 +94,18 @@ report()
 {
     for r in "$@"; do
         echo
-        echo $r
+        echo '[failed]' $r
+        echo -----------------------------------------------------------------------------
+        cat $r
+        rm $r
+    done
+}
+
+report_skipped()
+{
+    for r in "$@"; do
+        echo
+        echo '[skipped]' $r
         echo -----------------------------------------------------------------------------
         cat $r
         rm $r
@@ -121,9 +134,11 @@ if [ $nfailed = 0 ]; then
 elif [ $nfailed = 1 ]; then
     printf "%d of %d case is failed\n" $nfailed $ncases
     report $REPORTS
+    report_skipped $REPORTS_SKIPPED
     exit 1
 else
     printf "%d of %d cases are failed\n" $nfailed $ncases
     report $REPORTS
+    report_skipped $REPORTS_SKIPPED    
     exit 1
 fi
