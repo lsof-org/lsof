@@ -136,7 +136,7 @@ process_kinfo_file(struct kinfo_file *kf, struct xfile *xfile)
 	    break;
 	case KF_TYPE_PIPE:
 	    if (!Selinet)
-		process_pipe(xfile ? xfile->xf_data : 0UL);
+		process_pipe(kf, xfile ? xfile->xf_data : 0UL);
 	    break;
 	case KF_TYPE_PTS:
 	    process_pts(xfile ? xfile->xf_data : 0UL);

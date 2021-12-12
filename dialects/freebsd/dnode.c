@@ -1530,44 +1530,40 @@ process_overlaid_node:
  */
 
 void
-process_pipe(pa)
-	KA_T pa;			/* pipe structure address */
+process_pipe(struct kinfo_file *kf, KA_T pa)
 {
 	char dev_ch[32], *ep;
 	struct pipe p;
 	size_t sz;
+	int have_kpipe;
 
-	if (!pa || kread(pa, (char *)&p, sizeof(p))) {
-	    (void) snpf(Namech, Namechl,
-		"can't read DTYPE_PIPE pipe struct: %s",
-		print_kptr((KA_T)pa, (char *)NULL, 0));
-	    enter_nm(Namech);
-	    return;
-	}
+	have_kpipe = (pa && kread(pa, (char *)&p, sizeof(p)) == 0);
 	(void) snpf(Lf->type, sizeof(Lf->type), "PIPE");
 	(void) snpf(dev_ch, sizeof(dev_ch), "%s",
-	    print_kptr(pa, (char *)NULL, 0));
+	    print_kptr(kf->kf_un.kf_pipe.kf_pipe_addr, (char *)NULL, 0));
 	enter_dev_ch(dev_ch);
 	if (Foffset)
 	    Lf->off_def = 1;
-	else {
+	else if (have_kpipe) {
+	    /* FIXME: "struct kinfo_file" needs this */
 	    Lf->sz = (SZOFFTYPE)p.pipe_buffer.size;
 	    Lf->sz_def = 1;
 	}
-	if (p.pipe_peer)
+	if (kf->kf_un.kf_pipe.kf_pipe_peer)
 	    (void) snpf(Namech, Namechl, "->%s",
-		print_kptr((KA_T)p.pipe_peer, (char *)NULL, 0));
+		print_kptr((KA_T)kf->kf_un.kf_pipe.kf_pipe_peer, (char *)NULL, 0));
 	else
 	    Namech[0] = '\0';
-	if (p.pipe_buffer.cnt) {
+	if (kf->kf_un.kf_pipe.kf_pipe_buffer_cnt) {
 	    ep = endnm(&sz);
-	    (void) snpf(ep, sz, ", cnt=%d", p.pipe_buffer.cnt);
+	    (void) snpf(ep, sz, ", cnt=%d", kf->kf_un.kf_pipe.kf_pipe_buffer_cnt);
 	}
-	if (p.pipe_buffer.in) {
+	/* FIXME: "struct kinfo_file" needs these */
+	if (have_kpipe && p.pipe_buffer.in) {
 	    ep = endnm(&sz);
 	    (void) snpf(ep, sz, ", in=%d", p.pipe_buffer.in);
 	}
-	if (p.pipe_buffer.out) {
+	if (have_kpipe && p.pipe_buffer.out) {
 	    ep = endnm(&sz);
 	    (void) snpf(ep, sz, ", out=%d", p.pipe_buffer.out);
 	}

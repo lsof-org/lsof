@@ -316,7 +316,7 @@ typedef _Bool   bool;
  * NOTE: don't forget to define a prototype for this function in dproto.h.
  */
 
-#define	HASPIPEFN	process_pipe
+/* #define	HASPIPEFN	process_pipe */
 
 
 /*
