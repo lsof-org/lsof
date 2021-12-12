@@ -114,6 +114,9 @@ enter_vn_text(va, n)
 void
 gather_proc_info()
 {
+
+	int mib[3];
+	size_t len;
 	short cckreg;			/* conditional status of regular file
 					 * checking:
 					 *     0 = unconditionally check
@@ -224,19 +227,27 @@ gather_proc_info()
 #define	KERN_PROC_PROC  KERN_PROC_ALL
 # endif	/* !defined(KERN_PROC_PROC) */
 
-	if ((P = kvm_getprocs(Kd, Ftask ? KERN_PROC_ALL : KERN_PROC_PROC,
-			      0, &Np))
-	== NULL)
-
-	{
+	mib[0] = CTL_KERN;
+	mib[1] = KERN_PROC;
+	mib[2] = Ftask ? KERN_PROC_ALL : KERN_PROC_PROC;
+	len = 0;
+	if (sysctl(mib, 3, NULL, &len, NULL, 0) == 0) {
+	    P = malloc(len);
+	    if (P) {
+		if (sysctl(mib, 3, P, &len, NULL, 0) < 0) {
+		    free(P);
+		    P = NULL;
+		}
+	    }
+	}
+	if (P == NULL) {
 	    (void) fprintf(stderr, "%s: can't read process table: %s\n",
 		Pn,
-
-		kvm_geterr(Kd)
-
+		strerror(errno)
 	    );
 	    Error();
 	}
+	Np = len / sizeof(struct kinfo_proc);
 /*
  * Examine proc structures and their associated information.
  */
