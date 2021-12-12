@@ -36,76 +36,13 @@ static char copyright[] =
 
 #include "lsof.h"
 
-/*
- * This is not an exact version but it should not matter. At worst there
- * is a small version window where this lsof does not compile on older
- * -CURRENT.
- */
-#if __FreeBSD_version >= 1300081
-#define HAS_PWD
-#endif
 
-_PROTOTYPE(static void enter_vn_text,(KA_T va, int *n));
 _PROTOTYPE(static void get_kernel_access,(void));
-_PROTOTYPE(static void process_text,(KA_T vm));
 
 
 /*
  * Local static values
  */
-
-static MALLOC_S Nv = 0;			/* allocated Vp[] entries */
-static KA_T *Vp = NULL;			/* vnode address cache */
-
-
-/*
- * enter_vn_text() - enter a vnode text reference
- */
-
-static void
-enter_vn_text(va, n)
-	KA_T va;			/* vnode address */
-	int *n;				/* Vp[] entries in use */
-{
-	int i;
-/*
- * Ignore the request if the vnode has already been entered.
- */
-	for (i = 0; i < *n; i++) {
-	    if (va == Vp[i])
-		return;
-	}
-/*
- * Save the text file information.
- */
-	alloc_lfile(" txt", -1);
-	Cfp = (struct file *)NULL;
-	process_node(va);
-	if (Lf->sf)
-	    link_lfile();
-	if (i >= Nv) {
-
-	/*
-	 * Allocate space for remembering the vnode.
-	 */
-	    Nv += 10;
-	    if (!Vp)
-		Vp=(KA_T *)malloc((MALLOC_S)(sizeof(struct vnode *)*10));
-	    else
-		Vp=(KA_T *)realloc((MALLOC_P *)Vp,(MALLOC_S)(Nv*sizeof(KA_T)));
-	    if (!Vp) {
-		(void) fprintf(stderr, "%s: no txt ptr space, PID %d\n",
-		    Pn, Lp->pid);
-		Error();
-	    }
-	}
-/*
- * Remember the vnode.
- */
-	Vp[*n] = va;
-	(*n)++;
-}
-
 
 static int
 cmp_xfiles_pid_fd(const void *a, const void *b)
@@ -232,36 +169,8 @@ gather_proc_info()
 					 *	   including TCP and UDP
 					 *	   streams with eXPORT data,
 					 *	   where supported */
-	struct filedesc fd;
-#if	defined(PWDDESC_KVM_LOAD_PWD)
-	struct pwddesc pd;
-#endif	/* defined(PWDDESC_KVM_LOAD_PWD) */
-	int i, nf;
-	MALLOC_S nb;
 
-#if	defined(HAS_FILEDESCENT)
-	typedef struct filedescent ofb_t;
-#else	/* !defined(HAS_FILEDESCENT) */
-	typedef struct file* ofb_t;
-#endif	/* defined(HAS_FILEDESCENT) */
-
-#if	defined(HAS_FDESCENTTBL)
-	struct fdescenttbl fdt;
-	KA_T fa;
-#endif	/* defined(HAS_FDESCENTTBL) */
-
-#if	defined(HAS_PWD)
-	struct pwd pwd;
-	KA_T pwd_addr;
-#endif	/* defined(HAS_FDESCENTTBL) */
-
-	struct vnode *cdir;
-	struct vnode *rdir;
-	struct vnode *jdir;
-
-	static ofb_t *ofb = NULL;
-	static int ofbb = 0;
-	int pgid, pid;
+	int pgid;
 	int ppid = 0;
 	short pss, sf;
 	int px;
@@ -393,44 +302,6 @@ gather_proc_info()
 #endif	/* defined(HASTASKS) */
 
 	/*
-	 * Read file structure pointers.
-	 */
-	    if (!p->P_FD
-	    ||  kread((KA_T)p->P_FD, (char *)&fd, sizeof(fd)))
-		continue;
-
-#if	defined(HAS_FDESCENTTBL)
-	    if (!fd.fd_files
-	    ||  kread((KA_T)fd.fd_files, (char *)&fdt, sizeof(fdt)))
-		continue;
-	    if (!fd.fd_refcnt)
-		continue;
-#else	/* !defined(HAS_FDESCENTTBL) */
-	    if (!fd.fd_refcnt || fd.fd_lastfile > fd.fd_nfiles)
-		continue;
-#endif	/* defined(HAS_FDESCENTTBL) */
-
-#if	defined(HAS_PWD)
-	    cdir = rdir = jdir = NULL;
-#if	  defined(PWDDESC_KVM_LOAD_PWD)
-	    pwd_addr = (KA_T)PWDDESC_KVM_LOAD_PWD(&pd);
-#else   /* defined(PWDDESC_KVM_LOAD_PWD) */
-	    pwd_addr = (KA_T)FILEDESC_KVM_LOAD_PWD(&fd);
-#endif  /* defined(PWDDESC_KVM_LOAD_PWD) */
-	    if (pwd_addr != 0) {
-		    if (!kread(pwd_addr, (char *)&pwd, sizeof(pwd))) {
-			    cdir = pwd.pwd_cdir;
-			    rdir = pwd.pwd_rdir;
-			    jdir = pwd.pwd_jdir;
-		    }
-	    }
-#else
-	    cdir = fd.fd_cdir;
-	    rdir = fd.fd_rdir;
-	    jdir = fd.fd_jdir;
-#endif
-
-	/*
 	 * Allocate a local process structure.
 	 */
 	    if (is_cmd_excl(p->P_COMM, &pss, &sf))
@@ -462,129 +333,8 @@ gather_proc_info()
 	    Kpa = (KA_T)p->P_ADDR;
 #endif	/* defined(P_ADDR) */
 
-	/*
-	 * Save current working directory information.
-	 */
-	    if (!ckscko && cdir) {
-		alloc_lfile(CWD, -1);
-		Cfp = (struct file *)NULL;
-		process_node((KA_T)cdir);
-		if (Lf->sf)
-		    link_lfile();
-	    }
-	/*
-	 * Save root directory information.
-	 */
-	    if (!ckscko && rdir) {
-		alloc_lfile(RTD, -1);
-		Cfp = (struct file *)NULL;
-		process_node((KA_T)rdir);
-		if (Lf->sf)
-		    link_lfile();
-	    }
+	process_file_descriptors(p, ckscko, xfiles, n_xfiles);
 
-	/*
-	 * Save jail directory information.
-	 */
-	    if (!ckscko && jdir) {
-		alloc_lfile("jld", -1);
-		Cfp = (struct file *)NULL;
-		process_node((KA_T)jdir);
-		if (Lf->sf)
-		    link_lfile();
-	    }
-
-	/*
-	 * Save information on the text file.
-	 */
-	    if (!ckscko && p->P_VMSPACE)
-		process_text((KA_T)p->P_VMSPACE);
-	/*
-	 * Read open file structure pointers.
-	 */
-
-#if	defined(HAS_FDESCENTTBL)
-	    if ((nf = fdt.fdt_nfiles) <= 0)
-		continue;
-#else	/* !defined(HAS_FDESCENTTBL) */
-	    if (!fd.fd_ofiles || (nf = fd.fd_nfiles) <= 0)
-		continue;
-#endif	/* defined(HAS_FDESCENTTBL) */
-
-	    nb = (MALLOC_S)(sizeof(ofb_t) * nf);
-	    if (nb > ofbb) {
-		if (!ofb)
-		    ofb = (ofb_t *)malloc(nb);
-		else
-		    ofb = (ofb_t *)realloc((MALLOC_P *)ofb, nb);
-		if (!ofb) {
-		    (void) fprintf(stderr, "%s: PID %d, no file * space\n",
-			Pn, p->P_PID);
-		    Error();
-		}
-		ofbb = nb;
-	    }
-
-#if	defined(HAS_FDESCENTTBL)
-	    fa = (KA_T)fd.fd_files
-	       + (KA_T)offsetof(struct fdescenttbl, fdt_ofiles);
-	    if (kread(fa, (char *)ofb, nb))
-		continue;
-#else	/* !defined(HAS_FDESCENTTBL) */
-	    if (kread((KA_T)fd.fd_ofiles, (char *)ofb, nb))
-		continue;
-#endif	/* defined(HAS_FDESCENTTBL) */
-
-
-#if	defined(HASFSTRUCT) && !defined(HAS_FILEDESCENT)
-	    if (Fsv & FSV_FG) {
-		nb = (MALLOC_S)(sizeof(char) * nf);
-		if (nb > pofb) {
-		    if (!pof)
-			pof = (char *)malloc(nb);
-		    else
-			pof = (char *)realloc((MALLOC_P *)pof, nb);
-		    if (!pof) {
-			(void) fprintf(stderr,
-			    "%s: PID %d, no file flag space\n", Pn, p->P_PID);
-			Error();
-		    }
-		    pofb = nb;
-		}
-		if (!fd.fd_ofileflags || kread((KA_T)fd.fd_ofileflags, pof, nb))
-		    zeromem(pof, nb);
-	    }
-#endif	/* defined(HASFSTRUCT) && !defined(HAS_FILEDESCENT) */
-
-	/*
-	 * Save information on file descriptors.
-	 */
-	    for (i = 0; i < nf; i++) {
-
-#if	defined(HAS_FILEDESCENT)
-		if ((Cfp = ofb[i].fde_file))
-#else	/* !defined(HAS_FILEDESCENT) */
-		if ((Cfp = ofb[i]))
-#endif	/* defined(HAS_FILEDESCENT) */
-
-		{
-		    alloc_lfile(NULL, i);
-		    process_file((KA_T)Cfp);
-		    if (Lf->sf) {
-
-#if	defined(HASFSTRUCT)
-			if (Fsv & FSV_FG)
-# if	defined(HAS_FILEDESCENT)
-			    Lf->pof = (long)ofb[i].fde_flags;
-# else	/* !defined(HAS_FILEDESCENT) */
-			    Lf->pof = (long)pof[i];
-# endif	/* defined(HAS_FILEDESCENT) */
-#endif	/* defined(HASFSTRUCT) */
-
-			link_lfile();
-		    }
-		}
-	    }
 	/*
 	 * Unless threads (tasks) are being processed, examine results.
 	 */
@@ -763,88 +513,3 @@ kread(addr, buf, len)
 	return((br == len) ? 0 : 1);
 }
 
-static int
-vm_map_reader(void *token, vm_map_entry_t addr, vm_map_entry_t dest)
-{
-	return (kread((KA_T)addr, (char *)dest, sizeof(*dest)));
-}
-
-#if	__FreeBSD_version < 1300060
-typedef int vm_map_entry_reader(void *token, vm_map_entry_t addr,
-    vm_map_entry_t dest);
-
-static inline vm_map_entry_t
-vm_map_entry_read_succ(void *token, struct vm_map_entry *const clone,
-     vm_map_entry_reader reader)
-{
-	vm_map_entry_t next;
-
-	next = clone->next;
-	if (!reader(token, next, clone))
-		return (NULL);
-	return (next);
-}
-#endif	/*  __FreeBSD_version < 1300060 */
-
-/*
- * process_text() - process text information
- */
-void
-process_text(vm)
-	KA_T vm;				/* vm space pointer */
-{
-	int i, j;
-	KA_T ka;
-	int n = 0;
-	struct vm_map_entry vmme, *e;
-	struct vm_object vmo;
-	struct vmspace vmsp;
-
-/*
- * Read the vmspace structure for the process.
- */
-	if (kread(vm, (char *)&vmsp, sizeof(vmsp)))
-	    return;
-/*
- * Read the vm_map structure.  Search its vm_map_entry structure list.
- */
-	vmme = vmsp.vm_map.header;
-	e = &vmme;
-	for (i = 0; i < vmsp.vm_map.nentries; i++) {
-
-	/*
-	 * Read the next vm_map_entry.
-	 */
-	    if (!vm_map_entry_read_succ(NULL, e, vm_map_reader))
-		return;
-
-#if	defined(MAP_ENTRY_IS_A_MAP)
-	    if (e->eflags & (MAP_ENTRY_IS_A_MAP|MAP_ENTRY_IS_SUB_MAP))
-#else	/* !defined(MAP_ENTRY_IS_A_MAP) */
-	    if (e->is_a_map || e->is_sub_map)
-#endif	/* defined(MAP_ENTRY_IS_A_MAP) */
-
-		continue;
-	/*
-	 * Read the map entry's object and the object's shadow.
-	 * Look for: a PG_VNODE pager handle (FreeBSD < 2.2);
-	 * an OBJT_VNODE object type (FreeBSD >= 2.2).
-	 */
-	    for (j = 0, ka = (KA_T)e->object.vm_object;
-		 j < 2 && ka;
-		 j++,
-
-		 ka = (KA_T)vmo.backing_object
-		 )
-	    {
-		if (kread(ka, (char *)&vmo, sizeof(vmo)))
-		    break;
-
-		if (vmo.type != OBJT_VNODE
-		||  vmo.handle == (void *)NULL)
-		    continue;
-		(void) (enter_vn_text((KA_T)vmo.handle, &n));
-
-	    }
-	}
-}
