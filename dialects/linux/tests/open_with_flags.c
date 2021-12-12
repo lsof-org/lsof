@@ -62,7 +62,8 @@ main(int argc, char **argv)
 		return 1;
 	}
 
-	sleep(10000);
-
+	printf ("%d\n", getpid());
+	fflush (stdout);
+	pause ();
 	return 0;
 }
