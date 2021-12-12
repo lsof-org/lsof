@@ -552,7 +552,7 @@ get_kernel_access()
 #endif	/* defined(_PATH_MEM) */
 
 		strerror(errno));
-	    Error();
+	    return;
 	}
 	(void) build_Nl(Drive_Nl);
 	if (kvm_nlist(Kd, Nl) < 0) {
@@ -642,6 +642,8 @@ kread(addr, buf, len)
 {
 	int br;
 
+	if (!Kd)
+	    return 1;
 	br = kvm_read(Kd, (u_long)addr, buf, len);
 
 	return((br == len) ? 0 : 1);
