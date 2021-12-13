@@ -139,7 +139,7 @@ process_kinfo_file(struct kinfo_file *kf, struct xfile *xfile)
 		process_pipe(kf, xfile ? xfile->xf_data : 0UL);
 	    break;
 	case KF_TYPE_PTS:
-	    process_pts(xfile ? xfile->xf_data : 0UL);
+	    process_pts(kf);
 	    break;
 	default:
 	    /* FIXME: unlike struct file, xfile doesn't have f_ops which should be printed here */

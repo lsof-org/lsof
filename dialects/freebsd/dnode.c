@@ -1575,30 +1575,17 @@ process_pipe(struct kinfo_file *kf, KA_T pa)
 }
 
 
-#if	defined(HASPTSFN) && defined(DTYPE_PTS)
+#if	defined(DTYPE_PTS)
 /*
  * process_pts - process a file structure whose type is DTYPE_PTS
  */
 
-void process_pts(tp)
-	KA_T tp;			/* f_data pointer to tty structure */
+void process_pts(struct kinfo_file *kf)
 {
-	dev_t dev;			/* IFCHR device number */
-	struct tty t;			/* tty structure */
-
 	(void) snpf(Lf->type, sizeof(Lf->type), "PTS");
 /*
- * Read the tty structure.  Quit if it can't be read.
- */
-	if (!tp || kread(tp, (char *)&t, sizeof(t))) {
-	    (void) snpf(Namech, Namechl,
-		"can't read DTYPE_PTS tty struct: %s",
-		print_kptr((KA_T)tp, (char *)NULL, 0));
-	    enter_nm(Namech);
-	    return;
-	}
-/*
  * Convert the tty's cdev from kernel to user form.
+ *     -- already done in the kernel, file sys/kern/tty_pts.c, function ptsdev_fill_kinfo().
  *
  * Set the device number to DevDev, the device number of /dev.
  *
@@ -1612,19 +1599,12 @@ void process_pts(tp)
  *
  * Force the reloading of the device cache.
  */
-	if ((dev = Dev2Udev((KA_T)t.t_dev)) == NODEV) {
-	    (void) snpf(Namech, Namechl,
-		"can't convert device in DTYPE_PTS tty struct: %s",
-		print_kptr((KA_T)tp, (char *)NULL, 0));
-	    enter_nm(Namech);
-	    return;
-	}
 	Lf->dev = DevDev;
-	Lf->inode = (INODETYPE)dev;
+	Lf->inode = (INODETYPE)kf->kf_un.kf_pts.kf_pts_dev;
 	Lf->inp_ty = Lf->dev_def = Lf->rdev_def = 1;
 	Lf->ntype = N_CHR;
 	Lf->off_def = 1;
-	Lf->rdev = dev;
+	Lf->rdev = kf->kf_un.kf_pts.kf_pts_dev;
 	DCunsafe = 1;
 }
-#endif	/* defined(HASPTSFN) && defined(DTYPE_PTS) */
+#endif	/* defined(DTYPE_PTS) */

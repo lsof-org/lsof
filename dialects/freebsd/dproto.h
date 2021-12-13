@@ -53,9 +53,7 @@ _PROTOTYPE(extern int is_file_named,(char *p, int cd));
 _PROTOTYPE(extern void process_socket,(KA_T sa));
 _PROTOTYPE(extern struct l_vfs *readvfs,(KA_T vm));
 
-#if	defined(HASPTSFN)
-_PROTOTYPE(extern void process_pts,(KA_T ta));
-#endif	/* defined(HASPTSFN) */
+_PROTOTYPE(extern void process_pts,(struct kinfo_file *kf));
 
 #if	defined(HASKQUEUE)
 _PROTOTYPE(extern void process_kqueue,(KA_T ka));

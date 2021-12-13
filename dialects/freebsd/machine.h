@@ -437,7 +437,7 @@ typedef _Bool   bool;
  * NOTE: don't forget to define a prototype for this function in dproto.h.
  */
 
-#define	HASPTSFN	process_pts
+/* #define	HASPTSFN	process_pts */
 
 
 /*
