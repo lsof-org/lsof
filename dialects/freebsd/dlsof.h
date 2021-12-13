@@ -512,6 +512,20 @@ struct sfile {
 #define	XDR_PMAPLIST	(const xdrproc_t)xdr_pmaplist
 
 
+struct pcb_lists {
+	struct xunpcb *un_stream_pcbs;
+	size_t n_un_stream_pcbs;
+	struct xunpcb *un_dgram_pcbs;
+	size_t n_un_dgram_pcbs;
+	struct xunpcb *un_seqpacket_pcbs;
+	size_t n_un_seqpacket_pcbs;
+	struct xtcpcb *tcp_pcbs;
+	size_t n_tcp_pcbs;
+	struct xinpcb *udp_pcbs;
+	size_t n_udp_pcbs;
+};
+
+
 /*
  * Definitions for rdev.c
  */
