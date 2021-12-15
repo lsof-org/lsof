@@ -91,6 +91,49 @@ read_xfiles(struct xfile **xfiles, size_t *count)
 	return 1;
 }
 
+
+static int
+cmp_xvnodes_xvvnode(const void *a, const void *b)
+{
+	const struct xvnode *aa, *bb;
+
+	aa = (struct xvnode *)a;
+	bb = (struct xvnode *)b;
+	if (aa->xv_vnode < bb->xv_vnode) {
+	    return -1;
+	} else if (aa->xv_vnode > bb->xv_vnode) {
+	    return 1;
+	} else {
+	    return 0;
+	}
+}
+
+
+static int
+read_xvnodes(struct xvnode **vnodes, size_t *count)
+{
+	int mib[2];
+	size_t len;
+
+	mib[0] = CTL_KERN;
+	mib[1] = KERN_VNODE;
+	*vnodes = NULL;
+	if (!sysctl(mib, 2, NULL, &len, NULL, 0)) {
+	    *vnodes = malloc(len);
+	    if (*vnodes) {
+		if (!sysctl(mib, 2, *vnodes, &len, NULL, 0)) {
+		    *count = len / sizeof(struct xvnode);
+		    return 0;
+		}
+	    }
+	}
+	free(*vnodes);
+	*vnodes = NULL;
+	*count = 0;
+	return 1;
+}
+
+
 /* Based on process_file() in lib/prfd.c */
 static void
 process_kinfo_file(struct kinfo_file *kf, struct xfile *xfile, struct pcb_lists *pcbs)
@@ -241,6 +284,8 @@ gather_proc_info()
 	struct kinfo_proc *p;
 	struct xfile *xfiles;
 	size_t n_xfiles;
+	struct xvnode *xvnodes;
+	size_t n_xvnodes;
 	struct pcb_lists *pcbs;
 
 #if	defined(HASFSTRUCT) && !defined(HAS_FILEDESCENT)
@@ -330,6 +375,10 @@ gather_proc_info()
 	    fprintf(stderr, "%s: WARNING -- reading xfile list failed: %s\n",
 		Pn, strerror(errno));
 	qsort(xfiles, n_xfiles, sizeof(*xfiles), cmp_xfiles_pid_fd);
+	if (read_xvnodes(&xvnodes, &n_xvnodes) && !Fwarn)
+	    fprintf(stderr, "%s: WARNING -- reading xvnode list failed: %s\n",
+		Pn, strerror(errno));
+	qsort(xvnodes, n_xvnodes, sizeof(*xvnodes), cmp_xvnodes_xvvnode);
 	pcbs = read_pcb_lists();
 	if (!pcbs && !Fwarn)
 	    fprintf(stderr, "%s: WARNING -- reading PCBs failed: %s\n",
@@ -411,6 +460,7 @@ gather_proc_info()
 	}
 
 	free(xfiles);
+	free(xvnodes);
 	free_pcb_lists(pcbs);
 }
 
