@@ -93,7 +93,7 @@ read_xfiles(struct xfile **xfiles, size_t *count)
 
 /* Based on process_file() in lib/prfd.c */
 static void
-process_kinfo_file(struct kinfo_file *kf, struct xfile *xfile)
+process_kinfo_file(struct kinfo_file *kf, struct xfile *xfile, struct pcb_lists *pcbs)
 {
 	Lf->off = kf->kf_offset;
 	if (kf->kf_ref_count) {
@@ -129,7 +129,7 @@ process_kinfo_file(struct kinfo_file *kf, struct xfile *xfile)
 	    process_node(xfile ? xfile->xf_vnode : 0UL);
 	    break;
 	case KF_TYPE_SOCKET:
-	    process_socket(xfile ? xfile->xf_data : 0UL);
+	    process_socket(kf, pcbs);
 	    break;
 	case KF_TYPE_KQUEUE:
 	    process_kqueue(xfile ? xfile->xf_data : 0UL);
@@ -155,7 +155,8 @@ process_kinfo_file(struct kinfo_file *kf, struct xfile *xfile)
 static void
 process_file_descriptors(
 	struct kinfo_proc *p, short ckscko,
-	struct xfile *xfiles, size_t n_xfiles)
+	struct xfile *xfiles, size_t n_xfiles,
+	struct pcb_lists *pcbs)
 {
 	struct kinfo_file *kfiles;
 	int n_kfiles = 0;
@@ -200,7 +201,7 @@ process_file_descriptors(
 		    fprintf(stderr, "%s: WARNING -- unsupported fd type %d\n", Pn, kfiles[i].kf_fd);
 	    } else {
 		alloc_lfile(NULL, kfiles[i].kf_fd);
-		process_kinfo_file(&kfiles[i], xfile);
+		process_kinfo_file(&kfiles[i], xfile, pcbs);
 		if (Lf->sf)
 		    link_lfile();
 	    }
@@ -240,6 +241,7 @@ gather_proc_info()
 	struct kinfo_proc *p;
 	struct xfile *xfiles;
 	size_t n_xfiles;
+	struct pcb_lists *pcbs;
 
 #if	defined(HASFSTRUCT) && !defined(HAS_FILEDESCENT)
 	static char *pof = (char *)NULL;
@@ -328,6 +330,10 @@ gather_proc_info()
 	    fprintf(stderr, "%s: WARNING -- reading xfile list failed: %s\n",
 		Pn, strerror(errno));
 	qsort(xfiles, n_xfiles, sizeof(*xfiles), cmp_xfiles_pid_fd);
+	pcbs = read_pcb_lists();
+	if (!pcbs && !Fwarn)
+	    fprintf(stderr, "%s: WARNING -- reading PCBs failed: %s\n",
+		Pn, strerror(errno));
 
 /*
  * Examine proc structures and their associated information.
@@ -393,7 +399,7 @@ gather_proc_info()
 	    Kpa = (KA_T)p->P_ADDR;
 #endif	/* defined(P_ADDR) */
 
-	process_file_descriptors(p, ckscko, xfiles, n_xfiles);
+	process_file_descriptors(p, ckscko, xfiles, n_xfiles, pcbs);
 
 	/*
 	 * Unless threads (tasks) are being processed, examine results.
@@ -405,6 +411,7 @@ gather_proc_info()
 	}
 
 	free(xfiles);
+	free_pcb_lists(pcbs);
 }
 
 

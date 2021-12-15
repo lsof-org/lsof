@@ -50,7 +50,7 @@ _PROTOTYPE(extern char *get_nlist_path,(int ap));
 #endif	/* !defined(N_UNIX) */
 
 _PROTOTYPE(extern int is_file_named,(char *p, int cd));
-_PROTOTYPE(extern void process_socket,(KA_T sa));
+_PROTOTYPE(extern void process_socket,(struct kinfo_file *kf, struct pcb_lists *pcbs));
 _PROTOTYPE(extern struct l_vfs *readvfs,(KA_T vm));
 _PROTOTYPE(extern struct pcb_lists *read_pcb_lists,(void));
 _PROTOTYPE(extern void free_pcb_lists,(struct pcb_lists *pcb_lists));

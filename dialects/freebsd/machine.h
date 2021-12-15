@@ -622,7 +622,7 @@ typedef _Bool   bool;
 #define	USE_LIB_IS_FILE_NAMED			1	/* isfn.c */
 #define	USE_LIB_LKUPDEV				1	/* lkud.c */
 #define	USE_LIB_PRINTDEVNAME			1	/* pdvn.c */
-#define	USE_LIB_PROCESS_FILE			1	/* prfp.c */
+/* #define	USE_LIB_PROCESS_FILE			1 */	/* prfp.c */
 #define	USE_LIB_PRINT_TCPTPI			1	/* ptti.c */
 #define	USE_LIB_READDEV				1	/* rdev.c */
 /* #define	USE_LIB_READMNT			1	   rmnt.c */
