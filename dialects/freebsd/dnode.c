@@ -341,8 +341,6 @@ process_overlaid_node:
 	    (void) get_lock_state((KA_T)v->v_lockf);
 #endif
 
-	if (!v) return;
-
 
 /*
  * Deal with special filesystems.
@@ -386,7 +384,8 @@ process_overlaid_node:
 		    np = "(nullfs)";
 		(void) add_nma(np, (int)strlen(np));
 	    }
-	    if (!v->v_data
+	    if (!v
+	    ||  !v->v_data
 	    ||  kread((KA_T)v->v_data, (char *)&nu, sizeof(nu))) {
 		(void) snpf(Namech, Namechl, "can't read null_node at: %s",
 		    print_kptr((KA_T)v->v_data, (char *)NULL, 0));
@@ -406,7 +405,8 @@ process_overlaid_node:
 
 #if	defined(HASPROCFS)
 
-	    if (!v->v_data
+	    if (!v
+	    ||  !v->v_data
 	    ||  kread((KA_T)v->v_data, (char *)&pb, sizeof(pb))) {
 		(void) snpf(Namech, Namechl, "no pfs node: %s",
 		    print_kptr((KA_T)v->v_data, (char *)NULL, 0));
