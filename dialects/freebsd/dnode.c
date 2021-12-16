@@ -41,10 +41,6 @@ static char copyright[] =
 #include "./lockf_owner.h"
 #endif	/* defined(HAS_LOCKF_ENTRY) */
 
-#if	defined(HASFDESCFS) && HASFDESCFS==1
-_PROTOTYPE(static int lkup_dev_tty,(dev_t *dr, INODETYPE *ir));
-#endif	/* defined(HASFDESCFS) && HASFDESCFS==1 */
-
 
 #if	defined(HASPTSFN) && defined(DTYPE_PTS)
 #include <sys/tty.h>
@@ -179,51 +175,6 @@ getmemsz(pid)
 # endif	/* defined(HASPROCFS) */
 
 
-#if	defined(HASFDESCFS) && HASFDESCFS==1
-/*
- * lkup_dev_tty() - look up /dev/tty
- */
-
-static int
-lkup_dev_tty(dr, ir)
-	dev_t *dr;			/* place to return device number */
-	INODETYPE *ir;			/* place to return inode number */
-{
-	int i;
-
-	readdev(0);
-
-# if	defined(HASDCACHE)
-
-lkup_dev_tty_again:
-
-# endif	/* defined(HASDCACHE) */
-
-	for (i = 0; i < Ndev; i++) {
-	    if (strcmp(Devtp[i].name, "/dev/tty") == 0) {
-
-# if	defined(HASDCACHE)
-		if (DCunsafe && !Devtp[i].v && !vfy_dev(&Devtp[i]))
-		    goto lkup_dev_tty_again;
-# endif	/* defined(HASDCACHE) */
-
-		*dr = Devtp[i].rdev;
-		*ir = Devtp[i].inode;
-		return(1);
-	    }
-	}
-
-# if	defined(HASDCACHE)
-	if (DCunsafe) {
-	    (void) rereaddev();
-	    goto lkup_dev_tty_again;
-	}
-# endif	/* defined(HASDCACHE) */
-
-	return(-1);
-}
-#endif	/* defined(HASFDESCFS) && HASFDESCFS==1 */
-
 
 #if	defined(HASKQUEUE)
 /*
@@ -275,19 +226,6 @@ process_vnode(struct kinfo_file *kf, struct xfile *xfile, struct xvnode *xvnode)
 	struct cdev si;
 #   endif	/* !defined(HAS_CONF_MINOR) && !defined(HAS_CDEV2PRIV) */
 
-
-#if	defined(HASFDESCFS)
-	struct fdescnode *f;
-
-# if	HASFDESCFS==1
-	static dev_t f_tty_dev;
-	static INODETYPE f_tty_ino;
-	static int f_tty_s = 0;
-# endif	/* HASFDESCFS==1 */
-
-	struct fdescnode fb;
-
-#endif	/* defined(HASFDESCFS) */
 
 # if	defined(HAS_UFS1_2)
 	int ufst;
@@ -366,10 +304,6 @@ process_overlaid_node:
 	devs = rdevs = ums = 0;
 	i = (struct inode *)NULL;
 	Namech[0] = '\0';
-
-#if	defined(HASFDESCFS)
-	f = (struct fdescnode *)NULL;
-#endif	/* defined(HASFDESCFS) */
 
 	cds = 0;
 	d = (struct devfs_dirent *)NULL;
@@ -553,19 +487,6 @@ process_overlaid_node:
 		}
 	    }
 	    break;
-
-#if	defined(HASFDESCFS)
-	case VT_FDESC:
-
-	    if (kread((KA_T)v->v_data, (char *)&fb, sizeof(fb)) != 0) {
-		(void) snpf(Namech, Namechl, "can't read fdescnode at: %s",
-		    print_kptr((KA_T)v->v_data, (char *)NULL, 0));
-		enter_nm(Namech);
-		return;
-	    }
-	    f = &fb;
-	    break;
-#endif	/* defined(HASFDESCFS) */
 
 #if	defined(HASNULLFS)
 	case VT_NULL:
