@@ -382,6 +382,7 @@ process_vnode(struct kinfo_file *kf, struct xfile *xfile, struct xvnode *xvnode)
 						 * definition required for
 						 * FREEBSDV>=5000 */
 
+	struct stat st;
 	const int kf_vtype = kf->kf_un.kf_file.kf_file_type;
 
 	va = xfile ? xfile->xf_vnode : 0;
@@ -904,80 +905,10 @@ process_overlaid_node:
  * Record the link count.
  */
 	if (Fnlink) {
-	    switch(Ntype) {
-	    case N_NFS:
-		if (n) {
-		    Lf->nlink = (long)n->n_vattr.va_nlink;
-		    Lf->nlink_def = 1;
-		}
-		break;
-	    case N_REGLR:
-		if (i) {
-
-#if	defined(HASEFFNLINK)
-		    Lf->nlink = (long)i->HASEFFNLINK;
-#else	/* !defined(HASEFFNLINK) */
-		    Lf->nlink = (long)i->i_nlink;
-#endif	/* defined(HASEFFNLINK) */
-
-		    Lf->nlink_def = 1;
-		}
-
-#if	defined(HAS_ZFS)
-		else if (z) {
-		    if (z->nl_def) {
-			Lf->nlink = z->nl;
-			Lf->nlink_def = 1;
-		    }
-		}
-#endif	/* defined(HAS_ZFS) */
-
-#if	defined(HAS9660FS)
-		else if (iso_stat) {
-		    Lf->nlink = iso_links;
-		    Lf->nlink_def = 1;
-		}
-#endif	/* defined(HAS9660FS) */
-
-#if	defined(HASFUSEFS)
-		else if (fuse_stat) {
-		    Lf->nlink = fuse_links;
-		    Lf->nlink_def = 1;
-		}
-#endif	/* defined(HASFUSEFS) */
-
-#if	defined(HASMSDOSFS)
-		else if (msdos_stat) {
-		    Lf->nlink = msdos_links;
-		    Lf->nlink_def = 1;
-		}
-#endif	/* defined(HASMSDOSFS) */
-
-		else if (d) {
-		    Lf->nlink = d->de_links;
-		    Lf->nlink_def = 1;
-		}
-
-		break;
-
-#if	defined(HASPSEUODOFS)
-	    case N_PSEU:
-		if (pnp) {
-		    Lf->nlink = 1L;
-		    Lf->nlink_def = 1;
-		}
-		break;
-#endif	/* defined(HASPSEUODOFS) */
-
-# if	defined(HAS_TMPFS)
-	    case N_TMP:
-		if (tnp) {
-		    Lf->nlink = (long)tnp->tn_links;
-		    Lf->nlink_def = 1;
-		}
-		break;
-# endif	/* defined(HAS_TMPFS) */
-
+	    /* FIXME: the kernel could provide this from the inode, without us needing a separate stat call */
+	    if (kf->kf_path[0] && stat(kf->kf_path, &st) == 0) {
+		Lf->nlink = st.st_nlink;
+		Lf->nlink_def = 1;
 	    }
 	    if (Lf->nlink_def && Nlink && (Lf->nlink < Nlink))
 		Lf->sf |= SELNLINK;
