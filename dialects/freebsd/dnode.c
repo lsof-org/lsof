@@ -208,8 +208,6 @@ process_vnode(struct kinfo_file *kf, struct xfile *xfile, struct xvnode *xvnode)
 	dev_t dev = 0, rdev = 0;
 	unsigned char devs;
 	unsigned char rdevs;
-	char dev_ch[32], *ep;
-	size_t sz;
 	char *ty;
 	KA_T va;
 	struct vnode *v, vb;
