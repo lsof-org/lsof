@@ -872,109 +872,32 @@ process_overlaid_node:
 		if (!Fsize)
 		    Lf->off_def = 1;
 		break;
-	    case N_NFS:
-		if (n) {
-		    Lf->sz = (SZOFFTYPE)n->n_vattr.va_size;
-		    Lf->sz_def = 1;
-		}
-		break;
-
 #if	defined(HASPROCFS)
 	    case N_PROC:
-
-		if (p) {
-		    switch(p->pfs_type) {
-		    case Proot:
-		    case Pproc:
-			Lf->sz = (SZOFFTYPE)DEV_BSIZE;
-			Lf->sz_def = 1;
-			break;
-		    case Pmem:
-			(void) getmemsz(p->pfs_pid);
-			break;
-		    case Pregs:
-			Lf->sz = (SZOFFTYPE)sizeof(struct reg);
-			Lf->sz_def = 1;
-			break;
-		    case Pfpregs:
-			Lf->sz = (SZOFFTYPE)sizeof(struct fpreg);
-			Lf->sz_def = 1;
-			break;
-		    }
-		}
+		Lf->sz = kf->kf_un.kf_file.kf_file_size;
+		Lf->sz_def = 1;
+		break;
 #endif	/* defined(HASPROCFS) */
-
 #if	defined(HASPSEUDOFS)
 	    case N_PSEU:
 		Lf->sz = 0;
 		Lf->sz_def = 1;
 		break;
 #endif	/* defined(PSEUDOFS) */
-
 	    case N_REGLR:
-		if (kf_vtype == KF_VTYPE_VREG || kf_vtype == KF_VTYPE_VDIR) {
-		    if (i) {
-
-#if	defined(HAS_UFS1_2)
-			if (ufst == 1)
-			    Lf->sz = (SZOFFTYPE)d1.di_size;
-			else if (ufst == 2)
-			    Lf->sz = (SZOFFTYPE)d2.di_size;
-			else
-#endif	/* defined(HAS_UFS1_2) */
-
-			Lf->sz = (SZOFFTYPE)i->i_size;
-			Lf->sz_def = 1;
-		    }
-
-
-#if     defined(HAS_ZFS)
-		    else if (z) {
-			if (z->sz_def) {
-			    Lf->sz = z->sz;
-			    Lf->sz_def = 1;
-			}
-		    }
-#endif  /* defined(HAS_ZFS) */
-
-#if	defined(HAS9660FS)
-		    else if (iso_stat) {
-			Lf->sz = (SZOFFTYPE)iso_sz;
-			Lf->sz_def = 1;
-		    }
-
-#endif	/* defined(HAS9660FS) */
-
-#if	defined(HASFUSEFS)
-		    else if (fuse_stat) {
-			Lf->sz = (SZOFFTYPE)fuse_sz;
-			Lf->sz_def = 1;
-		    }
-#endif	/* defined(HASFUSEFS) */
-
-#if	defined(HASMSDOSFS)
-		    else if (msdos_stat) {
-			Lf->sz = (SZOFFTYPE)msdos_sz;
-			Lf->sz_def = 1;
-		    }
-#endif	/* defined(HASMSDOSFS) */
-		}
-		else if ((kf_vtype == KF_VTYPE_VCHR || kf_vtype == KF_VTYPE_VBLK) && !Fsize)
-		    Lf->off_def = 1;
-		break;
-
 # if	defined(HAS_TMPFS)
-		case N_TMP:
-		    if ((tnp->tn_type == VBLK || tnp->tn_type == VCHR)
-		    &&  !Fsize) {
-			Lf->off_def = 1;
-		    } else {
-			Lf->sz = (SZOFFTYPE)tnp->tn_size;
-			Lf->sz_def = 1;
-		    }
-		    break;
+	    case N_TMP:
 # endif	/* defined(HAS_TMPFS) */
-
+		if (kf_vtype == KF_VTYPE_VREG || kf_vtype == KF_VTYPE_VDIR) {
+		    Lf->sz = kf->kf_un.kf_file.kf_file_size;
+		    Lf->sz_def = 1;
+		} else if ((kf_vtype == KF_VTYPE_VCHR || kf_vtype == KF_VTYPE_VBLK) && !Fsize) {
+		    Lf->off_def = 1;
+		}
+		break;
+	    default:
+		Lf->sz = kf->kf_un.kf_file.kf_file_size;
+		Lf->sz_def = 1;
 	    }
 	}
 /*
