@@ -263,7 +263,7 @@ process_kqueue(ka)
 void
 process_vnode(struct kinfo_file *kf, struct xfile *xfile, struct xvnode *xvnode)
 {
-	dev_t dev, rdev;
+	dev_t dev = 0, rdev = 0;
 	unsigned char devs;
 	unsigned char rdevs;
 	char dev_ch[32], *ep;
@@ -844,205 +844,14 @@ process_overlaid_node:
 /*
  * Get device and type for printing.
  */
-	if (n) {
-	    dev = n->n_vattr.va_fsid;
+	if (kf->kf_un.kf_file.kf_file_fsid != VNOVAL) {
+	    dev = kf->kf_un.kf_file.kf_file_fsid;
 	    devs = 1;
-	    if ((kf_vtype == KF_VTYPE_VCHR) || (kf_vtype == KF_VTYPE_VBLK)) {
-		rdev = n->n_vattr.va_rdev;
-		rdevs = 1;
-	    }
-	} else if (i) {
-
-# if	defined(HAS_NO_IDEV)
-	    if (ums) {
-		dev = Dev2Udev((KA_T)um.um_dev);
-		devs = 1;
-	    }
-# else	/* !defined(HAS_NO_IDEV) */
-	    if (i->i_dev
-
-#  if	!defined(HAS_CONF_MINOR) && !defined(HAS_CDEV2PRIV)
-	    &&  !kread((KA_T)i->i_dev, (char *)&si, sizeof(si))
-#  endif/* !defined(HAS_CONF_MINOR) && !defined(HAS_CDEV2PRIV) */
-
-	    ) {
-
-#  if	defined(HAS_NO_SI_UDEV)
-#   if	defined(HAS_CONF_MINOR) || defined(HAS_CDEV2PRIV)
-		dev = Dev2Udev((KA_T)i->i_dev);
-#   else	/* !defined(HAS_CONF_MINOR) && !defined(HAS_CDEV2PRIV) */
-		dev = Dev2Udev(&si);
-#   endif	/* defined(HAS_CONF_MINOR) || defined(HAS_CDEV2PRIV) */
-#   else	/* !defined(HAS_NO_SI_UDEV) */
-		dev = si.si_udev;
-#  endif	/* defined(HAS_NO_SI_UDEV) */
-
-		devs = 1;
-	    }
-# endif	/* defined(HAS_NO_IDEV) */
-
-	    if ((kf_vtype == KF_VTYPE_VCHR) || (kf_vtype == KF_VTYPE_VBLK)) {
-
-# if	defined(HAS_UFS1_2)
-		if (ufst == 1) {
-		    rdev = d1.di_rdev;
-		    rdevs = 1;
-		} else if (ufst == 2) {
-		    rdev = d2.di_rdev;
-		    rdevs = 1;
-		} else
-# endif	/* defined(HAS_UFS1_2) */
-
-		if (cds) {
-
-# if	defined(HAS_NO_SI_UDEV)
-#  if	defined(HAS_CONF_MINOR) || defined(HAS_CDEV2PRIV)
-		    rdev = Dev2Udev((KA_T)v->v_rdev);
-#  else	/* !defined(HAS_CONF_MINOR) && !defined(HAS_CDEV2PRIV) */
-		    rdev = Dev2Udev(&cd);
-#  endif	/* defined(HAS_CONF_MINOR) || defined(HAS_CDEV2PRIV) */
-# else	/* !defined(HAS_NO_SI_UDEV) */
-		    rdev = cd.si_udev;
-# endif	/* defined(HAS_NO_SI_UDEV) */
-
-		    rdevs = 1;
-		}
-	    }
 	}
-
-#if	defined(HAS_ZFS)
-	else if (z) {
-
-	/*
-	 * Record information returned by readzfsnode().
-	 */
-	    if (vfs) {
-		union {
-		    int32_t val[2];
-		    dev_t dev;
-		} vfs_fsid;
-
-		vfs_fsid.val[0] = vfs->fsid.val[0];
-		vfs_fsid.val[1] = vfs->fsid.val[1];
-		dev = vfs_fsid.dev;
-		devs = 1;
-	    }
-	    if ((type == VCHR) || (type == VBLK)) {
-		if (z->rdev_def) {
-		    rdev = z->rdev;
-		    rdevs = 1;
-		}
-	    }
+	if (kf_vtype == KF_VTYPE_VCHR || kf_vtype == KF_VTYPE_VBLK) {
+	    rdev = kf->kf_un.kf_file.kf_file_rdev;
+	    rdevs = 1;
 	}
-#endif	/* defined(HAS_ZFS) */
-
-#if	defined(HASFDESCFS) && (defined(HASFDLINK) || HASFDESCFS==1)
-	else if (f) {
-
-# if	defined(HASFDLINK)
-	    if (f->fd_link
-	    &&  kread((KA_T)f->fd_link, Namech, Namechl - 1) == 0)
-		Namech[Namechl - 1] = '\0';
-
-#  if	HASFDESCFS==1
-	    else
-#  endif	/* HASFDESCFS==1 */
-# endif	/* defined(HASFDLINK) */
-
-# if	HASFDESCFS==1
-		if (f->fd_type == Fctty) {
-		    if (f_tty_s == 0)
-			f_tty_s = lkup_dev_tty(&f_tty_dev, &f_tty_ino);
-		    if (f_tty_s == 1) {
-			dev = f_tty_dev;
-			Lf->inode = f_tty_ino;
-			devs = Lf->inp_ty = 1;
-		    }
-		}
-# endif	/* HASFDESCFS==1 */
-
-	}
-#endif	/* defined(HASFDESCFS) && (defined(HASFDLINK) || HASFDESCFS==1) */
-
-#if	defined(HAS9660FS)
-	else if (iso_stat && iso_dev_def) {
-	    dev = iso_dev;
-	    devs = Lf->inp_ty = 1;
-	}
-#endif	/* defined(HAS9660FS) */
-
-#if	defined(HASFUSEFS)
-	else if (fuse_stat && fuse_dev_def) {
-	    dev = fuse_dev;
-	    devs = Lf->inp_ty = 1;
-	}
-#endif	/* defined(HASFUSEFS) */
-
-#if	defined(HASMSDOSFS)
-	else if (msdos_stat && msdos_dev_def) {
-	    dev = msdos_dev;
-	    devs = Lf->inp_ty = 1;
-	}
-#endif	/* defined(HASMSDOSFS) */
-
-	else if (d) {
-	    if (vfs) {
-		dev = vfs->fsid.val[0];
-		devs = 1;
-	    } else {
-		dev = DevDev;
-		devs = 1;
-	    }
-	    if (kf_vtype == KF_VTYPE_VCHR) {
-
-# if	defined(HAS_UFS1_2)
-		if (ufst == 1) {
-		    rdev = d1.di_rdev;
-		    rdevs = 1;
-		} else if (ufst == 2) {
-		    rdev = d2.di_rdev;
-		    rdevs = 1;
-		} else
-# endif	/* defined(HAS_UFS1_2) */
-
-		if (cds) {
-
-# if	defined(HAS_NO_SI_UDEV)
-#  if	defined(HAS_CONF_MINOR) || defined(HAS_CDEV2PRIV)
-		    rdev = Dev2Udev((KA_T)v->v_rdev);
-#  else	/* !defined(HAS_CONF_MINOR) && !defined(HAS_CDEV2PRIV) */
-		    rdev = Dev2Udev(&cd);
-#  endif	/* defined(HAS_CONF_MINOR) || defined(HAS_CDEV2PRIV) */
-# else	/* !defined(HAS_NO_SI_UDEV) */
-		    rdev = cd.si_udev;
-# endif	/* defined(HAS_NO_SI_UDEV) */
-
-		    rdevs = 1;
-		}
-	    }
-	}
-
-#if	defined(HASPSEUDOFS)
-	else if (pnp) {
-	    if (vfs) {
-		dev = vfs->fsid.val[0];
-		devs = 1;
-	    }
-	}
-#endif	/* defined(HASPSEUDOFS) */
-
-# if	defined(HAS_TMPFS)
-	else if (tnp) {
-	    if (vfs) {
-		dev = vfs->fsid.val[0];
-		devs = 1;
-	    }
-	    if (tnp->tn_type == VBLK || tnp->tn_type == VCHR) {
-		rdev = tnp->tn_rdev;
-		rdevs = 1;
-	    }
-	}
-# endif	/* defined(HAS_TMPFS) */
 
 /*
  * Obtain the inode number.
