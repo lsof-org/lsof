@@ -1049,71 +1049,10 @@ process_overlaid_node:
 /*
  * Obtain the inode number.
  */
-	if (i) {
-	    Lf->inode = (INODETYPE)i->i_number;
+	if (kf->kf_un.kf_file.kf_file_fileid != VNOVAL) {
+	    Lf->inode = kf->kf_un.kf_file.kf_file_fileid;
 	    Lf->inp_ty = 1;
 	}
-
-#if	defined(HAS_ZFS)
-	else if (z) {
-	    if (z->ino_def) {
-		Lf->inode = z->ino;
-		Lf->inp_ty = 1;
-	    }
-	}
-#endif	/* defined(HAS_ZFS) */
-
-	else if (n) {
-	    Lf->inode = (INODETYPE)n->n_vattr.va_fileid;
-	    Lf->inp_ty = 1;
-	}
-
-#if	defined(HAS9660FS)
-	else if (iso_stat) {
-	    Lf->inode = iso_ino;
-	    Lf->inp_ty = 1;
-	}
-#endif	/* defined(HAS9660FS) */
-
-#if	defined(HASFUSEFS)
-	else if (fuse_stat) {
-	    Lf->inode = fuse_ino;
-	    Lf->inp_ty = 1;
-	}
-#endif	/* defined(HASFUSEFS) */
-
-#if	defined(HASMSDOSFS)
-	else if (msdos_stat) {
-	    Lf->inode = msdos_ino;
-	    Lf->inp_ty = 1;
-	}
-#endif	/* defined(HASMSDOSFS) */
-
-#if	defined(HASPROCFS)
-	else if (p) {
-	    Lf->inode = (INODETYPE)p->pfs_fileno;
-	    Lf->inp_ty = 1;
-	}
-#endif	/* defined(HASPROCFS) */
-
-#if	defined(HASPSEUDOFS)
-	else if (pnp) {
-	    Lf->inode = (INODETYPE)pnp->pn_fileno;
-	    Lf->inp_ty = 1;
-	}
-#endif	/* defined(HASPSEUDOFS) */
-
-	else if (d) {
-	    Lf->inode = (INODETYPE)d->de_inode;
-	    Lf->inp_ty = 1;
-	}
-
-# if	defined(HAS_TMPFS)
-	else if (tnp) {
-	    Lf->inode = (INODETYPE)tnp->tn_id;
-	    Lf->inp_ty = 1;
-	}
-# endif	/* defined(HAS_TMPFS) */
 
 /*
  * Obtain the file size.
