@@ -133,6 +133,8 @@ typedef	struct device	*device_t;
 #define	NFS
 #define m_stat	mnt_stat
 
+struct statfs;
+extern int	statfs(const char *, struct statfs *);
 #define	_KERNEL
 
 #include <sys/mount.h>

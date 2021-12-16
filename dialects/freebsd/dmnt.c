@@ -394,54 +394,67 @@ no_space_for_mount:
  */
 
 struct l_vfs *
-readvfs(vm)
-	KA_T vm;			/* kernel mount address from vnode */
+readvfs(KA_T vm, const char *path)
 {
-	struct mount m;
+	struct statfs m;
 	struct l_vfs *vp;
 /*
  * Search for match on existing entry.
  */
-	for (vp = Lvfs; vp; vp = vp->next) {
-	    if (vm == vp->addr)
-		return(vp);
+	if (vm) {
+	    for (vp = Lvfs; vp; vp = vp->next) {
+		if (vm == vp->addr)
+		    return(vp);
+	    }
 	}
 /*
  * Read the (new) mount structure, allocate a local entry, and fill it.
  */
-	if (kread((KA_T)vm, (char *)&m, sizeof(m)) != 0)
+	if (path == NULL || path[0] == '\0')
 	    return((struct l_vfs *)NULL);
+	if (statfs(path, &m) != 0)
+	    return((struct l_vfs *)NULL);
+
+/*
+ * If the previous search by vm couldn't be done, search by mountpoint instead.
+ */
+	if (!vm) {
+	    for (vp = Lvfs; vp; vp = vp->next) {
+		if (!strcmp(vp->fsname, m.f_mntfromname) && !strcmp(vp->dir, m.f_mntonname))
+		    return(vp);
+	    }
+	}
 	if (!(vp = (struct l_vfs *)malloc(sizeof(struct l_vfs)))) {
 	    (void) fprintf(stderr, "%s: PID %d, no space for vfs\n",
 		Pn, Lp->pid);
 	    Error();
 	}
-	if (!(vp->dir = mkstrcpy(m.m_stat.f_mntonname, (MALLOC_S *)NULL))
-	||  !(vp->fsname = mkstrcpy(m.m_stat.f_mntfromname, (MALLOC_S *)NULL)))
+	if (!(vp->dir = mkstrcpy(m.f_mntonname, (MALLOC_S *)NULL))
+	||  !(vp->fsname = mkstrcpy(m.f_mntfromname, (MALLOC_S *)NULL)))
 	{
 	    (void) fprintf(stderr, "%s: PID %d, no space for mount names\n",
 		Pn, Lp->pid);
 	    Error();
 	}
 	vp->addr = vm;
-	vp->fsid = m.m_stat.f_fsid;
+	vp->fsid = m.f_fsid;
 
 #if	defined(MOUNT_NONE)
-	vp->type = m.m_stat.f_type;
+	vp->type = m.f_type;
 #else	/* !defined(MOUNT_NONE) */
 	{
 	    int len;
 
-	    if ((len = strlen(m.m_stat.f_fstypename))) {
+	    if ((len = strlen(m.f_fstypename))) {
 		if (len > (MFSNAMELEN - 1))
 		    len = MFSNAMELEN - 1;
-		if (!(vp->typnm = mkstrcat(m.m_stat.f_fstypename, len,
+		if (!(vp->typnm = mkstrcat(m.f_fstypename, len,
 				  (char *)NULL, -1, (char *)NULL, -1,
 				  (MALLOC_S *)NULL)))
 		{
 		    (void) fprintf(stderr,
 			"%s: no space for fs type name: ", Pn);
-		    safestrprt(m.m_stat.f_fstypename, stderr, 1);
+		    safestrprt(m.f_fstypename, stderr, 1);
 		    Error();
 		}
 	    } else

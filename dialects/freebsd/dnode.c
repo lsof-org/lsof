@@ -257,12 +257,11 @@ process_kqueue(ka)
 
 
 /*
- * process_node() - process vnode
+ * process_vnode() - process vnode
  */
 
 void
-process_node(va)
-	KA_T va;			/* vnode kernel space address */
+process_vnode(struct kinfo_file *kf, struct xfile *xfile, struct xvnode *xvnode)
 {
 	dev_t dev, rdev;
 	unsigned char devs;
@@ -274,6 +273,7 @@ process_node(va)
 	char *ty;
 	unsigned char ums;
 	enum vtype type;
+	KA_T va;
 	struct vnode *v, vb;
 	struct l_vfs *vfs;
 
@@ -383,6 +383,10 @@ process_node(va)
 						 * definition required for
 						 * FREEBSDV>=5000 */
 
+	const int kf_vtype = kf->kf_un.kf_file.kf_file_type;
+
+	va = xfile ? xfile->xf_vnode : 0;
+
 #if	defined(HASNULLFS)
 
 process_overlaid_node:
@@ -446,80 +450,78 @@ process_overlaid_node:
 /*
  * Read the vnode.
  */
-	if ( ! va) {
-	    enter_nm("no vnode address");
-	    return;
-	}
-	v = &vb;
-	if (readvnode(va, v)) {
-	    enter_nm(Namech);
-	    return;
+	v = NULL;
+	if (va) {
+	    v = &vb;
+	    if (kread((KA_T)va, (char *)v, sizeof(struct vnode)))
+		v = NULL;
 	}
 
+	if (xvnode) {
+
 #if	defined(HASNCACHE)
-	Lf->na = va;
+	    Lf->na = (KA_T)xvnode->xv_vnode;
 # if	defined(HASNCVPID)
-	Lf->id = v->v_id;
+	    Lf->id = xvnode->xv_id; /* FIXME: always 0 in the kernel */
 # endif	/* defined(HASNCVPID) */
 #endif	/* defined(HASNCACHE) */
 
 #if	defined(HASFSTRUCT)
-	Lf->fna = va;
-	Lf->fsv |= FSV_NI;
+	    Lf->fna = (KA_T)xvnode->xv_vnode;
+	    Lf->fsv |= FSV_NI;
 #endif	/* defined(HASFSTRUCT) */
+
+	}
 
 /*
  * Get the vnode type.
  */
-	if (!v->v_mount)
-	    vfs = (struct l_vfs *)NULL;
-	else {
-	    vfs = readvfs((KA_T)v->v_mount);
-	    if (vfs) {
+	vfs = readvfs(xvnode ? (KA_T)xvnode->xv_mount : 0, kf->kf_path);
+	if (vfs) {
 
 #if	defined(MOUNT_NONE)
-		switch (vfs->type) {
-		case MOUNT_NFS:
-		    Ntype = N_NFS;
-		    break;
+	    switch (vfs->type) {
+	    case MOUNT_NFS:
+		Ntype = N_NFS;
+		break;
 
 # if	defined(HASPROCFS)
-		case MOUNT_PROCFS:
-		    Ntype = N_PROC;
-		    break;
+	    case MOUNT_PROCFS:
+		Ntype = N_PROC;
+		break;
 # endif	/* defined(HASPROCFS) */
-		}
+	    }
 #else	/* !defined(MOUNT_NONE) */
-		if (strcasecmp(vfs->typnm, "nfs") == 0)
-		    Ntype = N_NFS;
+	    if (strcasecmp(vfs->typnm, "nfs") == 0)
+		Ntype = N_NFS;
 
 # if	defined(HASPROCFS)
-		else if (strcasecmp(vfs->typnm, "procfs") == 0)
-		    Ntype = N_PROC;
+	    else if (strcasecmp(vfs->typnm, "procfs") == 0)
+		Ntype = N_PROC;
 # endif	/* defined(HASPROCFS) */
 
 # if	defined(HASPSEUDOFS)
-		else if (strcasecmp(vfs->typnm, "pseudofs") == 0)
-		    Ntype = N_PSEU;
+	    else if (strcasecmp(vfs->typnm, "pseudofs") == 0)
+		Ntype = N_PSEU;
 # endif	/* defined(HASPSEUDOFS) */
 
 # if	defined(HAS_TMPFS)
-		else if (strcasecmp(vfs->typnm, "tmpfs") == 0)
-		    Ntype = N_TMP;
+	    else if (strcasecmp(vfs->typnm, "tmpfs") == 0)
+		Ntype = N_TMP;
 # endif	/* defined(HAS_TMPFS) */
 #endif	/* defined(MOUNT_NONE) */
 
-	    }
 	}
 	if (Ntype == N_REGLR) {
-	    switch (v->v_type) {
-	    case VFIFO:
+	    switch (kf_vtype) {
+	    case KF_VTYPE_VFIFO:
 		Ntype = N_FIFO;
 		break;
 	    default:
 		break;
 	    }
 	}
+	if (!v) return;
 
 /*
  * For FreeBSD 5 and above VCHR and VBLK vnodes get the v_rdev structure.
