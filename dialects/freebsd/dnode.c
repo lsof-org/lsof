@@ -263,7 +263,6 @@ process_vnode(struct kinfo_file *kf, struct xfile *xfile, struct xvnode *xvnode)
 	unsigned char rdevs;
 	char dev_ch[32], *ep;
 	struct inode *i;
-	struct nfsnode *n;
 	size_t sz;
 	char *ty;
 	unsigned char ums;
@@ -272,7 +271,6 @@ process_vnode(struct kinfo_file *kf, struct xfile *xfile, struct xvnode *xvnode)
 	struct l_vfs *vfs;
 
 	struct inode ib;
-	struct nfsnode nb;
 #   if	!defined(HAS_CONF_MINOR) && !defined(HAS_CDEV2PRIV)
 	struct cdev si;
 #   endif	/* !defined(HAS_CONF_MINOR) && !defined(HAS_CDEV2PRIV) */
@@ -367,7 +365,6 @@ process_overlaid_node:
  */
 	devs = rdevs = ums = 0;
 	i = (struct inode *)NULL;
-	n = (struct nfsnode *)NULL;
 	Namech[0] = '\0';
 
 #if	defined(HASFDESCFS)
@@ -569,19 +566,6 @@ process_overlaid_node:
 	    f = &fb;
 	    break;
 #endif	/* defined(HASFDESCFS) */
-
-	case VT_NFS:
-
-	    if (!v->v_data
-	    ||  kread((KA_T)v->v_data, (char *)&nb, sizeof(nb))) {
-		(void) snpf(Namech, Namechl, "no nfs node: %s",
-		    print_kptr((KA_T)v->v_data, (char *)NULL, 0));
-		enter_nm(Namech);
-		return;
-	    }
-	    n = &nb;
-
-	    break;
 
 #if	defined(HASNULLFS)
 	case VT_NULL:
