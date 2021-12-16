@@ -690,6 +690,16 @@ process_overlaid_node:
  */
 	if (Namech[0])
 	    enter_nm(Namech);
+	else if (kf->kf_path[0]) {
+	    snpf(Namech, Namechl, "%s", kf->kf_path);
+	    if (vfs && vfs->fsname) {
+		char *cp;
+		size_t sz;
+		cp = endnm(&sz);
+		snpf(cp, sz, " (%s)", vfs->fsname);
+	    }
+	    enter_nm(Namech);
+	}
 }
 
 
