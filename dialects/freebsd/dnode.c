@@ -235,8 +235,6 @@ process_vnode(struct kinfo_file *kf, struct xfile *xfile, struct xvnode *xvnode)
 # endif	/* !defined(HAS_CONF_MINOR) && !defined(HAS_CDEV2PRIV) */
 
 	int cds;
-	struct devfs_dirent de;
-	struct devfs_dirent *d;
 	char vtbuf[32];
 	char *vtbp;
 	enum vtagtype { VT_DEVFS, VT_FDESC, VT_FUSEFS, VT_ISOFS, VT_PSEUDOFS,
@@ -292,7 +290,6 @@ process_overlaid_node:
 	Namech[0] = '\0';
 
 	cds = 0;
-	d = (struct devfs_dirent *)NULL;
 # if	defined(HAS_UFS1_2)
 	ufst = 0;
 # endif	/* !defined(HAS_UFS1_2) */
@@ -444,27 +441,6 @@ process_overlaid_node:
 	    vtbp = "(unknown)";
 
 	switch (vtag) {
-
-	case VT_DEVFS:
-	    if (!v->v_data
-	    ||  kread((KA_T)v->v_data, (char *)&de, sizeof(de)))
-	    {
-		(void) snpf(Namech, Namechl, "no devfs node: %s",
-		    print_kptr((KA_T)v->v_data, (char *)NULL, 0));
-		enter_nm(Namech);
-		return;
-	    }
-	    d = &de;
-	    if (v->v_type == VDIR) {
-		if (!d->de_dir
-		||  kread((KA_T)d->de_dir, (char *)&de, sizeof(de))) {
-		    (void) snpf(Namech, Namechl, "no devfs dir node: %s",
-			print_kptr((KA_T)d->de_dir, (char *)NULL, 0));
-		    enter_nm(Namech);
-		    return;
-		}
-	    }
-	    break;
 
 #if	defined(HASNULLFS)
 	case VT_NULL:
