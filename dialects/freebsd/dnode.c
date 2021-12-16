@@ -213,13 +213,6 @@ process_vnode(struct kinfo_file *kf, struct xfile *xfile, struct xvnode *xvnode)
 	struct vnode *v, vb;
 	struct l_vfs *vfs;
 
-	char vtbuf[32];
-	char *vtbp;
-	enum vtagtype { VT_DEVFS, VT_FDESC, VT_FUSEFS, VT_ISOFS, VT_PSEUDOFS,
-			VT_NFS, VT_NULL, VT_TMPFS, VT_UFS, VT_ZFS, VT_MSDOSFS,
-			VT_UNKNOWN
-		      };
-
 #if	defined(HASNULLFS)
 # if	!defined(HASPRINTDEV)
 	char dbuf[32];
@@ -237,11 +230,6 @@ process_vnode(struct kinfo_file *kf, struct xfile *xfile, struct xvnode *xvnode)
 
 	struct pfsnode pb;
 #endif	/* defined(HASPROCFS) */
-
-	enum vtagtype vtag;			/* placed here to use the
-						 * artificial vtagtype
-						 * definition required for
-						 * FREEBSDV>=5000 */
 
 	struct stat st;
 	const int kf_vtype = kf->kf_un.kf_file.kf_file_type;
@@ -357,52 +345,11 @@ process_overlaid_node:
 
 
 /*
- * Define the specific node pointer.
+ * Deal with special filesystems.
  */
-
-/*
- * Get the pseudo vnode tag type for FreeBSD >= 5.
- */
-	vtag = VT_UNKNOWN;
-	if (!kread((KA_T)v->v_lock.lock_object.lo_name, (char *)&vtbuf, sizeof(vtbuf)))
-	{
-	    vtbuf[sizeof(vtbuf) - 1] = '\0';
-	    vtbp = vtbuf;
-	    if (!strcmp(vtbuf, "ufs"))
-		vtag = VT_UFS;
-	    else if (!strcmp(vtbuf, "zfs")) {
-		vtag = VT_ZFS;
-	    } else if (!strcmp(vtbuf, "devfs"))
-		vtag = VT_DEVFS;
-	    else if (!strcmp(vtbuf, "nfs"))
-		vtag = VT_NFS;
-	    else if (!strcmp(vtbuf, "newnfs"))
-		vtag = VT_NFS;
-	    else if (!strcmp(vtbuf, "oldnfs"))
-		vtag = VT_NFS;
-	    else if (!strcmp(vtbuf, "isofs"))
-		vtag = VT_ISOFS;
-	    else if (!strcmp(vtbuf, "pseudofs"))
-		vtag = VT_PSEUDOFS;
-	    else if (!strcmp(vtbuf, "nullfs"))
-		vtag = VT_NULL;
-	    else if (!strcmp(vtbuf, "null"))
-		vtag = VT_NULL;
-	    else if (!strcmp(vtbuf, "fdesc"))
-		vtag = VT_FDESC;
-	    else if (!strcmp(vtbuf, "fuse"))
-		vtag = VT_FUSEFS;
-	    else if (!strcmp(vtbuf, "tmpfs"))
-		vtag = VT_TMPFS;
-	    else if (!strcmp(vtbuf, "msdosfs"))
-		vtag = VT_MSDOSFS;
-	} else
-	    vtbp = "(unknown)";
-
-	switch (vtag) {
+	if (vfs && (!strcmp(vfs->typnm, "null") || !strcmp(vfs->typnm, "nullfs"))) {
 
 #if	defined(HASNULLFS)
-	case VT_NULL:
 	    if (sc == 1) {
 
 	    /*
@@ -455,8 +402,9 @@ process_overlaid_node:
 	    goto process_overlaid_node;
 #endif	/* defined(HASNULLFS) */
 
+	} else if (vfs && !strcmp(vfs->typnm, "procfs")) {
+
 #if	defined(HASPROCFS)
-	case VT_PROCFS:
 
 	    if (!v->v_data
 	    ||  kread((KA_T)v->v_data, (char *)&pb, sizeof(pb))) {
@@ -470,15 +418,8 @@ process_overlaid_node:
 	    break;
 #endif	/* defined(HASPROCFS) */
 
-	default:
-	    if (v->v_type == VBAD || v->v_type == VNON)
-		break;
-
-	    (void) snpf(Namech, Namechl, "unknown file system type: %s", vtbp);
-
-	    enter_nm(Namech);
-	    return;
 	}
+
 /*
  * Get device and type for printing.
  */
