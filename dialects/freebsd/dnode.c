@@ -272,7 +272,6 @@ process_vnode(struct kinfo_file *kf, struct xfile *xfile, struct xvnode *xvnode)
 	size_t sz;
 	char *ty;
 	unsigned char ums;
-	enum vtype type;
 	KA_T va;
 	struct vnode *v, vb;
 	struct l_vfs *vfs;
@@ -845,11 +844,10 @@ process_overlaid_node:
 /*
  * Get device and type for printing.
  */
-	type = v->v_type;
 	if (n) {
 	    dev = n->n_vattr.va_fsid;
 	    devs = 1;
-	    if ((type == VCHR) || (type == VBLK)) {
+	    if ((kf_vtype == KF_VTYPE_VCHR) || (kf_vtype == KF_VTYPE_VBLK)) {
 		rdev = n->n_vattr.va_rdev;
 		rdevs = 1;
 	    }
@@ -883,7 +881,7 @@ process_overlaid_node:
 	    }
 # endif	/* defined(HAS_NO_IDEV) */
 
-	    if ((type == VCHR) || (type == VBLK)) {
+	    if ((kf_vtype == KF_VTYPE_VCHR) || (kf_vtype == KF_VTYPE_VBLK)) {
 
 # if	defined(HAS_UFS1_2)
 		if (ufst == 1) {
@@ -995,7 +993,7 @@ process_overlaid_node:
 		dev = DevDev;
 		devs = 1;
 	    }
-	    if (type == VCHR) {
+	    if (kf_vtype == KF_VTYPE_VCHR) {
 
 # if	defined(HAS_UFS1_2)
 		if (ufst == 1) {
@@ -1105,7 +1103,7 @@ process_overlaid_node:
 #endif	/* defined(PSEUDOFS) */
 
 	    case N_REGLR:
-		if (type == VREG || type == VDIR) {
+		if (kf_vtype == KF_VTYPE_VREG || kf_vtype == KF_VTYPE_VDIR) {
 		    if (i) {
 
 #if	defined(HAS_UFS1_2)
@@ -1152,7 +1150,7 @@ process_overlaid_node:
 		    }
 #endif	/* defined(HASMSDOSFS) */
 		}
-		else if ((type == VCHR || type == VBLK) && !Fsize)
+		else if ((kf_vtype == KF_VTYPE_VCHR || kf_vtype == KF_VTYPE_VBLK) && !Fsize)
 		    Lf->off_def = 1;
 		break;
 
@@ -1273,40 +1271,36 @@ process_overlaid_node:
 	Lf->dev_def = devs;
 	Lf->rdev = rdev;
 	Lf->rdev_def = rdevs;
-	switch (type) {
-	case VNON:
+	switch (kf_vtype) {
+	case KF_VTYPE_VNON:
 	    ty ="VNON";
 	    break;
-	case VREG:
-	case VDIR:
-	    ty = (type == VREG) ? "VREG" : "VDIR";
+	case KF_VTYPE_VREG:
+	case KF_VTYPE_VDIR:
+	    ty = (kf_vtype == KF_VTYPE_VREG) ? "VREG" : "VDIR";
 	    break;
-	case VBLK:
+	case KF_VTYPE_VBLK:
 	    ty = "VBLK";
 	    Ntype = N_BLK;
 	    break;
-	case VCHR:
+	case KF_VTYPE_VCHR:
 	    ty = "VCHR";
 	    Ntype = N_CHR;
 	    break;
-	case VLNK:
+	case KF_VTYPE_VLNK:
 	    ty = "VLNK";
 	    break;
-
-#if	defined(VSOCK)
-	case VSOCK:
+	case KF_VTYPE_VSOCK:
 	    ty = "SOCK";
 	    break;
-#endif	/* defined(VSOCK) */
-
-	case VBAD:
+	case KF_VTYPE_VBAD:
 	    ty = "VBAD";
 	    break;
-	case VFIFO:
+	case KF_VTYPE_VFIFO:
 	    ty = "FIFO";
 	    break;
 	default:
-	     (void) snpf(Lf->type, sizeof(Lf->type), "%04o", (type & 0xfff));
+	     (void) snpf(Lf->type, sizeof(Lf->type), "%04o", (kf_vtype & 0xfff));
 	     ty = (char *)NULL;
 	}
 	if (ty)
@@ -1320,7 +1314,7 @@ process_overlaid_node:
  *	/proc files.
  */
 
-	if (type == VBAD)
+	if (kf_vtype == KF_VTYPE_VBAD)
 	    (void) snpf(Namech, Namechl, "(revoked)");
 
 #if	defined(HASPROCFS)
@@ -1403,7 +1397,7 @@ process_overlaid_node:
  * If this is a VBLK file and it's missing an inode number, try to
  * supply one.
  */
-	if ((Lf->inp_ty == 0) && (type == VBLK))
+	if ((Lf->inp_ty == 0) && (kf_vtype == KF_VTYPE_VBLK))
 	    find_bl_ino();
 #endif	/* defined(HASBLKDEV) */
 
@@ -1411,7 +1405,7 @@ process_overlaid_node:
  * If this is a VCHR file and it's missing an inode number, try to
  * supply one.
  */
-	if ((Lf->inp_ty == 0) && (type == VCHR))
+	if ((Lf->inp_ty == 0) && (kf_vtype == KF_VTYPE_VCHR))
 	    find_ch_ino();
 /*
  * Test for specified file.
@@ -1446,7 +1440,7 @@ process_overlaid_node:
 
 	{
 	    if (Sfile && is_file_named((char *)NULL,
-				       ((type == VCHR) || (type == VBLK)) ? 1
+				       ((kf_vtype == KF_VTYPE_VCHR) || (kf_vtype == KF_VTYPE_VBLK)) ? 1
 									  : 0))
 		Lf->sf |= SELNM;
 	}
