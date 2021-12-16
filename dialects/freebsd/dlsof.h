@@ -273,10 +273,6 @@ struct vop_generic_args;
 #include <fs/pseudofs/pseudofs.h>
 # endif	/* defined(HASPSEUDOFS) */
 
-# if	defined(HAS_ZFS)
-#include "dzfs.h"
-# endif	/* defined(HAS_ZFS) */
-
 
 #define	P_ADDR		ki_paddr
 #define	P_COMM		ki_comm

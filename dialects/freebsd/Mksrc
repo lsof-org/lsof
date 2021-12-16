@@ -14,7 +14,7 @@
 
 
 D=dialects/freebsd
-L="dlsof.h dmnt.c dnode.c dnode2.c dproc.c dproto.h dsock.c dstore.c dzfs.h machine.h"
+L="dlsof.h dmnt.c dnode.c dproc.c dproto.h dsock.c dstore.c machine.h"
 
 for i in $L
 do
@@ -23,7 +23,3 @@ do
   echo "$LSOF_MKC $D/$i $i"
 done
 
-# For ZFS
-
-rm -f vnode_if.h
-touch vnode_if.h

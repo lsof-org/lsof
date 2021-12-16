@@ -21,13 +21,13 @@ CFLAGS=	${CDEFS} ${INCL} ${DEBUG}
 
 GRP=
 
-HDR=    lsof.h lsof_fields.h dlsof.h machine.h proto.h dproto.h dzfs.h
+HDR=    lsof.h lsof_fields.h dlsof.h machine.h proto.h dproto.h
 
-SRC=    dmnt.c dnode.c dnode2.c dproc.c dsock.c dstore.c \
+SRC=    dmnt.c dnode.c dproc.c dsock.c dstore.c \
 	arg.c main.c misc.c node.c print.c proc.c store.c usage.c \
 	util.c
 
-OBJ=	dmnt.o dnode.o dnode2.o dproc.o dsock.o dstore.o \
+OBJ=	dmnt.o dnode.o dproc.o dsock.o dstore.o \
 	arg.o main.o misc.o node.o print.o proc.o store.o usage.o \
 	util.o
 
@@ -123,14 +123,6 @@ FRC:
 dmnt.o:		${HDR} dmnt.c
 
 dnode.o:	${HDR} dnode.c
-
-dnode2.o:	dzfs.h dnode2.c
-		@if [ -f ./Makefile.zfs ]; then \
-		    ${MAKE} -f Makefile.zfs dnode2.o; \
-		else \
-		    echo "${CC} ${CFLAGS} -c dnode2.c"; \
-		    ${CC} ${CFLAGS} -c dnode2.c; \
-		fi;
 
 dproc.o:	${HDR} dproc.c
 

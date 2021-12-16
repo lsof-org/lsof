@@ -41,11 +41,6 @@ static char copyright[] =
 #include "./lockf_owner.h"
 #endif	/* defined(HAS_LOCKF_ENTRY) */
 
-#if	defined(HAS_ZFS)
-#include "dzfs.h"
-#endif	/* defined(HAS_ZFS) */
-
-
 #if	defined(HASFDESCFS) && HASFDESCFS==1
 _PROTOTYPE(static int lkup_dev_tty,(dev_t *dr, INODETYPE *ir));
 #endif	/* defined(HASFDESCFS) && HASFDESCFS==1 */
@@ -345,14 +340,6 @@ process_vnode(struct kinfo_file *kf, struct xfile *xfile, struct xvnode *xvnode)
 	struct pfs_node *pnp;
 #endif	/* defined(HASPSEUDOFS) */
 
-#if	defined(HAS_ZFS)
-	zfs_info_t *z = (zfs_info_t *)NULL;
-	zfs_info_t zi;
-	char *zm = (char *)NULL;
-#else	/* !defined(HAS_ZFS) */
-	static unsigned char zw = 0;
-#endif	/* HAS_VFS */
-
 	enum vtagtype vtag;			/* placed here to use the
 						 * artificial vtagtype
 						 * definition required for
@@ -405,11 +392,6 @@ process_overlaid_node:
 	tnp = (struct tmpfs_node *)NULL;
 # endif	/* defined(HAS_TMPFS) */
 
-
-#if	defined(HAS_ZFS)
-	z = (zfs_info_t *)NULL;
-	zm = (char *)NULL;
-#endif	/* defined(HAS_ZFS) */
 
 /*
  * Read the vnode.
@@ -524,20 +506,7 @@ process_overlaid_node:
 	    if (!strcmp(vtbuf, "ufs"))
 		vtag = VT_UFS;
 	    else if (!strcmp(vtbuf, "zfs")) {
-
-#if	!defined(HAS_ZFS)
-		if (!Fwarn && !zw) {
-		    (void) fprintf(stderr,
-			"%s: WARNING: no ZFS support has been defined.\n",
-			Pn);
-		    (void) fprintf(stderr,
-			"      See 00FAQ for more information.\n");
-		    zw = 1;
-		}
-#else	/* defined(HAS_ZFS) */
 		vtag = VT_ZFS;
-#endif	/* !defined(HAS_ZFS) */
-
 	    } else if (!strcmp(vtbuf, "devfs"))
 		vtag = VT_DEVFS;
 	    else if (!strcmp(vtbuf, "nfs"))
@@ -736,23 +705,6 @@ process_overlaid_node:
 # endif	/* defined(HAS_UFS1_2) */
 
 	    break;
-
-#if	defined(HAS_ZFS)
-	case VT_ZFS:
-	    memset((void *)&zi, 0, sizeof(zfs_info_t));
-	    if (!v->v_data
-	    ||  (zm = readzfsnode((KA_T)v->v_data, &zi,
-				  ((v->v_vflag & VV_ROOT) ? 1 : 0)))
-	    ) {
-		(void) snpf(Namech, Namechl, "%s: %s", zm,
-		    print_kptr((KA_T)v->v_data, (char *)NULL, 0));
-		enter_nm(Namech);
-		return;
-	    }
-	    z = &zi;
-
-	    break;
-#endif	/* defined(HAS_ZFS) */
 
 	default:
 	    if (v->v_type == VBAD || v->v_type == VNON)
