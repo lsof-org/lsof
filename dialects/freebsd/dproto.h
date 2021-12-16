@@ -37,14 +37,6 @@
  */
 
 
-#if	defined(HAS_NO_SI_UDEV)
-# if	defined(HAS_CONF_MINOR)|| defined(HAS_CDEV2PRIV)
-_PROTOTYPE(extern dev_t Dev2Udev,(KA_T c));
-# else	/* !defined(HAS_CONF_MINOR) && !defined(HAS_CDEV2PRIV) */
-_PROTOTYPE(extern dev_t Dev2Udev,(struct cdev *c));
-# endif	/* defined(HAS_CONF_MINOR) || defined(HAS_CDEV2PRIV) */
-#endif	/* defined(HAS_NO_SI_UDEV) */
-
 #if	!defined(N_UNIX)
 _PROTOTYPE(extern char *get_nlist_path,(int ap));
 #endif	/* !defined(N_UNIX) */
