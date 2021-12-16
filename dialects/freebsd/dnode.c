@@ -283,14 +283,6 @@ process_vnode(struct kinfo_file *kf, struct xfile *xfile, struct xvnode *xvnode)
 #   endif	/* !defined(HAS_CONF_MINOR) && !defined(HAS_CDEV2PRIV) */
 
 
-#if	defined(HAS9660FS)
-	dev_t iso_dev;
-	int iso_dev_def, iso_stat;
-	INODETYPE iso_ino;
-	long iso_links;
-	SZOFFTYPE iso_sz;
-#endif	/* defined(HAS9660FS) */
-
 #if	defined(HASFDESCFS)
 	struct fdescnode *f;
 
@@ -303,22 +295,6 @@ process_vnode(struct kinfo_file *kf, struct xfile *xfile, struct xvnode *xvnode)
 	struct fdescnode fb;
 
 #endif	/* defined(HASFDESCFS) */
-
-#if	defined(HASFUSEFS)
-	dev_t fuse_dev;
-	int fuse_dev_def, fuse_stat;
-	INODETYPE fuse_ino;
-	long fuse_links;
-	SZOFFTYPE fuse_sz;
-#endif	/* defined(HASFUSEFS) */
-
-#if	defined(HASMSDOSFS)
-	dev_t msdos_dev;
-	int msdos_dev_def, msdos_stat;
-	INODETYPE msdos_ino;
-	long msdos_links;
-	SZOFFTYPE msdos_sz;
-#endif	/* defined(HASMSDOSFS) */
 
 # if	defined(HAS_UFS1_2)
 	int ufst;
@@ -407,21 +383,9 @@ process_overlaid_node:
 	n = (struct nfsnode *)NULL;
 	Namech[0] = '\0';
 
-#if	defined(HAS9660FS)
-	iso_dev_def = iso_stat = 0;
-#endif	/* defined(HAS9660FS) */
-
 #if	defined(HASFDESCFS)
 	f = (struct fdescnode *)NULL;
 #endif	/* defined(HASFDESCFS) */
-
-#if	defined(HASFUSEFS)
-	fuse_dev_def = fuse_stat = 0;
-#endif	/* defined(HASFUSEFS) */
-
-#if	defined(HASMSDOSFS)
-	msdos_dev_def = msdos_stat = 0;
-#endif /* defined(HASMSDOSFS) */
 
 	cds = 0;
 	d = (struct devfs_dirent *)NULL;
@@ -637,49 +601,6 @@ process_overlaid_node:
 	    break;
 #endif	/* defined(HASFDESCFS) */
 
-#if	defined(HASFUSEFS)
-	case VT_FUSEFS:
-	    if (read_fuse_node(v, &fuse_dev, &fuse_dev_def, &fuse_ino,
-			       &fuse_links, &fuse_sz))
-	    {
-		(void) snpf(Namech, Namechl, "no fuse node: %s",
-		    print_kptr((KA_T)v->v_data, (char *)NULL, 0));
-		enter_nm(Namech);
-		return;
-	    }
-	    fuse_stat = 1;
-	    break;
-#endif	/* defined(HASFUSEFS) */
-
-#if	defined(HASMSDOSFS)
-	case VT_MSDOSFS:
-	    if (read_msdos_node(v, &msdos_dev, &msdos_dev_def, &msdos_ino,
-				&msdos_links, &msdos_sz))
-	    {
-		(void) snpf(Namech, Namechl, "can't read denode at: %s",
-		    print_kptr((KA_T)v->v_data, (char *)NULL, 0));
-		enter_nm(Namech);
-		return;
-	    }
-	    msdos_stat = 1;
-	    break;
-#endif	/* defined(HASMSDOSFS) */
-
-#if	defined(HAS9660FS)
-	case VT_ISOFS:
-	    if (read_iso_node(v, &iso_dev, &iso_dev_def, &iso_ino, &iso_links,
-			      &iso_sz))
-	    {
-		(void) snpf(Namech, Namechl, "no iso node: %s",
-		    print_kptr((KA_T)v->v_data, (char *)NULL, 0));
-		enter_nm(Namech);
-		return;
-	    }
-	    iso_stat = 1;
-	    break;
-#endif	/* defined(HAS9660FS) */
-
-	    break;
 	case VT_NFS:
 
 	    if (!v->v_data

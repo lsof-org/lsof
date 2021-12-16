@@ -14,7 +14,7 @@
 
 
 D=dialects/freebsd
-L="dlsof.h dmnt.c dnode.c dnode1.c dnode2.c dproc.c dproto.h dsock.c dstore.c dzfs.h machine.h"
+L="dlsof.h dmnt.c dnode.c dnode2.c dproc.c dproto.h dsock.c dstore.c dzfs.h machine.h"
 
 for i in $L
 do
