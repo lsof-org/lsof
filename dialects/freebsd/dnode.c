@@ -215,16 +215,6 @@ process_vnode(struct kinfo_file *kf, struct xfile *xfile, struct xvnode *xvnode)
 	struct vnode *v, vb;
 	struct l_vfs *vfs;
 
-#   if	!defined(HAS_CONF_MINOR) && !defined(HAS_CDEV2PRIV)
-	struct cdev si;
-#   endif	/* !defined(HAS_CONF_MINOR) && !defined(HAS_CDEV2PRIV) */
-
-
-# if	!defined(HAS_CONF_MINOR) && !defined(HAS_CDEV2PRIV)
-	struct cdev cd;
-# endif	/* !defined(HAS_CONF_MINOR) && !defined(HAS_CDEV2PRIV) */
-
-	int cds;
 	char vtbuf[32];
 	char *vtbp;
 	enum vtagtype { VT_DEVFS, VT_FDESC, VT_FUSEFS, VT_ISOFS, VT_PSEUDOFS,
@@ -277,8 +267,6 @@ process_overlaid_node:
  */
 	devs = rdevs = 0;
 	Namech[0] = '\0';
-
-	cds = 0;
 
 #if	defined(HASPROCFS)
 	p = (struct pfsnode *)NULL;
@@ -369,19 +357,6 @@ process_overlaid_node:
 
 	if (!v) return;
 
-/*
- * For FreeBSD 5 and above VCHR and VBLK vnodes get the v_rdev structure.
- */
-	if (((v->v_type == VCHR) || (v->v_type == VBLK))
-	&&  v->v_rdev
-
-# if	!defined(HAS_CONF_MINOR) && !defined(HAS_CDEV2PRIV)
-	&&  !kread((KA_T)v->v_rdev, (char *)&cd, sizeof(cd))
-# endif	/* !defined(HAS_CONF_MINOR) && !defined(HAS_CDEV2PRIV) */
-
-	) {
-	    cds = 1;
-	}
 
 /*
  * Define the specific node pointer.
