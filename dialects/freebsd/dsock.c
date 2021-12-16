@@ -380,8 +380,8 @@ process_socket(struct kinfo_file *kf, struct pcb_lists *pcbs)
 	int fam;
 	int fp, lp;
 	unsigned char *la = (unsigned char *)NULL;
-	void *pcb;
-	struct xsocket *s;
+	void *pcb = NULL;
+	struct xsocket *s = NULL;
 	int ts = -1;
 	struct sockaddr_un *ua = NULL;
 
