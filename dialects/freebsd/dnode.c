@@ -47,10 +47,6 @@ static char copyright[] =
 #endif	/* defined(HASPTSFN) && defined(DTYPE_PTS) */
 
 
-#if	defined(HAS_TMPFS)
-#include <fs/tmpfs/tmpfs.h>
-#endif	/* defined(HAS_TMPFS) */
-
 _PROTOTYPE(static void get_lock_state,(KA_T f));
 
 
@@ -248,11 +244,6 @@ process_vnode(struct kinfo_file *kf, struct xfile *xfile, struct xvnode *xvnode)
 			VT_UNKNOWN
 		      };
 
-# if	defined(HAS_TMPFS)
-	struct tmpfs_node tn;
-	struct tmpfs_node *tnp;
-# endif	/* defined(HAS_TMPFS) */
-
 #if	defined(HASNULLFS)
 # if	!defined(HASPRINTDEV)
 	char dbuf[32];
@@ -309,10 +300,6 @@ process_overlaid_node:
 #if	defined(HASPROCFS)
 	p = (struct pfsnode *)NULL;
 #endif	/* defined(HASPROCFS) */
-
-# if	defined(HAS_TMPFS)
-	tnp = (struct tmpfs_node *)NULL;
-# endif	/* defined(HAS_TMPFS) */
 
 
 /*
@@ -547,19 +534,6 @@ process_overlaid_node:
 
 	    break;
 #endif	/* defined(HASPROCFS) */
-
-# if	defined(HAS_TMPFS)
-	case VT_TMPFS:
-	    if (!v->v_data
-	    ||  kread((KA_T)v->v_data, (char *)&tn, sizeof(tn))) {
-		(void) snpf(Namech, Namechl, "no tmpfs_node: %s",
-		    print_kptr((KA_T)v->v_data, (char *)NULL, 0));
-		enter_nm(Namech);
-		return;
-	    }
-	    tnp = &tn;
-	    break;
-# endif	/* defined(HAS_TMPFS) */
 
 	case VT_UFS:
 
