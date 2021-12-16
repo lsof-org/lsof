@@ -521,6 +521,14 @@ process_overlaid_node:
 		break;
 	    }
 	}
+
+	/* FIXME: needs an API to retrieve v_lockf from the kernel without kvm access */
+#if	defined(HAS_V_LOCKF)
+	/* Commit eab626f110908f209587469de08f63bf8642aa68 first released in FreeBSD 8.0.0 */
+	if (v && v->v_lockf)
+	    (void) get_lock_state((KA_T)v->v_lockf);
+#endif
+
 	if (!v) return;
 
 /*
@@ -806,14 +814,6 @@ process_overlaid_node:
 	    }
 # endif	/* defined(HAS_UFS1_2) */
 
-#if	defined(HAS_V_LOCKF)
-	    if (v->v_lockf)
-		(void) get_lock_state((KA_T)v->v_lockf);
-#else	/* !defined(HAS_V_LOCKF) */
-	    if (i->i_lockf)
-		(void) get_lock_state((KA_T)i->i_lockf);
-#endif	/* defined(HAS_V_LOCKF) */
-
 	    break;
 
 #if	defined(HAS_ZFS)
@@ -829,14 +829,6 @@ process_overlaid_node:
 		return;
 	    }
 	    z = &zi;
-
-#if	defined(HAS_V_LOCKF)
-	    if (v->v_lockf)
-		(void) get_lock_state((KA_T)v->v_lockf);
-#else	/* !defined(HAS_V_LOCKF) */
-	    if (z->lockf)
-		(void) get_lock_state((KA_T)z->lockf);
-#endif	/* defined(HAS_V_LOCKF) */
 
 	    break;
 #endif	/* defined(HAS_ZFS) */
