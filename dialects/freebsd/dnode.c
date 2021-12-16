@@ -209,26 +209,16 @@ process_vnode(struct kinfo_file *kf, struct xfile *xfile, struct xvnode *xvnode)
 	unsigned char devs;
 	unsigned char rdevs;
 	char dev_ch[32], *ep;
-	struct inode *i;
 	size_t sz;
 	char *ty;
-	unsigned char ums;
 	KA_T va;
 	struct vnode *v, vb;
 	struct l_vfs *vfs;
 
-	struct inode ib;
 #   if	!defined(HAS_CONF_MINOR) && !defined(HAS_CDEV2PRIV)
 	struct cdev si;
 #   endif	/* !defined(HAS_CONF_MINOR) && !defined(HAS_CDEV2PRIV) */
 
-
-# if	defined(HAS_UFS1_2)
-	int ufst;
-	struct ufsmount um;
-	struct ufs1_dinode d1;
-	struct ufs2_dinode d2;
-# endif	/* !defined(HAS_UFS1_2) */
 
 # if	!defined(HAS_CONF_MINOR) && !defined(HAS_CDEV2PRIV)
 	struct cdev cd;
@@ -285,14 +275,10 @@ process_overlaid_node:
  * Initialize miscellaneous variables.  This is done so that processing an
  * overlaid node will be a fresh start.
  */
-	devs = rdevs = ums = 0;
-	i = (struct inode *)NULL;
+	devs = rdevs = 0;
 	Namech[0] = '\0';
 
 	cds = 0;
-# if	defined(HAS_UFS1_2)
-	ufst = 0;
-# endif	/* !defined(HAS_UFS1_2) */
 
 #if	defined(HASPROCFS)
 	p = (struct pfsnode *)NULL;
@@ -510,34 +496,6 @@ process_overlaid_node:
 
 	    break;
 #endif	/* defined(HASPROCFS) */
-
-	case VT_UFS:
-
-	    if (!v->v_data
-	    ||  kread((KA_T)v->v_data, (char *)&ib, sizeof(ib))) {
-		(void) snpf(Namech, Namechl, "no ufs node: %s",
-		    print_kptr((KA_T)v->v_data, (char *)NULL, 0));
-		enter_nm(Namech);
-		return;
-	    }
-	    i = &ib;
-
-# if	defined(HAS_UFS1_2)
-	    if (i->i_ump && !kread((KA_T)i->i_ump, (char *)&um, sizeof(um))) {
-		ums =  1;
-		if (um.um_fstype == UFS1) {
-		    if (i->i_din1
-		    &&  !kread((KA_T)i->i_din1, (char *)&d1, sizeof(d1)))
-			ufst = 1;
-		} else {
-		    if (i->i_din2
-		    &&  !kread((KA_T)i->i_din2, (char *)&d2, sizeof(d2)))
-			ufst = 2;
-		}
-	    }
-# endif	/* defined(HAS_UFS1_2) */
-
-	    break;
 
 	default:
 	    if (v->v_type == VBAD || v->v_type == VNON)
