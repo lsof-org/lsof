@@ -271,11 +271,6 @@ process_vnode(struct kinfo_file *kf, struct xfile *xfile, struct xvnode *xvnode)
 	struct pfsnode pb;
 #endif	/* defined(HASPROCFS) */
 
-#if	defined(HASPSEUDOFS)
-	struct pfs_node pn;
-	struct pfs_node *pnp;
-#endif	/* defined(HASPSEUDOFS) */
-
 	enum vtagtype vtag;			/* placed here to use the
 						 * artificial vtagtype
 						 * definition required for
@@ -314,10 +309,6 @@ process_overlaid_node:
 #if	defined(HASPROCFS)
 	p = (struct pfsnode *)NULL;
 #endif	/* defined(HASPROCFS) */
-
-#if	defined(HASPSEUDOFS)
-	pnp = (struct pfs_node *)NULL;
-#endif	/* defined(HASPSEUDOFS) */
 
 # if	defined(HAS_TMPFS)
 	tnp = (struct tmpfs_node *)NULL;
@@ -556,19 +547,6 @@ process_overlaid_node:
 
 	    break;
 #endif	/* defined(HASPROCFS) */
-
-#if	defined(HASPSEUDOFS)
-	case VT_PSEUDOFS:
-	    if (!v->v_data
-	    ||  kread((KA_T)v->v_data, (char *)&pn, sizeof(pn))) {
-		(void) snpf(Namech, Namechl, "no pfs_node: %s",
-		    print_kptr((KA_T)v->v_data, (char *)NULL, 0));
-		enter_nm(Namech);
-		return;
-	    }
-	    pnp = &pn;
-	    break;
-#endif	/* defined(HASPSEUDOFS) */
 
 # if	defined(HAS_TMPFS)
 	case VT_TMPFS:
