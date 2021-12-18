@@ -167,6 +167,56 @@ process_kqueue(ka)
 #endif	/* defined(HASKQUEUE) */
 
 
+static const char*
+parse_proc_path(struct kinfo_file *kf, int *proc_pid)
+{
+	const char *ty;
+	char *basename;
+
+	ty = (char *)NULL;
+	basename = strrchr(kf->kf_path, '/');
+	if (basename) {
+	    ++basename;
+	    if (!strcmp(basename, "cmdline")) {
+	    } else if (!strcmp(basename, "dbregs")) {
+	    } else if (!strcmp(basename, "etype")) {
+		ty = "PETY";
+	    } else if (!strcmp(basename, "file")) {
+		ty = "PFIL";
+	    } else if (!strcmp(basename, "fpregs")) {
+		ty = "PFPR";
+	    } else if (!strcmp(basename, "map")) {
+		ty = "PMAP";
+	    } else if (!strcmp(basename, "mem")) {
+		ty = "PMEM";
+	    } else if (!strcmp(basename, "note")) {
+		ty = "PNTF";
+	    } else if (!strcmp(basename, "notepg")) {
+		ty = "PGID";
+	    } else if (!strcmp(basename, "osrel")) {
+	    } else if (!strcmp(basename, "regs")) {
+		ty = "PREG";
+	    } else if (!strcmp(basename, "rlimit")) {
+	    } else if (!strcmp(basename, "status")) {
+		ty = "PSTA";
+	    } else {
+		/* we're excluded all files - must be a directory, either /proc/<pid> or /proc itself */
+		ty = "PDIR";
+	    }
+	    if (ty && strcmp(ty, "PDIR") != 0) {
+		char *parent_dir;
+		--basename;
+		*basename = '\0';
+		parent_dir = strrchr(basename, '/');
+		if (parent_dir)
+		    *proc_pid = strtol(++parent_dir, NULL, 10);
+		*basename = '/';
+	    }
+	}
+	return ty;
+}
+
+
 /*
  * process_vnode() - process vnode
  */
@@ -177,7 +227,7 @@ process_vnode(struct kinfo_file *kf, struct xfile *xfile, struct xvnode *xvnode)
 	dev_t dev = 0, rdev = 0;
 	unsigned char devs;
 	unsigned char rdevs;
-	char *ty;
+	const char *ty;
 	KA_T va;
 	struct vnode *v, vb;
 	struct l_vfs *vfs;
@@ -495,49 +545,8 @@ process_overlaid_node:
 	    (void) snpf(Namech, Namechl, "(revoked)");
 
 	else if (Ntype == N_PROC) {
-	    char *basename;
 	    Lf->dev_def = Lf->rdev_def = 0;
-
-	    ty = (char *)NULL;
-	    basename = strrchr(kf->kf_path, '/');
-	    if (basename) {
-		++basename;
-		if (!strcmp(basename, "cmdline")) {
-		} else if (!strcmp(basename, "dbregs")) {
-		} else if (!strcmp(basename, "etype")) {
-		    ty = "PETY";
-		} else if (!strcmp(basename, "file")) {
-		    ty = "PFIL";
-		} else if (!strcmp(basename, "fpregs")) {
-		    ty = "PFPR";
-		} else if (!strcmp(basename, "map")) {
-		    ty = "PMAP";
-		} else if (!strcmp(basename, "mem")) {
-		    ty = "PMEM";
-		} else if (!strcmp(basename, "note")) {
-		    ty = "PNTF";
-		} else if (!strcmp(basename, "notepg")) {
-		    ty = "PGID";
-		} else if (!strcmp(basename, "osrel")) {
-		} else if (!strcmp(basename, "regs")) {
-		    ty = "PREG";
-		} else if (!strcmp(basename, "rlimit")) {
-		} else if (!strcmp(basename, "status")) {
-		    ty = "PSTA";
-		} else {
-		    /* we're excluded all files - must be a directory, either /proc/<pid> or /proc itself */
-		    ty = "PDIR";
-		}
-		if (ty && strcmp(ty, "PDIR") != 0) {
-		    char *parent_dir;
-		    --basename;
-		    *basename = '\0';
-		    parent_dir = strrchr(basename, '/');
-		    if (parent_dir)
-			proc_pid = strtol(++parent_dir, NULL, 10);
-		    *basename = '/';
-		}
-	    }
+	    ty = parse_proc_path(kf, &proc_pid);
 	    if (ty)
 		(void) snpf(Lf->type, sizeof(Lf->type), "%s", ty);
 	}
