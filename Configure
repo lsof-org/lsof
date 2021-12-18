@@ -1473,59 +1473,73 @@ kernel generation process.
 	echo "!!!WARNING!!!  Configuring for FreeBSD 6.0"
 	;;
       7.0*)
+	LSOF_CFGL="$LSOF_CFGL -lutil"
 	LSOF_TSTBIGF=" "
 	LSOF_VERS=7000
 	;;
       7.1*)
+	LSOF_CFGL="$LSOF_CFGL -lutil"
 	LSOF_TSTBIGF=" "
 	LSOF_VERS=7010
 	;;
       7.2*)
+	LSOF_CFGL="$LSOF_CFGL -lutil"
 	LSOF_TSTBIGF=" "
 	LSOF_VERS=7020
 	;;
       7.3*)
+	LSOF_CFGL="$LSOF_CFGL -lutil"
 	LSOF_TSTBIGF=" "
 	LSOF_VERS=7030
 	;;
       7.4*)
+	LSOF_CFGL="$LSOF_CFGL -lutil"
 	LSOF_TSTBIGF=" "
 	LSOF_VERS=7040
 	;;
       7*)
+	LSOF_CFGL="$LSOF_CFGL -lutil"
 	LSOF_VERS=7000
 	echo "!!!WARNING!!!  Unsupported FreeBSD version: $LSOF_VSTR"
 	echo "!!!WARNING!!!  Configuring for FreeBSD 7.0"
 	;;
       8.0*)
+	LSOF_CFGL="$LSOF_CFGL -lutil"
 	LSOF_TSTBIGF=" "
 	LSOF_VERS=8000
 	;;
       8.1*)
+	LSOF_CFGL="$LSOF_CFGL -lutil"
 	LSOF_TSTBIGF=" "
 	LSOF_VERS=8010
 	;;
       8.2*)
+	LSOF_CFGL="$LSOF_CFGL -lutil"
 	LSOF_TSTBIGF=" "
 	LSOF_VERS=8020
 	;;
       8.3*)
+	LSOF_CFGL="$LSOF_CFGL -lutil"
 	LSOF_TSTBIGF=" "
 	LSOF_VERS=8030
 	;;
       8.4*)
+	LSOF_CFGL="$LSOF_CFGL -lutil"
 	LSOF_TSTBIGF=" "
 	LSOF_VERS=8040
 	;;
       9*)
+	LSOF_CFGL="$LSOF_CFGL -lutil"
 	LSOF_TSTBIGF=" "
 	LSOF_VERS=9000
 	;;
       10*)
+	LSOF_CFGL="$LSOF_CFGL -lutil"
 	LSOF_TSTBIGF=" "
 	LSOF_VERS=10000
 	;;
       11*)
+	LSOF_CFGL="$LSOF_CFGL -lutil"
 	LSOF_TSTBIGF=" "
 	LSOF_VERS=11000
 	;;
