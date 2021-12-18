@@ -393,14 +393,15 @@ process_socket(struct kinfo_file *kf, struct pcb_lists *pcbs)
  * Read the socket, protocol, and domain structures.
  */
 	find_pcb_and_xsocket(pcbs,
-			     kf->kf_un.kf_sock.kf_sock_domain0,
-			     kf->kf_un.kf_sock.kf_sock_type0,
+			     kf->kf_sock_domain,
+			     kf->kf_sock_type,
 			     kf->kf_un.kf_sock.kf_sock_pcb,
 			     &pcb,
 			     &s);
 /*
  * Save size information.
  */
+#if	defined(HAS_KF_SOCK_SENDQ)
 	if (Fsize) {
 	    if (Lf->access == 'r')
 		Lf->sz = (SZOFFTYPE)kf->kf_un.kf_sock.kf_sock_recvq;
@@ -418,6 +419,7 @@ process_socket(struct kinfo_file *kf, struct pcb_lists *pcbs)
 	Lf->lts.sq = kf->kf_un.kf_sock.kf_sock_sendq;
 	Lf->lts.rqs = Lf->lts.sqs = 1;
 #endif	/* defined(HASTCPTPIQ) */
+#endif	/* defined(HAS_KF_SOCK_SENDQ) */
 
 	if (s) {
 	    Lf->lts.ltm = (unsigned int)s->so_linger;
@@ -445,7 +447,7 @@ process_socket(struct kinfo_file *kf, struct pcb_lists *pcbs)
 /*
  * Process socket by the associated domain family.
  */
-	switch ((fam = kf->kf_un.kf_sock.kf_sock_domain0)) {
+	switch ((fam = kf->kf_sock_domain)) {
 /*
  * Process an Internet domain socket.
  */
@@ -461,15 +463,15 @@ process_socket(struct kinfo_file *kf, struct pcb_lists *pcbs)
 			Lf->sf |= SELNET;
 		}
 	    }
-	    printiproto(kf->kf_un.kf_sock.kf_sock_protocol0);
+	    printiproto(kf->kf_sock_protocol);
 
 	    (void) snpf(Lf->type, sizeof(Lf->type),
 		(fam == AF_INET) ? "IPv4" : "IPv6");
 
 	    if (fam == AF_INET6) {
 		struct sockaddr_in6 *local_addr6, *foreign_addr6;
-		local_addr6 = (struct sockaddr_in6 *)&kf->kf_un.kf_sock.kf_sa_local;
-		foreign_addr6 = (struct sockaddr_in6 *)&kf->kf_un.kf_sock.kf_sa_peer;
+		local_addr6 = (struct sockaddr_in6 *)&kf->kf_sa_local;
+		foreign_addr6 = (struct sockaddr_in6 *)&kf->kf_sa_peer;
 	    /*
 	     * Read IPv6 protocol control block.
 	     */
@@ -482,7 +484,7 @@ process_socket(struct kinfo_file *kf, struct pcb_lists *pcbs)
 	    /*
 	     * Save IPv6 address information.
 	     */
-		if (kf->kf_un.kf_sock.kf_sock_protocol0 == IPPROTO_TCP) {
+		if (kf->kf_sock_protocol == IPPROTO_TCP) {
 		    if ((ts = ckstate((struct xtcpcb *)pcb, fam)) == 1) {
 			return;
 		    }
@@ -503,8 +505,8 @@ process_socket(struct kinfo_file *kf, struct pcb_lists *pcbs)
 	    /*
 	     * Read Ipv4 protocol control block.
 	     */
-		struct sockaddr_in *local_addr = (struct sockaddr_in*)&kf->kf_un.kf_sock.kf_sa_local;
-		struct sockaddr_in *foreign_addr = (struct sockaddr_in*)&kf->kf_un.kf_sock.kf_sa_peer;
+		struct sockaddr_in *local_addr = (struct sockaddr_in*)&kf->kf_sa_local;
+		struct sockaddr_in *foreign_addr = (struct sockaddr_in*)&kf->kf_sa_peer;
 		if (!pcb) {
 # if 0
 /* FIXME: later, when xsocket.xsockbuf gets sb_state: */
@@ -519,7 +521,7 @@ process_socket(struct kinfo_file *kf, struct pcb_lists *pcbs)
 		    enter_nm(Namech);
 		    return;
 		}
-		if (kf->kf_un.kf_sock.kf_sock_protocol0 == IPPROTO_TCP) {
+		if (kf->kf_sock_protocol == IPPROTO_TCP) {
 		    if ((ts = ckstate((struct xtcpcb *)pcb, fam)) == 1)
 			    return;
 		}
@@ -606,7 +608,7 @@ process_socket(struct kinfo_file *kf, struct pcb_lists *pcbs)
 		    print_kptr(kf->kf_un.kf_sock.kf_sock_pcb, (char *)NULL, 0));
 		break;
 	    }
-	    ua = (struct sockaddr_un *)&kf->kf_un.kf_sock.kf_sa_local;
+	    ua = (struct sockaddr_un *)&kf->kf_sa_local;
 
 	    if (ua->sun_path[0]) {
 
@@ -623,8 +625,8 @@ process_socket(struct kinfo_file *kf, struct pcb_lists *pcbs)
 		struct xsocket *peer_socket = NULL;
 		void *peer_pcb;
 		find_pcb_and_xsocket(pcbs,
-				     kf->kf_un.kf_sock.kf_sock_domain0,
-				     kf->kf_un.kf_sock.kf_sock_type0,
+				     kf->kf_sock_domain,
+				     kf->kf_sock_type,
 				     kf->kf_un.kf_sock.kf_sock_unpconn,
 				     &peer_pcb,
 				     &peer_socket);

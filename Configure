@@ -2303,6 +2303,13 @@ struct xtcpcb pcb; pcb.t_maxseg = 0;
     fi	# }
     rm -f ${LSOF_TMPC}.*
 
+    # Does struct kinfo_file have kf_un.kf_sock.kf_sock_sendq?
+    grep -q kf_sock_sendq ${LSOF_INCLUDE}/sys/user.h
+    if test $? -eq 0	# {
+    then
+      LSOF_CFGF="$LSOF_CFGF -DHAS_KF_SOCK_SENDQ"
+    fi	# }
+
     LSOF_DIALECT_DIR=freebsd
     ;;
 
