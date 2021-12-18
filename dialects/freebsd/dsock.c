@@ -565,8 +565,10 @@ process_socket(struct kinfo_file *kf, struct pcb_lists *pcbs)
 		Lf->lts.state.i = (int)tcp_pcb->t_state;
 
 #if	defined(HASTCPOPT)
+#if	defined(HAS_XTCPCB_TMAXSEG)
 		Lf->lts.mss = (unsigned long)tcp_pcb->t_maxseg;
 		Lf->lts.msss = (unsigned char)1;
+#endif	/* defined(HAS_XTCPCB_TMAXSEG) */
 		Lf->lts.topt = (unsigned int)tcp_pcb->t_flags;
 #endif	/* defined(HASTCPOPT) */
 

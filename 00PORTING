@@ -1396,6 +1396,10 @@ possibilities
     HASXOPT_VALUE	defines the default binary value for the X option
 			in store.c.
 
+    HAS_XTCPCB_TMAXSEG	indicates that <netinet/tcp_var.h> in this FreeBSD
+			version exists and its struct xtcpcb has a
+			t_magseg field.
+
     HAS_ZFS		indicates the dialect has support for the ZFS file
 			system.
 

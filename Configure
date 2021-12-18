@@ -2280,6 +2280,29 @@ LOCKF_OWNER4
     then
       LSOF_CFGF="$LSOF_CFGF -DHASUTMPX"
     fi	# }
+
+    # Does struct xtcpcb have t_maxseg?
+    rm -f ${LSOF_TMPC}.*
+    cat > ${LSOF_TMPC}.c << .LSOF_END_HERE_DOC4
+#undef _KERNEL
+#include <sys/types.h>
+#include <sys/queue.h>
+#include <sys/socketvar.h>
+#include <sys/socket.h>
+#include <netinet/in.h>
+#include <netinet/in_pcb.h>
+#include <netinet/tcp_var.h>
+main() {
+struct xtcpcb pcb; pcb.t_maxseg = 0;
+}
+.LSOF_END_HERE_DOC4
+    $LSOF_CC ${LSOF_TMPC}.c -o ${LSOF_TMPC}.x > /dev/null 2>&1
+    if test $? -eq 0	# {
+    then
+      LSOF_CFGF="$LSOF_CFGF -DHAS_XTCPCB_TMAXSEG"
+    fi	# }
+    rm -f ${LSOF_TMPC}.*
+
     LSOF_DIALECT_DIR=freebsd
     ;;
 
