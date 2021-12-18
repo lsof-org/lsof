@@ -621,7 +621,7 @@ process_socket(struct kinfo_file *kf, struct pcb_lists *pcbs)
 		    Lf->sf |= SELNM;
 		if (ua->sun_path[0] && !Namech[0])
 		    (void) snpf(Namech, Namechl, "%s", ua->sun_path);
-	    } else if (unix_pcb->unp_conn) {
+	    } else if (kf->kf_un.kf_sock.kf_sock_unpconn) {
 		struct xsocket *peer_socket = NULL;
 		void *peer_pcb;
 		find_pcb_and_xsocket(pcbs,
@@ -633,7 +633,7 @@ process_socket(struct kinfo_file *kf, struct pcb_lists *pcbs)
 		if (!peer_socket)
 		    (void) snpf(Namech, Namechl,
 			"can't read unp_conn at %s",
-			print_kptr((KA_T)unix_pcb->unp_conn,(char *)NULL,0));
+			print_kptr((KA_T)kf->kf_un.kf_sock.kf_sock_unpconn,(char *)NULL,0));
 		else
 		    (void) snpf(Namech, Namechl, "->%s",
 			print_kptr((KA_T)peer_socket->xso_so,(char *)NULL,0));
