@@ -73,6 +73,14 @@ static char copyright[] =
 #define	SOCK_CC	sb_cc
 #endif	/* defined(HAS_SB_CCC) */
 
+#if __FreeBSD_version >= 1200026
+#define XTCPCB_SO xt_inp.xi_socket
+#define XTCPCB_SO_PCB xt_inp.xi_socket.so_pcb
+#else	/* __FreeBSD_version < 1200026 */
+#define XTCPCB_SO xt_socket
+#define XTCPCB_SO_PCB xt_socket.so_pcb
+#endif	/* __FreeBSD_version >= 1200026 */
+
 
 /*
  * Local function prototypes
@@ -100,9 +108,9 @@ cmp_xtcpcb_sock_pcb(const void *a, const void *b) {
 	const struct xtcpcb *pcb1 = (const struct xtcpcb *)a;
 	const struct xtcpcb *pcb2 = (const struct xtcpcb *)b;
 
-	if (pcb1->xt_inp.xi_socket.so_pcb < pcb2->xt_inp.xi_socket.so_pcb)
+	if (pcb1->XTCPCB_SO_PCB < pcb2->XTCPCB_SO_PCB)
 	    return -1;
-	else if (pcb1->xt_inp.xi_socket.so_pcb > pcb2->xt_inp.xi_socket.so_pcb)
+	else if (pcb1->XTCPCB_SO_PCB > pcb2->XTCPCB_SO_PCB)
 	    return 1;
 	else
 	    return 0;
@@ -281,6 +289,7 @@ free_pcb_lists(struct pcb_lists *pcbs)
 static int
 ckstate(struct xtcpcb *pcb, int fam)
 {
+#if __FreeBSD_version >= 1200026
 	int tsnx;
 
 	if (TcpStXn || TcpStIn) {
@@ -324,6 +333,9 @@ ckstate(struct xtcpcb *pcb, int fam)
 	    }
 	}
 	return(0);
+#else	/* __FreeBSD_version < 1200026 */
+	return(-1);
+#endif	/* __FreeBSD_version >= 1200026 */
 }
 
 
@@ -336,10 +348,10 @@ find_pcb_and_xsocket(struct pcb_lists *pcbs, int domain, int type, uint64_t pcb_
 	if (domain == PF_INET || domain == PF_INET6) {
 	    if (type == SOCK_STREAM) {
 		struct xtcpcb key, *result;
-		key.xt_inp.xi_socket.so_pcb = pcb_addr;
+		key.XTCPCB_SO_PCB = pcb_addr;
 		result = bsearch(&key, pcbs->tcp_pcbs, pcbs->n_tcp_pcbs, sizeof(*pcbs->tcp_pcbs), cmp_xtcpcb_sock_pcb);
 		if (result) {
-		    *xsocket = &result->xt_inp.xi_socket;
+		    *xsocket = &result->XTCPCB_SO;
 		    *pcb = result;
 		}
 	    } else if (type == SOCK_DGRAM) {
@@ -564,14 +576,18 @@ process_socket(struct kinfo_file *kf, struct pcb_lists *pcbs)
 	    if (ts == 0) {
 		struct xtcpcb *tcp_pcb = (struct xtcpcb *)pcb;
 		Lf->lts.type = 0;
+#if __FreeBSD_version >= 1200026
 		Lf->lts.state.i = (int)tcp_pcb->t_state;
+#endif
 
 #if	defined(HASTCPOPT)
 #if	defined(HAS_XTCPCB_TMAXSEG)
 		Lf->lts.mss = (unsigned long)tcp_pcb->t_maxseg;
 		Lf->lts.msss = (unsigned char)1;
 #endif	/* defined(HAS_XTCPCB_TMAXSEG) */
+#if __FreeBSD_version >= 1200026
 		Lf->lts.topt = (unsigned int)tcp_pcb->t_flags;
+#endif
 #endif	/* defined(HASTCPOPT) */
 
 	    }
