@@ -263,12 +263,6 @@ struct vop_generic_args;
 #undef	KERNEL
 # endif	/* defined(HASNULLFS) */
 
-# if	defined(HASPROCFS)
-#include <machine/reg.h>
-
-#define	PNSIZ		5
-# endif	/* defined(HASPROCFS) */
-
 # if	defined(HASPSEUDOFS)
 #include <fs/pseudofs/pseudofs.h>
 # endif	/* defined(HASPSEUDOFS) */

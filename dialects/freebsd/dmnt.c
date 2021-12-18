@@ -68,10 +68,6 @@ readmnt()
 	int n;
 	struct stat sb;
 
-#if	defined(HASPROCFS)
-	unsigned char procfs = 0;
-#endif	/* defined(HASPROCFS) */
-
 	if (Lmi || Lmist)
 	    return(Lmi);
 /*
@@ -156,28 +152,6 @@ no_space_for_mount:
 		goto no_space_for_mount;
 	    mtp->dir = dn;
 	    dn = (char *)NULL;
-
-#if	defined(HASPROCFS)
-
-#if	defined(MOUNT_NONE)
-	    if (mb->f_type == MOUNT_PROCFS)
-#else	/* !defined(MOUNT_NONE) */
-	    if (strcasecmp(mb->f_fstypename, "procfs") == 0)
-#endif	/* defined(MOUNT_NONE) */
-
-	    {
-
-	    /*
-	     * Save information on exactly one procfs file system.
-	     */
-		if (procfs)
-		    Mtprocfs = (struct mounts *)NULL;
-		else {
-		    procfs = 1;
-		    Mtprocfs = mtp;
-		}
-	    }
-#endif	/* defined(HASPROCFS) */
 
 	    mtp->next = Lmi;
 	    mtp->dev = sb.st_dev;

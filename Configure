@@ -1651,7 +1651,7 @@ kernel generation process.
 
     case $LSOF_VERS in	# {
     1000)
-      LSOF_CFGF="$LSOF_CFGF -DHASPROCFS"
+      LSOF_CFGF="$LSOF_CFGF"
       LSOF_CFGL="$LSOF_CFGL -lutil"
       LSOF_DINC="$LSOF_DINC -I`pwd`/dialects/freebsd/include"
       if test "X$FREEBSD_KERNEL" = "X"	# {
@@ -2198,19 +2198,11 @@ LOCKF_OWNER4
     else
       LSOF_TMP1="miscfs"
     fi	# }
-    if test $LSOF_VERS -lt 5000	# {
-      then
-      if test -d ${FREEBSD_SYS}/${LSOF_TMP1}/procfs	# {
-      then
-	LSOF_CFGF="$LSOF_CFGF -DHASPROCFS"
-	LSOF_DINC_ADD=1
-      fi	# }
-    else
-      if test -d ${FREEBSD_SYS}/${LSOF_TMP1}/pseudofs	# {
-      then
-	LSOF_CFGF="$LSOF_CFGF -DHASPSEUDOFS"
-	LSOF_DINC_ADD=1
-      fi	# }
+    LSOF_CFGF="$LSOF_CFGF -DHASPROCFS"
+    if test -d ${FREEBSD_SYS}/${LSOF_TMP1}/pseudofs	# {
+    then
+      LSOF_CFGF="$LSOF_CFGF -DHASPSEUDOFS"
+      LSOF_DINC_ADD=1
     fi	# }
     if test -r ${LSOF_INCLUDE}/${LSOF_TMP1}/nullfs/null.h	# {
     then

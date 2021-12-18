@@ -141,37 +141,6 @@ get_lock_state(f)
 }
 
 
-# if	defined(HASPROCFS)
-_PROTOTYPE(static void getmemsz,(pid_t pid));
-
-
-/*
- * getmemsz() - get memory size of a /proc/<n>/mem entry
- */
-
-static void
-getmemsz(pid)
-	pid_t pid;
-{
-	int n;
-	struct kinfo_proc *p;
-	struct vmspace vm;
-
-	for (n = 0, p = P; n < Np; n++, p++) {
-	    if (p->P_PID == pid) {
-		if (!p->P_VMSPACE
-		||  kread((KA_T)p->P_VMSPACE, (char *)&vm, sizeof(vm)))
-		    return;
-		Lf->sz = (SZOFFTYPE)ctob(vm.vm_tsize+vm.vm_dsize+vm.vm_ssize);
-		Lf->sz_def = 1;
-		return;
-	    }
-	}
-}
-# endif	/* defined(HASPROCFS) */
-
-
-
 #if	defined(HASKQUEUE)
 /*
  * process_kqueue() - process kqueue file
@@ -222,14 +191,8 @@ process_vnode(struct kinfo_file *kf, struct xfile *xfile, struct xvnode *xvnode)
 	int sc = 0;
 #endif	/* defined(HASNULLFS) */
 
-#if	defined(HASPROCFS)
-	struct pfsnode *p;
+	int proc_pid = 0;
 	struct procfsid *pfi;
-	static int pgsz = -1;
-	struct vmspace vm;
-
-	struct pfsnode pb;
-#endif	/* defined(HASPROCFS) */
 
 	struct stat st;
 	const int kf_vtype = kf->kf_un.kf_file.kf_file_type;
@@ -253,10 +216,6 @@ process_overlaid_node:
  */
 	devs = rdevs = 0;
 	Namech[0] = '\0';
-
-#if	defined(HASPROCFS)
-	p = (struct pfsnode *)NULL;
-#endif	/* defined(HASPROCFS) */
 
 
 /*
@@ -297,20 +256,16 @@ process_overlaid_node:
 		Ntype = N_NFS;
 		break;
 
-# if	defined(HASPROCFS)
 	    case MOUNT_PROCFS:
 		Ntype = N_PROC;
 		break;
-# endif	/* defined(HASPROCFS) */
 	    }
 #else	/* !defined(MOUNT_NONE) */
 	    if (strcasecmp(vfs->typnm, "nfs") == 0)
 		Ntype = N_NFS;
 
-# if	defined(HASPROCFS)
 	    else if (strcasecmp(vfs->typnm, "procfs") == 0)
 		Ntype = N_PROC;
-# endif	/* defined(HASPROCFS) */
 
 # if	defined(HASPSEUDOFS)
 	    else if (strcasecmp(vfs->typnm, "pseudofs") == 0)
@@ -401,23 +356,6 @@ process_overlaid_node:
 	    goto process_overlaid_node;
 #endif	/* defined(HASNULLFS) */
 
-	} else if (vfs && !strcmp(vfs->typnm, "procfs")) {
-
-#if	defined(HASPROCFS)
-
-	    if (!v
-	    ||  !v->v_data
-	    ||  kread((KA_T)v->v_data, (char *)&pb, sizeof(pb))) {
-		(void) snpf(Namech, Namechl, "no pfs node: %s",
-		    print_kptr((KA_T)v->v_data, (char *)NULL, 0));
-		enter_nm(Namech);
-		return;
-	    }
-	    p = &pb;
-
-	    break;
-#endif	/* defined(HASPROCFS) */
-
 	}
 
 /*
@@ -451,12 +389,10 @@ process_overlaid_node:
 		if (!Fsize)
 		    Lf->off_def = 1;
 		break;
-#if	defined(HASPROCFS)
 	    case N_PROC:
 		Lf->sz = kf->kf_un.kf_file.kf_file_size;
 		Lf->sz_def = 1;
 		break;
-#endif	/* defined(HASPROCFS) */
 #if	defined(HASPSEUDOFS)
 	    case N_PSEU:
 		Lf->sz = 0;
@@ -558,80 +494,53 @@ process_overlaid_node:
 	if (kf_vtype == KF_VTYPE_VBAD)
 	    (void) snpf(Namech, Namechl, "(revoked)");
 
-#if	defined(HASPROCFS)
-	else if (p) {
+	else if (Ntype == N_PROC) {
+	    char *basename;
 	    Lf->dev_def = Lf->rdev_def = 0;
 
 	    ty = (char *)NULL;
-	    (void) snpf(Namech, Namechl, "/%s", HASPROCFS);
-	    switch (p->pfs_type) {
-	    case Proot:
-		ty = "PDIR";
-		break;
-	    case Pproc:
-		ep = endnm(&sz);
-		(void) snpf(ep, sz, "/%d", p->pfs_pid);
-		ty = "PDIR";
-		break;
-	    case Pfile:
-		ep = endnm(&sz);
-		(void) snpf(ep, sz, "/%d/file", p->pfs_pid);
-		ty = "PFIL";
-		break;
-	    case Pmem:
-		ep = endnm(&sz);
-		(void) snpf(ep, sz, "/%d/mem", p->pfs_pid);
-		ty = "PMEM";
-		break;
-	    case Pregs:
-		ep = endnm(&sz);
-		(void) snpf(ep, sz, "/%d/regs", p->pfs_pid);
-		ty = "PREG";
-		break;
-	    case Pfpregs:
-		ep = endnm(&sz);
-		(void) snpf(ep, sz, "/%d/fpregs", p->pfs_pid);
-		ty = "PFPR";
-		break;
-	    case Pctl:
-		ep = endnm(&sz);
-		(void) snpf(ep, sz, "/%d/ctl", p->pfs_pid);
-		ty = "PCTL";
-		break;
-	    case Pstatus:
-		ep = endnm(&sz);
-		(void) snpf(ep, sz, "/%d/status", p->pfs_pid);
-		ty = "PSTA";
-		break;
-	    case Pnote:
-		ep = endnm(&sz);
-		(void) snpf(ep, sz, "/%d/note", p->pfs_pid);
-		ty = "PNTF";
-		break;
-	    case Pnotepg:
-		ep = endnm(&sz);
-		(void) snpf(ep, sz, "/%d/notepg", p->pfs_pid);
-		ty = "PGID";
-		break;
-
-	    case Pmap:
-		ep = endnm(&sz);
-		(void) snpf(ep, sz, "/%d/map", p->pfs_pid);
-		ty = "PMAP";
-		break;
-	    case Ptype:
-		ep = endnm(&sz);
-		(void) snpf(ep, sz, "/%d/etype", p->pfs_pid);
-		ty = "PETY";
-		break;
-
+	    basename = strrchr(kf->kf_path, '/');
+	    if (basename) {
+		++basename;
+		if (!strcmp(basename, "cmdline")) {
+		} else if (!strcmp(basename, "dbregs")) {
+		} else if (!strcmp(basename, "etype")) {
+		    ty = "PETY";
+		} else if (!strcmp(basename, "file")) {
+		    ty = "PFIL";
+		} else if (!strcmp(basename, "fpregs")) {
+		    ty = "PFPR";
+		} else if (!strcmp(basename, "map")) {
+		    ty = "PMAP";
+		} else if (!strcmp(basename, "mem")) {
+		    ty = "PMEM";
+		} else if (!strcmp(basename, "note")) {
+		    ty = "PNTF";
+		} else if (!strcmp(basename, "notepg")) {
+		    ty = "PGID";
+		} else if (!strcmp(basename, "osrel")) {
+		} else if (!strcmp(basename, "regs")) {
+		    ty = "PREG";
+		} else if (!strcmp(basename, "rlimit")) {
+		} else if (!strcmp(basename, "status")) {
+		    ty = "PSTA";
+		} else {
+		    /* we're excluded all files - must be a directory, either /proc/<pid> or /proc itself */
+		    ty = "PDIR";
+		}
+		if (ty && strcmp(ty, "PDIR") != 0) {
+		    char *parent_dir;
+		    --basename;
+		    *basename = '\0';
+		    parent_dir = strrchr(basename, '/');
+		    if (parent_dir)
+			proc_pid = strtol(++parent_dir, NULL, 10);
+		    *basename = '/';
+		}
 	    }
 	    if (ty)
 		(void) snpf(Lf->type, sizeof(Lf->type), "%s", ty);
-	    enter_nm(Namech);
-
 	}
-#endif	/* defined(HASPROCFS) */
 
 #if	defined(HASBLKDEV)
 /*
@@ -652,14 +561,13 @@ process_overlaid_node:
  * Test for specified file.
  */
 
-#if	defined(HASPROCFS)
 	if (Ntype == N_PROC) {
 	    if (Procsrch) {
 		Procfind = 1;
 		Lf->sf |= SELNM;
 	    } else {
 		for (pfi = Procfsid; pfi; pfi = pfi->next) {
-		    if ((pfi->pid && pfi->pid == p->pfs_pid)
+		    if ((pfi->pid && proc_pid && pfi->pid == proc_pid)
 
 # if	defined(HASPINODEN)
 		    ||  (Lf->inp_ty == 1 && Lf->inode == pfi->inode)
@@ -676,10 +584,7 @@ process_overlaid_node:
 		    }
 		}
 	    }
-	} else
-#endif	/* defined(HASPROCFS) */
-
-	{
+	} else {
 	    if (Sfile && is_file_named((char *)NULL,
 				       ((kf_vtype == KF_VTYPE_VCHR) || (kf_vtype == KF_VTYPE_VBLK)) ? 1
 									  : 0))
