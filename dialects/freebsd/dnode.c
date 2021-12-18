@@ -393,7 +393,7 @@ process_overlaid_node:
 	    ||  !v->v_data
 	    ||  kread((KA_T)v->v_data, (char *)&nu, sizeof(nu))) {
 		(void) snpf(Namech, Namechl, "can't read null_node at: %s",
-		    print_kptr((KA_T)v->v_data, (char *)NULL, 0));
+		    print_kptr(v ? (KA_T)v->v_data : 0, (char *)NULL, 0));
 		enter_nm(Namech);
 		return;
 	    }
