@@ -245,7 +245,7 @@ process_vnode(struct kinfo_file *kf, struct xfile *xfile, struct xvnode *xvnode)
 	struct procfsid *pfi;
 
 	struct stat st;
-	const int kf_vtype = kf->kf_un.kf_file.kf_file_type;
+	const int kf_vtype = kf->kf_vnode_type;
 
 	va = xfile ? xfile->xf_vnode : 0;
 
