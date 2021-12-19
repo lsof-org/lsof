@@ -67,6 +67,7 @@ readmnt()
 	struct mounts *mtp;
 	int n;
 	struct stat sb;
+	unsigned char procfs = 0;
 
 	if (Lmi || Lmist)
 	    return(Lmi);
@@ -152,6 +153,18 @@ no_space_for_mount:
 		goto no_space_for_mount;
 	    mtp->dir = dn;
 	    dn = (char *)NULL;
+
+	    if (strcasecmp(mb->f_fstypename, "procfs") == 0) {
+	    /*
+	     * Save information on exactly one procfs file system.
+	     */
+		if (procfs)
+		    Mtprocfs = (struct mounts *)NULL;
+		else {
+		    procfs = 1;
+		    Mtprocfs = mtp;
+		}
+	    }
 
 	    mtp->next = Lmi;
 	    mtp->dev = sb.st_dev;

@@ -207,7 +207,7 @@ parse_proc_path(struct kinfo_file *kf, int *proc_pid)
 		char *parent_dir;
 		--basename;
 		*basename = '\0';
-		parent_dir = strrchr(basename, '/');
+		parent_dir = strrchr(kf->kf_path, '/');
 		if (parent_dir)
 		    *proc_pid = strtol(++parent_dir, NULL, 10);
 		*basename = '/';
