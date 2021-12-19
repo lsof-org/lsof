@@ -545,7 +545,6 @@ process_overlaid_node:
 	    (void) snpf(Namech, Namechl, "(revoked)");
 
 	else if (Ntype == N_PROC) {
-	    Lf->dev_def = Lf->rdev_def = 0;
 	    ty = parse_proc_path(kf, &proc_pid);
 	    if (ty)
 		(void) snpf(Lf->type, sizeof(Lf->type), "%s", ty);
@@ -570,7 +569,7 @@ process_overlaid_node:
  * Test for specified file.
  */
 
-	if (Ntype == N_PROC) {
+	if (Ntype == N_PROC && (Procsrch || Procfsid)) {
 	    if (Procsrch) {
 		Procfind = 1;
 		Lf->sf |= SELNM;
