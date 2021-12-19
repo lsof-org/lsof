@@ -295,7 +295,7 @@ typedef _Bool   bool;
  * NCACHELDSFX is a set of C commands to execute after calling ncache_load().
  */
 
-#define	HASNCACHE	1
+/* #define	HASNCACHE	1 */
 /* #define	NCACHELDPFX	??? */
 /* #define	NCACHELDSFX	??? */
 
