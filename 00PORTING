@@ -142,6 +142,11 @@ project has so far generated only two kernel modification:
 One final note about the /proc-based Linux lsof: it doesn't need
 any functions from the lsof library in the lib/ subdirectory.
 
+FreeBSD is now also using a similar approach. Sysctls are used
+to retrieve processes, files, socket PCBs etc. Access to kernel
+memory is optional and only used as a last resort when data is
+not provided by the kernel.
+
 
 General Guidelines
 ------------------
