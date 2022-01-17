@@ -444,17 +444,14 @@ process_socket(struct kinfo_file *kf, struct pcb_lists *pcbs)
 	    } else {
 		Lf->lts.rbsz = (unsigned long)s->so_rcv.sb_mbmax;
 		Lf->lts.sbsz = (unsigned long)s->so_snd.sb_mbmax;
-#if 0
-/* FIXME: later, when xsocket.xsockbuf gets sb_state: */
-		Lf->lts.sbs_rcv = s->so_rcv.sb_state;
-		Lf->lts.sbs_snd = s->so_snd.sb_state;
-#endif
 	    }
 	    Lf->lts.pqlens = Lf->lts.qlens = Lf->lts.qlims = Lf->lts.rbszs
 			   = Lf->lts.sbszs = (unsigned char)1;
 
 	    Lf->lts.ss = (unsigned int)s->so_state;
 	}
+	Lf->lts.sbs_rcv = kf->kf_un.kf_sock.kf_sock_rcv_sb_state;
+	Lf->lts.sbs_snd = kf->kf_un.kf_sock.kf_sock_snd_sb_state;
 
 /*
  * Process socket by the associated domain family.
@@ -520,16 +517,11 @@ process_socket(struct kinfo_file *kf, struct pcb_lists *pcbs)
 		struct sockaddr_in *local_addr = (struct sockaddr_in*)&kf->kf_sa_local;
 		struct sockaddr_in *foreign_addr = (struct sockaddr_in*)&kf->kf_sa_peer;
 		if (!pcb) {
-# if 0
-/* FIXME: later, when xsocket.xsockbuf gets sb_state: */
 		    (void) snpf(Namech, Namechl, "no PCB%s%s",
-			(s && (s->so_state & SBS_CANTSENDMORE)) ?
+			(kf->kf_un.kf_sock.kf_sock_snd_sb_state & SBS_CANTSENDMORE) ?
 			", CANTSENDMORE" : "",
-			(s && (s->so_rcv.sb_state & SBS_CANTRCVMORE)) ?
+			(kf->kf_un.kf_sock.kf_sock_rcv_sb_state & SBS_CANTRCVMORE) ?
 			", CANTRCVMORE" : "");
-#else
-		    snpf(Namech, Namechl, "no PCB");
-#endif
 		    enter_nm(Namech);
 		    return;
 		}
