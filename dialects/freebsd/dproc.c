@@ -175,7 +175,7 @@ process_kinfo_file(struct kinfo_file *kf, struct xfile *xfile, struct xvnode *xv
 	    process_socket(kf, pcbs);
 	    break;
 	case KF_TYPE_KQUEUE:
-	    process_kqueue(xfile ? xfile->xf_data : 0UL);
+	    process_kf_kqueue(kf, xfile ? xfile->xf_data : 0UL);
 	    break;
 	case KF_TYPE_PIPE:
 	    if (!Selinet)

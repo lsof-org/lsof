@@ -143,7 +143,7 @@ get_lock_state(f)
 
 #if	defined(HASKQUEUE)
 /*
- * process_kqueue() - process kqueue file
+ * process_kf_kqueue() - process kqueue file
  *
  * Strictly speaking this function should appear in dfile.c, because it is
  * a file processing function.  However, the Net and Open BSD sources don't
@@ -151,17 +151,24 @@ get_lock_state(f)
  */
 
 void
-process_kqueue(ka)
-	KA_T ka;			/* kqueue file structure address */
+process_kf_kqueue(struct kinfo_file *kf, KA_T ka)
 {
+#if __FreeBSD_version < 1400052
 	struct kqueue kq;		/* kqueue structure */
+#endif /* __FreeBSD_version < 1400052 */
 
 	(void) snpf(Lf->type, sizeof(Lf->type), "KQUEUE");
 	enter_dev_ch(print_kptr(ka, (char *)NULL, 0));
+#if __FreeBSD_version >= 1400052
+	(void) snpf(Namech, Namechl, "count=%d, state=%#x",
+	    kf->kf_un.kf_kqueue.kf_kqueue_count,
+	    kf->kf_un.kf_kqueue.kf_kqueue_state);
+#else /* __FreeBSD_version < 1400052 */
 	if (!ka || kread(ka, (char *)&kq, sizeof(kq)))
 	    return;
 	(void) snpf(Namech, Namechl, "count=%d, state=%#x", kq.kq_count,
 	    kq.kq_state);
+#endif /* __FreeBSD_version >= 1400052 */
 	enter_nm(Namech);
 }
 #endif	/* defined(HASKQUEUE) */
@@ -617,21 +624,29 @@ void
 process_pipe(struct kinfo_file *kf, KA_T pa)
 {
 	char dev_ch[32], *ep;
-	struct pipe p;
 	size_t sz;
-	int have_kpipe;
 
-	have_kpipe = (pa && kread(pa, (char *)&p, sizeof(p)) == 0);
+#if __FreeBSD_version < 1400052
+	struct pipe p;
+	int have_kpipe = (pa && kread(pa, (char *)&p, sizeof(p)) == 0);
+#endif
+
 	(void) snpf(Lf->type, sizeof(Lf->type), "PIPE");
 	(void) snpf(dev_ch, sizeof(dev_ch), "%s",
 	    print_kptr(kf->kf_un.kf_pipe.kf_pipe_addr, (char *)NULL, 0));
 	enter_dev_ch(dev_ch);
 	if (Foffset)
 	    Lf->off_def = 1;
-	else if (have_kpipe) {
-	    /* FIXME: "struct kinfo_file" needs this */
-	    Lf->sz = (SZOFFTYPE)p.pipe_buffer.size;
+	else {
+#if __FreeBSD_version >= 1400052
+	    Lf->sz = (SZOFFTYPE)kf->kf_un.kf_pipe.kf_pipe_buffer_size;
 	    Lf->sz_def = 1;
+#else /* __FreeBSD_version < 1400052 */
+	    if (have_kpipe) {
+		Lf->sz = (SZOFFTYPE)p.pipe_buffer.size;
+		Lf->sz_def = 1;
+	    }
+#endif /* __FreeBSD_version >= 1400052 */
 	}
 	if (kf->kf_un.kf_pipe.kf_pipe_peer)
 	    (void) snpf(Namech, Namechl, "->%s",
@@ -642,7 +657,16 @@ process_pipe(struct kinfo_file *kf, KA_T pa)
 	    ep = endnm(&sz);
 	    (void) snpf(ep, sz, ", cnt=%d", kf->kf_un.kf_pipe.kf_pipe_buffer_cnt);
 	}
-	/* FIXME: "struct kinfo_file" needs these */
+#if __FreeBSD_version >= 1400052
+	if (kf->kf_un.kf_pipe.kf_pipe_buffer_in) {
+	    ep = endnm(&sz);
+	    (void) snpf(ep, sz, ", in=%d", kf->kf_un.kf_pipe.kf_pipe_buffer_in);
+	}
+	if (kf->kf_un.kf_pipe.kf_pipe_buffer_out) {
+	    ep = endnm(&sz);
+	    (void) snpf(ep, sz, ", out=%d", kf->kf_un.kf_pipe.kf_pipe_buffer_out);
+	}
+#else /* __FreeBSD_version < 1400052 */
 	if (have_kpipe && p.pipe_buffer.in) {
 	    ep = endnm(&sz);
 	    (void) snpf(ep, sz, ", in=%d", p.pipe_buffer.in);
@@ -651,6 +675,7 @@ process_pipe(struct kinfo_file *kf, KA_T pa)
 	    ep = endnm(&sz);
 	    (void) snpf(ep, sz, ", out=%d", p.pipe_buffer.out);
 	}
+#endif /* __FreeBSD_version >= 1400052 */
 /*
  * Enter name characters.
  */
