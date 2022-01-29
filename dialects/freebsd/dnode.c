@@ -278,17 +278,10 @@ process_overlaid_node:
 		v = NULL;
 	}
 
-	if (xvnode) {
-
-#if	defined(HASNCACHE)
-	    Lf->na = (KA_T)xvnode->xv_vnode;
-# if	defined(HASNCVPID)
-	    Lf->id = xvnode->xv_id; /* FIXME: always 0 in the kernel */
-# endif	/* defined(HASNCVPID) */
-#endif	/* defined(HASNCACHE) */
+	if (xfile || xvnode) {
 
 #if	defined(HASFSTRUCT)
-	    Lf->fna = (KA_T)xvnode->xv_vnode;
+	    Lf->fna = xvnode ? (KA_T)xvnode->xv_vnode : (KA_T)xfile->xf_vnode;
 	    Lf->fsv |= FSV_NI;
 #endif	/* defined(HASFSTRUCT) */
 
