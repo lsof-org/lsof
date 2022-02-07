@@ -239,7 +239,9 @@ struct vop_setextattr_args;
 #include <nfsclient/nfs.h>
 #include <nfsclient/nfsnode.h>
 
+#define syscall_args __bad_syscall_args
 #include <sys/proc.h>
+#undef __bad_syscall_args
 #include <kvm.h>
 #undef	TRUE
 #undef	FALSE
