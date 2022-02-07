@@ -92,51 +92,9 @@ read_xfiles(struct xfile **xfiles, size_t *count)
 }
 
 
-static int
-cmp_xvnodes_xvvnode(const void *a, const void *b)
-{
-	const struct xvnode *aa, *bb;
-
-	aa = (struct xvnode *)a;
-	bb = (struct xvnode *)b;
-	if (aa->xv_vnode < bb->xv_vnode) {
-	    return -1;
-	} else if (aa->xv_vnode > bb->xv_vnode) {
-	    return 1;
-	} else {
-	    return 0;
-	}
-}
-
-
-static int
-read_xvnodes(struct xvnode **vnodes, size_t *count)
-{
-	int mib[2];
-	size_t len;
-
-	mib[0] = CTL_KERN;
-	mib[1] = KERN_VNODE;
-	*vnodes = NULL;
-	if (!sysctl(mib, 2, NULL, &len, NULL, 0)) {
-	    *vnodes = malloc(len);
-	    if (*vnodes) {
-		if (!sysctl(mib, 2, *vnodes, &len, NULL, 0)) {
-		    *count = len / sizeof(struct xvnode);
-		    return 0;
-		}
-	    }
-	}
-	free(*vnodes);
-	*vnodes = NULL;
-	*count = 0;
-	return 1;
-}
-
-
 /* Based on process_file() in lib/prfd.c */
 static void
-process_kinfo_file(struct kinfo_file *kf, struct xfile *xfile, struct xvnode *xvnode, struct pcb_lists *pcbs)
+process_kinfo_file(struct kinfo_file *kf, struct xfile *xfile, struct pcb_lists *pcbs)
 {
 	Lf->off = kf->kf_offset;
 	if (kf->kf_ref_count) {
@@ -169,7 +127,7 @@ process_kinfo_file(struct kinfo_file *kf, struct xfile *xfile, struct xvnode *xv
 	switch (kf->kf_type) {
 	case KF_TYPE_FIFO:
 	case KF_TYPE_VNODE:
-	    process_vnode(kf, xfile, xvnode);
+	    process_vnode(kf, xfile);
 	    break;
 	case KF_TYPE_SOCKET:
 	    process_socket(kf, pcbs);
@@ -199,7 +157,6 @@ static void
 process_file_descriptors(
 	struct kinfo_proc *p, short ckscko,
 	struct xfile *xfiles, size_t n_xfiles,
-	struct xvnode *xvnodes, size_t n_xvnodes,
 	struct pcb_lists *pcbs)
 {
 	struct kinfo_file *kfiles;
@@ -209,40 +166,34 @@ process_file_descriptors(
 	kfiles = kinfo_getfile(p->P_PID, &n_kfiles);
 	for (i = 0; i < n_kfiles; i++) {
 	    struct xfile key, *xfile;
-	    struct xvnode *xvnode = NULL;
 
 	    key.xf_pid = p->P_PID;
 	    key.xf_fd = kfiles[i].kf_fd;
 	    xfile = bsearch(&key, xfiles, n_xfiles, sizeof(*xfiles), cmp_xfiles_pid_fd);
-	    if (xfile) {
-		struct xvnode xvkey;
-		xvkey.xv_vnode = (void *)xfile->xf_vnode;
-	        xvnode = bsearch(&xvkey, xvnodes, n_xvnodes, sizeof(*xvnodes), cmp_xvnodes_xvvnode);
-	    }
 
 	    if (!ckscko && kfiles[i].kf_fd == KF_FD_TYPE_CWD) {
 		alloc_lfile(CWD, -1);
-		process_vnode(&kfiles[i], xfile, xvnode);
+		process_vnode(&kfiles[i], xfile);
 		if (Lf->sf)
 		    link_lfile();
 	    } else if (!ckscko && kfiles[i].kf_fd == KF_FD_TYPE_ROOT) {
 		alloc_lfile(RTD, -1);
-		process_vnode(&kfiles[i], xfile, xvnode);
+		process_vnode(&kfiles[i], xfile);
 		if (Lf->sf)
 		    link_lfile();
 	    } else if (!ckscko && kfiles[i].kf_fd == KF_FD_TYPE_JAIL) {
 		alloc_lfile(" jld", -1);
-		process_vnode(&kfiles[i], xfile, xvnode);
+		process_vnode(&kfiles[i], xfile);
 		if (Lf->sf)
 		    link_lfile();
 	    } else if (!ckscko && kfiles[i].kf_fd == KF_FD_TYPE_TEXT) {
 		alloc_lfile(" txt", -1);
-		process_vnode(&kfiles[i], xfile, xvnode);
+		process_vnode(&kfiles[i], xfile);
 		if (Lf->sf)
 		    link_lfile();
 	    } else if (!ckscko && kfiles[i].kf_fd == KF_FD_TYPE_CTTY) {
 		alloc_lfile("ctty", -1);
-		process_vnode(&kfiles[i], xfile, xvnode);
+		process_vnode(&kfiles[i], xfile);
 		if (Lf->sf)
 		    link_lfile();
 	    } else if (!ckscko && kfiles[i].kf_fd < 0) {
@@ -250,7 +201,7 @@ process_file_descriptors(
 		    fprintf(stderr, "%s: WARNING -- unsupported fd type %d\n", Pn, kfiles[i].kf_fd);
 	    } else {
 		alloc_lfile(NULL, kfiles[i].kf_fd);
-		process_kinfo_file(&kfiles[i], xfile, xvnode, pcbs);
+		process_kinfo_file(&kfiles[i], xfile, pcbs);
 		if (Lf->sf)
 		    link_lfile();
 	    }
@@ -290,8 +241,6 @@ gather_proc_info()
 	struct kinfo_proc *p;
 	struct xfile *xfiles;
 	size_t n_xfiles;
-	struct xvnode *xvnodes;
-	size_t n_xvnodes;
 	struct pcb_lists *pcbs;
 
 #if	defined(HASFSTRUCT) && !defined(HAS_FILEDESCENT)
@@ -381,10 +330,6 @@ gather_proc_info()
 	    fprintf(stderr, "%s: WARNING -- reading xfile list failed: %s\n",
 		Pn, strerror(errno));
 	qsort(xfiles, n_xfiles, sizeof(*xfiles), cmp_xfiles_pid_fd);
-	if (read_xvnodes(&xvnodes, &n_xvnodes) && !Fwarn)
-	    fprintf(stderr, "%s: WARNING -- reading xvnode list failed: %s\n",
-		Pn, strerror(errno));
-	qsort(xvnodes, n_xvnodes, sizeof(*xvnodes), cmp_xvnodes_xvvnode);
 	pcbs = read_pcb_lists();
 	if (!pcbs && !Fwarn)
 	    fprintf(stderr, "%s: WARNING -- reading PCBs failed: %s\n",
@@ -454,7 +399,7 @@ gather_proc_info()
 	    Kpa = (KA_T)p->P_ADDR;
 #endif	/* defined(P_ADDR) */
 
-	process_file_descriptors(p, ckscko, xfiles, n_xfiles, xvnodes, n_xvnodes, pcbs);
+	process_file_descriptors(p, ckscko, xfiles, n_xfiles, pcbs);
 
 	/*
 	 * Unless threads (tasks) are being processed, examine results.
@@ -466,7 +411,6 @@ gather_proc_info()
 	}
 
 	free(xfiles);
-	free(xvnodes);
 	free_pcb_lists(pcbs);
 }
 

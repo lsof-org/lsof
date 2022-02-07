@@ -229,7 +229,7 @@ parse_proc_path(struct kinfo_file *kf, int *proc_pid)
  */
 
 void
-process_vnode(struct kinfo_file *kf, struct xfile *xfile, struct xvnode *xvnode)
+process_vnode(struct kinfo_file *kf, struct xfile *xfile)
 {
 	dev_t dev = 0, rdev = 0;
 	unsigned char devs;
@@ -285,10 +285,10 @@ process_overlaid_node:
 		v = NULL;
 	}
 
-	if (xfile || xvnode) {
+	if (xfile) {
 
 #if	defined(HASFSTRUCT)
-	    Lf->fna = xvnode ? (KA_T)xvnode->xv_vnode : (KA_T)xfile->xf_vnode;
+	    Lf->fna = (KA_T)xfile->xf_vnode;
 	    Lf->fsv |= FSV_NI;
 #endif	/* defined(HASFSTRUCT) */
 
@@ -297,7 +297,7 @@ process_overlaid_node:
 /*
  * Get the vnode type.
  */
-	vfs = readvfs(xvnode ? (KA_T)xvnode->xv_mount : 0, kf->kf_path);
+	vfs = readvfs(0, kf->kf_path);
 	if (vfs) {
 
 #if	defined(MOUNT_NONE)
