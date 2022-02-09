@@ -297,7 +297,7 @@ process_overlaid_node:
 /*
  * Get the vnode type.
  */
-	vfs = readvfs(0, kf->kf_path);
+	vfs = readvfs(kf->kf_un.kf_file.kf_file_fsid, kf->kf_path);
 	if (vfs) {
 
 #if	defined(MOUNT_NONE)
@@ -360,8 +360,8 @@ process_overlaid_node:
 	     * the mounted-on directory, the file system name, and the device
 	     * number.
 	     */
-		if (vfs && (vfs->dir || vfs->fsname || vfs->fsid.val[0])) {
-		    if (vfs->fsid.val[0]) {
+		if (vfs && (vfs->dir || vfs->fsname || vfs->fsid != VNOVAL)) {
+		    if (vfs->fsid != VNOVAL) {
 
 #if	defined(HASPRINTDEV)
 			dp = HASPRINTDEV(Lf, &dev);

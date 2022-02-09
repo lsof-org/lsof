@@ -204,16 +204,16 @@ no_space_for_mount:
  */
 
 struct l_vfs *
-readvfs(KA_T vm, const char *path)
+readvfs(uint64_t fsid, const char *path)
 {
 	struct statfs m;
 	struct l_vfs *vp;
 /*
  * Search for match on existing entry.
  */
-	if (vm) {
+	if (fsid != VNOVAL) {
 	    for (vp = Lvfs; vp; vp = vp->next) {
-		if (vm == vp->addr)
+		if (fsid == vp->fsid)
 		    return(vp);
 	    }
 	}
@@ -226,13 +226,11 @@ readvfs(KA_T vm, const char *path)
 	    return((struct l_vfs *)NULL);
 
 /*
- * If the previous search by vm couldn't be done, search by mountpoint instead.
+ * If the previous search by fsid couldn't be done, search by mountpoint instead.
  */
-	if (!vm) {
-	    for (vp = Lvfs; vp; vp = vp->next) {
-		if (!strcmp(vp->fsname, m.f_mntfromname) && !strcmp(vp->dir, m.f_mntonname))
-		    return(vp);
-	    }
+	for (vp = Lvfs; vp; vp = vp->next) {
+	    if (!strcmp(vp->fsname, m.f_mntfromname) && !strcmp(vp->dir, m.f_mntonname))
+		return(vp);
 	}
 	if (!(vp = (struct l_vfs *)malloc(sizeof(struct l_vfs)))) {
 	    (void) fprintf(stderr, "%s: PID %d, no space for vfs\n",
@@ -246,8 +244,7 @@ readvfs(KA_T vm, const char *path)
 		Pn, Lp->pid);
 	    Error();
 	}
-	vp->addr = vm;
-	vp->fsid = m.f_fsid;
+	vp->fsid = fsid;
 
 #if	defined(MOUNT_NONE)
 	vp->type = m.f_type;

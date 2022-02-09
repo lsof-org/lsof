@@ -448,8 +448,7 @@ extern KA_T Kpa;
 # endif	/* defined(P_ADDR) */
 
 struct l_vfs {
-	KA_T addr;			/* kernel address */
-	fsid_t	fsid;			/* file system ID */
+	uint64_t fsid;			/* file system ID */
 
 # if	defined(MOUNT_NONE)
 	short type;			/* type of file system */
