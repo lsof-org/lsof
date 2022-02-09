@@ -164,6 +164,11 @@ process_file_descriptors(
 	int i;
 
 	kfiles = kinfo_getfile(p->P_PID, &n_kfiles);
+	/* Pre-cache the mount info, as files w/o paths may need it from other files with paths on the same fs */
+	for (i = 0; i < n_kfiles; i++) {
+	    if (kfiles[i].kf_fd < 0 || kfiles[i].kf_type == KF_TYPE_FIFO || kfiles[i].kf_type == KF_TYPE_VNODE)
+		readvfs(kfiles[i].kf_un.kf_file.kf_file_fsid, kfiles[i].kf_path);
+	}
 	for (i = 0; i < n_kfiles; i++) {
 	    struct xfile key, *xfile;
 
