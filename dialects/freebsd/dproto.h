@@ -50,6 +50,10 @@ _PROTOTYPE(extern void free_pcb_lists,(struct pcb_lists *pcb_lists));
 
 _PROTOTYPE(extern void process_pts,(struct kinfo_file *kf));
 
+#if	defined(KF_TYPE_EVENTFD)
+_PROTOTYPE(extern void process_eventfd,(struct kinfo_file *kf));
+#endif	/* defined(KF_TYPE_EVENTFD) */
+
 #if	defined(HASKQUEUE)
 _PROTOTYPE(extern void process_kf_kqueue,(struct kinfo_file *kf, KA_T ka));
 #endif	/* defined(HASKQUEUE) */

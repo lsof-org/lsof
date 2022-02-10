@@ -174,6 +174,18 @@ process_kf_kqueue(struct kinfo_file *kf, KA_T ka)
 #endif	/* defined(HASKQUEUE) */
 
 
+#if	defined(KF_TYPE_EVENTFD)
+void
+process_eventfd(struct kinfo_file *kf)
+{
+	(void) snpf(Lf->type, sizeof(Lf->type), "EVENTFD");
+	(void) snpf(Namech, Namechl, "value=%ju, flags=0x%x",
+	    kf->kf_un.kf_eventfd.kf_eventfd_value, kf->kf_un.kf_eventfd.kf_eventfd_flags);
+	enter_nm(Namech);
+}
+#endif	/* defined(KF_TYPE_EVENTFD) */
+
+
 static const char*
 parse_proc_path(struct kinfo_file *kf, int *proc_pid)
 {

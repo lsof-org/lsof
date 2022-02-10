@@ -142,6 +142,11 @@ process_kinfo_file(struct kinfo_file *kf, struct xfile *xfile, struct pcb_lists 
 	case KF_TYPE_PTS:
 	    process_pts(kf);
 	    break;
+#if	defined(KF_TYPE_EVENTFD)
+	case KF_TYPE_EVENTFD:
+	    process_eventfd(kf);
+	    break;
+#endif	/* defined(KF_TYPE_EVENTFD) */
 	default:
 	    /* FIXME: unlike struct file, xfile doesn't have f_ops which should be printed here */
 	    snpf(Namech, Namechl,
