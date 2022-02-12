@@ -92,6 +92,40 @@ read_xfiles(struct xfile **xfiles, size_t *count)
 }
 
 
+static int
+kf_flags_to_fflags(int kf_flags)
+{
+	static const struct {
+	    int fflag;
+	    int kf_flag;
+        } fflags_table[] = {
+	    { FAPPEND, KF_FLAG_APPEND },
+	    { FASYNC, KF_FLAG_ASYNC },
+	    { FFSYNC, KF_FLAG_FSYNC },
+	    { FHASLOCK, KF_FLAG_HASLOCK },
+	    { FNONBLOCK, KF_FLAG_NONBLOCK },
+	    { FREAD, KF_FLAG_READ },
+	    { FWRITE, KF_FLAG_WRITE },
+	    { O_CREAT, KF_FLAG_CREAT },
+	    { O_DIRECT, KF_FLAG_DIRECT },
+	    { O_EXCL, KF_FLAG_EXCL },
+	    { O_EXEC, KF_FLAG_EXEC },
+	    { O_EXLOCK, KF_FLAG_EXLOCK },
+	    { O_NOFOLLOW, KF_FLAG_NOFOLLOW },
+	    { O_SHLOCK, KF_FLAG_SHLOCK },
+	    { O_TRUNC, KF_FLAG_TRUNC }
+	};
+	int i;
+	int fflags;
+
+	fflags = 0;
+	for (i = 0; i < sizeof(fflags_table)/sizeof(fflags_table[0]); i++)
+	    if (kf_flags & fflags_table[i].kf_flag)
+		fflags |=  fflags_table[i].fflag;
+	return fflags;
+}
+
+
 /* Based on process_file() in lib/prfd.c */
 static void
 process_kinfo_file(struct kinfo_file *kf, struct xfile *xfile, struct pcb_lists *pcbs)
@@ -115,15 +149,19 @@ process_kinfo_file(struct kinfo_file *kf, struct xfile *xfile, struct pcb_lists 
 		Lf->fsa = xfile->xf_file;
 		Lf->fsv |= FSV_FA;
 	    }
-	    if (Fsv & FSV_FG) {
-		Lf->ffg = (long)xfile->xf_flag;
-		Lf->fsv |= FSV_FG;
-	    }
 	    if (Fsv & FSV_NI) {
 		Lf->fna = (KA_T)xfile->xf_data;
 		Lf->fsv |= FSV_NI;
 	    }
 	}
+	if (Fsv & FSV_FG) {
+	    if (xfile)
+		Lf->ffg = (long)xfile->xf_flag;
+	    else
+		Lf->ffg = kf_flags_to_fflags(kf->kf_flags);
+	    Lf->fsv |= FSV_FG;
+	}
+
 	switch (kf->kf_type) {
 	case KF_TYPE_FIFO:
 	case KF_TYPE_VNODE:
@@ -147,6 +185,9 @@ process_kinfo_file(struct kinfo_file *kf, struct xfile *xfile, struct pcb_lists 
 	    process_eventfd(kf);
 	    break;
 #endif	/* defined(KF_TYPE_EVENTFD) */
+	case KF_TYPE_SHM:
+	    process_shm(kf);
+	    break;
 	default:
 	    /* FIXME: unlike struct file, xfile doesn't have f_ops which should be printed here */
 	    snpf(Namech, Namechl,

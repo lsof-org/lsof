@@ -59,6 +59,7 @@ _PROTOTYPE(extern void process_kf_kqueue,(struct kinfo_file *kf, KA_T ka));
 #endif	/* defined(HASKQUEUE) */
 
 _PROTOTYPE(extern void process_pipe,(struct kinfo_file *kf, KA_T pa));
+_PROTOTYPE(extern void process_shm,(struct kinfo_file *kf));
 
 #if	defined(HASFUSEFS)
 _PROTOTYPE(extern int read_fuse_node,(struct vnode *v, dev_t *d, int *dd, INODETYPE *ino, long *nl, SZOFFTYPE *sz));

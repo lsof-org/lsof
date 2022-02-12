@@ -189,6 +189,24 @@ process_eventfd(struct kinfo_file *kf)
 #endif	/* defined(KF_TYPE_EVENTFD) */
 
 
+void
+process_shm(struct kinfo_file *kf)
+{
+	(void) snpf(Lf->type, sizeof(Lf->type), "SHM");
+	Lf->sz = kf->kf_un.kf_file.kf_file_size;
+	Lf->sz_def = 1;
+	Lf->off_def = 0;
+	if (kf->kf_un.kf_file.kf_file_fileid != VNOVAL) {
+	    Lf->inode = kf->kf_un.kf_file.kf_file_fileid;
+	    Lf->inp_ty = 1;
+	}
+	if (kf->kf_path[0]) {
+	    snpf(Namech, Namechl, "%s", kf->kf_path);
+	    enter_nm(Namech);
+	}
+}
+
+
 static const char*
 parse_proc_path(struct kinfo_file *kf, int *proc_pid)
 {
