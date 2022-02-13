@@ -47,15 +47,60 @@ static char copyright[] =
 #endif	/* defined(HASPTSFN) && defined(DTYPE_PTS) */
 
 
-_PROTOTYPE(static void get_lock_state,(KA_T f));
+_PROTOTYPE(static void get_lock_state_kvm,(KA_T f));
 
 
 /*
- * get_lock_state() - get the lock state
+ * get_lock_state_*() - get the lock state
  */
 
+#if	__FreeBSD_version >= 1400053
 static void
-get_lock_state(f)
+get_lock_state_sysctl(int fd, struct xfile *xfile)
+{
+	int mib[4];
+	size_t len;
+	int ret;
+	char *buffer;
+
+	len = 2;
+	ret = sysctlnametomib("kern.lockf", mib, &len);
+	if (ret < 0)
+	    return;
+
+	mib[2] = (pid_t)Lp->pid;
+	mib[3] = fd;
+	ret = sysctl(mib, 4, NULL, &len, NULL, 0);
+	if (ret < 0)
+	    return;
+	buffer = malloc(len);
+	if (buffer == NULL)
+	    return;
+	ret = sysctl(mib, 4, buffer, &len, NULL, 0);
+	if (ret == 0) {
+	    int i;
+	    struct xlockf *xl;
+	    int whole_file;
+
+	    for (i = 0; i < len; i += sizeof(struct xlockf)) {
+		xl = (struct xlockf *)&buffer[i];
+		if (xl->xl_sysid == 0 && ((xl->xl_pid != -1 && xl->xl_pid == (pid_t)Lp->pid)
+		|| (xl->xl_pid == -1 && xfile && xfile->xf_file == xl->xl_id))) {
+		    whole_file = xl->xl_start == 0 && xl->xl_len == 0;
+		    if (xl->xl_type == F_RDLCK)
+			Lf->lock = whole_file ? 'R' : 'r';
+		    else if (xl->xl_type == F_WRLCK)
+			Lf->lock = whole_file ? 'W' : 'w';
+		    break;
+		}
+	    }
+	}
+	free(buffer);
+}
+#endif	/* __FreeBSD_version >= 1400053 */
+
+static void
+get_lock_state_kvm(f)
 	KA_T f;				/* inode's lock pointer */
 {
 	struct lockf lf;		/* lockf structure */
@@ -368,12 +413,12 @@ process_overlaid_node:
 	    }
 	}
 
-	/* FIXME: needs an API to retrieve v_lockf from the kernel without kvm access */
-#if	defined(HAS_V_LOCKF)
-	/* Commit eab626f110908f209587469de08f63bf8642aa68 first released in FreeBSD 8.0.0 */
+#if	__FreeBSD_version >= 1400053
+	get_lock_state_sysctl(kf->kf_fd, xfile);
+#elif	defined(HAS_V_LOCKF)
 	if (v && v->v_lockf)
-	    (void) get_lock_state((KA_T)v->v_lockf);
-#endif
+	    (void) get_lock_state_kvm((KA_T)v->v_lockf);
+#endif	/* __FreeBSD_version >= 1400053 */
 
 
 /*
