@@ -87,8 +87,6 @@ get_lock_state(f)
 		    Lf->lock = lt ? 'R' : 'r';
 		else if (le.lf_type == F_WRLCK)
 		    Lf->lock = lt ? 'W' : 'w';
-		else if (le.lf_type == (F_RDLCK | F_WRLCK))
-		    Lf->lock = 'u';
 		return;
 	    }
 	} while ((lep = (KA_T)le.lf_link.le_next) && (lep != lef));
@@ -131,8 +129,6 @@ get_lock_state(f)
 		    Lf->lock = lt ? 'R' : 'r';
 		else if (lf.lf_type == F_WRLCK)
 		    Lf->lock = lt ? 'W' : 'w';
-		else if (lf.lf_type == (F_RDLCK | F_WRLCK))
-		    Lf->lock = 'u';
 		break;
 	    } while ((lfp = (KA_T)lf.lf_next) && (lfp != f));
    	}
