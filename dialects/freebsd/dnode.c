@@ -248,6 +248,21 @@ process_shm(struct kinfo_file *kf)
 }
 
 
+void
+process_procdesc(struct kinfo_file *kf)
+{
+	char pidstr[50];
+
+	snpf(Lf->type, sizeof(Lf->type), "PROCDSC");
+	snpf(pidstr, sizeof(pidstr), "pid=%d", kf->kf_un.kf_proc.kf_pid);
+	add_nma(pidstr, strlen(pidstr));
+	if (kf->kf_path[0]) {
+	    snpf(Namech, Namechl, "%s", kf->kf_path);
+	    enter_nm(Namech);
+	}
+}
+
+
 static const char*
 parse_proc_path(struct kinfo_file *kf, int *proc_pid)
 {

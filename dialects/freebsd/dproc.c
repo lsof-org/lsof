@@ -188,6 +188,9 @@ process_kinfo_file(struct kinfo_file *kf, struct xfile *xfile, struct pcb_lists 
 	case KF_TYPE_SHM:
 	    process_shm(kf);
 	    break;
+	case KF_TYPE_PROCDESC:
+	    process_procdesc(kf);
+	    break;
 	default:
 	    /* FIXME: unlike struct file, xfile doesn't have f_ops which should be printed here */
 	    snpf(Namech, Namechl,
