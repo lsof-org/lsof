@@ -312,6 +312,8 @@ process_vnode(struct kinfo_file *kf, struct xfile *xfile)
 	KA_T va;
 	struct vnode *v, vb;
 	struct l_vfs *vfs;
+	uint64_t fsid;
+	char vfs_path[PATH_MAX];
 
 #if	defined(HASNULLFS)
 # if	!defined(HASPRINTDEV)
@@ -328,7 +330,9 @@ process_vnode(struct kinfo_file *kf, struct xfile *xfile)
 	struct stat st;
 	const int kf_vtype = kf->kf_vnode_type;
 
+	fsid = kf->kf_un.kf_file.kf_file_fsid;
 	va = xfile ? xfile->xf_vnode : 0;
+	strcpy(vfs_path, kf->kf_path);
 
 #if	defined(HASNULLFS)
 
@@ -371,8 +375,9 @@ process_overlaid_node:
 /*
  * Get the vnode type.
  */
-	vfs = readvfs(kf->kf_un.kf_file.kf_file_fsid, kf->kf_path);
+	vfs = readvfs(fsid, vfs_path);
 	if (vfs) {
+	    fsid = vfs->fsid;
 
 #if	defined(MOUNT_NONE)
 	    switch (vfs->type) {
@@ -438,10 +443,10 @@ process_overlaid_node:
 		    if (vfs->fsid != VNOVAL) {
 
 #if	defined(HASPRINTDEV)
-			dp = HASPRINTDEV(Lf, &dev);
+			dp = HASPRINTDEV(Lf, &vfs->fsid);
 #else	/* !defined(HASPRINTDEV) */
 			(void) snpf(dbuf, sizeof(dbuf) - 1, "%d,%d",
-			    GET_MAJ_DEV(dev), GET_MIN_DEV(dev));
+			    GET_MAJ_DEV(vfs->fsid), GET_MIN_DEV(vfs->fsid));
 			dbuf[sizeof(dbuf) - 1] = '\0';
 			dp = dbuf;
 #endif	/* defined(HASPRINTDEV) */
@@ -463,20 +468,15 @@ process_overlaid_node:
 		    np = "(nullfs)";
 		(void) add_nma(np, (int)strlen(np));
 	    }
-	    if (!v
-	    ||  !v->v_data
-	    ||  kread((KA_T)v->v_data, (char *)&nu, sizeof(nu))) {
-		(void) snpf(Namech, Namechl, "can't read null_node at: %s",
-		    print_kptr(v ? (KA_T)v->v_data : 0, (char *)NULL, 0));
-		enter_nm(Namech);
-		return;
-	    }
-	    if (!nu.null_lowervp) {
-		(void) snpf(Namech, Namechl, "null_node overlays nothing");
-		enter_nm(Namech);
-		return;
-	    }
-	    va = (KA_T)nu.null_lowervp;
+	    fsid = VNOVAL;
+	    /* -------dir--------
+	     * /nullfs_mountpoint/path/to/file
+	     * /original_mountpoint/path/to/file
+	     * ------fsname--------
+	     */
+	    memmove(&vfs_path[strlen(vfs->fsname) + 1], &vfs_path[strlen(vfs->dir) + 1],
+		strlen(vfs_path) - strlen(vfs->dir) + 1);
+	    memcpy(vfs_path, vfs->fsname, strlen(vfs->fsname));
 	    goto process_overlaid_node;
 #endif	/* defined(HASNULLFS) */
 
@@ -485,8 +485,8 @@ process_overlaid_node:
 /*
  * Get device and type for printing.
  */
-	if (kf->kf_un.kf_file.kf_file_fsid != VNOVAL) {
-	    dev = kf->kf_un.kf_file.kf_file_fsid;
+	if (fsid != VNOVAL) {
+	    dev = fsid;
 	    devs = 1;
 	}
 	if (kf_vtype == KF_VTYPE_VCHR || kf_vtype == KF_VTYPE_VBLK) {
