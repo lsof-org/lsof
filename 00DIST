@@ -5290,6 +5290,9 @@ July 14, 2018
 		found
 		submitted by @emaste
 
+               Fix broken LSOF_CFLAGS_OVERRIDE.
+               Provided by Fabrice Fontaine in #172.
+
 
 The lsof-org team at GitHub
 November 25, 2020
