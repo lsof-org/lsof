@@ -17,14 +17,14 @@ v6addr=abcd:ef10:ffff:ffff:ffff:ffff:ffff:ff62
 port=9999
 dev=lo
 
-if ! ip -6 address add "${v6addr}" dev "${dev}"; then
+if ! ip -6 address add "${v6addr}" dev "${dev}" 2>> "${report}"; then
     echo "failed to add ipv6 address "${v6addr}" to ${dev}" >> "${report}"
     exit 2
 fi
 
 ip -6 address show >> "${report}"
 
-nc -6 -l "${v6addr}" "${port}" &
+nc -6 -l "${v6addr}" "${port}" 2>> "${report}" &
 pid=$!
 
 sleep 1
@@ -37,10 +37,10 @@ if "${lsof}" -p "${pid}" -a -d fd -P -n -F n \
     result=0
 fi
 
-nc -6 "${v6addr}" "${port}" < /dev/null > /dev/null
+nc -6 "${v6addr}" "${port}" < /dev/null > /dev/null 2>> "${report}"
 sleep 1
 
-ip -6 address delete "${v6addr}" dev "${dev}"
+ip -6 address delete "${v6addr}" dev "${dev}" 2>> "${report}"
 
 if [[ "${result}" != 0 ]]; then
     echo "failed to find \"$expectation\" in the outpuf of lsof" >> "${report}"

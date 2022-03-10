@@ -1,0 +1,35 @@
+# Use the latest 2.1 version of CircleCI pipeline process engine.
+# See: https://circleci.com/docs/2.0/configuration-reference
+version: 2.1
+
+# Define a job to be invoked later in a workflow.
+# See: https://circleci.com/docs/2.0/configuration-reference/#jobs
+jobs:
+  fedora35:
+    docker:
+      - image: docker.io/fedora:35
+    steps:
+      - run:
+          name: Install build tools
+          command: |
+            dnf -y install git gcc make sudo nmap-ncat iproute
+      - checkout
+      - run:
+          name: Configure
+          command: |
+            ./Configure -n linux
+      - run:
+          name: Build
+          command: |
+            make -j 2
+      - run:
+          name: Test
+          command: |
+            bash ./check.bash linux
+
+# Invoke jobs via workflows
+# See: https://circleci.com/docs/2.0/configuration-reference/#workflows
+workflows:
+  gnulinux-workflow:
+    jobs:
+      - fedora35
