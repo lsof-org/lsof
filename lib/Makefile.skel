@@ -21,8 +21,8 @@ OBJ=	ckkv.o cvfs.o dvch.o fino.o isfn.o lkud.o pdvn.o prfp.o \
 all:	${LIB}
 
 ${LIB}:	${OBJ}
-	${AR}
-	${RANLIB}
+	${AR} cr ${LIB} ${OBJ}
+	${RANLIB} ${LIB}
 
 clean:	FRC
 	rm -f ${LIB} ${OBJ} errs Makefile.bak a.out core
