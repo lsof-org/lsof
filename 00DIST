@@ -5232,6 +5232,7 @@ July 14, 2018
 		Provided by @dilinger (Andres Salomon) in #149.
 		A commit in the pull request includes work of Nicholas Bamber.
 
+
 		Drop LSOF_CCDATE across all dialects to ensure reproducible builds
 		Simplify things for reproducible builds by just getting rid of
 		the embedded date/time string. With LSOF_CCDATE gone, keeping
@@ -5274,17 +5275,21 @@ July 14, 2018
 		- fix spelling
 		Provided by @a1346054 in #163.
 
+
 		man page: fix hyphen issues
 		Properly use '-' and '\-' in the man page, ensuring that users
 		can cut & paste commandline options without issue. Original
 		patch from Raoul Gunnar Borenius <borenius@dfn.de>, and
 		submitted/expanded by @dilinger (Andres Salomon) in #168.
 
+
 		[FreeBSD] update for FreeBSD 13 & 14, and various internal changes
 		submitted by @DmitryAndric & @emaste.
 
+
 		[FreeBSD] remove various old FreeBSD versions from support
 		submitted by @emaste
+
 
 		[FreeBSD] configure: suggest variable to set if FreeBSD sys not
 		found
