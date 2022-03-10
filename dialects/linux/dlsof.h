@@ -71,6 +71,7 @@
 #include <linux/if_ether.h>
 #include <linux/netlink.h>
 
+#include <sys/syscall.h>
 
 /*
  * This definition is needed for the common function prototype definitions
