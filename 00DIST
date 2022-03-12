@@ -5296,6 +5296,9 @@ July 14, 2018
 		Fix broken AR and RANLIB when cross-compiling.
 		Provided by Fabrice Fontaine in #194.
 
+		[linux] Remove sysvlegacy function.
+		Provided by Fabrice Fontaine in #195.
+
 
 The lsof-org team at GitHub
 November 25, 2020
