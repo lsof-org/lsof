@@ -5295,11 +5295,14 @@ July 14, 2018
 		found
 		submitted by @emaste
 
-               Fix broken LSOF_CFLAGS_OVERRIDE.
-               Provided by Fabrice Fontaine in #172.
+		Fix broken LSOF_CFLAGS_OVERRIDE.
+		Provided by Fabrice Fontaine in #172.
 
-               Fix broken AR and RANLIB when cross-compiling.
-               Provided by Fabrice Fontaine in #194.
+		Fix broken AR and RANLIB when cross-compiling.
+		Provided by Fabrice Fontaine in #194.
+
+		[linux] Remove sysvlegacy function.
+		Provided by Fabrice Fontaine in #195.
 
 
 		[linux] use close_range instead of calling close repeatedly
