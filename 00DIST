@@ -5298,6 +5298,9 @@ July 14, 2018
                Fix broken LSOF_CFLAGS_OVERRIDE.
                Provided by Fabrice Fontaine in #172.
 
+               Fix broken AR and RANLIB when cross-compiling.
+               Provided by Fabrice Fontaine in #194.
+
 
 		[linux] use close_range instead of calling close repeatedly
 		At the starting up, lsof closes its file descriptors greater
