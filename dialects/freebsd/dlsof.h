@@ -52,23 +52,6 @@
 #include <sys/_lock.h>
 #undef _KERNEL
 #endif         /* FREEBSDV>=13000 */
-#   if	FREEBSDV<6020
-#    if	defined(__alpha__)
-/*
- * For Alpha below 6.2, #include <machine/pcpu.h> before #define'ing _KERNEL.
- * Then #define PCPU_MD_FIELDS independently.  This hack avoids a compiler
- * complaint about register use.
- */
-
-#include <machine/pcpu.h>
-#define PCPU_MD_FIELDS                                                  \
-	struct alpha_pcb pc_idlepcb;            /* pcb for idling */    \
-	u_int64_t       pc_idlepcbphys;         /* pa of pc_idlepcb */  \
-	u_int64_t       pc_pending_ipis;        /* pending IPI's */     \
-	u_int32_t       pc_next_asn;            /* next ASN to alloc */ \
-	u_int32_t       pc_current_asngen       /* ASN rollover check */
-#    endif	/* defined(__alpha__) */
-#   endif	/* FREEBSDV<6020 */
 #define	_KERNEL	1
 
 #  if	defined(HAS_VM_MEMATTR_T)
@@ -552,7 +535,7 @@ struct lock_list {
  */
 
 struct	namecache {
-#   if  __FreeBSD_version < 1202000 || (__FreeBSD_version >= 1300000 && __FreeBSD_version < 1300105)
+#   if  __FreeBSD_version >= 1300000 && __FreeBSD_version < 1300105
 	LIST_ENTRY(namecache) nc_hash;	/* hash chain */
 	LIST_ENTRY(namecache) nc_src;	/* source vnode list */
 	TAILQ_ENTRY(namecache) nc_dst;	/* destination vnode list */
