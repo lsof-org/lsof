@@ -1418,117 +1418,6 @@ kernel generation process.
     # If the FreeBSD version isn't pre-defined, determine it.
 
       case $LSOF_VSTR in	# {
-      5.0*)
-	LSOF_TSTBIGF=" "
-	LSOF_VERS=5000
-	;;
-      5.1*)
-	LSOF_TSTBIGF=" "
-	LSOF_VERS=5010
-	;;
-      5.2*)
-	LSOF_TSTBIGF=" "
-	LSOF_VERS=5020
-	;;
-      5.3*)
-	LSOF_TSTBIGF=" "
-	LSOF_VERS=5030
-	;;
-      5.4*)
-	LSOF_TSTBIGF=" "
-	LSOF_VERS=5040
-	;;
-      5.5*)
-	LSOF_TSTBIGF=" "
-	LSOF_VERS=5050
-	;;
-      5*)
-	LSOF_VERS=5050
-	echo "!!!WARNING!!!  Unsupported FreeBSD version: $LSOF_VSTR"
-	echo "!!!WARNING!!!  Configuring for FreeBSD 5.5"
-	;;
-      6.0*)
-	LSOF_TSTBIGF=" "
-	LSOF_VERS=6000
-	;;
-      6.1*)
-	LSOF_TSTBIGF=" "
-	LSOF_VERS=6010
-	;;
-      6.2*)
-	LSOF_TSTBIGF=" "
-	LSOF_VERS=6020
-	;;
-      6.3*)
-	LSOF_TSTBIGF=" "
-	LSOF_VERS=6030
-	;;
-      6.4*)
-	LSOF_TSTBIGF=" "
-	LSOF_VERS=6040
-	;;
-      6*)
-	LSOF_VERS=6000
-	echo "!!!WARNING!!!  Unsupported FreeBSD version: $LSOF_VSTR"
-	echo "!!!WARNING!!!  Configuring for FreeBSD 6.0"
-	;;
-      7.0*)
-	LSOF_TSTBIGF=" "
-	LSOF_VERS=7000
-	;;
-      7.1*)
-	LSOF_TSTBIGF=" "
-	LSOF_VERS=7010
-	;;
-      7.2*)
-	LSOF_TSTBIGF=" "
-	LSOF_VERS=7020
-	;;
-      7.3*)
-	LSOF_TSTBIGF=" "
-	LSOF_VERS=7030
-	;;
-      7.4*)
-	LSOF_TSTBIGF=" "
-	LSOF_VERS=7040
-	;;
-      7*)
-	LSOF_VERS=7000
-	echo "!!!WARNING!!!  Unsupported FreeBSD version: $LSOF_VSTR"
-	echo "!!!WARNING!!!  Configuring for FreeBSD 7.0"
-	;;
-      8.0*)
-	LSOF_TSTBIGF=" "
-	LSOF_VERS=8000
-	;;
-      8.1*)
-	LSOF_TSTBIGF=" "
-	LSOF_VERS=8010
-	;;
-      8.2*)
-	LSOF_TSTBIGF=" "
-	LSOF_VERS=8020
-	;;
-      8.3*)
-	LSOF_TSTBIGF=" "
-	LSOF_VERS=8030
-	;;
-      8.4*)
-	LSOF_TSTBIGF=" "
-	LSOF_VERS=8040
-	;;
-      9*)
-	LSOF_TSTBIGF=" "
-	LSOF_VERS=9000
-	;;
-      10*)
-	LSOF_TSTBIGF=" "
-	LSOF_VERS=10000
-	;;
-      11*)
-	LSOF_TSTBIGF=" "
-	LSOF_VERS=11000
-	;;
       12*)
 	LSOF_TSTBIGF=" "
 	LSOF_VERS=12000
@@ -1552,7 +1441,7 @@ kernel generation process.
     # Clear LSOF_UNSUP message for supported versions of FreeBSD.
 
     case $LSOF_VERS in  # {
-    4090|8020|8030|8040|9000|10000|11000|12000|13000|14000)
+    12000|13000|14000)
       LSOF_UNSUP=""
       ;;
     esac	# }
