@@ -5295,6 +5295,7 @@ July 14, 2018
 		found
 		submitted by @emaste
 
+
 		Fix broken LSOF_CFLAGS_OVERRIDE.
 		Provided by Fabrice Fontaine in #172.
 
@@ -5312,13 +5313,18 @@ July 14, 2018
 
 
 		Add -Q option for adjusting exit status when failed to find a
-		search item
+		search item (#129)
 		In the original code, lsof returned 1 when it failed to find a
 		search item. With the new option, lsof returns 0 in the case.
 
-		Document -Q option in manpage/00QUICKSTART, and adjust -h
-		output by @dilinger (Andres Salomon).
 
+		Document -Q option in manpage/00QUICKSTART, and adjust -h
+		output by @dilinger (Andres Salomon) in #129.
+
+
+		Improve readability of complex adverbial clause by adding a
+		comma.
+		Provided by Danny Fowler in #156.
 
 The lsof-org team at GitHub
 November 25, 2020
