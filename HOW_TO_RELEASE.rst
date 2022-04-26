@@ -37,8 +37,26 @@ e.g.
      In this case, you can use 4.94.0 as the version number.  If the
      condition doesn't meet, use 4.94.1 (or 4.95.0).
 
+3. Put a tag with Git
+=======================================================
 
-3. Make the source archive for the release
+NOTE: this step is an optional if the commit for releasing is already
+tagged via another dialect.
+
+The tag you will put should have the same name as the version given in
+the step 2.
+
+Do "git tag" like::
+
+  $ git tag 4.95.0-this-is-an-example
+  $ git push upstream 4.95.0-this-is-an-example
+
+If you took a mistake, you can delete the tag like::
+
+  $ git tag -d 4.95.0-this-is-an-example
+  $ git push upstream :4.95.0-this-is-an-example
+
+4. Make the source archive for the release
 =======================================================
 ::
 
@@ -61,49 +79,49 @@ e.g.
    $ make
    $ make check (if your dialect support the target)
 
-4. Visit https://github.com/lsof-org/lsof/releases
+5. Visit https://github.com/lsof-org/lsof/releases
 ========================================================================
 
-4.1 Click [Draft new release]
+5.1 Click [Draft new release]
 ------------------------------------------------------------------------
 
-4.2 Fill the fields
+5.2 Fill the fields
 ------------------------------------------------------------------------
 
-4.2.1 Fill "Tag version"
+5.2.1 Choose a tag
 ........................................................................
 
-Fill with the version number given in the step 2.
+Choose with the tag given in the step 3.
 
-4.2.2 Fill "Release title"
+5.2.2 Fill "Release title"
 ........................................................................
 
 Use the following form lsof-${theVersionNumber}-${dialect}.
 
 e.g. lsof-4.94.0-linux
 
-4.2.3 Fill "Describe this release"
+5.2.3 Fill "Describe this release"
 ........................................................................
 
 Copy and paste the changes described in 00DIST since the last release in
 your dialect.
 
-4.2.4 Put the source archive generated step in 3.
+5.2.4 Put the source archive generated step in 4.
 ........................................................................
 
 Click "Attach binaries by dropping them here or selecting them. ", then
 specify the archive file.
 
-4.2.5 Check "This is a pre-release"
+5.2.5 Check "This is a pre-release"
 ........................................................................
 
-4.2.6 Click [Publish release]
+5.2.6 Click [Publish release]
 ........................................................................
 
-5. Verify the release
+6. Verify the release
 ========================================================================
 
-After step 4.2.6, the browser may show the page for the release. You can
+After step 5.2.6, the browser may show the page for the release. You can
 re-read the description and the source code archives. You can verify
 what you did here.
 
