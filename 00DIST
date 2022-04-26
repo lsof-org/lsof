@@ -5316,6 +5316,9 @@ July 14, 2018
 		In the original code, lsof returned 1 when it failed to find a
 		search item. With the new option, lsof returns 0 in the case.
 
+		Document -Q option in manpage/00QUICKSTART, and adjust -h
+		output by @dilinger (Andres Salomon).
+
 
 The lsof-org team at GitHub
 November 25, 2020

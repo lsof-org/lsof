@@ -559,6 +559,7 @@ usage(err, fh, version)
 	    col = print_in_col(col, "-o list file offset");
 	    col = print_in_col(col, "-O no overhead *RISKY*");
 	    col = print_in_col(col, "-P no port names");
+	    col = print_in_col(col, "-Q allow failed search");
 
 #if	defined(HASPPID)
 	     col = print_in_col(col, "-R list paRent PID");
