@@ -166,7 +166,7 @@ gather_proc_info()
 		(void) fprintf(stderr,
 		    "%s: can't allocate %d FD status entries\n", Pn,
 		    FDS_ALLOC_INIT);
-		Exit(1);
+		Error();
 	    }
 	    for (fdsa = 0; fdsa < FDS_ALLOC_INIT; fdsa++) {
 		if (Fand && Fdl)
@@ -330,7 +330,7 @@ gather_proc_info()
 			    (void) fprintf(stderr,
 				"%s: can't reallocate %d FD status entries\n",
 				Pn, l);
-			    Exit(1);
+			    Error();
 			}
 			while (fdsa < l) {
 			    fds[fdsa] = (ck_fd_status(NULL, fdsa) == 2) ? 1 : 0;
@@ -474,13 +474,13 @@ get_kernel_access()
 	    (void) fprintf(stderr,
 		"%s: FATAL: can't determine PSTAT static size: %s\n",
 		Pn, strerror(errno));
-	    Exit(1);
+	    Error();
 	}
 	if (pstat_getstatic(&pst, (size_t)pst.pst_static_size, 1, 0) != 1) {
 	    (void) fprintf(stderr,
 		"%s: FATAL: can't read %ld bytes of pst_static\n",
 		Pn, (long)pst.pst_static_size);
-	    Exit(1);
+	    Error();
 	}
 /*
  * Check all the pst_static members defined in PstatCk[].
@@ -511,7 +511,7 @@ get_kernel_access()
 	}
 	if (!err)
 	    return;
-	Exit(1);
+	Error();
 }
 
 
@@ -580,7 +580,7 @@ no_txtvm_space:
 		(void) fprintf(stderr,
 		    "%s: no memory for text and VM info array; PID: %d\n",
 		    Pn, (int)p->pst_pid);
-		Exit(1);
+		Error();
 	    }
 	}
 /*
@@ -733,7 +733,7 @@ read_files(p, n)
 		    (void) fprintf(stderr,
 			"%s: can't allocate %d bytes for pst_filinfo\n",
 			Pn, nb);
-		    Exit(1);
+		    Error();
 		}
 	    }
 	/*
@@ -788,7 +788,7 @@ ps_alloc_error:
 		    (void) fprintf(stderr,
 			"%s: can't allocate %d bytes for pst_status table\n",
 			Pn, nb);
-		    Exit(1);
+		    Error();
 		}
 	    }
 	/*
@@ -850,7 +850,7 @@ read_vmreg(p, n)
 		    (void) fprintf(stderr,
 			"%s: can't allocate %d bytes for pst_vm_status\n",
 			Pn, nb);
-		    Exit(1);
+		    Error();
 		}
 	    }
 	/*

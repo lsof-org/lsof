@@ -155,7 +155,7 @@ printdevname_again:
 	    if (!(cp = (char *)malloc((MALLOC_S)(len + 1)))) {
 		(void) fprintf(stderr, "%s: no nma space for: (%s %s)\n",
 		    Pn, ttl, dp->name);
-		Exit(1);
+		Error();
 	    }
 	    (void) snpf(cp, len + 1, "(%s %s)", ttl, dp->name);
 	    (void) add_nma(cp, len);

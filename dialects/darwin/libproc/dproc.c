@@ -151,7 +151,7 @@ enter_vn_text(vip, n)
 	    if (!Vips) {
 		(void) fprintf(stderr, "%s: PID %d: no text recording space\n",
 		    Pn, Lp->pid);
-		Exit(1);
+		Error();
 	    }
 	}
 /*
@@ -241,7 +241,7 @@ gather_proc_info()
 	if ((nb = proc_listpids(PROC_ALL_PIDS, 0, NULL, 0)) <= 0) {
 	    (void) fprintf(stderr, "%s: can't get PID byte count: %s\n",
 		Pn, strerror(errno));
-	    Exit(1);
+	    Error();
 	}
 	if (nb > NbPids) {
 	    while (nb > NbPids) {
@@ -255,7 +255,7 @@ gather_proc_info()
 		(void) fprintf(stderr,
 		    "%s: can't allocate space for %d PIDs\n", Pn,
 		    (int)(NbPids / sizeof(int *)));
-		Exit(1);
+		Error();
 	    }
 	}
 /*
@@ -265,7 +265,7 @@ gather_proc_info()
 	    if ((nb = proc_listpids(PROC_ALL_PIDS, 0, Pids, NbPids)) <= 0) {
 		(void) fprintf(stderr, "%s: can't get list of PIDs: %s\n",
 		    Pn, strerror(errno));
-		Exit(1);
+		Error();
 	    }
 
 	    if ((nb + sizeof(int)) < NbPids) {
@@ -286,7 +286,7 @@ gather_proc_info()
 		    (void) fprintf(stderr,
 			"%s: can't allocate space for %d PIDs\n", Pn,
 			(int)(NbPids / sizeof(int *)));
-		    Exit(1);
+		    Error();
 		}
 	    }
 	}
@@ -312,7 +312,7 @@ gather_proc_info()
 		(void) fprintf(stderr,
 		    "      too few bytes; expected %ld, got %d\n",
 		    sizeof(tai), nb);
-		Exit(1);
+		Error();
 	    }
 	/*
 	 * Check for process or command exclusion.
@@ -355,7 +355,7 @@ gather_proc_info()
 		    (void) fprintf(stderr,
 			"      too few bytes; expected %ld, got %d\n",
 			sizeof(vpi), nb);
-		    Exit(1);
+		    Error();
 		} else
 		    cres = 0;
 	    }
@@ -488,7 +488,7 @@ process_fds(pid, n, ckscko)
 	    (void) fprintf(stderr,
 		"%s: PID %d: can't allocate space for %d FDs\n",
 		Pn, pid, (int)(NbFds / sizeof(struct proc_fdinfo)));
-	    Exit(1);
+	    Error();
 	}
 /*
  * Get FD information for the process.
@@ -623,7 +623,7 @@ process_fileports(pid, ckscko)
 		if (Fps && ((nb = proc_pidinfo(pid, PROC_PIDLISTFILEPORTS, 0, NULL, 0)) <= 0)) {
 		    (void) fprintf(stderr, "%s: can't get fileport byte count: %s\n",
 					Pn, strerror(errno));
-		    Exit(1);
+		    Error();
 		}
 
 		/*
@@ -728,7 +728,7 @@ process_text(pid)
 		(void) fprintf(stderr,
 		    "      too few bytes; expected %ld, got %d\n",
 		    sizeof(rwpi), nb);
-		Exit(1);
+		Error();
 	    }
 	    if (rwpi.prp_vip.vip_path[0])
 		enter_vn_text(&rwpi.prp_vip, &n);
@@ -768,7 +768,7 @@ process_threads(pid, n)
 		(void) fprintf(stderr,
 		    "%s: can't allocate space for %d Threads\n", Pn,
 		    (int)(NbThreads / sizeof(int *)));
-		Exit(1);
+		Error();
 	    }
 	}
 /*
@@ -824,7 +824,7 @@ process_threads(pid, n)
 		(void) fprintf(stderr,
 		    "      too few bytes; expected %ld, got %d\n",
 		    sizeof(tpi), nb);
-		Exit(1);
+		Error();
 	    }
 	    if (tpi.pvip.vip_path[0]) {
 		alloc_lfile(TWD, -1);

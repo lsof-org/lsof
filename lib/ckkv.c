@@ -67,7 +67,7 @@ ckkv(d, er, ev, ea)
 	if (uname(&u) < 0) {
 	    (void) fprintf(stderr, "%s: uname error: %s\n",
 		Pn, strerror(errno));
-	    Exit(1);
+	    Error();
 	}
 	if (er && strcmp(er, u.release)) {
 	    (void) fprintf(stderr,

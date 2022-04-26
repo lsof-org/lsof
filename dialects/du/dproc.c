@@ -130,7 +130,7 @@ enter_vn_text(va, n)
 	    if (!Vp) {
 		(void) fprintf(stderr, "%s: no txt ptr space, PID %d\n",
 		    Pn, Lp->pid);
-		Exit(1);
+		Error();
 	    }
 	}
 /*
@@ -284,7 +284,7 @@ gather_proc_info()
 				(void) fprintf(stderr,
 				    "%s: PID %d, no file * space\n",
 				    Pn, Lp->pid);
-				Exit(1);
+				Error();
 			    }
 			    nufb = b;
 			}
@@ -305,7 +305,7 @@ gather_proc_info()
 				    (void) fprintf(stderr,
 					"%s: PID %d: no file flags space\n",
 					Pn, Lp->pid);
-				    Exit(1);
+				    Error();
 				}
 				pofb = b;
 			    }
@@ -444,7 +444,7 @@ get_kernel_access()
 	    if (!(Nmlst = get_nlist_path(1))) {
 		(void) fprintf(stderr, "%s: can't get kernel name list path\n",
 		    Pn);
-		Exit(1);
+		Error();
 	    }
 	}
 #endif	/* DUV<40000 */
@@ -461,7 +461,7 @@ get_kernel_access()
  * See if the non-KMEM memory file is readable.
  */
 	if (Memory && !is_readable(Memory, 1))
-	    Exit(1);
+	    Error();
 #endif	/* defined(WILLDROPGID) */
 
 /*
@@ -470,7 +470,7 @@ get_kernel_access()
 	if ((Kd = open(Memory ? Memory : KMEM, O_RDONLY, 0)) < 0) {
 	    (void) fprintf(stderr, "%s: can't open %s: %s\n", Pn,
 		Memory ? Memory : KMEM, sys_errlist[errno]);
-	    Exit(1);
+	    Error();
 	}
 
 #if	defined(WILLDROPGID)
@@ -484,7 +484,7 @@ get_kernel_access()
  * See if the name list file is readable.
  */
 	if (Nmlst && !is_readable(Nmlst, 1))
-	    Exit(1);
+	    Error();
 #endif	/* defined(WILLDROPGID) */
 
 /*
@@ -503,7 +503,7 @@ get_kernel_access()
 	    (void) fprintf(stderr,
 		"%s: can't read kernel name list from %s: %s\n",
 		Pn, Nmlst ? Nmlst : "knlist(3)", strerror(errno));
-	    Exit(1);
+	    Error();
 	}
 
 #if	DUV<30000
@@ -520,12 +520,12 @@ get_kernel_access()
 
 	{
 	    (void) fprintf(stderr, "%s: can't read proc table info\n", Pn);
-	    Exit(1);
+	    Error();
 	}
 	if (get_Nl_value("vnmaxp", Drive_Nl, &v) < 0 || !v
 	||  kread(v, (char *)&Vnmxp, sizeof(Vnmxp))) {
 	    (void) fprintf(stderr, "%s: can't determine vnode length\n", Pn);
-	    Exit(1);
+	    Error();
 	}
 	if (get_Nl_value("cldev", Drive_Nl, &v) < 0 || !v
 	||  kread(v, (char *)&dev, sizeof(dev))) {
@@ -564,7 +564,7 @@ get_nlist_path(ap)
 	    if (rv < 0) {
 		(void) fprintf(stderr, "%s: can't get booted file name: %s\n",
 		    Pn, strerror(errno));
-		Exit(1);
+		Error();
 	    }
 	    return((char *)NULL);
 	}
@@ -599,7 +599,7 @@ get_nlist_path(ap)
 	    (void) fprintf(stderr,
 		"%s: can't allocate %d bytes for boot file path: %s\n",
 		Pn, len, ba);
-	    Exit(1);
+	    Error();
 	}
 	(void) snpf(ps, len, "%s", ba);
 	return(ps);
@@ -812,13 +812,13 @@ read_proc()
 	 */
 	    if (Np < 1) {
 		(void) fprintf(stderr, "%s: proc table has no entries\n", Pn);
-		Exit(1);
+		Error();
 	    }
 	    len = (MALLOC_S)(PAPSINIT * sizeof(struct proc));
 	    if (!(Ps = (struct proc *)malloc(len))) {
 		(void) fprintf(stderr, "%s: no proc table space (%d bytes)\n",
 		    Pn, len);
-		Exit(1);
+		Error();
 	    }
 
 #if	DUV>=30000
@@ -829,7 +829,7 @@ read_proc()
 	    if (!(Pa = (KA_T *)malloc(len))) {
 		(void) fprintf(stderr,
 		    "%s: no proc address table space (%d bytes)\n", Pn, len);
-		Exit(1);
+		Error();
 	    }
 #endif	/* DUV>=30000 */
 
@@ -852,7 +852,7 @@ read_proc()
 			(void) fprintf(stderr,
 			    "%s: no more proc table space (%d bytes)\n",
 			    Pn, len);
-			Exit(1);
+			Error();
 		    }
 		    p = &Ps[Psn];
 
@@ -862,7 +862,7 @@ read_proc()
 			(void) fprintf(stderr,
 			    "%s: no more proc address table space (%d bytes)\n",
 			    Pn, len);
-			Exit(1);
+			Error();
 		    }
 #endif	/* DUV>=30000 */
 
@@ -898,7 +898,7 @@ read_proc()
  */
 	if (try >= PROCTRYLM) {
 	    (void) fprintf(stderr, "%s: can't read proc table\n", Pn);
-	    Exit(1);
+	    Error();
 	}
 	if (Psn < Np && !RptTm) {
 
@@ -912,7 +912,7 @@ read_proc()
 		(void) fprintf(stderr,
 		    "%s: can't reduce proc table to %d bytes\n",
 		    Pn, len);
-		Exit(1);
+		Error();
 	    }
 
 #if	DUV>=30000
@@ -921,7 +921,7 @@ read_proc()
 		(void) fprintf(stderr,
 		    "%s: can't reduce proc address table to %d bytes\n",
 		    Pn, len);
-		Exit(1);
+		Error();
 	    }
 #endif	/* DUV>=30000 */
 
@@ -1204,7 +1204,7 @@ ncache_ckrootid(na, id)
 	    if (!ic) {
 		(void) fprintf(stderr,
 		    "%s: no space for root node VPID table\n", Pn);
-		Exit(1);
+		Error();
 	    }
 	    nia += 10;
 	}
@@ -1291,7 +1291,7 @@ ncache_isroot(na, cp)
 	    if (!nc) {
 		(void) fprintf(stderr,
 		    "%s: no space for root node address table\n", Pn);
-		Exit(1);
+		Error();
 	    }
 	    nca += 10;
 	}
@@ -1374,7 +1374,7 @@ ncache_load()
 		(void) fprintf(stderr,
 		    "%s: can't allocate %d bytes for processor addresses\n",
 			Pn, len);
-		Exit(1);
+		Error();
 	    }
 	    if (kread(ka, (char *)pp, len)) {
 		if (!Fwarn)
@@ -1422,7 +1422,7 @@ ncache_load()
 		(void) fprintf(stderr,
 		    "%s: no space for %d namecache entries (%d bytes)\n",
 		    Pn, ncpc * ncpus, len);
-		Exit(1);
+		Error();
 	    }
 	} else {
 
@@ -1469,7 +1469,7 @@ ncache_load()
 		(void) fprintf(stderr,
 		    "%s: no space for %d byte name cache hash buckets\n",
 		    Pn, (int)(i * sizeof(struct l_nch *)));
-	    Exit(1);
+	    Error();
 	}
 /*
  * Assign hash pointers to the accumulated namecache entries.
@@ -1502,7 +1502,7 @@ ncache_load()
 	 */
 	    if (!(lp = (struct l_nch *)malloc(sizeof(struct l_nch)))) {
 		(void) fprintf(stderr, "%s: can't allocate l_nch entry\n", Pn);
-		Exit(1);
+		Error();
 	    }
 	    lp->nc = &nc[i];
 	    lp->nxt = Nchash[h];

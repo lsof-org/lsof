@@ -142,7 +142,7 @@ ent_fa(a1, a2, d)
 	    (void) fprintf(stderr,
 		"%s: no space for fattach addresses at PID %d, FD %s\n",
 		Pn, Lp->pid, Lf->fd);
-	    Exit(1);
+	    Error();
 	}
 	(void) snpf(cp, len, "%s", buf);
 	Lf->nma = cp;
@@ -309,7 +309,7 @@ examine_stream(vs, q, mch, mn, sn, sqp)
 		    if (!ab) {
 			(void) fprintf(stderr,
 			    "%s: no space for stream chain", Pn);
-			Exit(1);
+			Error();
 		    }
 		}
 		(void) snpf(ap, aba - (al - 1), "%s%s",
@@ -1436,7 +1436,7 @@ get_lock_state:
 		    (void) fprintf(stderr,
 			"%s: can't allocate %d bytes for l_ino name addition\n",
 			msz, Pn);
-		    Exit(1);
+		    Error();
 		}
 		(void) snpf(cp, msz + 1, "%s", i.nm);
 		Lf->nma = cp;

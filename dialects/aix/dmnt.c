@@ -229,7 +229,7 @@ no_space_for_mount:
 
 		(void) fprintf(stderr, "%s: no space for mount at %s (%s)\n",
 		    Pn, fs, dir);
-		Exit(1);
+		Error();
 	    }
 	    if (!(ln = Readlink(dn))) {
 		if (!Fwarn) {

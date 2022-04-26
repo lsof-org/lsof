@@ -163,7 +163,7 @@ printdevname_again:
 	    if (!(cp = (char *)malloc((MALLOC_S)(len + 1)))) {
 		(void) fprintf(stderr, "%s: no nma space for: (%s %s)\n",
 		    Pn, ttl, dp->name);
-		Exit(1);
+		Error();
 	    }
 	    (void) snpf(cp, len + 1, "(%s %s)", ttl, dp->name);
 	    (void) add_nma(cp, len);
@@ -258,7 +258,7 @@ readdev(skip)
 	    {
 		(void) fprintf(stderr, "%s: no space for: ", Pn);
 		safestrprt(Dstk[Dstkx], stderr, 1);
-		Exit(1);
+		Error();
 	    }
 	    (void) free((FREE_P *)Dstk[Dstkx]);
 	    Dstk[Dstkx] = (char *)NULL;
@@ -281,7 +281,7 @@ readdev(skip)
 		    (void) fprintf(stderr, "%s: no space for: ", Pn);
 		    safestrprt(path, stderr, 0);
 		    safestrprt(dp->d_name, stderr, 1);
-		    Exit(1);
+		    Error();
 		}
 
 #if	defined(USE_STAT)
@@ -330,14 +330,14 @@ readdev(skip)
 			if (!Devtp) {
 			    (void) fprintf(stderr,
 				"%s: no space for character device\n", Pn);
-			    Exit(1);
+			    Error();
 			}
 		    }
 		    Devtp[i].inode = (INODETYPE)sb.st_ino;
 		    if (!(Devtp[i].name = mkstrcpy(fp, (MALLOC_S *)NULL))) {
 			(void) fprintf(stderr, "%s: no space for: ", Pn);
 			safestrprt(fp, stderr, 1);
-			Exit(1);
+			Error();
 		    }
 		    Devtp[i].rdev = sb.st_rdev;
 		    Devtp[i].v = 0;
@@ -352,7 +352,7 @@ readdev(skip)
 			    (void) fprintf(stderr,
 				"%s: no space for clone device: ", Pn);
 			    safestrprt(fp, stderr, 1);
-			    Exit(1);
+			    Error();
 			}
 			c->dx = i;
 			c->next = Clone;
@@ -379,7 +379,7 @@ readdev(skip)
 			if (!BDevtp) {
 			    (void) fprintf(stderr,
 				"%s: no space for block device\n", Pn);
-				Exit(1);
+				Error();
 			}
 		    }
 		    BDevtp[j].inode = (INODETYPE)sb.st_ino;
@@ -424,7 +424,7 @@ readdev(skip)
 	    {
 		(void) fprintf(stderr,
 		    "%s: no space for block device sort pointers\n", Pn);
-		Exit(1);
+		Error();
 	    }
 	    for (j = 0; j < BNdev; j++) {
 		BSdev[j] = &BDevtp[j];
@@ -454,7 +454,7 @@ readdev(skip)
 	    {
 		(void) fprintf(stderr,
 		    "%s: no space for character device sort pointers\n", Pn);
-		Exit(1);
+		Error();
 	    }
 	    for (i = 0; i < Ndev; i++) {
 		Sdev[i] = &Devtp[i];
@@ -464,7 +464,7 @@ readdev(skip)
 	    Ndev = rmdupdev(&Sdev, Ndev, "char");
 	} else {
 	    (void) fprintf(stderr, "%s: no character devices found\n", Pn);
-	    Exit(1);
+	    Error();
 	}
 
 #if	defined(HASDCACHE)
@@ -719,7 +719,7 @@ rmdupdev(dp, n, nm)
 	{
 	    (void) fprintf(stderr, "%s: can't realloc %s device pointers\n",
 		Pn, nm);
-	    Exit(1);
+	    Error();
 	}
 	return(j);
 }

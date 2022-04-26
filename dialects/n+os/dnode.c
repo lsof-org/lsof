@@ -196,7 +196,7 @@ load_svnc()
 		(void) fprintf(stderr,
 		    "%s: no space for %d local shadow vnode hash buckets\n",
 		    Pn, LF_SVNODE_HSZ);
-		Exit(1);
+		Error();
 	    }
 	}
 /*
@@ -223,7 +223,7 @@ load_svnc()
 		    (void) fprintf(stderr,
 			"%s: no space for local shadow vnode -- PID: %ld\n",
 			Pn, Lp->pid);
-		    Exit(1);
+		    Error();
 		}
 		lsv->vp = (KA_T)sv.lf_vnodep;
 		lsv->lp = (struct l_lockf *)NULL;
@@ -245,7 +245,7 @@ load_svnc()
 			(void) fprintf(stderr,
 			    "%s: no space for local lock struct -- PID: %ld\n",
 			    Pn, Lp->pid);
-			Exit(1);
+			Error();
 		    }
 		    lsf->type = lf.lf_type;
 		    lsf->start = lf.lf_start;
@@ -333,7 +333,7 @@ process_node(va)
 #endif	/* defined(HAS_AFS) */
 
 			      );
-		Exit(1);
+		Error();
 	    }
 	}
 	if (readvnode(va, v)) {

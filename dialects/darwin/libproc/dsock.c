@@ -411,7 +411,7 @@ process_socket(pid, fd)
 	    (void) fprintf(stderr,
 		"      too few bytes; expected %ld, got %d\n",
 		sizeof(si), nb);
-	    Exit(1);
+	    Error();
 	}
 
 	process_socket_common(&si);
@@ -440,7 +440,7 @@ process_fileport_socket(pid, fp)
 	    (void) fprintf(stderr,
 		"      too few bytes; expected %ld, got %d\n",
 		sizeof(si), nb);
-	    Exit(1);
+	    Error();
 	}
 
 	process_socket_common(&si);

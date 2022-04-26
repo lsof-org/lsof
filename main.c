@@ -64,10 +64,12 @@ main(argc, argv)
 	int argc;
 	char *argv[];
 {
-	int ad, c, i, n, rv, se1, se2, ss;
+	enum ExitStatus rv;
+	int gopt_rv;
+	int ad, c, i, n, se1, se2, ss;
 	char *cp;
 	int err = 0;
-	int ev = 0;
+	enum ExitStatus ev = LSOF_SUCCESS;
 	int fh = 0;
 	char *fmtr = (char *)NULL;
 	long l;
@@ -141,7 +143,7 @@ main(argc, argv)
 	while (((i = open("/dev/null", O_RDWR, 0)) >= 0) && (i < 2))
 	    ;
 	if (i < 0)
-	    Exit(1);
+	    Error();
 	if (i > 2)
 	    (void) close(i);
 	(void) umask(0);
@@ -164,14 +166,14 @@ main(argc, argv)
 	    Setuidroot = 1;
 	if (!(Namech = (char *)malloc(MAXPATHLEN + 1))) {
 	    (void) fprintf(stderr, "%s: no space for name buffer\n", Pn);
-	    Exit(1);
+	    Error();
 	}
 	Namechl = (size_t)(MAXPATHLEN + 1);
 /*
  * Create option mask.
  */
 	(void) snpf(options, sizeof(options),
-	    "?a%sbc:%sD:d:%s%sf:F:g:hi:%s%slL:%s%snNo:Op:Pr:%ss:S:tT:u:UvVwx:%s%s%s",
+	    "?a%sbc:%sD:d:%s%sf:F:g:hi:%s%slL:%s%snNo:Op:QPr:%ss:S:tT:u:UvVwx:%s%s%s",
 
 #if	defined(HAS_AFS) && defined(HASAOPT)
 	    "A:",
@@ -253,8 +255,8 @@ main(argc, argv)
 /*
  * Loop through options.
  */
-	while ((c = GetOpt(argc, argv, options, &rv)) != EOF) {
-	    if (rv) {
+	while ((c = GetOpt(argc, argv, options, &gopt_rv)) != EOF) {
+	    if (gopt_rv) {
 		err = 1;
 		continue;
 	    }
@@ -766,12 +768,17 @@ main(argc, argv)
 		if (enter_id(PID, GOv))
 		    err = 1;
 		break;
+	    case 'Q':
+		FsearchErr = 0;
+		break;
 	    case 'P':
 		Fport = (GOp == '-') ? 0 : 1;
 		break;
 	    case 'r':
-		if (GOp == '+')
-		    ev = rc = 1;
+		if (GOp == '+') {
+		    ev = LSOF_ERROR;
+		    rc = 1;
+		}
 		if (!GOv || *GOv == '-' || *GOv == '+') {
 		    RptTm = RPTTM;
 		    if (GOv) {
@@ -827,7 +834,7 @@ main(argc, argv)
 			(void) fprintf(stderr,
 			    "%s: no space (%d) for <fmt> result: \"%s\"\n",
 			    Pn, (int)fmtl, cp);
-			    Exit(1);
+			    Error();
 		    }
 		    if (util_strftime(fmtr, fmtl - 1, fmt) < 1) {
 			(void) fprintf(stderr, "%s: illegal <fmt>: \"%s\"\n",
@@ -1174,7 +1181,7 @@ main(argc, argv)
 			 (MALLOC_S)(sizeof(struct seluid) * Nuid))))
 	    {
 		(void) fprintf(stderr, "%s: can't realloc UID table\n", Pn);
-		Exit(1);
+		Error();
 	    }
 	    Mxuid = Nuid;
 	}
@@ -1247,7 +1254,7 @@ main(argc, argv)
 		    (void) fprintf(stderr, "%s: can't stat(/dev): %s\n", Pn,
 		    strerror(se2));
 		}
-		Exit(1);
+		Error();
 	    }
 	}
 	DevDev = sb.st_dev;
@@ -1255,8 +1262,8 @@ main(argc, argv)
  * Process the file arguments.
  */
 	if (GOx1 < argc) {
-	    if (ck_file_arg(GOx1, argc, argv, Ffilesys, 0, (struct stat *)NULL))
-		Exit(1);
+	    if (ck_file_arg(GOx1, argc, argv, Ffilesys, 0, (struct stat *)NULL, FsearchErr == 0))
+		Error();
 	}
 /*
  * Do dialect-specific initialization.
@@ -1304,7 +1311,7 @@ main(argc, argv)
  */
 	if (MntSup == 1) {
 	    (void) readmnt();
-	    Exit(0);
+	    Exit(LSOF_SUCCESS);
 	}
 #endif	/* defined(HASMNTSUP) */
 
@@ -1333,7 +1340,7 @@ main(argc, argv)
 		    if (!slp) {
 			(void) fprintf(stderr,
 			    "%s: no space for %d sort pointers\n", Pn, Nlproc);
-			Exit(1);
+			Error();
 		    }
 		}
 		for (i = 0; i < Nlproc; i++) {
@@ -1531,7 +1538,7 @@ main(argc, argv)
 		    if (!n)
 			break;
 		    else
-			ev = 0;
+			ev = LSOF_SUCCESS;
 		}
 
 #if	defined(HAS_STRFTIME)
@@ -1581,7 +1588,7 @@ main(argc, argv)
  * was; one, if not.  If -V was specified, report what was not displayed.
  */
 	(void) childx();
-	rv = 0;
+	rv = LSOF_SUCCESS;
 	for (str = Cmdl; str; str = str->next) {
 
 	/*
@@ -1589,7 +1596,7 @@ main(argc, argv)
 	 */
 	    if (str->f)
 		continue;
-	    rv = 1;
+	    rv = LSOF_SEARCH_FAILURE;
 	    if (Fverbose) {
 		(void) printf("%s: command not located: ", Pn);
 		safestrprt(str->str, stdout, 1);
@@ -1602,7 +1609,7 @@ main(argc, argv)
 	 */
 	    if (CmdRx[i].mc)
 		continue;
-	    rv = 1;
+	    rv = LSOF_SEARCH_FAILURE;
 	    if (Fverbose) {
 		(void) printf("%s: no command found for regex: ", Pn);
 		safestrprt(CmdRx[i].exp, stdout, 1);
@@ -1615,7 +1622,7 @@ main(argc, argv)
 	 */
 	    if (sfp->f)
 		continue;
-	    rv = 1;
+	    rv = LSOF_SEARCH_FAILURE;
 	    if (Fverbose) {
 		(void) printf("%s: no file%s use located: ", Pn,
 		    sfp->type ? "" : " system");
@@ -1628,7 +1635,7 @@ main(argc, argv)
 	 * Report on proc file system search results.
 	 */
 	    if (Procsrch && !Procfind) {
-		rv = 1;
+		rv = LSOF_SEARCH_FAILURE;
 		if (Fverbose) {
 		    (void) printf("%s: no file system use located: ", Pn);
 		    safestrprt(Mtprocfs ? Mtprocfs->dir : HASPROCFS, stdout, 1);
@@ -1639,7 +1646,7 @@ main(argc, argv)
 
 		for (pfi = Procfsid; pfi; pfi = pfi->next) {
 		    if (!pfi->f) {
-			rv = 1;
+			rv = LSOF_SEARCH_FAILURE;
 			if (Fverbose) {
 			    (void) printf("%s: no file use located: ", Pn);
 			    safestrprt(pfi->nm, stdout, 1);
@@ -1683,7 +1690,7 @@ main(argc, argv)
 	    }
 	    for (np = Nwad; np; np = np->next) {
 		if (!np->f && (cp = np->arg)) {
-		    rv = 1;
+		    rv = LSOF_SEARCH_FAILURE;
 		    if (Fverbose) {
 			(void) printf("%s: Internet address not located: ", Pn);
 			safestrprt(cp ? cp : "(unknown)", stdout, 1);
@@ -1696,7 +1703,7 @@ main(argc, argv)
 	/*
 	 * Report no Internet files located.
 	 */
-	    rv = 1;
+	    rv = LSOF_SEARCH_FAILURE;
 	    if (Fverbose)
 		(void) printf("%s: no Internet files located\n", Pn);
 	}
@@ -1709,7 +1716,7 @@ main(argc, argv)
 	 */
 	    for (i = 0; i < TcpNstates; i++) {
 		if (TcpStI[i] == 1) {
-		    rv = 1;
+		    rv = LSOF_SEARCH_FAILURE;
 		    if (Fverbose)
 			(void) printf("%s: TCP state not located: %s\n",
 			    Pn, TcpSt[i]);
@@ -1723,7 +1730,7 @@ main(argc, argv)
 	 */
 	    for (i = 0; i < UdpNstates; i++) {
 		if (UdpStI[i] == 1) {
-		    rv = 1;
+		    rv = LSOF_SEARCH_FAILURE;
 		    if (Fverbose)
 			(void) printf("%s: UDP state not located: %s\n",
 			    Pn, UdpSt[i]);
@@ -1737,7 +1744,7 @@ main(argc, argv)
 	/*
 	 * Report no NFS files located.
 	 */
-	    rv = 1;
+	    rv = LSOF_SEARCH_FAILURE;
 	    if (Fverbose)
 		(void) printf("%s: no NFS files located\n", Pn);
 	}
@@ -1748,7 +1755,7 @@ main(argc, argv)
 	 */
 	    if (Spid[i].f || Spid[i].x)
 		continue;
-	    rv = 1;
+	    rv = LSOF_SEARCH_FAILURE;
 	    if (Fverbose)
 		(void) printf("%s: process ID not located: %d\n",
 		    Pn, Spid[i].i);
@@ -1760,7 +1767,7 @@ main(argc, argv)
 	/*
 	 * Report no tasks located.
 	 */
-	    rv = 1;
+	    rv = LSOF_SEARCH_FAILURE;
 	    if (Fverbose)
 		(void) printf("%s: no tasks located\n", Pn);
 	}
@@ -1775,7 +1782,7 @@ main(argc, argv)
 	    for (i = 0; i < HASHZONE; i++) {
 		for (zp = ZoneArg[i]; zp; zp = zp->next) {
 		    if (!zp->f) {
-			rv = 1;
+			rv = LSOF_SEARCH_FAILURE;
 			if (Fverbose) {
 			    (void) printf("%s: zone not located: ", Pn);
 			    safestrprt(zp->zn, stdout, 1);
@@ -1794,7 +1801,7 @@ main(argc, argv)
 	 */
 	    for (cntxp = CntxArg; cntxp; cntxp = cntxp->next) {
 		if (!cntxp->f) {
-		    rv = 1;
+		    rv = LSOF_SEARCH_FAILURE;
 		    if (Fverbose) {
 			(void) printf("%s: context not located: ", Pn);
 			safestrprt(cntxp->cntx, stdout, 1);
@@ -1811,7 +1818,7 @@ main(argc, argv)
 	 */
 	    if (Spgid[i].f || Spgid[i].x)
 		continue;
-	    rv = 1;
+	    rv = LSOF_SEARCH_FAILURE;
 	    if (Fverbose)
 		(void) printf("%s: process group ID not located: %d\n",
 		    Pn, Spgid[i].i);
@@ -1823,7 +1830,7 @@ main(argc, argv)
 	 */
 	    if (Suid[i].excl || Suid[i].f)
 		continue;
-	    rv = 1;
+	    rv = LSOF_SEARCH_FAILURE;
 	    if (Fverbose) {
 		if (Suid[i].lnm) {
 		    (void) printf("%s: login name (UID %lu) not located: ",
@@ -1837,7 +1844,7 @@ main(argc, argv)
 	if (!rv && rc)
 	    rv = ev;
 	if (!rv && ErrStat)
-	    rv = 1;
+	    rv = LSOF_ERROR;
 	Exit(rv);
 	return(rv);		/* to make code analyzers happy */
 }
@@ -1986,7 +1993,7 @@ sv_fmt_str(f)
 	if (!(cp = (char *)malloc(l))) {
 	    (void) fprintf(stderr,
 		"%s: can't allocate %d bytes for format: %s\n", Pn, (int)l, f);
-	    Exit(1);
+	    Error();
 	}
 	(void) snpf(cp, l, "%s", f);
 	return(cp);

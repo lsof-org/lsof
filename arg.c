@@ -117,7 +117,7 @@ FD_range_nondigit:
  */
 
 int
-ck_file_arg(i, ac, av, fv, rs, sbp)
+ck_file_arg(i, ac, av, fv, rs, sbp, accept_deleted_file)
 	int i;			/* first file argument index */
 	int ac;			/* argument count */
 	char *av[];		/* argument vector */
@@ -126,6 +126,8 @@ ck_file_arg(i, ac, av, fv, rs, sbp)
 				 *	0 = undone; 1 = done */
 	struct stat *sbp;	/* if non-NULL, pointer to stat(2) buffer
 				 * when argument count == 1 */
+	int accept_deleted_file; /* if non-zero, don't report an error even
+				  * when the file doesn't exist. */
 {
 	char *ap, *fnm, *fsnm, *path;
 	short err = 0;
@@ -176,7 +178,7 @@ ck_file_arg(i, ac, av, fv, rs, sbp)
 		    if (!(ap = (char *)malloc((MALLOC_S)(k + 1)))) {
 			(void) fprintf(stderr, "%s: no space for copy of %s\n",
 			    Pn, path);
-			Exit(1);
+			Error();
 		    }
 		    (void) strncpy(ap, path, k);
 		    ap[k] = '\0';
@@ -227,14 +229,16 @@ ck_file_arg(i, ac, av, fv, rs, sbp)
 		    if (!mmp) {
 			(void) fprintf(stderr,
 			    "%s: no space for mount pointers\n", Pn);
-			Exit(1);
+			Error();
 		    }
 		}
 		mmp[nm++] = mp;
 	    }
 	    if (fv == 2 && nm == 0) {
-		(void) fprintf(stderr, "%s: not a file system: ", Pn);
-		safestrprt(av[i], stderr, 1);
+		if (!accept_deleted_file) {
+		    (void) fprintf(stderr, "%s: not a file system: ", Pn);
+		    safestrprt(av[i], stderr, 1);
+		}
 		ErrStat = 1;
 		continue;
 	    }
@@ -250,7 +254,7 @@ ck_file_arg(i, ac, av, fv, rs, sbp)
 	     */
 		if (!(sfp = (struct sfile *)malloc(sizeof(struct sfile)))) {
 		    (void) fprintf(stderr, "%s: no space for files\n", Pn);
-		    Exit(1);
+		    Error();
 		}
 		sfp->next = Sfile;
 		Sfile = sfp;
@@ -271,10 +275,11 @@ ck_file_arg(i, ac, av, fv, rs, sbp)
 		    else {
 			if (statsafely(fnm, &sb) != 0) {
 			    int en = errno;
-
-			    (void) fprintf(stderr, "%s: status error on ", Pn);
-			    safestrprt(fnm, stderr, 0);
-			    (void) fprintf(stderr, ": %s\n", strerror(en));
+			    if (!accept_deleted_file) {
+				(void) fprintf(stderr, "%s: status error on ", Pn);
+				safestrprt(fnm, stderr, 0);
+				(void) fprintf(stderr, ": %s\n", strerror(en));
+			    }
 			    Sfile = sfp->next;
 			    (void) free((FREE_P *)sfp);
 			    ErrStat = 1;
@@ -362,7 +367,7 @@ ck_file_arg(i, ac, av, fv, rs, sbp)
 			(void) fprintf(stderr,
 			    "%s: no space for file name: ", Pn);
 			safestrprt(fnm, stderr, 1);
-			Exit(1);
+			Error();
 		    }
 
 #if	defined(HASPROCFS)
@@ -382,7 +387,7 @@ ck_file_arg(i, ac, av, fv, rs, sbp)
 			(void) fprintf(stderr,
 			    "%s: no space for file system name: ", Pn);
 			safestrprt(fsnm, stderr, 1);
-			Exit(1);
+			Error();
 		    }
 
 #if	defined(HASPROCFS)
@@ -394,7 +399,7 @@ ck_file_arg(i, ac, av, fv, rs, sbp)
 		    (void) fprintf(stderr,
 			"%s: no space for argument file name: ", Pn);
 			safestrprt(av[i], stderr, 1);
-		    Exit(1);
+		    Error();
 		}
 
 #if	defined(HASPROCFS)
@@ -446,7 +451,7 @@ ck_file_arg(i, ac, av, fv, rs, sbp)
 		    (void) fprintf(stderr, "%s: no space for %s ID: ",
 			Pn, Mtprocfs->dir);
 		    safestrprt(path, stderr, 1);
-		    Exit(1);
+		    Error();
 		}
 		pfi->pid = pid;
 		pfi->f = 0;
@@ -471,8 +476,15 @@ ck_file_arg(i, ac, av, fv, rs, sbp)
 
 	    } while (mx < nm);
 	}
-	if (!ss)
+
+	if (accept_deleted_file) {
+	    if (!ss & ErrStat == 0)
+		err = 1;
+	    if (ErrStat)
+		ErrStat = 0;
+	} else if (!ss) {
 	    err = 1;
+	}
 	return((int)err);
 }
 
@@ -563,7 +575,7 @@ ctrl_dcache(c)
 	    if (!(DCpathArg = mkstrcpy(c, (MALLOC_S *)NULL))) {
 		(void) fprintf(stderr, "%s: no space for -D path: ", Pn);
 		safestrprt(c, stderr, 1);
-		Exit(1);
+		Error();
 	    }
 	}
 	return(0);
@@ -677,7 +689,7 @@ enter_cmd_rx(x)
 	if (!(xp = (char *)malloc(xl + 1))) {
 	    (void) fprintf(stderr, "%s: no regexp space for: ", Pn);
 	    safestrprt(x, stderr, 1);
-	    Exit(1);
+	    Error();
 	}
 	(void) strncpy(xp, xb, xl);
 	xp[(int)xl] = '\0';
@@ -698,7 +710,7 @@ enter_cmd_rx(x)
 	    if (!CmdRx) {
 		(void) fprintf(stderr, "%s: no space for regexp: ", Pn);
 		safestrprt(x, stderr, 1);
-		Exit(1);
+		Error();
 	    }
 	}
 	i = NCmdRxU;
@@ -753,7 +765,7 @@ enter_efsys(e, rdlnk)
 	if (!(ec = mkstrcpy(e, (MALLOC_S *)NULL))) {
 	    (void) fprintf(stderr, "%s: no space for -e string: ", Pn);
 	    safestrprt(e, stderr, 1);
-	    Exit(1);
+	    Error();
 	}
 	if (rdlnk)
 	    path = ec;
@@ -779,7 +791,7 @@ enter_efsys(e, rdlnk)
 	if (!(ep = (efsys_list_t *)malloc((MALLOC_S)(sizeof(efsys_list_t))))) {
 	   (void) fprintf(stderr, "%s: no space for \"-e %s\" entry\n",
 		Pn, e);
-	   Exit(1);
+	   Error();
 	}
 	ep->path = path;
 	ep->pathl = i;
@@ -813,7 +825,7 @@ enter_fd(f)
 	if (!(fc = mkstrcpy(f, (MALLOC_S *)NULL))) {
 	    (void) fprintf(stderr, "%s: no space for fd string: ", Pn);
 	    safestrprt(f, stderr, 1);
-	    Exit(1);
+	    Error();
 	}
 /*
  * Isolate each file descriptor in the comma-separated list, then enter it
@@ -910,7 +922,7 @@ enter_fd_lst(nm, lo, hi, excl)
  */
 	if (!(f = (struct fd_lst *)malloc((MALLOC_S)sizeof(struct fd_lst)))) {
 	   (void) fprintf(stderr, "%s: no space for FD list entry\n", Pn);
-	   Exit(1);
+	   Error();
 	}
 	if (nm) {
 
@@ -931,7 +943,7 @@ enter_fd_lst(nm, lo, hi, excl)
 		if (!(f->nm = mkstrcpy(nm, (MALLOC_S *)NULL))) {
 		    (void) fprintf(stderr,
 			"%s: no space for copy of: %s\n", Pn, nm);
-		    Exit(1);
+		    Error();
 		}
 		lo = 1;
 		hi = 0;
@@ -1047,7 +1059,7 @@ enter_dir(d, descend)
 	av[0] = (dn == d) ? mkstrcpy(dn, (MALLOC_S *)NULL) : dn;
 	av[1] = (char *)NULL;
 	dn = (char *)NULL;
-	if (!ck_file_arg(0, 1, av, 1, 1, &sb)) {
+	if (!ck_file_arg(0, 1, av, 1, 1, &sb, 0)) {
 	    av[0] = (char *)NULL;
 	    fct++;
 	}
@@ -1091,7 +1103,7 @@ enter_dir(d, descend)
 		    (void) fprintf(stderr,
 			"%s: no space for path to entries in directory: %s\n",
 			Pn, dn);
-		    Exit(1);
+		    Error();
 		}
 	    }
 	    (void) snpf(fp, (size_t)fpl, "%s%s", dn, sl ? "/" : "");
@@ -1136,7 +1148,7 @@ enter_dir(d, descend)
 			safestrprt(dn, stderr, 0);
 			putc('/', stderr);
 			safestrprtn(dp->d_name, dnamlen, stderr, 1);
-			Exit(1);
+			Error();
 		    }
 		}
 		(void) strncpy(fp + dnl + sl, dp->d_name, dnamlen);
@@ -1210,7 +1222,7 @@ enter_dir(d, descend)
 	     * Use ck_file_arg() to record the entry for searching.  Force it
 	     * to consider the entry a file, not a file system.
 	     */
-		if (!ck_file_arg(0, 1, av, 1, 1, &sb)) {
+		if (!ck_file_arg(0, 1, av, 1, 1, &sb, 0)) {
 		    av[0] = (char *)NULL;
 		    fct++;
 		}
@@ -1296,7 +1308,7 @@ enter_id(ty, p)
 	    (void) fprintf(stderr, "%s: enter_id \"", Pn);
 	    safestrprt(p, stderr, 0);
 	    (void) fprintf(stderr, "\", invalid type: %d\n", ty);
-	    Exit(1);
+	    Error();
 	}
 /*
  * Convert and store the ID.
@@ -1365,7 +1377,7 @@ enter_id(ty, p)
 		if (!s) {
 		    (void) fprintf(stderr, "%s: no space for %d process%s IDs",
 			Pn, mx, (ty == PGID) ? " group" : "");
-		    Exit(1);
+		    Error();
 		}
 	    }
 	    s[n].f = 0;
@@ -1854,7 +1866,7 @@ enter_nwad(n, sp, ep, s, he)
 		(void) fprintf(stderr,
 		    "%s: no space for Internet argument: -i ", Pn);
 		safestrprt(s, stderr, 1);
-		Exit(1);
+		Error();
 	    }
 	} else
 	    n->arg = (char *)NULL;
@@ -2009,7 +2021,7 @@ no_IorX_space:
 
 			(void) fprintf(stderr, "%s: no %s table space\n",
 			    Pn, ty);
-			Exit(1);
+			Error();
 		    }
 		}
 		if (!UdpStX) {
@@ -2050,7 +2062,7 @@ no_IorX_space:
 	if (!(ssc = mkstrcpy(cp, (MALLOC_S *)NULL))) {
 	    (void) fprintf(stderr,
 		"%s: no temporary state argument space for: %s\n", Pn, ss);
-	    Exit(1);
+	    Error();
 	}
 	cp = ssc;
 	err = 0;
@@ -2344,14 +2356,14 @@ enter_uid(us)
 		    Suid = (struct seluid *)realloc((MALLOC_P *)Suid, len);
 		if (!Suid) {
 		    (void) fprintf(stderr, "%s: no space for UIDs", Pn);
-		    Exit(1);
+		    Error();
 		}
 	    }
 	    if (nn) {
 		if (!(lp = mkstrcpy(lnm, (MALLOC_S *)NULL))) {
 		    (void) fprintf(stderr, "%s: no space for login: ", Pn);
 		    safestrprt(lnm, stderr, 1);
-		    Exit(1);
+		    Error();
 		}
 		Suid[Nuid].lnm = lp;
 	    } else
