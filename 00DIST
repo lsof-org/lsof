@@ -5316,11 +5316,15 @@ July 14, 2018
 		search item (#129)
 		In the original code, lsof returned 1 when it failed to find a
 		search item. With the new option, lsof returns 0 in the case.
-		(#129)
 
 
 		Document -Q option in manpage/00QUICKSTART, and adjust -h
 		output by @dilinger (Andres Salomon) in #129.
+
+
+		Improve readability of complex adverbial clause by adding a
+		comma.
+		Provided by Danny Fowler in #156.
 
 The lsof-org team at GitHub
 November 25, 2020
