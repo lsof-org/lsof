@@ -71,7 +71,7 @@ good idea.
 e.g.
 ::
 
-   $ cp support/support/lsof_4.94.0.linux.tar.bz2
+   $ cp support/lsof_4.94.0.linux.tar.bz2 /tmp
    $ cd /tmp
    $ tar jxvf lsof_4.94.0.linux.tar.bz2
    $ cd lsof_4.94.0.linux
