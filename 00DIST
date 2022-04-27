@@ -5210,7 +5210,7 @@ July 14, 2018
 		[linux]: implement "make check"
 		The target runs check.bash.
 
-4.9?.?		November 14, 2020
+4.95.0		April 28, 2022
 
 		[n+obsd] fix syntax error
 		Corrected end of comment.
@@ -5327,4 +5327,4 @@ July 14, 2018
 		Provided by Danny Fowler in #156.
 
 The lsof-org team at GitHub
-November 25, 2020
+April 28, 2022
