@@ -4,7 +4,7 @@ name=$(basename $0 .bash)
 lsof=$1
 report=$2
 
-if ! [ -r "/proc/$self/stack" ]; then
+if ! [ -r "/proc/self/stack" ]; then
     echo "this platform doesn't allow to access /proc/\$PID/stack" >> $report
     exit 2
 fi
