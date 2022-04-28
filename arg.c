@@ -478,7 +478,7 @@ ck_file_arg(i, ac, av, fv, rs, sbp, accept_deleted_file)
 	}
 
 	if (accept_deleted_file) {
-	    if (!ss & ErrStat == 0)
+	    if (!ss && ErrStat == 0)
 		err = 1;
 	    if (ErrStat)
 		ErrStat = 0;
