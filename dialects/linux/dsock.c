@@ -1566,7 +1566,6 @@ process_netsinfo(f)
 					 */
 {
 	struct tcp_udp *p;		/* peer INET socket info pointer */
-	struct tcp_udp*tp;		/* temporary INET socket info pointer */
 
 	if (!FeptE)
 	    return;
@@ -1718,7 +1717,6 @@ process_nets6info(f)
 					 */
 {
 	struct tcp_udp6 *p;		/* peer INET6 socket info pointer */
-	struct tcp_udp6*tp;		/* temporary INET6 socket info pointer */
 
 	if (!FeptE)
 	    return;
