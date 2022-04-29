@@ -18,7 +18,7 @@ CDEF=
 CDEFS=  ${CDEF} ${CFGF}
 DEP=	${CFGD} ${CFGDN}
 INCL=	${DINC}
-CFLAGS=	${CDEFS} ${INCL} ${DEP} ${DEBUG}
+CFLAGS=	-Wall ${CDEFS} ${INCL} ${DEP} ${DEBUG}
 
 GRP=
 

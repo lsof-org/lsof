@@ -29,12 +29,6 @@
  * 4. This notice may not be removed or altered.
  */
 
-#ifndef lint
-static char copyright[] =
-"@(#) Copyright 1994 Purdue Research Foundation.\nAll rights reserved.\n";
-#endif
-
-
 #include "lsof.h"
 
 
@@ -478,7 +472,7 @@ ck_file_arg(i, ac, av, fv, rs, sbp, accept_deleted_file)
 	}
 
 	if (accept_deleted_file) {
-	    if (!ss & ErrStat == 0)
+	    if (!ss && ErrStat == 0)
 		err = 1;
 	    if (ErrStat)
 		ErrStat = 0;
