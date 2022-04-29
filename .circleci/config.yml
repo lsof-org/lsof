@@ -12,7 +12,7 @@ jobs:
       - run:
           name: Install build tools
           command: |
-            dnf -y install git gcc make sudo nmap-ncat iproute
+            dnf -y install git gcc make sudo nmap-ncat iproute libtirpc-devel
       - checkout
       - run:
           name: Configure
