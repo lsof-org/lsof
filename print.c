@@ -1232,6 +1232,15 @@ addr_too_long:
 				src = 0;
 			}
 		    }
+#else
+		    /*
+		     * Just for suppressing warnings reported from compiler.
+		     *
+		     * src is referenced in lkup_port() only if "!defined(HASNORPC_H)"
+		     * is true. The condition here is !defined(HASNORPC_H) is false.
+		     * Therefore the value of src has no impact.
+		     */
+		    src = 1;
 #endif	/* !defined(HASNORPC_H) */
 
 		    if (strcasecmp(Lf->iproto, "TCP") == 0)
