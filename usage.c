@@ -29,11 +29,8 @@
  * 4. This notice may not be removed or altered.
  */
 
-#ifndef lint
 static char copyright[] =
-"@(#) Copyright 1998 Purdue Research Foundation.\nAll rights reserved.\n";
-#endif
-
+"Copyright 1998 Purdue Research Foundation. All rights reserved.";
 
 #include "lsof.h"
 #include "version.h"
@@ -919,6 +916,7 @@ usage(err, fh, version)
 	 */
 	    (void) fprintf(stderr, "%s version information:\n", Pn);
 	    (void) fprintf(stderr, "    revision: %s\n", LSOF_VERSION);
+	    (void) fprintf(stderr, "    copyright notice: %s\n", copyright);
 	    (void) fprintf(stderr, "    latest revision: %s\n", LSOF_REPO_URL);
 	    (void) fprintf(stderr, "    latest FAQ: %s\n",
 		LSOF_FAQ_URL);

@@ -5336,5 +5336,7 @@ July 14, 2018
 		Inspired by the issue #206 reported by Tomasz Kłoczko (@kloczek).
 
 
+		Show copyright notice in --version output.
+
 The lsof-org team at GitHub
 April 28, 2022
