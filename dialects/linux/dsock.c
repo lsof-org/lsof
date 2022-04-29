@@ -75,7 +75,7 @@ static char copyright[] =
  * to the same hash backet. This makes seaching the counter part of
  * an end point easier. See get_netpeeri(). */
 #define TCPUDP_IPC_HASH(tp) ((int)(((((tp)->faddr			\
-				      + (tp)->laddr,			\
+				      + (tp)->laddr			\
 				      + (tp)->fport			\
 				      + (tp)->lport			\
 				      + (tp)->proto) * 31415) >> 3)	\
@@ -89,7 +89,7 @@ static char copyright[] =
 	+(int)TCPUDP6_IPC_ADDR_INT32(a, 0x3))
 
 #define TCPUDP6_IPC_HASH(tp) ((int)((((TCPUDP6_IPC_ADDR_MK_INT(&(tp)->faddr) \
-				       + TCPUDP6_IPC_ADDR_MK_INT(&(tp)->laddr), \
+				       + TCPUDP6_IPC_ADDR_MK_INT(&(tp)->laddr) \
 				       + (tp)->fport			\
 				       + (tp)->lport			\
 				       + (tp)->proto) * 31415) >> 3)	\

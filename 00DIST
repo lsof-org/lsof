@@ -5326,5 +5326,15 @@ July 14, 2018
 		comma.
 		Provided by Danny Fowler in #156.
 
+4.9?.?		????? ??, ????
+
+		[linux] fix hash functions used for finding local tcp/udp IPCs
+		There were typos in the code calculating hash values. The typos might
+		break the flatness of hashtables where the endpoint information about
+		locally used tcp/udp was stored. Theoretically, this fix may improve
+		the performance of lsof with [+|-]E option.
+		Inspired by the issue #206 reported by Tomasz Kłoczko (@kloczek).
+
+
 The lsof-org team at GitHub
 April 28, 2022
