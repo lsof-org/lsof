@@ -321,12 +321,10 @@ extern int optind;
 
 # if	!defined(LOGINML)
 #  if	defined(HASUTMPX)
-static struct utmpx dummy_utmp;		/* to get login name length */
-#define	LOGINML		sizeof(dummy_utmp.ut_user)
+#define	LOGINML		sizeof(((struct utmpx *)0)->ut_user)
 					/* login name length */
 #  else	/* !defined(HASUTMPX) */
-static struct utmp dummy_utmp;		/* to get login name length */
-#define	LOGINML		sizeof(dummy_utmp.ut_name)
+#define	LOGINML		sizeof(((struct utmp *)0)->ut_name)
 					/* login name length */
 #  endif	/* defined(HASUTMPX) */
 # endif	/* !defined(LOGINML) */
