@@ -154,6 +154,7 @@ endnm(sz)
 static void
 fill_portmap()
 {
+	static int already_run = 0;
 	char buf[128], *cp, *nm;
 	CLIENT *c;
 	int h, port, pr;
@@ -168,6 +169,13 @@ fill_portmap()
 	struct sockaddr_in ia;
 	int s = RPC_ANYSOCK;
 #endif	/* !defined(CAN_USE_CLNT_CREATE) */
+
+/*
+ * Make sure this is only run once.
+ */
+	if (already_run)
+		return;
+	already_run = 1;
 
 /*
  * Construct structures for communicating with the portmapper.
@@ -469,7 +477,6 @@ lkup_port(p, pr, src)
 	MALLOC_S nl;
 	char *nm, *pn;
 	static char pb[128];
-	static int pm = 0;
 	struct porttab *pt;
 /*
  * If the hash buckets haven't been allocated, do so.
@@ -502,10 +509,8 @@ lkup_port(p, pr, src)
  * If we're looking up program names for portmapped ports, make sure the
  * portmap table has been loaded.
  */
-	if (FportMap && !pm) {
+	if (FportMap)
 	    (void) fill_portmap();
-	    pm++;
-	}
 #endif	/* !defined(HASNORPC_H) */
 
 /*
