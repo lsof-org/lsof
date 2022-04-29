@@ -5338,5 +5338,9 @@ July 14, 2018
 
 		Show copyright notice in --version output.
 
+
+		[linux] compile with -Wall option
+
+
 The lsof-org team at GitHub
 April 28, 2022
