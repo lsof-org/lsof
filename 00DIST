@@ -5342,5 +5342,8 @@ July 14, 2018
 		[linux] compile with -Wall option
 
 
+		[linux] Avoid some easy collissions for udp/udp6 sockets when hashing
+
+
 The lsof-org team at GitHub
 April 28, 2022
