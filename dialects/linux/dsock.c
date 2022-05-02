@@ -68,25 +68,27 @@
 /* If a socket is used for IPC, we store both end points for the socket
  * to the same hash backet. This makes seaching the counter part of
  * an end point easier. See get_netpeeri(). */
-#define TCPUDP_IPC_HASH(tp) ((int)(((((tp)->faddr			\
-				      + (tp)->laddr			\
-				      + (tp)->fport			\
-				      + (tp)->lport			\
-				      + (tp)->proto) * 31415) >> 3)	\
+#define TCPUDP_IPC_HASH(tp) ((int)(((((tp)->faddr * 0x109		\
+				      + (tp)->laddr * 0x109		\
+				      + (tp)->fport * 0x121		\
+				      + (tp)->lport * 0x121		\
+				      + (tp)->proto * 0x181)		\
+				      * 31415) >> 3)			\
 				   & (IPCBUCKS - 1)))
 
 #define TCPUDP6_IPC_ADDR_INT32(a, n) (((a)->s6_addr32[n]))
-#define TCPUDP6_IPC_ADDR_MK_INT(a)		\
-	((int)TCPUDP6_IPC_ADDR_INT32(a, 0x0)    \
-	+(int)TCPUDP6_IPC_ADDR_INT32(a, 0x1)	\
-	+(int)TCPUDP6_IPC_ADDR_INT32(a, 0x2)	\
-	+(int)TCPUDP6_IPC_ADDR_INT32(a, 0x3))
+#define TCPUDP6_IPC_ADDR_MK_INT(a)					\
+	((int)TCPUDP6_IPC_ADDR_INT32(a, 0x0) * 0x123			\
+	+(int)TCPUDP6_IPC_ADDR_INT32(a, 0x1) * 0x111			\
+	+(int)TCPUDP6_IPC_ADDR_INT32(a, 0x2) * 0x149			\
+	+(int)TCPUDP6_IPC_ADDR_INT32(a, 0x3) * 0x185)
 
 #define TCPUDP6_IPC_HASH(tp) ((int)((((TCPUDP6_IPC_ADDR_MK_INT(&(tp)->faddr) \
 				       + TCPUDP6_IPC_ADDR_MK_INT(&(tp)->laddr) \
-				       + (tp)->fport			\
-				       + (tp)->lport			\
-				       + (tp)->proto) * 31415) >> 3)	\
+				       + (tp)->fport * 0x109		\
+				       + (tp)->lport * 0x109		\
+				       + (tp)->proto * 0x141)		\
+				       * 31415) >> 3)			\
 				   & (IPCBUCKS - 1)))
 
 /*
