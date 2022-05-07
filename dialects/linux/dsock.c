@@ -62,11 +62,11 @@
 #define TCPUDPHASH(ino)	((int)((ino * 31415) >> 3) & (TcpUdp_bucks - 1))
 #define TCPUDP6HASH(ino) ((int)((ino * 31415) >> 3) & (TcpUdp6_bucks - 1))
 
-#define IPCBUCKS 128			/* IPC hash bucket count -- must be
+#define IPCBUCKS 4096			/* IPC hash bucket count -- must be
 					 * a power of two */
 
 /* If a socket is used for IPC, we store both end points for the socket
- * to the same hash backet. This makes seaching the counter part of
+ * to the same hash bucket. This makes seaching the counter part of
  * an end point easier. See get_netpeeri(). */
 #define TCPUDP_IPC_HASH(tp) ((int)(((((tp)->faddr * 0x109		\
 				      + (tp)->laddr * 0x109		\
