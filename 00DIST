@@ -5343,6 +5343,9 @@ July 14, 2018
 
 
 		[linux] Avoid some easy collissions for udp/udp6 sockets when hashing
+		
+		
+		[linux] Changing the number of ipcbuckets to 4096
 
 
 The lsof-org team at GitHub
