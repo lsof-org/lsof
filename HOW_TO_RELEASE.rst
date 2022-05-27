@@ -1,3 +1,11 @@
+========================================================================
+The procedures for releasing new version of lsof for your dialect
+========================================================================
+
+A dialect maintainer can release a new version of lsof FOR YOUR
+DIALECT without getting permission from maintainers of the other
+dialects.  So we can work asynchronously.
+
 0. Install ksh
 ========================================================================
 
