@@ -246,7 +246,7 @@ typedef	u_long		KA_T;
  * Global storage definitions (including their structure definitions)
  */
 
-struct file * Cfp;
+extern struct file * Cfp;
 
 extern int Kd;				/* KMEM descriptor */
 extern KA_T Kpa;
