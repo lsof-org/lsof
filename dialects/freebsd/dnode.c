@@ -170,22 +170,22 @@ get_lock_state_kvm(f)
 void
 process_kf_kqueue(struct kinfo_file *kf, KA_T ka)
 {
-#if __FreeBSD_version < 1400052
+#if __FreeBSD_version < 1400062
 	struct kqueue kq;		/* kqueue structure */
-#endif /* __FreeBSD_version < 1400052 */
+#endif /* __FreeBSD_version < 1400062 */
 
 	(void) snpf(Lf->type, sizeof(Lf->type), "KQUEUE");
 	enter_dev_ch(print_kptr(ka, (char *)NULL, 0));
-#if __FreeBSD_version >= 1400052
+#if __FreeBSD_version >= 1400062
 	(void) snpf(Namech, Namechl, "count=%d, state=%#x",
 	    kf->kf_un.kf_kqueue.kf_kqueue_count,
 	    kf->kf_un.kf_kqueue.kf_kqueue_state);
-#else /* __FreeBSD_version < 1400052 */
+#else /* __FreeBSD_version < 1400062 */
 	if (!ka || kread(ka, (char *)&kq, sizeof(kq)))
 	    return;
 	(void) snpf(Namech, Namechl, "count=%d, state=%#x", kq.kq_count,
 	    kq.kq_state);
-#endif /* __FreeBSD_version >= 1400052 */
+#endif /* __FreeBSD_version >= 1400062 */
 	enter_nm(Namech);
 }
 #endif	/* defined(HASKQUEUE) */
@@ -196,9 +196,9 @@ void
 process_eventfd(struct kinfo_file *kf)
 {
 	(void) snpf(Lf->type, sizeof(Lf->type), "EVENTFD");
-#if	__FreeBSD_version >= 1400052
+#if	__FreeBSD_version >= 1400062
 	enter_dev_ch(print_kptr(kf->kf_un.kf_eventfd.kf_eventfd_addr, (char *)NULL, 0));
-#endif /* __FreeBSD_version >= 1400052 */
+#endif /* __FreeBSD_version >= 1400062 */
 	(void) snpf(Namech, Namechl, "value=%ju, flags=0x%x",
 	    kf->kf_un.kf_eventfd.kf_eventfd_value, kf->kf_un.kf_eventfd.kf_eventfd_flags);
 	enter_nm(Namech);
@@ -691,7 +691,7 @@ process_pipe(struct kinfo_file *kf, KA_T pa)
 	char dev_ch[32], *ep;
 	size_t sz;
 
-#if __FreeBSD_version < 1400052
+#if __FreeBSD_version < 1400062
 	struct pipe p;
 	int have_kpipe = (pa && kread(pa, (char *)&p, sizeof(p)) == 0);
 #endif
@@ -703,15 +703,15 @@ process_pipe(struct kinfo_file *kf, KA_T pa)
 	if (Foffset)
 	    Lf->off_def = 1;
 	else {
-#if __FreeBSD_version >= 1400052
+#if __FreeBSD_version >= 1400062
 	    Lf->sz = (SZOFFTYPE)kf->kf_un.kf_pipe.kf_pipe_buffer_size;
 	    Lf->sz_def = 1;
-#else /* __FreeBSD_version < 1400052 */
+#else /* __FreeBSD_version < 1400062 */
 	    if (have_kpipe) {
 		Lf->sz = (SZOFFTYPE)p.pipe_buffer.size;
 		Lf->sz_def = 1;
 	    }
-#endif /* __FreeBSD_version >= 1400052 */
+#endif /* __FreeBSD_version >= 1400062 */
 	}
 	if (kf->kf_un.kf_pipe.kf_pipe_peer)
 	    (void) snpf(Namech, Namechl, "->%s",
@@ -722,7 +722,7 @@ process_pipe(struct kinfo_file *kf, KA_T pa)
 	    ep = endnm(&sz);
 	    (void) snpf(ep, sz, ", cnt=%d", kf->kf_un.kf_pipe.kf_pipe_buffer_cnt);
 	}
-#if __FreeBSD_version >= 1400052
+#if __FreeBSD_version >= 1400062
 	if (kf->kf_un.kf_pipe.kf_pipe_buffer_in) {
 	    ep = endnm(&sz);
 	    (void) snpf(ep, sz, ", in=%d", kf->kf_un.kf_pipe.kf_pipe_buffer_in);
@@ -731,7 +731,7 @@ process_pipe(struct kinfo_file *kf, KA_T pa)
 	    ep = endnm(&sz);
 	    (void) snpf(ep, sz, ", out=%d", kf->kf_un.kf_pipe.kf_pipe_buffer_out);
 	}
-#else /* __FreeBSD_version < 1400052 */
+#else /* __FreeBSD_version < 1400062 */
 	if (have_kpipe && p.pipe_buffer.in) {
 	    ep = endnm(&sz);
 	    (void) snpf(ep, sz, ", in=%d", p.pipe_buffer.in);
@@ -740,7 +740,7 @@ process_pipe(struct kinfo_file *kf, KA_T pa)
 	    ep = endnm(&sz);
 	    (void) snpf(ep, sz, ", out=%d", p.pipe_buffer.out);
 	}
-#endif /* __FreeBSD_version >= 1400052 */
+#endif /* __FreeBSD_version >= 1400062 */
 /*
  * Enter name characters.
  */

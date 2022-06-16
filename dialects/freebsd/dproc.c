@@ -676,9 +676,9 @@ get_nlist_path(ap)
 void
 initialize()
 {
-#if	__FreeBSD_version < 1400053
+#if	__FreeBSD_version < 1400062
 	get_kernel_access();
-#endif	/* __FreeBSD_version < 1400053 */
+#endif	/* __FreeBSD_version < 1400062 */
 }
 
 
