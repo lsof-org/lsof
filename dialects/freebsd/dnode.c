@@ -54,50 +54,26 @@ _PROTOTYPE(static void get_lock_state_kvm,(KA_T f));
  * get_lock_state_*() - get the lock state
  */
 
-#if	__FreeBSD_version >= 1400053
+#ifdef KERN_LOCKF
 static void
-get_lock_state_sysctl(int fd, struct xfile *xfile)
+get_lock_state_sysctl(struct kinfo_file *kf, struct lock_list *locks)
 {
-	int mib[4];
-	size_t len;
-	int ret;
-	char *buffer;
+	struct kinfo_lockf key, *lock;
 
-	len = 2;
-	ret = sysctlnametomib("kern.lockf", mib, &len);
-	if (ret < 0)
-	    return;
-
-	mib[2] = (pid_t)Lp->pid;
-	mib[3] = fd;
-	ret = sysctl(mib, 4, NULL, &len, NULL, 0);
-	if (ret < 0)
-	    return;
-	buffer = malloc(len);
-	if (buffer == NULL)
-	    return;
-	ret = sysctl(mib, 4, buffer, &len, NULL, 0);
-	if (ret == 0) {
-	    int i;
-	    struct xlockf *xl;
-	    int whole_file;
-
-	    for (i = 0; i < len; i += sizeof(struct xlockf)) {
-		xl = (struct xlockf *)&buffer[i];
-		if (xl->xl_sysid == 0 && ((xl->xl_pid != -1 && xl->xl_pid == (pid_t)Lp->pid)
-		|| (xl->xl_pid == -1 && xfile && xfile->xf_file == xl->xl_id))) {
-		    whole_file = xl->xl_start == 0 && xl->xl_len == 0;
-		    if (xl->xl_type == F_RDLCK)
-			Lf->lock = whole_file ? 'R' : 'r';
-		    else if (xl->xl_type == F_WRLCK)
-			Lf->lock = whole_file ? 'W' : 'w';
-		    break;
-		}
-	    }
+	key.kl_sysid = 0;
+	key.kl_pid = (pid_t)Lp->pid;
+	key.kl_file_fsid = kf->kf_un.kf_file.kf_file_fsid;
+	key.kl_file_fileid = kf->kf_un.kf_file.kf_file_fileid;
+	lock = bsearch(&key, locks->locks, locks->n_locks, sizeof(*locks->locks), cmp_kinfo_lockf);
+	if (lock != NULL) {
+	    int whole_file = (lock->kl_start == 0 && lock->kl_len == 0);
+	    if (lock->kl_rw == KLOCKF_RW_READ)
+		Lf->lock = whole_file ? 'R' : 'r';
+	    else if (lock->kl_rw == KLOCKF_RW_WRITE)
+		Lf->lock = whole_file ? 'W' : 'w';
 	}
-	free(buffer);
 }
-#endif	/* __FreeBSD_version >= 1400053 */
+#endif	/* KERN_LOCKF */
 
 static void
 get_lock_state_kvm(f)
@@ -318,7 +294,7 @@ parse_proc_path(struct kinfo_file *kf, int *proc_pid)
  */
 
 void
-process_vnode(struct kinfo_file *kf, struct xfile *xfile)
+process_vnode(struct kinfo_file *kf, struct xfile *xfile, struct lock_list *locks)
 {
 	dev_t dev = 0, rdev = 0;
 	unsigned char devs;
@@ -433,12 +409,12 @@ process_overlaid_node:
 	    }
 	}
 
-#if	__FreeBSD_version >= 1400053
-	get_lock_state_sysctl(kf->kf_fd, xfile);
+#ifdef	KERN_LOCKF
+	get_lock_state_sysctl(kf, locks);
 #elif	defined(HAS_V_LOCKF)
 	if (v && v->v_lockf)
 	    (void) get_lock_state_kvm((KA_T)v->v_lockf);
-#endif	/* __FreeBSD_version >= 1400053 */
+#endif	/* KERN_LOCKF */
 
 
 /*

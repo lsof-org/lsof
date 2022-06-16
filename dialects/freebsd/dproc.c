@@ -92,6 +92,60 @@ read_xfiles(struct xfile **xfiles, size_t *count)
 }
 
 
+#ifdef KERN_LOCKF
+int
+cmp_kinfo_lockf(const void *a, const void *b)
+{
+	const struct kinfo_lockf *aa, *bb;
+
+	aa = (const struct kinfo_lockf *)a;
+	bb = (const struct kinfo_lockf *)b;
+	if (aa->kl_sysid < bb->kl_sysid)
+	    return -1;
+	if (aa->kl_sysid > bb->kl_sysid)
+	    return 1;
+	if (aa->kl_pid < bb->kl_pid)
+	    return -1;
+	if (aa->kl_pid > bb->kl_pid)
+	    return 1;
+	if (aa->kl_file_fsid < bb->kl_file_fsid)
+	    return -1;
+	if (aa->kl_file_fsid > bb->kl_file_fsid)
+	    return 1;
+	if (aa->kl_file_fileid < bb->kl_file_fileid)
+	    return -1;
+	if (aa->kl_file_fileid > bb->kl_file_fileid)
+	    return 1;
+	return 0;
+}
+
+
+static int
+read_lockf(struct kinfo_lockf **locks, size_t *count)
+{
+	int mib[2];
+	size_t len;
+
+	mib[0] = CTL_KERN;
+	mib[1] = KERN_LOCKF;
+	*locks = NULL;
+	if (!sysctl(mib, 2, NULL, &len, NULL, 0)) {
+	    *locks = malloc(len);
+	    if (*locks) {
+		if (!sysctl(mib, 2, *locks, &len, NULL, 0)) {
+		    *count = len / sizeof(struct kinfo_lockf);
+		    return 0;
+		}
+	    }
+	}
+	free(*locks);
+	*locks = NULL;
+	*count = 0;
+	return 1;
+}
+#endif
+
+
 static int
 kf_flags_to_fflags(int kf_flags)
 {
@@ -128,7 +182,7 @@ kf_flags_to_fflags(int kf_flags)
 
 /* Based on process_file() in lib/prfd.c */
 static void
-process_kinfo_file(struct kinfo_file *kf, struct xfile *xfile, struct pcb_lists *pcbs)
+process_kinfo_file(struct kinfo_file *kf, struct xfile *xfile, struct pcb_lists *pcbs, struct lock_list *locks)
 {
 	Lf->off = kf->kf_offset;
 	if (kf->kf_ref_count) {
@@ -165,7 +219,7 @@ process_kinfo_file(struct kinfo_file *kf, struct xfile *xfile, struct pcb_lists 
 	switch (kf->kf_type) {
 	case KF_TYPE_FIFO:
 	case KF_TYPE_VNODE:
-	    process_vnode(kf, xfile);
+	    process_vnode(kf, xfile, locks);
 	    break;
 	case KF_TYPE_SOCKET:
 	    process_socket(kf, pcbs);
@@ -206,7 +260,8 @@ static void
 process_file_descriptors(
 	struct kinfo_proc *p, short ckscko,
 	struct xfile *xfiles, size_t n_xfiles,
-	struct pcb_lists *pcbs)
+	struct pcb_lists *pcbs,
+	struct lock_list *locks)
 {
 	struct kinfo_file *kfiles;
 	int n_kfiles = 0;
@@ -227,27 +282,27 @@ process_file_descriptors(
 
 	    if (!ckscko && kfiles[i].kf_fd == KF_FD_TYPE_CWD) {
 		alloc_lfile(CWD, -1);
-		process_vnode(&kfiles[i], xfile);
+		process_vnode(&kfiles[i], xfile, locks);
 		if (Lf->sf)
 		    link_lfile();
 	    } else if (!ckscko && kfiles[i].kf_fd == KF_FD_TYPE_ROOT) {
 		alloc_lfile(RTD, -1);
-		process_vnode(&kfiles[i], xfile);
+		process_vnode(&kfiles[i], xfile, locks);
 		if (Lf->sf)
 		    link_lfile();
 	    } else if (!ckscko && kfiles[i].kf_fd == KF_FD_TYPE_JAIL) {
 		alloc_lfile(" jld", -1);
-		process_vnode(&kfiles[i], xfile);
+		process_vnode(&kfiles[i], xfile, locks);
 		if (Lf->sf)
 		    link_lfile();
 	    } else if (!ckscko && kfiles[i].kf_fd == KF_FD_TYPE_TEXT) {
 		alloc_lfile(" txt", -1);
-		process_vnode(&kfiles[i], xfile);
+		process_vnode(&kfiles[i], xfile, locks);
 		if (Lf->sf)
 		    link_lfile();
 	    } else if (!ckscko && kfiles[i].kf_fd == KF_FD_TYPE_CTTY) {
 		alloc_lfile("ctty", -1);
-		process_vnode(&kfiles[i], xfile);
+		process_vnode(&kfiles[i], xfile, locks);
 		if (Lf->sf)
 		    link_lfile();
 	    } else if (!ckscko && kfiles[i].kf_fd < 0) {
@@ -255,7 +310,7 @@ process_file_descriptors(
 		    fprintf(stderr, "%s: WARNING -- unsupported fd type %d\n", Pn, kfiles[i].kf_fd);
 	    } else {
 		alloc_lfile(NULL, kfiles[i].kf_fd);
-		process_kinfo_file(&kfiles[i], xfile, pcbs);
+		process_kinfo_file(&kfiles[i], xfile, pcbs, locks);
 		if (Lf->sf)
 		    link_lfile();
 	    }
@@ -296,6 +351,7 @@ gather_proc_info()
 	struct xfile *xfiles;
 	size_t n_xfiles;
 	struct pcb_lists *pcbs;
+	struct lock_list locks;
 
 #if	defined(HASFSTRUCT) && !defined(HAS_FILEDESCENT)
 	static char *pof = (char *)NULL;
@@ -388,6 +444,12 @@ gather_proc_info()
 	if (!pcbs && !Fwarn)
 	    fprintf(stderr, "%s: WARNING -- reading PCBs failed: %s\n",
 		Pn, strerror(errno));
+#ifdef KERN_LOCKF
+	if (read_lockf(&locks.locks, &locks.n_locks) && !Fwarn)
+	    fprintf(stderr, "%s: WARNING -- reading lockf list failed: %s\n",
+		Pn, strerror(errno));
+	qsort(locks.locks, locks.n_locks, sizeof(*locks.locks), cmp_kinfo_lockf);
+#endif
 
 /*
  * Examine proc structures and their associated information.
@@ -453,7 +515,7 @@ gather_proc_info()
 	    Kpa = (KA_T)p->P_ADDR;
 #endif	/* defined(P_ADDR) */
 
-	process_file_descriptors(p, ckscko, xfiles, n_xfiles, pcbs);
+	process_file_descriptors(p, ckscko, xfiles, n_xfiles, pcbs, &locks);
 
 	/*
 	 * Unless threads (tasks) are being processed, examine results.
@@ -466,6 +528,9 @@ gather_proc_info()
 
 	free(xfiles);
 	free_pcb_lists(pcbs);
+#ifdef KERN_LOCKF
+	free(locks.locks);
+#endif
 }
 
 

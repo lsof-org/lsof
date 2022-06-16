@@ -42,11 +42,12 @@ _PROTOTYPE(extern char *get_nlist_path,(int ap));
 #endif	/* !defined(N_UNIX) */
 
 _PROTOTYPE(extern int is_file_named,(char *p, int cd));
-_PROTOTYPE(extern void process_vnode,(struct kinfo_file *kf, struct xfile *xfile));
+_PROTOTYPE(extern void process_vnode,(struct kinfo_file *kf, struct xfile *xfile, struct lock_list *locks));
 _PROTOTYPE(extern void process_socket,(struct kinfo_file *kf, struct pcb_lists *pcbs));
 _PROTOTYPE(extern struct l_vfs *readvfs,(uint64_t fsid, const char *path));
 _PROTOTYPE(extern struct pcb_lists *read_pcb_lists,(void));
 _PROTOTYPE(extern void free_pcb_lists,(struct pcb_lists *pcb_lists));
+_PROTOTYPE(extern int cmp_kinfo_lockf,(const void *a, const void *b));
 
 _PROTOTYPE(extern void process_pts,(struct kinfo_file *kf));
 

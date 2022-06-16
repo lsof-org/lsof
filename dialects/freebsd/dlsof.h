@@ -519,6 +519,14 @@ struct pcb_lists {
 };
 
 
+struct lock_list {
+#ifdef KERN_LOCKF
+	struct kinfo_lockf *locks;
+	size_t n_locks;
+#endif
+};
+
+
 /*
  * Definitions for rdev.c
  */
