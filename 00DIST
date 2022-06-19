@@ -5349,5 +5349,17 @@ July 14, 2018
 		[linux] Changing the number of ipcbuckets to 4096
 
 
+		[darwin] fix build with -fno-common (Cfp redefinition)
+		gcc-10 and llvm-11 changed the default from -fcommon to -fno-common:
+		https://gcc.gnu.org/PR85678
+		As a result build fails as:
+
+			duplicate symbol '_Cfp' in: ddev.o dfile.o
+
+		Cfp is already explicitly defined in dstore.c. The change turns
+		header definitino into declaration.
+		Provided by Sergei Trofimovich (@trofi) in #221.
+
+
 The lsof-org team at GitHub
 April 28, 2022
