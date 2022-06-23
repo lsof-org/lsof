@@ -77,6 +77,8 @@ read_xfiles(struct xfile **xfiles, size_t *count)
 	mib[1] = KERN_FILE;
 	*xfiles = NULL;
 	if (!sysctl(mib, 2, NULL, &len, NULL, 0)) {
+	    /* FreeBSD 9 under-reports the required memory, so increase it ourselves: */
+	    len *= 2;
 	    *xfiles = malloc(len);
 	    if (*xfiles) {
 		if (!sysctl(mib, 2, *xfiles, &len, NULL, 0)) {
