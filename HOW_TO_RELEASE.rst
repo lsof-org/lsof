@@ -1,3 +1,11 @@
+========================================================================
+The procedures for releasing new version of lsof for your dialect
+========================================================================
+
+A dialect maintainer can release a new version of lsof FOR YOUR
+DIALECT without getting permission from maintainers of the other
+dialects.  So we can work asynchronously.
+
 0. Install ksh
 ========================================================================
 
@@ -106,22 +114,28 @@ e.g. lsof-4.94.0-linux
 Copy and paste the changes described in 00DIST since the last release in
 your dialect.
 
-5.2.4 Put the source archive generated step in 4.
+5.2.4 Record the release date
+........................................................................
+
+Put the date of the release at the end of "Contents" of 00DIST.
+"Contents" is at the beginning of 00DIST.
+
+5.2.5 Put the source archive generated step in 4.
 ........................................................................
 
 Click "Attach binaries by dropping them here or selecting them. ", then
 specify the archive file.
 
-5.2.5 Check "This is a pre-release"
+5.2.6 Check "This is a pre-release"
 ........................................................................
 
-5.2.6 Click [Publish release]
+5.2.7 Click [Publish release]
 ........................................................................
 
 6. Verify the release
 ========================================================================
 
-After step 5.2.6, the browser may show the page for the release. You can
+After step 5.2.7, the browser may show the page for the release. You can
 re-read the description and the source code archives. You can verify
 what you did here.
 
