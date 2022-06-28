@@ -5359,6 +5359,12 @@ July 14, 2018
 		Cfp is already explicitly defined in dstore.c. The change turns
 		header definitino into declaration.
 		Provided by Sergei Trofimovich (@trofi) in #221.
+    
+    
+    [linux] Make build reproducible by checking SOURCE_DATE_EPOCH
+		and considering LSOF_{HOST,LOGNAME,SYSINFO,USER} as "none" when
+		it is set.
+		Provided by Danilo Spinella in #217
 
 
 The lsof-org team at GitHub
