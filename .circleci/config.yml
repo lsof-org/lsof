@@ -26,6 +26,27 @@ jobs:
           name: Test
           command: |
             bash ./check.bash linux
+  stream8:
+    docker:
+      - image: quay.io/centos:stream8
+    steps:
+      - run:
+          name: Install build tools
+          command: |
+            dnf -y install git gcc make sudo nmap-ncat iproute libtirpc-devel
+      - checkout
+      - run:
+          name: Configure
+          command: |
+            ./Configure -n linux
+      - run:
+          name: Build
+          command: |
+            make -j 2
+      - run:
+          name: Test
+          command: |
+            bash ./check.bash linux
 
 # Invoke jobs via workflows
 # See: https://circleci.com/docs/2.0/configuration-reference/#workflows
@@ -33,3 +54,4 @@ workflows:
   gnulinux-workflow:
     jobs:
       - fedora36
+      - stream8
