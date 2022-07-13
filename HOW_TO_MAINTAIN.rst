@@ -20,10 +20,15 @@ Linux
 	
 	@dilinger
 	@masatake
+	@jiegec
 
 NetBSD
 
 	@tnn2
+
+Darwin
+
+	@jiegec
 
 
 I, @masatake, is going to step down. See https://github.com/lsof-org/lsof/issues/192 .
