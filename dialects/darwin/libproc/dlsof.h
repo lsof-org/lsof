@@ -94,7 +94,7 @@ typedef	uintptr_t	KA_T;
  * Global storage definitions (including their structure definitions)
  */
 
-struct file *Cfp;
+extern struct file *Cfp;
 
 struct mounts {
         char *dir;              	/* directory (mounted on) */
