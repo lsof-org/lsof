@@ -28,7 +28,7 @@ jobs:
             bash ./check.bash linux
   stream8:
     docker:
-      - image: quay.io/centos:stream8
+      - image: quay.io/centos/centos:stream8
     steps:
       - run:
           name: Install build tools
