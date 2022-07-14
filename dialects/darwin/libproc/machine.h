@@ -50,7 +50,12 @@
 # include <device/device_types.h>
 # endif	/* NEED_MACH_PORT_T */
 
+# if DARWINV>=1900
+// macOS Catalina and later removed /usr/include
+#include "string.h"
+# else
 #include "/usr/include/string.h"
+# endif /* DARWINV>=1900 */
 
 
 /*
