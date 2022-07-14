@@ -170,7 +170,7 @@ struct nameidata { int dummy; };	/* to satisfy function  prototypes */
 #include <sys/sysctl.h>
 # else	/* DARWINV>=800 && DARWINV<1900 */
 #include "/usr/include/sys/sysctl.h"
-# endif	/* DARWINV<800 || DARWINV<1900 */
+# endif	/* DARWINV>=800 && DARWINV<1900 */
 
 # if	DARWINV<800
 #define	KERNEL
