@@ -5357,11 +5357,12 @@ July 14, 2018
 			duplicate symbol '_Cfp' in: ddev.o dfile.o
 
 		Cfp is already explicitly defined in dstore.c. The change turns
-		header definitino into declaration.
-		Provided by Sergei Trofimovich (@trofi) in #221.
-    
-    
-    [linux] Make build reproducible by checking SOURCE_DATE_EPOCH
+		header definition into declaration.
+		Provided by Sergei Trofimovich (@trofi) in #221. The same fix is
+		applied to libproc backend by Jiajie Chen (@jiegec) in #226.
+
+
+		[linux] Make build reproducible by checking SOURCE_DATE_EPOCH
 		and considering LSOF_{HOST,LOGNAME,SYSINFO,USER} as "none" when
 		it is set.
 		Provided by Danilo Spinella in #217
