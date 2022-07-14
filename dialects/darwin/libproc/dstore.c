@@ -42,6 +42,7 @@ static char copyright[] =
 
 #include "lsof.h"
 
+struct file *Cfp;			/* curent file's file struct pointer */
 
 #if	defined(HASFSTRUCT)
 /*
