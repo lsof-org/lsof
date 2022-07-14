@@ -42,7 +42,10 @@
 #include <sys/types.h>
 #include <sys/param.h>
 
-# if	DARWINV>=800
+# if	DARWINV>=1900
+// macOS Catalina and later removed /usr/include
+#include "string.h"
+# elif	DARWINV>=800
 #include "/usr/include/string.h"
 # endif	/* DARWINV>=800 */
 
