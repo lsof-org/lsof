@@ -12,7 +12,8 @@ jobs:
       - run:
           name: Install build tools
           command: |
-            dnf -y install git gcc make sudo nmap-ncat iproute libtirpc-devel
+            dnf -y install git gcc make sudo nmap-ncat iproute libtirpc-devel lcov gem
+            gem install lcoveralls
       - checkout
       - run:
           name: Configure
@@ -21,11 +22,17 @@ jobs:
       - run:
           name: Build
           command: |
-            make -j 2
+            CC="cc"
+            CC_EXTRA="--coverage"
+            make -j 2 CDEF="${CC_EXTRA}" CC="${CC} ${CC_EXTRA}"
       - run:
           name: Test
           command: |
             bash ./check.bash linux
+      - run:
+          name: Report coverage
+          command: |
+            lcov -c -b . -d . -o coverage.info && lcoveralls --token $COVERALLS_REPO_TOKEN --root . --retry-count 5 coverage.info
   stream8:
     docker:
       - image: quay.io/centos/centos:stream8
