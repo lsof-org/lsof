@@ -69,6 +69,9 @@
 #define	ULLONG_MAX		18446744073709551615ULL
 #endif	/* !defined(ULLONG_MAX) */
 
+#define	NS_PATH_LENGTH		100     /* namespace path string length */
+#define	MAP_PATH_LENGTH		100     /* map_files path length */
+#define	ADDR_LENGTH		100     /* addr range of map_files length */
 
 /*
  * Local structures
@@ -1395,6 +1398,31 @@ process_id(idp, idpl, cmd, uid, pid, ppid, pgid, tid, tcmd)
 	return(0);
 }
 
+/* compare mount namespace of this lsof process and the target process */
+
+static int
+compare_mntns(pid)
+        int pid;                        /* pid of the target process */
+{
+	char nspath[NS_PATH_LENGTH];
+	struct stat sb_self, sb_target;
+	int ret;
+
+	if (stat("/proc/self/ns/mnt", &sb_self))
+	    return -1;
+
+	ret = snprintf(nspath, sizeof(nspath), "/proc/%d/ns/mnt", pid);
+	if (ret >= sizeof(nspath) || ret <= 0)
+	    return -1;
+
+	if (stat(nspath, &sb_target))
+	    return -1;
+
+	if (sb_self.st_ino != sb_target.st_ino)
+	    return -1;
+
+	return 0;
+}
 
 /*
  * process_proc_map() - process the memory map of a process
@@ -1425,12 +1453,18 @@ process_proc_map(p, s, ss)
 	static int sma = 0;
 	static char *vbuf = (char *)NULL;
 	static size_t vsz = (size_t)0;
+	int diff_mntns = 0;
 /*
  * Open the /proc/<pid>/maps file, assign a page size buffer to its stream,
  * and read it/
  */
 	if (!(ms = open_proc_stream(p, "r", &vbuf, &vsz, 0)))
 	    return;
+
+	/* target process in a different mount namespace from lsof process. */
+	if (compare_mntns(Lp->pid))
+	    diff_mntns = 1;
+
 	while (fgets(buf, sizeof(buf), ms)) {
 	    if ((nf = get_fields(buf, ":", &fp, &eb, 1)) < 7)
 		continue;			/* not enough fields */
@@ -1518,11 +1552,44 @@ process_proc_map(p, s, ss)
 		efs = sv = 1;
 	    else
 		efs = 0;
-	    if (!efs) {
-		if (HasNFS)
-		    sv = statsafely(fp[6], &sb);
-		else
-		    sv = stat(fp[6], &sb);
+
+	    /* For processes in different mount namespace from lsof process,
+	     * stat corresponding files under /proc/[pid]/map_files would follow
+	     * symlinks regardless of namespaces.
+	     */
+	    if (diff_mntns) {
+		char path[MAP_PATH_LENGTH];
+		char addr[ADDR_LENGTH];
+		uint64_t start, end;
+		int ret;
+
+		if (sscanf(fp[0], "%lx-%lx", &start, &end) != 2)
+		    goto stat_directly;
+
+		ret = snprintf(addr, sizeof(addr), "%lx-%lx", start, end);
+		if (ret >= sizeof(addr) || ret <= 0)
+		    goto stat_directly;
+
+		ret = snprintf(path, sizeof(path), "/proc/%d/map_files/%s",
+			       Lp->pid, addr);
+		if (ret >= sizeof(path) || ret <= 0)
+		    goto stat_directly;
+
+		if (!efs) {
+		    if (HasNFS)
+		        sv = statsafely(path, &sb);
+		    else
+		        sv = stat(path, &sb);
+	        }
+	    }
+	    else {
+stat_directly:
+		if (!efs) {
+		    if (HasNFS)
+			sv = statsafely(fp[6], &sb);
+		    else
+			sv = stat(fp[6], &sb);
+		}
 	    }
 	    if (sv || efs) {
 		en = errno;
@@ -1547,6 +1614,8 @@ process_proc_map(p, s, ss)
 		    nmabuf[sizeof(nmabuf) - 1] = '\0';
 		    (void) add_nma(nmabuf, strlen(nmabuf));
 		}
+	    } else if (diff_mntns) {
+		mss = SB_ALL;
 	    } else if ((sb.st_dev != dev) || ((INODETYPE)sb.st_ino != inode)) {
 
 	    /*
