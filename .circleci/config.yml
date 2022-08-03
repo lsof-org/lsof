@@ -12,7 +12,7 @@ jobs:
       - run:
           name: Install build tools
           command: |
-            dnf -y install git gcc make sudo nmap-ncat iproute libtirpc-devel lcov gem
+            dnf -y install git gcc make sudo nmap-ncat iproute libtirpc-devel lcov gem procps
             gem install lcoveralls
       - checkout
       - run:
@@ -40,7 +40,7 @@ jobs:
       - run:
           name: Install build tools
           command: |
-            dnf -y install git gcc make sudo nmap-ncat iproute libtirpc-devel
+            dnf -y install git gcc make sudo nmap-ncat iproute libtirpc-devel procps
       - checkout
       - run:
           name: Configure
