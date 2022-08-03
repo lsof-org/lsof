@@ -7,6 +7,7 @@ HELPERS = \
 	pipe \
 	pty \
 	ux \
+	mmap \
 	\
 	open_with_flags \
 	\
