@@ -5372,6 +5372,8 @@ July 14, 2018
 		Fixes issue #234.
 		Provided by Jiajie Chen in #235
 
+		[linux] obtain correct information of memory-mapped file.
+		Provided by Teng Hu in #239
 
 The lsof-org team at GitHub
 April 28, 2022
