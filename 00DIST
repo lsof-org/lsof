@@ -5284,6 +5284,7 @@ July 14, 2018
 		submitted/expanded by @dilinger (Andres Salomon) in #168.
 
 
+
 		[FreeBSD] update for FreeBSD 13 & 14, and various internal changes
 		submitted by @DmitryAndric & @emaste.
 
@@ -5374,6 +5375,11 @@ July 14, 2018
 
 		[linux] obtain correct information of memory-mapped file.
 		Provided by Teng Hu in #239
+
+               [FreeBSD] configure: suggest variable to set if FreeBSD sys not 
+               found
+               submitted by @emaste
+
 
 		Updated 00FAQ with lookup to open files via mountpoint
 		Provided by Jacob Chapman in #240
