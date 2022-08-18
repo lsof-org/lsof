@@ -1,0 +1,84 @@
+# Use the latest 2.1 version of CircleCI pipeline process engine.
+# See: https://circleci.com/docs/2.0/configuration-reference
+version: 2.1
+
+# Define a job to be invoked later in a workflow.
+# See: https://circleci.com/docs/2.0/configuration-reference/#jobs
+jobs:
+  fedora36:
+    docker:
+      - image: docker.io/fedora:36
+    steps:
+      - run:
+          name: Install build tools
+          command: |
+            dnf -y install git gcc make sudo nmap-ncat iproute libtirpc-devel lcov gem procps python3-pip
+            pip3 install --user cpp-coveralls
+      - checkout
+      - run:
+          name: Configure
+          command: |
+            ./Configure -n linux
+      - run:
+          name: Build
+          command: |
+            CC="cc"
+            CC_EXTRA="--coverage"
+            make -j 2 CDEF="${CC_EXTRA}" CC="${CC} ${CC_EXTRA}"
+      - run:
+          name: Test
+          command: |
+            bash ./check.bash linux
+      - run:
+          name: Report coverage
+          command: |
+            lcov -c -b . -d . -o coverage.info
+            /root/.local/bin/coveralls --root .
+  stream8:
+    docker:
+      - image: quay.io/centos/centos:stream8
+    steps:
+      - run:
+          name: Install build tools
+          command: |
+            dnf -y install git gcc make sudo nmap-ncat iproute libtirpc-devel procps
+      - checkout
+      - run:
+          name: Configure
+          command: |
+            ./Configure -n linux
+      - run:
+          name: Build
+          command: |
+            make -j 2
+      - run:
+          name: Test
+          command: |
+            bash ./check.bash linux
+  bigsur:
+    macos:
+      xcode: 12.5.1
+    steps:
+      - checkout
+      - run:
+          name: Configure
+          command: |
+            LSOF_INCLUDE=/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include ./Configure -n darwin
+      - run:
+          name: Build
+          command: |
+            make -j 2
+      - run:
+          name: Test
+          command: |
+            # TODO: blocked by issue #236
+            # bash ./check.bash darwin
+
+# Invoke jobs via workflows
+# See: https://circleci.com/docs/2.0/configuration-reference/#workflows
+workflows:
+  gnulinux-workflow:
+    jobs:
+      - fedora36
+      - stream8
+      - bigsur

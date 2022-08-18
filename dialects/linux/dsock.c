@@ -29,12 +29,6 @@
  * 4. This notice may not be removed or altered.
  */
 
-#ifndef lint
-static char copyright[] =
-"@(#) Copyright 1997 Purdue Research Foundation.\nAll rights reserved.\n";
-#endif
-
-
 #include "lsof.h"
 #include <sys/xattr.h>
 
@@ -68,31 +62,33 @@ static char copyright[] =
 #define TCPUDPHASH(ino)	((int)((ino * 31415) >> 3) & (TcpUdp_bucks - 1))
 #define TCPUDP6HASH(ino) ((int)((ino * 31415) >> 3) & (TcpUdp6_bucks - 1))
 
-#define IPCBUCKS 128			/* IPC hash bucket count -- must be
+#define IPCBUCKS 4096			/* IPC hash bucket count -- must be
 					 * a power of two */
 
 /* If a socket is used for IPC, we store both end points for the socket
- * to the same hash backet. This makes seaching the counter part of
+ * to the same hash bucket. This makes seaching the counter part of
  * an end point easier. See get_netpeeri(). */
-#define TCPUDP_IPC_HASH(tp) ((int)(((((tp)->faddr			\
-				      + (tp)->laddr,			\
-				      + (tp)->fport			\
-				      + (tp)->lport			\
-				      + (tp)->proto) * 31415) >> 3)	\
+#define TCPUDP_IPC_HASH(tp) ((int)(((((tp)->faddr * 0x109		\
+				      + (tp)->laddr * 0x109		\
+				      + (tp)->fport * 0x121		\
+				      + (tp)->lport * 0x121		\
+				      + (tp)->proto * 0x181)		\
+				      * 31415) >> 3)			\
 				   & (IPCBUCKS - 1)))
 
 #define TCPUDP6_IPC_ADDR_INT32(a, n) (((a)->s6_addr32[n]))
-#define TCPUDP6_IPC_ADDR_MK_INT(a)		\
-	((int)TCPUDP6_IPC_ADDR_INT32(a, 0x0)    \
-	+(int)TCPUDP6_IPC_ADDR_INT32(a, 0x1)	\
-	+(int)TCPUDP6_IPC_ADDR_INT32(a, 0x2)	\
-	+(int)TCPUDP6_IPC_ADDR_INT32(a, 0x3))
+#define TCPUDP6_IPC_ADDR_MK_INT(a)					\
+	((int)TCPUDP6_IPC_ADDR_INT32(a, 0x0) * 0x123			\
+	+(int)TCPUDP6_IPC_ADDR_INT32(a, 0x1) * 0x111			\
+	+(int)TCPUDP6_IPC_ADDR_INT32(a, 0x2) * 0x149			\
+	+(int)TCPUDP6_IPC_ADDR_INT32(a, 0x3) * 0x185)
 
 #define TCPUDP6_IPC_HASH(tp) ((int)((((TCPUDP6_IPC_ADDR_MK_INT(&(tp)->faddr) \
-				       + TCPUDP6_IPC_ADDR_MK_INT(&(tp)->laddr), \
-				       + (tp)->fport			\
-				       + (tp)->lport			\
-				       + (tp)->proto) * 31415) >> 3)	\
+				       + TCPUDP6_IPC_ADDR_MK_INT(&(tp)->laddr) \
+				       + (tp)->fport * 0x109		\
+				       + (tp)->lport * 0x109		\
+				       + (tp)->proto * 0x141)		\
+				       * 31415) >> 3)			\
 				   & (IPCBUCKS - 1)))
 
 /*
@@ -863,7 +859,7 @@ get_ax25(p)
 		(void) fprintf(stderr,
 		    "%s: can't allocate %d AX25 hash pointer bytes\n",
 		    Pn, (int)(INOBUCKS * sizeof(struct ax25sin *)));
-		Exit(1);
+		Error();
 	    }
 	}
 /*
@@ -935,7 +931,7 @@ get_ax25(p)
 		    (void) fprintf(stderr,
 		      "%s: can't allocate %d destination AX25 addr bytes: %s\n",
 		      Pn, (int)(len + 1), fp[3]);
-		    Exit(1);
+		    Error();
 		}
 		(void) snpf(da, len + 1, "%s", fp[3]);
 	    } else
@@ -950,7 +946,7 @@ get_ax25(p)
 		    (void) fprintf(stderr,
 			"%s: can't allocate %d source AX25 address bytes: %s\n",
 			Pn, (int)(len + 1), fp[2]);
-		    Exit(1);
+		    Error();
 		}
 		(void) snpf(sa, len + 1, "%s", fp[2]);
 	    } else
@@ -965,7 +961,7 @@ get_ax25(p)
 		    (void) fprintf(stderr,
 		      "%s: can't allocate %d destination AX25 dev bytes: %s\n",
 		      Pn, (int)(len + 1), fp[1]);
-		    Exit(1);
+		    Error();
 		}
 		(void) snpf(dev_ch, len + 1, "%s", fp[1]);
 	    } else
@@ -978,7 +974,7 @@ get_ax25(p)
 		(void) fprintf(stderr,
 		    "%s: can't allocate %d byte ax25sin structure\n",
 		    Pn, (int)sizeof(struct ax25sin));
-		Exit(1);
+		Error();
 	    }
 	    ap->da = da;
 	    ap->dev_ch = dev_ch;
@@ -1024,7 +1020,7 @@ enter_uxsinfo (up)
 	    (void) fprintf(stderr,
 		"%s: no space for pipeinfo in uxsinfo, PID %d\n",
 		Pn, Lp->pid);
-	    Exit(1);
+	    Error();
 	}
 	np->ino = Lf->inode;
 	np->lf = Lf;
@@ -1155,7 +1151,7 @@ get_uxpeeri()
 	if ((ns = socket(AF_NETLINK, SOCK_DGRAM, NETLINK_SOCK_DIAG)) == -1) {
 	    (void) fprintf(stderr, "%s: netlink socket error: %s\n",
 		Pn, strerror(errno));
-	    Exit(1);
+	    Error();
 	}
 /*
  * Request peer information.
@@ -1412,7 +1408,7 @@ enter_netsinfo_common (void *tp,
 	    (void) fprintf(stderr,
 			   "%s: no space for pipeinfo in netsinfo, PID %d\n",
 			   Pn, Lp->pid);
-	    Exit(1);
+	    Error();
 	}
 	np->ino = Lf->inode;
 	np->lf = Lf;
@@ -1566,7 +1562,6 @@ process_netsinfo(f)
 					 */
 {
 	struct tcp_udp *p;		/* peer INET socket info pointer */
-	struct tcp_udp*tp;		/* temporary INET socket info pointer */
 
 	if (!FeptE)
 	    return;
@@ -1718,7 +1713,6 @@ process_nets6info(f)
 					 */
 {
 	struct tcp_udp6 *p;		/* peer INET6 socket info pointer */
-	struct tcp_udp6*tp;		/* temporary INET6 socket info pointer */
 
 	if (!FeptE)
 	    return;
@@ -1797,7 +1791,7 @@ get_icmp(p)
 		(void) fprintf(stderr,
 		    "%s: can't allocate %d icmp hash pointer bytes\n",
 		    Pn, (int)(INOBUCKS * sizeof(struct icmpin *)));
-		Exit(1);
+		Error();
 	    }
 	}
 /*
@@ -1863,7 +1857,7 @@ get_icmp(p)
 		    (void) fprintf(stderr,
 			"%s: can't allocate %d local icmp address bytes: %s\n",
 			Pn, (int)(lal + 1), fp[1]);
-		    Exit(1);
+		    Error();
 		}
 		(void) snpf(la, lal + 1, "%s", fp[1]);
 	    }
@@ -1875,7 +1869,7 @@ get_icmp(p)
 		    (void) fprintf(stderr,
 			"%s: can't allocate %d remote icmp address bytes: %s\n",
 			Pn, (int)(ral + 1), fp[2]);
-		    Exit(1);
+		    Error();
 		}
 		(void) snpf(ra, ral + 1, "%s", fp[2]);
 	    }
@@ -1887,7 +1881,7 @@ get_icmp(p)
 		(void) fprintf(stderr,
 		    "%s: can't allocate %d byte icmp structure\n",
 		    Pn, (int)sizeof(struct icmpin));
-		Exit(1);
+		Error();
 	    }
 	    icmpp->inode = inode;
 	    icmpp->la = la;
@@ -1942,7 +1936,7 @@ get_ipx(p)
 		(void) fprintf(stderr,
 		    "%s: can't allocate %d IPX hash pointer bytes\n",
 		    Pn, (int)(INOBUCKS * sizeof(struct ipxsin *)));
-		Exit(1);
+		Error();
 	    }
 	}
 /*
@@ -2018,7 +2012,7 @@ get_ipx(p)
 		    (void) fprintf(stderr,
 			"%s: can't allocate %d local IPX address bytes: %s\n",
 			Pn, (int)(len + 1), fp[0]);
-		    Exit(1);
+		    Error();
 		}
 		(void) snpf(la, len + 1, "%s", fp[0]);
 	    } else
@@ -2033,7 +2027,7 @@ get_ipx(p)
 		    (void) fprintf(stderr,
 			"%s: can't allocate %d remote IPX address bytes: %s\n",
 			Pn, (int)(len + 1), fp[1]);
-		    Exit(1);
+		    Error();
 		}
 		(void) snpf(ra, len + 1, "%s", fp[1]);
 	    } else
@@ -2046,7 +2040,7 @@ get_ipx(p)
 		(void) fprintf(stderr,
 		    "%s: can't allocate %d byte ipxsin structure\n",
 		    Pn, (int)sizeof(struct ipxsin));
-		Exit(1);
+		Error();
 	    }
 	    ip->inode = inode;
 	    ip->la = la;
@@ -2094,7 +2088,7 @@ get_netlink(p)
 		(void) fprintf(stderr,
 		    "%s: can't allocate %d netlink hash pointer bytes\n",
 		    Pn, (int)(INOBUCKS * sizeof(struct nlksin *)));
-		Exit(1);
+		Error();
 	    }
 	}
 /*
@@ -2154,7 +2148,7 @@ get_netlink(p)
 		(void) fprintf(stderr,
 		    "%s: can't allocate %d byte Netlink structure\n",
 		    Pn, (int)sizeof(struct nlksin));
-		Exit(1);
+		Error();
 	    }
 	    lp->inode = inode;
 	    lp->pr = pr;
@@ -2200,7 +2194,7 @@ get_pack(p)
 		(void) fprintf(stderr,
 		    "%s: can't allocate %d packet hash pointer bytes\n",
 		    Pn, (int)(INOBUCKS * sizeof(struct packin *)));
-		Exit(1);
+		Error();
 	    }
 	}
 /*
@@ -2265,7 +2259,7 @@ get_pack(p)
 		(void) fprintf(stderr,
 		    "%s: can't allocate %d byte packet structure\n",
 		    Pn, (int)sizeof(struct packin));
-		Exit(1);
+		Error();
 	    }
 	    pp->inode = inode;
 	    pp->pr = (int)pr;
@@ -2316,7 +2310,7 @@ get_raw(p)
 		(void) fprintf(stderr,
 		    "%s: can't allocate %d raw hash pointer bytes\n",
 		    Pn, (int)(INOBUCKS * sizeof(struct rawsin *)));
-		Exit(1);
+		Error();
 	    }
 	}
 /*
@@ -2375,7 +2369,7 @@ get_raw(p)
 		    (void) fprintf(stderr,
 			"%s: can't allocate %d local raw address bytes: %s\n",
 			Pn, (int)(lal + 1), fp[1]);
-		    Exit(1);
+		    Error();
 		}
 		(void) snpf(la, lal + 1, "%s", fp[1]);
 	    }
@@ -2387,7 +2381,7 @@ get_raw(p)
 		    (void) fprintf(stderr,
 			"%s: can't allocate %d remote raw address bytes: %s\n",
 			Pn, (int)(ral + 1), fp[2]);
-		    Exit(1);
+		    Error();
 		}
 		(void) snpf(ra, ral + 1, "%s", fp[2]);
 	    }
@@ -2399,7 +2393,7 @@ get_raw(p)
 		    (void) fprintf(stderr,
 			"%s: can't allocate %d remote raw state bytes: %s\n",
 			Pn, (int)(spl + 1), fp[2]);
-		    Exit(1);
+		    Error();
 		}
 		(void) snpf(sp, spl + 1, "%s", fp[3]);
 	    }
@@ -2411,7 +2405,7 @@ get_raw(p)
 		(void) fprintf(stderr,
 		    "%s: can't allocate %d byte rawsin structure\n",
 		    Pn, (int)sizeof(struct rawsin));
-		Exit(1);
+		Error();
 	    }
 	    rp->inode = inode;
 	    rp->la = la;
@@ -2472,7 +2466,7 @@ get_sctp()
 		(void) fprintf(stderr,
 		    "%s: can't allocate %d SCTP hash pointer bytes\n",
 		    Pn, (int)(INOBUCKS * sizeof(struct sctpsin *)));
-		Exit(1);
+		Error();
 	    }
 	}
 /*
@@ -2573,7 +2567,7 @@ get_sctp()
 			(void) fprintf(stderr,
 			  "%s: can't allocate %d SCTP ASSOC bytes: %s\n",
 			  Pn, (int)(len + 1), fp[0]);
-			Exit(1);
+			Error();
 		    }
 		    if (!d) {
 			if (plen)
@@ -2603,7 +2597,7 @@ get_sctp()
 			(void) fprintf(stderr,
 			  "%s: can't allocate %d SCTP ASSOC-ID bytes: %s\n",
 			  Pn, (int)(len + 1), fp[6]);
-			Exit(1);
+			Error();
 		    }
 		    if (!d) {
 			if (plen)
@@ -2634,7 +2628,7 @@ get_sctp()
 			(void) fprintf(stderr,
 			  "%s: can't allocate %d SCTP LPORT bytes: %s\n",
 			  Pn, (int)(len + 1), fp[j]);
-			Exit(1);
+			Error();
 		    }
 		    if (!d) {
 			if (plen)
@@ -2664,7 +2658,7 @@ get_sctp()
 			(void) fprintf(stderr,
 			  "%s: can't allocate %d SCTP RPORT bytes: %s\n",
 			  Pn, (int)(len + 1), fp[12]);
-			Exit(1);
+			Error();
 		    }
 		    if (!d) {
 			if (plen)
@@ -2684,7 +2678,7 @@ get_sctp()
 			(void) fprintf(stderr,
 			  "%s: can't allocate %d SCTP LADDRS bytes\n",
 			  Pn, (int)len);
-			Exit(1);
+			Error();
 		    }
 		    if (la) {
 			if (isainb(ta, la)) {
@@ -2695,7 +2689,7 @@ get_sctp()
 				(void) fprintf(stderr,
 				  "%s: can't reallocate %d SCTP LADDRS bytes\n",
 				  Pn, (int)len);
-				Exit(1);
+				Error();
 			    }
 			    (void) snpf(la + plen, len + 2, ",%s", ta);
 			    (void) free((FREE_P *)ta);
@@ -2713,7 +2707,7 @@ get_sctp()
 			(void) fprintf(stderr,
 			  "%s: can't allocate %d SCTP RADDRS bytes\n",
 			  Pn, (int)len);
-			Exit(1);
+			Error();
 		    }
 		    if (ra) {
 			if (isainb(ta, ra)) {
@@ -2724,7 +2718,7 @@ get_sctp()
 				(void) fprintf(stderr,
 				  "%s: can't reallocate %d SCTP RADDRS bytes\n",
 				  Pn, (int)len);
-				Exit(1);
+				Error();
 			    }
 			    (void) snpf(ra + plen, len + 2, ",%s", ta);
 			    (void) free((FREE_P *)ta);
@@ -2742,7 +2736,7 @@ get_sctp()
 			(void) fprintf(stderr,
 			    "%s: can't allocate %d byte sctpsin structure\n",
 			    Pn, (int)sizeof(struct sctpsin));
-			Exit(1);
+			Error();
 		    }
 		    sp->inode = inode;
 		    sp->next = SCTPsin[h];
@@ -2880,7 +2874,7 @@ get_tcpudp(p, pr, clr)
 		(void) fprintf(stderr,
 		    "%s: can't allocate %d bytes for TCP&UDP hash buckets\n",
 		    Pn, (int)(TcpUdp_bucks * sizeof(struct tcp_udp *)));
-		Exit(1);
+		Error();
 	    }
 #if	defined(HASEPTOPTS)
 	    if (FeptE && (!(TcpUdpIPC = (struct tcp_udp **)calloc(IPCBUCKS,
@@ -2888,7 +2882,7 @@ get_tcpudp(p, pr, clr)
 		(void) fprintf(stderr,
 			       "%s: can't allocate %d bytes for TCP&UDP local IPC hash buckets\n",
 			       Pn, (int)(IPCBUCKS * sizeof(struct tcp_udp *)));
-		Exit(1);
+		Error();
 	    }
 #endif	/* defined(HASEPTOPTS) */
 	}
@@ -2978,7 +2972,7 @@ get_tcpudp(p, pr, clr)
 		(void) fprintf(stderr,
 		    "%s: can't allocate %d bytes for tcp_udp struct\n",
 		    Pn, (int)sizeof(struct tcp_udp));
-		Exit(1);
+		Error();
 	    }
 	    tp->inode = inode;
 	    tp->faddr = faddr;
@@ -3058,7 +3052,7 @@ get_raw6(p)
 		(void) fprintf(stderr,
 		    "%s: can't allocate %d raw6 hash pointer bytes\n",
 		    Pn, (int)(INOBUCKS * sizeof(struct rawsin *)));
-		Exit(1);
+		Error();
 	    }
 	}
 /*
@@ -3117,7 +3111,7 @@ get_raw6(p)
 		    (void) fprintf(stderr,
 			"%s: can't allocate %d local raw6 address bytes: %s\n",
 			Pn, (int)(lal + 1), fp[1]);
-		    Exit(1);
+		    Error();
 		}
 		(void) snpf(la, lal + 1, "%s", fp[1]);
 	    }
@@ -3129,7 +3123,7 @@ get_raw6(p)
 		    (void) fprintf(stderr,
 			"%s: can't allocate %d remote raw6 address bytes: %s\n",
 			Pn, (int)(ral + 1), fp[2]);
-		    Exit(1);
+		    Error();
 		}
 		(void) snpf(ra, ral + 1, "%s", fp[2]);
 	    }
@@ -3141,7 +3135,7 @@ get_raw6(p)
 		    (void) fprintf(stderr,
 			"%s: can't allocate %d remote raw6 state bytes: %s\n",
 			Pn, (int)(spl + 1), fp[2]);
-		    Exit(1);
+		    Error();
 		}
 		(void) snpf(sp, spl + 1, "%s", fp[3]);
 	    }
@@ -3153,7 +3147,7 @@ get_raw6(p)
 		(void) fprintf(stderr,
 		    "%s: can't allocate %d byte rawsin structure for IPv6\n",
 		    Pn, (int)sizeof(struct rawsin));
-		Exit(1);
+		Error();
 	    }
 	    rp->inode = inode;
 	    rp->la = la;
@@ -3261,7 +3255,7 @@ get_tcpudp6(p, pr, clr)
 		(void) fprintf(stderr,
 		    "%s: can't allocate %d bytes for TCP6&UDP6 hash buckets\n",
 		    Pn, (int)(TcpUdp6_bucks * sizeof(struct tcp_udp6 *)));
-		Exit(1);
+		Error();
 	    }
 #if	defined(HASEPTOPTS)
 	    if (FeptE && (!(TcpUdp6IPC = (struct tcp_udp6 **)calloc(IPCBUCKS,
@@ -3269,7 +3263,7 @@ get_tcpudp6(p, pr, clr)
 		(void) fprintf(stderr,
 			       "%s: can't allocate %d bytes for TCP6&UDP6 local IPC hash buckets\n",
 			       Pn, (int)(IPCBUCKS * sizeof(struct tcp_udp6 *)));
-		Exit(1);
+		Error();
 	    }
 #endif	/* defined(HASEPTOPTS) */
 	}
@@ -3355,7 +3349,7 @@ get_tcpudp6(p, pr, clr)
 		(void) fprintf(stderr,
 		    "%s: can't allocate %d bytes for tcp_udp6 struct\n",
 		    Pn, (int)sizeof(struct tcp_udp6));
-		Exit(1);
+		Error();
 	    }
 	    tp6->inode = inode;
 	    tp6->faddr = faddr;
@@ -3445,7 +3439,7 @@ get_unix(p)
 		(void) fprintf(stderr,
 		    "%s: can't allocate %d bytes for Unix socket info\n",
 		    Pn, (int)(INOBUCKS * sizeof(uxsin_t *)));
-		Exit(1);
+		Error();
 	    }
 	}
 /*
@@ -3505,7 +3499,7 @@ get_unix(p)
 		    (void) fprintf(stderr,
 			"%s: can't allocate %d bytes for UNIX PCB: %s\n",
 			Pn, (int)(len + 1), fp[0]);
-		    Exit(1);
+		    Error();
 		}
 		(void) snpf(pcb, len + 1, "0x%s", fp[0]);
 	    }
@@ -3514,7 +3508,7 @@ get_unix(p)
 		    (void) fprintf(stderr,
 			"%s: can't allocate %d bytes for UNIX path \"%s\"\n",
 			Pn, (int)(len + 1), fp[7]);
-		    Exit(1);
+		    Error();
 		}
 		(void) snpf(path, len + 1, "%s", fp[7]);
 	    } else
@@ -3552,7 +3546,7 @@ get_unix(p)
 		(void) fprintf(stderr,
 		    "%s: can't allocate %d bytes for uxsin struct\n",
 		    Pn, (int)sizeof(uxsin_t));
-		Exit(1);
+		Error();
 	    }
 	    up->inode = inode;
 	    up->next = (uxsin_t *)NULL;
@@ -3752,7 +3746,7 @@ print_ax25info(ap)
 	    (void) fprintf(stderr,
 		"%s: can't allocate %d bytes for AX25 sock state, PID: %d\n",
 		Pn, (int)(pl + 1), Lp->pid);
-	    Exit(1);
+	    Error();
 	}
 	(void) snpf(cp, pl + 1, "%s", pbuf);
 	Lf->nma = cp;
@@ -3779,7 +3773,7 @@ print_ipxinfo(ip)
 	    (void) fprintf(stderr,
 		"%s: can't allocate %d bytes for IPX sock state, PID: %d\n",
 		Pn, (int)(pl + 1), Lp->pid);
-	    Exit(1);
+	    Error();
 	}
 	(void) snpf(cp, pl + 1, "%s", pbuf);
 	Lf->nma = cp;

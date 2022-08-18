@@ -165,11 +165,12 @@ struct nameidata { int dummy; };	/* to satisfy function  prototypes */
 #undef	TRUE
 #undef	FALSE
 
-# if	DARWINV<800
+# if	DARWINV<800 || DARWINV>=1900
+// macOS Catalina and later removed /usr/include
 #include <sys/sysctl.h>
-# else	/* DARWINV>=800 */
+# else	/* DARWINV>=800 && DARWINV<1900 */
 #include "/usr/include/sys/sysctl.h"
-# endif	/* DARWINV<800 */
+# endif	/* DARWINV>=800 && DARWINV<1900 */
 
 # if	DARWINV<800
 #define	KERNEL
@@ -246,7 +247,7 @@ typedef	u_long		KA_T;
  * Global storage definitions (including their structure definitions)
  */
 
-struct file * Cfp;
+extern struct file * Cfp;
 
 extern int Kd;				/* KMEM descriptor */
 extern KA_T Kpa;

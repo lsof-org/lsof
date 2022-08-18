@@ -2203,8 +2203,15 @@ ______________________________________________________________________
 	current working directory.
 
 	If you want to list instances of open files inside the
-	directory, you need to specify the individual path names
-	of those files, or use the lsof +D and +d options.
+	directory, you need to either specify the individual path names
+	of those files, their common mount point, or use the lsof +D 
+	and +d options.
+	
+	For example, if you wanted to check the files open in your /lsof 
+	folder then the following might be the quickest way to get
+	the answer you are looking for:
+
+	lsof / | grep /lsof | grep -v DIR
 
 	See the answer to the question "Why are the +D and +d
 	options so slow?" before you use +D or +d casually.

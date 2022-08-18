@@ -29,12 +29,6 @@
  * 4. This notice may not be removed or altered.
  */
 
-#ifndef lint
-static char copyright[] =
-"@(#) Copyright 1994 Purdue Research Foundation.\nAll rights reserved.\n";
-#endif
-
-
 #include "lsof.h"
 
 
@@ -160,6 +154,7 @@ endnm(sz)
 static void
 fill_portmap()
 {
+	static int already_run = 0;
 	char buf[128], *cp, *nm;
 	CLIENT *c;
 	int h, port, pr;
@@ -174,6 +169,13 @@ fill_portmap()
 	struct sockaddr_in ia;
 	int s = RPC_ANYSOCK;
 #endif	/* !defined(CAN_USE_CLNT_CREATE) */
+
+/*
+ * Make sure this is only run once.
+ */
+	if (already_run)
+		return;
+	already_run = 1;
 
 /*
  * Construct structures for communicating with the portmapper.
@@ -254,7 +256,7 @@ fill_portmap()
 		(void) fprintf(stderr,
 		    "%s: can't allocate space for portmap entry: ", Pn);
 		safestrprt(cp, stderr, 1);
-		Exit(1);
+		Error();
 	    }
 	    if (!nl) {
 		(void) free((FREE_P *)nm);
@@ -268,7 +270,7 @@ fill_portmap()
 		(void) fprintf(stderr,
 		    "%s: can't allocate porttab entry for portmap: ", Pn);
 		safestrprt(nm, stderr, 1);
-		Exit(1);
+		Error();
 	    }
 	    pt->name = nm;
 	    pt->nl = nl;
@@ -332,7 +334,7 @@ fill_porttab()
 		(void) fprintf(stderr,
 		    "%s: can't allocate %d bytes for port %d name: %s\n",
 		    Pn, (int)(nl + 1), p, se->s_name);
-		Exit(1);
+		Error();
 	    }
 	    if (!nl) {
 		(void) free((FREE_P *)nm);
@@ -342,7 +344,7 @@ fill_porttab()
 		(void) fprintf(stderr,
 		    "%s: can't allocate porttab entry for port %d: %s\n",
 		    Pn, p, se->s_name);
-		Exit(1);
+		Error();
 	    }
 	    pt->name = nm;
 	    pt->nl = nl - 1;
@@ -434,7 +436,7 @@ gethostnm(ia, af)
 	if (!(np = mkstrcpy(hn, (MALLOC_S *)NULL))) {
 	    (void) fprintf(stderr, "%s: no space for host name: ", Pn);
 	    safestrprt(hn, stderr, 1);
-	    Exit(1);
+	    Error();
 	}
 /*
  * Add address/name entry to cache.  Allocate cache space in HCINC chunks.
@@ -448,7 +450,7 @@ gethostnm(ia, af)
 		hc = (struct hostcache *)realloc((MALLOC_P *)hc, len);
 	    if (!hc) {
 		(void) fprintf(stderr, "%s: no space for host cache\n", Pn);
-		Exit(1);
+		Error();
 	    }
 	}
 	hc[hcx].af = af;
@@ -475,7 +477,6 @@ lkup_port(p, pr, src)
 	MALLOC_S nl;
 	char *nm, *pn;
 	static char pb[128];
-	static int pm = 0;
 	struct porttab *pt;
 /*
  * If the hash buckets haven't been allocated, do so.
@@ -498,7 +499,7 @@ lkup_port(p, pr, src)
 		      (int)(2 * (PORTHASHBUCKETS * sizeof(struct porttab *))),
 		      (h & 1) ? "UDP" : "TCP",
 		      (h > 1) ? "portmap" : "port");
-		    Exit(1);
+		    Error();
 		}
 	    }
 	}
@@ -508,10 +509,8 @@ lkup_port(p, pr, src)
  * If we're looking up program names for portmapped ports, make sure the
  * portmap table has been loaded.
  */
-	if (FportMap && !pm) {
+	if (FportMap)
 	    (void) fill_portmap();
-	    pm++;
-	}
 #endif	/* !defined(HASNORPC_H) */
 
 /*
@@ -564,7 +563,7 @@ lkup_port(p, pr, src)
 	if (!(pt = (struct porttab *)malloc(sizeof(struct porttab)))) {
 	    (void) fprintf(stderr,
 		"%s: can't allocate porttab entry for port %d\n", Pn, p);
-	    Exit(1);
+	    Error();
 	}
 /*
  * Allocate space for the name; copy it to the porttab entry; and link the
@@ -576,7 +575,7 @@ lkup_port(p, pr, src)
 	    (void) fprintf(stderr,
 		"%s: can't allocate space for port name: ", Pn);
 	    safestrprt(pn, stderr, 1);
-	    Exit(1);
+	    Error();
 	}
 	pt->name = nm;
 	pt->nl = nl;
@@ -1238,6 +1237,15 @@ addr_too_long:
 				src = 0;
 			}
 		    }
+#else
+		    /*
+		     * Just for suppressing warnings reported from compiler.
+		     *
+		     * src is referenced in lkup_port() only if "!defined(HASNORPC_H)"
+		     * is true. The condition here is !defined(HASNORPC_H) is false.
+		     * Therefore the value of src has no impact.
+		     */
+		    src = 1;
 #endif	/* !defined(HASNORPC_H) */
 
 		    if (strcasecmp(Lf->iproto, "TCP") == 0)
@@ -2349,7 +2357,7 @@ printuid(uid, ty)
 		if (stat("/etc/passwd", &sb) != 0) {
 		    (void) fprintf(stderr, "%s: can't stat(/etc/passwd): %s\n",
 			Pn, strerror(errno));
-		    Exit(1);
+		    Error();
 		}
 	    }
 	/*
@@ -2362,7 +2370,7 @@ printuid(uid, ty)
 		    (void) fprintf(stderr,
 			"%s: no space for %d byte UID cache hash buckets\n",
 			Pn, (int)(UIDCACHEL * (sizeof(struct uidcache *))));
-		    Exit(1);
+		    Error();
 		}
 		if (CkPasswd) {
 		    sbs = sb;
@@ -2420,7 +2428,7 @@ printuid(uid, ty)
 		    (void) fprintf(stderr,
 			"%s: no space for UID cache entry for: %lu, %s)\n",
 			Pn, (unsigned long)uid, pw->pw_name);
-		    Exit(1);
+		    Error();
 		}
 		(void) strncpy(upn->nm, pw->pw_name, LOGINML);
 		upn->nm[LOGINML] = '\0';
@@ -2835,7 +2843,7 @@ update_portmap(pt, pn)
 	    (void) fprintf(stderr,
 		"%s: can't allocate %d bytes for portmap name: %s[%s]\n",
 		Pn, (int)(nl + 1), pn, pt->name);
-	    Exit(1);
+	    Error();
 	}
 	(void) snpf(cp, nl + 1, "%s[%s]", pn, pt->name);
 	(void) free((FREE_P *)pt->name);

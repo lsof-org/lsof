@@ -82,7 +82,7 @@ ckkv(d, er, ev, ea)
 	if ((kr = host_kernel_version(host_self(), kv)) != KERN_SUCCESS) {
 	    (void) snpf(m, sizeof(m), "%s: can't get kernel version:", Pn);
 	    mach_error(m, kr);
-	    Exit(1);
+	    Error();
 	}
 /*
  * Skip blank-separated tokens until reaching "Mach".  The kernel version
@@ -222,7 +222,7 @@ gather_proc_info()
 		    uf = (struct file **)realloc((MALLOC_P *)uf, nb);
 		if (!uf) {
 		    (void) fprintf(stderr, "%s: no uu_ofile space\n", Pn);
-		    Exit(1);
+		    Error();
 		}
 		ufb = nb;
 	    }
@@ -239,7 +239,7 @@ gather_proc_info()
 			pof = (char *)realloc((MALLOC_P *)pof, nb);
 		    if (!pof) {
 			(void) fprintf(stderr, "%s: no uu_pofile space\n", Pn);
-			Exit(1);
+			Error();
 		    }
 		    pofb = nb;
 		}
@@ -304,7 +304,7 @@ get_kernel_access()
  * See if the non-KMEM memory file is readable.
  */
 	if (Memory && !is_readable(Memory, 1))
-		Exit(1);
+		Error();
 #endif	/* defined(WILLDROPGID) */
 
 /*
@@ -313,7 +313,7 @@ get_kernel_access()
 	if ((Kd = open(Memory ? Memory : KMEM, O_RDONLY, 0)) < 0) {
 		(void) fprintf(stderr, "%s: can't open %s: %s\n", Pn,
 			Memory ? Memory : KMEM, strerror(errno));
-		Exit(1);
+		Error();
 	}
 
 #if	defined(WILLDROPGID)
@@ -327,7 +327,7 @@ get_kernel_access()
  * See if the name list file is readable.  Build Nl.
  */
 	if (Nmlst && !is_readable(Nmlst, 1))
-		Exit(1);
+		Error();
 #endif	/* defined(WILLDROPGID) */
 
 	(void) build_Nl(Drive_Nl);
@@ -343,7 +343,7 @@ get_kernel_access()
 		if (!(nl = (struct nlist *)malloc(Nll))) {
 			(void) fprintf(stderr,
 				"%s: no space (%d) for Nl[] copy\n", Pn, Nll);
-			Exit(1);
+			Error();
 		}
 		(void) bcopy((char *)Nl, (char *)nl, Nll);
 	}
@@ -355,12 +355,12 @@ get_kernel_access()
 	if (nlist(Nmlst ? Nmlst : VMUNIX, Nl) < 0) {
 		(void) fprintf(stderr, "%s: can't read namelist from %s\n",
 			Pn, Nmlst ? Nmlst : VMUNIX);
-                Exit(1);
+                Error();
 	}
 	if (get_Nl_value("aproc", Drive_Nl, &lv) < 0 || !lv) {
 		(void) fprintf(stderr, "%s: can't get proc table address\n",
 			Pn);
-		Exit(1);
+		Error();
 	}
 
 #if	defined(HAS_AFS)
@@ -616,7 +616,7 @@ process_map(map)
 		{
 		    (void) fprintf(stderr, "%s: no txt ptr space, PID %d\n",
 			Pn, Lp->pid);
-		    Exit(1);
+		    Error();
 		}
 		Nv = 10;
 	    } else if (n >= Nv) {
@@ -626,7 +626,7 @@ process_map(map)
 		{
 		    (void) fprintf(stderr,
 			"%s: no more txt ptr space, PID %d\n", Pn, Lp->pid);
-		    Exit(1);
+		    Error();
 		}
 	    }
 	    Vp[n++] = (KA_T)vmp.vs_vp;
@@ -660,7 +660,7 @@ read_proc()
 		if ((apax = get_Nl_value("aproc", Drive_Nl, &apav)) < 0) {
 		    (void) fprintf(stderr,
 			"%s: can't get process table address pointer\n", Pn);
-		    Exit(1);
+		    Error();
 		}
 	    }
 	    if (kread((KA_T)apav, (char *)&Kp, sizeof(Kp))) {
@@ -681,13 +681,13 @@ read_proc()
 		    {
 			(void) fprintf(stderr, "%s: no proc table space\n",
 			    Pn);
-			Exit(1);
+			Error();
 		    }
 		    if (!(Pa = (KA_T *)malloc((MALLOC_S)(sz * sizeof(KA_T)))))
 		    {
 			(void) fprintf(stderr, "%s: no proc pointer space\n",
 			    Pn);
-			Exit(1);
+			Error();
 		    }
 		}
 	/*
@@ -715,7 +715,7 @@ read_proc()
 					(void) fprintf(stderr,
 						"%s: no more (%d) proc space\n",
 						Pn, sz);
-					Exit(1);
+					Error();
 				}
 				if (!(Pa = (KA_T *)realloc((MALLOC_P *)Pa,
 					(MALLOC_S)(sizeof(KA_T) * sz))))
@@ -723,7 +723,7 @@ read_proc()
 					(void) fprintf(stderr,
 					    "%s: no more (%d) proc ptr space\n",
 					    Pn, sz);
-					Exit(1);
+					Error();
 				}
 			}
 		}
@@ -738,7 +738,7 @@ read_proc()
  */
 	if (try >= PROCTRYLM) {
 		(void) fprintf(stderr, "%s: can't read proc table\n", Pn);
-		Exit(1);
+		Error();
 	}
 	if (Np < sz && !RptTm) {
 
@@ -752,7 +752,7 @@ read_proc()
 			(void) fprintf(stderr,
 				"%s: can't reduce proc table to %d\n",
 				Pn, Np);
-			Exit(1);
+			Error();
 		}
 		if (!(Pa = (KA_T *)realloc((MALLOC_P *)Pa,
 			  (MALLOC_S)(sizeof(KA_T) * Np))))
@@ -760,7 +760,7 @@ read_proc()
 			(void) fprintf(stderr,
 				"%s: can't reduce proc ptrs to %d\n",
 				Pn, Np);
-			Exit(1);
+			Error();
 		}
 	}
 }

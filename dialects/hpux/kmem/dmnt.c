@@ -126,7 +126,7 @@ completevfs(vfs, dev)
 	    if (!(vfs->dir = mkstrcpy(v->vfs_name, (MALLOC_S *)NULL))) {
 		(void) fprintf(stderr, "%s: no space for vfs name: ", Pn);
 		safestrprt(v->vfs_name, stderr, 1);
-		Exit(1);
+		Error();
 	    }
 	    if (statsafely(v->vfs_name, &sb) == 0)
 		vfs->dev = sb.st_dev;
@@ -167,7 +167,7 @@ readvfs(lv)
 	if ((vp = (struct l_vfs *)malloc(sizeof(struct l_vfs))) == NULL) {
 	    (void) fprintf(stderr, "%s: PID %d, no space for vfs\n",
 		Pn, Lp->pid);
-	    Exit(1);
+	    Error();
 	}
 	vp->dev = 0;
 	vp->dir = (char *)NULL;

@@ -29,12 +29,6 @@
  * 4. This notice may not be removed or altered.
  */
 
-#ifndef lint
-static char copyright[] =
-"@(#) Copyright 1997 Purdue Research Foundation.\nAll rights reserved.\n";
-#endif
-
-
 #include "lsof.h"
 
 
@@ -114,7 +108,7 @@ hashSfile()
 	    (void) fprintf(stderr,
 		"%s: can't allocate space for %d (dev,ino) hash buckets\n",
 		Pn, SFDIHASH);
-	    Exit(1);
+	    Error();
 	}
 	if (!(HbyFrd = (struct hsfile *)calloc((MALLOC_S)SFRDHASH,
 					       sizeof(struct hsfile))))
@@ -122,7 +116,7 @@ hashSfile()
 	    (void) fprintf(stderr,
 		"%s: can't allocate space for %d rdev hash buckets\n",
 		Pn, SFRDHASH);
-	    Exit(1);
+	    Error();
 	}
 	if (!(HbyFsd = (struct hsfile *)calloc((MALLOC_S)SFFSHASH,
 					       sizeof(struct hsfile))))
@@ -130,7 +124,7 @@ hashSfile()
 	    (void) fprintf(stderr,
 		"%s: can't allocate space for %d file sys hash buckets\n",
 		Pn, SFFSHASH);
-	    Exit(1);
+	    Error();
 	}
 	if (!(HbyNm = (struct hsfile *)calloc((MALLOC_S)SFNMHASH,
 					      sizeof(struct hsfile))))
@@ -138,7 +132,7 @@ hashSfile()
 	    (void) fprintf(stderr,
 		"%s: can't allocate space for %d name hash buckets\n",
 		Pn, SFNMHASH);
-	    Exit(1);
+	    Error();
 	}
 	hs++;
 /*
@@ -196,7 +190,7 @@ hashSfile()
 			(void) fprintf(stderr,
 			    "%s: can't allocate hsfile bucket for: %s\n",
 			    Pn, s->aname);
-			Exit(1);
+			Error();
 		    }
 		    sn->s = s;
 		    sn->next = sh->next;

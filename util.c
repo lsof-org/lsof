@@ -36,11 +36,6 @@
  */
 
 
-#ifndef lint
-static char copyright[] =
-"@(#) Copyright 2008 Purdue Research Foundation.\nAll rights reserved.\n";
-#endif
-
 #if	defined(HAS_STRFTIME)
 #include <time.h>
 #endif	/* defined(HAS_STRFTIME) */

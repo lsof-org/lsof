@@ -29,12 +29,6 @@
  * 4. This notice may not be removed or altered.
  */
 
-#ifndef lint
-static char copyright[] =
-"@(#) Copyright 1994 Purdue Research Foundation.\nAll rights reserved.\n";
-#endif
-
-
 #include "lsof.h"
 
 
@@ -179,6 +173,7 @@ int FsvFlagX = 0;		/* hex format status for FSV_FG */
 int Ftask = 0;			/* -K option value */
 int NiColW;			/* NODE-ID column width */
 char *NiTtl = NITTL;		/* NODE-ID column title */
+int FsearchErr = 1;		/* -Q option status */
 int Ftcptpi = TCPTPI_STATE;	/* -T option status */
 int Fterse = 0;			/* -t option status */
 int Funix = 0;			/* -U option status */

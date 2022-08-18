@@ -13,14 +13,29 @@ if ! [ -x $TARGET ]; then
     exit 1
 fi
 
-$TARGET $tfile "$@" &
-pid=$!
+export LC_ALL=C
 
-echo "expected: $pat" >> $report
-echo "lsof output:" >> $report
-$lsof +fg -p $pid | tee -a $report | grep -q "$pat"
-result=$?
+$TARGET $tfile "$@" 2>> $report | {
+    read pid
 
-kill $pid
+    if  [[ -z "$pid" ]]; then
+	if grep -q 'open: Operation not supported' $report; then
+	    echo "a flag passed to open is not supported on this platform" >> $report
+	    exit 2
+	fi
+	echo "unexpected output form target ( $TARGET )" >> $report
+	exit 1
+    fi
+    if ! [ -e "/proc/$pid" ]; then
+	echo "the target process dead unexpectedly" >> $report
+	exit 1
+    fi
 
-exit $result
+    echo "expected: $pat" >> $report
+    echo "lsof output:" >> $report
+    $lsof +fg -p $pid | tee -a $report | grep -q "$pat"
+    result=$?
+
+    kill $pid
+    exit $result
+}

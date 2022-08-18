@@ -263,7 +263,7 @@ ncache_isroot(na, cp)
 	    if (!nc) {
 		(void) fprintf(stderr, "%s: no space for root node table\n",
 		    Pn);
-		Exit(1);
+		Error();
 	    }
 	    nca += 10;
 	}
@@ -354,7 +354,7 @@ ncache_load()
 		if (!Fwarn)
 		    (void) fprintf(stderr,
 			"%s: can't allocate name cache space: %d\n", Pn, len);
-		Exit(1);
+		Error();
 	    }
 # endif	/* defined(NCACHE_NXT) */
 
@@ -369,7 +369,7 @@ no_local_space:
 		if (!Fwarn)
 		    (void) fprintf(stderr,
 			"%s: no space for %d byte local name cache\n", Pn, len);
-		Exit(1);
+		Error();
 	    }
 	} else {
 
@@ -441,7 +441,7 @@ no_local_space:
 		    (void) fprintf(stderr,
 			"%s: no more space for %d entry local name cache\n",
 			Pn, Nc);
-		    Exit(1);
+		    Error();
 		}
 		lc = &Ncache[n];
 	    }
@@ -519,7 +519,7 @@ no_local_space:
 		(void) fprintf(stderr,
 		    "%s: no space for %d name cache hash pointers\n",
 		    Pn, Nch + Nc);
-	    Exit(1);
+	    Error();
 	}
 	for (i = 0, lc = Ncache; i < Nc; i++, lc++) {
 

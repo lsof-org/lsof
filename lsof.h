@@ -321,12 +321,10 @@ extern int optind;
 
 # if	!defined(LOGINML)
 #  if	defined(HASUTMPX)
-static struct utmpx dummy_utmp;		/* to get login name length */
-#define	LOGINML		sizeof(dummy_utmp.ut_user)
+#define	LOGINML		sizeof(((struct utmpx *)0)->ut_user)
 					/* login name length */
 #  else	/* !defined(HASUTMPX) */
-static struct utmp dummy_utmp;		/* to get login name length */
-#define	LOGINML		sizeof(dummy_utmp.ut_name)
+#define	LOGINML		sizeof(((struct utmp *)0)->ut_name)
 					/* login name length */
 #  endif	/* defined(HASUTMPX) */
 # endif	/* !defined(LOGINML) */
@@ -557,6 +555,18 @@ extern int ZoneColW;
 #define	SELFILE		(SELFD|SELNFS|SELNLINK|SELNM)	/* file selecters */
 #define	SELNW		(SELNA|SELNET|SELUNX)		/* network selecters */
 
+
+/*
+ * Exit Status
+ */
+
+enum ExitStatus {
+	LSOF_SUCCESS,
+	LSOF_ERROR,
+};
+#define LSOF_SEARCH_FAILURE (FsearchErr? LSOF_ERROR: LSOF_SUCCESS)
+
+
 /*
  * Structure definitions
  */
@@ -715,6 +725,7 @@ extern int FportMap;
 
 extern int Fpgid;
 extern int Fppid;
+extern int FsearchErr;
 extern int Fsize;
 extern int Fsv;
 extern int FsvByf;

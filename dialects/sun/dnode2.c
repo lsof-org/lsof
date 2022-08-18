@@ -149,14 +149,14 @@ add2em(em, fmt, arg)
 	    if (!(eml = (MALLOC_S)strlen(em))) {
 		(void) fprintf(stderr, "%s: add2em: previous message empty\n",
 		    Pn);
-		Exit(1);
+		Error();
 	    }
 	    al = eml + nl + 3;
 	    em = (char *)realloc((MALLOC_P *)em, al);
 	}
 	if (!em) {
 	    (void) fprintf(stderr, "%s: no VxFS error message space\n", Pn);
-	    Exit(1);
+	    Error();
 	}
 	(void) snpf(em + eml, al - eml, "%s%s%s",
 	    eml ? "" : EMSGPFX,
@@ -239,7 +239,7 @@ getioffs(vx, vxl, dev, devl, ino, inol, nl, nll, sz, szl)
 	    return(add2em((char *)NULL, "zero length %s", "vx_inode"));
 	if (!(tv = (char *)malloc((MALLOC_S)tvl))) {
 	    (void) fprintf(stderr, "%s: no vx_inode space\n", Pn);
-	    Exit(1);
+	    Error();
 	}
 	*vx = tv;
 	*vxl = tvl;
@@ -312,7 +312,7 @@ print_vxfs_rnl_path(lf)
 		if (!rm) {
 		    (void) fprintf(stderr,
 			"%s: no RNL mount point cache space\n", Pn);
-		    Exit(1);
+		    Error();
 		}
 	    }
 	    i = rmu;

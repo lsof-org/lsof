@@ -10,10 +10,14 @@ if ! [ -x $TARGET ]; then
     exit 1
 fi
 
-$TARGET | {
+$TARGET 2>> $report | {
     read pid epfd
     if [[ -z "$pid" || -z "$epfd" ]]; then
 	echo "unexpected output form target ( $TARGET )" >> $report
+	exit 1
+    fi
+    if ! [ -e "/proc/$pid" ]; then
+	echo "the target process dead unexpectedly" >> $report
 	exit 1
     fi
     {
@@ -24,7 +28,7 @@ $TARGET | {
 	echo done
     } >> $report
     if $lsof -p $pid -a -d $epfd |
-	    grep -q "epoll *[0-9]* *.* *${epfd}u *a_inode *[0-9]*,[0-9]* *[0-9]* *[0-9]* *\[eventpoll:0,1,2\]"; then
+	    grep -q "epoll *[0-9]* *.* *${epfd}u *a_inode *[0-9]*,[0-9]* *[0-9]* *[0-9]* *\[eventpoll:5,6\]"; then
 	kill $pid
 	exit 0
     else

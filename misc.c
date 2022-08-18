@@ -29,12 +29,6 @@
  * 4. This notice may not be removed or altered.
  */
 
-#ifndef lint
-static char copyright[] =
-"@(#) Copyright 1994 Purdue Research Foundation.\nAll rights reserved.\n";
-#endif
-
-
 #include "lsof.h"
 
 #if	defined(HASWIDECHAR)
@@ -109,7 +103,7 @@ build_Nl(d)
 	if (n < 1) {
 	    (void) fprintf(stderr,
 		"%s: can't calculate kernel name list length\n", Pn);
-	    Exit(1);
+	    Error();
 	}
 	if (!(Nl = (struct NLIST_TYPE *)calloc((n + 1),
 					       sizeof(struct NLIST_TYPE))))
@@ -117,7 +111,7 @@ build_Nl(d)
 	    (void) fprintf(stderr,
 		"%s: can't allocate %d bytes to kernel name list structure\n",
 		Pn, (int)((n + 1) * sizeof(struct NLIST_TYPE)));
-	    Exit(1);
+	    Error();
 	}
 	for (dp = d, i = 0; i < n; dp++, i++) {
 	    Nl[i].NL_NAME = dp->knm;
@@ -171,7 +165,7 @@ childx()
 			    "%s: WARNING -- child process %d may be hung.\n",
 			    Pn, (int)Cpid);
 		    break;
-	        }
+		}
 	    /*
 	     * Send the next signal to the child process, after the first pass
 	     * through the loop.
@@ -254,7 +248,7 @@ doinchild(fn, fp, rbuf, rbln)
 	    (void) fprintf(stderr,
 		"%s: doinchild error; response buffer too large: %d\n",
 		Pn, rbln);
-	    Exit(1);
+	    Error();
 	}
 /*
  * Set up to handle an alarm signal; handle an alarm signal; build
@@ -281,7 +275,7 @@ doinchild(fn, fp, rbuf, rbln)
 		if (pipe(Pipes) < 0 || pipe(&Pipes[2]) < 0) {
 		    (void) fprintf(stderr, "%s: can't open pipes: %s\n",
 			Pn, strerror(errno));
-		    Exit(1);
+		    Error();
 		}
 	    /*
 	     * Fork a child to execute functions.
@@ -316,7 +310,7 @@ doinchild(fn, fp, rbuf, rbln)
 			(void) fprintf(stderr,
 			    "%s: can't dup Pipes[0] to fd 0: %s\n",
 			    Pn, strerror(errno));
-			Exit(1);
+			Error();
 		    }
 		    Pipes[0] = 0;
 		    rc = dup2(Pipes[3], 1);
@@ -324,7 +318,7 @@ doinchild(fn, fp, rbuf, rbln)
 			(void) fprintf(stderr,
 			    "%s: can't dup Pipes.[3] to fd 1: %s\n",
 			    Pn, strerror(errno));
-			Exit(1);
+			Error();
 		    }
 		    Pipes[3] = 1;
 		    (void) closefrom(2);
@@ -386,7 +380,7 @@ doinchild(fn, fp, rbuf, rbln)
 		if (Cpid < 0) {
 		    (void) fprintf(stderr, "%s: can't fork: %s\n",
 			Pn, strerror(errno));
-		    Exit(1);
+		    Error();
 		}
 		(void) close(Pipes[0]);
 		(void) close(Pipes[3]);
@@ -495,7 +489,7 @@ dropgid()
 	    if (setgid(Mygid) < 0) {
 		(void) fprintf(stderr, "%s: can't setgid(%d): %s\n",
 		    Pn, (int)Mygid, strerror(errno));
-		Exit(1);
+		Error();
 	    }
 	    Setgid = 0;
 	}
@@ -519,7 +513,7 @@ enter_dev_ch(m)
 	    (void) fprintf(stderr, "%s: no more dev_ch space at PID %d: \n",
 		Pn, Lp->pid);
 	    safestrprt(m, stderr, 1);
-	    Exit(1);
+	    Error();
 	}
 	if (Lf->dev_ch)
 	   (void) free((FREE_P *)Lf->dev_ch);
@@ -551,7 +545,7 @@ enter_IPstate(ty, nm, nr)
 	if (!ty) {
 	    (void) fprintf(stderr,
 		"%s: no type specified to enter_IPstate()\n", Pn);
-	    Exit(1);
+	    Error();
 	}
 	if (!strcmp(ty, "TCP"))
 	    tx = 0;
@@ -560,7 +554,7 @@ enter_IPstate(ty, nm, nr)
 	else {
 	    (void) fprintf(stderr, "%s: unknown type for enter_IPstate: %s\n",
 		Pn, ty);
-	    Exit(1);
+	    Error();
 	}
 /*
  * If the name argument is NULL, reduce the allocated table to its minimum
@@ -579,7 +573,7 @@ enter_IPstate(ty, nm, nr)
 			{
 			    (void) fprintf(stderr,
 				"%s: can't reduce UdpSt[]\n", Pn);
-			    Exit(1);
+			    Error();
 			}
 		    }
 		    UdpStAlloc = UdpNstates;
@@ -596,7 +590,7 @@ enter_IPstate(ty, nm, nr)
 			{
 			    (void) fprintf(stderr,
 				"%s: can't reduce TcpSt[]\n", Pn);
-			    Exit(1);
+			    Error();
 			}
 		    }
 		    TcpStAlloc = TcpNstates;
@@ -610,7 +604,7 @@ enter_IPstate(ty, nm, nr)
 	if ((len = (size_t)strlen(nm)) < 1) {
 	    (void) fprintf(stderr,
 		"%s: bad %s name (\"%s\"), number=%d\n", Pn, ty, nm, nr);
-	    Exit(1);
+	    Error();
 	}
 /*
  * Make a copy of the name.
@@ -619,7 +613,7 @@ enter_IPstate(ty, nm, nr)
 	    (void) fprintf(stderr,
 		"%s: enter_IPstate(): no %s space for %s\n",
 		Pn, ty, nm);
-	    Exit(1);
+	    Error();
 	}
 /*
  * Set the necessary offset for using nr as an index.  If it is
@@ -696,7 +690,7 @@ enter_IPstate(ty, nm, nr)
 no_IP_space:
 
 		    (void) fprintf(stderr, "%s: no %s state space\n", Pn, ty);
-		    Exit(1);
+		    Error();
 		}
 		UdpNstates = nn;
 		UdpStAlloc = al;
@@ -736,7 +730,7 @@ dup_IP_state:
 		    Pn, ty, nr,
 		    tx ? UdpSt[nr + UdpStOff] : TcpSt[nr + TcpStOff],
 		    nm);
-	 	Exit(1);
+		Error();
 	    }
 	    UdpSt[nr + UdpStOff] = cp;
 	} else {
@@ -765,7 +759,7 @@ enter_nm(m)
 	    (void) fprintf(stderr, "%s: no more nm space at PID %d for: ",
 		Pn, Lp->pid);
 	    safestrprt(m, stderr, 1);
-	    Exit(1);
+	    Error();
 	}
 	if (Lf->nm)
 	    (void) free((FREE_P *)Lf->nm);
@@ -779,7 +773,7 @@ enter_nm(m)
 
 void
 Exit(xv)
-	int xv;				/* exit() value */
+	enum ExitStatus xv;				/* exit() value */
 {
 	(void) childx();
 
@@ -790,6 +784,16 @@ Exit(xv)
 #endif	/* defined(HASDCACHE) */
 
 	exit(xv);
+}
+
+
+/*
+ * Error() - exit with an error status
+ */
+void
+Error(void)
+{
+	Exit (LSOF_ERROR);
 }
 
 
@@ -1201,7 +1205,7 @@ no_readlink_space:
 
 	    (void) fprintf(stderr, "%s: no Readlink string space for ", Pn);
 	    safestrprt(abuf, stderr, 1);
-	    Exit(1);
+	    Error();
 	}
 	if (sx >= MAXSYMLINKS) {
 
@@ -1488,7 +1492,7 @@ safestrprt(sp, fs, flags)
 			    }
 			} else {
 			    for (lnt = 0; lnt < lnc; lnt++) {
-			        fputs(safepup((unsigned int)*(sp + lnt),
+				fputs(safepup((unsigned int)*(sp + lnt),
 					      (int *)NULL), fs);
 			    }
 			}
@@ -1618,7 +1622,7 @@ stkdir(p)
 		(void) fprintf(stderr,
 		    "%s: no space for directory stack at: ", Pn);
 		safestrprt(p, stderr, 1);
-		Exit(1);
+		Error();
 	    }
 	}
 /*
@@ -1627,7 +1631,7 @@ stkdir(p)
 	if (!(Dstk[Dstkx] = mkstrcpy(p, (MALLOC_S *)NULL))) {
 	    (void) fprintf(stderr, "%s: no space for: ", Pn);
 	    safestrprt(p, stderr, 1);
-	    Exit(1);
+	    Error();
 	}
 	Dstkx++;
 }

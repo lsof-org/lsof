@@ -133,7 +133,7 @@ enter_vn_text(va, n)
 	    if (!Vp) {
 		(void) fprintf(stderr, "%s: no txt ptr space, PID %d\n",
 		    Pn, Lp->pid);
-		Exit(1);
+		Error();
 	    }
 	}
 /*
@@ -177,7 +177,7 @@ gather_proc_info()
  */
 	if (read_procs()) {
 	    (void) fprintf(stderr, "%s: can't read process table\n", Pn);
-	    Exit(1);
+	    Error();
 	}
 /*
  * Examine proc structures and their associated information.
@@ -275,7 +275,7 @@ gather_proc_info()
 		if (!ofb) {
 		    (void) fprintf(stderr, "%s: PID %d, no file * space\n",
 			Pn, p->p_pid);
-		    Exit(1);
+		    Error();
 		}
 		ofbb = nb;
 	    }
@@ -291,7 +291,7 @@ gather_proc_info()
 		if (!pof) {
 		    (void) fprintf(stderr, "%s: PID %d, no file flag space\n",
 			Pn, p->p_pid);
-		    Exit(1);
+		    Error();
 		}
 		pofb = nb;
 	    }
@@ -347,12 +347,12 @@ getcmdnm(pid)
 	    if (sysctl(mib, 2, &am, &sz, NULL, 0) == -1) {
 		(void) fprintf(stderr, "%s: can't get arg max, PID %d\n",
 		    Pn, pid);
-		Exit(1);
+		Error();
 	    }
 	    if (!(ap = (char *)malloc((MALLOC_S)am))) {
 		(void) fprintf(stderr, "%s: no arg ptr (%d) space, PID %d\n",
 		    Pn, am, pid);
-		Exit(1);
+		Error();
 	    }
 	}
 /*
@@ -433,7 +433,7 @@ get_kernel_access()
  */
 	if ((Memory && !is_readable(Memory, 1))
 	||  (Nmlst && !is_readable(Nmlst, 1)))
-	    Exit(1);
+	    Error();
 #endif	/* defined(WILLDROPGID) */
 
 /*
@@ -444,13 +444,13 @@ get_kernel_access()
 	    (void) fprintf(stderr, "%s: open(%s): %s\n", Pn,
 	        Memory ? Memory : KMEM,
 		strerror(errno));
-	    Exit(1);
+	    Error();
 	}
 	(void) build_Nl(Drive_Nl);
 	if (nlist(Nmlst, Nl) < 0) {
 	    (void) fprintf(stderr, "%s: can't read namelist from %s\n",
 		Pn, Nmlst);
-	    Exit(1);
+	    Error();
 	}
 
 #if	defined(WILLDROPGID)
@@ -624,7 +624,7 @@ read_procs()
 	    if (get_Nl_value("aproc", Drive_Nl, &Akp) < 0 || !Akp) {
 		(void) fprintf(stderr, "%s: can't get proc table address\n",
 		    Pn);
-		Exit(1);
+		Error();
 	    }
 	}
 /*
@@ -633,12 +633,12 @@ read_procs()
  */
 	if (get_Nl_value("nproc", Drive_Nl, &kp) < 0 || !kp) {
 	    (void) fprintf(stderr, "%s: can't get nproc address\n", Pn);
-	    Exit(1);
+	    Error();
 	}
 	if (kread(kp, (char *)&np, sizeof(np))) {
 	    (void) fprintf(stderr, "%s: can't read process count from %s\n",
 		Pn, print_kptr(kp, (char *)NULL, 0));
-	    Exit(1);
+	    Error();
 	}
 	for (np += np, pe = PINCRSZ; pe < np; pe += PINCRSZ)
 	    ;
@@ -652,7 +652,7 @@ read_procs()
 	    Proc = (struct proc *)realloc((MALLOC_P *)Proc, msz);
 	if (!Proc) {
 	    (void) fprintf(stderr, "%s: no space for proc table\n", Pn);
-	    Exit(1);
+	    Error();
 	}
 	msz = (MALLOC_S)(pe * sizeof(KA_T));
 	if (!Pa)
@@ -661,7 +661,7 @@ read_procs()
 	    Pa = (KA_T *)realloc((MALLOC_P *)Pa, msz);
 	if (!Pa) {
 	    (void) fprintf(stderr, "%s: no space for proc addr table\n", Pn);
-	    Exit(1);
+	    Error();
 	}
 	Npa = pe;
 /*
@@ -680,7 +680,7 @@ read_procs()
 	}
 	if (!Phash) {
 	    (void) fprintf(stderr, "%s: no space for proc address hash\n", Pn);
-	    Exit(1);
+	    Error();
 	}
 /*
  * Read the proc structures on the kernel's chain.
@@ -702,7 +702,7 @@ read_procs()
 	    if (!(ph = (struct phash *)malloc((MALLOC_S)sizeof(struct phash))))
 	    {
 		(void) fprintf(stderr, "%s: no space for phash struct\n", Pn);
-		Exit(1);
+		Error();
 	    }
 	    ph->ka = kp;
 	    ph->la = p;
@@ -719,13 +719,13 @@ read_procs()
 		if (!(Proc = (struct proc *)realloc((MALLOC_P *)Proc, msz))) {
 		    (void) fprintf(stderr, "%s: no additional proc space\n",
 			Pn);
-		    Exit(1);
+		    Error();
 		}
 		msz = (int)((Npa + PINCRSZ) * sizeof(KA_T));
 		if (!(Pa = (KA_T *)realloc((MALLOC_P *)Pa, msz))) {
 		    (void) fprintf(stderr,
 			"%s: no additional proc addr space\n", Pn);
-		    Exit(1);
+		    Error();
 		}
 		Npa += PINCRSZ;
 	    }
@@ -736,7 +736,7 @@ read_procs()
  */
 	if (i >= pe) {
 	    (void) fprintf(stderr, "%s: can't follow kernel proc chain\n", Pn);
-	    Exit(1);
+	    Error();
 	}
 /*
  * If not in repeat mode, reduce Pa[] and Proc[] to their minimums.
@@ -745,13 +745,13 @@ read_procs()
 	    msz = (MALLOC_S)(Np * sizeof(struct proc));
 	    if (!(Proc = (struct proc *)realloc((MALLOC_P *)Proc, msz))) {
 		(void) fprintf(stderr, "%s: can't reduce proc table\n", Pn);
-		Exit(1);
+		Error();
 	    }
 	    msz = (MALLOC_S)(Np * sizeof(KA_T));
 	    if (!(Pa = (KA_T *)realloc((MALLOC_P *)Pa, msz))) {
 		(void) fprintf(stderr, "%s: can't reduce proc addr table\n",
 		    Pn);
-		Exit(1);
+		Error();
 	    }
 	    Npa = Np;
 	}

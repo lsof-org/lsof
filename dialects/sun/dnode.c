@@ -573,13 +573,13 @@ build_Voptab()
 					    sizeof(v_optab_t)))
 	) {
 	    (void) fprintf(stderr, "%s: no space for Voptab\n", Pn);
-	    Exit(1);
+	    Error();
 	}
 	if (!(FxToVoptab = (v_optab_t **)calloc((MALLOC_S)Fsinfomax,
 						sizeof(v_optab_t *)))
 	) {
 	    (void) fprintf(stderr, "%s: no space for FxToVoptab\n", Pn);
-	    Exit(1);
+	    Error();
 	}
 	for (i = 0; i < VXVOP_NUM; i++) {
 	    Vvops[i] = (KA_T)NULL;
@@ -620,7 +620,7 @@ build_Voptab()
 	    if (!(nv = (v_optab_t *)malloc((MALLOC_S)sizeof(v_optab_t)))) {
 		(void) fprintf(stderr, "%s: out of Voptab space at: %s\n",
 			Pn, bp->dnm);
-		Exit(1);
+		Error();
 	    }
 	    nv->fsys = bp->fsys;
 	    nv->fx = -1;
@@ -823,7 +823,7 @@ CTF_init(i, t, r)
     if (!isas) {
 	if (sysinfo(SI_ARCHITECTURE_K, isa, sizeof(isa) - 1) == -1) {
 	    (void) fprintf(stderr, "%s: sysinfo: %s\n", Pn, strerror(errno));
-	    Exit(1);
+	    Error();
 	}
 	isas = 1;
 	isa[sizeof(isa) - 1] = '\0';
@@ -871,7 +871,7 @@ CTF_init(i, t, r)
     if ((f = ctf_open(kmp, &err)) == NULL) {
 	(void) fprintf(stderr, "%s: ctf_open: %s: %s\n",
 	    Pn, kmp, ctf_errmsg(err));
-	Exit(1);
+	Error();
     }
     for (err = 0; r->name; r++) {
 	if (CTF_getmem(f, kmp, r->name, r->mem))
@@ -879,7 +879,7 @@ CTF_init(i, t, r)
     }
     (void) ctf_close(f);
     if (err)
-	Exit(1);
+	Error();
     *i = 1;
 }
 
@@ -1447,7 +1447,7 @@ process_node(va)
 #endif	/* defined(HAS_AFS) */
 
 			      );
-		Exit(1);
+		Error();
 	    }
 	}
 	if (readvnode(va, v)) {
@@ -3821,7 +3821,7 @@ vfs_read_error:
 			    (void) fprintf(stderr,
 				"%s: no space for (COMMON): PID %d; FD %s\n",
 				Pn, Lp->pid, Lf->fd);
-			    Exit(1);
+			    Error();
 			}
 			(void) snpf(Lf->nma, len, "(COMMON)");
 		    }
@@ -5396,7 +5396,7 @@ vop2ty(vp, fx)
 		if (!(nv = (v_optab_t *)malloc((MALLOC_S)sizeof(v_optab_t)))) {
 		    (void) fprintf(stderr, "%s: can't add \"%s\" to Voptab\n",
 			Pn, Fsinfo[fx]);
-		    Exit(1);
+		    Error();
 		}
 		*nv = *v;
 		nv->v_op = ka;

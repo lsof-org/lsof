@@ -168,7 +168,7 @@ no_space_for_mount:
 		(void) fprintf(stderr, " (");
 		safestrprt(dir, stderr, 0);
 		(void) fprintf(stderr, ")\n");
-		Exit(1);
+		Error();
 	    }
 	    if (!(ln = Readlink(dn))) {
 		if (!Fwarn) {
@@ -371,7 +371,7 @@ readvfs(ka, la, lv)
 	if (!(vp = (struct l_vfs *)malloc(sizeof(struct l_vfs)))) {
 	    (void) fprintf(stderr, "%s: PID %d, no space for vfs\n",
 		Pn, Lp->pid);
-	    Exit(1);
+	    Error();
 	}
 	vp->dir = (char *)NULL;
 	vp->fsname = (char *)NULL;

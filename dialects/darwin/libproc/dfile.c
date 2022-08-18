@@ -394,7 +394,7 @@ process_kqueue(pid, fd)
 	    (void) fprintf(stderr,
 		"      too few bytes; expected %ld, got %d\n",
 		sizeof(kq), nb);
-	    Exit(1);
+	    Error();
 	}
 /*
  * Enter the kernel queue file information.
@@ -479,7 +479,7 @@ process_pipe(pid, fd)
 	    (void) fprintf(stderr,
 		"      too few bytes; expected %ld, got %d\n",
 	       sizeof(pi), nb);
-	    Exit(1);
+	    Error();
 	}
 
 	process_pipe_common(&pi);
@@ -508,7 +508,7 @@ process_fileport_pipe(pid, fp)
 	    (void) fprintf(stderr,
 		"      too few bytes; expected %ld, got %d\n",
 	       sizeof(pi), nb);
-	    Exit(1);
+	    Error();
 	}
 
 	process_pipe_common(&pi);
@@ -542,7 +542,7 @@ process_psem(pid, fd)
 	    (void) fprintf(stderr,
 		"      too few bytes; expected %ld, got %d\n",
 		sizeof(ps), nb);
-	    Exit(1);
+	    Error();
 	}
 /*
  * Enter the semaphore file information.
@@ -624,7 +624,7 @@ process_pshm(pid, fd)
 	    (void) fprintf(stderr,
 		"      too few bytes; expected %ld, got %d\n",
 		sizeof(ps), nb);
-	    Exit(1);
+	    Error();
 	}
 
 	process_pshm_common(&ps);
@@ -653,7 +653,7 @@ process_fileport_pshm(pid, fp)
 	    (void) fprintf(stderr,
 		"      too few bytes; expected %ld, got %d\n",
 		sizeof(ps), nb);
-	    Exit(1);
+	    Error();
 	}
 
 	process_pshm_common(&ps);
@@ -706,7 +706,7 @@ process_vnode(pid, fd)
 	    (void) fprintf(stderr,
 		"      too few bytes; expected %ld, got %d\n",
 		sizeof(vi), nb);
-	    Exit(1);
+	    Error();
 	}
 
 	process_vnode_common(&vi);
@@ -743,7 +743,7 @@ process_fileport_vnode(pid, fp)
 	    (void) fprintf(stderr,
 		"      too few bytes; expected %ld, got %d\n",
 		sizeof(vi), nb);
-	    Exit(1);
+	    Error();
 	}
 
 	process_vnode_common(&vi);

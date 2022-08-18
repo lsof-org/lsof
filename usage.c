@@ -29,11 +29,8 @@
  * 4. This notice may not be removed or altered.
  */
 
-#ifndef lint
 static char copyright[] =
-"@(#) Copyright 1998 Purdue Research Foundation.\nAll rights reserved.\n";
-#endif
-
+"Copyright 1998 Purdue Research Foundation. All rights reserved.";
 
 #include "lsof.h"
 #include "version.h"
@@ -329,15 +326,15 @@ report_WARNDEVACCESS(pfx, verb, punct)
  */
 
 void
-usage(xv, fh, version)
-	int xv;				/* exit value */
+usage(err, fh, version)
+	int err;			/* it is called as part of error handlng? */
 	int fh;				/* ``-F ?'' status */
 	int version;			/* ``-v'' status */
 {
 	char buf[MAXPATHLEN+1], *cp, *cp1, *cp2;
 	int col, i;
 
-	if (Fhelp || xv) {
+	if (Fhelp || err) {
 	    (void) fprintf(stderr, "%s %s\n latest revision: %s\n",
 		Pn, LSOF_VERSION, LSOF_REPO_URL);
 	    (void) fprintf(stderr, " latest FAQ: %s\n", LSOF_FAQ_URL);
@@ -490,11 +487,11 @@ usage(xv, fh, version)
 
 	    (void) fprintf(stderr, " [--] [names]\n");
 	}
-	if (xv && !Fhelp) {
+	if (err && !Fhelp) {
 	    (void) fprintf(stderr,
 		"Use the ``-h'' option to get more help information.\n");
 	    if (!fh)
-    		Exit(xv);
+		Exit(err? LSOF_ERROR: LSOF_SUCCESS);
 	}
 	if (Fhelp) {
 	    (void) fprintf(stderr,
@@ -559,6 +556,7 @@ usage(xv, fh, version)
 	    col = print_in_col(col, "-o list file offset");
 	    col = print_in_col(col, "-O no overhead *RISKY*");
 	    col = print_in_col(col, "-P no port names");
+	    col = print_in_col(col, "-Q allow failed search");
 
 #if	defined(HASPPID)
 	     col = print_in_col(col, "-R list paRent PID");
@@ -749,13 +747,13 @@ usage(xv, fh, version)
 		"",
 #endif	/* defined(HASSOOPT) || defined(HASSOSTATE) || defined(HASTCPOPT)*/
 
-#if 	defined(HASTCPTPIQ)
+#if	defined(HASTCPTPIQ)
 		"q",
 #else	/* !defined(HASTCPTPIQ) */
 		" ",
 #endif	/* defined(HASTCPTPIQ) */
 
-#if 	defined(HASTCPTPIW)
+#if	defined(HASTCPTPIW)
 		"w",
 #else	/* !defined(HASTCPTPIW) */
 		"",
@@ -767,13 +765,13 @@ usage(xv, fh, version)
 		"",
 #endif	/* defined(HASSOOPT) || defined(HASSOSTATE) || defined(HASTCPOPT)*/
 
-#if 	defined(HASTCPTPIQ)
+#if	defined(HASTCPTPIQ)
 		"Q,",
 #else	/* !defined(HASTCPTPIQ) */
 		"",
 #endif	/* defined(HASTCPTPIQ) */
 
-#if 	defined(HASTCPTPIW)
+#if	defined(HASTCPTPIW)
 		",Win"
 #else	/* !defined(HASTCPTPIW) */
 		""
@@ -918,6 +916,7 @@ usage(xv, fh, version)
 	 */
 	    (void) fprintf(stderr, "%s version information:\n", Pn);
 	    (void) fprintf(stderr, "    revision: %s\n", LSOF_VERSION);
+	    (void) fprintf(stderr, "    copyright notice: %s\n", copyright);
 	    (void) fprintf(stderr, "    latest revision: %s\n", LSOF_REPO_URL);
 	    (void) fprintf(stderr, "    latest FAQ: %s\n",
 		LSOF_FAQ_URL);
@@ -972,5 +971,5 @@ usage(xv, fh, version)
 
 	    (void) report_HASDCACHE(1, "    ", "\t");
 	}
-	Exit(xv);
+	Exit(err? LSOF_ERROR: LSOF_SUCCESS);
 }

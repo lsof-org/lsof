@@ -29,11 +29,6 @@
  * 4. This notice may not be removed or altered.
  */
 
-#ifndef lint
-static char copyright[] =
-"@(#) Copyright 1997 Purdue Research Foundation.\nAll rights reserved.\n";
-#endif
-
 #include "lsof.h"
 
 
@@ -74,6 +69,9 @@ static char copyright[] =
 #define	ULLONG_MAX		18446744073709551615ULL
 #endif	/* !defined(ULLONG_MAX) */
 
+#define	NS_PATH_LENGTH		100     /* namespace path string length */
+#define	MAP_PATH_LENGTH		100     /* map_files path length */
+#define	ADDR_LENGTH		100     /* addr range of map_files length */
 
 /*
  * Local structures
@@ -177,7 +175,7 @@ enter_cntx_arg(cntx)
  */
 	if (!(cntxp = (cntxlist_t *)malloc((MALLOC_S)sizeof(cntxlist_t)))) {
 	    (void) fprintf(stderr, "%s: no space for context: %s\n", Pn, cntx);
-	    Exit(1);
+	    Error();
 	}
 	cntxp->f = 0;
 	cntxp->cntx = cntx;
@@ -205,7 +203,7 @@ alloc_cbf(len, cbf, cbfa)
 	if (!*cbf) {
 	    (void) fprintf(stderr,
 		"%s: can't allocate command %d bytes\n", Pn, (int)len);
-	     Exit(1);
+	     Error();
 	}
 	return(len);
 }
@@ -247,7 +245,7 @@ gather_proc_info()
 		(void) fprintf(stderr,
 		    "%s: can't allocate %d bytes for \"%s/\"<pid>\n",
 		    Pn, (int)pidpathl, PROCFS);
-		Exit(1);
+		Error();
 	    }
 	    (void) snpf(pidpath, pidpathl, "%s/", PROCFS);
 	}
@@ -310,7 +308,7 @@ gather_proc_info()
 	if (!ps) {
 	    if (!(ps = opendir(PROCFS))) {
 		(void) fprintf(stderr, "%s: can't open %s\n", Pn, PROCFS);
-		Exit(1);
+		Error();
 	    }
 	} else
 	    (void) rewinddir(ps);
@@ -327,7 +325,7 @@ gather_proc_info()
 		    (void) fprintf(stderr,
 			"%s: can't allocate %d bytes for \"%s/%s/\"\n",
 			Pn, (int)pidpathl, PROCFS, dp->d_name);
-		    Exit(1);
+		    Error();
 		}
 	    }
 	    (void) snpf(pidpath + pidx, pidpathl - pidx, "%s/", dp->d_name);
@@ -397,7 +395,7 @@ gather_proc_info()
 				    tidpathl);
 				(void) fprintf(stderr, " for \"%s/%s/stat\"\n",
 				    taskpath, dp->d_name);
-				Exit(1);
+				Error();
 			    }
 			}
 			(void) snpf(tidpath, tidpathl, "%s/%s/stat", taskpath,
@@ -733,7 +731,7 @@ make_proc_path(pp, pl, np, nl, sf)
 		(void) fprintf(stderr,
 		    "%s: can't allocate %d bytes for %s%s\n",
 		    Pn, (int)rl, pp, sf);
-		Exit(1);
+		Error();
 	    }
 	    *nl = rl;
 	    *np = cp;
@@ -867,7 +865,7 @@ open_proc_stream(p, m, buf, sz, act)
 	int act;			/* fopen() failure action:
 					 *     0 : return (FILE *)NULL
 					 *   <>0 : fprintf() an error message
-					 *         and Exit(1)
+					 *         and Error()
 					 */
 {
 	FILE *fs;			/* opened stream */
@@ -881,7 +879,7 @@ open_proc_stream(p, m, buf, sz, act)
 		return((FILE *)NULL);
 	    (void) fprintf(stderr, "%s: can't fopen(%s, \"%s\"): %s\n",
 		Pn, p, m, strerror(errno));
-	    Exit(1);
+	    Error();
 	}
 /*
  * Return the stream if no buffer change is required.
@@ -904,7 +902,7 @@ open_proc_stream(p, m, buf, sz, act)
 		(void) fprintf(stderr,
 		    "%s: can't allocate %d bytes for %s stream buffer\n",
 		    Pn, (int)tsz, p);
-		Exit(1);
+		Error();
 	    }
 	    *sz = tsz;
 	}
@@ -914,7 +912,7 @@ open_proc_stream(p, m, buf, sz, act)
 	if (setvbuf(fs, *buf, _IOFBF, tsz)) {
 	    (void) fprintf(stderr, "%s: setvbuf(%s)=%d failure: %s\n",
 		Pn, p, (int)tsz, strerror(errno));
-	    Exit(1);
+	    Error();
 	}
 	return(fs);
 }
@@ -1002,7 +1000,7 @@ process_id(idp, idpl, cmd, uid, pid, ppid, pgid, tid, tcmd)
 		    "%s: PID %d, TID %d, no space for task name: ",
 		    Pn, pid, tid);
 		safestrprt(tcmd, stderr, 1);
-		Exit(1);
+		Error();
 	    }
 	}
 #endif	/* defined(HASTASKS) */
@@ -1184,7 +1182,7 @@ process_id(idp, idpl, cmd, uid, pid, ppid, pgid, tid, tcmd)
 			(void) fprintf(stderr,
 			    "%s: no context error space: PID %ld",
 			    Pn, (long)Lp->pid);
-			Exit(1);
+			Error();
 		    }
 		}
 	    } else if (CntxArg) {
@@ -1400,6 +1398,31 @@ process_id(idp, idpl, cmd, uid, pid, ppid, pgid, tid, tcmd)
 	return(0);
 }
 
+/* compare mount namespace of this lsof process and the target process */
+
+static int
+compare_mntns(pid)
+        int pid;                        /* pid of the target process */
+{
+	char nspath[NS_PATH_LENGTH];
+	struct stat sb_self, sb_target;
+	int ret;
+
+	if (stat("/proc/self/ns/mnt", &sb_self))
+	    return -1;
+
+	ret = snprintf(nspath, sizeof(nspath), "/proc/%d/ns/mnt", pid);
+	if (ret >= sizeof(nspath) || ret <= 0)
+	    return -1;
+
+	if (stat(nspath, &sb_target))
+	    return -1;
+
+	if (sb_self.st_ino != sb_target.st_ino)
+	    return -1;
+
+	return 0;
+}
 
 /*
  * process_proc_map() - process the memory map of a process
@@ -1430,12 +1453,18 @@ process_proc_map(p, s, ss)
 	static int sma = 0;
 	static char *vbuf = (char *)NULL;
 	static size_t vsz = (size_t)0;
+	int diff_mntns = 0;
 /*
  * Open the /proc/<pid>/maps file, assign a page size buffer to its stream,
  * and read it/
  */
 	if (!(ms = open_proc_stream(p, "r", &vbuf, &vsz, 0)))
 	    return;
+
+	/* target process in a different mount namespace from lsof process. */
+	if (compare_mntns(Lp->pid))
+	    diff_mntns = 1;
+
 	while (fgets(buf, sizeof(buf), ms)) {
 	    if ((nf = get_fields(buf, ":", &fp, &eb, 1)) < 7)
 		continue;			/* not enough fields */
@@ -1508,7 +1537,7 @@ process_proc_map(p, s, ss)
 		    (void) fprintf(stderr,
 			"%s: can't allocate %d bytes for saved maps, PID %d\n",
 			Pn, (int)len, Lp->pid);
-		    Exit(1);
+		    Error();
 		}
 	    }
 	    sm[ns].dev = dev;
@@ -1523,11 +1552,44 @@ process_proc_map(p, s, ss)
 		efs = sv = 1;
 	    else
 		efs = 0;
-	    if (!efs) {
-		if (HasNFS)
-		    sv = statsafely(fp[6], &sb);
-		else
-		    sv = stat(fp[6], &sb);
+
+	    /* For processes in different mount namespace from lsof process,
+	     * stat corresponding files under /proc/[pid]/map_files would follow
+	     * symlinks regardless of namespaces.
+	     */
+	    if (diff_mntns) {
+		char path[MAP_PATH_LENGTH];
+		char addr[ADDR_LENGTH];
+		uint64_t start, end;
+		int ret;
+
+		if (sscanf(fp[0], "%lx-%lx", &start, &end) != 2)
+		    goto stat_directly;
+
+		ret = snprintf(addr, sizeof(addr), "%lx-%lx", start, end);
+		if (ret >= sizeof(addr) || ret <= 0)
+		    goto stat_directly;
+
+		ret = snprintf(path, sizeof(path), "/proc/%d/map_files/%s",
+			       Lp->pid, addr);
+		if (ret >= sizeof(path) || ret <= 0)
+		    goto stat_directly;
+
+		if (!efs) {
+		    if (HasNFS)
+		        sv = statsafely(path, &sb);
+		    else
+		        sv = stat(path, &sb);
+	        }
+	    }
+	    else {
+stat_directly:
+		if (!efs) {
+		    if (HasNFS)
+			sv = statsafely(fp[6], &sb);
+		    else
+			sv = stat(fp[6], &sb);
+		}
 	    }
 	    if (sv || efs) {
 		en = errno;
@@ -1552,6 +1614,8 @@ process_proc_map(p, s, ss)
 		    nmabuf[sizeof(nmabuf) - 1] = '\0';
 		    (void) add_nma(nmabuf, strlen(nmabuf));
 		}
+	    } else if (diff_mntns) {
+		mss = SB_ALL;
 	    } else if ((sb.st_dev != dev) || ((INODETYPE)sb.st_ino != inode)) {
 
 	    /*
@@ -1798,7 +1862,7 @@ statEx(p, s, ss)
 		(void) fprintf(stderr,
 		    "%s: PID %ld: no statEx path space: %s\n",
 		    Pn, (long)Lp->pid, p);
-		Exit(1);
+		Error();
 	    }
 	    ca = sz + 1;
 	}

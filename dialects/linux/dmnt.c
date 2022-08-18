@@ -29,12 +29,6 @@
  * 4. This notice may not be removed or altered.
  */
 
-#ifndef	lint
-static char copyright[] =
-"@(#) Copyright 1997 Purdue Research Foundation.\nAll rights reserved.\n";
-#endif
-
-
 #include "lsof.h"
 
 
@@ -107,7 +101,7 @@ cvtoe(os)
 	    (void) fprintf(stderr,
 		"%s: can't allocate %d bytes for octal-escaping.\n",
 		Pn, ol + 1);
-	    Exit(1);
+	    Error();
 	}
 /*
  * Copy the string, replacing octal-escaped characters as they are found.
@@ -158,7 +152,7 @@ cvtoe(os)
 		    (void) fprintf(stderr,
 			"%s: can't realloc %d bytes for octal-escaping.\n",
 			Pn, cl + 1);
-		    Exit(1);
+		    Error();
 		}
 	    }
 	/*
@@ -300,7 +294,7 @@ getmntdev(dn, dnl, s, ss)
 			(void) fprintf(stderr,
 			    "%s: no space for mount supplement hash buckets\n",
 			    Pn);
-			Exit(1);
+			Error();
 		    }
 		}
 		h = hash_mnt(path);
@@ -330,13 +324,13 @@ getmntdev(dn, dnl, s, ss)
 		    (void) fprintf(stderr,
 			"%s: no space for mount supplement entry: %d \"%s\"\n",
 			Pn, ln, buf);
-		    Exit(1);
+		    Error();
 		}
 		if (!(mpn->dn = (char *)malloc(sz + 1))) {
 		    (void) fprintf(stderr,
 			"%s: no space for mount supplement path: %d \"%s\"\n",
 			Pn, ln, buf);
-		    Exit(1);
+		    Error();
 		}
 		(void) strcpy(mpn->dn, path);
 		mpn->dnl = sz;
@@ -625,7 +619,7 @@ readmnt()
 		    (void) fprintf(stderr,
 			"%s: can't allocate mounts struct for: ", Pn);
 		    safestrprt(dn, stderr, 1);
-		    Exit(1);
+		    Error();
 	        }
 	    }
 	    mp->dir = dn;
@@ -678,7 +672,7 @@ readmnt()
 		    (void) fprintf(stderr,
 			"%s: can't allocate space for: ", Pn);
 		    safestrprt(dn, stderr, 1);
-		    Exit(1);
+		    Error();
 		}
 		ignstat = 1;
 	    } else

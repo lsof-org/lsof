@@ -2,6 +2,7 @@
 #include <sys/epoll.h>
 #include <sys/types.h>
 #include <unistd.h>
+#include <fcntl.h>
 
 int
 main(int argc, char **argv)
@@ -14,33 +15,42 @@ main(int argc, char **argv)
     }
 
   struct epoll_event ev;
-
-  ev.events = EPOLLOUT;
-  ev.data.fd = 2;
-  if (epoll_ctl (epfd, EPOLL_CTL_ADD, ev.data.fd, &ev) < 0)
+  int fd[2];
+  if (pipe(fd) < 0)
+  if (fd < 0)
     {
-      perror ("epoll_ctl");
+      perror ("pipe");
+      return 1;
+    }
+  if (dup2(fd[0], 5) < 0)
+    {
+      perror ("dup2(fd[0], 5)");
+      return 1;
+    }
+  if (dup2(fd[1], 6) < 0)
+    {
+      perror ("dup2(fd[1], 6)");
       return 1;
     }
 
   ev.events = EPOLLOUT;
-  ev.data.fd = 1;
+  ev.data.fd = 6;
   if (epoll_ctl (epfd, EPOLL_CTL_ADD, ev.data.fd, &ev) < 0)
     {
-      perror ("epoll_ctl");
+      perror ("epoll_ctl<6>");
       return 1;
     }
 
   ev.events = EPOLLIN;
-  ev.data.fd = 0;
+  ev.data.fd = 5;
   if (epoll_ctl (epfd, EPOLL_CTL_ADD, ev.data.fd, &ev) < 0)
     {
-      perror ("epoll_ctl");
+      perror ("epoll_ctl<5>");
       return 1;
     }
 
   printf ("%d %d\n", getpid(), epfd);
   fflush (stdout);
-  getchar ();
+  pause ();
   return 0;
 }

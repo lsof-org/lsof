@@ -163,7 +163,7 @@ readdev(skip)
 	    {
 		(void) fprintf(stderr, "%s: no space for: ", Pn);
 		safestrprt(Dstk[Dstkx], stderr, 1);
-		Exit(1);
+		Error();
 	    }
 	    (void) free((FREE_P *)Dstk[Dstkx]);
 	    Dstk[Dstkx] = (char *)NULL;
@@ -187,7 +187,7 @@ readdev(skip)
 		    (void) fprintf(stderr, "%s: no space for: ", Pn);
 		    safestrprt(path, stderr, 0);
 		    safestrprtn(dp->d_name, dnamlen, stderr, 1);
-		    Exit(1);
+		    Error();
 		}
 		if (STATFN(fp, &sb) != 0) {
 		    if (errno == ENOENT)	/* a sym link to nowhere? */
@@ -241,7 +241,7 @@ readdev(skip)
 			if (!Devtp) {
 			    (void) fprintf(stderr,
 				"%s: no space for character device\n", Pn);
-			    Exit(1);
+			    Error();
 			}
 		    }
 		    Devtp[i].rdev = sb.st_rdev;
@@ -250,7 +250,7 @@ readdev(skip)
 			(void) fprintf(stderr,
 			    "%s: no space for device name: ", Pn);
 			safestrprt(fp, stderr, 1);
-			Exit(1);
+			Error();
 		    }
 		    Devtp[i].v = 0;
 		    i++;
@@ -273,7 +273,7 @@ readdev(skip)
 			if (!BDevtp) {
 			    (void) fprintf(stderr,
 				"%s: no space for block device\n", Pn);
-			    Exit(1);
+			    Error();
 			}
 		    }
 		    BDevtp[j].name = fp;
@@ -317,7 +317,7 @@ readdev(skip)
 		sz = (MALLOC_S)(ADevU * sizeof(dev_t));
 		if (!(ADev = (dev_t *)realloc((MALLOC_P *)ADev, sz))) {
 		    (void) fprintf(stderr, "%s: can't reduce ADev[]\n", Pn);
-		    Exit(1);
+		    Error();
 		}
 	    }
 	}
@@ -347,7 +347,7 @@ readdev(skip)
 	    {
 		(void) fprintf(stderr,
 		    "%s: no space for block device sort pointers\n", Pn);
-		Exit(1);
+		Error();
 	    }
 	    for (j = 0; j < BNdev; j++) {
 		BSdev[j] = &BDevtp[j];
@@ -377,7 +377,7 @@ readdev(skip)
 	    {
 		(void) fprintf(stderr,
 		    "%s: no space for character device sort pointers\n", Pn);
-		Exit(1);
+		Error();
 	    }
 	    for (i = 0; i < Ndev; i++) {
 		Sdev[i] = &Devtp[i];
@@ -387,7 +387,7 @@ readdev(skip)
 	    Ndev = rmdupdev(&Sdev, Ndev, "char");
 	} else {
 	    (void) fprintf(stderr, "%s: no character devices found\n", Pn);
-	    Exit(1);
+	    Error();
 	}
 }
 
@@ -422,7 +422,7 @@ rmdupdev(dp, n, nm)
 	{
 	    (void) fprintf(stderr, "%s: can't realloc %s device pointers\n",
 		Pn, nm);
-	    Exit(1);
+	    Error();
 	}
 	return(j);
 }
@@ -471,7 +471,7 @@ saveADev(s)
 		ADev = (dev_t *)malloc(sz);
 	    if (!ADev) {
 		(void) fprintf(stderr, "%s: no space for ADev[]\n", Pn);
-		Exit(1);
+		Error();
 	    }
 	}
 	ADev[ADevU++] = s->st_dev;

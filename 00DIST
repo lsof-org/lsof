@@ -127,6 +127,7 @@
 		4.93.1 May 7, 2019
 		4.93.2 May 8, 2019
 		4.94.0 November 11, 2020
+		4.95.0 April 28, 2022
 
 
 
@@ -5210,7 +5211,7 @@ July 14, 2018
 		[linux]: implement "make check"
 		The target runs check.bash.
 
-4.9?.?		November 14, 2020
+4.95.0		April 28, 2022
 
 		[n+obsd] fix syntax error
 		Corrected end of comment.
@@ -5231,6 +5232,7 @@ July 14, 2018
 		.perl5 or whatever.
 		Provided by @dilinger (Andres Salomon) in #149.
 		A commit in the pull request includes work of Nicholas Bamber.
+
 
 		Drop LSOF_CCDATE across all dialects to ensure reproducible builds
 		Simplify things for reproducible builds by just getting rid of
@@ -5274,22 +5276,113 @@ July 14, 2018
 		- fix spelling
 		Provided by @a1346054 in #163.
 
+
 		man page: fix hyphen issues
 		Properly use '-' and '\-' in the man page, ensuring that users
 		can cut & paste commandline options without issue. Original
 		patch from Raoul Gunnar Borenius <borenius@dfn.de>, and
 		submitted/expanded by @dilinger (Andres Salomon) in #168.
-   
-               [FreeBSD] update for FreeBSD 13 & 14, and various internal changes
-               submitted by @DmitryAndric & @emaste.
 
-               [FreeBSD] remove various old FreeBSD versions from support
-               submitted by @emaste
+
+
+		[FreeBSD] update for FreeBSD 13 & 14, and various internal changes
+		submitted by @DmitryAndric & @emaste.
+
+
+		[FreeBSD] remove various old FreeBSD versions from support
+		submitted by @emaste
+
+
+		[FreeBSD] configure: suggest variable to set if FreeBSD sys not
+		found
+		submitted by @emaste
+
+
+		Fix broken LSOF_CFLAGS_OVERRIDE.
+		Provided by Fabrice Fontaine in #172.
+
+
+		[linux] Remove sysvlegacy function.
+		Provided by Fabrice Fontaine in #195.
+
+
+		[linux] use close_range instead of calling close repeatedly
+		At the starting up, lsof closes its file descriptors greater
+		than 2 by calling close(2) repeatedly. As reported in #186,
+		it can take long time. Linux 5.9 introduced close_range(2).
+		The new system call can close multiple file descriptors faster.
+		@qianzhangyl reported the original issue (#186).
+
+
+		Add -Q option for adjusting exit status when failed to find a
+		search item (#129)
+		In the original code, lsof returned 1 when it failed to find a
+		search item. With the new option, lsof returns 0 in the case.
+
+
+		Document -Q option in manpage/00QUICKSTART, and adjust -h
+		output by @dilinger (Andres Salomon) in #129.
+
+
+		Improve readability of complex adverbial clause by adding a
+		comma.
+		Provided by Danny Fowler in #156.
+
+4.9?.?		????? ??, ????
+
+		[linux] fix hash functions used for finding local tcp/udp IPCs
+		There were typos in the code calculating hash values. The typos might
+		break the flatness of hashtables where the endpoint information about
+		locally used tcp/udp was stored. Theoretically, this fix may improve
+		the performance of lsof with [+|-]E option.
+		Inspired by the issue #206 reported by Tomasz Kłoczko (@kloczek).
+
+
+		Show copyright notice in --version output.
+
+
+		[linux] compile with -Wall option
+
+
+		[linux] Avoid some easy collissions for udp/udp6 sockets when hashing
+		
+		
+		[linux] Changing the number of ipcbuckets to 4096
+
+
+		[darwin] fix build with -fno-common (Cfp redefinition)
+		gcc-10 and llvm-11 changed the default from -fcommon to -fno-common:
+		https://gcc.gnu.org/PR85678
+		As a result build fails as:
+
+			duplicate symbol '_Cfp' in: ddev.o dfile.o
+
+		Cfp is already explicitly defined in dstore.c. The change turns
+		header definition into declaration.
+		Provided by Sergei Trofimovich (@trofi) in #221. The same fix is
+		applied to libproc backend by Jiajie Chen (@jiegec) in #226.
+
+
+		[linux] Make build reproducible by checking SOURCE_DATE_EPOCH
+		and considering LSOF_{HOST,LOGNAME,SYSINFO,USER} as "none" when
+		it is set.
+		Provided by Danilo Spinella in #217
+
+		[darwin] remove /usr/include prefix from include for Darwin 19+
+		The /usr/include path is missing since macOS Catalina.
+		Fixes issue #234.
+		Provided by Jiajie Chen in #235
+
+		[linux] obtain correct information of memory-mapped file.
+		Provided by Teng Hu in #239
 
                [FreeBSD] configure: suggest variable to set if FreeBSD sys not 
                found
                submitted by @emaste
 
 
+		Updated 00FAQ with lookup to open files via mountpoint
+		Provided by Jacob Chapman in #240
+
 The lsof-org team at GitHub
-November 25, 2020
+August 10, 2022

@@ -18,7 +18,7 @@ CDEF=
 CDEFS=  ${CDEF} ${CFGF}
 DEP=	${CFGD} ${CFGDN}
 INCL=	${DINC}
-CFLAGS=	${CDEFS} ${INCL} ${DEP} ${DEBUG}
+CFLAGS=	-Wall ${CDEFS} ${INCL} ${DEP} ${DEBUG}
 
 GRP=
 
@@ -89,7 +89,11 @@ version.h:	FRC
 	@echo '#define	LSOF_CCFLAGS	"'`echo ${CFLAGS} | sed 's/\\\\(/\\(/g' | sed 's/\\\\)/\\)/g' | sed 's/"/\\\\"/g'`'"' >> version.h
 	@echo '#define	LSOF_CINFO	"${CINFO}"' >> version.h
 	@if [ "X${LSOF_HOST}" = "X" ]; then \
-	  echo '#define	LSOF_HOST	"'`uname -n`'"' >> version.h; \
+	  if [ "X${SOURCE_DATE_EPOCH}" = "X" ]; then \
+	    echo '#define	LSOF_HOST	"'`uname -n`'"' >> version.h; \
+	  else \
+	    echo '#define	LSOF_HOST	""' >> version.h; \
+	  fi \
 	else \
 	  if [ "${LSOF_HOST}" = "none" ]; then \
 	    echo '#define	LSOF_HOST	""' >> version.h; \
@@ -99,7 +103,11 @@ version.h:	FRC
 	fi
 	@echo '#define	LSOF_LDFLAGS	"${CFGL}"' >> version.h
 	@if [ "X${LSOF_LOGNAME}" = "X" ]; then \
-	  echo '#define	LSOF_LOGNAME	"${LOGNAME}"' >> version.h; \
+	  if [ "X${SOURCE_DATE_EPOCH}" = "X" ]; then \
+	    echo '#define	LSOF_LOGNAME	"${LOGNAME}"' >> version.h; \
+	  else \
+	    echo '#define	LSOF_LOGNAME	""' >> version.h; \
+	  fi \
 	else \
 	  if [ "${LSOF_LOGNAME}" = "none" ]; then \
 	    echo '#define	LSOF_LOGNAME	""' >> version.h; \
@@ -108,7 +116,11 @@ version.h:	FRC
 	  fi; \
 	fi
 	@if [ "X${LSOF_SYSINFO}" = "X" ]; then \
+	  if [ "X${SOURCE_DATE_EPOCH}" = "X" ]; then \
 	    echo '#define	LSOF_SYSINFO	"'`uname -a`'"' >> version.h; \
+	  else \
+	    echo '#define	LSOF_SYSINFO	""' >> version.h; \
+	  fi \
 	else \
 	  if [ "${LSOF_SYSINFO}" = "none" ]; then \
 	    echo '#define	LSOF_SYSINFO	""' >> version.h; \
@@ -117,7 +129,11 @@ version.h:	FRC
 	  fi \
 	fi
 	@if [ "X${LSOF_USER}" = "X" ]; then \
-	  echo '#define	LSOF_USER	"${USER}"' >> version.h; \
+	  if [ "X${SOURCE_DATE_EPOCH}" = "X" ]; then \
+	    echo '#define	LSOF_USER	"${USER}"' >> version.h; \
+	  else \
+	    echo '#define	LSOF_USER	""' >> version.h; \
+	  fi \
 	else \
 	  if [ "${LSOF_USER}" = "none" ]; then \
 	    echo '#define	LSOF_USER	""' >> version.h; \

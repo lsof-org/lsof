@@ -1438,7 +1438,7 @@ process_stream(f, ckscko)
 	    if (!s) {
 		(void) fprintf(stderr,
 		    "%s: no space for %ld pst_stream bytes\n", Pn, (long)nb);
-		Exit(1);
+		Error();
 	    }
 	    nsa = nsn;
 	}
