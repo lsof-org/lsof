@@ -16,7 +16,7 @@ do_nothing(int n)
 int
 main(void)
 {
-  mqd_t t = mq_open(NAME, O_CREAT|O_RDWR, S_IRUSR|S_IWUSR, NULL);;
+  mqd_t t = mq_open(NAME, O_CREAT|O_RDWR, S_IRUSR|S_IWUSR, NULL);
   if ((mqd_t)t == -1)
     {
       perror("open[" NAME "]");
