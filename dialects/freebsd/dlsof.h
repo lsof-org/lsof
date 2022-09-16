@@ -323,12 +323,7 @@ int     open(const char *, int, ...);
 #undef	_KERNEL
 #undef	KERNEL
 
-# if	defined(DTYPE_KQUEUE)
 #define	HASKQUEUE				/* has the kqueue file type */
-#define	_KERNEL
-#include <sys/eventvar.h>
-#undef	_KERNEL
-# endif	/* defined(DTYPE_KQUEUE) */
 
 struct vop_advlock_args { int dummy; };	/* to pacify lf_advlock() prototype */
 #undef	MALLOC_DECLARE
