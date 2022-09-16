@@ -129,6 +129,7 @@
 		4.94.0 November 11, 2020
 		4.95.0 April 28, 2022
 		4.96.0 September 16, 2022
+		4.96.1 September 16, 2022
 
 
 
@@ -5406,7 +5407,8 @@ July 14, 2018
                 [FreeBSD] modernize API usage and remove legacy FreeBSD releases
                 Contributor DamjanJovanovic (#184) Ed Maste (#250, #251, #252),
                 Warner Losh (#253)
-
+               
+                [FreeBSD] Unconditionally define HASKQUEUE (mjguzik) 
 
 The lsof-org team at GitHub
 September 16, 2022
