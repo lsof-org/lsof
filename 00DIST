@@ -5297,6 +5297,24 @@ July 14, 2018
 		found
 		submitted by @emaste
 
+		[FreeBSD] Use user mode APIs on FreeBSD
+		Extensively changes the FreeBSD dialect to use user mode APIs
+		(sysctls and libutil's kinfo_getfile()), only falling back to kvm
+		access when it's available and required for certain features. lsof can
+		now run as an ordinary user, though not all processes may be visible
+		and some features will be absent without kvm access (file lock state,
+		kqueue info, some pipe details, nullfs details).
+		This also fixes numerous long standing issues: file lock state is now
+		visible on all filesystems, the cwd, root dir, jail dir, text file and
+		controlling TTY are now visible, filenames are shown for all
+		filesystems, procfs is working again and supports file searches even
+		when there are multiple procfs mountpoints, the code is shorter,
+		cleaner and should need much less future maintenance.
+		It builds and works from FreeBSD 9.0 to 14-CURRENT, though older
+		versions have less features (eg. 12 doesn't provide socket buffer
+		usage, 11 also lacks TCP flags and state).
+		Provided by @DamjanJovanovic in #184.
+
 
 		Fix broken LSOF_CFLAGS_OVERRIDE.
 		Provided by Fabrice Fontaine in #172.

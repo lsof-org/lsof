@@ -133,6 +133,8 @@ typedef	struct device	*device_t;
 #define	NFS
 #define m_stat	mnt_stat
 
+struct statfs;
+extern int	statfs(const char *, struct statfs *);
 #define	_KERNEL
 
 #include <sys/mount.h>
@@ -236,7 +238,9 @@ struct vop_setextattr_args;
 #include <nfsclient/nfs.h>
 #include <nfsclient/nfsnode.h>
 
+#define syscall_args __bad_syscall_args
 #include <sys/proc.h>
+#undef __bad_syscall_args
 #include <kvm.h>
 #undef	TRUE
 #undef	FALSE
@@ -260,19 +264,9 @@ struct vop_generic_args;
 #undef	KERNEL
 # endif	/* defined(HASNULLFS) */
 
-# if	defined(HASPROCFS)
-#include <machine/reg.h>
-
-#define	PNSIZ		5
-# endif	/* defined(HASPROCFS) */
-
 # if	defined(HASPSEUDOFS)
 #include <fs/pseudofs/pseudofs.h>
 # endif	/* defined(HASPSEUDOFS) */
-
-# if	defined(HAS_ZFS)
-#include "dzfs.h"
-# endif	/* defined(HAS_ZFS) */
 
 
 #define	P_ADDR		ki_paddr
@@ -453,8 +447,7 @@ extern KA_T Kpa;
 # endif	/* defined(P_ADDR) */
 
 struct l_vfs {
-	KA_T addr;			/* kernel address */
-	fsid_t	fsid;			/* file system ID */
+	uint64_t fsid;			/* file system ID */
 
 # if	defined(MOUNT_NONE)
 	short type;			/* type of file system */
@@ -509,6 +502,28 @@ struct sfile {
 
 #define	XDR_VOID	(const xdrproc_t)xdr_void
 #define	XDR_PMAPLIST	(const xdrproc_t)xdr_pmaplist
+
+
+struct pcb_lists {
+	struct xunpcb *un_stream_pcbs;
+	size_t n_un_stream_pcbs;
+	struct xunpcb *un_dgram_pcbs;
+	size_t n_un_dgram_pcbs;
+	struct xunpcb *un_seqpacket_pcbs;
+	size_t n_un_seqpacket_pcbs;
+	struct xtcpcb *tcp_pcbs;
+	size_t n_tcp_pcbs;
+	struct xinpcb *udp_pcbs;
+	size_t n_udp_pcbs;
+};
+
+
+struct lock_list {
+#ifdef KERN_LOCKF
+	struct kinfo_lockf *locks;
+	size_t n_locks;
+#endif
+};
 
 
 /*
@@ -582,5 +597,8 @@ struct	namecache {
 
 #define	VNODE_VFLAG	v_iflag
 #define	NCACHE_VROOT	VV_ROOT
+
+
+#include <libutil.h>
 
 #endif	/* defined(FREEBSD_LSOF_H) */

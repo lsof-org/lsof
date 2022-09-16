@@ -295,7 +295,7 @@ typedef _Bool   bool;
  * NCACHELDSFX is a set of C commands to execute after calling ncache_load().
  */
 
-#define	HASNCACHE	1
+/* #define	HASNCACHE	1 */
 /* #define	NCACHELDPFX	??? */
 /* #define	NCACHELDSFX	??? */
 
@@ -316,7 +316,7 @@ typedef _Bool   bool;
  * NOTE: don't forget to define a prototype for this function in dproto.h.
  */
 
-#define	HASPIPEFN	process_pipe
+/* #define	HASPIPEFN	process_pipe */
 
 
 /*
@@ -437,7 +437,7 @@ typedef _Bool   bool;
  * NOTE: don't forget to define a prototype for this function in dproto.h.
  */
 
-#define	HASPTSFN	process_pts
+/* #define	HASPTSFN	process_pts */
 
 
 /*
@@ -622,7 +622,7 @@ typedef _Bool   bool;
 #define	USE_LIB_IS_FILE_NAMED			1	/* isfn.c */
 #define	USE_LIB_LKUPDEV				1	/* lkud.c */
 #define	USE_LIB_PRINTDEVNAME			1	/* pdvn.c */
-#define	USE_LIB_PROCESS_FILE			1	/* prfp.c */
+/* #define	USE_LIB_PROCESS_FILE			1 */	/* prfp.c */
 #define	USE_LIB_PRINT_TCPTPI			1	/* ptti.c */
 #define	USE_LIB_READDEV				1	/* rdev.c */
 /* #define	USE_LIB_READMNT			1	   rmnt.c */

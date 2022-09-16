@@ -1493,71 +1493,88 @@ kernel generation process.
 	echo "!!!WARNING!!!  Configuring for FreeBSD 6.0"
 	;;
       7.0*)
+	LSOF_CFGL="$LSOF_CFGL -lutil"
 	LSOF_TSTBIGF=" "
 	LSOF_VERS=7000
 	;;
       7.1*)
+	LSOF_CFGL="$LSOF_CFGL -lutil"
 	LSOF_TSTBIGF=" "
 	LSOF_VERS=7010
 	;;
       7.2*)
+	LSOF_CFGL="$LSOF_CFGL -lutil"
 	LSOF_TSTBIGF=" "
 	LSOF_VERS=7020
 	;;
       7.3*)
+	LSOF_CFGL="$LSOF_CFGL -lutil"
 	LSOF_TSTBIGF=" "
 	LSOF_VERS=7030
 	;;
       7.4*)
+	LSOF_CFGL="$LSOF_CFGL -lutil"
 	LSOF_TSTBIGF=" "
 	LSOF_VERS=7040
 	;;
       7*)
+	LSOF_CFGL="$LSOF_CFGL -lutil"
 	LSOF_VERS=7000
 	echo "!!!WARNING!!!  Unsupported FreeBSD version: $LSOF_VSTR"
 	echo "!!!WARNING!!!  Configuring for FreeBSD 7.0"
 	;;
       8.0*)
+	LSOF_CFGL="$LSOF_CFGL -lutil"
 	LSOF_TSTBIGF=" "
 	LSOF_VERS=8000
 	;;
       8.1*)
+	LSOF_CFGL="$LSOF_CFGL -lutil"
 	LSOF_TSTBIGF=" "
 	LSOF_VERS=8010
 	;;
       8.2*)
+	LSOF_CFGL="$LSOF_CFGL -lutil"
 	LSOF_TSTBIGF=" "
 	LSOF_VERS=8020
 	;;
       8.3*)
+	LSOF_CFGL="$LSOF_CFGL -lutil"
 	LSOF_TSTBIGF=" "
 	LSOF_VERS=8030
 	;;
       8.4*)
+	LSOF_CFGL="$LSOF_CFGL -lutil"
 	LSOF_TSTBIGF=" "
 	LSOF_VERS=8040
 	;;
       9*)
+	LSOF_CFGL="$LSOF_CFGL -lutil"
 	LSOF_TSTBIGF=" "
 	LSOF_VERS=9000
 	;;
       10*)
+	LSOF_CFGL="$LSOF_CFGL -lutil"
 	LSOF_TSTBIGF=" "
 	LSOF_VERS=10000
 	;;
       11*)
+	LSOF_CFGL="$LSOF_CFGL -lutil"
 	LSOF_TSTBIGF=" "
 	LSOF_VERS=11000
 	;;
       12*)
+	LSOF_CFGL="$LSOF_CFGL -lutil"
 	LSOF_TSTBIGF=" "
 	LSOF_VERS=12000
 	;;
       13*)
+	LSOF_CFGL="$LSOF_CFGL -lutil"
 	LSOF_TSTBIGF=" "
 	LSOF_VERS=13000
 	;;
       14*)
+	LSOF_CFGL="$LSOF_CFGL -lutil"
 	LSOF_TSTBIGF=" "
 	LSOF_VERS=14000
 	;;
@@ -1668,7 +1685,7 @@ kernel generation process.
 
     case $LSOF_VERS in	# {
     1000)
-      LSOF_CFGF="$LSOF_CFGF -DHASPROCFS"
+      LSOF_CFGF="$LSOF_CFGF"
       LSOF_CFGL="$LSOF_CFGL -lutil"
       LSOF_DINC="$LSOF_DINC -I`pwd`/dialects/freebsd/include"
       if test "X$FREEBSD_KERNEL" = "X"	# {
@@ -2215,19 +2232,11 @@ LOCKF_OWNER4
     else
       LSOF_TMP1="miscfs"
     fi	# }
-    if test $LSOF_VERS -lt 5000	# {
-      then
-      if test -d ${FREEBSD_SYS}/${LSOF_TMP1}/procfs	# {
-      then
-	LSOF_CFGF="$LSOF_CFGF -DHASPROCFS"
-	LSOF_DINC_ADD=1
-      fi	# }
-    else
-      if test -d ${FREEBSD_SYS}/${LSOF_TMP1}/pseudofs	# {
-      then
-	LSOF_CFGF="$LSOF_CFGF -DHASPSEUDOFS"
-	LSOF_DINC_ADD=1
-      fi	# }
+    LSOF_CFGF="$LSOF_CFGF -DHASPROCFS"
+    if test -d ${FREEBSD_SYS}/${LSOF_TMP1}/pseudofs	# {
+    then
+      LSOF_CFGF="$LSOF_CFGF -DHASPSEUDOFS"
+      LSOF_DINC_ADD=1
     fi	# }
     if test -r ${LSOF_INCLUDE}/${LSOF_TMP1}/nullfs/null.h	# {
     then
@@ -2305,6 +2314,36 @@ LOCKF_OWNER4
     then
       LSOF_CFGF="$LSOF_CFGF -DHASUTMPX"
     fi	# }
+
+    # Does struct xtcpcb have t_maxseg?
+    rm -f ${LSOF_TMPC}.*
+    cat > ${LSOF_TMPC}.c << .LSOF_END_HERE_DOC4
+#undef _KERNEL
+#include <sys/types.h>
+#include <sys/queue.h>
+#include <sys/socketvar.h>
+#include <sys/socket.h>
+#include <netinet/in.h>
+#include <netinet/in_pcb.h>
+#include <netinet/tcp_var.h>
+main() {
+struct xtcpcb pcb; pcb.t_maxseg = 0;
+}
+.LSOF_END_HERE_DOC4
+    $LSOF_CC ${LSOF_TMPC}.c -o ${LSOF_TMPC}.x > /dev/null 2>&1
+    if test $? -eq 0	# {
+    then
+      LSOF_CFGF="$LSOF_CFGF -DHAS_XTCPCB_TMAXSEG"
+    fi	# }
+    rm -f ${LSOF_TMPC}.*
+
+    # Does struct kinfo_file have kf_un.kf_sock.kf_sock_sendq?
+    grep -q kf_sock_sendq ${LSOF_INCLUDE}/sys/user.h
+    if test $? -eq 0	# {
+    then
+      LSOF_CFGF="$LSOF_CFGF -DHAS_KF_SOCK_SENDQ"
+    fi	# }
+
     LSOF_DIALECT_DIR=freebsd
     ;;
 

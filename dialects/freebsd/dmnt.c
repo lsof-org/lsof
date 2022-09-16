@@ -53,183 +53,6 @@ static char *mnt_names[] = INITMOUNTNAMES;
 # endif	/* defined(MOUNT_NONE)) */
 
 
-#if	defined(HAS_NO_SI_UDEV)
-/*
- * Dev2Udev() -- convert a kernel device number to a user device number
- */
-
-dev_t
-Dev2Udev(c)
-
-# if	defined(HAS_CONF_MINOR) || defined(HAS_CDEV2PRIV)
-	KA_T c;
-# else	/* !defined(HAS_CONF_MINOR) && !defined(HAS_CDEV2PRIV) */
-	struct cdev *c;
-# endif	/* defined(HAS_CONF_MINOR) || defined(HAS_CDEV2PRIV) */
-
-{
-
-# if	!defined(HAS_CONF_MINOR) && !defined(HAS_CDEV2PRIV)
-	char *cp;
-	char *dn = (char *)NULL;
-	char *ln = (char *)NULL;
-	struct statfs *mb;
-	int n, sr;
-	static u_int s;
-	struct stat sb;
-	static int ss = 0;
-# endif	/* !defined(HAS_CONF_MINOR) && !defined(HAS_CDEV2PRIV) */
-
-# if	defined(HAS_CONF_MINOR) || defined(HAS_CDEV2PRIV)
-	KA_T ca;
-	struct cdev_priv cp;
-
-	if (!c)
-	    return(NODEV);
-
-#  if	defined(HAS_CDEV2PRIV)
-	ca = (KA_T)cdev2priv((struct cdev *)c);
-#  else	/* !defined(HAS_CDEV2PRIV) */
-	ca = (KA_T)member2struct(cdev_priv, cdp_c, c);
-#  endif	/* defined(HAS_CDEV2PRIV) */
-
-	if (kread((KA_T)ca, (char *)&cp, sizeof(cp)))
-	    return(NODEV);
-	return((dev_t)cp.cdp_inode);
-# else	/* !defined(HAS_CONF_MINOR) && !defined(HAS_CDEV2PRIV) */
-#  if	defined(HAS_SI_PRIV)
-/*
- * If the cdev structure has a private sub-structure, read it.
- */
-	struct cdev_priv sp;
-
-	if (!c->si_priv || kread((KA_T)c->si_priv, (char *)&sp, sizeof(sp)))
-	    return(0);
-#  endif	/* defined(HAS_SI_PRIV) */
-
-	if (ss) {
-
-#  if	defined(HAS_SI_PRIV)
-	    return(sp.cdp_inode ^ s);
-#  else	/* !defined(HAS_SI_PRIV) */
-	    return(c->si_inode ^ s);
-#  endif	/* defined(HAS_SI_PRIV) */
-
-	}
-
-/*
- * Determine the random udev seed from stat(2) operations on "/" and
- * its device.
- */
-	if ((n = getmntinfo(&mb, MNT_NOWAIT)) <= 0) {
-	    (void) fprintf(stderr, "%s: no mount information\n", Pn);
-	    Error();
-	}
-	for (; n; n--, mb++) {
-
-# if	defined(MOUNT_NONE)
-	    if (mb->f_type == MOUNT_NONE || mb->f_type >= MOUNT_MAXTYPE)
-# else	/* !defined(MOUNT_NONE) */
-	    if (!mb->f_type)
-# endif	/* defined(MOUNT_NONE) */
-
-		continue;
-	/*
-	 * Get the real directory name.  Ignore all but the root directory;
-	 * safely stat("/").
-	 */
-	    if (dn)
-		(void) free((FREE_P *)dn);
-	    if (!(dn = mkstrcpy(mb->f_mntonname, (MALLOC_S *)NULL))) {
-
-Dev2Udev_no_space:
-
-		(void) fprintf(stderr, "%s: no space for mount at ", Pn);
-		safestrprt(mb->f_mntonname, stderr, 0);
-		(void) fprintf(stderr, " (");
-		safestrprt(mb->f_mntfromname, stderr, 0);
-		(void) fprintf(stderr, ")\n");
-		Error();
-	    }
-	    if (!(ln = Readlink(dn))) {
-		if (!Fwarn) {
-		    (void) fprintf(stderr,
-			"      Output information may be incomplete.\n");
-		}
-		continue;
-	    }
-	    if (ln != dn) {
-		(void) free((FREE_P *)dn);
-		dn = ln;
-	    }
-	    ln = (char *)NULL;
-	    if (strcmp(dn, "/"))
-		continue;
-	    if (statsafely(dn, &sb))
-		continue;
-	/*
-	 * Get the real device name and safely stat(2) it.
-	 */
-	    (void) free((FREE_P *)dn);
-	    if (!(dn = mkstrcpy(mb->f_mntfromname, (MALLOC_S *)NULL)))
-		goto Dev2Udev_no_space;
-	    ln = Readlink(dn);
-	    if ((sr = statsafely(ln, &sb))) {
-
-	    /*
-	     * If the device stat(2) failed, see if the device name indicates
-	     * an NFS mount, a cd9660 device, or a ZFS mount.  If any condition
-	     * is true, set the user device number seed to zero.
-	     */
-		if (((cp = strrchr(ln, ':')) && (*(cp + 1) == '/'))
-		||  !strcasecmp(mb->f_fstypename, "cd9660")
-		||  !strcasecmp(mb->f_fstypename, "zfs")
-		) {
-		    ss = 1;
-		    s = (u_int)0;
-		}
-	    }
-	    if (ln != dn)
-		(void) free((FREE_P *)ln);
-	    ln = (char *)NULL;
-	    (void) free((FREE_P *)dn);
-	    dn = (char *)NULL;
-	    if (sr && !ss)
-		continue;
-	    if (!ss) {
-		ss = 1;
-		s = (u_int)sb.st_ino ^ (u_int)sb.st_rdev;
-	    }
-	    break;
-	}
-/*
- * Free string copies, as required.
- */
-	if (dn)
-	    (void) free((FREE_P *)dn);
-	if (ln)
-	    (void) free((FREE_P *)ln);
-/*
- * If the device seed is known, return its application to the cdev structure's
- * inode.
- */
-	if (ss) {
-
-#  if	defined(HAS_SI_PRIV)
-	    return(sp.cdp_inode ^ s);
-#  else	/* !defined(HAS_SI_PRIV) */
-	    return(c->si_inode ^ s);
-#  endif	/* defined(HAS_SI_PRIV) */
-
-	}
-	(void) fprintf(stderr, "%s: can't determine user device random seed.\n",	    Pn);
-	Error();
-
-# endif	/* !defined(HAS_CONF_MINOR) */
-
-}
-#endif	/* defined(HAS_NO_SI_UDEV) */
-
 
 /*
  * readmnt() - read mount table
@@ -244,10 +67,7 @@ readmnt()
 	struct mounts *mtp;
 	int n;
 	struct stat sb;
-
-#if	defined(HASPROCFS)
 	unsigned char procfs = 0;
-#endif	/* defined(HASPROCFS) */
 
 	if (Lmi || Lmist)
 	    return(Lmi);
@@ -334,16 +154,7 @@ no_space_for_mount:
 	    mtp->dir = dn;
 	    dn = (char *)NULL;
 
-#if	defined(HASPROCFS)
-
-#if	defined(MOUNT_NONE)
-	    if (mb->f_type == MOUNT_PROCFS)
-#else	/* !defined(MOUNT_NONE) */
-	    if (strcasecmp(mb->f_fstypename, "procfs") == 0)
-#endif	/* defined(MOUNT_NONE) */
-
-	    {
-
+	    if (strcasecmp(mb->f_fstypename, "procfs") == 0) {
 	    /*
 	     * Save information on exactly one procfs file system.
 	     */
@@ -354,7 +165,6 @@ no_space_for_mount:
 		    Mtprocfs = mtp;
 		}
 	    }
-#endif	/* defined(HASPROCFS) */
 
 	    mtp->next = Lmi;
 	    mtp->dev = sb.st_dev;
@@ -394,54 +204,64 @@ no_space_for_mount:
  */
 
 struct l_vfs *
-readvfs(vm)
-	KA_T vm;			/* kernel mount address from vnode */
+readvfs(uint64_t fsid, const char *path)
 {
-	struct mount m;
+	struct statfs m;
 	struct l_vfs *vp;
 /*
  * Search for match on existing entry.
  */
-	for (vp = Lvfs; vp; vp = vp->next) {
-	    if (vm == vp->addr)
-		return(vp);
+	if (fsid != VNOVAL) {
+	    for (vp = Lvfs; vp; vp = vp->next) {
+		if (fsid == vp->fsid)
+		    return(vp);
+	    }
 	}
 /*
  * Read the (new) mount structure, allocate a local entry, and fill it.
  */
-	if (kread((KA_T)vm, (char *)&m, sizeof(m)) != 0)
+	if (path == NULL || path[0] == '\0')
 	    return((struct l_vfs *)NULL);
+	if (statfs(path, &m) != 0)
+	    return((struct l_vfs *)NULL);
+
+/*
+ * If the previous search by fsid couldn't be done, search by mountpoint instead.
+ */
+	for (vp = Lvfs; vp; vp = vp->next) {
+	    if (!strcmp(vp->fsname, m.f_mntfromname) && !strcmp(vp->dir, m.f_mntonname))
+		return(vp);
+	}
 	if (!(vp = (struct l_vfs *)malloc(sizeof(struct l_vfs)))) {
 	    (void) fprintf(stderr, "%s: PID %d, no space for vfs\n",
 		Pn, Lp->pid);
 	    Error();
 	}
-	if (!(vp->dir = mkstrcpy(m.m_stat.f_mntonname, (MALLOC_S *)NULL))
-	||  !(vp->fsname = mkstrcpy(m.m_stat.f_mntfromname, (MALLOC_S *)NULL)))
+	if (!(vp->dir = mkstrcpy(m.f_mntonname, (MALLOC_S *)NULL))
+	||  !(vp->fsname = mkstrcpy(m.f_mntfromname, (MALLOC_S *)NULL)))
 	{
 	    (void) fprintf(stderr, "%s: PID %d, no space for mount names\n",
 		Pn, Lp->pid);
 	    Error();
 	}
-	vp->addr = vm;
-	vp->fsid = m.m_stat.f_fsid;
+	vp->fsid = fsid;
 
 #if	defined(MOUNT_NONE)
-	vp->type = m.m_stat.f_type;
+	vp->type = m.f_type;
 #else	/* !defined(MOUNT_NONE) */
 	{
 	    int len;
 
-	    if ((len = strlen(m.m_stat.f_fstypename))) {
+	    if ((len = strlen(m.f_fstypename))) {
 		if (len > (MFSNAMELEN - 1))
 		    len = MFSNAMELEN - 1;
-		if (!(vp->typnm = mkstrcat(m.m_stat.f_fstypename, len,
+		if (!(vp->typnm = mkstrcat(m.f_fstypename, len,
 				  (char *)NULL, -1, (char *)NULL, -1,
 				  (MALLOC_S *)NULL)))
 		{
 		    (void) fprintf(stderr,
 			"%s: no space for fs type name: ", Pn);
-		    safestrprt(m.m_stat.f_fstypename, stderr, 1);
+		    safestrprt(m.f_fstypename, stderr, 1);
 		    Error();
 		}
 	    } else

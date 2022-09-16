@@ -36,74 +36,288 @@ static char copyright[] =
 
 #include "lsof.h"
 
-/*
- * This is not an exact version but it should not matter. At worst there
- * is a small version window where this lsof does not compile on older
- * -CURRENT.
- */
-#if __FreeBSD_version >= 1300081
-#define HAS_PWD
-#endif
 
-_PROTOTYPE(static void enter_vn_text,(KA_T va, int *n));
 _PROTOTYPE(static void get_kernel_access,(void));
-_PROTOTYPE(static void process_text,(KA_T vm));
 
 
 /*
  * Local static values
  */
 
-static MALLOC_S Nv = 0;			/* allocated Vp[] entries */
-static KA_T *Vp = NULL;			/* vnode address cache */
-
-
-/*
- * enter_vn_text() - enter a vnode text reference
- */
-
-static void
-enter_vn_text(va, n)
-	KA_T va;			/* vnode address */
-	int *n;				/* Vp[] entries in use */
+static int
+cmp_xfiles_pid_fd(const void *a, const void *b)
 {
-	int i;
-/*
- * Ignore the request if the vnode has already been entered.
- */
-	for (i = 0; i < *n; i++) {
-	    if (va == Vp[i])
-		return;
-	}
-/*
- * Save the text file information.
- */
-	alloc_lfile(" txt", -1);
-	Cfp = (struct file *)NULL;
-	process_node(va);
-	if (Lf->sf)
-	    link_lfile();
-	if (i >= Nv) {
+	const struct xfile *aa, *bb;
 
-	/*
-	 * Allocate space for remembering the vnode.
-	 */
-	    Nv += 10;
-	    if (!Vp)
-		Vp=(KA_T *)malloc((MALLOC_S)(sizeof(struct vnode *)*10));
-	    else
-		Vp=(KA_T *)realloc((MALLOC_P *)Vp,(MALLOC_S)(Nv*sizeof(KA_T)));
-	    if (!Vp) {
-		(void) fprintf(stderr, "%s: no txt ptr space, PID %d\n",
-		    Pn, Lp->pid);
-		Error();
+	aa = (struct xfile *)a;
+	bb = (struct xfile *)b;
+	if (aa->xf_pid < bb->xf_pid) {
+	    return -1;
+	} else if (aa->xf_pid > bb->xf_pid) {
+	    return 1;
+	} else {
+	    if (aa->xf_fd < bb->xf_fd) {
+		return -1;
+	    } else if (aa->xf_fd > bb->xf_fd) {
+		return 1;
+	    } else {
+		return 0;
 	    }
 	}
-/*
- * Remember the vnode.
- */
-	Vp[*n] = va;
-	(*n)++;
+}
+
+
+static int
+read_xfiles(struct xfile **xfiles, size_t *count)
+{
+	int mib[2];
+	size_t len;
+
+	mib[0] = CTL_KERN;
+	mib[1] = KERN_FILE;
+	*xfiles = NULL;
+	if (!sysctl(mib, 2, NULL, &len, NULL, 0)) {
+	    /* FreeBSD 9 under-reports the required memory, so increase it ourselves: */
+	    len *= 2;
+	    *xfiles = malloc(len);
+	    if (*xfiles) {
+		if (!sysctl(mib, 2, *xfiles, &len, NULL, 0)) {
+		    *count = len / sizeof(struct xfile);
+		    return 0;
+		}
+	    }
+	}
+	free(*xfiles);
+	*xfiles = NULL;
+	*count = 0;
+	return 1;
+}
+
+
+#ifdef KERN_LOCKF
+int
+cmp_kinfo_lockf(const void *a, const void *b)
+{
+	const struct kinfo_lockf *aa, *bb;
+
+	aa = (const struct kinfo_lockf *)a;
+	bb = (const struct kinfo_lockf *)b;
+	if (aa->kl_sysid < bb->kl_sysid)
+	    return -1;
+	if (aa->kl_sysid > bb->kl_sysid)
+	    return 1;
+	if (aa->kl_pid < bb->kl_pid)
+	    return -1;
+	if (aa->kl_pid > bb->kl_pid)
+	    return 1;
+	if (aa->kl_file_fsid < bb->kl_file_fsid)
+	    return -1;
+	if (aa->kl_file_fsid > bb->kl_file_fsid)
+	    return 1;
+	if (aa->kl_file_fileid < bb->kl_file_fileid)
+	    return -1;
+	if (aa->kl_file_fileid > bb->kl_file_fileid)
+	    return 1;
+	return 0;
+}
+
+
+static int
+read_lockf(struct kinfo_lockf **locks, size_t *count)
+{
+	int mib[2];
+	size_t len;
+
+	mib[0] = CTL_KERN;
+	mib[1] = KERN_LOCKF;
+	*locks = NULL;
+	if (!sysctl(mib, 2, NULL, &len, NULL, 0)) {
+	    *locks = malloc(len);
+	    if (*locks) {
+		if (!sysctl(mib, 2, *locks, &len, NULL, 0)) {
+		    *count = len / sizeof(struct kinfo_lockf);
+		    return 0;
+		}
+	    }
+	}
+	free(*locks);
+	*locks = NULL;
+	*count = 0;
+	return 1;
+}
+#endif
+
+
+static int
+kf_flags_to_fflags(int kf_flags)
+{
+	static const struct {
+	    int fflag;
+	    int kf_flag;
+        } fflags_table[] = {
+	    { FAPPEND, KF_FLAG_APPEND },
+	    { FASYNC, KF_FLAG_ASYNC },
+	    { FFSYNC, KF_FLAG_FSYNC },
+	    { FHASLOCK, KF_FLAG_HASLOCK },
+	    { FNONBLOCK, KF_FLAG_NONBLOCK },
+	    { FREAD, KF_FLAG_READ },
+	    { FWRITE, KF_FLAG_WRITE },
+	    { O_CREAT, KF_FLAG_CREAT },
+	    { O_DIRECT, KF_FLAG_DIRECT },
+	    { O_EXCL, KF_FLAG_EXCL },
+	    { O_EXEC, KF_FLAG_EXEC },
+	    { O_EXLOCK, KF_FLAG_EXLOCK },
+	    { O_NOFOLLOW, KF_FLAG_NOFOLLOW },
+	    { O_SHLOCK, KF_FLAG_SHLOCK },
+	    { O_TRUNC, KF_FLAG_TRUNC }
+	};
+	int i;
+	int fflags;
+
+	fflags = 0;
+	for (i = 0; i < sizeof(fflags_table)/sizeof(fflags_table[0]); i++)
+	    if (kf_flags & fflags_table[i].kf_flag)
+		fflags |=  fflags_table[i].fflag;
+	return fflags;
+}
+
+
+/* Based on process_file() in lib/prfd.c */
+static void
+process_kinfo_file(struct kinfo_file *kf, struct xfile *xfile, struct pcb_lists *pcbs, struct lock_list *locks)
+{
+	Lf->off = kf->kf_offset;
+	if (kf->kf_ref_count) {
+	    if ((kf->kf_flags & (KF_FLAG_READ | KF_FLAG_WRITE)) == KF_FLAG_READ)
+		Lf->access = 'r';
+	    else if ((kf->kf_flags & (KF_FLAG_READ | KF_FLAG_WRITE)) == KF_FLAG_WRITE)
+		Lf->access = 'w';
+	    else if ((kf->kf_flags & (KF_FLAG_READ | KF_FLAG_WRITE)) == (KF_FLAG_READ | KF_FLAG_WRITE))
+		Lf->access = 'u';
+	}
+
+	if (Fsv & FSV_CT) {
+	    Lf->fct = (long)kf->kf_ref_count;
+	    Lf->fsv |= FSV_CT;
+	}
+	if (xfile) {
+	    if (Fsv & FSV_FA) {
+		Lf->fsa = xfile->xf_file;
+		Lf->fsv |= FSV_FA;
+	    }
+	    if (Fsv & FSV_NI) {
+		Lf->fna = (KA_T)xfile->xf_data;
+		Lf->fsv |= FSV_NI;
+	    }
+	}
+	if (Fsv & FSV_FG) {
+	    if (xfile)
+		Lf->ffg = (long)xfile->xf_flag;
+	    else
+		Lf->ffg = kf_flags_to_fflags(kf->kf_flags);
+	    Lf->fsv |= FSV_FG;
+	}
+
+	switch (kf->kf_type) {
+	case KF_TYPE_FIFO:
+	case KF_TYPE_VNODE:
+	    process_vnode(kf, xfile, locks);
+	    break;
+	case KF_TYPE_SOCKET:
+	    process_socket(kf, pcbs);
+	    break;
+	case KF_TYPE_KQUEUE:
+	    process_kf_kqueue(kf, xfile ? xfile->xf_data : 0UL);
+	    break;
+	case KF_TYPE_PIPE:
+	    if (!Selinet)
+		process_pipe(kf, xfile ? xfile->xf_data : 0UL);
+	    break;
+	case KF_TYPE_PTS:
+	    process_pts(kf);
+	    break;
+#if	defined(KF_TYPE_EVENTFD)
+	case KF_TYPE_EVENTFD:
+	    process_eventfd(kf);
+	    break;
+#endif	/* defined(KF_TYPE_EVENTFD) */
+	case KF_TYPE_SHM:
+	    process_shm(kf);
+	    break;
+	case KF_TYPE_PROCDESC:
+	    process_procdesc(kf);
+	    break;
+	default:
+	    /* FIXME: unlike struct file, xfile doesn't have f_ops which should be printed here */
+	    snpf(Namech, Namechl,
+		"%p file struct, ty=%d",
+		xfile ? (void*)xfile->xf_file : NULL,
+		kf->kf_type);
+	    enter_nm(Namech);
+	}
+}
+
+
+static void
+process_file_descriptors(
+	struct kinfo_proc *p, short ckscko,
+	struct xfile *xfiles, size_t n_xfiles,
+	struct pcb_lists *pcbs,
+	struct lock_list *locks)
+{
+	struct kinfo_file *kfiles;
+	int n_kfiles = 0;
+	int i;
+
+	kfiles = kinfo_getfile(p->P_PID, &n_kfiles);
+	/* Pre-cache the mount info, as files w/o paths may need it from other files with paths on the same fs */
+	for (i = 0; i < n_kfiles; i++) {
+	    if (kfiles[i].kf_fd < 0 || kfiles[i].kf_type == KF_TYPE_FIFO || kfiles[i].kf_type == KF_TYPE_VNODE)
+		readvfs(kfiles[i].kf_un.kf_file.kf_file_fsid, kfiles[i].kf_path);
+	}
+	for (i = 0; i < n_kfiles; i++) {
+	    struct xfile key, *xfile;
+
+	    key.xf_pid = p->P_PID;
+	    key.xf_fd = kfiles[i].kf_fd;
+	    xfile = bsearch(&key, xfiles, n_xfiles, sizeof(*xfiles), cmp_xfiles_pid_fd);
+
+	    if (!ckscko && kfiles[i].kf_fd == KF_FD_TYPE_CWD) {
+		alloc_lfile(CWD, -1);
+		process_vnode(&kfiles[i], xfile, locks);
+		if (Lf->sf)
+		    link_lfile();
+	    } else if (!ckscko && kfiles[i].kf_fd == KF_FD_TYPE_ROOT) {
+		alloc_lfile(RTD, -1);
+		process_vnode(&kfiles[i], xfile, locks);
+		if (Lf->sf)
+		    link_lfile();
+	    } else if (!ckscko && kfiles[i].kf_fd == KF_FD_TYPE_JAIL) {
+		alloc_lfile(" jld", -1);
+		process_vnode(&kfiles[i], xfile, locks);
+		if (Lf->sf)
+		    link_lfile();
+	    } else if (!ckscko && kfiles[i].kf_fd == KF_FD_TYPE_TEXT) {
+		alloc_lfile(" txt", -1);
+		process_vnode(&kfiles[i], xfile, locks);
+		if (Lf->sf)
+		    link_lfile();
+	    } else if (!ckscko && kfiles[i].kf_fd == KF_FD_TYPE_CTTY) {
+		alloc_lfile("ctty", -1);
+		process_vnode(&kfiles[i], xfile, locks);
+		if (Lf->sf)
+		    link_lfile();
+	    } else if (!ckscko && kfiles[i].kf_fd < 0) {
+		if (!Fwarn)
+		    fprintf(stderr, "%s: WARNING -- unsupported fd type %d\n", Pn, kfiles[i].kf_fd);
+	    } else {
+		alloc_lfile(NULL, kfiles[i].kf_fd);
+		process_kinfo_file(&kfiles[i], xfile, pcbs, locks);
+		if (Lf->sf)
+		    link_lfile();
+	    }
+	}
+	free(kfiles);
 }
 
 
@@ -114,6 +328,9 @@ enter_vn_text(va, n)
 void
 gather_proc_info()
 {
+
+	int mib[3];
+	size_t len;
 	short cckreg;			/* conditional status of regular file
 					 * checking:
 					 *     0 = unconditionally check
@@ -124,36 +341,8 @@ gather_proc_info()
 					 *	   including TCP and UDP
 					 *	   streams with eXPORT data,
 					 *	   where supported */
-	struct filedesc fd;
-#if	defined(PWDDESC_KVM_LOAD_PWD)
-	struct pwddesc pd;
-#endif	/* defined(PWDDESC_KVM_LOAD_PWD) */
-	int i, nf;
-	MALLOC_S nb;
 
-#if	defined(HAS_FILEDESCENT)
-	typedef struct filedescent ofb_t;
-#else	/* !defined(HAS_FILEDESCENT) */
-	typedef struct file* ofb_t;
-#endif	/* defined(HAS_FILEDESCENT) */
-
-#if	defined(HAS_FDESCENTTBL)
-	struct fdescenttbl fdt;
-	KA_T fa;
-#endif	/* defined(HAS_FDESCENTTBL) */
-
-#if	defined(HAS_PWD)
-	struct pwd pwd;
-	KA_T pwd_addr;
-#endif	/* defined(HAS_FDESCENTTBL) */
-
-	struct vnode *cdir;
-	struct vnode *rdir;
-	struct vnode *jdir;
-
-	static ofb_t *ofb = NULL;
-	static int ofbb = 0;
-	int pgid, pid;
+	int pgid;
 	int ppid = 0;
 	short pss, sf;
 	int px;
@@ -161,6 +350,10 @@ gather_proc_info()
 	uid_t uid;
 
 	struct kinfo_proc *p;
+	struct xfile *xfiles;
+	size_t n_xfiles;
+	struct pcb_lists *pcbs;
+	struct lock_list locks;
 
 #if	defined(HASFSTRUCT) && !defined(HAS_FILEDESCENT)
 	static char *pof = (char *)NULL;
@@ -224,19 +417,42 @@ gather_proc_info()
 #define	KERN_PROC_PROC  KERN_PROC_ALL
 # endif	/* !defined(KERN_PROC_PROC) */
 
-	if ((P = kvm_getprocs(Kd, Ftask ? KERN_PROC_ALL : KERN_PROC_PROC,
-			      0, &Np))
-	== NULL)
-
-	{
+	mib[0] = CTL_KERN;
+	mib[1] = KERN_PROC;
+	mib[2] = Ftask ? KERN_PROC_ALL : KERN_PROC_PROC;
+	len = 0;
+	if (sysctl(mib, 3, NULL, &len, NULL, 0) == 0) {
+	    P = malloc(len);
+	    if (P) {
+		if (sysctl(mib, 3, P, &len, NULL, 0) < 0) {
+		    free(P);
+		    P = NULL;
+		}
+	    }
+	}
+	if (P == NULL) {
 	    (void) fprintf(stderr, "%s: can't read process table: %s\n",
 		Pn,
-
-		kvm_geterr(Kd)
-
+		strerror(errno)
 	    );
 	    Error();
 	}
+	Np = len / sizeof(struct kinfo_proc);
+	if (read_xfiles(&xfiles, &n_xfiles) && !Fwarn)
+	    fprintf(stderr, "%s: WARNING -- reading xfile list failed: %s\n",
+		Pn, strerror(errno));
+	qsort(xfiles, n_xfiles, sizeof(*xfiles), cmp_xfiles_pid_fd);
+	pcbs = read_pcb_lists();
+	if (!pcbs && !Fwarn)
+	    fprintf(stderr, "%s: WARNING -- reading PCBs failed: %s\n",
+		Pn, strerror(errno));
+#ifdef KERN_LOCKF
+	if (read_lockf(&locks.locks, &locks.n_locks) && !Fwarn)
+	    fprintf(stderr, "%s: WARNING -- reading lockf list failed: %s\n",
+		Pn, strerror(errno));
+	qsort(locks.locks, locks.n_locks, sizeof(*locks.locks), cmp_kinfo_lockf);
+#endif
+
 /*
  * Examine proc structures and their associated information.
  */
@@ -270,44 +486,6 @@ gather_proc_info()
 #endif	/* defined(HASTASKS) */
 
 	/*
-	 * Read file structure pointers.
-	 */
-	    if (!p->P_FD
-	    ||  kread((KA_T)p->P_FD, (char *)&fd, sizeof(fd)))
-		continue;
-
-#if	defined(HAS_FDESCENTTBL)
-	    if (!fd.fd_files
-	    ||  kread((KA_T)fd.fd_files, (char *)&fdt, sizeof(fdt)))
-		continue;
-	    if (!fd.fd_refcnt)
-		continue;
-#else	/* !defined(HAS_FDESCENTTBL) */
-	    if (!fd.fd_refcnt || fd.fd_lastfile > fd.fd_nfiles)
-		continue;
-#endif	/* defined(HAS_FDESCENTTBL) */
-
-#if	defined(HAS_PWD)
-	    cdir = rdir = jdir = NULL;
-#if	  defined(PWDDESC_KVM_LOAD_PWD)
-	    pwd_addr = (KA_T)PWDDESC_KVM_LOAD_PWD(&pd);
-#else   /* defined(PWDDESC_KVM_LOAD_PWD) */
-	    pwd_addr = (KA_T)FILEDESC_KVM_LOAD_PWD(&fd);
-#endif  /* defined(PWDDESC_KVM_LOAD_PWD) */
-	    if (pwd_addr != 0) {
-		    if (!kread(pwd_addr, (char *)&pwd, sizeof(pwd))) {
-			    cdir = pwd.pwd_cdir;
-			    rdir = pwd.pwd_rdir;
-			    jdir = pwd.pwd_jdir;
-		    }
-	    }
-#else
-	    cdir = fd.fd_cdir;
-	    rdir = fd.fd_rdir;
-	    jdir = fd.fd_jdir;
-#endif
-
-	/*
 	 * Allocate a local process structure.
 	 */
 	    if (is_cmd_excl(p->P_COMM, &pss, &sf))
@@ -339,137 +517,22 @@ gather_proc_info()
 	    Kpa = (KA_T)p->P_ADDR;
 #endif	/* defined(P_ADDR) */
 
-	/*
-	 * Save current working directory information.
-	 */
-	    if (!ckscko && cdir) {
-		alloc_lfile(CWD, -1);
-		Cfp = (struct file *)NULL;
-		process_node((KA_T)cdir);
-		if (Lf->sf)
-		    link_lfile();
-	    }
-	/*
-	 * Save root directory information.
-	 */
-	    if (!ckscko && rdir) {
-		alloc_lfile(RTD, -1);
-		Cfp = (struct file *)NULL;
-		process_node((KA_T)rdir);
-		if (Lf->sf)
-		    link_lfile();
-	    }
+	process_file_descriptors(p, ckscko, xfiles, n_xfiles, pcbs, &locks);
 
-	/*
-	 * Save jail directory information.
-	 */
-	    if (!ckscko && jdir) {
-		alloc_lfile("jld", -1);
-		Cfp = (struct file *)NULL;
-		process_node((KA_T)jdir);
-		if (Lf->sf)
-		    link_lfile();
-	    }
-
-	/*
-	 * Save information on the text file.
-	 */
-	    if (!ckscko && p->P_VMSPACE)
-		process_text((KA_T)p->P_VMSPACE);
-	/*
-	 * Read open file structure pointers.
-	 */
-
-#if	defined(HAS_FDESCENTTBL)
-	    if ((nf = fdt.fdt_nfiles) <= 0)
-		continue;
-#else	/* !defined(HAS_FDESCENTTBL) */
-	    if (!fd.fd_ofiles || (nf = fd.fd_nfiles) <= 0)
-		continue;
-#endif	/* defined(HAS_FDESCENTTBL) */
-
-	    nb = (MALLOC_S)(sizeof(ofb_t) * nf);
-	    if (nb > ofbb) {
-		if (!ofb)
-		    ofb = (ofb_t *)malloc(nb);
-		else
-		    ofb = (ofb_t *)realloc((MALLOC_P *)ofb, nb);
-		if (!ofb) {
-		    (void) fprintf(stderr, "%s: PID %d, no file * space\n",
-			Pn, p->P_PID);
-		    Error();
-		}
-		ofbb = nb;
-	    }
-
-#if	defined(HAS_FDESCENTTBL)
-	    fa = (KA_T)fd.fd_files
-	       + (KA_T)offsetof(struct fdescenttbl, fdt_ofiles);
-	    if (kread(fa, (char *)ofb, nb))
-		continue;
-#else	/* !defined(HAS_FDESCENTTBL) */
-	    if (kread((KA_T)fd.fd_ofiles, (char *)ofb, nb))
-		continue;
-#endif	/* defined(HAS_FDESCENTTBL) */
-
-
-#if	defined(HASFSTRUCT) && !defined(HAS_FILEDESCENT)
-	    if (Fsv & FSV_FG) {
-		nb = (MALLOC_S)(sizeof(char) * nf);
-		if (nb > pofb) {
-		    if (!pof)
-			pof = (char *)malloc(nb);
-		    else
-			pof = (char *)realloc((MALLOC_P *)pof, nb);
-		    if (!pof) {
-			(void) fprintf(stderr,
-			    "%s: PID %d, no file flag space\n", Pn, p->P_PID);
-			Error();
-		    }
-		    pofb = nb;
-		}
-		if (!fd.fd_ofileflags || kread((KA_T)fd.fd_ofileflags, pof, nb))
-		    zeromem(pof, nb);
-	    }
-#endif	/* defined(HASFSTRUCT) && !defined(HAS_FILEDESCENT) */
-
-	/*
-	 * Save information on file descriptors.
-	 */
-	    for (i = 0; i < nf; i++) {
-
-#if	defined(HAS_FILEDESCENT)
-		if ((Cfp = ofb[i].fde_file))
-#else	/* !defined(HAS_FILEDESCENT) */
-		if ((Cfp = ofb[i]))
-#endif	/* defined(HAS_FILEDESCENT) */
-
-		{
-		    alloc_lfile(NULL, i);
-		    process_file((KA_T)Cfp);
-		    if (Lf->sf) {
-
-#if	defined(HASFSTRUCT)
-			if (Fsv & FSV_FG)
-# if	defined(HAS_FILEDESCENT)
-			    Lf->pof = (long)ofb[i].fde_flags;
-# else	/* !defined(HAS_FILEDESCENT) */
-			    Lf->pof = (long)pof[i];
-# endif	/* defined(HAS_FILEDESCENT) */
-#endif	/* defined(HASFSTRUCT) */
-
-			link_lfile();
-		    }
-		}
-	    }
 	/*
 	 * Unless threads (tasks) are being processed, examine results.
 	 */
 	    if (!Ftask) {
 		if (examine_lproc())
-		    return;
+		    break;
 	    }
 	}
+
+	free(xfiles);
+	free_pcb_lists(pcbs);
+#ifdef KERN_LOCKF
+	free(locks.locks);
+#endif
 }
 
 
@@ -541,7 +604,7 @@ get_kernel_access()
 #endif	/* defined(_PATH_MEM) */
 
 		strerror(errno));
-	    Error();
+	    return;
 	}
 	(void) build_Nl(Drive_Nl);
 	if (kvm_nlist(Kd, Nl) < 0) {
@@ -615,7 +678,9 @@ get_nlist_path(ap)
 void
 initialize()
 {
+#if	__FreeBSD_version < 1400062
 	get_kernel_access();
+#endif	/* __FreeBSD_version < 1400062 */
 }
 
 
@@ -631,93 +696,10 @@ kread(addr, buf, len)
 {
 	int br;
 
+	if (!Kd)
+	    return 1;
 	br = kvm_read(Kd, (u_long)addr, buf, len);
 
 	return((br == len) ? 0 : 1);
 }
 
-static int
-vm_map_reader(void *token, vm_map_entry_t addr, vm_map_entry_t dest)
-{
-	return (kread((KA_T)addr, (char *)dest, sizeof(*dest)));
-}
-
-#if	__FreeBSD_version < 1300060
-typedef int vm_map_entry_reader(void *token, vm_map_entry_t addr,
-    vm_map_entry_t dest);
-
-static inline vm_map_entry_t
-vm_map_entry_read_succ(void *token, struct vm_map_entry *const clone,
-     vm_map_entry_reader reader)
-{
-	vm_map_entry_t next;
-
-	next = clone->next;
-	if (!reader(token, next, clone))
-		return (NULL);
-	return (next);
-}
-#endif	/*  __FreeBSD_version < 1300060 */
-
-/*
- * process_text() - process text information
- */
-void
-process_text(vm)
-	KA_T vm;				/* vm space pointer */
-{
-	int i, j;
-	KA_T ka;
-	int n = 0;
-	struct vm_map_entry vmme, *e;
-	struct vm_object vmo;
-	struct vmspace vmsp;
-
-/*
- * Read the vmspace structure for the process.
- */
-	if (kread(vm, (char *)&vmsp, sizeof(vmsp)))
-	    return;
-/*
- * Read the vm_map structure.  Search its vm_map_entry structure list.
- */
-	vmme = vmsp.vm_map.header;
-	e = &vmme;
-	for (i = 0; i < vmsp.vm_map.nentries; i++) {
-
-	/*
-	 * Read the next vm_map_entry.
-	 */
-	    if (!vm_map_entry_read_succ(NULL, e, vm_map_reader))
-		return;
-
-#if	defined(MAP_ENTRY_IS_A_MAP)
-	    if (e->eflags & (MAP_ENTRY_IS_A_MAP|MAP_ENTRY_IS_SUB_MAP))
-#else	/* !defined(MAP_ENTRY_IS_A_MAP) */
-	    if (e->is_a_map || e->is_sub_map)
-#endif	/* defined(MAP_ENTRY_IS_A_MAP) */
-
-		continue;
-	/*
-	 * Read the map entry's object and the object's shadow.
-	 * Look for: a PG_VNODE pager handle (FreeBSD < 2.2);
-	 * an OBJT_VNODE object type (FreeBSD >= 2.2).
-	 */
-	    for (j = 0, ka = (KA_T)e->object.vm_object;
-		 j < 2 && ka;
-		 j++,
-
-		 ka = (KA_T)vmo.backing_object
-		 )
-	    {
-		if (kread(ka, (char *)&vmo, sizeof(vmo)))
-		    break;
-
-		if (vmo.type != OBJT_VNODE
-		||  vmo.handle == (void *)NULL)
-		    continue;
-		(void) (enter_vn_text((KA_T)vmo.handle, &n));
-
-	    }
-	}
-}
