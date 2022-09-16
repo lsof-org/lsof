@@ -298,11 +298,15 @@ int     open(const char *, int, ...);
 #define	vasprintf vasprintf_kernel_lsof
 #define	uintfptr_t	int
 #define	_SYS_LIBKERN_H_
+#if __FreeBSD_version > 1400066
 #define	tick_sbt 1
 #define	pause kernel_pause
 #include <sys/file.h>
 #undef	pause
 #undef	tick_sbt
+#else
+#include <sys/file.h>
+#endif
 
 /*
  * Attempt to remove the circumventions.

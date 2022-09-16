@@ -130,6 +130,7 @@
 		4.95.0 April 28, 2022
 		4.96.0 September 16, 2022
 		4.96.1 September 16, 2022
+		4.96.2 September 16, 2022
 
 
 
@@ -5409,6 +5410,8 @@ July 14, 2018
                 Warner Losh (#253)
                
                 [FreeBSD] Unconditionally define HASKQUEUE (mjguzik) 
+
+                [FreeBSD] fix FreeBSD < 14
 
 The lsof-org team at GitHub
 September 16, 2022
