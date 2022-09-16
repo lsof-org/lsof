@@ -1648,21 +1648,9 @@ kernel generation process.
       fi	# }
     fi	# }
 
-    # Check the C library for closefrom and dup2.
-
-      if test -r /usr/lib/libc.a	# {
-      then
-	nm /usr/lib/libc.a | grep -q "W dup2"
-	if test $? -eq 0	# {
-	then
-	  LSOF_CFGF="$LSOF_CFGF -DHAS_DUP2"
-	fi	# }
-	nm /usr/lib/libc.a | grep -q "W closefrom"
-	if test $? -eq 0	# {
-	then
-	  LSOF_CFGF="$LSOF_CFGF -DHAS_CLOSEFROM"
-	fi	# }
-      fi	# }
+    # All supported FreeBSD releases have closefrom and dup2.
+    LSOF_CFGF="$LSOF_CFGF -DHAS_DUP2"
+    LSOF_CFGF="$LSOF_CFGF -DHAS_CLOSEFROM"
 
     # Do FreeBSD version-specific stuff.
 
