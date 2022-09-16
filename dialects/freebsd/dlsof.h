@@ -263,19 +263,8 @@ struct vop_generic_args;
 
 #include <vm/vm.h>
 
-#define	_KERNEL
-#define	KERNEL
+#define _KERNEL
 #include <sys/fcntl.h>
-
-/*
- * The following circumventions were first needed in FreeBSD 8.0-CURRENT some
- * time in August 2008 to avoid conflicts in /usr/src/sys/sys/libkern.h> and
- * /usr/src/sys/sys/systm.h, called by <sys/file.h> or the header files it
- * #include's when KERNEL or _KERNEL is #define'd.
- *
- * The circumventions may be needed or may be erroneous for earlier FreeBSD
- * versions where testing was not possible.
- */
 
 #  if	defined(__clang__)
 /*
@@ -285,47 +274,8 @@ struct vop_generic_args;
  */
 int     open(const char *, int, ...);
 #  endif	/* defined(__clang__) */
-
-#define	intrmask_t	int
-#define	log	log_kernel_lsof
-
-# if	!defined(HAS_PAUSE_SBT)
-#define	pause	pause_kernel_lsof
-# endif	/* !defined(HAS_PAUSE_SBT) */
-
-#define	asprintf asprintf_kernel_lsof
-#define	setenv	setenv_kernel_lsof
-#define	vasprintf vasprintf_kernel_lsof
-#define	uintfptr_t	int
-#define	_SYS_LIBKERN_H_
-#if __FreeBSD_version > 1400066
-#define	tick_sbt 1
-#define	pause kernel_pause
+#undef _KERNEL
 #include <sys/file.h>
-#undef	pause
-#undef	tick_sbt
-#else
-#include <sys/file.h>
-#endif
-
-/*
- * Attempt to remove the circumventions.
- */
-
-#undef	_SYS_LIBKERN_H_
-#undef	asprintf_kernel_lsof
-#undef	intrmask_t_lsof
-#undef	log_kernel_lsof
-
-# if	!defined(HAS_PAUSE_SBT)
-#undef	pause_kernel_lsof
-# endif	/* !defined(HAS_PAUSE_SBT) */
-
-#undef	setenv_kernel_lsof
-#undef	vasprintf_kernel_lsof
-#undef	uintfptr_t
-#undef	_KERNEL
-#undef	KERNEL
 
 #define	HASKQUEUE				/* has the kqueue file type */
 
