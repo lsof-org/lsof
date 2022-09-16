@@ -5402,5 +5402,10 @@ July 14, 2018
 		Updated 00FAQ with lookup to open files via mountpoint
 		Provided by Jacob Chapman in #240
 
+                [FreeBSD] modernize API usage and remove legacy FreeBSD releases
+                Contributor DamjanJovanovic (#184) Ed Maste (#250, #251, #252),
+                Warner Losh (#253)
+
+
 The lsof-org team at GitHub
-August 10, 2022
+September 1r, 2022
