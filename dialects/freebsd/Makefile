@@ -50,7 +50,7 @@ clean: FRC
 	(cd lib; ${MAKE} -f Makefile.skel clean)
 
 dist: clean
-        test -d .git && bash support/GenericDistrib2 freebsd
+	test -d .git && bash support/GenericDistrib2 freebsd
 
 install: all FRC
 	@echo ''
