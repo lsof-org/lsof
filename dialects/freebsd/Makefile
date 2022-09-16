@@ -49,6 +49,9 @@ clean: FRC
 	rm -f machine.h.old new_machine.h
 	(cd lib; ${MAKE} -f Makefile.skel clean)
 
+dist: clean
+        test -d .git && bash support/GenericDistrib2 freebsd
+
 install: all FRC
 	@echo ''
 	@echo 'Please write your own install rule.  Lsof should be installed'
