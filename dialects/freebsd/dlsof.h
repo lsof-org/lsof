@@ -329,6 +329,12 @@ int     open(const char *, int, ...);
 
 #define	HASKQUEUE				/* has the kqueue file type */
 
+#if __FreeBSD_version < 1400066
+#define	_KERNEL
+#include <sys/eventvar.h>
+#undef	_KERNEL
+# endif
+
 struct vop_advlock_args { int dummy; };	/* to pacify lf_advlock() prototype */
 #undef	MALLOC_DECLARE
 #define	MALLOC_DECLARE(type)	extern struct malloc_type type[1]
