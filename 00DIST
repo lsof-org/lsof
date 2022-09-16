@@ -5416,5 +5416,7 @@ July 14, 2018
                 
                 [FreeBSD] Fix kqueue compat for releases < 14
 
+		[FreeBSD] sys/files.h no longer needs _KERNEL defined to 
+                include it (bsdimp #256)
 The lsof-org team at GitHub
 September 16, 2022
