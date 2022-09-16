@@ -930,9 +930,6 @@ possibilities
 			kernel's name list from a file -- e.g., from
 			a crash dump file.
 
-    HAS_PAUSE_SBT	indicates the FreeBSD system's systm.h has the
-			pause to pause_sbt definition.
-
     HASKQUEUE           indicates the dialect supports the kqueue
 			file type.
 

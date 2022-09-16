@@ -1529,17 +1529,6 @@ kernel generation process.
       exit 1
     fi	# }
 
-    # Test pause() status in system.h.
-
-    if test -r ${FREEBSD_SYS}/sys/systm.h	# {
-    then
-      grep -q pause_sbt ${FREEBSD_SYS}/sys/systm.h
-      if test $? -eq 0	# {
-      then
-	LSOF_CFGF="$LSOF_CFGF -DHAS_PAUSE_SBT"
-      fi	# }
-    fi	# }
-
     # All supported FreeBSD releases have closefrom and dup2.
     LSOF_CFGF="$LSOF_CFGF -DHAS_DUP2"
     LSOF_CFGF="$LSOF_CFGF -DHAS_CLOSEFROM"
