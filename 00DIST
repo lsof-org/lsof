@@ -5350,7 +5350,7 @@ July 14, 2018
 		comma.
 		Provided by Danny Fowler in #156.
 
-4.9?.?		????? ??, ????
+4.96.0		September 16, 2022
 
 		[linux] fix hash functions used for finding local tcp/udp IPCs
 		There were typos in the code calculating hash values. The typos might
@@ -5398,10 +5398,9 @@ July 14, 2018
 		[linux] obtain correct information of memory-mapped file.
 		Provided by Teng Hu in #239
 
-               [FreeBSD] configure: suggest variable to set if FreeBSD sys not 
-               found
-               submitted by @emaste
-
+		[FreeBSD] configure: suggest variable to set if FreeBSD sys not 
+        	found
+        	submitted by @emaste
 
 		Updated 00FAQ with lookup to open files via mountpoint
 		Provided by Jacob Chapman in #240
@@ -5409,12 +5408,21 @@ July 14, 2018
                 [FreeBSD] modernize API usage and remove legacy FreeBSD releases
                 Contributor DamjanJovanovic (#184) Ed Maste (#250, #251, #252),
                 Warner Losh (#253)
-               
+
+4.96.1		September 16, 2022
+
                 [FreeBSD] Unconditionally define HASKQUEUE (mjguzik) 
 
+4.96.2		September 16, 2022
+
                 [FreeBSD] fix FreeBSD < 14
-                
+
+4.96.3		September 16, 2022
+
                 [FreeBSD] Fix kqueue compat for releases < 14
+
+
+4.9?.?		????? ??, ????
 
 		[FreeBSD] sys/files.h no longer needs _KERNEL defined to 
                 include it (bsdimp #256)
