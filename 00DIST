@@ -5426,5 +5426,8 @@ July 14, 2018
 
 		[FreeBSD] sys/files.h no longer needs _KERNEL defined to 
                 include it (bsdimp #256)
+
+		docs: Describe fd number truncation in output (#261)
+
 The lsof-org team at GitHub
 September 16, 2022
