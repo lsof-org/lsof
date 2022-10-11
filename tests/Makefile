@@ -46,6 +46,7 @@ all:	${CKTSTDB} ${BASTST} ${STDTST} FRC
 	  echo "Failed tests: $$err"; \
 	  echo ""; \
 	  echo "See 00FAQ and 00TEST for more information."; \
+	  exit 1; \
 	else \
 	  echo "All standard tests succeeded."; \
 	  echo ""; \
@@ -56,9 +57,6 @@ all:	${CKTSTDB} ${BASTST} ${STDTST} FRC
 	  fi; \
 	fi; \
 	rm -f config.LT*; \
-	if [ $$err -ne 0 ]; then \
-	  exit 1; \
-	fi
 
 auto:	ckDB silent FRC
 
@@ -126,14 +124,12 @@ opt:	${CKTSTDB} ${OPTTST} FRC
 	done; \
 	if [ $$err -ne 0 ]; then \
 	  echo "Failed tests: $$err"; \
+	  exit 1; \
 	else \
 	  echo "All optional tests succeeded."; \
 	fi; \
 	echo ""; \
 	rm -f config.LT*; \
-	if [ $$err -ne 0 ]; then \
-	  exit 1; \
-	fi
 
 optional: opt
 
