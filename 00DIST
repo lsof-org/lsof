@@ -5422,7 +5422,7 @@ July 14, 2018
                 [FreeBSD] Fix kqueue compat for releases < 14
 
 
-4.9?.?		????? ??, ????
+4.96.4		October 18, 2022
 
 		[FreeBSD] sys/files.h no longer needs _KERNEL defined to 
                 include it (bsdimp #256)
