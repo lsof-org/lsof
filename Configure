@@ -2178,7 +2178,7 @@ LOCKF_OWNER4
 #include <netinet/in.h>
 #include <netinet/in_pcb.h>
 #include <netinet/tcp_var.h>
-main() {
+int main() {
 struct xtcpcb pcb; pcb.t_maxseg = 0;
 }
 .LSOF_END_HERE_DOC4
@@ -2744,7 +2744,8 @@ struct xtcpcb pcb; pcb.t_maxseg = 0;
       rm -f ${LSOF_TMPC}.*
       cat > $LSOF_TMPC.c << .LSOF_END_HERE_DOC1
 #include <features.h>
-main() {
+#include <stdio.h>
+int main() {
 #if defined(__GLIBC__) && defined(__GLIBC_MINOR__)
 printf("-DGLIBCV=%d\n",__GLIBC__*100+__GLIBC_MINOR__);
 #elif defined(__GLIBC__)
