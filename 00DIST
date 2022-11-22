@@ -5429,5 +5429,11 @@ July 14, 2018
 
 		docs: Describe fd number truncation in output (#261)
 
+4.9?.?         ????? ??, ????
+
+		[linux] Use correct scanf/printf format for uint64_t (#266)
+
+		Avoid C89-only constructs in Configure (#265)
+
 The lsof-org team at GitHub
-September 16, 2022
+October 18, 2022
