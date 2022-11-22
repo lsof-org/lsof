@@ -31,6 +31,8 @@
 
 #include "lsof.h"
 
+#include <inttypes.h>
+
 
 /*
  * Local definitions
@@ -1563,10 +1565,10 @@ process_proc_map(p, s, ss)
 		uint64_t start, end;
 		int ret;
 
-		if (sscanf(fp[0], "%lx-%lx", &start, &end) != 2)
+		if (sscanf(fp[0], "%"SCNx64"-%"SCNx64, &start, &end) != 2)
 		    goto stat_directly;
 
-		ret = snprintf(addr, sizeof(addr), "%lx-%lx", start, end);
+		ret = snprintf(addr, sizeof(addr), "%"PRIx64"-%"PRIx64, start, end);
 		if (ret >= sizeof(addr) || ret <= 0)
 		    goto stat_directly;
 
