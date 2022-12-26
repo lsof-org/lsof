@@ -5392,20 +5392,25 @@ July 14, 2018
 		it is set.
 		Provided by Danilo Spinella in #217
 
+
 		[darwin] remove /usr/include prefix from include for Darwin 19+
 		The /usr/include path is missing since macOS Catalina.
 		Fixes issue #234.
 		Provided by Jiajie Chen in #235
 
+
 		[linux] obtain correct information of memory-mapped file.
 		Provided by Teng Hu in #239
+
 
 		[FreeBSD] configure: suggest variable to set if FreeBSD sys not 
         	found
         	submitted by @emaste
 
+
 		Updated 00FAQ with lookup to open files via mountpoint
 		Provided by Jacob Chapman in #240
+
 
                 [FreeBSD] modernize API usage and remove legacy FreeBSD releases
                 Contributor DamjanJovanovic (#184) Ed Maste (#250, #251, #252),
@@ -5423,21 +5428,23 @@ July 14, 2018
 
                 [FreeBSD] Fix kqueue compat for releases < 14
 
-
 4.96.4		October 18, 2022
 
 		[FreeBSD] sys/files.h no longer needs _KERNEL defined to 
                 include it (bsdimp #256)
 
+
 		docs: Describe fd number truncation in output (#261)
 
-4.96.5          December 26, 2022
+4.96.5		December 26, 2022
 
 		[linux] Use correct scanf/printf format for uint64_t (#266)
 
+
 		Avoid C89-only constructs in Configure (#265)
 
-                [freebsd] add <sys/callout.h> for recent changes
+
+		[freebsd] add <sys/callout.h> for recent changes
 
 4.9?.?          ????????? ??, ????
 
