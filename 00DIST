@@ -132,6 +132,8 @@
 		4.96.1 September 16, 2022
 		4.96.2 September 16, 2022
 		4.96.3 September 16, 2022
+		4.96.4 October 18, 2022
+		4.96.5 December 26, 2022
 
 
 
@@ -5429,11 +5431,15 @@ July 14, 2018
 
 		docs: Describe fd number truncation in output (#261)
 
-4.9?.?         ????? ??, ????
+4.96.5          December 26, 2022
 
 		[linux] Use correct scanf/printf format for uint64_t (#266)
 
 		Avoid C89-only constructs in Configure (#265)
 
+                [freebsd] add <sys/callout.h> for recent changes
+
+4.9?.?          ????????? ??, ????
+
 The lsof-org team at GitHub
-October 18, 2022
+December 28, 2022

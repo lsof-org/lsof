@@ -144,6 +144,7 @@ int     getmntinfo(struct statfs **, int);
 
 #undef	INADDR_LOOPBACK
 
+#include <sys/callout.h>
 #include <netinet/in.h>
 #include <netinet/in_systm.h>
 #include <netinet/ip.h>
