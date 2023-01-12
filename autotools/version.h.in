@@ -83,4 +83,8 @@
 #define HASSELINUX
 #endif
 
+#if HAVE_UTMPX_H
+#define HASUTMPX
+#endif
+
 #endif
