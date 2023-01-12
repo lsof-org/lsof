@@ -613,5 +613,5 @@ End:
 */
 
 #else	/* !defined(USE_LIB_REGEX) */
-#include <regex.h>
+#include_next <regex.h>
 #endif	/* defined(USE_LIB_REGEX) */

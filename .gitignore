@@ -109,3 +109,24 @@ dialects/linux/tests/pipe
 dialects/linux/tests/pty
 dialects/linux/tests/ux
 dialects/linux/tests/mmap
+
+# automake
+Makefile.in
+.deps/
+.dirstamp
+
+# autoconf
+autom4te.cache
+/aclocal.m4
+/compile
+/config.guess
+/config.log
+/config.status
+/config.sub
+/config.h
+/config.h.in
+/configure
+/depcomp
+/install-sh
+/missing
+/stamp-h1
