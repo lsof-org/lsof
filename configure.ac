@@ -47,6 +47,9 @@ AC_SYS_LARGEFILE
 # Detect strftime function for HAS_STRFTIME
 AC_CHECK_FUNCS([strftime])
 
+# Detect selinux headers HASSELINUX
+AC_CHECK_HEADERS([selinux/selinux.h], [LIBS="$LIBS -lselinux"])
+
 # Generate Makefile from Makefile.in/am
 AC_CONFIG_FILES([Makefile])
 
@@ -57,7 +60,7 @@ AC_SUBST(user, $USER)
 AC_SUBST(cc, $CC)
 AC_SUBST(ccv, $($CC -v 2>&1 | sed -n 's/.*version \(.*\)/\1/p'))
 AC_SUBST(ccflags, $CFLAGS)
-AC_SUBST(ldflags, $LDFLAGS)
+AC_SUBST(ldflags, "$LDFLAGS$LIBS")
 AC_SUBST(sysinfo, $(uname -a))
 
 # Generate version.h from version.h.in

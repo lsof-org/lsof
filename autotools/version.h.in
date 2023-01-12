@@ -79,4 +79,8 @@
 #define HAS_STRFTIME
 #endif
 
+#if HAVE_SELINUX_SELINUX_H
+#define HASSELINUX
+#endif
+
 #endif
