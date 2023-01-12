@@ -961,6 +961,31 @@ usage(err, fh, version)
 		(void) fprintf(stderr, "    loader flags: %s\n", cp);
 	    if ((cp = isnullstr(LSOF_SYSINFO)))
 		(void) fprintf(stderr, "    system info: %s\n", cp);
+	    char *features[] = {
+#ifdef HASIPv6
+                "ipv6",
+#endif
+#ifdef HASPTYEPT
+                "ptyept",
+#endif
+#ifdef HASSELINUX
+                "selinux",
+#endif
+#ifdef HASSOOPT
+                "soopt",
+#endif
+#ifdef HASSOSTATE
+                "sostate",
+#endif
+#ifdef HASUXSOCKEPT
+                "uxsockept",
+#endif
+	    };
+	    (void) fprintf(stderr, "    features enabled:");
+	    for (i = 0; i < sizeof(features)/sizeof(features[0]); i++) {
+		(void) fprintf(stderr, " %s", features[i]);
+	    }
+	    (void) fprintf(stderr, "\n");
 	    (void) report_SECURITY("    ", ".\n");
 	    (void) report_WARNDEVACCESS("    ", "are", ".\n");
 	    (void) report_HASKERNIDCK("    K", "is");
