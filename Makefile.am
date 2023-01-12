@@ -8,4 +8,4 @@ lsof_SOURCES += $(DIALECT_PATH)/dfile.c \
 		$(DIALECT_PATH)/dsock.c \
 		$(DIALECT_PATH)/dstore.c
 lsof_CPPFLAGS = -I$(DIALECT_PATH) -I$(top_srcdir)/autotools
-lsof_CPPFLAGS += -DHASNORPC_H -DAUTOTOOLS
+lsof_CPPFLAGS += -DAUTOTOOLS

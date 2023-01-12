@@ -19,6 +19,10 @@ esac
 # Pass LSOF_DIALECT to Makefile.am
 AC_SUBST([LSOF_DIALECT])
 
+# Check rpc/rpc.h
+AC_CHECK_HEADERS([rpc/rpc.h])
+
+# Detect glibc
 AC_CHECK_DECLS([__GLIBC__])
 
 # Generate Makefile from Makefile.in/am
