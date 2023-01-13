@@ -300,6 +300,14 @@ fi	# }
 # Detect nullfs for HASNULLFS
 AC_CHECK_HEADERS([fs/nullfs/null.h], [], [], [])
 
+# Detect struct xtcpcb.t_maxseg for HAS_XTCPCB_TMAXSEG
+AC_CHECK_MEMBERS([struct xtcpcb.t_maxseg], [], [], [#include <sys/types.h>
+	#include <sys/queue.h>
+	#include <sys/socketvar.h>
+	#include <sys/socket.h>
+	#include <netinet/in.h>
+	#include <netinet/in_pcb.h>
+	#include <netinet/tcp_var.h>])
 
 # Generate Makefile from Makefile.in/am
 AC_CONFIG_FILES([Makefile])

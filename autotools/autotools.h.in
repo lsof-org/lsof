@@ -127,4 +127,8 @@
 #define HASNULLFS
 #endif
 
+#if HAVE_STRUCT_XTCPCB_T_MAXSEG
+#define HAS_XTCPCB_TMAXSEG
+#endif
+
 #endif

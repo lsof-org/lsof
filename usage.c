@@ -1005,6 +1005,9 @@ usage(err, fh, version)
 #ifdef HAS_TMPFS
                 "tmpfs",
 #endif
+#ifdef HAS_XTCPCB_TMAXSEG
+                "xtcpcb_tmaxseg",
+#endif
 #ifdef HASUXSOCKEPT
                 "uxsockept",
 #endif
