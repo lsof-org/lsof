@@ -291,6 +291,12 @@ AC_CHECK_HEADERS([fs/fdescfs/fdesc.h], [], [], [#define _KERNEL 1
 		#include <sys/types.h>
 		#include <sys/mount.h>])
 
+# Detect pseudofs for HASPSEUDOFS
+if test -d ${FREEBSD_SYS}/fs/pseudofs	# {
+then
+	CFLAGS="$CFLAGS -DHASPSEUDOFS -I$FREEBSD_SYS"
+fi	# }
+
 # Generate Makefile from Makefile.in/am
 AC_CONFIG_FILES([Makefile])
 

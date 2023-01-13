@@ -975,6 +975,12 @@ usage(err, fh, version)
 #ifdef HASIPv6
                 "ipv6",
 #endif
+#ifdef HASPROCFS
+                "procfs",
+#endif
+#ifdef HASPSEUDOFS
+                "pseudofs",
+#endif
 #ifdef HASPTYEPT
                 "ptyept",
 #endif
