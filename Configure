@@ -1487,11 +1487,6 @@ cpumask_t c;
 	    then
 	      LSOF_CFGF="$LSOF_CFGF -DHAS_UFS1_2"
 	    fi	# }
-	    grep -q i_dev ${LSOF_INCLUDE}/ufs/ufs/inode.h
-	    if test $? -ne 0	# {
-	    then
-	      LSOF_CFGF="$LSOF_CFGF -DHAS_NO_IDEV"
-	    fi	# }
 	  fi	# }
 	  if test -r ${LSOF_INCLUDE}/sys/conf.h	# {
 	  then

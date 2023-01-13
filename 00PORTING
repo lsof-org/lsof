@@ -1025,9 +1025,6 @@ possibilities
     HAS_NO_6PPCB	is defined if the FreeBSD in_pcb.h has no in6p_ppcb
 			definition.
 
-    HAS_NO_IDEV		indicates the FreeBSD system's inode has no i_dev
-			member.
-
     HAS_NO_ISO_DEV	indicates the FreeBSD 6 and higher system has
 			no i_dev member in its iso_node structure.
 
