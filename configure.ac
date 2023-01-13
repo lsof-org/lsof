@@ -1,4 +1,4 @@
-AC_INIT([lsof],[4.96.6])
+AC_INIT([lsof],[4.97.0])
 AM_INIT_AUTOMAKE([subdir-objects])
 
 # Require C compiler
