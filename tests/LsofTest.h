@@ -166,6 +166,7 @@
 #include <string.h>
 #include <unistd.h>
 #include <sys/wait.h>
+#undef	USE_LSOF_C_OPT
 # endif	/* defined(LT_DIAL_freebsd) */
 
 

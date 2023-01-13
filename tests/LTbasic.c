@@ -414,7 +414,7 @@ tstlsof(texec, tkmem, tproc)
 	     */
 		if (!devp || !inop)
 		    break;
-	        if ((cem = ConvLsofDev(devp->v, &lsofdc))) {
+	        if ((cem = ConvLsofDev(devp->v, &tmpdc))) {
 		    if (pem)
 			(void) PrtMsg(pem, Pn);
 		    pem = cem;
