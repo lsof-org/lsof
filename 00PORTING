@@ -1220,10 +1220,6 @@ possibilities
 			that processes the results of a successful
 			stat(2) of a file in that directory.
 
-    HASSPECNODE         indicates the DEC OSF/1, or Digital UNIX,
-			or Tru64 UNIX <sys/specdev.h> has a spec_node
-			structure definition.
-
     HASSNODE		indicates the dialect has snode support.
 
     HAS_SOCKET_SK	indicates that the Linux socket structure
@@ -1269,10 +1265,6 @@ possibilities
 
     HAS_SYS_SX_H	indicates the FreeBSD 7.0 and higher system has
 			a <sys/sx.h> header file.
-
-    HASTAGTOPATH        indicates the DEC OSF/1, Digital UNIX, or
-			Tru64 UNIX dialect has a libmsfs.so,
-			containing tag_to_path().
 
     HAS_TMPFS		indicates the FreeBSD system has the <fs/tmpfs.h>
 			header file.

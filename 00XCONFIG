@@ -385,9 +385,6 @@ Abbreviation*	  Prefix	 Number       LSOF_VERS
 	 	       		  7.1.1		  70101
 	 	       		  7.1.3		  70103
 
-* -- The optional Configure abbreviations -- e.g., the ``decosf''
-     and ``digital_unix'' alternatives to ``du'' -- aren't listed
-     here.
 
 
 Dialect-Specific Environment Variables
@@ -441,29 +438,6 @@ DARWIN_XNU_HEADERS	If this environment variable has a value, the value is
 			Darwin XNU kernel source directory.
 
 			default: none
-
-DU_ADVFSV		specifies the DEC OSF/1, Digital UNIX, or Tru64 UNIX
-			ADVFS file system version -- e.g., 200 for 2.0, 400
-			for 4.0, etc.
-
-			default: determined via /usr/sbin/setld
-
-DU_CDIR			specifies the name of the DEC OSF/1, Digital UNIX, or
-			Tru64 UNIX system configuration directory.
-
-			default: first host name component, converted to upper
-				 case
-
-DU_SHLIB		specifies the DEC OSF/1, Digital UNIX, or Tru64 UNIX
-			shared library directory path.
-
-			default: /usr/shlib
-
-DU_SYSDIR		DEC OSF/1, Digital UNIX, or Tru64 UNIX system
-			directory path.
-
-			2.x and 3.x default: /sys
-			4.x default: /usr/sys
 
 FREEBSD_KERNEL		specifies the path to the FreeBSD kernel for FreeBSD
 			version less than 2.0.

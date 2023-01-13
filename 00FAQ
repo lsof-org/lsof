@@ -242,19 +242,6 @@ Table of Contents:
 6.0	BSD/OS BSDI Problems
 6.0.5	Statement of deprecation
 
-7.0	DEC OSF/1, Digital UNIX, and Tru64 UNIX Problems
-7.1	Why does lsof complain about non-existent /dev/fd entries?
-7.2	Why does the Digital UNIX V3.2 ld complain about Ots* symbols?
-7.3	Why can't lsof locate named pipes (FIFOs) under V3.2?
-7.4	Why does lsof use the wrong configuration header files?
-	For example, why can't the lsof compilation find cpus.h?
-7.5	Why does lsof indicate incomplete paths with " -- " for Tru64
-	UNIX 5.1 files?
-7.6	Why doesn't lsof report link count, node number, and size
-	for some Tru64 5.x CFS files?
-7.7     Why does lsof say it can't read the kernel name list or
-	proc table on Digital UNIX 4.x or Tru64 UNIX?
-
 8.0	FreeBSD Problems
 8.1	Why doesn't lsof report on open kernfs files?
 8.2	Why doesn't lsof work on my FreeBSD system?
@@ -1697,9 +1684,6 @@ ______________________________________________________________________
 	    Apple Darwin 7.2 and above
 		All socket options and values, socket states, and TCP
 		flags and values described in lsof(8) are reported.
-	    Digital UNIX and Tru64 UNIX 4.0
-		All socket options and values, socket states, and TCP
-		flags and values described in lsof(8) are reported.
 	    FreeBSD 4.9 and above
 		All socket options and values, socket states, and TCP
 		flags and values described in lsof(8) are reported.
@@ -1757,10 +1741,6 @@ ______________________________________________________________________
 		Partial listen queue information is available.
 	    Apple Darwin 7.2 and above
 		Partial listen queue information is available.
-	    Digital UNIX 4.0
-		This dialect is no longer supported, so no attempt
-		was made to add partial listen queue length support
-		for it.
 	    FreeBSD 4.9 and above
 		Partial listen queue information is available.
 	    HP-UX 11.00 (/dev/kmem-based lsof)
@@ -4314,204 +4294,6 @@ ______________________________________________________________________
 	As of lsof revision 4.76 support for BSDI BSD/OS has been
 	dropped.  The 4.76 distribution of lsof for BSDI BSD/OS may be
 	found on lsof.itap.purdue.edu in pub/tools/unix/lsof/OLD/src.
-
-
-7.0	DEC OSF/1, Digital UNIX, and Tru64 UNIX Problems
-
-7.1	Why does lsof complain about non-existent /dev/fd entries?
-
-	When you run lsof for Digital UNIX 3.2, lsof may complain:
-
-	    lsof: can't lstat /dev/fd/xxx: No such file or directory
-	    lsof: can't lstat /dev/fd/yyy: No such file or directory
-
-	(Or it may warn about other missing /dev/fd paths.)  When
-	you do an ``ls /dev/fd'' none of the missing paths are listed.
-
-	This is caused by a bug in the DEC library function
-	getdirentries().  For some reason, when /dev/fd is a file
-	system mount point, getdirentries() returns an incorrect
-	size for it to readdir().  (Lsof calls readdir() in its
-	ddev.c readdev() function.)  Because of the incorrect size,
-	readdir() goes past the end of the /dev/fd directory buffer,
-	encounters random paths and returns them to lsof.  Lsof
-	then attempts to lstat(2) the random paths, gets error
-	replies from lstat(2), and complains about the paths.
-
-	Duncan McEwan discovered this error and has reported it to
-	DEC.  Duncan also supplied an alternate readdir() function
-	as a work-around.  I've incorporated his readdir() in
-	dialects/osf/ddev.c (as the static ReadDir() function) with
-	some slight modifications, and enabled its use when the
-	USELOCALREADDIR symbol is defined.
-
-	The Configure script defines USELOCALREADDIR for Digital
-	UNIX version and 3.2.  If you don't want to use Duncan's
-	local readdir() function, edit the Makefile and remove
-	-DUSELOCALREADDIR from the CFGF string.  When DEC releases
-	a corrected getdirentries() function, I'll modify the
-	Configure script to stop defining USELOCALREADDIR.
-
-7.2	Why does the Digital UNIX V3.2 ld complain about Ots* symbols?
-
-	When you compile lsof on your Digital UNIX V3.2 system, ld
-	may complain:
-
-	    ld:
-	    Unresolved:
-	    knlist
-	    _OtsRemainder32Unsigned
-	    _OtsDivide64Unsigned
-	    _OtsRemainder64Unsigned
-	    _OtsDivide32Unsigned
-	    _OtsMove
-	    _OtsDivide32
-	    _OtsRemainder32
-	    *** Exit 1
-
-	Chris Eleveld reports this happens on Digital UNIX V3.2
-	systems after the Fortran compiler has been installed.
-
-	The best work-around seems to be to remove -lmld from the
-	CFGL string in the Makefile produced by Configure -- i.e.,
-	change:
-
-	    CFGL=    -lmld
-	to
-	    CFGL=
-
-	According to the V3.2 man page for nlist(3), this shouldn't
-	work, but my testing shows that it does.  Although I haven't
-	been able to test this second work-around, you might try
-	adding -lots to CFGL, rather than removing -lmld -- i.e.,
-	change:
-
-	    CFGL=    -lmld
-	to
-	    CFGL=    -lmld -lots
-
-	WARNING: my testing also shows that the V2.0 nlist(3) man
-	page means what it says when it calls for -lmld -- lsof
-	loaded without -mld under V2.0 can't locate the proc
-	(process) table address.
-
-	    DON'T REMOVE -lmld FROM THE DIGITAL UNIX V2.0 MAKEFILE.
-
-	If you run into this problem, please let me know what
-	problem you encountered and how you solved it.
-
-7.3	Why can't lsof locate named pipes (FIFOs) under V3.2?
-
-	While lsof for V3.2 can report on named pipes (FIFOs), it
-	can't find them by name.  That appears to happen because
-	of the way the V3.2 kernel lstat(2) function reports named
-	pipe device numbers.
-
-	The V3.2 kernel reports the device number as 0xfffffff,
-	while the kernel structures for named pipes that lsof
-	examines contain the device number of the file system on
-	which the named pipe resides.
-
-	Consequently, lsof can't match the device and inode number
-	pair it receives from applying lstat(2) to the named pipe
-	with any device and inode number pair it finds when scanning
-	kernel structures.
-
-	I don't have a work-around.  You can, of course, ask for
-	full lsof output and use a post-processing filer (e.g.,
-	grep) to locate the named pipe of interest.
-
-	This problem doesn't exist under V2.0.
-
-7.4	Why does lsof use the wrong configuration header files?
-	For example, why can't the lsof compilation find cpus.h?
-
-	DEC OSF/1, Digital UNIX, and Tru64 UNIX configuration header
-	files describe the hardware and software environment for
-	which your kernel boot file was constructed.  For example,
-	/sys/<name>/cpus.h defines the number of CPUs in its NCPUS
-	#define.
-
-	Lsof searches for the configuration header file subdirectory
-	in /sys (/usr/sys for Digital UNIX version 4.0 and Tru64
-	UNIX) by converting the first host name component to capital
-	letters -- e.g., TOMIS is derived from tomis.bio.purdue.edu.
-	If that subdirectory exists, lsof uses header files from
-	it.  (Configure reports what subdirectory is being used.)
-
-	If Configure doesn't find a host-name derived subdirectory,
-	it prompts you for the entry of a subdirectory name.  If
-	you can't find one, quit Configure and run the kernel
-	generation process to create a proper configuration sub-
-	directory.  If you don't identify a proper configuration
-	subdirectory and you try to compile lsof, the compiler will
-	complain about missing header files -- e.g., a missing
-	cpus.h.
-
-	Once you have located or generated a proper configuration
-	subdirectory, rerun Configure.  If you have generated a
-	configuration subdirectory whose name is derived from the
-	host name, Configure will find and use it.  If not, you
-	will have to specify its name to Configure.
-
-7.5	Why does lsof indicate incomplete paths with " -- " for Tru64
-	UNIX 5.1 files?
-
-	When lsof can't find a component of a path in the kernel's
-	name cache (aka DNLC), or can't determine that the left-most
-	component has as its parent the file system root, it uses
-	an "incomplete path" notation.  That notation begins with
-	the file system root name, followed by " -- ", followed by
-	the consecutive path name components lsof was able to find
-	in the DNLC -- e.g., "/ -- init".
-
-	Because the DNLC was significantly redesigned in Tru64 UNIX
-	5.1, lsof's handling of the cache had to be completely
-	redone.  As part of the DNLC redesign a name cache entry
-	parameter lsof formerly used to locate the file system root
-	of a path was removed.  With help from Chang Song I've been
-	able to implement an alternate method for detecting the
-	root of these file system types:  AdvFS (MSFS), CDFS, DVDFS,
-	FDFS, NFS, NFS3, and UFS.
-
-	When lsof doesn't know how to identify the root for a file
-	system type, it will resort to the " -- " incomplete path
-	notation.
-
-7.6	Why doesn't lsof report link count, node number, and size
-	for some Tru64 5.x CFS files?
-
-	Lsof reports link count, node number, and size for open
-	CFS files as recorded in their kernel node structure's
-	cached attributes.  Sometimes not all attributes are cached
-	on the system where lsof runs, so lsof cannot report them.
-
-7.7     Why does lsof say it can't read the kernel name list or
-	proc table on Digital UNIX 4.x or Tru64 UNIX?
-
-	By default on Digital UNIX 4 and Tru64 UNIX lsof reads the
-	addresses for kernel symbols with the knlist(3) function.
-	That function can fail, for example, when the kloadsrv
-	daemon isn't running or is malfunctioning.  When that
-	happens, lsof may abort with one of these error messages:
-
-	    lsof: can't read kernel name list from knlist(3): ...
-	  or
-	    lsof: can't read proc table info
-
-	The first message suggests a complete knlist(3) or kloadsrv
-	failure; the second, a partial one.
-
-	If you know the name of the file from which the running
-	system was booted, e.g., /vmunix, you can use lsof's -k
-	option to direct it to read kernel symbol addresses from
-	the name list of that file --
-
-	    $ lsof -k /vmunix ...
-
-	If that works, then knlist(3) is malfunctioning and you
-	need to fix it.
-
 
 8.0	FreeBSD Problems
 

@@ -913,7 +913,6 @@ base, footprints, and the scripts that support them.
 		 10.0 Amd64, clang
 		 11.0 Amd64, clang
 		 12.0 Amd64, clang
-    DEC OSF/1	  4.0, cc
     HP-UX	  10.20, cc			LTbigf
 		  10.20, gcc (1)		LTbigf
 		  11.00-32, ANSI-C		LTbigf, LTnfs
@@ -999,9 +998,6 @@ base, footprints, and the scripts that support them.
 		  10-64, Sparc, cc
 		  10-64, Sparc, gcc
 		  11-64, Amd64, cc
-    Tru64 UNIX    5.0, cc
-    Tru64 UNIX    5.0, cc
-		  5.1, cc
     UnixWare      7.1.1, NSC, cc            	LTnfs
 		  7.1.3, cc
 		  7.1.4, cc
