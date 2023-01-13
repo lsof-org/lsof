@@ -24,5 +24,5 @@ lsof_CPPFLAGS = -I$(DIALECT_PATH) -I$(top_srcdir)/autotools
 lsof_CPPFLAGS += -DAUTOTOOLS
 
 lsof.man: Lsof.8 version 00DIALECTS
-	soelim < $< > $@
+	soelim < Lsof.8 > $@
 man8_MANS = lsof.man
