@@ -94,4 +94,8 @@
 #define HASSBSTATE
 #endif
 
+#if HAVE_STRUCT_KINFO_PROC_KI_NUMTHREADS
+#define HASTASKS
+#endif
+
 #endif

@@ -963,6 +963,9 @@ usage(err, fh, version)
 		(void) fprintf(stderr, "    system info: %s\n", cp);
 	    // display configurations that might affect output
 	    char *features[] = {
+#ifdef HASEFFNLINK
+                "effnlink",
+#endif
 #ifdef HASIPv6
                 "ipv6",
 #endif
@@ -980,6 +983,9 @@ usage(err, fh, version)
 #endif
 #ifdef HASSOSTATE
                 "sostate",
+#endif
+#ifdef HASTASKS
+                "tasks",
 #endif
 #ifdef HASUXSOCKEPT
                 "uxsockept",

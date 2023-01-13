@@ -93,8 +93,8 @@ case "${host_os}" in
 		# Add FREEBSDV to cflags
 		CFLAGS="$CFLAGS -DFREEBSDV=$LSOF_VERS"
 
-		# Always define HASPROCFS
-		CFLAGS="$CFLAGS -DHASPROCFS"
+		# Always define HASPROCFS HAS_DUP2 HAS_CLOSEFROM
+		CFLAGS="$CFLAGS -DHASPROCFS -DHAS_DUP2 -DHAS_CLOSEFROM"
 
 		# Always link libutil
 		LDFLAGS="$LDFLAGS -lutil"
@@ -241,6 +241,16 @@ LOCKF_OWNER4
 	fi	# }
 ], [], [#include <sys/types.h>
 		#include <sys/lockf.h>])
+
+# Detect ki_numthreads definition for HASTASKS
+AC_CHECK_MEMBERS([struct kinfo_proc.ki_numthreads], [], [], [#include <sys/types.h>
+		#include <sys/user.h>])
+
+# Detect i_effnlink/i_ffs_effnlink for HASEFFNLINK
+AC_CHECK_MEMBERS([struct inode.i_effnlink], [CFLAGS="$CFLAGS -DHASEFFNLINK=i_effnlink"], [], [#define __BSD_VISIBLE 1
+		#include <sys/types.h>
+		#include <ufs/ufs/quota.h>
+		#include <ufs/ufs/inode.h>])
 
 # Generate Makefile from Makefile.in/am
 AC_CONFIG_FILES([Makefile])
