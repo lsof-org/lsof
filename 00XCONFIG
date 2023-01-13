@@ -341,7 +341,6 @@ Abbreviation*	  Prefix	 Number       LSOF_VERS
 				  2.0		2000000
 				  2.99.9        2099009
 				  2.99.10       2099010
-	 ns     NEXTSTEP	  3.1		     31
     openbsd	 OPENBSD	  1.2		   1020
 				  2.0		   2000
 				  2.1		   2010
@@ -360,7 +359,6 @@ Abbreviation*	  Prefix	 Number       LSOF_VERS
 				  3.4		   3040
 				  3.5		   3050
 				  3.6		   3060
-         os     OPENSTEP	  4.x		     4x
 	osr	     OSR	  3.2v2.0	     20
 				  3.2v2.1	     21
 				  3.2v4.0	     40

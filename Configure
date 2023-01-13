@@ -242,9 +242,7 @@ Usage: Configure <options> <target-dialect>
     hpux|hpuxgcc            : HP-UX cc (hpux) or gcc (hpuxgcc)
     linux                   : Linux
     netbsd                  : NetBSD
-    nextstep|next|ns|nxt    : NEXTSTEP
     openbsd                 : OpenBSD
-    openstep|os             : OPENSTEP
     osr|sco                 : SCO OpenServer < 6.0.0, SCO devloper's compiler
     osrgcc|scogcc           : SCO OpenServer < 6.0.0, gcc compiler
     osr6                    : SCO OpenServer 6.0.0, SCO compiler
@@ -3490,78 +3488,6 @@ return(0); }
     fi	# }
     LSOF_CFGL="$LSOF_CFGL -lkvm"
     LSOF_DIALECT_DIR=n+obsd
-    ;;
-
-# Configure for NeXTSTEP or OPENSTEP.
-
-  nextstep|next|ns|nxt|openstep|os)
-    LSOF_TGT="ns"
-    LSOF_TSTXO="../lib/snpf.o"
-    if test "X$LSOF_AR" = "X"	# {
-    then
-      LSOF_AR="rm -f \${LIB}; ar cr"
-    fi	# }
-    if test "X$LSOF_VSTR" = "X"	# {
-    then
-      LSOF_VSTR=`hostinfo | sed -n 's/.*NeXT Mach \([0-9\.]*\).*/\1/p'`
-    fi	# }
-    if test "X$LSOF_VERS" = "X"	# {
-    then
-
-      # If the NeXSTEP version isn't predefined, determine it.
-
-      LSOF_VERS=`echo $LSOF_VSTR | sed -n 's/\([0-9]*\)\.\([0-9]*\)/\1\2/p'`
-    fi	# }
-    if test "X$LSOF_CC" = "X"	# {
-    then
-      if test -x /usr/local/bin/gcc	# {
-      then
-	LSOF_CC=/usr/local/bin/gcc
-	LSOF_CCV=`$LSOF_CC -v 2>&1 | sed -n 's/.*version \(.*\)/\1/p'`
-      else
-	LSOF_CC=cc
-	LSOF_CCV=`$LSOF_CC -v 2>&1 | sed -n 's/.*version \(.*\)/\1/p'`
-      fi	# }
-    fi	# }
-    echo $LSOF_CC | grep gcc > /dev/null
-    if test $? -eq 0	# {
-    then
-      LSOF_CFGL="$LSOF_CFGL -w"
-      LSOF_DEBUG="-pedantic -O"
-    fi	# }
-    LSOF_CFGF="$LSOF_CFGF -DSTEPV=$LSOF_VERS"
-    LSOF_DIALECT_DIR=n+os
-
-    # Test for AFS.
-
-    if test -r ${AFS_VICE}/etc/ThisCell	# {
-    then
-      if test "X$LSOF_SCRIPT_CALL" = "Xno"	# {
-      then
-	if test -r ./AFSHeaders -a -r ./AFSVersion	# {
-	then
-	  LSOF_AFS="yes"
-	fi	# }
-      else
-	if test ! -x ./AFSConfig	# {
-	then
-	  echo "Can't find or execute the AFSConfig script"
-	  rm -f $LSOF_HLP
-	  exit 1
-	fi	# }
-	./AFSConfig
-	if test $? -eq 0 -a -r ./AFSHeaders -a -r ./AFSVersion	# {
-	then
-	    LSOF_AFS="yes"
-	fi	# }
-      fi	# }
-      if test "X$LSOF_AFS" = "Xyes"	# {
-      then
-	LSOF_AFSV=`cat ./AFSVersion | sed 's/^\([0-9]*\)\.\([0-9]*\).*/\1 \2/' | awk '{printf "%d%02d\n",\$1,\$2}'`
-	LSOF_CFGF="$LSOF_CFGF -DHAS_AFS=$LSOF_AFSV"
-	LSOF_DINC="$LSOF_DINC -I`cat ./AFSHeaders`"
-      fi	# }
-    fi	# }
     ;;
 
 # Configure for OpenBSD.  (OpenBSD uses NetBSD dialect sources and version

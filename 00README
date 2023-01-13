@@ -42,7 +42,6 @@
 	    IPv6
 	    Linux
 	    NetBSD
-	    NEXTSTEP and OPENSTEP
 	    OpenBSD
 	    Pyramid DC/OSx and Reliant UNIX (no longer available)
 	    Caldera OpenUNIX
@@ -182,13 +181,7 @@ the ``osr'' or the ``sco'' abbreviation:
 			/dev/kmem-based and PSTAT-based
     linux		Linux 2.1.72 and above for x86-based systems
     netbsd		NetBSD 1.[456], 2.x and 3.x
-    next		NEXTSTEP 3.[13]
-    nextstep		NEXTSTEP 3.[13]
-    ns			NEXTSTEP 3.[13]
-    nxt			NEXTSTEP 3.[13]
     openbsd		OpenBSD 2.[89] and 3.[0-9]
-    openstep		OPENSTEP 4.x
-    os			OPENSTEP 4.x
     osr			SCO OpenServer Release 5.0.6, using the C compiler
 			from the SCO developer's kit
     osrgcc		SCO OpenServer Release 5.0.6, using gcc
@@ -854,7 +847,6 @@ dialect and AFS versions:
 
 	AIX 4.1.4 (AFS 3.4a)
 	Linux 1.2.13 (AFS 3.3)
-	NEXTSTEP 3.2 (AFS 3.3) (untested on recent lsof revisions)
 	Solaris 2.6 (AFS 3.4a)
 	Ultrix 4.2 RISC (AFS 3.2b) (no longer available)
 
@@ -1079,19 +1071,6 @@ Alpha test system.  Andrew Brown also provided a test system.
 The NetBSD dialect version of lsof is compiled using the dialect
 sources it shares with OpenBSD in the n+obsd dialect sub-directory.
 
-
-NEXTSTEP and OPENSTEP
-=====================
-
-Virtual memory header files that allow lsof to display text references
-were derived from the contents of /usr/include/vm of NEXTSTEP 2.0.
-NeXT did not ship the virtual memory header files with other NEXTSTEP
-or OPENSTEP versions.
-
-You may use the RC_FLAGS environment variable to declare compiler
-options outside the Makefile.  A common use of this variable is to
-define the architecture types to be included in a "fat" executable.
-See the comments in dialects/next/Makefile for an example.
 
 
 OpenBSD
@@ -1427,9 +1406,7 @@ grant read permission to the kernel memory devices.
 	Apple Darwin 7.x for Power Macintosh systems
 	FreeBSD 2.1.6, 2.2[.x], 3.x, 4.x, 5.x, [6789].x and 1[012].x
 	NetBSD 1.[456], 2.x and 3.x
-	NEXTSTEP 3.[13]
 	OpenBSD 2.[89] and 3.[0-9]
-	OPENSTEP 4.x
 	Caldera OpenUNIX 8
 	SCO OpenServer 5.0.[46]
 	SCO UnixWare 7.0 and 7.1.[0134]

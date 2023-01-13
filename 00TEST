@@ -956,7 +956,6 @@ base, footprints, and the scripts that support them.
 		  3.10.08
 		  4.14.14
 		  3.10.0-229.1.2.el7
-    NEXTSTEP      3.1, gcc                   	LTnfs
     NetBSD        1.4.1, Alpha, gcc          	LTnfs
 		  1.5x, x86, gcc           	LTnfs
 		  1.6x, Alpha, gcc		LTnfs
@@ -978,7 +977,6 @@ base, footprints, and the scripts that support them.
 		  3.6, gcc
 		  3.7, gcc
 		  3.9, gcc
-    OPENSTEP	  4.2, gcc			LTnfs
     OSR           5.04, cc              	LTnfs
 		  5.06, cc              	LTnfs
     Solaris       2.6, cc			LTnfs

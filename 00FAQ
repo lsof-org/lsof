@@ -354,11 +354,6 @@ Table of Contents:
 11.4.2	Why does NetBSD lsof produce incorrect output?
 11.5	Why isn't lsof feature xxx enabled for NetBSD?
 
-12.0	NEXTSTEP and OPENSTEP Problems
-12.1	Why can't lsof report on 3.1 lockf() or fcntl(F_SETLK)
-	locks?
-12.2	Why doesn't lsof compile for NEXTSTEP with AFS?
-
 13.0	OpenBSD Problems
 13.1	Why doesn't lsof support kernfs on my OpenBSD system?
 13.2	Will lsof work on OpenBSD on non-x86-based architectures?
@@ -1202,9 +1197,7 @@ ______________________________________________________________________
 		HP-UX, /dev/kmem and PSTAT based
 		Linux, /dev/kmem-based
 		NetBSD
-		NEXTSTEP
 		OpenBSD
-		OPENSTEP
 		Reliant UNIX
 		SCO OpenServer
 		SCO|Caldera UnixWare
@@ -1706,9 +1699,6 @@ ______________________________________________________________________
 	    OpenBSD 3.4 and above
 		All socket options and values, socket states, and TCP
 		flags and values described in lsof(8) are reported.
-	    OPENSTEP 4.2
-		All socket options and values, socket states, and TCP
-		flags and values described in lsof(8) are reported.
 	    OpenUNIX 8
 		All socket options and values, socket states, and TCP
 		flags and values described in lsof(8) are reported.
@@ -1752,8 +1742,6 @@ ______________________________________________________________________
 	    NetBSD 1.6G and above
 		Partial listen queue information is available.
 	    OpenBSD 3.4 and above
-		Partial listen queue information is available.
-	    OPENSTEP 4.2
 		Partial listen queue information is available.
 	    OpenUNIX 8
 		This dialect is no longer supported, so no attempt
@@ -5730,37 +5718,6 @@ ______________________________________________________________________
 	and NETBSD_SYS.
 
 
-12.0	NEXTSTEP and OPENSTEP Problems
-
-12.1	Why can't lsof report on 3.1 lockf() or fcntl(F_SETLK)
-	locks?
-
-	Lsof has code to test for locks defined with lockf() or
-	fcntl(F_SETLK) under NEXTSTEP 3.1, but that code has never
-	been tested.  I couldn't test it, because my NEXTSTEP 3.1
-	lockf() and fcntl(F_SETLK) functions return "Invalid
-	argument" every way I have tried to invoke them.
-
-	If your NEXTSTEP 3.1 system does allow you to use lockf()
-	and fcntl(F_SETLK) and lsof doesn't report locks set with
-	them, then the code in .../dialects/next/dnode.c probably
-	isn't correct.  Please contact me via e-mail at <abe@purdue.edu>
-	and tell me how you got your lockf() and fcntl(F_SETLK) system
-	calls to work.  Make sure "lsof" appears in the "Subject:" line
-	so my e-mail filter won't classify your letter as Spam.
-
-12.2	Why doesn't lsof compile for NEXTSTEP with AFS?
-
-	I no longer have a NEXTSTEP test system that has AFS.
-	Changes to lsof since I once had a test system have caused
-	me to change the AFS code in NEXTSTEP without being able
-	to test the changes.
-
-	If you need AFS support for NEXTSTEP and can't get it to
-	compile, please contact me.  Perhaps we can jointly fix
-	the problems.
-
-
 13.0	OpenBSD Problems
 
 13.1	Why doesn't lsof support kernfs on my OpenBSD system?
@@ -7773,7 +7730,6 @@ ______________________________________________________________________
 
 	    AIX 4.1.4 (AFS 3.4a)
 	    Linux 1.2.13 (AFS 3.3)
-	    NEXTSTEP 3.2 (AFS 3.3)
 	    Solaris 2.[56] (AFS 3.4a)
 
 	It may recognize AFS files on other versions of these
