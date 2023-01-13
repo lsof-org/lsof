@@ -70,6 +70,7 @@ tags
 tests/config.*
 version.h
 autotools.h
+lockf_owner.h
 
 #
 # Symbolic links to a diaclt implementation

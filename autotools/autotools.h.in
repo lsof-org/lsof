@@ -78,4 +78,20 @@
 #define HASUTMPX
 #endif
 
+#if HAVE_VM_MEMATTR_T
+#define HAS_VM_MEMATTR_T
+#endif
+
+#if HAVE_DECL_DOADUMP
+#define NEEDS_BOOLEAN_T
+#endif
+
+#if HAVE_KVM_VNODE
+#define HAS_KVM_VNODE
+#endif
+
+#if HAVE_DECL_SBS_CANTSENDMORE
+#define HASSBSTATE
+#endif
+
 #endif

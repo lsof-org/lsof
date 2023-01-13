@@ -39,7 +39,7 @@
  */
 
 
-#include "../machine.h"
+#include "machine.h"
 
 #if	defined(HASBLKDEV) || defined(USE_LIB_FIND_CH_INO)
 

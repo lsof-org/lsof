@@ -7,6 +7,11 @@ AC_PROG_CC
 # Detect OS
 AC_CANONICAL_HOST
 
+# Pass OS version
+LSOF_VSTR=$(uname -r)
+LSOF_TMP=$(echo $LSOF_VSTR | sed 's/(/\\\\(/g' | sed 's/)/\\\\)/g')
+CFLAGS="$CFLAGS -DLSOF_VSTR=\\\"$LSOF_TMP\\\""
+
 LSOF_DIALECT=unknown
 case "${host_os}" in
 	linux*)
@@ -14,7 +19,6 @@ case "${host_os}" in
 		;;
 	darwin*)
 		LSOF_DIALECT=darwin/libproc
-		LSOF_VSTR=$(uname -r)
 		case $LSOF_VSTR in
 			7.*)			# Mac OS X 10.3 (Panther)
 				LSOF_VERS=700
@@ -60,18 +64,60 @@ case "${host_os}" in
 				AC_MSG_NOTICE([Assuming Darwin 19.0])
 				LSOF_VERS=1900
 				;;
-			*)
 		esac
 
 		# Add DARWINV to cflags
 		CFLAGS="$CFLAGS -DDARWINV=$LSOF_VERS"
 
 		;;
+	freebsd*)
+		LSOF_DIALECT=freebsd
+		case $LSOF_VSTR in
+			10*)
+				LSOF_VERS=10000
+				;;
+			11*)
+				LSOF_VERS=11000
+				;;
+			12*)
+				LSOF_VERS=12000
+				;;
+			13*)
+				LSOF_VERS=13000
+				;;
+			*)
+				AC_MSG_ERROR([Unknown FreeBSD release: `uname -r`])
+				;;
+		esac
+
+		# Add FREEBSDV to cflags
+		CFLAGS="$CFLAGS -DFREEBSDV=$LSOF_VERS"
+
+		# Always define HASPROCFS
+		CFLAGS="$CFLAGS -DHASPROCFS"
+
+		# Always link libutil
+		LDFLAGS="$LDFLAGS -lutil"
+
+		# Detect FreeBSD source code
+		if test -d /usr/src/sys	# {
+		then
+			FREEBSD_SYS=/usr/src/sys
+		else
+			if test -d /sys	# {
+			then
+				FREEBSD_SYS=/sys
+			else
+				AC_MSG_WARN([No kernel sources in /usr/src/sys or /sys])
+			fi	# }
+		fi	# }
+		;;
 	*)
 		AC_MSG_ERROR(["Host $host_os not supported"])
 esac
 
-# Dialect provides dnode.c/ddev.c
+# Dialect provides dfile.c/dnode.c/ddev.c
+AM_CONDITIONAL([HAS_DFILE], [test x$LSOF_DIALECT != xfreebsd])
 AM_CONDITIONAL([HAS_DNODE], [test x$LSOF_DIALECT != xdarwin/libproc])
 AM_CONDITIONAL([HAS_DDEV], [test x$LSOF_DIALECT = xdarwin/libproc])
 
@@ -111,6 +157,90 @@ AC_CHECK_HEADERS([selinux/selinux.h], [LIBS="$LIBS -lselinux"])
 
 # Detect utmpx headers for HASUTMPX
 AC_CHECK_HEADERS([utmpx.h])
+
+# Detect vm_memattr_t definition for HAS_VM_MEMATTR_T
+AC_CHECK_TYPES([vm_memattr_t], [], [], [[#include <sys/types.h>
+		#include <vm/vm.h>]])
+
+# Detect doadump function for NEEDS_BOOLEAN_T
+AC_CHECK_DECLS([doadump], [], [], [[#define _KERNEL 1
+		#include <sys/types.h>
+		#include <sys/param.h>
+		#include <sys/conf.h>]])
+
+# Detect struct vnode definition for HAS_KVM_VNODE
+AC_EGREP_CPP([struct vnode], [#define _KVM_VNODE 1
+		#include <sys/vnode.h>], [AC_DEFINE([HAVE_KVM_VNODE], [1], ["Define to 1 if struct vnode exists"])
+		LIBS="$LIBS -lkvm"])
+
+# Detect SBS_CANTSENDMORE definition for HASSBSTATE
+AC_CHECK_DECLS([SBS_CANTSENDMORE], [], [], [[#include <sys/types.h>
+		#include <sys/socketvar.h>]])
+
+# Detect lockf_entry definition for HAS_LOCKF_ENTRY
+AC_CHECK_TYPES([struct lockf_entry], [
+	# Generate lockf_owner.h from kern/kern_lockf.c
+	rm -f ./lockf_owner.h
+	if test -r ${FREEBSD_SYS}/kern/kern_lockf.c	# {
+	then
+		# Find the line number of struct lock_owner
+		# Note extra quoting [[]] for M4
+		LSOF_TMP1=$(grep -n "^struct lock_owner {" ${FREEBSD_SYS}/kern/kern_lockf.c | sed 's/\([[0-9]]*\):.*$/\1/')
+		if test "X$LSOF_TMP1" != "X"	# {
+		then
+			LSOF_TMP2=0
+			# Find the end of struct lock_owner
+			for i in $(grep -n "};" ${FREEBSD_SYS}/kern/kern_lockf.c | sed 's/\([[0-9]]*\):.*/\1/') # {
+			do
+				if test $LSOF_TMP2 -eq 0 -a $i -gt $LSOF_TMP1	# {
+				then
+					LSOF_TMP2=$i
+				fi	# }
+				done	# }
+			if test $LSOF_TMP2 -eq 0	# {
+			then
+				LSOF_TMP1=""
+			else
+				cat > ./lockf_owner.h << LOCKF_OWNER1
+/*
+ * lockf_owner.h -- created by lsof Configure script on
+LOCKF_OWNER1
+				printf " * " >> ./lockf_owner.h
+				date >> ./lockf_owner.h
+				cat >> ./lockf_owner.h << LOCKF_OWNER2
+ */
+
+#if	!defined(LOCKF_OWNER_H)
+#define	LOCKF_OWNER_H
+
+LOCKF_OWNER2
+				ed -s ${FREEBSD_SYS}/kern/kern_lockf.c >> ./lockf_owner.h << LOCKF_OWNER3
+${LSOF_TMP1},${LSOF_TMP2}p
+LOCKF_OWNER3
+				if test $? -ne 0	# {
+				then
+					LSOF_TMP1=""
+				else
+					cat >> ./lockf_owner.h << LOCKF_OWNER4
+
+#endif	/* defined(LOCKF_OWNER_H) */
+LOCKF_OWNER4
+				fi	# }
+			fi	# }
+		fi	# }
+	else
+		echo "FATAL ERROR: can't read ${FREEBSD_SYS}/kern/kern_lockf.c"
+	fi	# }
+
+	if test "X$LSOF_TMP1" != "X" -a "X$LSOF_TMP2" != "X0" # {
+	then
+		AC_MSG_NOTICE([lockf_owner.h creation succeeded.])
+		CFLAGS="$CFLAGS -DHAS_LOCKF_ENTRY"
+	else
+		AC_MSG_ERROR([lockf_owner.h creation failed (see 00FAQ)])
+	fi	# }
+], [], [#include <sys/types.h>
+		#include <sys/lockf.h>])
 
 # Generate Makefile from Makefile.in/am
 AC_CONFIG_FILES([Makefile])

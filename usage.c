@@ -961,12 +961,16 @@ usage(err, fh, version)
 		(void) fprintf(stderr, "    loader flags: %s\n", cp);
 	    if ((cp = isnullstr(LSOF_SYSINFO)))
 		(void) fprintf(stderr, "    system info: %s\n", cp);
+	    // display configurations that might affect output
 	    char *features[] = {
 #ifdef HASIPv6
                 "ipv6",
 #endif
 #ifdef HASPTYEPT
                 "ptyept",
+#endif
+#ifdef HASSBSTATE
+                "sbstate",
 #endif
 #ifdef HASSELINUX
                 "selinux",

@@ -30,7 +30,7 @@
  */
 
 
-#include "../machine.h"
+#include "machine.h"
 
 #if	defined(USE_LIB_CKKV)
 
