@@ -118,4 +118,9 @@
 #define HAS_V_LOCKF
 #endif
 
+// Check fdescfs v1 if needed later
+#if HAVE_FS_FDESCFS_FDESC_H
+#define HASFDESCFS 2
+#endif
+
 #endif

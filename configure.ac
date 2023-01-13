@@ -285,6 +285,12 @@ AC_CHECK_MEMBERS([struct vnode.v_lockf], [], [], [#define _KVM_VNODE 1
 		#include <sys/types.h>
 		#include <sys/vnode.h>])
 
+# Detect fdescfs version for HASFDESCFS
+AC_CHECK_HEADERS([fs/fdescfs/fdesc.h], [], [], [#define _KERNEL 1
+		#define __BSD_VISIBLE 1
+		#include <sys/types.h>
+		#include <sys/mount.h>])
+
 # Generate Makefile from Makefile.in/am
 AC_CONFIG_FILES([Makefile])
 
