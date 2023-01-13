@@ -161,6 +161,7 @@ Version 3 of lsof was tested on:
 	AIX 3.2.5, 4.1[.[1234]], and 4.2
 	BSDI BSD/OS 2.0, 2.0.1, and 2.1 for x86-based systems
 	DC/OSx 1.1 for Pyramid systems
+	Digital UNIX (DEC OSF/1) 2.0, 3.0, 3.2, and 4.0
 	EP/IX 2.1.1 for the CDC 4680
 	FreeBSD 1.1.5.1, 2.0, 2.0.5, 2.1, 2.1.5 for x86-based
 		systems
