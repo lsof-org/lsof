@@ -273,6 +273,12 @@ fi	#}
 # Detect wctype.h for HASWCTYPE_H
 AC_CHECK_HEADERS([wctype.h])
 
+# Detect struct inode.i_din2 for HAS_UFS1_2
+AC_CHECK_MEMBERS([struct inode.i_din2], [], [], [#define __BSD_VISIBLE 1
+		#include <sys/types.h>
+		#include <ufs/ufs/quota.h>
+		#include <ufs/ufs/inode.h>])
+
 # Generate Makefile from Makefile.in/am
 AC_CONFIG_FILES([Makefile])
 

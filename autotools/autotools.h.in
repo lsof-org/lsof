@@ -110,4 +110,8 @@
 #define HASWCTYPE_H
 #endif
 
+#if HAVE_STRUCT_INODE_I_DIN2
+#define HAS_UFS1_2
+#endif
+
 #endif
