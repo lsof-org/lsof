@@ -1035,9 +1035,6 @@ possibilities
     HASNORPC_H		indicates the dialect has no /usr/include/rpc/rpc.h
 			header file.
 
-    HAS_NO_SI_UDEV	indicates the FreeBSD 6 and higher system has
-			no si_udev member in its cdev structure.
-
     HASNOSOCKSECURITY   enables the listing of open socket files,
 			even when HASSECURITY restricts listing of
 			open files to the UID of the user who is
