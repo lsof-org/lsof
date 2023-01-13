@@ -131,4 +131,8 @@
 #define HAS_XTCPCB_TMAXSEG
 #endif
 
+#if HAVE_STRUCT_KINFO_FILE_KF_UN_KF_SOCK_KF_SOCK_SENDQ
+#define HAS_KF_SOCK_SENDQ
+#endif
+
 #endif

@@ -975,6 +975,9 @@ usage(err, fh, version)
 #ifdef HASIPv6
                 "ipv6",
 #endif
+#ifdef HAS_KF_SOCK_SENDQ
+                "kf_sock_sendq",
+#endif
 #ifdef HASNULLFS
                 "nullfs",
 #endif

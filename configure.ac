@@ -309,6 +309,10 @@ AC_CHECK_MEMBERS([struct xtcpcb.t_maxseg], [], [], [#include <sys/types.h>
 	#include <netinet/in_pcb.h>
 	#include <netinet/tcp_var.h>])
 
+# Detect struct kinfo_file.kf_un.kf_sock.kf_sock_sendq for HAS_KF_SOCK_SENDQ
+AC_CHECK_MEMBERS([struct kinfo_file.kf_un.kf_sock.kf_sock_sendq], [], [], [#include <sys/types.h>
+	#include <sys/user.h>])
+
 # Generate Makefile from Makefile.in/am
 AC_CONFIG_FILES([Makefile])
 
