@@ -996,6 +996,9 @@ usage(err, fh, version)
 #ifdef HASUXSOCKEPT
                 "uxsockept",
 #endif
+#ifdef HAS_V_LOCKF
+                "v_lockf",
+#endif
 	    };
 	    (void) fprintf(stderr, "    features enabled:");
 	    for (i = 0; i < sizeof(features)/sizeof(features[0]); i++) {

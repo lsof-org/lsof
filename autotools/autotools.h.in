@@ -114,4 +114,8 @@
 #define HAS_UFS1_2
 #endif
 
+#if HAVE_STRUCT_VNODE_V_LOCKF
+#define HAS_V_LOCKF
+#endif
+
 #endif

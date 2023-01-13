@@ -279,6 +279,12 @@ AC_CHECK_MEMBERS([struct inode.i_din2], [], [], [#define __BSD_VISIBLE 1
 		#include <ufs/ufs/quota.h>
 		#include <ufs/ufs/inode.h>])
 
+# Detect struct vnode.v_lockf definition for HAS_V_LOCKF
+AC_CHECK_MEMBERS([struct vnode.v_lockf], [], [], [#define _KVM_VNODE 1
+		#define __BSD_VISIBLE 1
+		#include <sys/types.h>
+		#include <sys/vnode.h>])
+
 # Generate Makefile from Makefile.in/am
 AC_CONFIG_FILES([Makefile])
 
