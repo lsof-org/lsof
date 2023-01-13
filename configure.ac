@@ -329,6 +329,9 @@ AC_SUBST(sysinfo, $(uname -a))
 # Generate version.h/autotools.h
 AC_CONFIG_FILES([autotools/version.h autotools/autotools.h])
 
+# Generate version
+AC_CONFIG_FILES([version])
+
 # Generate config.h
 AC_CONFIG_HEADERS([config.h])
 
