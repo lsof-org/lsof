@@ -264,6 +264,15 @@ AC_CHECK_TYPES([struct filedescent], [], [], [#define __BSD_VISIBLE 1
 		#include <sys/types.h>
 		#include <sys/filedesc.h>])
 
+# Detect fs/tmpfs/tmpfs.h for HAS_TMPFS
+if test -r ${FREEBSD_SYS}/fs/tmpfs/tmpfs.h	# {
+then
+	AC_DEFINE([HAS_TMPFS], [1], [Define if fs/tmpfs/tmpfs.h is found])
+fi	#}
+
+# Detect wctype.h for HASWCTYPE_H
+AC_CHECK_HEADERS([wctype.h])
+
 # Generate Makefile from Makefile.in/am
 AC_CONFIG_FILES([Makefile])
 

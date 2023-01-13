@@ -990,6 +990,9 @@ usage(err, fh, version)
 #ifdef HASTASKS
                 "tasks",
 #endif
+#ifdef HAS_TMPFS
+                "tmpfs",
+#endif
 #ifdef HASUXSOCKEPT
                 "uxsockept",
 #endif

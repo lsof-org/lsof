@@ -106,4 +106,8 @@
 #define HAS_FILEDESCENT
 #endif
 
+#if HAVE_WCTYPE_H
+#define HASWCTYPE_H
+#endif
+
 #endif
