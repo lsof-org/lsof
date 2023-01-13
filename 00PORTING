@@ -1019,9 +1019,6 @@ possibilities
     HAS_NO_6PPCB	is defined if the FreeBSD in_pcb.h has no in6p_ppcb
 			definition.
 
-    HAS_NO_ISO_DEV	indicates the FreeBSD 6 and higher system has
-			no i_dev member in its iso_node structure.
-
     HAS_NO_LONG_LONG	indicates the dialect has no support for the C
 			long long type.  This definition is used by
 			the built-in snprintf() support of lib/snpf.c.

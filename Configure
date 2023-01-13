@@ -1854,14 +1854,6 @@ LOCKF_OWNER4
 	echo "" >> cd9660_node.h
       fi	# }
       LSOF_CFGF="$LSOF_CFGF -DHAS9660FS"
-      if test $LSOF_VERS -ge 6000	# {
-      then
-	grep -q "i_dev;" cd9660_node.h
-	if test $? -ne 0	# {
-	then
-	  LSOF_CFGF="$LSOF_CFGF -DHAS_NO_ISO_DEV"
-	fi	# }
-      fi	# }
     fi	# }
     if test -r ${LSOF_INCLUDE}/sys/namei.h
     then
