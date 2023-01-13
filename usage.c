@@ -975,6 +975,9 @@ usage(err, fh, version)
 #ifdef HASIPv6
                 "ipv6",
 #endif
+#ifdef HASNULLFS
+                "nullfs",
+#endif
 #ifdef HASPROCFS
                 "procfs",
 #endif

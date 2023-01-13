@@ -297,6 +297,10 @@ then
 	CFLAGS="$CFLAGS -DHASPSEUDOFS -I$FREEBSD_SYS"
 fi	# }
 
+# Detect nullfs for HASNULLFS
+AC_CHECK_HEADERS([fs/nullfs/null.h], [], [], [])
+
+
 # Generate Makefile from Makefile.in/am
 AC_CONFIG_FILES([Makefile])
 
