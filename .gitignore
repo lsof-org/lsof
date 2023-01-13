@@ -71,9 +71,10 @@ tests/config.*
 version.h
 autotools.h
 lockf_owner.h
+lsof.man
 
 #
-# Symbolic links to a diaclt implementation
+# Symbolic links to a dialect implementation
 #
 /dfile.c
 /dlsof.h

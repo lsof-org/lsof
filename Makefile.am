@@ -22,3 +22,7 @@ endif
 
 lsof_CPPFLAGS = -I$(DIALECT_PATH) -I$(top_srcdir)/autotools
 lsof_CPPFLAGS += -DAUTOTOOLS
+
+lsof.man: Lsof.8
+	soelim < $^ > $@
+man8_MANS = lsof.man
