@@ -1552,12 +1552,6 @@ FBSD_MINOR3
 	    LSOF_CFGF="$LSOF_CFGF -DHAS_SYS_SX_H"
 	  fi	# }
 
-	# Do FUSE file system test,
-
-	  if test -r ${FREEBSD_SYS}/fs/fuse/fuse_node.h	# {
-	  then
-	    LSOF_CFGF="$LSOF_CFGF -DHASFUSEFS"
-	  fi	# }
 	# Do msdosfs test.
 	  if test -r ${FREEBSD_SYS}/fs/msdosfs/denode.h # {
 	  then

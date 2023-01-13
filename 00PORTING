@@ -853,9 +853,6 @@ possibilities
 			See also the RMNT_EXPDEV and RMNT_FSTYPE
 			documentation in lib/rmnt.c
 
-    HASFUSEFS		is defined when the FreeBSD system has FUSE file system
-			support.
-
     HASGETBOOTFILE	indicates the NetBSD or OpenBSD dialect has
 			a getbootfile() function.
 
