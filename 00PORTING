@@ -803,9 +803,6 @@ possibilities
     HASF_VNODE		indicates the dialect's file structure has an
 			f_vnode member in it.
 
-    HAS_FDESCENTTBL	indicates the FreeBSD system has the fdescenttbl
-			structure.
-
     HAS_FILEDESCENT	indicates the FreeBSD system has the filedescent
 			definition in the <sys/filedesc.h> header file.
 

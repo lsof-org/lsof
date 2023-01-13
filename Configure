@@ -1734,14 +1734,6 @@ LOCKF_OWNER4
 		LSOF_CFGF="$LSOF_CFGF -DHAS_SB_CCC"
 	      fi	# }
 	    fi	# }
-	    if test -r ${LSOF_INCLUDE}/sys/filedesc.h	# {
-	    then
-	      grep -q '^struct fdescenttbl {' ${LSOF_INCLUDE}/sys/filedesc.h
-	      if test $? -eq 0	# {
-	      then
-		LSOF_CFGF="$LSOF_CFGF -DHAS_FDESCENTTBL"
-	      fi	# }
-	    fi	# }
 	  fi	# }
 	fi	# }
       fi	# }
