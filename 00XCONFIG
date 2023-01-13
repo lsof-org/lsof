@@ -302,12 +302,6 @@ Abbreviation*	  Prefix	 Number       LSOF_VERS
 				  6.x		    600
 				  7.x		    700
 				  8.x		    800
-	  du	      DU	  2.0		  20000
-				  3.0		  30000
-				  3.2		  30200
-				  4.0		  40000
-				  5.0		  50000
-				  5.1		  50100
      freebsd	 FREEBSD	  1.x		   1000
 				  2.x		   2000
 				  2.0.5		   2005

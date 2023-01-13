@@ -294,8 +294,6 @@ do
       echo "rm -f dialects/aix/aix5/j2/j2_snapshot.h"
       rm -f dialects/sun/solaris10	# DEBUG -- for s10_44
       echo "rm -f dialects/sun/solaris10"	# DEBUG -- for s10_44
-      rm -f dialects/du/du5_sys_malloc.h
-      echo "rm -f dialects/du/du5_sys_malloc.h"
       rm -f dialects/hpux/kmem/hpux_mount.h
       echo "rm -f dialects/hpux/kmem/hpux_mount.h"
       rm -rf dialects/n+obsd/include
