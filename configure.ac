@@ -252,6 +252,18 @@ AC_CHECK_MEMBERS([struct inode.i_effnlink], [CFLAGS="$CFLAGS -DHASEFFNLINK=i_eff
 		#include <ufs/ufs/quota.h>
 		#include <ufs/ufs/inode.h>])
 
+# Detect struct file.f_vnode for HASF_VNODE
+AC_CHECK_MEMBERS([struct file.f_vnode], [], [], [#define __BSD_VISIBLE 1
+		#define _KERNEL 1
+		#define GENOFFSET
+		#include <sys/types.h>
+		#include <sys/file.h>])
+
+# Detect struct filedescent for HAS_FILEDESCENT
+AC_CHECK_TYPES([struct filedescent], [], [], [#define __BSD_VISIBLE 1
+		#include <sys/types.h>
+		#include <sys/filedesc.h>])
+
 # Generate Makefile from Makefile.in/am
 AC_CONFIG_FILES([Makefile])
 

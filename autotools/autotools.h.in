@@ -98,4 +98,12 @@
 #define HASTASKS
 #endif
 
+#if HAVE_STRUCT_FILE_F_VNODE
+#define HASF_VNODE
+#endif
+
+#if HAVE_STRUCT_FILEDESCENT
+#define HAS_FILEDESCENT
+#endif
+
 #endif

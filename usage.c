@@ -966,6 +966,9 @@ usage(err, fh, version)
 #ifdef HASEFFNLINK
                 "effnlink",
 #endif
+#ifdef HASF_VNODE
+                "f_vnode",
+#endif
 #ifdef HASIPv6
                 "ipv6",
 #endif
