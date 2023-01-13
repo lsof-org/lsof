@@ -69,6 +69,7 @@ lsof
 tags
 tests/config.*
 version.h
+autotools.h
 
 #
 # Symbolic links to a diaclt implementation

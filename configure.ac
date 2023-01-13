@@ -125,8 +125,8 @@ AC_SUBST(ccflags, $CFLAGS)
 AC_SUBST(ldflags, "$LDFLAGS$LIBS")
 AC_SUBST(sysinfo, $(uname -a))
 
-# Generate version.h from version.h.in
-AC_CONFIG_FILES([autotools/version.h])
+# Generate version.h/autotools.h
+AC_CONFIG_FILES([autotools/version.h autotools/autotools.h])
 
 # Generate config.h
 AC_CONFIG_HEADERS([config.h])
