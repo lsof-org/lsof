@@ -69,9 +69,12 @@ lsof
 tags
 tests/config.*
 version.h
+autotools.h
+lockf_owner.h
+lsof.man
 
 #
-# Symbolic links to a diaclt implementation
+# Symbolic links to a dialect implementation
 #
 /dfile.c
 /dlsof.h
@@ -109,3 +112,24 @@ dialects/linux/tests/pipe
 dialects/linux/tests/pty
 dialects/linux/tests/ux
 dialects/linux/tests/mmap
+
+# automake
+Makefile.in
+.deps/
+.dirstamp
+
+# autoconf
+autom4te.cache
+/aclocal.m4
+/compile
+/config.guess
+/config.log
+/config.status
+/config.sub
+/config.h
+/config.h.in
+/configure
+/depcomp
+/install-sh
+/missing
+/stamp-h1

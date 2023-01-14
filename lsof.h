@@ -38,6 +38,9 @@
 #if	!defined(LSOF_H)
 #define	LSOF_H	1
 
+#ifdef AUTOTOOLS
+#include "autotools.h"
+#endif
 #include "machine.h"
 
 # if	!defined(FSV_DEFAULT)

@@ -63,9 +63,6 @@ _PROTOTYPE(extern void process_pipe,(struct kinfo_file *kf, KA_T pa));
 _PROTOTYPE(extern void process_shm,(struct kinfo_file *kf));
 _PROTOTYPE(extern void process_procdesc,(struct kinfo_file *kf));
 
-#if	defined(HASFUSEFS)
-_PROTOTYPE(extern int read_fuse_node,(struct vnode *v, dev_t *d, int *dd, INODETYPE *ino, long *nl, SZOFFTYPE *sz));
-#endif	/* defined(HASFUSEFS) */
 
 #if	defined(HAS9660FS)
 _PROTOTYPE(extern int read_iso_node,(struct vnode *v, dev_t *d, int *dd, INODETYPE *ino, long *nl, SZOFFTYPE *sz));

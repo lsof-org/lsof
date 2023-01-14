@@ -1487,11 +1487,6 @@ cpumask_t c;
 	    then
 	      LSOF_CFGF="$LSOF_CFGF -DHAS_UFS1_2"
 	    fi	# }
-	    grep -q i_dev ${LSOF_INCLUDE}/ufs/ufs/inode.h
-	    if test $? -ne 0	# {
-	    then
-	      LSOF_CFGF="$LSOF_CFGF -DHAS_NO_IDEV"
-	    fi	# }
 	  fi	# }
 	  if test -r ${LSOF_INCLUDE}/sys/conf.h	# {
 	  then
@@ -1546,11 +1541,6 @@ FBSD_MINOR3
 		fi	# }
 	      fi	# }
 	    fi	# }
-	    grep -q "si_udev;" ${LSOF_INCLUDE}/sys/conf.h
-	    if test $? -ne 0	# {
-	    then
-	      LSOF_CFGF="$LSOF_CFGF -DHAS_NO_SI_UDEV"
-	    fi	# }
 	    grep -q si_priv ${LSOF_INCLUDE}/sys/conf.h
 	    if test $? -eq 0	# {
 	    then
@@ -1562,12 +1552,6 @@ FBSD_MINOR3
 	    LSOF_CFGF="$LSOF_CFGF -DHAS_SYS_SX_H"
 	  fi	# }
 
-	# Do FUSE file system test,
-
-	  if test -r ${FREEBSD_SYS}/fs/fuse/fuse_node.h	# {
-	  then
-	    LSOF_CFGF="$LSOF_CFGF -DHASFUSEFS"
-	  fi	# }
 	# Do msdosfs test.
 	  if test -r ${FREEBSD_SYS}/fs/msdosfs/denode.h # {
 	  then
@@ -1750,14 +1734,6 @@ LOCKF_OWNER4
 		LSOF_CFGF="$LSOF_CFGF -DHAS_SB_CCC"
 	      fi	# }
 	    fi	# }
-	    if test -r ${LSOF_INCLUDE}/sys/filedesc.h	# {
-	    then
-	      grep -q '^struct fdescenttbl {' ${LSOF_INCLUDE}/sys/filedesc.h
-	      if test $? -eq 0	# {
-	      then
-		LSOF_CFGF="$LSOF_CFGF -DHAS_FDESCENTTBL"
-	      fi	# }
-	    fi	# }
 	  fi	# }
 	fi	# }
       fi	# }
@@ -1878,14 +1854,6 @@ LOCKF_OWNER4
 	echo "" >> cd9660_node.h
       fi	# }
       LSOF_CFGF="$LSOF_CFGF -DHAS9660FS"
-      if test $LSOF_VERS -ge 6000	# {
-      then
-	grep -q "i_dev;" cd9660_node.h
-	if test $? -ne 0	# {
-	then
-	  LSOF_CFGF="$LSOF_CFGF -DHAS_NO_ISO_DEV"
-	fi	# }
-      fi	# }
     fi	# }
     if test -r ${LSOF_INCLUDE}/sys/namei.h
     then

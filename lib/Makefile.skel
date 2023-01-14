@@ -8,7 +8,7 @@ LIB=	liblsof.a
 
 CDEF=	${RC_CFLAGS}
 CDEFS=	${CDEF} ${CFGF}
-INCL=	${DINC}
+INCL=	${DINC} -I..
 
 HDR=	../lsof.h ../proto.h ../dlsof.h ../dproto.h ../machine.h
 

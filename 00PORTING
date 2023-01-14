@@ -803,9 +803,6 @@ possibilities
     HASF_VNODE		indicates the dialect's file structure has an
 			f_vnode member in it.
 
-    HAS_FDESCENTTBL	indicates the FreeBSD system has the fdescenttbl
-			structure.
-
     HAS_FILEDESCENT	indicates the FreeBSD system has the filedescent
 			definition in the <sys/filedesc.h> header file.
 
@@ -852,9 +849,6 @@ possibilities
 
 			See also the RMNT_EXPDEV and RMNT_FSTYPE
 			documentation in lib/rmnt.c
-
-    HASFUSEFS		is defined when the FreeBSD system has FUSE file system
-			support.
 
     HASGETBOOTFILE	indicates the NetBSD or OpenBSD dialect has
 			a getbootfile() function.
@@ -1025,21 +1019,12 @@ possibilities
     HAS_NO_6PPCB	is defined if the FreeBSD in_pcb.h has no in6p_ppcb
 			definition.
 
-    HAS_NO_IDEV		indicates the FreeBSD system's inode has no i_dev
-			member.
-
-    HAS_NO_ISO_DEV	indicates the FreeBSD 6 and higher system has
-			no i_dev member in its iso_node structure.
-
     HAS_NO_LONG_LONG	indicates the dialect has no support for the C
 			long long type.  This definition is used by
 			the built-in snprintf() support of lib/snpf.c.
 
     HASNORPC_H		indicates the dialect has no /usr/include/rpc/rpc.h
 			header file.
-
-    HAS_NO_SI_UDEV	indicates the FreeBSD 6 and higher system has
-			no si_udev member in its cdev structure.
 
     HASNOSOCKSECURITY   enables the listing of open socket files,
 			even when HASSECURITY restricts listing of

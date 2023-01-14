@@ -5446,11 +5446,16 @@ July 14, 2018
 
 		[freebsd] add <sys/callout.h> for recent changes
 
-4.9?.?          ????????? ??, ????
+4.97.0		????????? ??, ????
 
 		[decof/du/tru64] Remove support because the os is no longer updated for more than 10 years
 
 		[openstep/nextstep] Remove support because the os is no longer updated for more than 20 years
+
+		Add experimental build system based on Autotools (#270)
+
+4.9?.?		????????? ??, ????
+
 
 The lsof-org team at GitHub
 December 28, 2022

@@ -12,7 +12,7 @@ jobs:
       - run:
           name: Install build tools
           command: |
-            dnf -y install git gcc make sudo nmap-ncat iproute libtirpc-devel lcov gem procps python3-pip
+            dnf -y install git gcc make sudo nmap-ncat iproute libtirpc-devel lcov gem procps python3-pip autoconf automake
             pip3 install --user cpp-coveralls
       - checkout
       - run:
@@ -34,6 +34,15 @@ jobs:
           command: |
             lcov -c -b . -d . -o coverage.info
             /root/.local/bin/coveralls --root .
+      - run:
+          name: Build and test using autotools
+          command: |
+            git clean -fdx .
+            autoreconf -vif
+            ./configure
+            make
+            make install
+            make check
   stream8:
     docker:
       - image: quay.io/centos/centos:stream8
@@ -41,7 +50,7 @@ jobs:
       - run:
           name: Install build tools
           command: |
-            dnf -y install git gcc make sudo nmap-ncat iproute libtirpc-devel procps
+            dnf -y install git gcc make sudo nmap-ncat iproute libtirpc-devel procps autoconf automake
       - checkout
       - run:
           name: Configure
@@ -55,6 +64,15 @@ jobs:
           name: Test
           command: |
             bash ./check.bash linux
+      - run:
+          name: Build and test using autotools
+          command: |
+            git clean -fdx .
+            autoreconf -vif
+            ./configure
+            make
+            make install
+            make check
   bigsur:
     macos:
       xcode: 12.5.1
@@ -73,6 +91,14 @@ jobs:
           command: |
             # TODO: blocked by issue #236
             # bash ./check.bash darwin
+      - run:
+          name: Build using autotools
+          command: |
+            git clean -fdx .
+            autoreconf -vif
+            ./configure
+            make
+            make install
 
 # Invoke jobs via workflows
 # See: https://circleci.com/docs/2.0/configuration-reference/#workflows

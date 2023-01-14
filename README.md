@@ -4,7 +4,8 @@
 
 [lsof](https://en.wikipedia.org/wiki/Lsof) is a command listing open files.
 
-How it works:
+## How it works:
+
 ```
 $ cat > /tmp/LOG &
 cat > /tmp/LOG &
@@ -23,6 +24,26 @@ cat     18083 yamato  mem    REG  253,2      3316  1578981 /usr/lib/locale/en_US
 cat     18083 yamato    0u   CHR  136,3       0t0        6 /dev/pts/3
 cat     18083 yamato    1w   REG   0,44         0 54550934 /tmp/LOG
 cat     18083 yamato    2u   CHR  136,3       0t0        6 /dev/pts/3
+```
+
+## How to build
+
+Use the legacy build system:
+
+```shell
+./Configure -n [dialect]
+make
+bash check.bash [dialect]
+```
+
+Use autotools build system:
+
+```shell
+autoreconf -i
+./configure
+make
+make check
+make install
 ```
 
 # lsof-org at GitHub
