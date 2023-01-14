@@ -5454,6 +5454,8 @@ July 14, 2018
 
 		Add experimental build system based on Autotools (#270)
 
+		Fixed LTsock testing on darwin (#272)
+
 4.9?.?		????????? ??, ????
 
 
