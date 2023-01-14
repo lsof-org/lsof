@@ -35,13 +35,14 @@ jobs:
             lcov -c -b . -d . -o coverage.info
             /root/.local/bin/coveralls --root .
       - run:
-          name: Build using autotools
+          name: Build and test using autotools
           command: |
             git clean -fdx .
             autoreconf -vif
             ./configure
             make
             make install
+            make check
   stream8:
     docker:
       - image: quay.io/centos/centos:stream8
@@ -64,13 +65,14 @@ jobs:
           command: |
             bash ./check.bash linux
       - run:
-          name: Build using autotools
+          name: Build and test using autotools
           command: |
             git clean -fdx .
             autoreconf -vif
             ./configure
             make
             make install
+            make check
   bigsur:
     macos:
       xcode: 12.5.1
