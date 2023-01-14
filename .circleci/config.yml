@@ -89,8 +89,7 @@ jobs:
       - run:
           name: Test
           command: |
-            # TODO: blocked by issue #236
-            # bash ./check.bash darwin
+            bash ./check.bash darwin
       - run:
           name: Build using autotools
           command: |
@@ -99,6 +98,7 @@ jobs:
             ./configure
             make
             make install
+            make check
 
 # Invoke jobs via workflows
 # See: https://circleci.com/docs/2.0/configuration-reference/#workflows

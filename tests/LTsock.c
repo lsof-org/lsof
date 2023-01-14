@@ -261,11 +261,15 @@ main(argc, argv)
     }
     hnm[sizeof(hnm) - 1] = '\0';
     if (!(hp = gethostbyname(hnm))) {
-	(void) snprintf(buf, bufl - 1, "ERROR!!!  can't get IP address for %s",
-	    hnm);
-	buf[bufl - 1] = '\0';
-	cem = buf;
-	goto print_errno;
+	// fallback to localhost if hostname cannot be resolved
+	strcpy(hnm, "localhost");
+	if (!(hp = gethostbyname(hnm))) {
+		(void) snprintf(buf, bufl - 1, "ERROR!!!  can't get IP address for %s",
+		hnm);
+		buf[bufl - 1] = '\0';
+		cem = buf;
+		goto print_errno;
+	}
     }
     (void) memset((void *)&Myad, 0, sizeof(Myad));
     if ((ti = hp->h_length) > sizeof(Myad.sin_addr))
