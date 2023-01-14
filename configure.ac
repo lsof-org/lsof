@@ -25,7 +25,7 @@ case "${host_os}" in
 		# Compute version
 		LSOF_VERS=`echo $LSOF_VSTR | sed 's/\./ /g' | awk '{printf "%d%d%03d",\$1,\$2,\$3}'`
 
-		# Testing
+		# Enable LTbigf test
 		LSOF_TSTBIGF="-D_FILE_OFFSET_BITS=64"
 		;;
 	darwin*)
@@ -83,6 +83,8 @@ case "${host_os}" in
 		# Add DARWINV to cflags
 		CFLAGS="$CFLAGS -DDARWINV=$LSOF_VERS"
 
+		# Enable LTbigf test
+		LSOF_TSTBIGF=" "
 		;;
 	freebsd*)
 		LSOF_DIALECT=freebsd
