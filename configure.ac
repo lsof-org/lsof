@@ -13,12 +13,26 @@ LSOF_TMP=$(echo $LSOF_VSTR | sed 's/(/\\\\(/g' | sed 's/)/\\\\)/g')
 CFLAGS="$CFLAGS -DLSOF_VSTR=\\\"$LSOF_TMP\\\""
 
 LSOF_DIALECT=unknown
+LSOF_DIALECT_DIR=unknown
+LSOF_TGT=unknown
+LSOF_TSTBIGF=""
 case "${host_os}" in
 	linux*)
 		LSOF_DIALECT=linux
+		LSOF_DIALECT_DIR=linux
+		LSOF_TGT=linux
+
+		# Compute version
+		LSOF_VERS=`echo $LSOF_VSTR | sed 's/\./ /g' | awk '{printf "%d%d%03d",\$1,\$2,\$3}'`
+
+		# Testing
+		LSOF_TSTBIGF="-D_FILE_OFFSET_BITS=64"
 		;;
 	darwin*)
-		LSOF_DIALECT=darwin/libproc
+		LSOF_DIALECT=darwin
+		LSOF_DIALECT_DIR=darwin/libproc
+		LSOF_TGT=darwin
+
 		case $LSOF_VSTR in
 			7.*)			# Mac OS X 10.3 (Panther)
 				LSOF_VERS=700
@@ -72,6 +86,9 @@ case "${host_os}" in
 		;;
 	freebsd*)
 		LSOF_DIALECT=freebsd
+		LSOF_DIALECT_DIR=freebsd
+		LSOF_TGT=freebsd
+
 		case $LSOF_VSTR in
 			10*)
 				LSOF_VERS=10000
@@ -117,12 +134,13 @@ case "${host_os}" in
 esac
 
 # Dialect provides dfile.c/dnode.c/ddev.c
-AM_CONDITIONAL([HAS_DFILE], [test x$LSOF_DIALECT != xfreebsd])
-AM_CONDITIONAL([HAS_DNODE], [test x$LSOF_DIALECT != xdarwin/libproc])
-AM_CONDITIONAL([HAS_DDEV], [test x$LSOF_DIALECT = xdarwin/libproc])
+AM_CONDITIONAL([HAS_DFILE], [test x$LSOF_DIALECT_DIR != xfreebsd])
+AM_CONDITIONAL([HAS_DNODE], [test x$LSOF_DIALECT_DIR != xdarwin/libproc])
+AM_CONDITIONAL([HAS_DDEV], [test x$LSOF_DIALECT_DIR = xdarwin/libproc])
 
-# Pass LSOF_DIALECT to Makefile.am
+# Pass LSOF_DIALECT/LSOF_DIALECT_DIR to Makefile.am
 AC_SUBST([LSOF_DIALECT])
+AC_SUBST([LSOF_DIALECT_DIR])
 
 # Check rpc/rpc.h
 AC_CHECK_HEADERS([rpc/rpc.h])
@@ -334,6 +352,37 @@ AC_CONFIG_FILES([version])
 
 # Generate config.h
 AC_CONFIG_HEADERS([config.h])
+
+# Generation config files for tests
+echo "$CC" > tests/config.cc
+LSOF_TSTCFLG="tests/config.cflags"
+echo "-DLT_DIAL_$LSOF_TGT" > $LSOF_TSTCFLG
+
+# LT_BIGF
+if test "X$LSOF_TSTBIGF" != "X"	# {
+then
+  echo "-DLT_BIGF" >> $LSOF_TSTCFLG
+  if test "X$LSOF_TSTBIGF" != "X "	# {
+  then
+    for i in $LSOF_TSTBIGF	# {
+    do
+      echo "$i" >> $LSOF_TSTCFLG
+    done	# }
+  fi	# }
+fi	# }
+
+# LT_GCC or LT_CC
+echo $LSOF_CC | grep gcc > /dev/null 2>&1
+if test $? -eq 0	# {
+then
+  echo "-DLT_GCC" >> $LSOF_TSTCFLG
+else
+  echo "-DLT_CC" >> $LSOF_TSTCFLG
+fi	# }
+
+echo "-DLT_VERS=$LSOF_VERS" >> $LSOF_TSTCFLG
+echo "" > tests/config.xobj
+echo "$LDFLAGS" > tests/config.ldflags
 
 # Finish
 AC_OUTPUT
