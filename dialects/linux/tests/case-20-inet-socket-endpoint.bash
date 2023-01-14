@@ -4,6 +4,11 @@ name=$(basename $0 .bash)
 lsof=$1
 report=$2
 
+if [ -z "$(nc -h 2>&1 | grep '\s\-4')" ]; then
+    echo "nc does not support -4 option" >> $report
+    exit 2
+fi
+
 nc -l -4 127.0.0.1 10000 > /dev/null < /dev/zero &
 server=$!
 sleep 1

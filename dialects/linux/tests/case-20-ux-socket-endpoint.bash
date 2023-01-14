@@ -2,6 +2,11 @@ name=$(basename $0 .bash)
 lsof=$1
 report=$2
 
+if [ -z "$(nc -h 2>&1 | grep '\-U')" ]; then
+    echo "nc does not support unix socket" >> $report
+    exit 2
+fi
+
 ux=/tmp/$name-$$.sock
 nc -l -U $ux > /dev/null < /dev/zero &
 server=$!
