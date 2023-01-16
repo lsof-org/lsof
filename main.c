@@ -279,7 +279,7 @@ main(argc, argv)
 	    case 'c':
 		if (GOp == '+') {
 		    if (!GOv || (*GOv == '-') || (*GOv == '+')
-		    ||  !isdigit((int)*GOv))
+		    ||	!isdigit((int)*GOv))
 		    {
 			(void) fprintf(stderr,
 			    "%s: +c not followed by width number\n", Pn);
@@ -629,11 +629,11 @@ main(argc, argv)
 			Ftask = 0;
 			IgnTasks = 1;
 			Selflags &= ~SELTASK;
-		   } else {
+		    } else {
 			(void) fprintf(stderr,
 			    "%s: -K not followed by i (but by %s)\n", Pn, GOv);
 			err = 1;
-		   }
+		    }
 		}
 		break;
 #endif	/* defined(HASTASKS) */
@@ -792,7 +792,7 @@ main(argc, argv)
 		else
 		    RptTm = RPTTM;
 		if (!*cp)
-		     break;
+		    break;
 		while(*cp && (*cp == ' '))
 		    cp++;
 
@@ -828,7 +828,7 @@ main(argc, argv)
 			(void) fprintf(stderr,
 			    "%s: no space (%d) for <fmt> result: \"%s\"\n",
 			    Pn, (int)fmtl, cp);
-			    Error();
+			Error();
 		    }
 		    if (util_strftime(fmtr, fmtl - 1, fmt) < 1) {
 			(void) fprintf(stderr, "%s: illegal <fmt>: \"%s\"\n",
@@ -1013,7 +1013,7 @@ main(argc, argv)
 #if	defined(HASSELINUX)
 	    case 'Z':
 		if (!CntxStatus) {
-		   (void) fprintf(stderr, "%s: -Z limited to SELinux\n", Pn);
+		    (void) fprintf(stderr, "%s: -Z limited to SELinux\n", Pn);
 		    err = 1;
 		} else {
 		    Fcntx = 1;
@@ -1232,7 +1232,7 @@ main(argc, argv)
  */
 	if (stat(DEVDEV_PATH, &sb)) {
 	    se1 = errno;
- 	    if ((ad = strcmp(DEVDEV_PATH, "/dev"))) {
+	    if ((ad = strcmp(DEVDEV_PATH, "/dev"))) {
 		if ((ss = stat("/dev", &sb)))
 		    se2 = errno;
 		else
@@ -1269,7 +1269,7 @@ main(argc, argv)
 #if	defined(WILLDROPGID)
 /*
  * If this process isn't setuid(root), but it is setgid(not_real_gid),
- * relinquish the setgid power.  (If it hasn't already been done.)
+ * relinquish the setgid power.	 (If it hasn't already been done.)
  */
 	(void) dropgid();
 #endif	/* defined(WILLDROPGID) */
@@ -1374,13 +1374,13 @@ main(argc, argv)
 			 * and have files that are the end point(s) of pipe(s),
 			 * process the file endpoints.
 			 */
-			    if (Lp->pss && (Lp->ept & EPT_PIPE))
-				(void) process_pinfo(0);
+			if (Lp->pss && (Lp->ept & EPT_PIPE))
+			    (void) process_pinfo(0);
 			/*
 			 * Process POSIX MQ endpoints.
 			 */
-			    if (Lp->ept & EPT_PSXMQ)
-			      (void) process_psxmqinfo(0);
+			if (Lp->ept & EPT_PSXMQ)
+			    (void) process_psxmqinfo(0);
 
 # if	defined(HASUXSOCKEPT)
 			/*
@@ -1388,8 +1388,8 @@ main(argc, argv)
 			 * and have files that are the end point(s) of UNIX
 			 * socket(s), process the file endpoints.
 			 */
-			    if (Lp->pss && (Lp->ept & EPT_UXS))
-				(void) process_uxsinfo(0);
+			if (Lp->pss && (Lp->ept & EPT_UXS))
+			    (void) process_uxsinfo(0);
 # endif	/* defined(HASUXSOCKEPT) */
 
 # if	defined(HASPTYEPT)
@@ -1398,28 +1398,28 @@ main(argc, argv)
 			 * and have files that are the end point(s) of pseudo-
 			 * terminal files(s), process the file endpoints.
 			 */
-			    if (Lp->pss && (Lp->ept & EPT_PTY))
-				(void) process_ptyinfo(0);
+			if (Lp->pss && (Lp->ept & EPT_PTY))
+			    (void) process_ptyinfo(0);
 # endif	/* defined(HASPTYEPT) */
 
 			/*
 			 * Process INET socket endpoints.
 			 */
-			    if (Lp->ept & EPT_NETS)
-				(void) process_netsinfo(0);
+			if (Lp->ept & EPT_NETS)
+			    (void) process_netsinfo(0);
 
 # if	defined(HASIPv6)
 			/*
 			 * Process INET6 socket endpoints.
 			 */
-			    if (Lp->ept & EPT_NETS6)
-				(void) process_nets6info(0);
+			if (Lp->ept & EPT_NETS6)
+			    (void) process_nets6info(0);
 # endif	/* defined(HASIPv6) */
 			/*
 			 * Process eventfd endpoints.
 			 */
-			    if (Lp->ept & EPT_EVTFD)
-				(void) process_evtfdinfo(0);
+			if (Lp->ept & EPT_EVTFD)
+			    (void) process_evtfdinfo(0);
 		    }
 		/*
 		 * In a second pass, look for unselected endpoint files,
@@ -1431,49 +1431,49 @@ main(argc, argv)
 			/*
 			 * Process pipe endpoints.
 			 */
-			    if (Lp->ept & EPT_PIPE_END)
-				(void) process_pinfo(1);
+			if (Lp->ept & EPT_PIPE_END)
+			    (void) process_pinfo(1);
 			/*
 			 * Process POSIX MQ endpoints.
 			 */
-			    if (Lp->ept & EPT_PSXMQ_END)
-			      (void) process_psxmqinfo(1);
+			if (Lp->ept & EPT_PSXMQ_END)
+			    (void) process_psxmqinfo(1);
 
 # if	defined(HASUXSOCKEPT)
 			/*
 			 * Process UNIX socket endpoints.
 			 */
-			    if (Lp->ept & EPT_UXS_END)
-				(void) process_uxsinfo(1);
+			if (Lp->ept & EPT_UXS_END)
+			    (void) process_uxsinfo(1);
 # endif	/* defined(HASUXSOCKEPT) */
 
 # if	defined(HASPTYEPT)
 			/*
 			 * Process pseudo-terminal endpoints.
 			 */
-			    if (Lp->ept & EPT_PTY_END)
-				(void) process_ptyinfo(1);
+			if (Lp->ept & EPT_PTY_END)
+			    (void) process_ptyinfo(1);
 # endif	/* defined(HASPTYEPT) */
 
 			/*
 			 * Process INET socket endpoints.
 			 */
-			    if (Lp->ept & EPT_NETS_END)
-				(void) process_netsinfo(1);
+			if (Lp->ept & EPT_NETS_END)
+			    (void) process_netsinfo(1);
 
 #if	defined(HASIPv6)
 			/*
 			 * Process INET6 socket endpoints.
 			 */
-			    if (Lp->ept & EPT_NETS6_END)
-				(void) process_nets6info(1);
+			if (Lp->ept & EPT_NETS6_END)
+			    (void) process_nets6info(1);
 # endif	/* defined(HASIPv6) */
 
 			/*
 			 * Process envetfd endpoints.
 			 */
-			    if (Lp->ept & EPT_EVTFD_END)
-				(void) process_evtfdinfo(1);
+			if (Lp->ept & EPT_EVTFD_END)
+			    (void) process_evtfdinfo(1);
 		    }
 		    Lf = lf;
 		}
@@ -1551,7 +1551,7 @@ main(argc, argv)
 
 #if	defined(HAS_STRFTIME)
 		    if (fmtr)
-	    	        (void) printf("%s", fmtr);
+			(void) printf("%s", fmtr);
 #endif	/* defined(HAS_STRFTIME) */
 
 		    putchar(Terminator);
@@ -1628,26 +1628,26 @@ main(argc, argv)
 	/*
 	 * Report on proc file system search results.
 	 */
-	    if (Procsrch && !Procfind) {
-		rv = LSOF_SEARCH_FAILURE;
-		if (Fverbose) {
-		    (void) printf("%s: no file system use located: ", Pn);
-		    safestrprt(Mtprocfs ? Mtprocfs->dir : HASPROCFS, stdout, 1);
-		}
+	if (Procsrch && !Procfind) {
+	    rv = LSOF_SEARCH_FAILURE;
+	    if (Fverbose) {
+		(void) printf("%s: no file system use located: ", Pn);
+		safestrprt(Mtprocfs ? Mtprocfs->dir : HASPROCFS, stdout, 1);
 	    }
-	    {
-		struct procfsid *pfi;
+	}
+	{
+	    struct procfsid *pfi;
 
-		for (pfi = Procfsid; pfi; pfi = pfi->next) {
-		    if (!pfi->f) {
-			rv = LSOF_SEARCH_FAILURE;
-			if (Fverbose) {
-			    (void) printf("%s: no file use located: ", Pn);
-			    safestrprt(pfi->nm, stdout, 1);
-			}
+	    for (pfi = Procfsid; pfi; pfi = pfi->next) {
+		if (!pfi->f) {
+		    rv = LSOF_SEARCH_FAILURE;
+		    if (Fverbose) {
+			(void) printf("%s: no file use located: ", Pn);
+			safestrprt(pfi->nm, stdout, 1);
 		    }
 		}
 	    }
+	}
 #endif	/* defined(HASPROCFS) */
 
 	if ((np = Nwad)) {
@@ -1878,9 +1878,9 @@ GetOpt(ct, opt, rules, err)
 	 *	Next option is ``--'' or ``++''.
 	 */
 	    if (GOx1 >= ct
-	    ||  (opt[GOx1][0] != '-' && opt[GOx1][0] != '+')
-	    ||  !opt[GOx1][1])
-		 return(EOF);
+	    ||	(opt[GOx1][0] != '-' && opt[GOx1][0] != '+')
+	    ||	!opt[GOx1][1])
+		return(EOF);
 	    if (strcmp(opt[GOx1], "--") == 0 || strcmp(opt[GOx1], "++") == 0) {
 		GOx1++;
 		return(EOF);
@@ -1925,7 +1925,7 @@ GetOpt(ct, opt, rules, err)
 	 *
 	 * Save the position of the possible value in case the caller
 	 * decides it does not belong to the option and wants it
-	 * reconsidered as an option character.  The caller does that
+	 * reconsidered as an option character.	 The caller does that
 	 * with:
 	 *		GOx1 = GObk[0]; GOx2 = GObk[1];
 	 *
