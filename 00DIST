@@ -153,8 +153,8 @@ been tested on:
 contains information on other ports.)
 
 If your favorite Unix dialect is not in the list, or if your version
-of it is more recent than the ones listed, please contact me at
-<abe@purdue.edu>.
+of it is more recent than the ones listed, please file a new issue at
+https://github.com/lsof-org/lsof.
 
 Version 3 of lsof was tested on:
 
@@ -451,8 +451,7 @@ VENDOR.
 At worst such a bug report will confuse the vendor; at best, the
 vendor will forward the bug report to me.
 
-Please send all bug reports, requests, etc. to me via email at
-<abe@purdue.edu>.
+Please send all bug reports, requests, etc. to https://github.com/lsof-org/lsof.
 
 
 The lsof-l Mailing List
@@ -4909,9 +4908,6 @@ Supplement	Regenerated the 4.04 distribution to correct a non-
 		Released lsof to GitHub with Purdue releases documented in
 		support/GitHub-release.
 
-Vic Abell <abe@purdue.edu>
-July 14, 2018
-
 
 4.92.1		May 6, 2019
 
@@ -5458,6 +5454,8 @@ July 14, 2018
 
 4.9?.?		????????? ??, ????
 
+Vic Abell <abe@purdue.edu>
+July 14, 2018
 
 The lsof-org team at GitHub
 December 28, 2022

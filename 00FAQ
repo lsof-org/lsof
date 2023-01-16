@@ -658,16 +658,13 @@ ______________________________________________________________________
 
 1.4	How do I report an lsof bug?
 
-	If you believe you have discovered a bug in lsof, you can
-	report it via e-mail to <abe@purdue.edu>.  Do NOT report lsof
-	bugs to the UNIX dialect vendor. Make sure "lsof" appears in
-	the "Subject:" line so my e-mail filter won't classify your
-	letter as Spam.
+	If you believe you have discovered a bug in lsof, you can report it to
+	https://github.com/lsof-org/lsof.  Do NOT report lsof bugs to the UNIX
+	dialect vendor.
 
-	Before you send me a bug report, please read the "Bug Reports"
-	section of the 00README file of the lsof distribution.  It
-	lists the steps you should take before and when reporting a
-	suspected bug.
+	Before you send a bug report, please read the "Bug Reports" section of
+	the 00README file of the lsof distribution.  It lists the steps you
+	should take before and when reporting a suspected bug.
 
 1.5	Where can I get the lsof FAQ?
 
