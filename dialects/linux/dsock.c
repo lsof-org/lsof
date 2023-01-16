@@ -3569,7 +3569,7 @@ get_unix(p)
 		    sr = statsafely(path, &sb);
 		else
 		    sr = stat(path, &sb);
-		if (sr && ((sb.st_mode & S_IFMT) == S_IFSOCK)) {
+		if (sr == 0 && ((sb.st_mode & S_IFMT) == S_IFSOCK)) {
 		    up->sb_def = 1;
 		    up->sb_dev = sb.st_dev;
 		    up->sb_ino = (INODETYPE)sb.st_ino;
