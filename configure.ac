@@ -135,10 +135,10 @@ case "${host_os}" in
 		AC_MSG_ERROR(["Host $host_os not supported"])
 esac
 
-# Dialect provides dfile.c/dnode.c/ddev.c
-AM_CONDITIONAL([HAS_DFILE], [test x$LSOF_DIALECT_DIR != xfreebsd])
-AM_CONDITIONAL([HAS_DNODE], [test x$LSOF_DIALECT_DIR != xdarwin/libproc])
-AM_CONDITIONAL([HAS_DDEV], [test x$LSOF_DIALECT_DIR = xdarwin/libproc])
+# Pass dialect info to Makefile.am
+AM_CONDITIONAL([LINUX], [test x$LSOF_DIALECT_DIR = xlinux])
+AM_CONDITIONAL([DARWIN_LIBPROC], [test x$LSOF_DIALECT_DIR = xdarwin/libproc])
+AM_CONDITIONAL([FREEBSD], [test x$LSOF_DIALECT_DIR = xfreebsd])
 
 # Pass LSOF_DIALECT/LSOF_DIALECT_DIR to Makefile.am
 AC_SUBST([LSOF_DIALECT])
