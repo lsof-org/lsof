@@ -564,8 +564,8 @@ extern int ZoneColW;
  */
 
 enum ExitStatus {
-	LSOF_SUCCESS,
-	LSOF_ERROR,
+    LSOF_SUCCESS,
+    LSOF_ERROR,
 };
 #define LSOF_SEARCH_FAILURE (FsearchErr? LSOF_ERROR: LSOF_SUCCESS)
 
@@ -844,71 +844,71 @@ struct lfile {
 # endif	/* defined HASFSINO) */
 
 	struct linaddr {		/* local Internet address information */
-	    int af;			/* address family: 0 for none; AF_INET;
+		int af;			/* address family: 0 for none; AF_INET;
 					 * or AF_INET6 */
-	    int p;			/* port */
-	    union {
-		struct in_addr a4;	/* AF_INET Internet address */
+		int p;			/* port */
+		union {
+			struct in_addr a4;	/* AF_INET Internet address */
 
 # if	defined(HASIPv6)
-		struct in6_addr a6;	/* AF_INET6 Internet address */
+			struct in6_addr a6;	/* AF_INET6 Internet address */
 # endif	/* defined(HASIPv6) */
 
-	    } ia;
+		} ia;
 	} li[2];			/* li[0]: local
 					 * li[1]: foreign */
 	struct ltstate {		/* local TCP/TPI state */
-	    int type;			/* state type:
-					 *   -1 == none
-					 *    0 == TCP
-					 *    1 == TPI or socket (SS_*) */
-	    union {
-		int i;			/* integer state */
-		unsigned int ui;	/* unsigned integer state */
-	    } state;
+		int type;			/* state type:
+						 *   -1 == none
+						 *    0 == TCP
+						 *    1 == TPI or socket (SS_*) */
+		union {
+			int i;			/* integer state */
+			unsigned int ui;	/* unsigned integer state */
+		} state;
 
 # if	defined(HASSOOPT)
-	    unsigned char pqlens;	/* pqlen status: 0 = none */
-	    unsigned char qlens;	/* qlen status:  0 = none */
-	    unsigned char qlims;	/* qlim status:  0 = none */
-	    unsigned char rbszs;	/* rbsz status:  0 = none */
-	    unsigned char sbszs;	/* sbsz status:  0 = none */
-	    int kai;			/* TCP keep-alive interval */
-	    int ltm;			/* TCP linger time */
-	    unsigned int opt;		/* socket options */
-	    unsigned int pqlen;		/* partial connection queue length */
-	    unsigned int qlen;		/* connection queue length */
-	    unsigned int qlim;		/* connection queue limit */
-	    unsigned long rbsz;		/* receive buffer size */
-	    unsigned long sbsz;		/* send buffer size */
+		unsigned char pqlens;	/* pqlen status: 0 = none */
+		unsigned char qlens;	/* qlen status:  0 = none */
+		unsigned char qlims;	/* qlim status:  0 = none */
+		unsigned char rbszs;	/* rbsz status:  0 = none */
+		unsigned char sbszs;	/* sbsz status:  0 = none */
+		int kai;			/* TCP keep-alive interval */
+		int ltm;			/* TCP linger time */
+		unsigned int opt;		/* socket options */
+		unsigned int pqlen;		/* partial connection queue length */
+		unsigned int qlen;		/* connection queue length */
+		unsigned int qlim;		/* connection queue limit */
+		unsigned long rbsz;		/* receive buffer size */
+		unsigned long sbsz;		/* send buffer size */
 # endif	/* defined(HASSOOPT) */
 
 # if	defined(HASSOSTATE)
-	    unsigned int ss;		/* socket state */
+		unsigned int ss;		/* socket state */
 #  if	defined(HASSBSTATE)
-	    unsigned int sbs_rcv;	/* receive socket buffer state */
-	    unsigned int sbs_snd;	/* send socket buffer state */
+		unsigned int sbs_rcv;	/* receive socket buffer state */
+		unsigned int sbs_snd;	/* send socket buffer state */
 #  endif	/* defined(HASSBSTATE) */
 # endif	/* defined(HASSOSTATE) */
 
 # if	defined(HASTCPOPT)
-	    unsigned int topt;		/* TCP options */
-	    unsigned char msss;		/* mss status: 0 = none */
-	    unsigned long mss;		/* TCP maximum segment size */
+		unsigned int topt;		/* TCP options */
+		unsigned char msss;		/* mss status: 0 = none */
+		unsigned long mss;		/* TCP maximum segment size */
 # endif	/* defined(HASTCPOPT) */
 
 # if	defined(HASTCPTPIQ)
-	    unsigned long rq;		/* receive queue length */
-	    unsigned long sq;		/* send queue length */
-	    unsigned char rqs;		/* rq status: 0 = none */
-	    unsigned char sqs;		/* sq status: 0 = none */
+		unsigned long rq;		/* receive queue length */
+		unsigned long sq;		/* send queue length */
+		unsigned char rqs;		/* rq status: 0 = none */
+		unsigned char sqs;		/* sq status: 0 = none */
 # endif	/* defined(HASTCPTPIQ) */
 
 # if	defined(HASTCPTPIW)
-	    unsigned char rws;		/* rw status: 0 = none */
-	    unsigned char wws;		/* ww status: 0 = none */
-	    unsigned long rw;		/* read window size */
-	    unsigned long ww;		/* write window size */
+		unsigned char rws;		/* rw status: 0 = none */
+		unsigned char wws;		/* ww status: 0 = none */
+		unsigned long rw;		/* read window size */
+		unsigned long ww;		/* write window size */
 # endif	/* defined(HASTCPTPIW) */
 
 	} lts;

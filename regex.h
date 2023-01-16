@@ -110,23 +110,23 @@ typedef unsigned long int reg_syntax_t;
 #define RE_BACKSLASH_ESCAPE_IN_LISTS ((unsigned long int) 1)
 
 /* If this bit is not set, then + and ? are operators, and \+ and \? are
-     literals.
+   literals.
    If set, then \+ and \? are operators and + and ? are literals.  */
 #define RE_BK_PLUS_QM (RE_BACKSLASH_ESCAPE_IN_LISTS << 1)
 
 /* If this bit is set, then character classes are supported.  They are:
-     [:alpha:], [:upper:], [:lower:],  [:digit:], [:alnum:], [:xdigit:],
-     [:space:], [:print:], [:punct:], [:graph:], and [:cntrl:].
+   [:alpha:], [:upper:], [:lower:],  [:digit:], [:alnum:], [:xdigit:],
+   [:space:], [:print:], [:punct:], [:graph:], and [:cntrl:].
    If not set, then character classes are not supported.  */
 #define RE_CHAR_CLASSES (RE_BK_PLUS_QM << 1)
 
 /* If this bit is set, then ^ and $ are always anchors (outside bracket
-     expressions, of course).
+   expressions, of course).
    If this bit is not set, then it depends:
-        ^  is an anchor if it is at the beginning of a regular
-           expression or after an open-group or an alternation operator;
-        $  is an anchor if it is at the end of a regular expression, or
-           before a close-group or an alternation operator.
+   ^  is an anchor if it is at the beginning of a regular
+   expression or after an open-group or an alternation operator;
+   $  is an anchor if it is at the end of a regular expression, or
+   before a close-group or an alternation operator.
 
    This bit could be (re)combined with RE_CONTEXT_INDEP_OPS, because
    POSIX draft 11.2 says that * etc. in leading positions is undefined.
@@ -135,15 +135,15 @@ typedef unsigned long int reg_syntax_t;
 #define RE_CONTEXT_INDEP_ANCHORS (RE_CHAR_CLASSES << 1)
 
 /* If this bit is set, then special characters are always special
-     regardless of where they are in the pattern.
+   regardless of where they are in the pattern.
    If this bit is not set, then special characters are special only in
-     some contexts; otherwise they are ordinary.  Specifically,
-     * + ? and intervals are only special when not after the beginning,
-     open-group, or alternation operator.  */
+   some contexts; otherwise they are ordinary.  Specifically,
+   * + ? and intervals are only special when not after the beginning,
+   open-group, or alternation operator.  */
 #define RE_CONTEXT_INDEP_OPS (RE_CONTEXT_INDEP_ANCHORS << 1)
 
 /* If this bit is set, then *, +, ?, and { cannot be first in an re or
-     immediately after an alternation or begin-group operator.  */
+   immediately after an alternation or begin-group operator.  */
 #define RE_CONTEXT_INVALID_OPS (RE_CONTEXT_INDEP_OPS << 1)
 
 /* If this bit is set, then . matches newline.
@@ -159,7 +159,7 @@ typedef unsigned long int reg_syntax_t;
 #define RE_HAT_LISTS_NOT_NEWLINE (RE_DOT_NOT_NULL << 1)
 
 /* If this bit is set, either \{...\} or {...} defines an
-     interval, depending on RE_NO_BK_BRACES.
+   interval, depending on RE_NO_BK_BRACES.
    If not set, \{, \}, {, and } are literals.  */
 #define RE_INTERVALS (RE_HAT_LISTS_NOT_NEWLINE << 1)
 
@@ -172,8 +172,8 @@ typedef unsigned long int reg_syntax_t;
 #define RE_NEWLINE_ALT (RE_LIMITED_OPS << 1)
 
 /* If this bit is set, then `{...}' defines an interval, and \{ and \}
-     are literals.
-  If not set, then `\{...\}' defines an interval.  */
+   are literals.
+   If not set, then `\{...\}' defines an interval.  */
 #define RE_NO_BK_BRACES (RE_NEWLINE_ALT << 1)
 
 /* If this bit is set, (...) defines a group, and \( and \) are literals.
@@ -189,9 +189,9 @@ typedef unsigned long int reg_syntax_t;
 #define RE_NO_BK_VBAR (RE_NO_BK_REFS << 1)
 
 /* If this bit is set, then an ending range point collating higher
-     than the starting range point, as in [z-a], is invalid.
+   than the starting range point, as in [z-a], is invalid.
    If not set, then when ending range point collates higher than the
-     starting range point, the range is ignored.  */
+   starting range point, the range is ignored.  */
 #define RE_NO_EMPTY_RANGES (RE_NO_BK_VBAR << 1)
 
 /* If this bit is set, then an unmatched ) is ordinary.
@@ -226,34 +226,34 @@ extern reg_syntax_t re_syntax_options;
 /* [[[begin syntaxes]]] */
 #define RE_SYNTAX_EMACS 0
 
-#define RE_SYNTAX_AWK							\
-  (RE_BACKSLASH_ESCAPE_IN_LISTS   | RE_DOT_NOT_NULL			\
-   | RE_NO_BK_PARENS              | RE_NO_BK_REFS			\
-   | RE_NO_BK_VBAR                | RE_NO_EMPTY_RANGES			\
-   | RE_DOT_NEWLINE		  | RE_CONTEXT_INDEP_ANCHORS		\
+#define RE_SYNTAX_AWK						\
+    (RE_BACKSLASH_ESCAPE_IN_LISTS   | RE_DOT_NOT_NULL		\
+   | RE_NO_BK_PARENS              | RE_NO_BK_REFS		\
+   | RE_NO_BK_VBAR                | RE_NO_EMPTY_RANGES		\
+   | RE_DOT_NEWLINE		  | RE_CONTEXT_INDEP_ANCHORS	\
    | RE_UNMATCHED_RIGHT_PAREN_ORD | RE_NO_GNU_OPS)
 
 #define RE_SYNTAX_GNU_AWK						\
-  ((RE_SYNTAX_POSIX_EXTENDED | RE_BACKSLASH_ESCAPE_IN_LISTS | RE_DEBUG)	\
+    ((RE_SYNTAX_POSIX_EXTENDED | RE_BACKSLASH_ESCAPE_IN_LISTS | RE_DEBUG) \
    & ~(RE_DOT_NOT_NULL | RE_INTERVALS | RE_CONTEXT_INDEP_OPS))
 
-#define RE_SYNTAX_POSIX_AWK 						\
-  (RE_SYNTAX_POSIX_EXTENDED | RE_BACKSLASH_ESCAPE_IN_LISTS		\
+#define RE_SYNTAX_POSIX_AWK					\
+    (RE_SYNTAX_POSIX_EXTENDED | RE_BACKSLASH_ESCAPE_IN_LISTS	\
    | RE_INTERVALS	    | RE_NO_GNU_OPS)
 
-#define RE_SYNTAX_GREP							\
-  (RE_BK_PLUS_QM              | RE_CHAR_CLASSES				\
-   | RE_HAT_LISTS_NOT_NEWLINE | RE_INTERVALS				\
+#define RE_SYNTAX_GREP					\
+    (RE_BK_PLUS_QM              | RE_CHAR_CLASSES	\
+   | RE_HAT_LISTS_NOT_NEWLINE | RE_INTERVALS		\
    | RE_NEWLINE_ALT)
 
-#define RE_SYNTAX_EGREP							\
-  (RE_CHAR_CLASSES        | RE_CONTEXT_INDEP_ANCHORS			\
-   | RE_CONTEXT_INDEP_OPS | RE_HAT_LISTS_NOT_NEWLINE			\
-   | RE_NEWLINE_ALT       | RE_NO_BK_PARENS				\
+#define RE_SYNTAX_EGREP					\
+    (RE_CHAR_CLASSES        | RE_CONTEXT_INDEP_ANCHORS	\
+   | RE_CONTEXT_INDEP_OPS | RE_HAT_LISTS_NOT_NEWLINE	\
+   | RE_NEWLINE_ALT       | RE_NO_BK_PARENS		\
    | RE_NO_BK_VBAR)
 
-#define RE_SYNTAX_POSIX_EGREP						\
-  (RE_SYNTAX_EGREP | RE_INTERVALS | RE_NO_BK_BRACES)
+#define RE_SYNTAX_POSIX_EGREP				\
+    (RE_SYNTAX_EGREP | RE_INTERVALS | RE_NO_BK_BRACES)
 
 /* P1003.2/D11.2, section 4.20.7.1, lines 5078ff.  */
 #define RE_SYNTAX_ED RE_SYNTAX_POSIX_BASIC
@@ -261,31 +261,31 @@ extern reg_syntax_t re_syntax_options;
 #define RE_SYNTAX_SED RE_SYNTAX_POSIX_BASIC
 
 /* Syntax bits common to both basic and extended POSIX regex syntax.  */
-#define _RE_SYNTAX_POSIX_COMMON						\
-  (RE_CHAR_CLASSES | RE_DOT_NEWLINE      | RE_DOT_NOT_NULL		\
+#define _RE_SYNTAX_POSIX_COMMON					\
+    (RE_CHAR_CLASSES | RE_DOT_NEWLINE      | RE_DOT_NOT_NULL	\
    | RE_INTERVALS  | RE_NO_EMPTY_RANGES)
 
-#define RE_SYNTAX_POSIX_BASIC						\
-  (_RE_SYNTAX_POSIX_COMMON | RE_BK_PLUS_QM)
+#define RE_SYNTAX_POSIX_BASIC			\
+    (_RE_SYNTAX_POSIX_COMMON | RE_BK_PLUS_QM)
 
 /* Differs from ..._POSIX_BASIC only in that RE_BK_PLUS_QM becomes
    RE_LIMITED_OPS, i.e., \? \+ \| are not recognized.  Actually, this
    isn't minimal, since other operators, such as \`, aren't disabled.  */
-#define RE_SYNTAX_POSIX_MINIMAL_BASIC					\
-  (_RE_SYNTAX_POSIX_COMMON | RE_LIMITED_OPS)
+#define RE_SYNTAX_POSIX_MINIMAL_BASIC		\
+    (_RE_SYNTAX_POSIX_COMMON | RE_LIMITED_OPS)
 
-#define RE_SYNTAX_POSIX_EXTENDED					\
-  (_RE_SYNTAX_POSIX_COMMON  | RE_CONTEXT_INDEP_ANCHORS			\
-   | RE_CONTEXT_INDEP_OPS   | RE_NO_BK_BRACES				\
-   | RE_NO_BK_PARENS        | RE_NO_BK_VBAR				\
+#define RE_SYNTAX_POSIX_EXTENDED				\
+    (_RE_SYNTAX_POSIX_COMMON  | RE_CONTEXT_INDEP_ANCHORS	\
+   | RE_CONTEXT_INDEP_OPS   | RE_NO_BK_BRACES			\
+   | RE_NO_BK_PARENS        | RE_NO_BK_VBAR			\
    | RE_CONTEXT_INVALID_OPS | RE_UNMATCHED_RIGHT_PAREN_ORD)
 
 /* Differs from ..._POSIX_EXTENDED in that RE_CONTEXT_INDEP_OPS is
    removed and RE_NO_BK_REFS is added.  */
-#define RE_SYNTAX_POSIX_MINIMAL_EXTENDED				\
-  (_RE_SYNTAX_POSIX_COMMON  | RE_CONTEXT_INDEP_ANCHORS			\
-   | RE_CONTEXT_INVALID_OPS | RE_NO_BK_BRACES				\
-   | RE_NO_BK_PARENS        | RE_NO_BK_REFS				\
+#define RE_SYNTAX_POSIX_MINIMAL_EXTENDED			\
+    (_RE_SYNTAX_POSIX_COMMON  | RE_CONTEXT_INDEP_ANCHORS	\
+   | RE_CONTEXT_INVALID_OPS | RE_NO_BK_BRACES			\
+   | RE_NO_BK_PARENS        | RE_NO_BK_REFS			\
    | RE_NO_BK_VBAR	    | RE_UNMATCHED_RIGHT_PAREN_ORD)
 /* [[[end syntaxes]]] */
 
@@ -310,7 +310,7 @@ extern reg_syntax_t re_syntax_options;
 #define REG_ICASE (REG_EXTENDED << 1)
 
 /* If this bit is set, then anchors do not match at newline
-     characters in the string.
+   characters in the string.
    If not set, then anchors do match at newlines.  */
 #define REG_NEWLINE (REG_ICASE << 1)
 
@@ -322,10 +322,10 @@ extern reg_syntax_t re_syntax_options;
 /* POSIX `eflags' bits (i.e., information for regexec).  */
 
 /* If this bit is set, then the beginning-of-line operator doesn't match
-     the beginning of the string (presumably because it's not the
-     beginning of a line).
+   the beginning of the string (presumably because it's not the
+   beginning of a line).
    If not set, then the beginning-of-line operator does match the
-     beginning of the string.  */
+   beginning of the string.  */
 #define REG_NOTBOL 1
 
 /* Like REG_NOTBOL, except for the end-of-line.  */
@@ -335,34 +335,34 @@ extern reg_syntax_t re_syntax_options;
 /* If any error codes are removed, changed, or added, update the
    `re_error_msg' table in regex.c.  */
 typedef enum
-{
+    {
 #ifdef _XOPEN_SOURCE
-  REG_ENOSYS = -1,	/* This will never happen for this implementation.  */
+	REG_ENOSYS = -1,	/* This will never happen for this implementation.  */
 #endif
 
-  REG_NOERROR = 0,	/* Success.  */
-  REG_NOMATCH,		/* Didn't find a match (for regexec).  */
+	REG_NOERROR = 0,	/* Success.  */
+	REG_NOMATCH,		/* Didn't find a match (for regexec).  */
 
   /* POSIX regcomp return error codes.  (In the order listed in the
      standard.)  */
-  REG_BADPAT,		/* Invalid pattern.  */
-  REG_ECOLLATE,		/* Not implemented.  */
-  REG_ECTYPE,		/* Invalid character class name.  */
-  REG_EESCAPE,		/* Trailing backslash.  */
-  REG_ESUBREG,		/* Invalid back reference.  */
-  REG_EBRACK,		/* Unmatched left bracket.  */
-  REG_EPAREN,		/* Parenthesis imbalance.  */
-  REG_EBRACE,		/* Unmatched \{.  */
-  REG_BADBR,		/* Invalid contents of \{\}.  */
-  REG_ERANGE,		/* Invalid range end.  */
-  REG_ESPACE,		/* Ran out of memory.  */
-  REG_BADRPT,		/* No preceding re for repetition op.  */
+	REG_BADPAT,		/* Invalid pattern.  */
+	REG_ECOLLATE,		/* Not implemented.  */
+	REG_ECTYPE,		/* Invalid character class name.  */
+	REG_EESCAPE,		/* Trailing backslash.  */
+	REG_ESUBREG,		/* Invalid back reference.  */
+	REG_EBRACK,		/* Unmatched left bracket.  */
+	REG_EPAREN,		/* Parenthesis imbalance.  */
+	REG_EBRACE,		/* Unmatched \{.  */
+	REG_BADBR,		/* Invalid contents of \{\}.  */
+	REG_ERANGE,		/* Invalid range end.  */
+	REG_ESPACE,		/* Ran out of memory.  */
+	REG_BADRPT,		/* No preceding re for repetition op.  */
 
   /* Error codes we've added.  */
-  REG_EEND,		/* Premature end.  */
-  REG_ESIZE,		/* Compiled pattern bigger than 2^16 bytes.  */
-  REG_ERPAREN		/* Unmatched ) or \); not returned from regcomp. */
-} reg_errcode_t;
+	REG_EEND,		/* Premature end.  */
+	REG_ESIZE,		/* Compiled pattern bigger than 2^16 bytes.  */
+	REG_ERPAREN		/* Unmatched ) or \); not returned from regcomp. */
+    } reg_errcode_t;
 
 /* This data structure represents a compiled pattern.  Before calling
    the pattern compiler, the fields `buffer', `allocated', `fastmap',
@@ -378,66 +378,66 @@ struct re_pattern_buffer
 {
 /* [[[begin pattern_buffer]]] */
 	/* Space that holds the compiled pattern.  It is declared as
-          `unsigned char *' because its elements are
+	   `unsigned char *' because its elements are
            sometimes used as array indexes.  */
-  unsigned char *buffer;
+	unsigned char *buffer;
 
 	/* Number of bytes to which `buffer' points.  */
-  unsigned long int allocated;
+	unsigned long int allocated;
 
 	/* Number of bytes actually used in `buffer'.  */
-  unsigned long int used;
+	unsigned long int used;
 
         /* Syntax setting with which the pattern was compiled.  */
-  reg_syntax_t syntax;
+	reg_syntax_t syntax;
 
         /* Pointer to a fastmap, if any, otherwise zero.  re_search uses
            the fastmap, if there is one, to skip over impossible
            starting points for matches.  */
-  char *fastmap;
+	char *fastmap;
 
         /* Either a translate table to apply to all characters before
            comparing them, or zero for no translation.  The translation
            is applied to a pattern when it is compiled and to a string
            when it is matched.  */
-  RE_TRANSLATE_TYPE translate;
+	RE_TRANSLATE_TYPE translate;
 
 	/* Number of subexpressions found by the compiler.  */
-  size_t re_nsub;
+	size_t re_nsub;
 
         /* Zero if this pattern cannot match the empty string, one else.
            Well, in truth it's used only in `re_search_2', to see
            whether or not we should use the fastmap, so we don't set
            this absolutely perfectly; see `re_compile_fastmap' (the
            `duplicate' case).  */
-  unsigned can_be_null : 1;
+	unsigned can_be_null : 1;
 
         /* If REGS_UNALLOCATED, allocate space in the `regs' structure
-             for `max (RE_NREGS, re_nsub + 1)' groups.
+	   for `max (RE_NREGS, re_nsub + 1)' groups.
            If REGS_REALLOCATE, reallocate space if necessary.
            If REGS_FIXED, use what's there.  */
 #define REGS_UNALLOCATED 0
 #define REGS_REALLOCATE 1
 #define REGS_FIXED 2
-  unsigned regs_allocated : 2;
+	unsigned regs_allocated : 2;
 
         /* Set to zero when `regex_compile' compiles a pattern; set to one
            by `re_compile_fastmap' if it updates the fastmap.  */
-  unsigned fastmap_accurate : 1;
+	unsigned fastmap_accurate : 1;
 
         /* If set, `re_match_2' does not return information about
            subexpressions.  */
-  unsigned no_sub : 1;
+	unsigned no_sub : 1;
 
         /* If set, a beginning-of-line anchor doesn't match at the
            beginning of the string.  */
-  unsigned not_bol : 1;
+	unsigned not_bol : 1;
 
         /* Similarly for an end-of-line anchor.  */
-  unsigned not_eol : 1;
+	unsigned not_eol : 1;
 
         /* If true, an anchor at a newline matches.  */
-  unsigned newline_anchor : 1;
+	unsigned newline_anchor : 1;
 
 /* [[[end pattern_buffer]]] */
 };
@@ -452,9 +452,9 @@ typedef int regoff_t;
    regex.texinfo for a full description of what registers match.  */
 struct re_registers
 {
-  unsigned num_regs;
-  regoff_t *start;
-  regoff_t *end;
+	unsigned num_regs;
+	regoff_t *start;
+	regoff_t *end;
 };
 
 
@@ -471,8 +471,8 @@ struct re_registers
    structure of arrays.  */
 typedef struct
 {
-  regoff_t rm_so;  /* Byte offset from string's start to substring's start.  */
-  regoff_t rm_eo;  /* Byte offset from string's start to substring's end.  */
+	regoff_t rm_so;  /* Byte offset from string's start to substring's start.  */
+	regoff_t rm_eo;  /* Byte offset from string's start to substring's end.  */
 } regmatch_t;
 
 /* Declarations for routines.  */
@@ -501,7 +501,7 @@ extern reg_syntax_t re_set_syntax _RE_ARGS ((reg_syntax_t syntax));
    and syntax given by the global `re_syntax_options', into the buffer
    BUFFER.  Return NULL if successful, and an error string if not.  */
 extern const char *re_compile_pattern
-  _RE_ARGS ((const char *pattern, size_t length,
+_RE_ARGS ((const char *pattern, size_t length,
              struct re_pattern_buffer *buffer));
 
 
@@ -517,14 +517,14 @@ extern int re_compile_fastmap _RE_ARGS ((struct re_pattern_buffer *buffer));
    match, or -2 for an internal error.  Also return register
    information in REGS (if REGS and BUFFER->no_sub are nonzero).  */
 extern int re_search
-  _RE_ARGS ((struct re_pattern_buffer *buffer, const char *string,
+_RE_ARGS ((struct re_pattern_buffer *buffer, const char *string,
             int length, int start, int range, struct re_registers *regs));
 
 
 /* Like `re_search', but search in the concatenation of STRING1 and
    STRING2.  Also, stop searching at index START + STOP.  */
 extern int re_search_2
-  _RE_ARGS ((struct re_pattern_buffer *buffer, const char *string1,
+_RE_ARGS ((struct re_pattern_buffer *buffer, const char *string1,
              int length1, const char *string2, int length2,
              int start, int range, struct re_registers *regs, int stop));
 
@@ -532,13 +532,13 @@ extern int re_search_2
 /* Like `re_search', but return how many characters in STRING the regexp
    in BUFFER matched, starting at position START.  */
 extern int re_match
-  _RE_ARGS ((struct re_pattern_buffer *buffer, const char *string,
+_RE_ARGS ((struct re_pattern_buffer *buffer, const char *string,
              int length, int start, struct re_registers *regs));
 
 
 /* Relates to `re_match' as `re_search_2' relates to `re_search'.  */
 extern int re_match_2
-  _RE_ARGS ((struct re_pattern_buffer *buffer, const char *string1,
+_RE_ARGS ((struct re_pattern_buffer *buffer, const char *string1,
              int length1, const char *string2, int length2,
              int start, struct re_registers *regs, int stop));
 
@@ -556,7 +556,7 @@ extern int re_match_2
    PATTERN_BUFFER will allocate its own register data, without
    freeing the old data.  */
 extern void re_set_registers
-  _RE_ARGS ((struct re_pattern_buffer *buffer, struct re_registers *regs,
+_RE_ARGS ((struct re_pattern_buffer *buffer, struct re_registers *regs,
              unsigned num_regs, regoff_t *starts, regoff_t *ends));
 
 #if defined _REGEX_RE_COMP || defined _LIBC
@@ -605,11 +605,11 @@ extern void regfree _RE_ARGS ((regex_t *__preg));
 #endif /* regex.h */
 
 /*
-Local variables:
-make-backup-files: t
-version-control: t
-trim-versions-without-asking: nil
-End:
+  Local variables:
+  make-backup-files: t
+  version-control: t
+  trim-versions-without-asking: nil
+  End:
 */
 
 #else	/* !defined(USE_LIB_REGEX) */

@@ -143,7 +143,7 @@ alloc_lfile(nm, num)
 /*
  * Othwerise, allocate a new structure.
  */
-	} else if (!(Lf = (struct lfile *)malloc(sizeof(struct lfile)))) {
+		} else if (!(Lf = (struct lfile *)malloc(sizeof(struct lfile)))) {
 	    (void) fprintf(stderr, "%s: no local file space at PID %d\n",
 		Pn, Lp->pid);
 	    Error();
@@ -153,9 +153,9 @@ alloc_lfile(nm, num)
  */
 	Lf->access = Lf->lock = ' ';
 	Lf->dev_def = Lf->inp_ty = Lf->is_com = Lf->is_nfs = Lf->is_stream
-		    = Lf->lmi_srch = Lf->nlink_def = Lf->off_def = Lf->sz_def
-		    = Lf->rdev_def
-		    = (unsigned char)0;
+	    = Lf->lmi_srch = Lf->nlink_def = Lf->off_def = Lf->sz_def
+	    = Lf->rdev_def
+	    = (unsigned char)0;
 	Lf->li[0].af = Lf->li[1].af = 0;
 	Lf->lts.type = -1;
 	Lf->nlink = 0l;
@@ -175,10 +175,10 @@ alloc_lfile(nm, num)
 #if	defined(HASSOOPT)
 	Lf->lts.kai = Lf->lts.ltm = 0;
 	Lf->lts.opt = Lf->lts.qlen = Lf->lts.qlim = Lf->lts.pqlen
-		    = (unsigned int)0;
+	    = (unsigned int)0;
 	Lf->lts.rbsz = Lf->lts.sbsz = (unsigned long)0;
 	Lf->lts.qlens = Lf->lts.qlims = Lf->lts.pqlens = Lf->lts.rbszs
-		      = Lf->lts.sbszs = (unsigned char)0;
+	    = Lf->lts.sbszs = (unsigned char)0;
 #endif	/* defined(HASSOOPT) */
 
 #if	defined(HASSOSTATE)
@@ -251,8 +251,8 @@ alloc_lfile(nm, num)
 /*
  * See if the file descriptor has been selected.
  */
-	if (!Fdl || (!nm && num < 0))
-	    return;
+	    if (!Fdl || (!nm && num < 0))
+		return;
 	fds = ck_fd_status(nm, num);
 	switch (FdlTy) {
 	case 0:			/* inclusion list */
@@ -284,7 +284,7 @@ alloc_lproc(pid, pgid, ppid, uid, cmd, pss, sf)
 
 	if (!Lproc) {
 	    if (!(Lproc = (struct lproc *)malloc(
-			  (MALLOC_S)(LPROCINCR * sizeof(struct lproc)))))
+						 (MALLOC_S)(LPROCINCR * sizeof(struct lproc)))))
 	    {
 		(void) fprintf(stderr,
 		    "%s: no malloc space for %d local proc structures\n",
@@ -564,7 +564,7 @@ free_lproc(lp)
 	    CLRLFILEADD(lf)
 #endif	/* defined(HASLFILEADD) && defined(CLRLFILEADD) */
 
-	    nf = lf->next;
+		nf = lf->next;
 	    (void) free((FREE_P *)lf);
 	}
 	lp->file = (struct lfile *)NULL;
@@ -681,7 +681,7 @@ int
 #if	defined(HASTASKS)
 is_proc_excl(pid, pgid, uid, pss, sf, tid)
 #else	/* !defined(HASTASKS) */
-is_proc_excl(pid, pgid, uid, pss, sf)
+	is_proc_excl(pid, pgid, uid, pss, sf)
 #endif	/* defined(HASTASKS) */
 
 	int pid;			/* Process ID */
@@ -691,7 +691,7 @@ is_proc_excl(pid, pgid, uid, pss, sf)
 	short *sf;			/* select flags for lproc */
 
 #if	defined(HASTASKS)
-	int tid;			/* task ID (not a task if zero) */
+int tid;			/* task ID (not a task if zero) */
 #endif	/* defined(HASTASKS) */
 
 {
@@ -1093,9 +1093,9 @@ prt_pinfo(pp, ps)
 	if (ps) {
 
 	/*
-	* Endpoint files have been selected, so mark this
-	* one for selection later. Set the type to PIPE.
-	*/
+	 * Endpoint files have been selected, so mark this
+	 * one for selection later. Set the type to PIPE.
+	 */
 	    ef->chend = CHEND_PIPE;
 	    ep->ept |= EPT_PIPE_END;
 	}
@@ -1158,7 +1158,7 @@ process_psxmqinfo(f)
 		    Lf->sf = Selflags;
 		    Lp->pss |= PS_SEC;
 		    do {
-		      if ((pp = find_psxmqinfo(Lp->pid, Lf, pp))) {
+			if ((pp = find_psxmqinfo(Lp->pid, Lf, pp))) {
 			    prt_psxmqinfo(pp, 0);
 			    pp = pp->next;
 			}
@@ -1199,9 +1199,9 @@ prt_psxmqinfo(pp, ps)
 	if (ps) {
 
 	/*
-	* Endpoint files have been selected, so mark this
-	* one for selection later. Set the type to posix mq.
-	*/
+	 * Endpoint files have been selected, so mark this
+	 * one for selection later. Set the type to posix mq.
+	 */
 	    ef->chend = CHEND_PSXMQ;
 	    ep->ept |= EPT_PSXMQ_END;
 	}
@@ -1305,9 +1305,9 @@ prt_evtfdinfo(pp, ps)
 	if (ps) {
 
 	/*
-	* Endpoint files have been selected, so mark this
-	* one for selection later. Set the type to PIPE.
-	*/
+	 * Endpoint files have been selected, so mark this
+	 * one for selection later. Set the type to PIPE.
+	 */
 	    ef->chend = CHEND_EVTFD;
 	    ep->ept |= EPT_EVTFD_END;
 	}

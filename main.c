@@ -279,7 +279,7 @@ main(argc, argv)
 	    case 'c':
 		if (GOp == '+') {
 		    if (!GOv || (*GOv == '-') || (*GOv == '+')
-		    ||	!isdigit((int)*GOv))
+		    ||  !isdigit((int)*GOv))
 		    {
 			(void) fprintf(stderr,
 			    "%s: +c not followed by width number\n", Pn);
@@ -1232,7 +1232,7 @@ main(argc, argv)
  */
 	if (stat(DEVDEV_PATH, &sb)) {
 	    se1 = errno;
-	    if ((ad = strcmp(DEVDEV_PATH, "/dev"))) {
+ 	    if ((ad = strcmp(DEVDEV_PATH, "/dev"))) {
 		if ((ss = stat("/dev", &sb)))
 		    se2 = errno;
 		else
@@ -1269,7 +1269,7 @@ main(argc, argv)
 #if	defined(WILLDROPGID)
 /*
  * If this process isn't setuid(root), but it is setgid(not_real_gid),
- * relinquish the setgid power.	 (If it hasn't already been done.)
+ * relinquish the setgid power.  (If it hasn't already been done.)
  */
 	(void) dropgid();
 #endif	/* defined(WILLDROPGID) */
@@ -1551,7 +1551,7 @@ main(argc, argv)
 
 #if	defined(HAS_STRFTIME)
 		    if (fmtr)
-			(void) printf("%s", fmtr);
+	    	        (void) printf("%s", fmtr);
 #endif	/* defined(HAS_STRFTIME) */
 
 		    putchar(Terminator);
@@ -1878,8 +1878,8 @@ GetOpt(ct, opt, rules, err)
 	 *	Next option is ``--'' or ``++''.
 	 */
 	    if (GOx1 >= ct
-	    ||	(opt[GOx1][0] != '-' && opt[GOx1][0] != '+')
-	    ||	!opt[GOx1][1])
+	    ||  (opt[GOx1][0] != '-' && opt[GOx1][0] != '+')
+	    ||  !opt[GOx1][1])
 		return(EOF);
 	    if (strcmp(opt[GOx1], "--") == 0 || strcmp(opt[GOx1], "++") == 0) {
 		GOx1++;
@@ -1925,7 +1925,7 @@ GetOpt(ct, opt, rules, err)
 	 *
 	 * Save the position of the possible value in case the caller
 	 * decides it does not belong to the option and wants it
-	 * reconsidered as an option character.	 The caller does that
+	 * reconsidered as an option character.  The caller does that
 	 * with:
 	 *		GOx1 = GObk[0]; GOx2 = GObk[1];
 	 *

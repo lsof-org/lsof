@@ -103,7 +103,7 @@ endnm(sz)
 	register size_t tsz;
 
 	for (s = Namech, tsz = Namechl; *s; s++, tsz--)
-		;
+	    ;
 	*sz = tsz;
 	return(s);
 }
@@ -119,37 +119,37 @@ endnm(sz)
  */
 
 /*
-* Copyright (c) 1983, 1988, 1993
-*      The Regents of the University of California.  All rights reserved.
-*
-* Redistribution and use in source and binary forms, with or without
-* modification, are permitted provided that the following conditions
-* are met:
-* 1. Redistributions of source code must retain the above copyright
-*    notice, this list of conditions and the following disclaimer.
-* 2. Redistributions in binary form must reproduce the above copyright
-*    notice, this list of conditions and the following disclaimer in the
-*    documentation and/or other materials provided with the distribution.
-* 3. All advertising materials mentioning features or use of this software
-*    must display the following acknowledgement:
-*      This product includes software developed by the University of
-*      California, Berkeley and its contributors.
-* 4. Neither the name of the University nor the names of its contributors
-*    may be used to endorse or promote products derived from this software
-*    without specific prior written permission.
-*
-* THIS SOFTWARE IS PROVIDED BY THE REGENTS AND CONTRIBUTORS ``AS IS'' AND
-* ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-* IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
-* ARE DISCLAIMED.  IN NO EVENT SHALL THE REGENTS OR CONTRIBUTORS BE LIABLE
-* FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
-* DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
-* OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
-* HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
-* LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
-* OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
-* SUCH DAMAGE.
-*/
+ * Copyright (c) 1983, 1988, 1993
+ *      The Regents of the University of California.  All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions
+ * are met:
+ * 1. Redistributions of source code must retain the above copyright
+ *    notice, this list of conditions and the following disclaimer.
+ * 2. Redistributions in binary form must reproduce the above copyright
+ *    notice, this list of conditions and the following disclaimer in the
+ *    documentation and/or other materials provided with the distribution.
+ * 3. All advertising materials mentioning features or use of this software
+ *    must display the following acknowledgement:
+ *      This product includes software developed by the University of
+ *      California, Berkeley and its contributors.
+ * 4. Neither the name of the University nor the names of its contributors
+ *    may be used to endorse or promote products derived from this software
+ *    without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE REGENTS AND CONTRIBUTORS ``AS IS'' AND
+ * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+ * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+ * ARE DISCLAIMED.  IN NO EVENT SHALL THE REGENTS OR CONTRIBUTORS BE LIABLE
+ * FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+ * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+ * OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+ * HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+ * LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+ * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+ * SUCH DAMAGE.
+ */
 
 static void
 fill_portmap()
@@ -174,7 +174,7 @@ fill_portmap()
  * Make sure this is only run once.
  */
 	if (already_run)
-		return;
+	    return;
 	already_run = 1;
 
 /*
@@ -198,10 +198,10 @@ fill_portmap()
 #if	defined(CAN_USE_CLNT_CREATE)
 	if (!(c = clnt_create("localhost", PMAPPROG, PMAPVERS, "tcp")))
 #else	/* !defined(CAN_USE_CLNT_CREATE) */
-	if (!(c = clnttcp_create(&ia, PMAPPROG, PMAPVERS, &s, 0, 0)))
+	    if (!(c = clnttcp_create(&ia, PMAPPROG, PMAPVERS, &s, 0, 0)))
 #endif	/* defined(CAN_USE_CLNT_CREATE) */
 
-	    return;
+		return;
 	if (clnt_call(c, PMAPPROC_DUMP, XDR_VOID, NULL, XDR_PMAPLIST,
 		      (caddr_t)&p, tm)
 	!= RPC_SUCCESS) {
@@ -422,11 +422,11 @@ gethostnm(ia, af)
 	    } else
 #endif	/* defined(HASIPv6) */
 
-	    if (af == AF_INET)
-		(void) snpf(hbuf, sizeof(hbuf), "%u.%u.%u.%u", ia[0], ia[1],
+		if (af == AF_INET)
+		    (void) snpf(hbuf, sizeof(hbuf), "%u.%u.%u.%u", ia[0], ia[1],
 			    ia[2], ia[3]);
-	    else
-		(void) snpf(hbuf, sizeof(hbuf), "(unknown AF value: %d)", af);
+		else
+		    (void) snpf(hbuf, sizeof(hbuf), "(unknown AF value: %d)", af);
 	    hn = hbuf;
 	} else
 	    hn = (char *)he->h_name;
@@ -902,7 +902,7 @@ print_file()
 # if	!defined(HASNOFSADDR)
 	    if (Fsv & FSV_FA) {
 		cp =  (Lf->fsv & FSV_FA) ? print_kptr(Lf->fsa, buf, sizeof(buf))
-					 : "";
+		    : "";
 		if (!PrPass) {
 		    if ((len = strlen(cp)) > FsColW)
 			FsColW = len;
@@ -944,7 +944,7 @@ print_file()
 # if	!defined(HASNOFSNADDR)
 	    if (Fsv & FSV_NI) {
 		cp = (Lf->fsv & FSV_NI) ? print_kptr(Lf->fna, buf, sizeof(buf))
-					: "";
+		    : "";
 		if (!PrPass) {
 		    if ((len = strlen(cp)) > NiColW)
 			NiColW = len;
@@ -1045,7 +1045,7 @@ print_file()
 #if	defined(HASPRINTSZ)
 		(void) printf("%*.*s", SzOffColW, SzOffColW, HASPRINTSZ(Lf));
 #else	/* !defined(HASPRINTSZ) */
-		(void) printf(SzOffFmt_dv, SzOffColW, Lf->sz);
+	    (void) printf(SzOffFmt_dv, SzOffColW, Lf->sz);
 #endif	/* defined(HASPRINTSZ) */
 
 	    else if (Lf->off_def) {
@@ -1078,7 +1078,7 @@ print_file()
 	    if (Lf->nlink_def) {
 		(void) snpf(buf, sizeof(buf), " %ld", Lf->nlink);
 		cp = buf;
-	   } else
+	    } else
 		cp = "";
 	    if (!PrPass) {
 		if ((len = strlen(cp)) > NlColW)
@@ -1163,13 +1163,13 @@ printinaddr()
 	     */
 		if (nl < 2)
 
-addr_too_long:
+		addr_too_long:
 
-		    {
-			(void) snpf(Namech, Namechl,
+		{
+		    (void) snpf(Namech, Namechl,
 			    "network addresses too long");
-			return(1);
-		    }
+		    return(1);
+		}
 		(void) snpf(np, nl, "->");
 		np += 2;
 		nl -= 2;
@@ -1204,7 +1204,7 @@ addr_too_long:
 		||  FportMap
 #endif	/* defined(HASNORPC_H) */
 
-		) {
+		    ) {
 
 		/*
 		 * If converting port numbers to service names, or looking
@@ -1225,17 +1225,17 @@ addr_too_long:
 			    if (IN6_IS_ADDR_LOOPBACK(&Lf->li[i].ia.a6)
 			    ||  IN6_ARE_ADDR_EQUAL(&Lf->li[0].ia.a6,
 						   &Lf->li[1].ia.a6)
-			    )
+				)
 				src = 0;
 			} else
 # endif	/* defined(HASIPv6) */
 
-			if (Lf->li[0].af == AF_INET) {
-			    if (Lf->li[i].ia.a4.s_addr == htonl(INADDR_LOOPBACK)
+			    if (Lf->li[0].af == AF_INET) {
+				if (Lf->li[i].ia.a4.s_addr == htonl(INADDR_LOOPBACK)
 			    ||  Lf->li[0].ia.a4.s_addr == Lf->li[1].ia.a4.s_addr
-			    )
-				src = 0;
-			}
+				    )
+				    src = 0;
+			    }
 		    }
 #else
 		    /*
@@ -2129,13 +2129,13 @@ printname(nl)
 		    NCACHELDPFX
 #  endif	/* defined(NCACHELDPFX) */
 
-		    (void) ncache_load();
+			(void) ncache_load();
 
 #  if	defined(NCACHELDSFX)
 		    NCACHELDSFX
 #  endif	/* defined(NCACHELDSFX) */
 
-		    NcacheReload = 0;
+			NcacheReload = 0;
 		}
 		if ((cp = ncache_lookup(buf, sizeof(buf), &fp))) {
 		    char *cp1;
@@ -2147,7 +2147,7 @@ printname(nl)
 			    cp1 = strrchr(Lf->fsdir, '/');
 			    if (cp1 == (char *)NULL ||  *(cp1 + 1) != '\0')
 				putchar('/');
-			    }
+			}
 		    } else
 			(void) fputs(" -- ", stdout);
 		    safestrprt(cp, stdout, 0);
@@ -2159,16 +2159,16 @@ printname(nl)
 	    if (NcacheReload) {
 
 #  if	defined(NCACHELDPFX)
-		    NCACHELDPFX
+		NCACHELDPFX
 #  endif	/* defined(NCACHELDPFX) */
 
-		(void) ncache_load();
+		    (void) ncache_load();
 
 #  if	defined(NCACHELDSFX)
-		    NCACHELDSFX
+		NCACHELDSFX
 #  endif	/* defined(NCACHELDSFX) */
 
-		NcacheReload = 0;
+		    NcacheReload = 0;
 	    }
 	    if ((cp = ncache_lookup(buf, sizeof(buf), &fp))) {
 		if (fp) {
@@ -2209,7 +2209,7 @@ printname(nl)
  * make sure a NL is printed, as requested.
  */
 
-print_nma:
+  print_nma:
 
 	if (Lf->nma) {
 	    if (ps)
@@ -2231,7 +2231,7 @@ print_nma:
 	||   ((Ftcptpi & TCPTPI_WINDOWS) && (Lf->lts.rws || Lf->lts.wws))
 #endif	/* defined(HASTCPTPIW) */
 
-	)) {
+	    )) {
 	    if (ps)
 		putchar(' ');
 	    (void) print_tcptpi(0);
@@ -2341,9 +2341,9 @@ printuid(uid, ty)
 	struct stat sb;
 	static struct stat sbs;
 	static struct uidcache {
-	    uid_t uid;
-	    char nm[LOGINML+1];
-	    struct uidcache *next;
+		uid_t uid;
+		char nm[LOGINML+1];
+		struct uidcache *next;
 	} **uc = (struct uidcache **)NULL;
 	struct uidcache *up, *upn;
 	static char user[USERPRTL+1];

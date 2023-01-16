@@ -74,7 +74,7 @@ _PROTOTYPE(static void handleint,(int sig));
 static pid_t Cpid = 0;			/* child PID */
 static jmp_buf Jmp_buf;			/* jump buffer */
 static int Pipes[] =			/* pipes for child process */
-	{ -1, -1, -1, -1 };
+    { -1, -1, -1, -1 };
 static int CtSigs[] = { 0, SIGINT, SIGKILL };
 					/* child termination signals (in order
 					 * of application) -- the first is a
@@ -516,7 +516,7 @@ enter_dev_ch(m)
 	    Error();
 	}
 	if (Lf->dev_ch)
-	   (void) free((FREE_P *)Lf->dev_ch);
+	    (void) free((FREE_P *)Lf->dev_ch);
 	Lf->dev_ch = mp;
 }
 
@@ -687,7 +687,7 @@ enter_IPstate(ty, nm, nr)
 		    UdpSt = (char **)malloc(len);
 		if (!UdpSt) {
 
-no_IP_space:
+		  no_IP_space:
 
 		    (void) fprintf(stderr, "%s: no %s state space\n", Pn, ty);
 		    Error();
@@ -723,7 +723,7 @@ no_IP_space:
 	if (tx) {
 	    if (UdpSt[nr + UdpStOff]) {
 
-dup_IP_state:
+	      dup_IP_state:
 
 		(void) fprintf(stderr,
 		    "%s: duplicate %s state %d (already %s): %s\n",
@@ -1104,7 +1104,7 @@ Readlink(arg)
 		;
 	    if ((len = argp2 - arg) >= (int)sizeof(tbuf)) {
 
-path_too_long:
+	      path_too_long:
 		if (!Fwarn) {
 		    (void) fprintf(stderr,
 			"%s: readlink() path too long: ", Pn);
@@ -1201,7 +1201,7 @@ path_too_long:
  */
 	if (!(s1 = mkstrcpy(abuf, (MALLOC_S *)NULL))) {
 
-no_readlink_space:
+	  no_readlink_space:
 
 	    (void) fprintf(stderr, "%s: no Readlink string space for ", Pn);
 	    safestrprt(abuf, stderr, 1);
@@ -1658,7 +1658,7 @@ x2dev(s, d)
  * but return an error if an excess leading digit isn't 0xf.
  */
 	if  (strncasecmp(s, "0x", 2) == 0)
-		s += 2;
+	    s += 2;
 	for (cp = s, n = 0; *cp; cp++, n++) {
 	    if (isdigit((unsigned char)*cp))
 		continue;

@@ -30,7 +30,7 @@
  */
 
 static char copyright[] =
-"Copyright 1998 Purdue Research Foundation. All rights reserved.";
+    "Copyright 1998 Purdue Research Foundation. All rights reserved.";
 
 #include "lsof.h"
 #include "version.h"
@@ -58,11 +58,11 @@ isnullstr(s)
 	char *s;			/* string pointer */
 {
 	if (!s)
-		return((char *)NULL);
+	    return((char *)NULL);
 	while (*s) {
-		if (*s != ' ')
-			return(s);
-		s++;
+	    if (*s != ' ')
+		return(s);
+	    s++;
 	}
 	return((char *)NULL);
 }
@@ -200,7 +200,7 @@ report_HASDCACHE(type, ttl, det)
 		    det ? det : "",
 		    HASPERSDCPATH, cp ? cp : "none");
 #  endif	/* defined(HASPERSDCPATH) */
-		 (void) fprintf(stderr, "%sPersonal path: %s\n",
+		(void) fprintf(stderr, "%sPersonal path: %s\n",
 		    det ? det : "",
 		    DCpath[3] ? DCpath[3] : "none");
 # endif	/* defined(HASPERSDC) */
@@ -230,7 +230,7 @@ report_HASDCACHE(type, ttl, det)
 		    "%s%s is the default device cache file read path.\n",
 		    ttl ? ttl : "",
 		    cp
-		);
+		    );
 # endif    /* defined(HASENVDC) || defined(HASPERSDC) || defined(HASSYSDC) */
 	}
 
@@ -292,7 +292,7 @@ report_SECURITY(pfx, punct)
 	    punct ? punct : ""
 #endif	/* defined(HASSECURITY) */
 
-	);
+	    );
 }
 
 
@@ -376,7 +376,7 @@ usage(err, fh, version)
 		""
 #endif	/* defined(HASXOPT) */
 
-	    );
+		);
 
 #if	defined(HAS_AFS) && defined(HASAOPT)
 	    (void) fprintf(stderr, " [-A A]");
@@ -505,7 +505,7 @@ usage(err, fh, version)
 	    col = print_in_col(col, buf);
 
 #if	defined(HASNCACHE)
-	   col = print_in_col(col, "-C no kernel name cache");
+	    col = print_in_col(col, "-C no kernel name cache");
 #endif	/* defined(HASNCACHE) */
 
 	    col = print_in_col(col, "+d s  dir s files");
@@ -542,7 +542,7 @@ usage(err, fh, version)
 			  "4"
 #endif	/* defined(HASIPv6) */
 
-			  );
+		);
 	    col = print_in_col(col, buf);
 
 #if	defined(HASTASKS)
@@ -559,7 +559,7 @@ usage(err, fh, version)
 	    col = print_in_col(col, "-Q allow failed search");
 
 #if	defined(HASPPID)
-	     col = print_in_col(col, "-R list paRent PID");
+	    col = print_in_col(col, "-R list paRent PID");
 #endif	/* defined(HASPPID) */
 
 	    col = print_in_col(col,  "-s list file size");
@@ -571,10 +571,11 @@ usage(err, fh, version)
 	    (void) snpf(buf, sizeof(buf), "+|-w  Warnings (%s)",
 
 #if	defined(WARNINGSTATE)
-		"-");
+		"-"
 #else	/* !defined(WARNINGSTATE) */
-		"+");
+		"+"
 #endif	/* defined(WARNINGSTATE) */
+		);
 
 	    col = print_in_col(col, buf);
 
@@ -609,7 +610,7 @@ usage(err, fh, version)
 	    (void) fprintf(stderr, "  %-36.36s  %s\n",
 		"-E display endpoint info",
 		"+E display endpoint info and files"
-	    );
+		);
 #endif	/* defined(HASEPTOPTS) */
 
 	    (void) fprintf(stderr, "  %-36.36s",
@@ -692,7 +693,7 @@ usage(err, fh, version)
 						    : "none found"
 # endif	/* defined(N_UNIX) */
 
-	    );
+		);
 #else	/* !defined(HASKOPT) */
 	    putc('\n', stderr);
 #endif	/* defined(HASKOPT) */
@@ -725,7 +726,7 @@ usage(err, fh, version)
 		"-"
 # endif	/* defined(HASPMAPENABLED) */
 
-	    );
+		);
 #else	/* defined(HASNORPC_H) */
 	    buf[0] = '\0';
 #endif	/* !defined(HASNORPC_H) */
@@ -777,7 +778,7 @@ usage(err, fh, version)
 		""
 #endif	/* defined(HASTCPTPIW) */
 
-	    );
+		);
 	    (void) fprintf(stderr, "  %s\n", buf);
 
 #if	defined(HAS_AFS) && defined(HASAOPT)
@@ -795,7 +796,7 @@ usage(err, fh, version)
 			  "4"
 #endif	/* defined(HASIPv6) */
 
-			  );
+		);
 	    (void) fprintf(stderr,
 		" [%s][proto][@host|addr][:svc_list|port_list]\n",
 
@@ -943,7 +944,7 @@ usage(err, fh, version)
 		    cp1 ? cp1 : "",
 		    (cp && cp1) ? "@" : "",
 		    cp  ? cp  : ""
-		);
+		    );
 	    }
 
 #if	defined(LSOF_BLDCMT)
@@ -964,58 +965,58 @@ usage(err, fh, version)
 	    // display configurations that might affect output
 	    char *features[] = {
 #ifdef HASEFFNLINK
-                "effnlink",
+		"effnlink",
 #endif
 #ifdef HASFDESCFS
-                "fdescfs",
+		"fdescfs",
 #endif
 #ifdef HASF_VNODE
-                "f_vnode",
+		"f_vnode",
 #endif
 #ifdef HASIPv6
-                "ipv6",
+		"ipv6",
 #endif
 #ifdef HAS_KF_SOCK_SENDQ
-                "kf_sock_sendq",
+		"kf_sock_sendq",
 #endif
 #ifdef HASNULLFS
-                "nullfs",
+		"nullfs",
 #endif
 #ifdef HASPROCFS
-                "procfs",
+		"procfs",
 #endif
 #ifdef HASPSEUDOFS
-                "pseudofs",
+		"pseudofs",
 #endif
 #ifdef HASPTYEPT
-                "ptyept",
+		"ptyept",
 #endif
 #ifdef HASSBSTATE
-                "sbstate",
+		"sbstate",
 #endif
 #ifdef HASSELINUX
-                "selinux",
+		"selinux",
 #endif
 #ifdef HASSOOPT
-                "soopt",
+		"soopt",
 #endif
 #ifdef HASSOSTATE
-                "sostate",
+		"sostate",
 #endif
 #ifdef HASTASKS
-                "tasks",
+		"tasks",
 #endif
 #ifdef HAS_TMPFS
-                "tmpfs",
+		"tmpfs",
 #endif
 #ifdef HAS_XTCPCB_TMAXSEG
-                "xtcpcb_tmaxseg",
+		"xtcpcb_tmaxseg",
 #endif
 #ifdef HASUXSOCKEPT
-                "uxsockept",
+		"uxsockept",
 #endif
 #ifdef HAS_V_LOCKF
-                "v_lockf",
+		"v_lockf",
 #endif
 	    };
 	    (void) fprintf(stderr, "    features enabled:");

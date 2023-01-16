@@ -79,7 +79,7 @@ FILE *DCfs = (FILE *)NULL;	/* stream pointer for DCfd */
 char *DCpathArg = (char *)NULL;	/* device cache path from -D[b|r|u]<path> */
 char *DCpath[] = {		/* device cache paths, indexed by DCpathX
 				 *when it's >= 0 */
-	(char *)NULL, (char *)NULL, (char *)NULL, (char *)NULL
+    (char *)NULL, (char *)NULL, (char *)NULL, (char *)NULL
 };
 int DCpathX = -1;		/* device cache path index:
 				 *	-1 = path not defined

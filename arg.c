@@ -84,7 +84,7 @@ ckfd_range(first, dash, last, lo, hi)
 	for (cp = first, *lo = 0; *cp && cp < dash; cp++) {
 	    if (!isdigit((unsigned char)*cp)) {
 
-FD_range_nondigit:
+	      FD_range_nondigit:
 
 		(void) fprintf(stderr, "%s: non-digit in -d FD range: ", Pn);
 		safestrprt(first, stderr, 1);
@@ -392,7 +392,7 @@ ck_file_arg(i, ac, av, fv, rs, sbp, accept_deleted_file)
 		if (!(sfp->aname = mkstrcpy(av[i], (MALLOC_S *)NULL))) {
 		    (void) fprintf(stderr,
 			"%s: no space for argument file name: ", Pn);
-			safestrprt(av[i], stderr, 1);
+		    safestrprt(av[i], stderr, 1);
 		    Error();
 		}
 
@@ -419,7 +419,7 @@ ck_file_arg(i, ac, av, fv, rs, sbp, accept_deleted_file)
 # if	defined(HASPINODEN)
 		    pid = 0;
 # else	/* !defined(HASPINODEN) */
-		    continue;
+		continue;
 # endif	/* defined(HASPINODEN) */
 
 		else {
@@ -433,7 +433,7 @@ ck_file_arg(i, ac, av, fv, rs, sbp, accept_deleted_file)
 # if	defined(HASPINODEN)
 			pid = 0;
 # else	/* !defined(HASPINODEN) */
-			continue;
+		    continue;
 # endif	/* defined(HASPINODEN) */
 
 		    else
@@ -518,7 +518,7 @@ ctrl_dcache(c)
 	    ||  Myuid
 #endif	/* !defined(WILLDROPGID) */
 
-	    )
+		)
 		rc = 1;
 	    else
 		DCstate = 1;
@@ -538,7 +538,7 @@ ctrl_dcache(c)
 	    ||  Myuid
 #endif	/* !defined(WILLDROPGID) */
 
-	    )
+		)
 		rc = 1;
 	    else
 		DCstate = 3;
@@ -777,15 +777,15 @@ enter_efsys(e, rdlnk)
  * Enter file system path on list, avoiding duplicates.
  */
 	for (ep = Efsysl; ep; ep = ep->next) {
-	   if (!strcmp(ep->path, path)) {
+	    if (!strcmp(ep->path, path)) {
 		(void)free((FREE_P *)path);
 		return (0);
-	   }
+	    }
 	}
 	if (!(ep = (efsys_list_t *)malloc((MALLOC_S)(sizeof(efsys_list_t))))) {
-	   (void) fprintf(stderr, "%s: no space for \"-e %s\" entry\n",
+	    (void) fprintf(stderr, "%s: no space for \"-e %s\" entry\n",
 		Pn, e);
-	   Error();
+	    Error();
 	}
 	ep->path = path;
 	ep->pathl = i;
@@ -915,8 +915,8 @@ enter_fd_lst(nm, lo, hi, excl)
  * Allocate an fd_lst entry.
  */
 	if (!(f = (struct fd_lst *)malloc((MALLOC_S)sizeof(struct fd_lst)))) {
-	   (void) fprintf(stderr, "%s: no space for FD list entry\n", Pn);
-	   Error();
+	    (void) fprintf(stderr, "%s: no space for FD list entry\n", Pn);
+	    Error();
 	}
 	if (nm) {
 
@@ -1324,15 +1324,15 @@ enter_id(ty, p)
 #if	defined(__STDC__)
 		if (!isdigit((unsigned char)*cp))
 #else	/* !defined(__STDC__) */
-		if (!isascii(*cp) || ! isdigit((unsigned char)*cp))
+		    if (!isascii(*cp) || ! isdigit((unsigned char)*cp))
 #endif	/* __STDC__ */
 
-		{
-		    (void) fprintf(stderr, "%s: illegal process%s ID: ",
+		    {
+			(void) fprintf(stderr, "%s: illegal process%s ID: ",
 			Pn, (ty == PGID) ? " group" : "");
-		    safestrprt(p, stderr, 1);
-		    return(1);
-		}
+			safestrprt(p, stderr, 1);
+			return(1);
+		    }
 		id = (id * 10) + *cp - '0';
 	    }
 	    if (*cp)
@@ -1364,7 +1364,7 @@ enter_id(ty, p)
 		mx += IDINCR;
 		if (!s)
 		    s = (struct int_lst *)malloc(
-			(MALLOC_S)(sizeof(struct int_lst) * mx));
+						 (MALLOC_S)(sizeof(struct int_lst) * mx));
 		else
 		    s = (struct int_lst *)realloc((MALLOC_P *)s,
 			(MALLOC_S)(sizeof(struct int_lst) * mx));
@@ -1506,7 +1506,7 @@ enter_network_address(na)
 		    (void) fprintf(stderr,
 			"%s: no space for protocol name from: -i ", Pn);
 		    safestrprt(na, stderr, 1);
-nwad_exit:
+		  nwad_exit:
 		    if (n.proto)
 			(void) free((FREE_P *)n.proto);
 		    if (hn)
@@ -1546,7 +1546,7 @@ nwad_exit:
 	    if (!*wa || *wa == ':') {
 
 #if	defined(HASIPv6)
-unacc_address:
+	      unacc_address:
 #endif	/* defined(HASIPv6) */
 
 		(void) fprintf(stderr,
@@ -1679,7 +1679,7 @@ unacc_address:
  */
 	if (*wa != ':' || *(wa + 1) == '\0') {
 
-unacc_port:
+	  unacc_port:
 	    (void) fprintf(stderr,
 		"%s: unacceptable port specification in: -i ", Pn);
 	    safestrprt(na, stderr, 1);
@@ -1803,7 +1803,7 @@ unacc_port:
 	 * Enter completed port or port range specification.
 	 */
 
-nwad_enter:
+	  nwad_enter:
 
 	    for (i = 1; i;) {
 		if (enter_nwad(&n, sp, ep, na, he))
@@ -2011,7 +2011,7 @@ enter_state_spec(ss)
 		    {
 			ty = "UDP state inclusion";
 
-no_IorX_space:
+		      no_IorX_space:
 
 			(void) fprintf(stderr, "%s: no %s table space\n",
 			    Pn, ty);
@@ -2282,19 +2282,19 @@ enter_uid(us)
 #if	defined(__STDC__)
 		if (isdigit((unsigned char)*s))
 #else	/* !defined(__STDC__) */
-		if (isascii(*s) && isdigit((unsigned char)*s))
+		    if (isascii(*s) && isdigit((unsigned char)*s))
 #endif	/* defined(__STDC__) */
 
-		    uid = (uid * 10) + *s - '0';
-		else
-		    nn++;
+			uid = (uid * 10) + *s - '0';
+		    else
+			nn++;
 	    }
 	    if (*s)
 		s++;
 	    if (j)
 		continue;
 	    if (nn) {
-	       lnm[lnml++] = '\0';
+		lnm[lnml++] = '\0';
 		if ((pw = getpwnam(lnm)) == NULL) {
 		    (void) fprintf(stderr, "%s: can't get UID for ", Pn);
 		    safestrprt(lnm, stderr, 1);
@@ -2443,7 +2443,7 @@ isIPv4addr(hn, a, al)
  * character position.
  */
 	for (i = 0; i < MIN_AF_ADDR; i++) {
-	     a[i] = (unsigned char)ov[i];
+	    a[i] = (unsigned char)ov[i];
 	}
 	return(hn);
 }
