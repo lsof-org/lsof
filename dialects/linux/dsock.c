@@ -4020,8 +4020,8 @@ process_proc_sock(p, pbr, s, ss, l, lss)
 	     * Store the local IPX address.
 	     */
 		len = strlen(ip->la);
-		if (len > nl)
-		    len = nl;
+		if (len > nl - 1)
+		    len = nl - 1;
 		(void) strncpy(cp, ip->la, len);
 		cp += len;
 		*cp = '\0';
@@ -4039,6 +4039,7 @@ process_proc_sock(p, pbr, s, ss, l, lss)
 		}
 		if (nl) {
 		    (void) snpf(cp, nl, "%s", ip->ra);
+		    len = strlen(ip->ra);
 		    cp += len;
 		    nl -= len;
 		}
