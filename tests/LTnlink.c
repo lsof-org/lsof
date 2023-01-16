@@ -247,6 +247,10 @@ print_file_error:
 	    Pn);
 	do_unlink = 0;
     }
+#if	defined(LT_DIAL_freebsd)
+	// See https://github.com/lsof-org/lsof/issues/264, unlinked files are not found by lsof
+	do_unlink = 0;
+#endif
 /*
  * Find the test file.
  */

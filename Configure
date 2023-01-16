@@ -1178,6 +1178,7 @@ case $LSOF_TGT in	# {
 
   freebsd)
     LSOF_FBSD_ZFS=0
+    LSOF_TSTKMEM=0
     if test "X$LSOF_CC" = "X"	# {
     then
       LSOF_CC=cc
