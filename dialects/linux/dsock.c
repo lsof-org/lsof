@@ -823,12 +823,12 @@ clear_uxsinfo()
 
 static void
 get_ax25(p)
-	char *p;			/* /proc/net/ipx path */
+	char *p;			/* /proc/net/ax25 path */
 {
 	struct ax25sin *ap, *np;
 	FILE *as;
 	char buf[MAXPATHLEN], *da, *dev_ch, *ep, **fp, *sa;
-	int h, nf;
+	int h;
 	INODETYPE inode;
 	unsigned long rq, sq, state;
 	MALLOC_S len;
@@ -869,17 +869,17 @@ get_ax25(p)
 	if (!(as = open_proc_stream(p, "r", &vbuf, &vsz, 0)))
 	    return;
 	while (fgets(buf, sizeof(buf) - 1, as)) {
-	    if ((nf = get_fields(buf, (char *)NULL, &fp, (int *)NULL, 0)) < 24)
+	    if (get_fields(buf, (char *)NULL, &fp, (int *)NULL, 0) < 24)
 		continue;
 	/*
 	 * /proc/net/ax25 has no title line, a very poor deficiency in its
 	 * implementation.
 	 *
-	 * The ax25_get_info() function in kern module .../net/ax25/af_ax25.c
+	 * The ax25_info_show() function in kern module .../net/ax25/af_ax25.c
 	 * says the format of the lines in the file is:
 	 *
 	 *     magic dev src_addr dest_addr,digi1,digi2,.. st vs vr va t1 t1 \
-	 *     t2  t2 t3 t3 idle idle n2 n2 rtt window paclen Snd-Q Rcv-Q \
+	 *     t2 t2 t3 t3 idle idle n2 n2 rtt window paclen Snd-Q Rcv-Q \
 	 *     inode
 	 *
 	 * The code in this function is forced to assume that format is in
@@ -905,8 +905,6 @@ get_ax25(p)
 	/*
 	 * Assemble the send and receive queue values and the state.
 	 */
-	    rq = sq = (unsigned long)0;
-	    rqs = sqs = (unsigned char)0;
 	    ep = (char *)NULL;
 	    if (!fp[21] || !*fp[21]
 	    ||  (sq = strtoul(fp[21], &ep, 0)) == ULONG_MAX || !ep || *ep)
@@ -3220,7 +3218,7 @@ get_tcpudp6(p, pr, clr)
 	 * count from its "TCP6: inuse" and "UDP6: inuse" lines.
 	 */
 	    TcpUdp6_bucks = INOBUCKS;
-	    h = i = nf = 0;
+	    i = nf = 0;
 	    if ((fs = fopen(SockStatPath6, "r"))) {
 		while (fgets(buf, sizeof(buf) - 1, fs)) {
 		    if (get_fields(buf, (char *)NULL, &fp, (int *)NULL, 0) != 3)
