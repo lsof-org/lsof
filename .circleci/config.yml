@@ -43,6 +43,18 @@ jobs:
             make
             make install
             make check
+      - run:
+          name: Rebuild and test using distribution tarball
+          command: |
+            make dist
+            mkdir temp
+            cd temp
+            tar xvf ../lsof-*.tar.gz
+            cd lsof-*
+            ./configure
+            make
+            make install
+            make check
   stream8:
     docker:
       - image: quay.io/centos/centos:stream8
@@ -73,6 +85,18 @@ jobs:
             make
             make install
             make check
+      - run:
+          name: Rebuild and test using distribution tarball
+          command: |
+            make dist
+            mkdir temp
+            cd temp
+            tar xvf ../lsof-*.tar.gz
+            cd lsof-*
+            ./configure
+            make
+            make install
+            make check
   bigsur:
     macos:
       xcode: 12.5.1
@@ -95,6 +119,18 @@ jobs:
           command: |
             git clean -fdx .
             autoreconf -vif
+            ./configure
+            make
+            make install
+            make check
+      - run:
+          name: Rebuild and test using distribution tarball
+          command: |
+            make dist
+            mkdir temp
+            cd temp
+            tar xvf ../lsof-*.tar.gz
+            cd lsof-*
             ./configure
             make
             make install
