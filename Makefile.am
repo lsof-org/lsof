@@ -2,6 +2,10 @@ bin_PROGRAMS = lsof
 
 # Documentation
 EXTRA_DIST = 00.README.FIRST 00CREDITS 00DCACHE 00DIALECTS 00DIST 00FAQ 00LSOF-L 00MANIFEST 00PORTING 00QUICKSTART 00README 00TEST 00XCONFIG
+# Testing
+EXTRA_DIST += tests/00README tests/TestDB tests/CkTestDB tests/Makefile tests/LsofTest.h $(wildcard tests/*.bash tests/*.c) \
+	check.bash $(wildcard dialects/*/tests/*.bash) $(wildcard dialects/*/tests/Makefile) \
+	$(wildcard dialects/*/tests/*.c)
 
 # Dialect neutral sources
 lsof_SOURCES = arg.c main.c misc.c node.c print.c proc.c store.c usage.c util.c \
