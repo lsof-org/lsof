@@ -5452,6 +5452,10 @@ Supplement	Regenerated the 4.04 distribution to correct a non-
 
 		Fixed LTsock testing on darwin (#272)
 
+		Remove NEW and OLD folders (#6)
+
+		Fix FreeBSD testcases (#271)
+
 4.9?.?		????????? ??, ????
 
 Vic Abell <abe@purdue.edu>
