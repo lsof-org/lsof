@@ -601,7 +601,7 @@ enter_IPstate(ty, nm, nr)
 /*
  * Check the name and number.
  */
-	if ((len = (size_t)strlen(nm)) < 1) {
+	if (strlen(nm) < 1) {
 	    (void) fprintf(stderr,
 		"%s: bad %s name (\"%s\"), number=%d\n", Pn, ty, nm, nr);
 	    Error();

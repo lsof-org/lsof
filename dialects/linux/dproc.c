@@ -943,7 +943,7 @@ process_id(idp, idpl, cmd, uid, pid, ppid, pgid, tid, tcmd)
 	static char *dpath = (char *)NULL;
 	static int dpathl = 0;
 	short efs, enls, enss, lnk, oty, pn, pss, sf;
-	int fd, i, ls, n, ss, sv;
+	int fd, i, ls = 0, n, ss, sv;
 	struct l_fdinfo fi;
 	DIR *fdp;
 	struct dirent *fp;
@@ -1295,6 +1295,11 @@ process_id(idp, idpl, cmd, uid, pid, ppid, pgid, tid, tcmd)
 		}
 	    }
 	    if (pn || (efs && lfr && oty)) {
+		/* Clear fi in case oty == 0 */
+		fi.eventfd_id = -1;
+		fi.pid = -1;
+		fi.tfd_count = -1;
+
 		if (oty) {
 		    int fdinfo_mask = FDINFO_BASE;
 		    (void) make_proc_path(ipath, j, &pathi, &pathil,
@@ -1438,7 +1443,7 @@ process_proc_map(p, s, ss)
 {
 	char buf[MAXPATHLEN + 1], *ep, fmtbuf[32], **fp, nmabuf[MAXPATHLEN + 1];
 	dev_t dev;
-	int ds, efs, en, i, mss, nf, sv;
+	int ds, efs, en, i, mss, sv;
 	int eb = 6;
 	INODETYPE inode;
 	MALLOC_S len;
@@ -1468,7 +1473,7 @@ process_proc_map(p, s, ss)
 	    diff_mntns = 1;
 
 	while (fgets(buf, sizeof(buf), ms)) {
-	    if ((nf = get_fields(buf, ":", &fp, &eb, 1)) < 7)
+	    if (get_fields(buf, ":", &fp, &eb, 1) < 7)
 		continue;			/* not enough fields */
 	    if (!fp[6] || !*fp[6])
 		continue;			/* no path name */
@@ -1711,7 +1716,7 @@ read_id_stat(p, id, cmd, ppid, pgid)
 					 * type */
 {
 	char buf[MAXPATHLEN], *cp, *cp1, **fp;
-	int ch, cx, es, nf, pc;
+	int ch, cx, es, pc;
 	static char *cbf = (char *)NULL;
 	static MALLOC_S cbfa = 0;
 	FILE *fs;
@@ -1799,7 +1804,7 @@ read_id_stat_exit:
 	(void) fclose(fs);
 	if (!cp || !*cp)
 	    return(-1);
-	if ((nf = get_fields(cp, (char *)NULL, &fp, (int *)NULL, 0)) < 3)
+	if (get_fields(cp, (char *)NULL, &fp, (int *)NULL, 0) < 3)
 	    return(-1);
 /*
  * Convert and return parent process (fourth field) and process group (fifth
