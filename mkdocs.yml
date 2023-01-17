@@ -1,0 +1,8 @@
+site_name: lsof
+theme:
+  name: readthedocs
+  highlightjs: true
+plugins:
+  - search
+markdown_extensions:
+  - admonition
