@@ -2671,6 +2671,7 @@ get_sctp()
 	     */
 		j = i ? 8 : 13;
 		la = sp ? sp->laddrs : (char *)NULL;
+		x = 0;
 		if (fp[j] && *fp[j] && (len = strlen(fp[j]))) {
 		    if (!(ta = get_sctpaddrs(fp, j, nf, &x))) {
 			(void) fprintf(stderr,
