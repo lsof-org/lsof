@@ -2083,7 +2083,7 @@ enter_state_spec(ss)
 		*cp = '\0';
 		cp++;
 	    }
-	    if (!(len = (size_t)(ne - ns))) {
+	    if (!(size_t)(ne - ns)) {
 		(void) fprintf(stderr, "%s: NULL %s state name in: %s\n",
 		    Pn, pr, ss);
 		err = 1;

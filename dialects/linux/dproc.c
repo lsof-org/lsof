@@ -356,7 +356,9 @@ gather_proc_info()
 	 * options work properly.
 	 */
 	    else if (!IgnTasks && (Selflags & SELTASK)) {
-		strncpy(cmdbuf, cmd, sizeof(cmdbuf) - 1);
+		if (cmd) {
+		    strncpy(cmdbuf, cmd, sizeof(cmdbuf) - 1);
+		}
 		cmdbuf[sizeof(cmdbuf) - 1] = '\0';
 		cmd = cmdbuf;
 		(void) make_proc_path(pidpath, n, &taskpath, &taskpathl,
