@@ -2,6 +2,12 @@ site_name: lsof
 theme:
   name: readthedocs
   highlightjs: true
+nav:
+  - index.md
+  - getting-started.md
+  - tutorial.md
+  - hang.md
+  - options.md
 plugins:
   - search
 markdown_extensions:
