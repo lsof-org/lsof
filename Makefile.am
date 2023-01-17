@@ -10,7 +10,7 @@ EXTRA_DIST += tests/00README tests/TestDB tests/CkTestDB tests/Makefile tests/Ls
 # Dialect neutral sources
 lsof_SOURCES = arg.c main.c misc.c node.c print.c proc.c store.c usage.c util.c \
 	lib/ptti.c lib/isfn.c lib/pdvn.c lib/lkud.c lib/rdev.c lib/dvch.c lib/ckkv.c lib/fino.c
-lsof_SOURCES += lsof.h lsof_fields.h proto.h
+lsof_SOURCES += lsof.h lsof_fields.h proto.h hash.h
 DIALECT_ROOT = $(top_srcdir)/dialects
 DIALECT_PATH = $(DIALECT_ROOT)/$(LSOF_DIALECT_DIR)
 

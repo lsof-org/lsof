@@ -31,6 +31,7 @@
 
 #include "lsof.h"
 #include <sys/xattr.h>
+#include "hash.h"
 
 
 #if	defined(HASEPTOPTS) && defined(HASUXSOCKEPT)
@@ -410,15 +411,7 @@ static struct ax25sin *
 check_ax25(i)
 	INODETYPE i;			/* socket file's inode number */
 {
-	struct ax25sin *ap;
-	int h;
-
-	h = INOHASH(i);
-	for (ap = AX25sin[h]; ap; ap = ap->next) {
-	    if (i == ap->inode)
-		return(ap);
-	}
-	return((struct ax25sin *)NULL);
+	return HASH_FIND_ELEMENT(AX25sin, INOHASH, struct ax25sin, inode, i);
 }
 
 
@@ -431,15 +424,7 @@ static struct icmpin *
 check_icmp(i)
 	INODETYPE i;			/* socket file's inode number */
 {
-	int h;
-	struct icmpin *icmpp;
-
-	h = INOHASH(i);
-	for (icmpp = Icmpin[h]; icmpp; icmpp = icmpp->next) {
-	    if (i == icmpp->inode)
-		return(icmpp);
-	}
-	return((struct icmpin *)NULL);
+	return HASH_FIND_ELEMENT(Icmpin, INOHASH, struct icmpin, inode, i);
 }
 
 
@@ -451,15 +436,7 @@ static struct ipxsin *
 check_ipx(i)
 	INODETYPE i;			/* socket file's inode number */
 {
-	int h;
-	struct ipxsin *ip;
-
-	h = INOHASH(i);
-	for (ip = Ipxsin[h]; ip; ip = ip->next) {
-	    if (i == ip->inode)
-		return(ip);
-	}
-	return((struct ipxsin *)NULL);
+	return HASH_FIND_ELEMENT(Ipxsin, INOHASH, struct ipxsin, inode, i);
 }
 
 
@@ -471,15 +448,7 @@ static struct nlksin *
 check_netlink(i)
 	INODETYPE i;			/* socket file's inode number */
 {
-	int h;
-	struct nlksin *lp;
-
-	h = INOHASH(i);
-	for (lp = Nlksin[h]; lp; lp = lp->next) {
-	    if (i == lp->inode)
-		return(lp);
-	}
-	return((struct nlksin *)NULL);
+	return HASH_FIND_ELEMENT(Nlksin, INOHASH, struct nlksin, inode, i);
 }
 
 
@@ -491,15 +460,7 @@ static struct packin *
 check_pack(i)
 	INODETYPE i;			/* packet file's inode number */
 {
-	int h;
-	struct packin *pp;
-
-	h = INOHASH(i);
-	for (pp = Packin[h]; pp; pp = pp->next) {
-	    if (i == pp->inode)
-		return(pp);
-	}
-	return((struct packin *)NULL);
+	return HASH_FIND_ELEMENT(Packin, INOHASH, struct packin, inode, i);
 }
 
 
@@ -511,15 +472,7 @@ static struct rawsin *
 check_raw(i)
 	INODETYPE i;			/* socket file's inode number */
 {
-	int h;
-	struct rawsin *rp;
-
-	h = INOHASH(i);
-	for (rp = Rawsin[h]; rp; rp = rp->next) {
-	    if (i == rp->inode)
-		return(rp);
-	}
-	return((struct rawsin *)NULL);
+	return HASH_FIND_ELEMENT(Rawsin, INOHASH, struct rawsin, inode, i);
 }
 
 
@@ -531,15 +484,7 @@ static struct sctpsin *
 check_sctp(i)
 	INODETYPE i;			/* socket file's inode number */
 {
-	int h;
-	struct sctpsin *sp;
-
-	h = INOHASH(i);
-	for (sp = SCTPsin[h]; sp; sp = sp->next) {
-	    if (i == sp->inode)
-		return(sp);
-	}
-	return((struct sctpsin *)NULL);
+	return HASH_FIND_ELEMENT(SCTPsin, INOHASH, struct sctpsin, inode, i);
 }
 
 
@@ -552,29 +497,25 @@ check_tcpudp(i, p)
 	INODETYPE i;			/* socket file's inode number */
 	char **p;			/* protocol return */
 {
-	int h;
 	struct tcp_udp *tp;
+	tp = HASH_FIND_ELEMENT(TcpUdp, TCPUDPHASH, struct tcp_udp, inode, i);
 
-	h = TCPUDPHASH(i);
-	for (tp = TcpUdp[h]; tp; tp = tp->next) {
-	    if (i == tp->inode) {
-		switch (tp->proto) {
-		case 0:
-		    *p = "TCP";
-		    break;
-		case 1:
-		    *p = "UDP";
-		    break;
-		case 2:
-		    *p = "UDPLITE";
-		    break;
-		default:
-		    *p = "unknown";
-		}
-		return(tp);
+	if (tp) {
+	    switch (tp->proto) {
+	    case 0:
+		*p = "TCP";
+		break;
+	    case 1:
+		*p = "UDP";
+		break;
+	    case 2:
+		*p = "UDPLITE";
+		break;
+	    default:
+		*p = "unknown";
 	    }
 	}
-	return((struct tcp_udp *)NULL);
+	return tp;
 }
 
 /*
@@ -585,15 +526,7 @@ static struct tcp_udp *
 check_inet(i)
 	INODETYPE i;			/* socket file's inode number */
 {
-	int h;
-	struct tcp_udp *tp;
-
-	h = TCPUDPHASH(i);
-	for (tp = TcpUdp[h]; tp; tp = tp->next) {
-	    if (i == tp->inode)
-		return(tp);
-	}
-	return((struct tcp_udp *)NULL);
+	return HASH_FIND_ELEMENT(TcpUdp, TCPUDPHASH, struct tcp_udp, inode, i);
 }
 
 /*
@@ -645,15 +578,7 @@ static struct rawsin *
 check_raw6(i)
 	INODETYPE i;			/* socket file's inode number */
 {
-	int h;
-	struct rawsin *rp;
-
-	h = INOHASH(i);
-	for (rp = Rawsin6[h]; rp; rp = rp->next) {
-	    if (i == rp->inode)
-		return(rp);
-	}
-	return((struct rawsin *)NULL);
+	return HASH_FIND_ELEMENT(Rawsin6, INOHASH, struct rawsin, inode, i);
 }
 
 
@@ -668,27 +593,24 @@ check_tcpudp6(i, p)
 {
 	int h;
 	struct tcp_udp6 *tp6;
+	tp6 = HASH_FIND_ELEMENT(TcpUdp6, TCPUDP6HASH, struct tcp_udp6, inode, i);
 
-	h = TCPUDP6HASH(i);
-	for (tp6 = TcpUdp6[h]; tp6; tp6 = tp6->next) {
-	    if (i == tp6->inode) {
-		switch (tp6->proto) {
-		case 0:
-		    *p = "TCP";
-		    break;
-		case 1:
-		    *p = "UDP";
-		    break;
-		case 2:
-		    *p = "UDPLITE";
-		    break;
-		default:
-		    *p = "unknown";
-		}
-		return(tp6);
+	if (tp6)  {
+	    switch (tp6->proto) {
+	    case 0:
+		*p = "TCP";
+		break;
+	    case 1:
+		*p = "UDP";
+		break;
+	    case 2:
+		*p = "UDPLITE";
+		break;
+	    default:
+		*p = "unknown";
 	    }
 	}
-	return((struct tcp_udp6 *)NULL);
+	return tp6;
 }
 
 /*
@@ -699,15 +621,7 @@ static struct tcp_udp6 *
 check_inet6(i)
 	INODETYPE i;			/* socket file's inode number */
 {
-	int h;
-	struct tcp_udp6 *tp;
-
-	h = TCPUDP6HASH(i);
-	for (tp = TcpUdp6[h]; tp; tp = tp->next) {
-	    if (i == tp->inode)
-		return(tp);
-	}
-	return((struct tcp_udp6 *)NULL);
+	return HASH_FIND_ELEMENT(TcpUdp6, TCPUDP6HASH, struct tcp_udp6, inode, i);
 }
 
 /*
@@ -761,18 +675,7 @@ static uxsin_t *
 check_unix(i)
 	INODETYPE i;			/* socket file's inode number */
 {
-	int h;
-	uxsin_t *up;
-
-	if (!Uxsin)
-	    return NULL;
-
-	h = INOHASH(i);
-	for (up = Uxsin[h]; up; up = up->next) {
-	    if (i == up->inode)
-		return(up);
-	}
-	return((uxsin_t *)NULL);
+	return HASH_FIND_ELEMENT(Uxsin, INOHASH, uxsin_t, inode, i);
 }
 
 
@@ -895,12 +798,8 @@ get_ax25(p)
 	    ||  (inode = strtoull(fp[23], &ep, 0)) == ULONG_MAX
 	    ||  !ep || *ep)
 		continue;
-	    h = INOHASH((INODETYPE)inode);
-	    for (ap = AX25sin[h]; ap; ap = ap->next) {
-		if (inode == ap->inode)
-		    break;
-	    }
-	    if (ap)
+	    /* Skip if already exists in hash table */
+	    if (HASH_FIND_ELEMENT(AX25sin, INOHASH, struct ax25sin, inode, inode))
 		continue;
 	/*
 	 * Assemble the send and receive queue values and the state.
@@ -983,8 +882,7 @@ get_ax25(p)
 	    ap->sq = sq;
 	    ap->sqs = sqs;
 	    ap->state = (int)state;
-	    ap->next = AX25sin[h];
-	    AX25sin[h] = ap;
+	    HASH_INSERT_ELEMENT(AX25sin, INOHASH, ap, inode);
 	}
 	(void) fclose(as);
 }
@@ -1570,7 +1468,7 @@ process_netsinfo(f)
 #else	/* !defined(HASIPv6) */
 		       "inet"
 #endif	/* defined(HASIPv6) */
-			      ))
+						      ))
 		continue;
 	    switch (f) {
 	    case 0:
@@ -1837,13 +1735,9 @@ get_icmp(p)
 	    ||  (inode = strtoull(fp[9], &ep, 0)) == ULONG_MAX
 	    ||  !ep || *ep)
 		continue;
-	    h = INOHASH(inode);
-	    for (icmpp = Icmpin[h]; icmpp; icmpp = icmpp->next) {
-		if (inode == icmpp->inode)
-		    break;
-	    }
-	    if (icmpp)
-		continue;
+	    /* Skip if already exists in hash table */
+	    if (HASH_FIND_ELEMENT(Icmpin, INOHASH, struct icmpin, inode, inode))
+	    	continue;
 	/*
 	 * Save the local address, and remote address.
 	 */
@@ -1886,8 +1780,7 @@ get_icmp(p)
 	    icmpp->lal = lal;
 	    icmpp->ra = ra;
 	    icmpp->ral = ral;
-	    icmpp->next = Icmpin[h];
-	    Icmpin[h] = icmpp;
+	    HASH_INSERT_ELEMENT(Icmpin, INOHASH, icmpp, inode);
 	}
 	(void) fclose(xs);
 }
@@ -1978,13 +1871,9 @@ get_ipx(p)
 	    ||  (inode = strtoull(fp[6], &ep, 0)) == ULONG_MAX
 	    ||  !ep || *ep)
 		continue;
-	    h = INOHASH(inode);
-	    for (ip = Ipxsin[h]; ip; ip = ip->next) {
-		if (inode == ip->inode)
-		    break;
-	    }
-	    if (ip)
-		continue;
+	    /* Skip if already exists in hash table */
+	    if (HASH_FIND_ELEMENT(Ipxsin, INOHASH, struct ipxsin, inode, inode))
+	    	continue;
 	/*
 	 * Assemble the transmit and receive queue values and the state.
 	 */
@@ -2046,8 +1935,7 @@ get_ipx(p)
 	    ip->txq = txq;
 	    ip->rxq = rxq;
 	    ip->state = (int)state;
-	    ip->next = Ipxsin[h];
-	    Ipxsin[h] = ip;
+	    HASH_INSERT_ELEMENT(Ipxsin, INOHASH, ip, inode);
 	}
 	(void) fclose(xs);
 }
@@ -2125,13 +2013,9 @@ get_netlink(p)
 	    ||  (inode = strtoull(fp[9], &ep, 0)) == ULONG_MAX
 	    ||  !ep || *ep)
 		continue;
-	    h = INOHASH(inode);
-	    for (lp = Nlksin[h]; lp; lp = lp->next) {
-		if (inode == lp->inode)
-		    break;
-	    }
-	    if (lp)
-		continue;
+	    /* Skip if already exists in hash table */
+	    if (HASH_FIND_ELEMENT(Nlksin, INOHASH, struct nlksin, inode, inode))
+	    	continue;
 	/*
 	 * Save the protocol from the Eth column.
 	 */
@@ -2150,8 +2034,7 @@ get_netlink(p)
 	    }
 	    lp->inode = inode;
 	    lp->pr = pr;
-	    lp->next = Nlksin[h];
-	    Nlksin[h] = lp;
+	    HASH_INSERT_ELEMENT(Nlksin, INOHASH, lp, inode);
 	}
 	(void) fclose(xs);
 }
@@ -2232,13 +2115,9 @@ get_pack(p)
 	    ||  (inode = strtoull(fp[8], &ep, 0)) == ULONG_MAX
 	    ||  !ep || *ep)
 		continue;
-	    h = INOHASH(inode);
-	    for (pp = Packin[h]; pp; pp = pp->next) {
-		if (inode == pp->inode)
-		    break;
-	    }
-	    if (pp)
-		continue;
+	    /* Skip if already exists in hash table */
+	    if (HASH_FIND_ELEMENT(Packin, INOHASH, struct packin, inode, inode))
+	    	continue;
 	/*
 	 * Save the socket type and protocol.
 	 */
@@ -2262,8 +2141,7 @@ get_pack(p)
 	    pp->inode = inode;
 	    pp->pr = (int)pr;
 	    pp->ty = ty;
-	    pp->next = Packin[h];
-	    Packin[h] = pp;
+	    HASH_INSERT_ELEMENT(Packin, INOHASH, pp, inode);
 	}
 	(void) fclose(xs);
 }
@@ -2349,13 +2227,9 @@ get_raw(p)
 	    ||  (inode = strtoull(fp[9], &ep, 0)) == ULONG_MAX
 	    ||  !ep || *ep)
 		continue;
-	    h = INOHASH(inode);
-	    for (rp = Rawsin[h]; rp; rp = rp->next) {
-		if (inode == rp->inode)
-		    break;
-	    }
-	    if (rp)
-		continue;
+	    /* Skip if already exists in hash table */
+	    if (HASH_FIND_ELEMENT(Rawsin, INOHASH, struct rawsin, inode, inode))
+	    	continue;
 	/*
 	 * Save the local address, remote address, and state.
 	 */
@@ -2412,8 +2286,7 @@ get_raw(p)
 	    rp->ral = ral;
 	    rp->sp = sp;
 	    rp->spl = spl;
-	    rp->next = Rawsin[h];
-	    Rawsin[h] = rp;
+	    HASH_INSERT_ELEMENT(Rawsin, INOHASH, rp, inode);
 	}
 	(void) fclose(xs);
 }
@@ -2530,11 +2403,7 @@ get_sctp()
 		||  (inode = strtoull(fp[j], &ep, 0)) == ULONG_MAX
 		||  !ep || *ep)
 		    continue;
-		h = INOHASH((INODETYPE)inode);
-		for (sp = SCTPsin[h]; sp; sp = sp->next) {
-		    if (inode == sp->inode)
-			break;
-		}
+	        sp = HASH_FIND_ELEMENT(SCTPsin, INOHASH, struct sctpsin, inode, inode);
 	    /*
 	     * Set the entry type.
 	     */
@@ -2738,8 +2607,7 @@ get_sctp()
 			Error();
 		    }
 		    sp->inode = inode;
-		    sp->next = SCTPsin[h];
-		    SCTPsin[h] = sp;
+	            HASH_INSERT_ELEMENT(SCTPsin, INOHASH, sp, inode);
 		}
 		sp->addr = a;
 		sp->assocID = id;
@@ -2957,13 +2825,8 @@ get_tcpudp(p, pr, clr)
 	    if (!fp[13] || !*fp[13]
 	    ||  (inode = strtoull(fp[13], &ep, 0)) == ULONG_MAX || !ep || *ep)
 		continue;
-	    h = TCPUDPHASH(inode);
-	    for (tp = TcpUdp[h]; tp; tp = tp->next) {
-		if (tp->inode == inode)
-		    break;
-	    }
-	    if (tp)
-		continue;
+	    if (HASH_FIND_ELEMENT(TcpUdp, TCPUDPHASH, struct tcp_udp, inode, inode))
+	        continue;
 	/*
 	 * Create a new entry and link it to its hash bucket.
 	 */
@@ -2982,8 +2845,7 @@ get_tcpudp(p, pr, clr)
 	    tp->rxq = rxq;
 	    tp->proto = pr;
 	    tp->state = (int)state;
-	    tp->next = TcpUdp[h];
-	    TcpUdp[h] = tp;
+	    HASH_INSERT_ELEMENT(TcpUdp, TCPUDPHASH, tp, inode);
 #if	defined(HASEPTOPTS)
 	    tp->pxinfo = (pxinfo_t *)NULL;
 	    if (FeptE) {
@@ -3092,12 +2954,8 @@ get_raw6(p)
 	    ||  (inode = strtoull(fp[9], &ep, 0)) == ULONG_MAX
 	    ||  !ep || *ep)
 		continue;
-	    h = INOHASH(inode);
-	    for (rp = Rawsin6[h]; rp; rp = rp->next) {
-		if (inode == rp->inode)
-		    break;
-	    }
-	    if (rp)
+	    /* Skip if already exists in hash table */
+	    if (HASH_FIND_ELEMENT(Rawsin6, INOHASH, struct rawsin, inode, inode))
 		continue;
 	/*
 	 * Save the local address, remote address, and state.
@@ -3155,8 +3013,7 @@ get_raw6(p)
 	    rp->ral = ral;
 	    rp->sp = sp;
 	    rp->spl = spl;
-	    rp->next = Rawsin6[h];
-	    Rawsin6[h] = rp;
+	    HASH_INSERT_ELEMENT(Rawsin6, INOHASH, rp, inode);
 	}
 	(void) fclose(xs);
 }
@@ -3334,13 +3191,8 @@ get_tcpudp6(p, pr, clr)
 	    if (!fp[13] || !*fp[13]
 	    ||  (inode = strtoull(fp[13], &ep, 0)) == ULONG_MAX || !ep || *ep)
 		continue;
-	    h = TCPUDP6HASH(inode);
-	    for (tp6 = TcpUdp6[h]; tp6; tp6 = tp6->next) {
-		if (tp6->inode == inode)
-		    break;
-	    }
-	    if (tp6)
-		continue;
+	    if (HASH_FIND_ELEMENT(TcpUdp6, TCPUDP6HASH, struct tcp_udp6, inode, inode))
+	        continue;
 	/*
 	 * Create a new entry and link it to its hash bucket.
 	 */
@@ -3359,8 +3211,7 @@ get_tcpudp6(p, pr, clr)
 	    tp6->rxq = rxq;
 	    tp6->proto = pr;
 	    tp6->state = (int)state;
-	    tp6->next = TcpUdp6[h];
-	    TcpUdp6[h] = tp6;
+	    HASH_INSERT_ELEMENT(TcpUdp6, TCPUDP6HASH, tp6, inode);
 #if	defined(HASEPTOPTS)
 	    tp6->pxinfo = (pxinfo_t *)NULL;
 	    if (FeptE) {
@@ -3483,13 +3334,9 @@ get_unix(p)
 	    if (!fp[6] || !*fp[6]
 	    ||  (inode = strtoull(fp[6], &ep, 0)) == ULONG_MAX || !ep || *ep)
 		continue;
-	    h = INOHASH(inode);
-	    for (up = Uxsin[h]; up; up = up->next) {
-		if (inode == up->inode)
-		    break;
-	    }
-	    if (up)
-		continue;
+	    /* Skip if already exists in hash table */
+	    if (HASH_FIND_ELEMENT(Uxsin, INOHASH, uxsin_t, inode, inode))
+	    	continue;
 	    if (!fp[0] || !*fp[0])
 		pcb = (char *)NULL;
 	    else {
@@ -3585,8 +3432,7 @@ get_unix(p)
 	    up->peer = up->icons = (uxsin_t *)NULL;
 #endif	/* defined(HASEPTOPTS) && defined(HASUXSOCKEPT) */
 
-	    up->next = Uxsin[h];
-	    Uxsin[h] = up;
+	    HASH_INSERT_ELEMENT(Uxsin, INOHASH, up, inode);
 	}
 
 #if	defined(HASEPTOPTS) && defined(HASUXSOCKEPT)

@@ -160,8 +160,7 @@ include:
 
 There are some lsof options that are hard to classify, including:
 
-- -?	these options select help output.
-- -h
+- -?, -h	these options select help output.
 
 - -F      selects field output.  Field output is a mode where
 	lsof produces output that can be parsed easily by
