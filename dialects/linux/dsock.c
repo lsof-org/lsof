@@ -368,6 +368,7 @@ _PROTOTYPE(static char *nlproto2str,(unsigned int pr));
 #if	defined(HASSOSTATE)
 _PROTOTYPE(static char *sockss2str,(unsigned int ss));
 #endif	/* defined(HASSOSTATE) */
+_PROTOTYPE(static char *ethproto2str,(unsigned int pr));
 
 #if	defined(HASIPv6)
 _PROTOTYPE(static struct rawsin *check_raw6,(INODETYPE i));
@@ -3762,16 +3763,14 @@ print_tcptpi(nl)
 /*
  * process_proc_sock() - process /proc-based socket
  */
-
 void
-process_proc_sock(p, pbr, s, ss, l, lss)
-	char *p;			/* node's readlink() path */
-	char *pbr;			/* node's path before readlink() */
-	struct stat *s;			/* stat() result for path */
-	int ss;				/* *s status -- i.e, SB_* values */
-	struct stat *l;			/* lstat() result for FD (NULL for
-					 * others) */
-	int lss;			/* *l status -- i.e, SB_* values */
+process_proc_sock(char *p,			/* node's readlink() path */
+		  char *pbr,			/* node's path before readlink() */
+		  struct stat *s,		/* stat() result for path */
+		  int ss,			/* *s status -- i.e, SB_* values */
+		  struct stat *l,		/* lstat() result for FD (NULL for
+						 * others) */
+		  int lss)			/* *l status -- i.e, SB_* values */
 {
 	struct ax25sin *ap;
 	char *cp, *path = (char *)NULL, tbuf[64];
@@ -3795,34 +3794,34 @@ process_proc_sock(p, pbr, s, ss, l, lss)
 	struct tcp_udp6 *tp6;
 #endif	/* defined(HASIPv6) */
 
-/*
- * Enter offset, if possible.
- */
+	/*
+	 * Enter offset, if possible.
+	 */
 	if (Foffset || !Fsize) {
 	    if (l && (lss & SB_SIZE) && OffType != OFFSET_UNKNOWN) {
 		Lf->off = (SZOFFTYPE)l->st_size;
 		Lf->off_def = 1;
 	    }
 	}
-/*
- * Check for socket's inode presence in the protocol info caches.
- */
+
+	/*
+	 * Check for socket's inode presence in the protocol info caches.
+	 */
 	if (AX25path) {
 	    (void) get_ax25(AX25path);
 	    (void) free((FREE_P *)AX25path);
 	    AX25path = (char *)NULL;
 	}
 	if ((ss & SB_INO)
-	&&  (ap = check_ax25((INODETYPE)s->st_ino))
-	    ) {
+	&&  (ap = check_ax25((INODETYPE)s->st_ino))) {
 
-	/*
-	 * The inode is connected to an AX25 /proc record.
-	 *
-	 * Set the type to "ax25"; save the device name; save the inode number;
-	 * save the destination and source addresses; save the send and receive
-	 * queue sizes; and save the connection state.
-	 */
+	    /*
+	     * The inode is connected to an AX25 /proc record.
+	     *
+	     * Set the type to "ax25"; save the device name; save the inode number;
+	     * save the destination and source addresses; save the send and receive
+	     * queue sizes; and save the connection state.
+	     */
 	    (void) snpf(Lf->type, sizeof(Lf->type), "ax25");
 	    if (ap->dev_ch)
 		(void) enter_dev_ch(ap->dev_ch);
@@ -3831,38 +3830,36 @@ process_proc_sock(p, pbr, s, ss, l, lss)
 	    print_ax25info(ap);
 	    return;
 	}
+
 	if (Ipxpath) {
 	    (void) get_ipx(Ipxpath);
 	    (void) free((FREE_P *)Ipxpath);
 	    Ipxpath = (char *)NULL;
 	}
 	if ((ss & SB_INO)
-	&&  (ip = check_ipx((INODETYPE)s->st_ino))
-	    ) {
-
-	/*
-	 * The inode is connected to an IPX /proc record.
-	 *
-	 * Set the type to "ipx"; enter the inode and device numbers; store
-	 * the addresses, queue sizes, and state in the NAME column.
-	 */
+	&&  (ip = check_ipx((INODETYPE)s->st_ino))) {
+	    /*
+	     * The inode is connected to an IPX /proc record.
+	     *
+	     * Set the type to "ipx"; enter the inode and device numbers; store
+	     * the addresses, queue sizes, and state in the NAME column.
+	     */
 	    (void) snpf(Lf->type, sizeof(Lf->type), "ipx");
-	    if (ss & SB_INO) {
-		Lf->inode = (INODETYPE)s->st_ino;
-		Lf->inp_ty = 1;
-	    }
+	    Lf->inode = (INODETYPE)s->st_ino;
+	    Lf->inp_ty = 1;
+
 	    if (ss & SB_DEV) {
 		Lf->dev = s->st_dev;
 		Lf->dev_def = 1;
 	    }
+
 	    cp = Namech;
 	    nl = Namechl;
 	    *cp = '\0';
 	    if (ip->la && nl) {
-
-	    /*
-	     * Store the local IPX address.
-	     */
+		/*
+		 * Store the local IPX address.
+		 */
 		len = strlen(ip->la);
 		if (len > nl - 1)
 		    len = nl - 1;
@@ -3872,10 +3869,9 @@ process_proc_sock(p, pbr, s, ss, l, lss)
 		nl -= len;
 	    }
 	    if (ip->ra && nl) {
-
-	    /*
-	     * Store the remote IPX address, prefixed with "->".
-	     */
+		/*
+		 * Store the remote IPX address, prefixed with "->".
+		 */
 		if (nl > 2) {
 		    (void) snpf(cp, nl, "->");
 		    cp += 2;
@@ -3893,34 +3889,31 @@ process_proc_sock(p, pbr, s, ss, l, lss)
 		enter_nm(Namech);
 	    return;
 	}
+
 	if (Rawpath) {
 	    (void) get_raw(Rawpath);
 	    (void) free((FREE_P *)Rawpath);
 	    Rawpath = (char *)NULL;
 	}
 	if ((ss & SB_INO)
-	&&  (rp = check_raw((INODETYPE)s->st_ino))
-	    ) {
-
-	/*
-	 * The inode is connected to a raw /proc record.
-	 *
-	 * Set the type to "raw"; enter the inode number; store the local
-	 * address, remote address, and state in the NAME column.
-	 */
+	&&  (rp = check_raw((INODETYPE)s->st_ino))) {
+	    /*
+	     * The inode is connected to a raw /proc record.
+	     *
+	     * Set the type to "raw"; enter the inode number; store the local
+	     * address, remote address, and state in the NAME column.
+	     */
 	    (void) snpf(Lf->type, sizeof(Lf->type), "raw");
-	    if (ss & SB_INO) {
-		Lf->inode = (INODETYPE)s->st_ino;
-		Lf->inp_ty = 1;
-	    }
+	    Lf->inode = (INODETYPE)s->st_ino;
+	    Lf->inp_ty = 1;
+
 	    cp = Namech;
 	    nl = Namechl - 2;
 	    *cp = '\0';
 	    if (rp->la && rp->lal) {
-
-	    /*
-	     * Store the local raw address.
-	     */
+	        /*
+	         * Store the local raw address.
+	         */
 		if (nl > rp->lal) {
 		    (void) snpf(cp, nl, "%s", rp->la);
 		    cp += rp->lal;
@@ -3929,10 +3922,9 @@ process_proc_sock(p, pbr, s, ss, l, lss)
 		}
 	    }
 	    if (rp->ra && rp->ral) {
-
-	    /*
-	     * Store the remote raw address, prefixed with "->".
-	     */
+	        /*
+	         * Store the remote raw address, prefixed with "->".
+	         */
 		if (nl > (rp->ral + 2)) {
 		    (void) snpf(cp, nl, "->%s", rp->ra);
 		    cp += (rp->ral + 2);
@@ -3941,11 +3933,10 @@ process_proc_sock(p, pbr, s, ss, l, lss)
 		}
 	    }
 	    if (rp->sp && rp->spl) {
-
-	    /*
-	     * Store the state, optionally prefixed by a space, in the
-	     * form "st=x...x".
-	     */
+	        /*
+	         * Store the state, optionally prefixed by a space, in the
+	         * form "st=x...x".
+	         */
 
 		if (nl > (len = ((cp == Namech) ? 0 : 1) + 3 + rp->spl)) {
 		    (void) snpf(cp, nl, "%sst=%s",
@@ -3959,14 +3950,14 @@ process_proc_sock(p, pbr, s, ss, l, lss)
 		enter_nm(Namech);
 	    return;
 	}
+
 	if (Nlkpath) {
 	    (void) get_netlink(Nlkpath);
 	    (void) free((FREE_P *) Nlkpath);
 	    Nlkpath = (char *)NULL;
 	}
 	if ((ss & SB_INO)
-	    &&  (np = check_netlink((INODETYPE)s->st_ino))
-	    ) {
+	    &&  (np = check_netlink((INODETYPE)s->st_ino))) {
 	    /*
 	     * The inode is connected to a Netlink /proc record.
 	     *
@@ -3987,328 +3978,27 @@ process_proc_sock(p, pbr, s, ss, l, lss)
 		enter_nm(Namech);
 	    return;
 	}
+
 	if (Packpath) {
 	    (void) get_pack(Packpath);
 	    (void) free((FREE_P *)Packpath);
 	    Packpath = (char *)NULL;
 	}
 	if ((ss & SB_INO)
-	&&  (pp = check_pack((INODETYPE)s->st_ino))
-	    ) {
-
-	/*
-	 * The inode is connected to a packet /proc record.
-	 *
-	 * Set the type to "pack" and store the socket type in the NAME
-	 * column.  Put the protocol name in the NODE column and the inode
-	 * number in the DEVICE column.
-	 */
+	&&  (pp = check_pack((INODETYPE)s->st_ino))) {
+	    /*
+	     * The inode is connected to a packet /proc record.
+	     *
+	     * Set the type to "pack" and store the socket type in the NAME
+	     * column.  Put the protocol name in the NODE column and the inode
+	     * number in the DEVICE column.
+	     */
 	    (void) snpf(Lf->type, sizeof(Lf->type), "pack");
 	    cp = sockty2str(pp->ty, &rf);
 	    (void) snpf(Namech, Namechl, "type=%s%s", rf ? "" : "SOCK_", cp);
-	    switch (pp->pr) {
-
-#if	defined(ETH_P_LOOP)
-	    case ETH_P_LOOP:
-		cp = "LOOP";
-		break;
-#endif	/* defined(ETH_P_LOOP) */
-
-#if	defined(ETH_P_PUP)
-	    case ETH_P_PUP:
-		cp = "PUP";
-		break;
-#endif	/* defined(ETH_P_PUP) */
-
-#if	defined(ETH_P_PUPAT)
-	    case ETH_P_PUPAT:
-		cp = "PUPAT";
-		break;
-#endif	/* defined(ETH_P_PUPAT) */
-
-#if	defined(ETH_P_IP)
-	    case ETH_P_IP:
-		cp = "IP";
-		break;
-#endif	/* defined(ETH_P_IP) */
-
-#if	defined(ETH_P_X25)
-	    case ETH_P_X25:
-		cp = "X25";
-		break;
-#endif	/* defined(ETH_P_X25) */
-
-#if	defined(ETH_P_ARP)
-	    case ETH_P_ARP:
-		cp = "ARP";
-		break;
-#endif	/* defined(ETH_P_ARP) */
-
-#if	defined(ETH_P_BPQ)
-	    case ETH_P_BPQ:
-		cp = "BPQ";
-		break;
-#endif	/* defined(ETH_P_BPQ) */
-
-#if	defined(ETH_P_IEEEPUP)
-	    case ETH_P_IEEEPUP:
-		cp = "I3EPUP";
-		break;
-#endif	/* defined(ETH_P_IEEEPUP) */
-
-#if	defined(ETH_P_IEEEPUPAT)
-	    case ETH_P_IEEEPUPAT:
-		cp = "I3EPUPA";
-		break;
-#endif	/* defined(ETH_P_IEEEPUPAT) */
-
-#if	defined(ETH_P_DEC)
-	    case ETH_P_DEC:
-		cp = "DEC";
-		break;
-#endif	/* defined(ETH_P_DEC) */
-
-#if	defined(ETH_P_DNA_DL)
-	    case ETH_P_DNA_DL:
-		cp = "DNA_DL";
-		break;
-#endif	/* defined(ETH_P_DNA_DL) */
-
-#if	defined(ETH_P_DNA_RC)
-	    case ETH_P_DNA_RC:
-		cp = "DNA_RC";
-		break;
-#endif	/* defined(ETH_P_DNA_RC) */
-
-#if	defined(ETH_P_DNA_RT)
-	    case ETH_P_DNA_RT:
-		cp = "DNA_RT";
-		break;
-#endif	/* defined(ETH_P_DNA_RT) */
-
-#if	defined(ETH_P_LAT)
-	    case ETH_P_LAT:
-		cp = "LAT";
-		break;
-#endif	/* defined(ETH_P_LAT) */
-
-#if	defined(ETH_P_DIAG)
-	    case ETH_P_DIAG:
-		cp = "DIAG";
-		break;
-#endif	/* defined(ETH_P_DIAG) */
-
-#if	defined(ETH_P_CUST)
-	    case ETH_P_CUST:
-		cp = "CUST";
-		break;
-#endif	/* defined(ETH_P_CUST) */
-
-#if	defined(ETH_P_SCA)
-	    case ETH_P_SCA:
-		cp = "SCA";
-		break;
-#endif	/* defined(ETH_P_SCA) */
-
-#if	defined(ETH_P_RARP)
-	    case ETH_P_RARP:
-		cp = "RARP";
-		break;
-#endif	/* defined(ETH_P_RARP) */
-
-#if	defined(ETH_P_ATALK)
-	    case ETH_P_ATALK:
-		cp = "ATALK";
-		break;
-#endif	/* defined(ETH_P_ATALK) */
-
-#if	defined(ETH_P_AARP)
-	    case ETH_P_AARP:
-		cp = "AARP";
-		break;
-#endif	/* defined(ETH_P_AARP) */
-
-#if	defined(ETH_P_8021Q)
-	    case ETH_P_8021Q:
-		cp = "8021Q";
-		break;
-#endif	/* defined(ETH_P_8021Q) */
-
-#if	defined(ETH_P_IPX)
-	    case ETH_P_IPX:
-		cp = "IPX";
-		break;
-#endif	/* defined(ETH_P_IPX) */
-
-#if	defined(ETH_P_IPV6)
-	    case ETH_P_IPV6:
-		cp = "IPV6";
-		break;
-#endif	/* defined(ETH_P_IPV6) */
-
-#if	defined(ETH_P_SLOW)
-	    case ETH_P_SLOW:
-		cp = "SLOW";
-		break;
-#endif	/* defined(ETH_P_SLOW) */
-
-#if	defined(ETH_P_WCCP)
-	    case ETH_P_WCCP:
-		cp = "WCCP";
-		break;
-#endif	/* defined(ETH_P_WCCP) */
-
-#if	defined(ETH_P_PPP_DISC)
-	    case ETH_P_PPP_DISC:
-		cp = "PPP_DIS";
-		break;
-#endif	/* defined(ETH_P_PPP_DISC) */
-
-#if	defined(ETH_P_PPP_SES)
-	    case ETH_P_PPP_SES:
-		cp = "PPP_SES";
-		break;
-#endif	/* defined(ETH_P_PPP_SES) */
-
-#if	defined(ETH_P_MPLS_UC)
-	    case ETH_P_MPLS_UC:
-		cp = "MPLS_UC";
-		break;
-#endif	/* defined(ETH_P_MPLS_UC) */
-
-#if	defined(ETH_P_ATMMPOA)
-	    case ETH_P_ATMMPOA:
-		cp = "ATMMPOA";
-		break;
-#endif	/* defined(ETH_P_ATMMPOA) */
-
-#if	defined(ETH_P_MPLS_MC)
-	    case ETH_P_MPLS_MC:
-		cp = "MPLS_MC";
-		break;
-#endif	/* defined(ETH_P_MPLS_MC) */
-
-#if	defined(ETH_P_ATMFATE)
-	    case ETH_P_ATMFATE:
-		cp = "ATMFATE";
-		break;
-#endif	/* defined(ETH_P_ATMFATE) */
-
-#if	defined(ETH_P_AOE)
-	    case ETH_P_AOE:
-		cp = "AOE";
-		break;
-#endif	/* defined(ETH_P_AOE) */
-
-#if	defined(ETH_P_TIPC)
-	    case ETH_P_TIPC:
-		cp = "TIPC";
-		break;
-#endif	/* defined(ETH_P_TIPC) */
-
-#if	defined(ETH_P_802_3)
-	    case ETH_P_802_3:
-		cp = "802.3";
-		break;
-#endif	/* defined(ETH_P_802_3) */
-
-#if	defined(ETH_P_AX25)
-	    case ETH_P_AX25:
-		cp = "AX25";
-		break;
-#endif	/* defined(ETH_P_AX25) */
-
-#if	defined(ETH_P_ALL)
-	    case ETH_P_ALL:
-		cp = "ALL";
-		break;
-#endif	/* defined(ETH_P_ALL) */
-
-#if	defined(ETH_P_802_2)
-	    case ETH_P_802_2:
-		cp = "802.2";
-		break;
-#endif	/* defined(ETH_P_802_2) */
-
-#if	defined(ETH_P_SNAP)
-	    case ETH_P_SNAP:
-		cp = "SNAP";
-		break;
-#endif	/* defined(ETH_P_SNAP) */
-
-#if	defined(ETH_P_DDCMP)
-	    case ETH_P_DDCMP:
-		cp = "DDCMP";
-		break;
-#endif	/* defined(ETH_P_DDCMP) */
-
-#if	defined(ETH_P_WAN_PPP)
-	    case ETH_P_WAN_PPP:
-		cp = "WAN_PPP";
-		break;
-#endif	/* defined(ETH_P_WAN_PPP) */
-
-#if	defined(ETH_P_PPP_MP)
-	    case ETH_P_PPP_MP:
-		cp = "PPP MP";
-		break;
-#endif	/* defined(ETH_P_PPP_MP) */
-
-#if	defined(ETH_P_LOCALTALK)
-	    case ETH_P_LOCALTALK:
-		cp = "LCLTALK";
-		break;
-#endif	/* defined(ETH_P_LOCALTALK) */
-
-#if	defined(ETH_P_PPPTALK)
-	    case ETH_P_PPPTALK:
-		cp = "PPPTALK";
-		break;
-#endif	/* defined(ETH_P_PPPTALK) */
-
-#if	defined(ETH_P_TR_802_2)
-	    case ETH_P_TR_802_2:
-		cp = "802.2";
-		break;
-#endif	/* defined(ETH_P_TR_802_2) */
-
-#if	defined(ETH_P_MOBITEX)
-	    case ETH_P_MOBITEX:
-		cp = "MOBITEX";
-		break;
-#endif	/* defined(ETH_P_MOBITEX) */
-
-#if	defined(ETH_P_CONTROL)
-	    case ETH_P_CONTROL:
-		cp = "CONTROL";
-		break;
-#endif	/* defined(ETH_P_CONTROL) */
-
-#if	defined(ETH_P_IRDA)
-	    case ETH_P_IRDA:
-		cp = "IRDA";
-		break;
-#endif	/* defined(ETH_P_IRDA) */
-
-#if	defined(ETH_P_ECONET)
-	    case ETH_P_ECONET:
-		cp = "ECONET";
-		break;
-#endif	/* defined(ETH_P_ECONET) */
-
-#if	defined(ETH_P_HDLC)
-	    case ETH_P_HDLC:
-		cp = "HDLC";
-		break;
-#endif	/* defined(ETH_P_HDLC) */
-
-#if	defined(ETH_P_ARCNET)
-	    case ETH_P_ARCNET:
-		cp = "ARCNET";
-		break;
-#endif	/* defined(ETH_P_ARCNET) */
-
-	    default:
+	    cp = ethproto2str(pp->pr);
+	    if (!cp) {
+		/* Unknown ethernet proto */
 		(void) snpf(tbuf, sizeof(tbuf) - 1, "%d", pp->pr);
 		tbuf[sizeof(tbuf) - 1] = '\0';
 		cp = tbuf;
@@ -4325,6 +4015,7 @@ process_proc_sock(p, pbr, s, ss, l, lss)
 		enter_nm(Namech);
 	    return;
 	}
+
 	if (UNIXpath) {
 	    (void) get_unix(UNIXpath);
 	    (void) free((FREE_P *)UNIXpath);
@@ -4334,12 +4025,12 @@ process_proc_sock(p, pbr, s, ss, l, lss)
 	&&  (up = check_unix((INODETYPE)s->st_ino))
 	    ) {
 
-	/*
-	 * The inode is connected to a UNIX /proc record.
-	 *
-	 * Set the type to "unix"; enter the PCB address in the DEVICE column;
-	 * enter the inode number; and save the optional path.
-	 */
+	    /*
+	     * The inode is connected to a UNIX /proc record.
+	     *
+	     * Set the type to "unix"; enter the PCB address in the DEVICE column;
+	     * enter the inode number; and save the optional path.
+	     */
 	    if (Funix)
 		Lf->sf |= SELUNX;
 	    (void) snpf(Lf->type, sizeof(Lf->type), "unix");
@@ -4371,24 +4062,24 @@ process_proc_sock(p, pbr, s, ss, l, lss)
 	    (void) enter_nm(Namech);
 	    if (Sfile) {
 
-	    /*
-	     * See if this UNIX domain socket was specified as a search
-	     * argument.
-	     *
-	     * Search first by device and node numbers, if that is possible;
-	     * then search by name.
-	     */
+	        /*
+	         * See if this UNIX domain socket was specified as a search
+	         * argument.
+	         *
+	         * Search first by device and node numbers, if that is possible;
+	         * then search by name.
+	         */
 		unsigned char f = 0;		/* file-found flag */
 
 		if (up->sb_def) {
 
-		/*
-		 * If the UNIX socket information includes stat(2) results, do
-		 * a device and node number search.
-		 *
-		 * Note: that requires the saving, temporary modification and
-		 *	 restoration of some *Lf values.
-		 */
+		    /*
+		     * If the UNIX socket information includes stat(2) results, do
+		     * a device and node number search.
+		     *
+		     * Note: that requires the saving, temporary modification and
+		     *	 restoration of some *Lf values.
+		     */
 		    unsigned char sv_dev_def;	/* saved dev_def */
 		    unsigned char sv_inp_ty;	/* saved inp_ty */
 		    unsigned char sv_rdev_def;	/* saved rdev_def */
@@ -4419,10 +4110,10 @@ process_proc_sock(p, pbr, s, ss, l, lss)
 		}
 		if (!f && (ss & SB_MODE)) {
 
-		/*
-		 * If the file has not yet been found and the stat buffer has
-		 * st_mode, search for the file by full path.
-		 */
+		    /*
+		     * If the file has not yet been found and the stat buffer has
+		     * st_mode, search for the file by full path.
+		     */
 		    if (is_file_named(2, up->path ? up->path : p,
 			(struct mounts *)NULL,
 			((s->st_mode & S_IFMT) == S_IFCHR)) ? 1 : 0)
@@ -4445,12 +4136,12 @@ process_proc_sock(p, pbr, s, ss, l, lss)
 	&&  (rp = check_raw6((INODETYPE)s->st_ino))
 	    ) {
 
-	/*
-	 * The inode is connected to a raw IPv6 /proc record.
-	 *
-	 * Set the type to "raw6"; enter the inode number; store the local
-	 * address, remote address, and state in the NAME column.
-	 */
+	    /*
+	     * The inode is connected to a raw IPv6 /proc record.
+	     *
+	     * Set the type to "raw6"; enter the inode number; store the local
+	     * address, remote address, and state in the NAME column.
+	     */
 	    (void) snpf(Lf->type, sizeof(Lf->type), "raw6");
 	    if (ss & SB_INO) {
 		Lf->inode = (INODETYPE)s->st_ino;
@@ -4471,10 +4162,9 @@ process_proc_sock(p, pbr, s, ss, l, lss)
 		}
 	    }
 	    if (rp->ra && rp->ral) {
-
-	    /*
-	     * Store the remote raw address, prefixed with "->".
-	     */
+	        /*
+	         * Store the remote raw address, prefixed with "->".
+	         */
 		if (nl > (rp->ral + 2)) {
 		    (void) snpf(cp, nl, "->%s", rp->ra);
 		    cp += (rp->ral + 2);
@@ -4483,10 +4173,10 @@ process_proc_sock(p, pbr, s, ss, l, lss)
 	    }
 	    if (rp->sp && rp->spl) {
 
-	    /*
-	     * Store the state, optionally prefixed by a space, in the
-	     * form "st=x...x".
-	     */
+	        /*
+	         * Store the state, optionally prefixed by a space, in the
+	         * form "st=x...x".
+	         */
 
 		if (nl > (len = ((cp == Namech) ? 0 : 1) + 3 + rp->spl)) {
 		    (void) snpf(cp, nl, "%sst=%s",
@@ -4500,42 +4190,46 @@ process_proc_sock(p, pbr, s, ss, l, lss)
 		enter_nm(Namech);
 	    return;
 	}
+
 	if (TCP6path) {
 	    if (!Fxopt)
 		(void) get_tcpudp6(TCP6path, 0, 1);
 	    (void) free((FREE_P *)TCP6path);
 	    TCP6path = (char *)NULL;
 	}
+
 	if (UDP6path) {
 	    if (!Fxopt)
 		(void) get_tcpudp6(UDP6path, 1, 0);
 	    (void) free((FREE_P *)UDP6path);
 	    UDP6path = (char *)NULL;
 	}
+
 	if (UDPLITE6path) {
 	    if (!Fxopt)
 		(void) get_tcpudp6(UDPLITE6path, 2, 0);
 	    (void) free((FREE_P *)UDPLITE6path);
 	    UDPLITE6path = (char *)NULL;
 	}
+
 	if (!Fxopt && (ss & SB_INO)
 	&&  (tp6 = check_tcpudp6((INODETYPE)s->st_ino, &pr))
 	    ) {
 
-	/*
-	 * The inode is connected to an IPv6 TCP or UDP /proc record.
-	 *
-	 * Set the type to "IPv6"; enter the protocol; put the inode number
-	 * in the DEVICE column in lieu of the PCB address; save the local
-	 * and foreign IPv6 addresses; save the type and protocol; and
-	 * (optionally) save the queue sizes.
-	 */
+	    /*
+	     * The inode is connected to an IPv6 TCP or UDP /proc record.
+	     *
+	     * Set the type to "IPv6"; enter the protocol; put the inode number
+	     * in the DEVICE column in lieu of the PCB address; save the local
+	     * and foreign IPv6 addresses; save the type and protocol; and
+	     * (optionally) save the queue sizes.
+	     */
 	    i = tp6->state + TcpStOff;
 	    if (TcpStXn) {
 
-	    /*
-	     * Check for state exclusion.
-	     */
+	        /*
+	         * Check for state exclusion.
+	         */
 		if (i >= 0 && i < TcpNstates) {
 		    if (TcpStX[i]) {
 			Lf->sf |= SELEXCLF;
@@ -4545,9 +4239,9 @@ process_proc_sock(p, pbr, s, ss, l, lss)
 	    }
 	    if (TcpStIn) {
 
-	    /*
-	     * Check for state inclusion.
-	     */
+	        /*
+	         * Check for state inclusion.
+	         */
 		if (i >= 0 && i < TcpNstates) {
 		    if (TcpStI[i])
 			TcpStI[i] = 2;
@@ -4612,36 +4306,39 @@ process_proc_sock(p, pbr, s, ss, l, lss)
 	    (void) free((FREE_P *)TCPpath);
 	    TCPpath = (char *)NULL;
 	}
+
 	if (UDPpath) {
 	    if (!Fxopt)
 		(void) get_tcpudp(UDPpath, 1, 0);
 	    (void) free((FREE_P *)UDPpath);
 	    UDPpath = (char *)NULL;
 	}
+
 	if (UDPLITEpath) {
 	    if (!Fxopt)
 		(void) get_tcpudp(UDPLITEpath, 2, 0);
 	    (void) free((FREE_P *)UDPLITEpath);
 	    UDPLITEpath = (char *)NULL;
 	}
+
 	if (!Fxopt && (ss & SB_INO)
 	&&  (tp = check_tcpudp((INODETYPE)s->st_ino, &pr))
 	    ) {
 
-	/*
-	 * The inode is connected to an IPv4 TCP or UDP /proc record.
-	 *
-	 * Set the type to "inet" or "IPv4"; enter the protocol; put the
-	 * inode number in the DEVICE column in lieu of the PCB address;
-	 * save the local and foreign IPv4 addresses; save the type and
-	 * protocol; and (optionally) save the queue sizes.
-	 */
+	    /*
+	     * The inode is connected to an IPv4 TCP or UDP /proc record.
+	     *
+	     * Set the type to "inet" or "IPv4"; enter the protocol; put the
+	     * inode number in the DEVICE column in lieu of the PCB address;
+	     * save the local and foreign IPv4 addresses; save the type and
+	     * protocol; and (optionally) save the queue sizes.
+	     */
 	    i = tp->state + TcpStOff;
 	    if (TcpStXn) {
 
-	    /*
-	     * Check for state exclusion.
-	     */
+	        /*
+	         * Check for state exclusion.
+	         */
 		if (i >= 0 && i < TcpNstates) {
 		    if (TcpStX[i]) {
 			Lf->sf |= SELEXCLF;
@@ -4651,9 +4348,9 @@ process_proc_sock(p, pbr, s, ss, l, lss)
 	    }
 	    if (TcpStIn) {
 
-	    /*
-	     * Check for state inclusion.
-	     */
+	        /*
+	         * Check for state inclusion.
+	         */
 		if (i >= 0 && i < TcpNstates) {
 		    if (TcpStI[i])
 			TcpStI[i] = 2;
@@ -4710,6 +4407,7 @@ process_proc_sock(p, pbr, s, ss, l, lss)
 
 	    return;
 	}
+
 	if (SCTPPath[0]) {
 	    (void) get_sctp();
 	    for (i = 0; i < NSCTPPATHS; i++) {
@@ -4776,6 +4474,7 @@ process_proc_sock(p, pbr, s, ss, l, lss)
 		enter_nm(Namech);
 	    return;
 	}
+
 	if (ICMPpath) {
 	    (void) get_icmp(ICMPpath);
 	    (void) free((FREE_P *)ICMPpath);
@@ -4825,9 +4524,10 @@ process_proc_sock(p, pbr, s, ss, l, lss)
 		enter_nm(Namech);
 	    return;
 	}
-/*
- * The socket's protocol can't be identified.
- */
+
+	/*
+ 	 * The socket's protocol can't be identified.
+ 	 */
 	(void) snpf(Lf->type, sizeof(Lf->type), "sock");
 	if (ss & SB_INO) {
 	    Lf->inode = (INODETYPE)s->st_ino;
@@ -4980,7 +4680,6 @@ sockty2str(ty, rf)
  *
  * return NULL if the number is unknown.
  */
-
 static char *
 nlproto2str(unsigned int pr)
 {
@@ -5152,3 +4851,434 @@ sockss2str(unsigned int ss)
 	return sr;
 }
 #endif	/* defined(HASSOSTATE) */
+
+/*
+ * Ethproto2str() -- convert ethernet protocol number to a string
+ *
+ * return NULL if the number is unknown.
+ */
+static char *
+ethproto2str(unsigned int pr)
+{
+	char *cp = NULL;
+	switch(pr) {
+#if	defined(ETH_P_LOOP)
+	case ETH_P_LOOP:
+	    cp = "LOOP";
+	    break;
+#endif	/* defined(ETH_P_LOOP) */
+
+#if	defined(ETH_P_PUP)
+	case ETH_P_PUP:
+	    cp = "PUP";
+	    break;
+#endif	/* defined(ETH_P_PUP) */
+
+#if	defined(ETH_P_PUPAT)
+	case ETH_P_PUPAT:
+	    cp = "PUPAT";
+	    break;
+#endif	/* defined(ETH_P_PUPAT) */
+
+#if	defined(ETH_P_TSN)
+	case ETH_P_TSN:
+	    cp = "TSN";
+	    break;
+#endif	/* defined(ETH_P_TSN) */
+
+#if	defined(ETH_P_ERSPAN2)
+	case ETH_P_ERSPAN2:
+	    cp = "ERSPAN2";
+	    break;
+#endif	/* defined(ETH_P_ERSPAN2) */
+
+#if	defined(ETH_P_IP)
+	case ETH_P_IP:
+	    cp = "IP";
+	    break;
+#endif	/* defined(ETH_P_IP) */
+
+#if	defined(ETH_P_X25)
+	case ETH_P_X25:
+	    cp = "X25";
+	    break;
+#endif	/* defined(ETH_P_X25) */
+
+#if	defined(ETH_P_ARP)
+	case ETH_P_ARP:
+	    cp = "ARP";
+	    break;
+#endif	/* defined(ETH_P_ARP) */
+
+#if	defined(ETH_P_BPQ)
+	case ETH_P_BPQ:
+	    cp = "BPQ";
+	    break;
+#endif	/* defined(ETH_P_BPQ) */
+
+#if	defined(ETH_P_IEEEPUP)
+	case ETH_P_IEEEPUP:
+	    cp = "I3EPUP";
+	    break;
+#endif	/* defined(ETH_P_IEEEPUP) */
+
+#if	defined(ETH_P_IEEEPUPAT)
+	case ETH_P_IEEEPUPAT:
+	    cp = "I3EPUPA";
+	    break;
+#endif	/* defined(ETH_P_IEEEPUPAT) */
+
+#if	defined(ETH_P_BATMAN)
+	case ETH_P_BATMAN:
+	    cp = "BATMAN";
+	    break;
+#endif	/* defined(ETH_P_BATMAN) */
+
+#if	defined(ETH_P_DEC)
+	case ETH_P_DEC:
+	    cp = "DEC";
+	    break;
+#endif	/* defined(ETH_P_DEC) */
+
+#if	defined(ETH_P_DNA_DL)
+	case ETH_P_DNA_DL:
+	    cp = "DNA_DL";
+	    break;
+#endif	/* defined(ETH_P_DNA_DL) */
+
+#if	defined(ETH_P_DNA_RC)
+	case ETH_P_DNA_RC:
+	    cp = "DNA_RC";
+	    break;
+#endif	/* defined(ETH_P_DNA_RC) */
+
+#if	defined(ETH_P_DNA_RT)
+	case ETH_P_DNA_RT:
+	    cp = "DNA_RT";
+	    break;
+#endif	/* defined(ETH_P_DNA_RT) */
+
+#if	defined(ETH_P_LAT)
+	case ETH_P_LAT:
+	    cp = "LAT";
+	    break;
+#endif	/* defined(ETH_P_LAT) */
+
+#if	defined(ETH_P_DIAG)
+	case ETH_P_DIAG:
+	    cp = "DIAG";
+	    break;
+#endif	/* defined(ETH_P_DIAG) */
+
+#if	defined(ETH_P_CUST)
+	case ETH_P_CUST:
+	    cp = "CUST";
+	    break;
+#endif	/* defined(ETH_P_CUST) */
+
+#if	defined(ETH_P_SCA)
+	case ETH_P_SCA:
+	    cp = "SCA";
+	    break;
+#endif	/* defined(ETH_P_SCA) */
+
+#if	defined(ETH_P_TEB)
+	case ETH_P_TEB:
+	    cp = "TEB";
+	    break;
+#endif	/* defined(ETH_P_TEB) */
+
+#if	defined(ETH_P_RARP)
+	case ETH_P_RARP:
+	    cp = "RARP";
+	    break;
+#endif	/* defined(ETH_P_RARP) */
+
+#if	defined(ETH_P_ATALK)
+	case ETH_P_ATALK:
+	    cp = "ATALK";
+	    break;
+#endif	/* defined(ETH_P_ATALK) */
+
+#if	defined(ETH_P_AARP)
+	case ETH_P_AARP:
+	    cp = "AARP";
+	    break;
+#endif	/* defined(ETH_P_AARP) */
+
+#if	defined(ETH_P_8021Q)
+	case ETH_P_8021Q:
+	    cp = "8021Q";
+	    break;
+#endif	/* defined(ETH_P_8021Q) */
+
+#if	defined(ETH_P_ERSPAN)
+	case ETH_P_ERSPAN:
+	    cp = "ERSPAN";
+	    break;
+#endif	/* defined(ETH_P_ERSPAN) */
+
+#if	defined(ETH_P_IPX)
+	case ETH_P_IPX:
+	    cp = "IPX";
+	    break;
+#endif	/* defined(ETH_P_IPX) */
+
+#if	defined(ETH_P_IPV6)
+	case ETH_P_IPV6:
+	    cp = "IPV6";
+	    break;
+#endif	/* defined(ETH_P_IPV6) */
+
+#if	defined(ETH_P_PAUSE)
+	case ETH_P_PAUSE:
+	    cp = "PAUSE";
+	    break;
+#endif	/* defined(ETH_P_PAUSE) */
+
+#if	defined(ETH_P_SLOW)
+	case ETH_P_SLOW:
+	    cp = "SLOW";
+	    break;
+#endif	/* defined(ETH_P_SLOW) */
+
+#if	defined(ETH_P_WCCP)
+	case ETH_P_WCCP:
+	    cp = "WCCP";
+	    break;
+#endif	/* defined(ETH_P_WCCP) */
+
+#if	defined(ETH_P_MPLS_UC)
+	case ETH_P_MPLS_UC:
+	    cp = "MPLS_UC";
+	    break;
+#endif	/* defined(ETH_P_MPLS_UC) */
+
+#if	defined(ETH_P_MPLS_MC)
+	case ETH_P_MPLS_MC:
+	    cp = "MPLS_MC";
+	    break;
+#endif	/* defined(ETH_P_MPLS_MC) */
+
+#if	defined(ETH_P_ATMMPOA)
+	case ETH_P_ATMMPOA:
+	    cp = "ATMMPOA";
+	    break;
+#endif	/* defined(ETH_P_ATMMPOA) */
+
+#if	defined(ETH_P_PPP_DISC)
+	case ETH_P_PPP_DISC:
+	    cp = "PPP_DIS";
+	    break;
+#endif	/* defined(ETH_P_PPP_DISC) */
+
+#if	defined(ETH_P_PPP_SES)
+	case ETH_P_PPP_SES:
+	    cp = "PPP_SES";
+	    break;
+#endif	/* defined(ETH_P_PPP_SES) */
+
+#if	defined(ETH_P_LINK_CTL)
+	case ETH_P_LINK_CTL:
+	    cp = "LINKCTL";
+	    break;
+#endif	/* defined(ETH_P_LINK_CTL) */
+
+#if	defined(ETH_P_ATMFATE)
+	case ETH_P_ATMFATE:
+	    cp = "ATMFATE";
+	    break;
+#endif	/* defined(ETH_P_ATMFATE) */
+
+#if	defined(ETH_P_PAE)
+	case ETH_P_PAE:
+	    cp = "PAE";
+	    break;
+#endif	/* defined(ETH_P_PAE) */
+
+#if	defined(ETH_P_AOE)
+	case ETH_P_AOE:
+	    cp = "AOE";
+	    break;
+#endif	/* defined(ETH_P_AOE) */
+
+#if	defined(ETH_P_8021AD)
+	case ETH_P_8021AD:
+	    cp = "8021AD";
+	    break;
+#endif	/* defined(ETH_P_8021AD) */
+
+#if	defined(ETH_P_802_EX1)
+	case ETH_P_802_EX1:
+	    cp = "802_EX1";
+	    break;
+#endif	/* defined(ETH_P_802_EX1) */
+
+#if	defined(ETH_P_PREAUTH)
+	case ETH_P_PREAUTH:
+	    cp = "PREAUTH";
+	    break;
+#endif	/* defined(ETH_P_PREAUTH) */
+
+#if	defined(ETH_P_TIPC)
+	case ETH_P_TIPC:
+	    cp = "TIPC";
+	    break;
+#endif	/* defined(ETH_P_TIPC) */
+
+#if	defined(ETH_P_LLDP)
+	case ETH_P_LLDP:
+	    cp = "LLDP";
+	    break;
+#endif	/* defined(ETH_P_LLDP) */
+
+#if	defined(ETH_P_MRP)
+	case ETH_P_MRP:
+	    cp = "MRP";
+	    break;
+#endif	/* defined(ETH_P_MRP) */
+
+#if	defined(ETH_P_MACSEC)
+	case ETH_P_MACSEC:
+	    cp = "MACSEC";
+	    break;
+#endif	/* defined(ETH_P_MACSEC) */
+
+#if	defined(ETH_P_8021AH)
+	case ETH_P_8021AH:
+	    cp = "8021AH";
+	    break;
+#endif	/* defined(ETH_P_8021AH) */
+
+#if	defined(ETH_P_MVRP)
+	case ETH_P_MVRP:
+	    cp = "MVRP";
+	    break;
+#endif	/* defined(ETH_P_MVRP) */
+
+#if	defined(ETH_P_1588)
+	case ETH_P_1588:
+	    cp = "1588";
+	    break;
+#endif	/* defined(ETH_P_1588) */
+
+#if	defined(ETH_P_NCSI)
+	case ETH_P_NCSI:
+	    cp = "NCSI";
+	    break;
+#endif	/* defined(ETH_P_NCSI) */
+
+#if	defined(ETH_P_PRP)
+	case ETH_P_PRP:
+	    cp = "PRP";
+	    break;
+#endif	/* defined(ETH_P_PRP) */
+
+#if	defined(ETH_P_802_3)
+	case ETH_P_802_3:
+	    cp = "802.3";
+	    break;
+#endif	/* defined(ETH_P_802_3) */
+
+#if	defined(ETH_P_AX25)
+	case ETH_P_AX25:
+	    cp = "AX25";
+	    break;
+#endif	/* defined(ETH_P_AX25) */
+
+#if	defined(ETH_P_ALL)
+	case ETH_P_ALL:
+	    cp = "ALL";
+	    break;
+#endif	/* defined(ETH_P_ALL) */
+
+#if	defined(ETH_P_802_2)
+	case ETH_P_802_2:
+	    cp = "802.2";
+	    break;
+#endif	/* defined(ETH_P_802_2) */
+
+#if	defined(ETH_P_SNAP)
+	case ETH_P_SNAP:
+	    cp = "SNAP";
+	    break;
+#endif	/* defined(ETH_P_SNAP) */
+
+#if	defined(ETH_P_DDCMP)
+	case ETH_P_DDCMP:
+	    cp = "DDCMP";
+	    break;
+#endif	/* defined(ETH_P_DDCMP) */
+
+#if	defined(ETH_P_WAN_PPP)
+	case ETH_P_WAN_PPP:
+	    cp = "WAN_PPP";
+	    break;
+#endif	/* defined(ETH_P_WAN_PPP) */
+
+#if	defined(ETH_P_PPP_MP)
+	case ETH_P_PPP_MP:
+	    cp = "PPP MP";
+	    break;
+#endif	/* defined(ETH_P_PPP_MP) */
+
+#if	defined(ETH_P_LOCALTALK)
+	case ETH_P_LOCALTALK:
+	    cp = "LCLTALK";
+	    break;
+#endif	/* defined(ETH_P_LOCALTALK) */
+
+#if	defined(ETH_P_PPPTALK)
+	case ETH_P_PPPTALK:
+	    cp = "PPPTALK";
+	    break;
+#endif	/* defined(ETH_P_PPPTALK) */
+
+#if	defined(ETH_P_TR_802_2)
+	case ETH_P_TR_802_2:
+	    cp = "802.2";
+	    break;
+#endif	/* defined(ETH_P_TR_802_2) */
+
+#if	defined(ETH_P_MOBITEX)
+	case ETH_P_MOBITEX:
+	    cp = "MOBITEX";
+	    break;
+#endif	/* defined(ETH_P_MOBITEX) */
+
+#if	defined(ETH_P_CONTROL)
+	case ETH_P_CONTROL:
+	    cp = "CONTROL";
+	    break;
+#endif	/* defined(ETH_P_CONTROL) */
+
+#if	defined(ETH_P_IRDA)
+	case ETH_P_IRDA:
+	    cp = "IRDA";
+	    break;
+#endif	/* defined(ETH_P_IRDA) */
+
+#if	defined(ETH_P_ECONET)
+	case ETH_P_ECONET:
+	    cp = "ECONET";
+	    break;
+#endif	/* defined(ETH_P_ECONET) */
+
+#if	defined(ETH_P_HDLC)
+	case ETH_P_HDLC:
+	    cp = "HDLC";
+	    break;
+#endif	/* defined(ETH_P_HDLC) */
+
+#if	defined(ETH_P_ARCNET)
+	case ETH_P_ARCNET:
+	    cp = "ARCNET";
+	    break;
+#endif	/* defined(ETH_P_ARCNET) */
+
+	default:
+	    cp = NULL;
+	    break;
+	}
+	return cp;
+}
