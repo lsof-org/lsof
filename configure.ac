@@ -337,14 +337,18 @@ AC_CHECK_MEMBERS([struct kinfo_file.kf_un.kf_sock.kf_sock_sendq], [], [], [#incl
 AC_CONFIG_FILES([Makefile])
 
 # Pass build configurations to version.h.in
-AC_SUBST(host, $(uname -n))
-AC_SUBST(logname, $LOGNAME)
-AC_SUBST(user, $USER)
 AC_SUBST(cc, $CC)
 AC_SUBST(ccv, $($CC -v 2>&1 | sed -n 's/.*version \(.*\)/\1/p'))
 AC_SUBST(ccflags, $CFLAGS)
 AC_SUBST(ldflags, "$LDFLAGS$LIBS")
-AC_SUBST(sysinfo, $(uname -a))
+# Reproducible build
+if test "X$SOURCE_DATE_EPOCH" = "X"	# {
+then
+	AC_SUBST(host, $(uname -n))
+	AC_SUBST(logname, $LOGNAME)
+	AC_SUBST(user, $USER)
+	AC_SUBST(sysinfo, $(uname -a))
+fi	# }
 
 # Generate version.h/autotools.h
 AC_CONFIG_FILES([autotools/version.h autotools/autotools.h])
