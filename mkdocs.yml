@@ -8,6 +8,8 @@ nav:
   - tutorial.md
   - hang.md
   - options.md
+  - faq.md
+  - manpage.md
 plugins:
   - search
 markdown_extensions:
