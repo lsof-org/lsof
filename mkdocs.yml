@@ -9,6 +9,7 @@ nav:
   - options.md
   - faq.md
   - manpage.md
+  - credits.md
 plugins:
   - search
 markdown_extensions:
