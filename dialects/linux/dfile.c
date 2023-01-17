@@ -46,16 +46,16 @@ struct hsfile {
  */
 
 static struct hsfile *HbyFdi =		/* hash by file (dev,ino) buckets */
-	(struct hsfile *)NULL;
+    (struct hsfile *)NULL;
 static int HbyFdiCt = 0;		/* HbyFdi entry count */
 static struct hsfile *HbyFrd =		/* hash by file raw device buckets */
-	(struct hsfile *)NULL;
+    (struct hsfile *)NULL;
 static int HbyFrdCt = 0;		/* HbyFrd entry count */
 static struct hsfile *HbyFsd =		/* hash by file system buckets */
-	(struct hsfile *)NULL;
+    (struct hsfile *)NULL;
 static int HbyFsdCt = 0;		/* HbyFsd entry count */
 static struct hsfile *HbyNm =		/* hash by name buckets */
-	(struct hsfile *)NULL;
+    (struct hsfile *)NULL;
 static int HbyNmCt = 0;			/* HbyNm entry count */
 
 
@@ -185,7 +185,7 @@ hashSfile()
 		    continue;
 		} else {
 		    if (!(sn = (struct hsfile *)malloc(
-				(MALLOC_S)sizeof(struct hsfile))))
+						       (MALLOC_S)sizeof(struct hsfile))))
 		    {
 			(void) fprintf(stderr,
 			    "%s: can't allocate hsfile bucket for: %s\n",

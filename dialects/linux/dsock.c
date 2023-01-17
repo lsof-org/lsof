@@ -68,19 +68,19 @@
 /* If a socket is used for IPC, we store both end points for the socket
  * to the same hash bucket. This makes seaching the counter part of
  * an end point easier. See get_netpeeri(). */
-#define TCPUDP_IPC_HASH(tp) ((int)(((((tp)->faddr * 0x109		\
-				      + (tp)->laddr * 0x109		\
-				      + (tp)->fport * 0x121		\
-				      + (tp)->lport * 0x121		\
-				      + (tp)->proto * 0x181)		\
-				      * 31415) >> 3)			\
+#define TCPUDP_IPC_HASH(tp) ((int)(((((tp)->faddr * 0x109	\
+				      + (tp)->laddr * 0x109	\
+				      + (tp)->fport * 0x121	\
+				      + (tp)->lport * 0x121	\
+				      + (tp)->proto * 0x181)	\
+				      * 31415) >> 3)		\
 				   & (IPCBUCKS - 1)))
 
 #define TCPUDP6_IPC_ADDR_INT32(a, n) (((a)->s6_addr32[n]))
-#define TCPUDP6_IPC_ADDR_MK_INT(a)					\
-	((int)TCPUDP6_IPC_ADDR_INT32(a, 0x0) * 0x123			\
-	+(int)TCPUDP6_IPC_ADDR_INT32(a, 0x1) * 0x111			\
-	+(int)TCPUDP6_IPC_ADDR_INT32(a, 0x2) * 0x149			\
+#define TCPUDP6_IPC_ADDR_MK_INT(a)			\
+    ((int)TCPUDP6_IPC_ADDR_INT32(a, 0x0) * 0x123	\
+	+(int)TCPUDP6_IPC_ADDR_INT32(a, 0x1) * 0x111	\
+	+(int)TCPUDP6_IPC_ADDR_INT32(a, 0x2) * 0x149	\
 	+(int)TCPUDP6_IPC_ADDR_INT32(a, 0x3) * 0x185)
 
 #define TCPUDP6_IPC_HASH(tp) ((int)((((TCPUDP6_IPC_ADDR_MK_INT(&(tp)->faddr) \
@@ -227,11 +227,11 @@ static char *AX25path = (char *)NULL;	/* path to AX25 /proc information */
 static struct ax25sin **AX25sin = (struct ax25sin **)NULL;
 					/* AX25 socket info, hashed by inode */
 static char *ax25st[] = {
-	"LISTENING",			/* 0 */
-	"SABM SENT",			/* 1 */
-	"DISC SENT",			/* 2 */
-	"ESTABLISHED",			/* 3 */
-	"RECOVERY"			/* 4 */
+    "LISTENING",			/* 0 */
+    "SABM SENT",			/* 1 */
+    "DISC SENT",			/* 2 */
+    "ESTABLISHED",			/* 3 */
+    "RECOVERY"				/* 4 */
 };
 #define NAX25ST	(sizeof(ax25st) / sizeof(char *))
 static char *ICMPpath = (char *)NULL;	/* path to ICMP /proc information */
@@ -252,13 +252,13 @@ static char *Rawpath = (char *)NULL;	/* path to raw socket /proc
 static struct rawsin **Rawsin = (struct rawsin **)NULL;
 					/* raw socket info, hashed by inode */
 static char *SCTPPath[] = {		/* paths to /proc/net STCP info */
-	(char *)NULL,			/* 0 = /proc/net/sctp/assocs */
-	(char *)NULL			/* 1 = /proc/net/sctp/eps */
+    (char *)NULL,			/* 0 = /proc/net/sctp/assocs */
+    (char *)NULL			/* 1 = /proc/net/sctp/eps */
 };
 #define	NSCTPPATHS sizeof(SCTPPath)/sizeof(char *)
 static char *SCTPSfx[] = {		/* /proc/net suffixes */
-	"sctp/assocs",			/* 0 = /proc/net/sctp/assocs */
-	"sctp/eps"			/* 1 = /proc/net/sctp/eps */
+    "sctp/assocs",			/* 0 = /proc/net/sctp/assocs */
+    "sctp/eps"				/* 1 = /proc/net/sctp/eps */
 };
 static struct sctpsin **SCTPsin = (struct sctpsin **)NULL;
 					/* SCTP info, hashed by inode */
@@ -569,7 +569,7 @@ check_tcpudp(i, p)
 		    *p = "UDPLITE";
 		    break;
 		default:
-		   *p = "unknown";
+		    *p = "unknown";
 		}
 		return(tp);
 	    }
@@ -683,7 +683,7 @@ check_tcpudp6(i, p)
 		    *p = "UDPLITE";
 		    break;
 		default:
-		   *p = "unknown";
+		    *p = "unknown";
 		}
 		return(tp6);
 	    }
@@ -1181,9 +1181,9 @@ get_uxpeeri()
 	    }
 	}
 
-get_uxpeeri_exit:
+  get_uxpeeri_exit:
 
-	    (void) close(ns);
+	(void) close(ns);
 }
 
 
@@ -1204,7 +1204,7 @@ parse_diag(dm, len)
 
 	if (!dm || (dm->udiag_family != AF_UNIX) || !(inop = dm->udiag_ino)
 	||  (len <= 0)
-	) {
+	    ) {
 	    return;
 	}
 	rp = (struct rtattr *)(dm + 1);
@@ -1226,7 +1226,7 @@ parse_diag(dm, len)
 		break;
 	    case UNIX_DIAG_ICONS:
 		icct = RTA_PAYLOAD(rp),
-		icp = (uint32_t *)RTA_DATA(rp);
+		    icp = (uint32_t *)RTA_DATA(rp);
 
 		for (i = 0; i < icct; i += sizeof(uint32_t), icp++) {
 		    fill_uxicino((INODETYPE)inop, (INODETYPE)*icp);
@@ -1570,7 +1570,7 @@ process_netsinfo(f)
 #else	/* !defined(HASIPv6) */
 		       "inet"
 #endif	/* defined(HASIPv6) */
-		      ))
+			      ))
 		continue;
 	    switch (f) {
 	    case 0:
@@ -2478,7 +2478,7 @@ get_sctp()
 	    while (fgets(buf, sizeof(buf) - 1, ss)) {
 		if ((nf = get_fields(buf, (char *)NULL, &fp, (int *)NULL, 0))
 		<   (i ? 9 : 16)
-		) {
+		    ) {
 		    continue;
 		}
 		if (fl) {
@@ -2497,7 +2497,7 @@ get_sctp()
 			||  !fp[13] || strcmp(fp[13], "LADDRS")
 			||  !fp[14] || strcmp(fp[14], "<->")
 			||  !fp[15] || strcmp(fp[15], "RADDRS")
-			) {
+			    ) {
 			    err = 1;
 			}
 			break;
@@ -2506,7 +2506,7 @@ get_sctp()
 			||  !fp[5]  || strcmp(fp[5],  "LPORT")
 			||  !fp[7]  || strcmp(fp[7],  "INODE")
 			||  !fp[8]  || strcmp(fp[8],  "LADDRS")
-			) {
+			    ) {
 			    err = 1;
 			}
 		    }
@@ -2684,7 +2684,7 @@ get_sctp()
 			    len = strlen(ta);
 			    plen = strlen(la);
 			    if (!(la=(char *)realloc((MALLOC_P *)la,plen+len+2))
-			    ) {
+				) {
 				(void) fprintf(stderr,
 				  "%s: can't reallocate %d SCTP LADDRS bytes\n",
 				  Pn, (int)len);
@@ -2713,7 +2713,7 @@ get_sctp()
 			    len = strlen(ta);
 			    plen = strlen(ra);
 			    if (!(ra=(char *)realloc((MALLOC_P *)ra,plen+len+2))
-			    ) {
+				) {
 				(void) fprintf(stderr,
 				  "%s: can't reallocate %d SCTP RADDRS bytes\n",
 				  Pn, (int)len);
@@ -3969,7 +3969,7 @@ process_proc_sock(p, pbr, s, ss, l, lss)
 	}
 	if ((ss & SB_INO)
 	&&  (ap = check_ax25((INODETYPE)s->st_ino))
-	) {
+	    ) {
 
 	/*
 	 * The inode is connected to an AX25 /proc record.
@@ -3993,7 +3993,7 @@ process_proc_sock(p, pbr, s, ss, l, lss)
 	}
 	if ((ss & SB_INO)
 	&&  (ip = check_ipx((INODETYPE)s->st_ino))
-	) {
+	    ) {
 
 	/*
 	 * The inode is connected to an IPX /proc record.
@@ -4055,7 +4055,7 @@ process_proc_sock(p, pbr, s, ss, l, lss)
 	}
 	if ((ss & SB_INO)
 	&&  (rp = check_raw((INODETYPE)s->st_ino))
-	) {
+	    ) {
 
 	/*
 	 * The inode is connected to a raw /proc record.
@@ -4121,7 +4121,7 @@ process_proc_sock(p, pbr, s, ss, l, lss)
 	}
 	if ((ss & SB_INO)
 	    &&  (np = check_netlink((INODETYPE)s->st_ino))
-	) {
+	    ) {
 	    /*
 	     * The inode is connected to a Netlink /proc record.
 	     *
@@ -4149,7 +4149,7 @@ process_proc_sock(p, pbr, s, ss, l, lss)
 	}
 	if ((ss & SB_INO)
 	&&  (pp = check_pack((INODETYPE)s->st_ino))
-	) {
+	    ) {
 
 	/*
 	 * The inode is connected to a packet /proc record.
@@ -4487,7 +4487,7 @@ process_proc_sock(p, pbr, s, ss, l, lss)
 	}
 	if ((ss & SB_INO)
 	&&  (up = check_unix((INODETYPE)s->st_ino))
-	) {
+	    ) {
 
 	/*
 	 * The inode is connected to a UNIX /proc record.
@@ -4598,7 +4598,7 @@ process_proc_sock(p, pbr, s, ss, l, lss)
 	}
 	if (!Fxopt && (ss & SB_INO)
 	&&  (rp = check_raw6((INODETYPE)s->st_ino))
-	) {
+	    ) {
 
 	/*
 	 * The inode is connected to a raw IPv6 /proc record.
@@ -4675,7 +4675,7 @@ process_proc_sock(p, pbr, s, ss, l, lss)
 	}
 	if (!Fxopt && (ss & SB_INO)
 	&&  (tp6 = check_tcpudp6((INODETYPE)s->st_ino, &pr))
-	) {
+	    ) {
 
 	/*
 	 * The inode is connected to an IPv6 TCP or UDP /proc record.
@@ -4709,7 +4709,7 @@ process_proc_sock(p, pbr, s, ss, l, lss)
 		    else {
 			Lf->sf |= SELEXCLF;
 			return;
-		   }
+		    }
 		}
 	    }
 	    if (Fnet && (FnetTy != 4))
@@ -4781,7 +4781,7 @@ process_proc_sock(p, pbr, s, ss, l, lss)
 	}
 	if (!Fxopt && (ss & SB_INO)
 	&&  (tp = check_tcpudp((INODETYPE)s->st_ino, &pr))
-	) {
+	    ) {
 
 	/*
 	 * The inode is connected to an IPv4 TCP or UDP /proc record.
@@ -4873,7 +4873,7 @@ process_proc_sock(p, pbr, s, ss, l, lss)
 	    }
 	}
 	if ((ss & SB_INO) && (sp = check_sctp((INODETYPE)s->st_ino))
-	) {
+	    ) {
 
 	/*
 	 * The inode is connected to an SCTP /proc record.
@@ -4903,7 +4903,7 @@ process_proc_sock(p, pbr, s, ss, l, lss)
 		    sp->lport ? "[" : "",
 		    sp->lport ? sp->lport : "",
 		    sp->lport ? "]" : ""
-		 );
+		    );
 	    } else {
 
 	    /*
@@ -4925,7 +4925,7 @@ process_proc_sock(p, pbr, s, ss, l, lss)
 		    sp->rport ? "[" : "",
 		    sp->rport ? sp->rport : "",
 		    sp->rport ? "]" : ""
-		 );
+		    );
 	    }
 	    if (Namech[0])
 		enter_nm(Namech);
@@ -4938,7 +4938,7 @@ process_proc_sock(p, pbr, s, ss, l, lss)
 	}
 	if ((ss & SB_INO)
 	&&  (icmpp = check_icmp((INODETYPE)s->st_ino))
-	) {
+	    ) {
 
 	/*
 	 * The inode is connected to an ICMP /proc record.

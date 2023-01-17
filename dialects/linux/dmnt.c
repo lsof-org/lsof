@@ -96,7 +96,7 @@ cvtoe(os)
  * a '\0' terminator.
  */
 	if (!(ol = (int)strlen(os)))
-	   return((char *)NULL);
+	    return((char *)NULL);
 	if (!(cs = (char *)malloc(ol + 1))) {
 	    (void) fprintf(stderr,
 		"%s: can't allocate %d bytes for octal-escaping.\n",
@@ -290,7 +290,7 @@ getmntdev(dn, dnl, s, ss)
 		if (!MSHash) {
 		    if (!(MSHash = (mntsup_t **)calloc(HASHMNT,
 						       sizeof(mntsup_t *)))
-		    ) {
+			) {
 			(void) fprintf(stderr,
 			    "%s: no space for mount supplement hash buckets\n",
 			    Pn);
@@ -478,26 +478,26 @@ readmnt()
 	    fp1 = (char *)NULL;
 
 #if	defined(HASEOPT)
-	if (Efsysl) {
+	    if (Efsysl) {
 
 	/*
 	 * If there is an -e file system list, check it to decide if a stat()
 	 * and Readlink() on this one should be performed.
 	 */
-	    efsys_list_t *ep;
+		efsys_list_t *ep;
 
-	    for (ignrdl = ignstat = 0, ep = Efsysl; ep; ep = ep->next) {
-		if (!strcmp(dn, ep->path)) {
-		    ignrdl = ep->rdlnk;
-		    ignstat = 1;
-		    break;
+		for (ignrdl = ignstat = 0, ep = Efsysl; ep; ep = ep->next) {
+		    if (!strcmp(dn, ep->path)) {
+			ignrdl = ep->rdlnk;
+			ignstat = 1;
+			break;
+		    }
 		}
-	    }
-	} else
+	    } else
 
 #endif	/* defined(HASEOPT */
 
-	    ignrdl = ignstat = 0;
+		ignrdl = ignstat = 0;
 
 	/*
 	 * Avoid Readlink() when requested.
@@ -508,7 +508,7 @@ readmnt()
 			(void) fprintf(stderr,
 			"      Output information may be incomplete.\n");
 		    }
-			continue;
+		    continue;
 		}
 		if (ln != dn) {
 		    (void) free((FREE_P *)dn);
@@ -584,11 +584,11 @@ readmnt()
 			(void) fprintf(stderr,
 			    "%s: assuming dev=%#lx for %s from %s\n",
 			    Pn, (long)sb.st_dev, dn, MntSupP);
-			}
+		    }
 		} else {
 		    if (!ignstat)
 			continue;
-		   ds = 0;		/* No stat() was allowed. */
+		    ds = 0;		/* No stat() was allowed. */
 		}
 	    }
 #else	/* !defined(HASMNTSUP) */

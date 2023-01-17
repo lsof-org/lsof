@@ -133,7 +133,7 @@ endpoint_pxinfo_hash(pxinfo_t **pinfo_hash, const size_t nbuckets,
 		do {
 		    pp = pi->next;
 		    (void) (* free_elt)
-		    ((FREE_P *)pi);
+			((FREE_P *)pi);
 		    pi = pp;
 		} while (pi);
 		pinfo_hash[h] = (pxinfo_t *)NULL;
@@ -252,7 +252,7 @@ enter_pinfo()
 	    {
 		(void) fprintf(stderr,
 		    "%s: no space for %d pipe info buckets\n", Pn, PINFOBUCKS);
-		    Error();
+		Error();
 	    }
 	}
 	endpoint_enter(Pinfo, "pipeinfo", Lf->inode);
@@ -308,7 +308,7 @@ enter_ptmxi(mn)
 	    {
 		(void) fprintf(stderr,
 		    "%s: no space for %d pty info buckets\n", Pn, PINFOBUCKS);
-		    Error();
+		Error();
 	    }
 	}
 	endpoint_enter(PtyInfo, "pty", mn);
@@ -367,19 +367,19 @@ is_pty_slave(sm)
 	/* linux/Documentation/admin-guide/devices.txt
 	   -------------------------------------------
 	   136-143 char	Unix98 PTY slaves
-		  0 = /dev/pts/0	First Unix98 pseudo-TTY
-		  1 = /dev/pts/1	Second Unix98 pseudo-TTY
-		    ...
+	   0 = /dev/pts/0	First Unix98 pseudo-TTY
+	   1 = /dev/pts/1	Second Unix98 pseudo-TTY
+	   ...
 
-		These device nodes are automatically generated with
-		the proper permissions and modes by mounting the
-		devpts filesystem onto /dev/pts with the appropriate
-		mount options (distribution dependent, however, on
-		*most* distributions the appropriate options are
-		"mode=0620,gid=<gid of the "tty" group>".) */
+	   These device nodes are automatically generated with
+	   the proper permissions and modes by mounting the
+	   devpts filesystem onto /dev/pts with the appropriate
+	   mount options (distribution dependent, however, on
+	   *most* distributions the appropriate options are
+	   "mode=0620,gid=<gid of the "tty" group>".) */
 	if ((UNIX98_PTY_SLAVE_MAJOR <= sm)
 	&&  (sm < (UNIX98_PTY_SLAVE_MAJOR + UNIX98_PTY_MAJOR_COUNT))
-	) {
+	    ) {
 	    return 1;
 	}
 	return 0;
@@ -430,7 +430,7 @@ enter_psxmqinfo()
 	    {
 		(void) fprintf(stderr,
 		    "%s: no space for %d posix mq info buckets\n", Pn, PINFOBUCKS);
-		    Error();
+		Error();
 	    }
 	}
 	endpoint_enter(PSXMQinfo, "psxmqinfo", Lf->inode);
@@ -481,7 +481,7 @@ enter_evtfdinfo(int id)
 	    {
 		(void) fprintf(stderr,
 		    "%s: no space for %d envet fd info buckets\n", Pn, PINFOBUCKS);
-		    Error();
+		Error();
 	    }
 	}
 	endpoint_enter(EvtFDinfo, "evtfdinfo", id);
@@ -530,7 +530,7 @@ get_fields(ln, sep, fr, eb, en)
 
 	for (cp = ln, n = 0; cp && *cp;) {
 	    for (bp = cp; *bp && (*bp == ' ' || *bp == '\t'); bp++);
-		;
+	    ;
 	    if (!*bp || *bp == '\n')
 		break;
 	    for (cp = bp; *cp; cp++) {
@@ -810,7 +810,7 @@ process_proc_node(p, pbr, s, ss, l, ls)
 		return;
 	    case 0:
 		if (!strcmp(p, "anon_inode"))
-		   Lf->ntype = Ntype = N_ANON_INODE;
+		    Lf->ntype = Ntype = N_ANON_INODE;
 		break;
 	    }
 	}
@@ -832,7 +832,7 @@ process_proc_node(p, pbr, s, ss, l, ls)
 		if (FeptE
 		&&  (Ntype == N_CHR)
 		&&  is_pty_slave(GET_MAJ_DEV(Lf->rdev))
-		) {
+		    ) {
 		    enter_ptmxi(GET_MIN_DEV(Lf->rdev));
 		    Lf->sf |= SELPTYINFO;
 		}
@@ -846,7 +846,7 @@ process_proc_node(p, pbr, s, ss, l, ls)
 		&&  (mp->ds & SB_DEV) && Lf->dev_def && (Lf->dev == mp->dev)
 		&&  (mp->dir && mp->dirl
 		&&   !strncmp(mp->dir, p, mp->dirl))
-		) {
+		    ) {
 		    Lf->ntype = Ntype = N_NFS;
 		    break;
 		}

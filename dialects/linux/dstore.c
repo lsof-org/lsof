@@ -51,64 +51,64 @@ int OffType = 0;			/* offset type:
  */
 
 struct pff_tab Pff_tab[] = {
-	{ (long)O_WRONLY,	FF_WRITE	},
-	{ (long)O_RDWR,		FF_RDWR		},
-	{ (long)O_CREAT,	FF_CREAT	},
-	{ (long)O_EXCL,		FF_EXCL		},
-	{ (long)O_NOCTTY,	FF_NOCTTY	},
-	{ (long)O_TRUNC,	FF_TRUNC	},
-	{ (long)O_APPEND,	FF_APPEND	},
-	{ (long)O_NDELAY,	FF_NDELAY	},
-	{ (long)O_SYNC,		FF_SYNC		},
-	{ (long)O_ASYNC,	FF_ASYNC	},
+    { (long)O_WRONLY,	FF_WRITE	},
+    { (long)O_RDWR,		FF_RDWR		},
+    { (long)O_CREAT,	FF_CREAT	},
+    { (long)O_EXCL,		FF_EXCL		},
+    { (long)O_NOCTTY,	FF_NOCTTY	},
+    { (long)O_TRUNC,	FF_TRUNC	},
+    { (long)O_APPEND,	FF_APPEND	},
+    { (long)O_NDELAY,	FF_NDELAY	},
+    { (long)O_SYNC,		FF_SYNC		},
+    { (long)O_ASYNC,	FF_ASYNC	},
 
 #if	defined(O_DIRECT)
-	{ (long)O_DIRECT,	FF_DIRECT	},
+    { (long)O_DIRECT,	FF_DIRECT	},
 #endif	/* defined(O_DIRECT) */
 
 #if	defined(O_DIRECTORY)
-	{ (long)O_DIRECTORY,	FF_DIRECTORY	},
+    { (long)O_DIRECTORY,	FF_DIRECTORY	},
 #endif	/* defined(O_DIRECTORY) */
 
 #if	defined(O_NOFOLLOW)
-	{ (long)O_NOFOLLOW,	FF_NOFOLNK	},
+    { (long)O_NOFOLLOW,	FF_NOFOLNK	},
 #endif	/* defined(O_NOFOLLOW) */
 
 #if	defined(O_NOATIME)
-	{ (long)O_NOATIME,	FF_NOATM	},
+    { (long)O_NOATIME,	FF_NOATM	},
 #endif	/* defined(O_NOATIME) */
 
 #if	defined(O_DSYNC)
-	{ (long)O_DSYNC,	FF_DSYNC	},
+    { (long)O_DSYNC,	FF_DSYNC	},
 #endif	/* defined(O_DSYNC) */
 
 #if	defined(O_RSYNC)
-	{ (long)O_RSYNC,	FF_RSYNC	},
+    { (long)O_RSYNC,	FF_RSYNC	},
 #endif	/* defined(O_RSYNC) */
 
 #if	defined(O_LARGEFILE)
 # if	O_LARGEFILE==0
-	{ (long)0100000,	FF_LARGEFILE	},
+    { (long)0100000,	FF_LARGEFILE	},
 # else	/* O_LARGEFILE!=0 */
-	{ (long)O_LARGEFILE,	FF_LARGEFILE	},
+    { (long)O_LARGEFILE,	FF_LARGEFILE	},
 # endif	/* O_LARGEFILE==0 */
 #else	/* !defined(O_LARGEFILE) */
-	{ (long)0100000,	FF_LARGEFILE	},
+    { (long)0100000,	FF_LARGEFILE	},
 #endif	/* defined(O_LARGEFILE) */
 
 #if	defined(O_CLOEXEC)
-	{ (long)O_CLOEXEC,	POF_CLOEXEC	},
+    { (long)O_CLOEXEC,	POF_CLOEXEC	},
 #endif	/* defined(O_CLOEXEC) */
 
 #if	defined(O_PATH)
-	{ (long)O_PATH,	FF_PATH	},
+    { (long)O_PATH,	FF_PATH	},
 #endif	/* defined(O_PATH) */
 
 #if	defined(O_TMPFILE)
-	{ (long)O_TMPFILE,	FF_TMPFILE	},
+    { (long)O_TMPFILE,	FF_TMPFILE	},
 #endif	/* defined(O_TMPFILE) */
 
-	{ (long)0,		NULL		}
+    { (long)0,		NULL		}
 };
 
 
@@ -117,5 +117,5 @@ struct pff_tab Pff_tab[] = {
  */
 
 struct pff_tab Pof_tab[] = {
-	{ (long)0,		NULL		}
+    { (long)0,		NULL		}
 };

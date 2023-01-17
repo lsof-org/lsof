@@ -574,7 +574,7 @@ get_fdinfo(p, msk, fi)
 			   However, we can assume tfd lines are continuous. */
 		     opt_flg != FDINFO_TFD
 		     && (rv == msk || (rv & FDINFO_TFD))
-						)
+						    )
 		    || (
 			/* Too many tfds. */
 			opt_flg == FDINFO_TFD

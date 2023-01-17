@@ -1,4 +1,4 @@
-; run: `emacs -batch source.c -l $PWD/format-code.el' to format code
+; run: `emacs -batch source.c -l $PWD/format.el' to format code
 (setq c-basic-offset 4
       c-default-style "k&r"
       tab-width 8
