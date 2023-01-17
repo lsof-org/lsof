@@ -1926,6 +1926,8 @@ enter_nwad(n, sp, ep, s, he)
 	 */
 	    if (!he)
 		break;
+	    if (!he->h_addr_list[ac-1]) /* Check if address list ended prematurely */
+		break;
 	    if (!(ap = (unsigned char *)he->h_addr_list[ac++]))
 		break;
 
