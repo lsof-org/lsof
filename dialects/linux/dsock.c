@@ -1462,13 +1462,12 @@ process_netsinfo(f)
 	if (!FeptE)
 	    return;
 	for (Lf = Lp->file; Lf; Lf = Lf->next) {
-	    if (strcmp(Lf->type,
 #if	defined(HASIPv6)
-		       "IPv4"
+	    char *type = "IPv4";
 #else	/* !defined(HASIPv6) */
-		       "inet"
+	    char *type = "inet";
 #endif	/* defined(HASIPv6) */
-						      ))
+	    if (strcmp(Lf->type, type))
 		continue;
 	    switch (f) {
 	    case 0:
@@ -3800,7 +3799,7 @@ process_proc_sock(p, pbr, s, ss, l, lss)
  * Enter offset, if possible.
  */
 	if (Foffset || !Fsize) {
-	    if (l && (lss & SB_SIZE) && OffType) {
+	    if (l && (lss & SB_SIZE) && OffType != OFFSET_UNKNOWN) {
 		Lf->off = (SZOFFTYPE)l->st_size;
 		Lf->off_def = 1;
 	    }
@@ -4921,7 +4920,7 @@ sockty2str(ty, rf)
 					 *		1 = unknown */
 {
 	int f = 0;			/* result flag */
-	char *sr;			/*string result */
+	char *sr;			/* string result */
 
 	switch (ty) {
 
@@ -5123,12 +5122,12 @@ nlproto2str(unsigned int pr)
 	return cp;
 }
 
+#if	defined(HASSOSTATE)
 /*
  * Sockss2str() -- convert socket state number to a string
  *
  * returns "UNKNOWN" for unknown state.
  */
-#if	defined(HASSOSTATE)
 static char *
 sockss2str(unsigned int ss)
 {

@@ -882,14 +882,14 @@ process_proc_node(p, pbr, s, ss, l, ls)
 	case N_BLK:
 	case N_CHR:
 	case N_FIFO:
-	    if (!Fsize && l && (ls & SB_SIZE) && OffType) {
+	    if (!Fsize && l && (ls & SB_SIZE) && OffType != OFFSET_UNKNOWN) {
 		Lf->off = (SZOFFTYPE)l->st_size;
 		Lf->off_def = 1;
 	    }
 	    break;
 	default:
 	    if (Foffset) {
-		if (l && (ls & SB_SIZE) && OffType) {
+		if (l && (ls & SB_SIZE) && OffType != OFFSET_UNKNOWN) {
 		    Lf->off = (SZOFFTYPE)l->st_size;
 		    Lf->off_def = 1;
 		}

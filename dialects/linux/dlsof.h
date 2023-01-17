@@ -186,6 +186,15 @@ typedef struct pxinfo {			/* hashed pipe, UNIX socket or pseudo-
 
 extern int HasNFS;
 extern dev_t MqueueDev;
+
+/* offset type:
+ *     0 == unknown
+ *     1 == lstat's st_size
+ *     2 == from /proc/<PID>/fdinfo
+ */
+#define OFFSET_UNKNOWN 0
+#define OFFSET_LSTAT 1
+#define OFFSET_FDINFO 2
 extern int OffType;
 
 #endif	/* LINUX_LSOF_H	*/

@@ -661,20 +661,20 @@ initialize()
 			    fd);
 		if (!lstat(path, &sb)) {
 		    if (sb.st_size == (off_t)LSTAT_TEST_SEEK)
-			OffType = 1;
+			OffType = OFFSET_LSTAT;
 		}
 	    }
-	    if (!OffType) {
+	    if (OffType == OFFSET_UNKNOWN) {
 		(void) snpf(path, sizeof(path), "%s/%d/fdinfo/%d", PROCFS,
 			    Mypid, fd);
 		if (get_fdinfo(path, FDINFO_POS, &fi) & FDINFO_POS) {
 		    if (fi.pos == (off_t)LSTAT_TEST_SEEK)
-			OffType = 2;
+			OffType = OFFSET_FDINFO;
 		}
 	    }
 	    (void) close(fd);
 	}
-	if (!OffType) {
+	if (OffType == OFFSET_UNKNOWN) {
 	    if (Foffset && !Fwarn)
 		(void) fprintf(stderr,
 		    "%s: WARNING: can't report offset; disregarding -o.\n",
@@ -682,7 +682,7 @@ initialize()
 	    Foffset = 0;
 	    Fsize = 1;
 	}
-	if (Fsv && (OffType != 2)) {
+	if (Fsv && (OffType != OFFSET_FDINFO)) {
 	    if (!Fwarn && FsvByf)
 		(void) fprintf(stderr,
 		    "%s: WARNING: can't report file flags; disregarding +f.\n",
@@ -706,20 +706,19 @@ initialize()
  *	pp = pointer to /proc prefix
  *	lp = length of prefix
  *	np = pointer to malloc'd buffer to receive new file's path
- *	nl = length of new file path buffer
+ *	nl = size of new file path buffer
  *	sf = new path's suffix
  *
  * return: length of new path
  *	np = updated with new path
- *	nl = updated with new path length
+ *	nl = updated with new buffer size
  */
-
 int
 make_proc_path(pp, pl, np, nl, sf)
 	char *pp;			/* path prefix -- e.g., /proc/<pid>/ */
 	int pl;				/* strlen(pp) */
 	char **np;			/* malloc'd receiving buffer */
-	int *nl;			/* strlen(*np) */
+	int *nl;			/* malloc'd size */
 	char *sf;			/* suffix of new path */
 {
 	char *cp;
@@ -1211,7 +1210,7 @@ process_id(idp, idpl, cmd, uid, pid, ppid, pgid, tid, tcmd)
 	if ((i = make_proc_path(idp, idpl, &dpath, &dpathl, "fd/")) < 3)
 	    return(0);
 	dpath[i - 1] = '\0';
-	if ((OffType == 2)
+	if ((OffType == OFFSET_FDINFO)
 	&&  ((j = make_proc_path(idp, idpl, &ipath, &ipathl, "fdinfo/")) >= 7))
 	    oty = 1;
 	else
