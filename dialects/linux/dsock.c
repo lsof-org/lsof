@@ -363,26 +363,25 @@ _PROTOTYPE(static void get_unix,(char *p));
 _PROTOTYPE(static int isainb,(char *a, char *b));
 _PROTOTYPE(static void print_ax25info,(struct ax25sin *ap));
 _PROTOTYPE(static void print_ipxinfo,(struct ipxsin *ip));
-_PROTOTYPE(static char *sockty2str,(uint32_t ty, int *rf));
-_PROTOTYPE(static char *nlproto2str,(unsigned int pr));
+_PROTOTYPE(static char *socket_type_to_str,(uint32_t ty, int *rf));
+_PROTOTYPE(static char *netlink_proto_to_str,(unsigned int pr));
 #if	defined(HASSOSTATE)
-_PROTOTYPE(static char *sockss2str,(unsigned int ss));
+_PROTOTYPE(static char *socket_state_to_str,(unsigned int ss));
 #endif	/* defined(HASSOSTATE) */
-_PROTOTYPE(static char *ethproto2str,(unsigned int pr));
+_PROTOTYPE(static char *ethernet_proto_to_str,(unsigned int pr));
 
 #if	defined(HASIPv6)
 _PROTOTYPE(static struct rawsin *check_raw6,(INODETYPE i));
 _PROTOTYPE(static struct tcp_udp6 *check_tcpudp6,(INODETYPE i, char **p));
 _PROTOTYPE(static void get_raw6,(char *p));
 _PROTOTYPE(static void get_tcpudp6,(char *p, int pr, int clr));
-_PROTOTYPE(static int net6a2in6,(char *as, struct in6_addr *ad));
+_PROTOTYPE(static int hex_ipv6_to_in6,(char *as, struct in6_addr *ad));
 #endif	/* defined(HASIPv6) */
 
 
 /*
  * build_IPstates() -- build the TCP and UDP state tables
  */
-
 void
 build_IPstates()
 {
@@ -407,10 +406,8 @@ build_IPstates()
 /*
  * check_ax25() - check for AX25 socket file
  */
-
 static struct ax25sin *
-check_ax25(i)
-	INODETYPE i;			/* socket file's inode number */
+check_ax25(INODETYPE i)			/* socket file's inode number */
 {
 	return HASH_FIND_ELEMENT(AX25sin, INOHASH, struct ax25sin, inode, i);
 }
@@ -420,10 +417,8 @@ check_ax25(i)
 /*
  * check_icmp() - check for ICMP socket
  */
-
 static struct icmpin *
-check_icmp(i)
-	INODETYPE i;			/* socket file's inode number */
+check_icmp(INODETYPE i)			/* socket file's inode number */
 {
 	return HASH_FIND_ELEMENT(Icmpin, INOHASH, struct icmpin, inode, i);
 }
@@ -432,10 +427,8 @@ check_icmp(i)
 /*
  * check_ipx() - check for IPX socket file
  */
-
 static struct ipxsin *
-check_ipx(i)
-	INODETYPE i;			/* socket file's inode number */
+check_ipx(INODETYPE i)			/* socket file's inode number */
 {
 	return HASH_FIND_ELEMENT(Ipxsin, INOHASH, struct ipxsin, inode, i);
 }
@@ -444,10 +437,8 @@ check_ipx(i)
 /*
  * check_netlink() - check for Netlink socket file
  */
-
 static struct nlksin *
-check_netlink(i)
-	INODETYPE i;			/* socket file's inode number */
+check_netlink(INODETYPE i)			/* socket file's inode number */
 {
 	return HASH_FIND_ELEMENT(Nlksin, INOHASH, struct nlksin, inode, i);
 }
@@ -456,10 +447,8 @@ check_netlink(i)
 /*
  * check_pack() - check for packet file
  */
-
 static struct packin *
-check_pack(i)
-	INODETYPE i;			/* packet file's inode number */
+check_pack(INODETYPE i)			/* packet file's inode number */
 {
 	return HASH_FIND_ELEMENT(Packin, INOHASH, struct packin, inode, i);
 }
@@ -470,8 +459,7 @@ check_pack(i)
  */
 
 static struct rawsin *
-check_raw(i)
-	INODETYPE i;			/* socket file's inode number */
+check_raw(INODETYPE i)			/* socket file's inode number */
 {
 	return HASH_FIND_ELEMENT(Rawsin, INOHASH, struct rawsin, inode, i);
 }
@@ -480,10 +468,8 @@ check_raw(i)
 /*
  * check_sctp() - check for SCTP socket file
  */
-
 static struct sctpsin *
-check_sctp(i)
-	INODETYPE i;			/* socket file's inode number */
+check_sctp(INODETYPE i)			/* socket file's inode number */
 {
 	return HASH_FIND_ELEMENT(SCTPsin, INOHASH, struct sctpsin, inode, i);
 }
@@ -492,11 +478,9 @@ check_sctp(i)
 /*
  * check_tcpudp() - check for IPv4 TCP or UDP socket file
  */
-
 static struct tcp_udp *
-check_tcpudp(i, p)
-	INODETYPE i;			/* socket file's inode number */
-	char **p;			/* protocol return */
+check_tcpudp(INODETYPE i,			/* socket file's inode number */
+	char **p)			/* protocol return */
 {
 	struct tcp_udp *tp;
 	tp = HASH_FIND_ELEMENT(TcpUdp, TCPUDPHASH, struct tcp_udp, inode, i);
@@ -522,10 +506,8 @@ check_tcpudp(i, p)
 /*
  * check_inet() - check for locally used INET domain socket
  */
-
 static struct tcp_udp *
-check_inet(i)
-	INODETYPE i;			/* socket file's inode number */
+check_inet(INODETYPE i)			/* socket file's inode number */
 {
 	return HASH_FIND_ELEMENT(TcpUdp, TCPUDPHASH, struct tcp_udp, inode, i);
 }
@@ -533,7 +515,6 @@ check_inet(i)
 /*
  * clear_netsinfo -- clear allocated INET socket info
  */
-
 void
 clear_netsinfo()
 {
@@ -574,10 +555,8 @@ clear_netsinfo()
 /*
  * check_raw6() - check for raw IPv6 socket file
  */
-
 static struct rawsin *
-check_raw6(i)
-	INODETYPE i;			/* socket file's inode number */
+check_raw6(INODETYPE i)			/* socket file's inode number */
 {
 	return HASH_FIND_ELEMENT(Rawsin6, INOHASH, struct rawsin, inode, i);
 }
@@ -586,11 +565,9 @@ check_raw6(i)
 /*
  * check_tcpudp6() - check for IPv6 TCP or UDP socket file
  */
-
 static struct tcp_udp6 *
-check_tcpudp6(i, p)
-	INODETYPE i;			/* socket file's inode number */
-	char **p;			/* protocol return */
+check_tcpudp6(INODETYPE i,			/* socket file's inode number */
+	char **p)			/* protocol return */
 {
 	int h;
 	struct tcp_udp6 *tp6;
@@ -617,10 +594,8 @@ check_tcpudp6(i, p)
 /*
  * check_inet6() - check for locally used INET6 domain socket
  */
-
 static struct tcp_udp6 *
-check_inet6(i)
-	INODETYPE i;			/* socket file's inode number */
+check_inet6(INODETYPE i)			/* socket file's inode number */
 {
 	return HASH_FIND_ELEMENT(TcpUdp6, TCPUDP6HASH, struct tcp_udp6, inode, i);
 }
@@ -628,7 +603,6 @@ check_inet6(i)
 /*
  * clear_nets6info -- clear allocated INET6 socket info
  */
-
 void
 clear_nets6info()
 {
@@ -671,10 +645,8 @@ clear_nets6info()
 /*
  * check_unix() - check for UNIX domain socket
  */
-
 static uxsin_t *
-check_unix(i)
-	INODETYPE i;			/* socket file's inode number */
+check_unix(INODETYPE i)			/* socket file's inode number */
 {
 	return HASH_FIND_ELEMENT(Uxsin, INOHASH, uxsin_t, inode, i);
 }
@@ -683,7 +655,6 @@ check_unix(i)
 /*
  * clear_uxsinfo -- clear allocated UNIX socket info
  */
-
 void
 clear_uxsinfo()
 {
@@ -724,10 +695,8 @@ clear_uxsinfo()
 /*
  * get_ax25() - get /proc/net/ax25 info
  */
-
 static void
-get_ax25(p)
-	char *p;			/* /proc/net/ax25 path */
+get_ax25(char *p)			/* /proc/net/ax25 path */
 {
 	struct ax25sin *ap, *np;
 	FILE *as;
@@ -895,10 +864,8 @@ get_ax25(p)
  * 	entry	Lf = local file structure pointer
  * 		Lp = local process structure pointer
  */
-
 static void
-enter_uxsinfo (up)
-	uxsin_t *up;
+enter_uxsinfo (uxsin_t *up)
 {
 	pxinfo_t *pi;			/* pxinfo_t structure pointer */
 	struct lfile *lf;		/* local file structure pointer */
@@ -930,11 +897,9 @@ enter_uxsinfo (up)
 /*
  * fill_uxicino() -- fill incoming connection inode number
  */
-
 static void
-fill_uxicino (si, ic)
-	INODETYPE si;			/* UNIX socket inode number */
-	INODETYPE ic;			/* incoming UNIX socket connection
+fill_uxicino (INODETYPE si,			/* UNIX socket inode number */
+	INODETYPE ic)			/* incoming UNIX socket connection
 					 * inode number */
 {
 	uxsin_t *psi;			/* pointer to socket's information */
@@ -955,11 +920,9 @@ fill_uxicino (si, ic)
 /*
  * fill_uxpino() -- fill in UNIX socket's peer inode number
  */
-
 static void
-fill_uxpino(si, pi)
-	INODETYPE si;		/* UNIX socket inode number */
-	INODETYPE pi;		/* UNIX socket peer's inode number */
+fill_uxpino(INODETYPE si,		/* UNIX socket inode number */
+	INODETYPE pi)		/* UNIX socket peer's inode number */
 {
 	uxsin_t *pp, *up;
 
@@ -975,10 +938,8 @@ fill_uxpino(si, pi)
 /*
  * find_uxepti(lf) -- find UNIX socket endpoint info
  */
-
 uxsin_t *
-find_uxepti(lf)
-	struct lfile *lf;		/* pipe's lfile */
+find_uxepti(struct lfile *lf)		/* pipe's lfile */
 {
 	uxsin_t *up;
 
@@ -992,8 +953,7 @@ find_uxepti(lf)
  */
 
 static int
-get_diagmsg(sockfd)
-	int sockfd;			/* socket's file descriptor */
+get_diagmsg(int sockfd)			/* socket's file descriptor */
 {
 	struct msghdr msg;		/* message header */
 	struct nlmsghdr nlh;		/* header length */
@@ -1032,7 +992,6 @@ get_diagmsg(sockfd)
 /*
  * get_uxpeeri() - get UNIX socket peer inode information
  */
-
 static void
 get_uxpeeri()
 {
@@ -1089,11 +1048,9 @@ get_uxpeeri()
 /*
  * parse_diag() -- parse UNIX diag message
  */
-
 static void
-parse_diag(dm, len)
-	struct unix_diag_msg *dm;	/* pointer to diag message */
-	int len;			/* message length */
+parse_diag(struct unix_diag_msg *dm,	/* pointer to diag message */
+	int len)			/* message length */
 {
 	struct rtattr *rp;		/* route info pointer */
 	int i;				/* tmporary index */
@@ -1139,11 +1096,9 @@ parse_diag(dm, len)
 /*
  * prt_uxs() -- print UNIX socket information
  */
-
 static void
-prt_uxs(p, mk)
-	uxsin_t *p;			/* peer info */
-	int mk;				/* 1 == mark for later processing */
+prt_uxs(uxsin_t *p,			/* peer info */
+	int mk)				/* 1 == mark for later processing */
 {
 	struct lproc *ep;		/* socket endpoint process */
 	struct lfile *ef;		/* socket endpoint file */
@@ -1189,13 +1144,11 @@ prt_uxs(p, mk)
  *			UNIX socket files and selecting UNIX socket end point
  *			files (if requested)
  */
-
 void
-process_uxsinfo(f)
-	int f;				/* function:
-					 *     0 == process selected socket
-					 *     1 == process socket end point
-					 */
+process_uxsinfo(int f)				/* function:
+						 *     0 == process selected socket
+						 *     1 == process socket end point
+						 */
 {
 	uxsin_t *p;			/* peer UNIX socket info pointer */
 	uxsin_t *tp;			/* temporary UNIX socket info pointer */
@@ -1282,7 +1235,6 @@ process_uxsinfo(f)
  * enter_netsinfo_common() -- enter inet or inet6 socket info
  * 	tp = tcp/udp on ipv4 or ipv4 socket pointer
  */
-
 static void
 enter_netsinfo_common (void *tp,
 		       pxinfo_t * (* get_pxinfo) (void *),
@@ -1317,15 +1269,13 @@ enter_netsinfo_common (void *tp,
 /*
  * prt_nets_common() -- print locally used INET or INET6 socket information
  */
-
 static void
-prt_nets_common(p, mk, get_pxinfo, chend, ept_flag)
-	void *p;			/* peer info */
-	int mk;				/* 1 == mark for later
+prt_nets_common(void *p,			/* peer info */
+	int mk,				/* 1 == mark for later
 					 * processing */
-	pxinfo_t * (* get_pxinfo) (void *);
-	unsigned char chend;
-	short ept_flag;
+	pxinfo_t * (* get_pxinfo) (void *),
+	unsigned char chend,
+	short ept_flag)
 {
 	struct lproc *ep;		/* socket endpoint process */
 	struct lfile *ef;		/* socket endpoint file */
@@ -1364,7 +1314,6 @@ prt_nets_common(p, mk, get_pxinfo, chend, ept_flag)
  * enter_netsinfo() -- enter inet socket info
  * 	tp = tcp/udp on ipv4 socket pointer
  */
-
 static pxinfo_t *
 tcp_udp_get_pxinfo(void *vp)
 {
@@ -1380,8 +1329,7 @@ tcp_udp_set_pxinfo(void *vp, pxinfo_t *np)
 }
 
 static void
-enter_netsinfo (tp)
-	struct tcp_udp *tp;
+enter_netsinfo (struct tcp_udp *tp)
 {
 	enter_netsinfo_common (tp,
 			       tcp_udp_get_pxinfo,
@@ -1391,10 +1339,8 @@ enter_netsinfo (tp)
 /*
  * find_netsepti(lf) -- find locally used INET socket endpoint info
  */
-
 static struct tcp_udp *
-find_netsepti(lf)
-	struct lfile *lf;		/* socket's lfile */
+find_netsepti(struct lfile *lf)		/* socket's lfile */
 {
 	struct tcp_udp *tp;
 
@@ -1405,7 +1351,6 @@ find_netsepti(lf)
 /*
  * get_netpeeri() - get INET socket peer inode information
  */
-
 static void
 get_netpeeri()
 {
@@ -1436,11 +1381,9 @@ get_netpeeri()
 /*
  * prt_nets() -- print locally used INET socket information
  */
-
 static void
-prt_nets(p, mk)
-	struct tcp_udp *p;		/* peer info */
-	int mk;				/* 1 == mark for later processing */
+prt_nets(struct tcp_udp *p,		/* peer info */
+	int mk)				/* 1 == mark for later processing */
 {
 	prt_nets_common (p, mk, tcp_udp_get_pxinfo, CHEND_NETS, EPT_NETS_END);
 }
@@ -1450,13 +1393,11 @@ prt_nets(p, mk)
  *			it to selected INET socket files and selecting INET
  *			socket end point files (if requested)
  */
-
 void
-process_netsinfo(f)
-	int f;				/* function:
-					 *     0 == process selected socket
-					 *     1 == process socket end point
-					 */
+process_netsinfo(int f)				/* function:
+						 *     0 == process selected socket
+						 *     1 == process socket end point
+						 */
 {
 	struct tcp_udp *p;		/* peer INET socket info pointer */
 
@@ -1505,8 +1446,7 @@ process_netsinfo(f)
 	    }
 	}
 }
-#endif
-    /* defined(HASEPTOPTS) */
+#endif	/* defined(HASEPTOPTS) */
 
 #if	defined(HASIPv6)
 #if	defined(HASEPTOPTS)
@@ -1514,7 +1454,6 @@ process_netsinfo(f)
  * enter_nets6info() -- enter inet socket info
  * 	tp = tcp/udp on ipv6 socket pointer
  */
-
 static pxinfo_t *
 tcp_udp6_get_pxinfo(void *vp)
 {
@@ -1530,8 +1469,7 @@ tcp_udp6_set_pxinfo(void *vp, pxinfo_t *np)
 }
 
 static void
-enter_nets6info (tp)
-	struct tcp_udp6 *tp;
+enter_nets6info (struct tcp_udp6 *tp)
 {
 	enter_netsinfo_common (tp,
 			       tcp_udp6_get_pxinfo,
@@ -1541,10 +1479,8 @@ enter_nets6info (tp)
 /*
  * find_nets6epti(lf) -- find locally used INET6 socket endpoint info
  */
-
 static struct tcp_udp6 *
-find_nets6epti(lf)
-	struct lfile *lf;		/* socket's lfile */
+find_nets6epti(struct lfile *lf)		/* socket's lfile */
 {
 	struct tcp_udp6 *tp;
 
@@ -1555,7 +1491,6 @@ find_nets6epti(lf)
 /*
  * get_net6peeri() - get INET6 socket peer inode information
  */
-
 static void
 get_net6peeri()
 {
@@ -1586,11 +1521,9 @@ get_net6peeri()
 /*
  * prt_nets6() -- print locally used INET6 socket information
  */
-
 static void
-prt_nets6(p, mk)
-	struct tcp_udp6 *p;		/* peer info */
-	int mk;				/* 1 == mark for later processing */
+prt_nets6(struct tcp_udp6 *p,		/* peer info */
+	int mk)				/* 1 == mark for later processing */
 {
 	prt_nets_common (p, mk, tcp_udp6_get_pxinfo, CHEND_NETS6, EPT_NETS6_END);
 }
@@ -1600,13 +1533,11 @@ prt_nets6(p, mk)
  *			it to selected INET6 socket files and selecting INET6
  *			socket end point files (if requested)
  */
-
 void
-process_nets6info(f)
-	int f;				/* function:
-					 *     0 == process selected socket
-					 *     1 == process socket end point
-					 */
+process_nets6info(int f)				/* function:
+							 *     0 == process selected socket
+							 *     1 == process socket end point
+							 */
 {
 	struct tcp_udp6 *p;		/* peer INET6 socket info pointer */
 
@@ -1655,10 +1586,8 @@ process_nets6info(f)
 /*
  * get_icmp() - get ICMP net info
  */
-
 static void
-get_icmp(p)
-	char *p;			/* /proc/net/icmp path */
+get_icmp(char *p)			/* /proc/net/icmp path */
 {
 	char buf[MAXPATHLEN], *ep, **fp, *la, *ra;
 	int fl = 1;
@@ -1790,10 +1719,8 @@ get_icmp(p)
 /*
  * get_ipx() - get /proc/net/ipx info
  */
-
 static void
-get_ipx(p)
-	char *p;			/* /proc/net/ipx path */
+get_ipx(char *p)			/* /proc/net/ipx path */
 {
 	char buf[MAXPATHLEN], *ep, **fp, *la, *ra;
 	int fl = 1;
@@ -1944,10 +1871,8 @@ get_ipx(p)
 /*
  * get_netlink() - get /proc/net/netlink info
  */
-
 static void
-get_netlink(p)
-	char *p;			/* /proc/net/netlink path */
+get_netlink(char *p)			/* /proc/net/netlink path */
 {
 	char buf[MAXPATHLEN], *ep, **fp;
 	int fr = 1;
@@ -2043,10 +1968,8 @@ get_netlink(p)
 /*
  * get_pack() - get /proc/net/packet info
  */
-
 static void
-get_pack(p)
-	char *p;			/* /proc/net/raw path */
+get_pack(char *p)			/* /proc/net/raw path */
 {
 	char buf[MAXPATHLEN], *ep, **fp;
 	int fl = 1;
@@ -2150,10 +2073,8 @@ get_pack(p)
 /*
  * get_raw() - get /proc/net/raw info
  */
-
 static void
-get_raw(p)
-	char *p;			/* /proc/net/raw path */
+get_raw(char *p)			/* /proc/net/raw path */
 {
 	char buf[MAXPATHLEN], *ep, **fp, *la, *ra, *sp;
 	int h;
@@ -2295,7 +2216,6 @@ get_raw(p)
 /*
  * get_sctp() - get /proc/net/sctp/assocs info
  */
-
 static void
 get_sctp()
 {
@@ -2623,11 +2543,10 @@ get_sctp()
 
 
 static char *
-get_sctpaddrs(fp, i, nf, x)
-	char **fp;			/* field pointers */
-	int i;				/* first address field index in fp */
-	int nf;				/* number of fields */
-	int *x;				/* index of first "<->" field entry */
+get_sctpaddrs(char **fp,			/* field pointers */
+	int i,				/* first address field index in fp */
+	int nf,				/* number of fields */
+	int *x)				/* index of first "<->" field entry */
 {
 	MALLOC_S al = (MALLOC_S)0;
 	char *cp = (char *)NULL;
@@ -2662,13 +2581,11 @@ get_sctpaddrs(fp, i, nf, x)
 /*
  * get_tcpudp() - get IPv4 TCP, UDP or UDPLITE net info
  */
-
 static void
-get_tcpudp(p, pr, clr)
-	char *p;			/* /proc/net/{tcp,udp} path */
-	int pr;				/* protocol: 0 = TCP, 1 = UDP,
+get_tcpudp(char *p,			/* /proc/net/{tcp,udp} path */
+	int pr,				/* protocol: 0 = TCP, 1 = UDP,
 					 *           2 = UDPLITE */
-	int clr;			/* 1 == clear the table */
+	int clr)			/* 1 == clear the table */
 {
 	char buf[MAXPATHLEN], *ep, **fp;
 	unsigned long faddr, fport, laddr, lport, rxq, state, txq;
@@ -2875,10 +2792,8 @@ get_tcpudp(p, pr, clr)
 /*
  * get_raw6() - get /proc/net/raw6 info
  */
-
 static void
-get_raw6(p)
-	char *p;			/* /proc/net/raw path */
+get_raw6(char *p)			/* /proc/net/raw path */
 {
 	char buf[MAXPATHLEN], *ep, **fp, *la, *ra, *sp;
 	int h;
@@ -3022,12 +2937,10 @@ get_raw6(p)
 /*
  * get_tcpudp6() - get IPv6 TCP, UDP or UDPLITE net info
  */
-
 static void
-get_tcpudp6(p, pr, clr)
-	char *p;			/* /proc/net/{tcp,udp} path */
-	int pr;				/* protocol: 0 = TCP, 1 = UDP */
-	int clr;			/* 1 == clear the table */
+get_tcpudp6(char *p,			/* /proc/net/{tcp,udp} path */
+	int pr,				/* protocol: 0 = TCP, 1 = UDP */
+	int clr)			/* 1 == clear the table */
 {
 	char buf[MAXPATHLEN], *ep, **fp;
 	struct in6_addr faddr, laddr;
@@ -3157,13 +3070,13 @@ get_tcpudp6(p, pr, clr)
 	/*
 	 * Get the local and remote addresses.
 	 */
-	    if (!fp[1] || !*fp[1] || net6a2in6(fp[1], &laddr))
+	    if (!fp[1] || !*fp[1] || hex_ipv6_to_in6(fp[1], &laddr))
 		continue;
 	    ep = (char *)NULL;
 	    if (!fp[2] || !*fp[2]
 	    ||  (lport = strtoul(fp[2], &ep, 16)) == ULONG_MAX || !ep || *ep)
 		continue;
-	    if (!fp[3] || !*fp[3] || net6a2in6(fp[3], &faddr))
+	    if (!fp[3] || !*fp[3] || hex_ipv6_to_in6(fp[3], &faddr))
 		continue;
 	    ep = (char *)NULL;
 	    if (!fp[4] || !*fp[4]
@@ -3240,13 +3153,11 @@ get_tcpudp6(p, pr, clr)
 /*
  * get_unix() - get UNIX net info
  */
-
 static void
-get_unix(p)
-	char *p;			/* /proc/net/unix path */
+get_unix(char *p)			/* /proc/net/unix path */
 {
 	char buf[MAXPATHLEN], *ep, **fp, *path, *pcb;
-	int fl = 1;
+	int fl = 1; /* First line */
 	int h, nf;
 	INODETYPE inode;
 	MALLOC_S len;
@@ -3449,14 +3360,12 @@ get_unix(p)
 
 #if	defined(HASIPv6)
 /*
- * net6a2in6() - convert ASCII IPv6 address in /proc/net/{tcp,udp} form to
+ * hex_ipv6_to_in6() - convert ASCII IPv6 address in /proc/net/{tcp,udp}6 form to
  *		 an in6_addr
  */
-
 static int
-net6a2in6(as, ad)
-	char *as;			/* address source */
-	struct in6_addr *ad;		/* address destination */
+hex_ipv6_to_in6(char *as,			/* address source */
+	struct in6_addr *ad)		/* address destination */
 {
 	char buf[9], *ep;
 	int i;
@@ -3510,13 +3419,11 @@ net6a2in6(as, ad)
 
 
 /*
- * isainb(a,b) is string a in string b
+ * isainb(a,b) check if string a is included in b, where b is a comma-separated string
  */
-
 static int
-isainb(a, b)
-	char *a;			/*string a */
-	char *b;			/* string b */
+isainb(char *a,			/*string a */
+	char *b)			/* string b */
 {
 	char *cp, *pp;
 	MALLOC_S la, lb, lt;
@@ -3548,10 +3455,8 @@ isainb(a, b)
 /*
  * print_ax25info() - print AX25 socket info
  */
-
 static void
-print_ax25info(ap)
-	struct ax25sin *ap;		/* AX25 socket info */
+print_ax25info(struct ax25sin *ap)		/* AX25 socket info */
 {
 	char *cp, pbuf[1024];
 	int ds;
@@ -3601,10 +3506,8 @@ print_ax25info(ap)
 /*
  * print_ipxinfo() - print IPX socket info
  */
-
 static void
-print_ipxinfo(ip)
-	struct ipxsin *ip;		/* IPX socket info */
+print_ipxinfo(struct ipxsin *ip)		/* IPX socket info */
 {
 	char *cp, pbuf[256];
 	MALLOC_S pl;
@@ -3626,15 +3529,14 @@ print_ipxinfo(ip)
 
 
 /*
- * print_unix() - print state of UNIX domain socket
+ * print_unix() - print state of UNIX domain socket e.g. UNCONNECTED
  */
-
 static void
 print_unix(int nl)
 {
 	if (Ftcptpi & TCPTPI_STATE) {
 #if	defined(HASSOSTATE) && defined(HASSOOPT)
-	    char *cp = (Lf->lts.opt == __SO_ACCEPTCON)? "LISTEN": sockss2str(Lf->lts.ss);
+	    char *cp = (Lf->lts.opt == __SO_ACCEPTCON)? "LISTEN": socket_state_to_str(Lf->lts.ss);
 
 	    if (Ffield)
 		(void) printf("%cST=%s%c", LSOF_FID_TCPTPI, cp, Terminator);
@@ -3651,12 +3553,10 @@ print_unix(int nl)
 
 
 /*
- * print_tcptpi() - print TCP/TPI state
+ * print_tcptpi() - print TCP/TPI state e.g. ESTBALISHED
  */
-
 void
-print_tcptpi(nl)
-	int nl;				/* 1 == '\n' required */
+print_tcptpi(int nl)				/* 1 == '\n' required */
 {
 	char buf[128];
 	char *cp = (char *)NULL;
@@ -3966,7 +3866,7 @@ process_proc_sock(char *p,			/* node's readlink() path */
 	     */
 
 	    (void) snpf(Lf->type, sizeof(Lf->type), "netlink");
-	    cp = nlproto2str(np->pr);
+	    cp = netlink_proto_to_str(np->pr);
 	    if (cp)
 		(void) snpf(Namech, Namechl, "%s", cp);
 	    else
@@ -3994,9 +3894,9 @@ process_proc_sock(char *p,			/* node's readlink() path */
 	     * number in the DEVICE column.
 	     */
 	    (void) snpf(Lf->type, sizeof(Lf->type), "pack");
-	    cp = sockty2str(pp->ty, &rf);
+	    cp = socket_type_to_str(pp->ty, &rf);
 	    (void) snpf(Namech, Namechl, "type=%s%s", rf ? "" : "SOCK_", cp);
-	    cp = ethproto2str(pp->pr);
+	    cp = ethernet_proto_to_str(pp->pr);
 	    if (!cp) {
 		/* Unknown ethernet proto */
 		(void) snpf(tbuf, sizeof(tbuf) - 1, "%d", pp->pr);
@@ -4053,7 +3953,7 @@ process_proc_sock(char *p,			/* node's readlink() path */
 	    }
 #endif	/* defined(HASEPTOPTS) && defined(HASUXSOCKEPT) */
 
-	    cp = sockty2str(up->ty, &rf);
+	    cp = socket_type_to_str(up->ty, &rf);
 	    (void) snpf(Namech, Namechl - 1, "%s%stype=%s",
 		up->path ? up->path : "",
 		up->path ? " " : "",
@@ -4557,11 +4457,9 @@ process_proc_sock(char *p,			/* node's readlink() path */
 /*
  * set_net_paths() - set /proc/net paths
  */
-
 void
-set_net_paths(p, pl)
-	char *p;			/* path to /proc/net/ */
-	int pl;				/* strlen(p) */
+set_net_paths(char *p,			/* path to /proc/net/ */
+	int pl)				/* strlen(p) */
 {
 	int i;
 	int pathl;
@@ -4610,13 +4508,12 @@ set_net_paths(p, pl)
 
 
 /*
- * Sockty2str() -- convert socket type number to a string
+ * socket_type_to_str() -- convert socket type number to a string
  */
 
 static char *
-sockty2str(ty, rf)
-	uint32_t ty;			/* socket type number */
-	int *rf;			/* result flag: 0 == known
+socket_type_to_str(uint32_t ty,			/* socket type number */
+	int *rf)			/* result flag: 0 == known
 					 *		1 = unknown */
 {
 	int f = 0;			/* result flag */
@@ -4676,12 +4573,12 @@ sockty2str(ty, rf)
 
 
 /*
- * Nlproto2str() -- convert netlink protocol number to a string
+ * netlink_proto_to_str() -- convert netlink protocol number to a string
  *
  * return NULL if the number is unknown.
  */
 static char *
-nlproto2str(unsigned int pr)
+netlink_proto_to_str(unsigned int pr)
 {
 	char *cp = NULL;
 	switch (pr) {
@@ -4823,12 +4720,12 @@ nlproto2str(unsigned int pr)
 
 #if	defined(HASSOSTATE)
 /*
- * Sockss2str() -- convert socket state number to a string
+ * socket_state_to_str() -- convert socket state number to a string
  *
  * returns "UNKNOWN" for unknown state.
  */
 static char *
-sockss2str(unsigned int ss)
+socket_state_to_str(unsigned int ss)
 {
 	char *sr;
 	switch (Lf->lts.ss) {
@@ -4853,12 +4750,14 @@ sockss2str(unsigned int ss)
 #endif	/* defined(HASSOSTATE) */
 
 /*
- * Ethproto2str() -- convert ethernet protocol number to a string
+ * ethernet_proto_to_str() -- convert ethernet protocol number to a string
+ * 
+ * The string should not exceed 7 characters.
  *
  * return NULL if the number is unknown.
  */
 static char *
-ethproto2str(unsigned int pr)
+ethernet_proto_to_str(unsigned int pr)
 {
 	char *cp = NULL;
 	switch(pr) {
@@ -5174,6 +5073,96 @@ ethproto2str(unsigned int pr)
 	    break;
 #endif	/* defined(ETH_P_PRP) */
 
+#if	defined(ETH_P_FCOE)
+	case ETH_P_FCOE:
+	    cp = "FCOE";
+	    break;
+#endif	/* defined(ETH_P_FCOE) */
+
+#if	defined(ETH_P_IBOE)
+	case ETH_P_IBOE:
+	    cp = "IBOE";
+	    break;
+#endif	/* defined(ETH_P_IBOE) */
+
+#if	defined(ETH_P_TDLS)
+	case ETH_P_TDLS:
+	    cp = "TDLS";
+	    break;
+#endif	/* defined(ETH_P_TDLS) */
+
+#if	defined(ETH_P_FIP)
+	case ETH_P_FIP:
+	    cp = "FIP";
+	    break;
+#endif	/* defined(ETH_P_FIP) */
+
+#if	defined(ETH_P_80221)
+	case ETH_P_80221:
+	    cp = "802.21";
+	    break;
+#endif	/* defined(ETH_P_80221) */
+
+#if	defined(ETH_P_HSR)
+	case ETH_P_HSR:
+	    cp = "HSR";
+	    break;
+#endif	/* defined(ETH_P_HSR) */
+
+#if	defined(ETH_P_NSH)
+	case ETH_P_NSH:
+	    cp = "NSH";
+	    break;
+#endif	/* defined(ETH_P_NSH) */
+
+#if	defined(ETH_P_LOOPBACK)
+	case ETH_P_LOOPBACK:
+	    cp = "LOOPBACK";
+	    break;
+#endif	/* defined(ETH_P_LOOPBACK) */
+
+#if	defined(ETH_P_QINQ1)
+	case ETH_P_QINQ1:
+	    cp = "QINQ1";
+	    break;
+#endif	/* defined(ETH_P_QINQ1) */
+
+#if	defined(ETH_P_QINQ2)
+	case ETH_P_QINQ2:
+	    cp = "QINQ2";
+	    break;
+#endif	/* defined(ETH_P_QINQ2) */
+
+#if	defined(ETH_P_QINQ3)
+	case ETH_P_QINQ3:
+	    cp = "QINQ3";
+	    break;
+#endif	/* defined(ETH_P_QINQ3) */
+
+#if	defined(ETH_P_EDSA)
+	case ETH_P_EDSA:
+	    cp = "EDSA";
+	    break;
+#endif	/* defined(ETH_P_EDSA) */
+
+#if	defined(ETH_P_DSA_8021Q)
+	case ETH_P_DSA_8021Q:
+	    cp = "DSAD1Q";
+	    break;
+#endif	/* defined(ETH_P_DSA_8021Q) */
+
+#if	defined(ETH_P_IFE)
+	case ETH_P_IFE:
+	    cp = "IFE";
+	    break;
+#endif	/* defined(ETH_P_IFE) */
+
+#if	defined(ETH_P_AF_IUCV)
+	case ETH_P_AF_IUCV:
+	    cp = "AF_IUCV";
+	    break;
+#endif	/* defined(ETH_P_AF_IUCV) */
+
 #if	defined(ETH_P_802_3)
 	case ETH_P_802_3:
 	    cp = "802.3";
@@ -5228,6 +5217,18 @@ ethproto2str(unsigned int pr)
 	    break;
 #endif	/* defined(ETH_P_LOCALTALK) */
 
+#if	defined(ETH_P_CAN)
+	case ETH_P_CAN:
+	    cp = "CAN";
+	    break;
+#endif	/* defined(ETH_P_CAN) */
+
+#if	defined(ETH_P_CANFD)
+	case ETH_P_CANFD:
+	    cp = "CANFD";
+	    break;
+#endif	/* defined(ETH_P_CANFD) */
+
 #if	defined(ETH_P_PPPTALK)
 	case ETH_P_PPPTALK:
 	    cp = "PPPTALK";
@@ -5275,6 +5276,48 @@ ethproto2str(unsigned int pr)
 	    cp = "ARCNET";
 	    break;
 #endif	/* defined(ETH_P_ARCNET) */
+
+#if	defined(ETH_P_DSA)
+	case ETH_P_DSA:
+	    cp = "DSA";
+	    break;
+#endif	/* defined(ETH_P_DSA) */
+
+#if	defined(ETH_P_TRAILER)
+	case ETH_P_TRAILER:
+	    cp = "TRAILER";
+	    break;
+#endif	/* defined(ETH_P_TRAILER) */
+
+#if	defined(ETH_P_PHONET)
+	case ETH_P_PHONET:
+	    cp = "PHONET";
+	    break;
+#endif	/* defined(ETH_P_PHONET) */
+
+#if	defined(ETH_P_IEEE802154)
+	case ETH_P_IEEE802154:
+	    cp = "802154";
+	    break;
+#endif	/* defined(ETH_P_IEEE802154) */
+
+#if	defined(ETH_P_CAIF)
+	case ETH_P_CAIF:
+	    cp = "CAIF";
+	    break;
+#endif	/* defined(ETH_P_CAIF) */
+
+#if	defined(ETH_P_XDSA)
+	case ETH_P_XDSA:
+	    cp = "XDSA";
+	    break;
+#endif	/* defined(ETH_P_XDSA) */
+
+#if	defined(ETH_P_MAP)
+	case ETH_P_MAP:
+	    cp = "MAP";
+	    break;
+#endif	/* defined(ETH_P_MAP) */
 
 	default:
 	    cp = NULL;
