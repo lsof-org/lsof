@@ -16,38 +16,38 @@ DIALECT_PATH = $(DIALECT_ROOT)/$(LSOF_DIALECT_DIR)
 
 # Dialect specific sources
 if LINUX
-lsof_SOURCES += $(DIALECT_ROOT)/linux/dfile.c \
-		$(DIALECT_ROOT)/linux/dmnt.c \
-		$(DIALECT_ROOT)/linux/dnode.c \
-		$(DIALECT_ROOT)/linux/dproc.c \
-		$(DIALECT_ROOT)/linux/dsock.c \
-		$(DIALECT_ROOT)/linux/dstore.c \
-		$(DIALECT_ROOT)/linux/dlsof.h \
-		$(DIALECT_ROOT)/linux/dproto.h \
-		$(DIALECT_ROOT)/linux/machine.h
+lsof_SOURCES += dialects/linux/dfile.c \
+		dialects/linux/dmnt.c \
+		dialects/linux/dnode.c \
+		dialects/linux/dproc.c \
+		dialects/linux/dsock.c \
+		dialects/linux/dstore.c \
+		dialects/linux/dlsof.h \
+		dialects/linux/dproto.h \
+		dialects/linux/machine.h
 endif
 
 if DARWIN_LIBPROC
-lsof_SOURCES += $(DIALECT_ROOT)/darwin/libproc/ddev.c \
-		$(DIALECT_ROOT)/darwin/libproc/dfile.c \
-		$(DIALECT_ROOT)/darwin/libproc/dmnt.c \
-		$(DIALECT_ROOT)/darwin/libproc/dproc.c \
-		$(DIALECT_ROOT)/darwin/libproc/dsock.c \
-		$(DIALECT_ROOT)/darwin/libproc/dstore.c \
-		$(DIALECT_ROOT)/darwin/libproc/dlsof.h \
-		$(DIALECT_ROOT)/darwin/libproc/dproto.h \
-		$(DIALECT_ROOT)/darwin/libproc/machine.h
+lsof_SOURCES += dialects/darwin/libproc/ddev.c \
+		dialects/darwin/libproc/dfile.c \
+		dialects/darwin/libproc/dmnt.c \
+		dialects/darwin/libproc/dproc.c \
+		dialects/darwin/libproc/dsock.c \
+		dialects/darwin/libproc/dstore.c \
+		dialects/darwin/libproc/dlsof.h \
+		dialects/darwin/libproc/dproto.h \
+		dialects/darwin/libproc/machine.h
 endif
 
 if FREEBSD
-lsof_SOURCES += $(DIALECT_ROOT)/freebsd/dmnt.c \
-		$(DIALECT_ROOT)/freebsd/dnode.c \
-		$(DIALECT_ROOT)/freebsd/dproc.c \
-		$(DIALECT_ROOT)/freebsd/dsock.c \
-		$(DIALECT_ROOT)/freebsd/dstore.c \
-		$(DIALECT_ROOT)/freebsd/dlsof.h \
-		$(DIALECT_ROOT)/freebsd/dproto.h \
-		$(DIALECT_ROOT)/freebsd/machine.h
+lsof_SOURCES += dialects/freebsd/dmnt.c \
+		dialects/freebsd/dnode.c \
+		dialects/freebsd/dproc.c \
+		dialects/freebsd/dsock.c \
+		dialects/freebsd/dstore.c \
+		dialects/freebsd/dlsof.h \
+		dialects/freebsd/dproto.h \
+		dialects/freebsd/machine.h
 endif
 
 lsof_CPPFLAGS = -I$(DIALECT_PATH) -I$(top_srcdir)/autotools

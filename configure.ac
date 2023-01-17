@@ -3,6 +3,8 @@ AM_INIT_AUTOMAKE([subdir-objects])
 
 # Require C compiler
 AC_PROG_CC
+# For legacy automake on e.g. CentOS 7
+AM_PROG_CC_C_O
 
 # Detect OS
 AC_CANONICAL_HOST
