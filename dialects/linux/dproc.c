@@ -205,7 +205,7 @@ alloc_cbf(len, cbf, cbfa)
 	if (!*cbf) {
 	    (void) fprintf(stderr,
 		"%s: can't allocate command %d bytes\n", Pn, (int)len);
-	     Error();
+	    Error();
 	}
 	return(len);
 }
@@ -525,7 +525,7 @@ get_fdinfo(p, msk, fi)
 			   && ((opt_flg = FDINFO_TTY_INDEX)))
 #endif	/* defined(HASPTYEPT) */
 #endif	/* defined(HASEPTOPTS) */
-		       ) {
+		) {
 		int val;
 	    /*
 	     * Process a "tty-index:", "eventfd-id:", "Pid:", or "tfid:" line.
@@ -533,14 +533,14 @@ get_fdinfo(p, msk, fi)
 		ep = (char *)NULL;
 		if ((ul = strtoul(fp[1], &ep, 0)) == ULONG_MAX
 		||  !ep || *ep)
-		     continue;
+		    continue;
 
 		val = (int)ul;
 		if (val < 0) {
 		/*
 		 * Oops! If integer overflow occurred, reset the field.
 		 */
-		     val = -1;
+		    val = -1;
 		}
 
 		rv |= opt_flg;
@@ -570,15 +570,15 @@ get_fdinfo(p, msk, fi)
 			/* There can be more than one tfd: lines.
 			   So even if we found one, we can not exit the loop.
 			   However, we can assume tfd lines are continuous. */
-			opt_flg != FDINFO_TFD
-			&& (rv == msk || (rv & FDINFO_TFD))
-		    )
+		     opt_flg != FDINFO_TFD
+		     && (rv == msk || (rv & FDINFO_TFD))
+						)
 		    || (
 			/* Too many tfds. */
 			opt_flg == FDINFO_TFD
 			&& rv == msk && fi->tfd_count == EPOLL_MAX_TFDS
-		    ))
-		  break;
+			))
+		    break;
 	    }
 	}
 	fclose(fs);
@@ -839,12 +839,11 @@ nm2id(nm, id, idl)
 #else	/* !defined(__STDC__)	   } { */
 	    if (!isascii(*nm) || !isdigit((unsigned char)*cp))
 #endif	/* defined(__STDC__)	   } */
-
 		{
 		    return(1);
 		}
-		tid = tid * 10 + (int)(*nm - '0');
-		tidl++;
+	    tid = tid * 10 + (int)(*nm - '0');
+	    tidl++;
 	}
 	*id = tid;
 	*idl = tidl;
@@ -1034,7 +1033,7 @@ process_id(idp, idpl, cmd, uid, pid, ppid, pgid, tid, tcmd)
 		    ss = SB_ALL;
 		    if (HasNFS) {
 			if ((sv = statsafely(path, &sb)))
-			sv = statEx(pbuf, &sb, &ss);
+			    sv = statEx(pbuf, &sb, &ss);
 		    } else
 			sv = stat(path, &sb);
 		    if (sv) {
@@ -1345,7 +1344,7 @@ process_id(idp, idpl, cmd, uid, pid, ppid, pgid, tid, tcmd)
 			    Lf->ffg = (long)fi.flags;
 			    Lf->fsv |= FSV_FG;
 			}
-		     }
+		    }
 # endif	/* !defined(HASNOFSFLAGS) */
 
 		}
@@ -1389,10 +1388,10 @@ process_id(idp, idpl, cmd, uid, pid, ppid, pgid, tid, tcmd)
 			 &&  Lf->rdev_def
 			 &&  is_pty_ptmx(Lf->rdev)
 			 &&  (av & FDINFO_TTY_INDEX)
-		    ) {
-			    enter_ptmxi(fi.tty_index);
-			    Lf->tty_index = fi.tty_index;
-			    Lf->sf |= SELPTYINFO;
+			) {
+			enter_ptmxi(fi.tty_index);
+			Lf->tty_index = fi.tty_index;
+			Lf->sf |= SELPTYINFO;
 		    }
 #endif	/* defined(HASEPTOPTS) && defined(HASPTYEPT) */
 
@@ -1409,7 +1408,7 @@ process_id(idp, idpl, cmd, uid, pid, ppid, pgid, tid, tcmd)
 
 static int
 compare_mntns(pid)
-        int pid;                        /* pid of the target process */
+	int pid;                        /* pid of the target process */
 {
 	char nspath[NS_PATH_LENGTH];
 	struct stat sb_self, sb_target;
@@ -1452,8 +1451,8 @@ process_proc_map(p, s, ss)
 	int ns = 0;
 	struct stat sb;
 	struct saved_map {
-	    dev_t dev;
-	    INODETYPE inode;
+		dev_t dev;
+		INODETYPE inode;
 	};
 	static struct saved_map *sm = (struct saved_map *)NULL;
 	efsys_list_t *rep;
@@ -1584,13 +1583,13 @@ process_proc_map(p, s, ss)
 
 		if (!efs) {
 		    if (HasNFS)
-		        sv = statsafely(path, &sb);
+			sv = statsafely(path, &sb);
 		    else
-		        sv = stat(path, &sb);
-	        }
+			sv = stat(path, &sb);
+		}
 	    }
 	    else {
-stat_directly:
+	      stat_directly:
 		if (!efs) {
 		    if (HasNFS)
 			sv = statsafely(fp[6], &sb);
@@ -1730,7 +1729,7 @@ read_id_stat(p, id, cmd, ppid, pgid)
 	    return(-1);
 	if (!(cp = fgets(buf, sizeof(buf), fs))) {
 
-read_id_stat_exit:
+	  read_id_stat_exit:
 
 	    (void) fclose(fs);
 	    return(-1);
@@ -1752,7 +1751,7 @@ read_id_stat_exit:
  *
  */
 	for (++cp; *cp && (*cp == ' '); cp++)
-		;
+	    ;
 	if (!cp || (*cp != '('))
 	    goto read_id_stat_exit;
 	cp++;
@@ -1965,8 +1964,8 @@ snp_eventpoll(char *p, int len, int *tfds, int tfd_count)
 	len -= ((tfd_count == EPOLL_MAX_TFDS)
 		? 4 /* "...]" */
 		: 1 /* "]" */
-	       ) + 1 /* for the last \0 */
-	;
+	    ) + 1 /* for the last \0 */
+	    ;
 
 	if (len > 1) {
 	    qsort (tfds, tfd_count, sizeof (tfds[0]), fd_compare);
@@ -1978,9 +1977,9 @@ snp_eventpoll(char *p, int len, int *tfds, int tfd_count)
 		/* If the buffer doesn't have enough space, snp_eventpoll_fds puts
 		 * "..." at the end of the buffer. In that case we don't
 		 have to "..." here. */
-		(wl > 3 && p [11 + wl - 1] == '.')
-		? "]"
-		: ((tfd_count == EPOLL_MAX_TFDS)
+				   (wl > 3 && p [11 + wl - 1] == '.')
+				   ? "]"
+				   : ((tfd_count == EPOLL_MAX_TFDS)
 		   /* File descriptors more than EPOLL_MAX_TFDS are associated to
 		    * the eventpoll fd. */
 		   ? "...]"
