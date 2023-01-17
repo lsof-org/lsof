@@ -2471,7 +2471,7 @@ lkup_hostnm(hn, n)
 	he = gethostbyname(hn);
 #endif	/* defined(HASIPv6) */
 
-	if (!he)
+	if (!he || !he->h_addr)
 	    return(he);
 /*
  * Copy first hostname structure address to destination structure.
