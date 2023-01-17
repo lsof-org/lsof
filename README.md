@@ -27,61 +27,42 @@ cat     18083 yamato    1w   REG   0,44         0 54550934 /tmp/LOG
 cat     18083 yamato    2u   CHR  136,3       0t0        6 /dev/pts/3
 ```
 
-## How to build
-
-Use the legacy build system:
-
-```shell
-./Configure -n [dialect]
-make
-bash check.bash [dialect]
-```
-
-Use autotools build system:
-
-```shell
-autoreconf -i
-./configure
-make
-make check
-make install
-```
+Read the documentation at [lsof.readthedocs.io](https://lsof.readthedocs.io/)
 
 # lsof-org at GitHub
 
-The lsof-org team at GitHub takes over the maintainership of lsof
-originally developed and maintained by Vic Abell. This repository is for maintaining
-the final source tree of lsof inherited from Vic. "legacy" branch
-keeps the original source tree. We will not introduce any changes to
-the "legacy" branch. This branch is just for reference.
+The lsof-org team at GitHub takes over the maintainership of lsof originally
+developed and maintained by Vic Abell. This repository is for maintaining the
+final source tree of lsof inherited from Vic. "legacy" branch keeps the original
+source tree. We will not introduce any changes to the "legacy" branch. This
+branch is just for reference.
 
-"master" branch is used for maintenance. Bug fixes and enhancements go
-to "master" branch.
+"master" branch is used for maintenance. Bug fixes and enhancements go to
+"master" branch.
 
-lsof had supported many OSes. A term "dialect" represents code for
-supporting OSes. Because of limited resources, we will maintain the
-part of them. The current status of maintenance is as follows:
+lsof had supported many OSes. A term "dialect" represents code for supporting
+OSes. Because of limited resources, we will maintain the part of them. The
+current status of maintenance is as follows:
 
 <dl>
-<dt>freebsd</dt>
+<dt>FreeBSD</dt>
 <dd>partially maintained and tested on Cirrus CI</dd>
-<dt>linux</dt>
-<dd>fully maintained, and tested on Travis CI</dd>
-<dt>darwin</dt>
-<dd>not maintained, but partially tested on Travis CI</dd>
+<dt>Linux</dt>
+<dd>fully maintained, and tested on Circle CI</dd>
+<dt>Darwin</dt>
+<dd>fully maintained, but tested on Circle CI</dd>
 </dl>
 
-If you are interested in maintaining a dialect, let us know via the
-issue tracker of GitHub (https://github.com/lsof-org/lsof/issues). If
-we cannot find a volunteer for a dialect, we will remove the dialect.
+If you are interested in maintaining a dialect, let us know via the issue
+tracker of GitHub (https://github.com/lsof-org/lsof/issues). If we cannot find a
+volunteer for a dialect, we will remove the dialect.
 
-Many texts in the source tree still refers purdue.edu as the home of
-lsof development. It should be https://github.com/lsof-org/lsof, the
-new home. The updating is in progress.
+Many texts in the source tree still refers purdue.edu as the home of lsof
+development. It should be https://github.com/lsof-org/lsof, the new home. The
+updating is in progress.
 
-We ran another repository, lsof-org/"lsof-linux" derived from
-lsof-4.91 that was also released by Vic. The repository is no more
-used; all the changes made in the repository are now in lsof-org/"lsof"
-repository.
+We ran another repository, lsof-org/"lsof-linux" derived from lsof-4.91 that was
+also released by Vic. The repository is no more used; all the changes made in
+the repository are now in lsof-org/"lsof" repository.
 
 The lsof-org team at GitHub
