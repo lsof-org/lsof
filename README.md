@@ -50,7 +50,7 @@ current status of maintenance is as follows:
 <dt>Linux</dt>
 <dd>fully maintained, and tested on Circle CI</dd>
 <dt>Darwin</dt>
-<dd>fully maintained, but tested on Circle CI</dd>
+<dd>fully maintained, and tested on Circle CI</dd>
 </dl>
 
 If you are interested in maintaining a dialect, let us know via the issue

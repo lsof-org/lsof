@@ -5456,6 +5456,8 @@ Supplement	Regenerated the 4.04 distribution to correct a non-
 
 		Fix FreeBSD testcases (#271)
 
+		Rewrite documentation and publish at https://lsof.readthedocs.io/
+
 4.9?.?		????????? ??, ????
 
 Vic Abell <abe@purdue.edu>
