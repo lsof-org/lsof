@@ -65,18 +65,18 @@ AM_TESTS_ENVIRONMENT = export LSOF_DIALECT_DIR=$(LSOF_DIALECT_DIR); export LSOF_
 # Dialect neutral
 DIALECT_NEUTRAL_TESTS = tests/case-00-hello.bash \
 	tests/case-01-version.bash \
-	tests/case-13-classic.bash \
-	tests/case-14-classic-opt.bash \
 	tests/case-20-exit-status.bash \
 	tests/case-20-fd-only-inclusion.bash \
 	tests/case-20-handle-missing-files.bash \
 	tests/case-20-offset-field.bash \
 	tests/case-20-repeat-count.bash \
 	tests/case-21-exit-Q-status.bash \
-	tests/case-22-empty-process-name.bash \
-	tests/common.bash
+	tests/case-22-empty-process-name.bash
 TESTS = $(DIALECT_NEUTRAL_TESTS)
-EXTRA_DIST += $(DIALECT_NEUTRAL_TESTS)
+EXTRA_DIST += $(DIALECT_NEUTRAL_TESTS) \
+	tests/case-13-classic.bash \
+	tests/case-14-classic-opt.bash \
+	tests/common.bash
 
 # Dialect specific
 check_PROGRAMS =
