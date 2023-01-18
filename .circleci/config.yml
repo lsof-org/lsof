@@ -93,18 +93,7 @@ jobs:
             sudo make install
             make check
             cat test-suite.log
-      - run:
-          name: Rebuild and test using distribution tarball
-          command: |
-            make dist
-            mkdir temp
-            cd temp
-            tar xvf ../lsof-*.tar.gz
-            cd lsof-*
-            ./configure
-            make
-            sudo make install
-            make check
+            make distcheck
   bigsur:
     macos:
       xcode: 12.5.1
