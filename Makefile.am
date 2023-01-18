@@ -3,9 +3,7 @@ bin_PROGRAMS = lsof
 # Documentation
 EXTRA_DIST = 00.README.FIRST 00CREDITS 00DCACHE 00DIALECTS 00DIST 00FAQ 00LSOF-L 00MANIFEST 00PORTING 00QUICKSTART 00README 00TEST 00XCONFIG
 # Testing
-EXTRA_DIST += tests/00README tests/TestDB tests/CkTestDB tests/Makefile tests/LsofTest.h $(wildcard tests/*.bash tests/*.c) \
-	check.bash $(wildcard dialects/*/tests/*.bash) $(wildcard dialects/*/tests/Makefile) \
-	$(wildcard dialects/*/tests/*.c)
+EXTRA_DIST += tests/00README tests/TestDB tests/CkTestDB tests/Makefile tests/LsofTest.h check.bash
 
 # Dialect neutral sources
 lsof_SOURCES = arg.c main.c misc.c node.c print.c proc.c store.c usage.c util.c \
@@ -65,32 +63,26 @@ clean-local:
 # Testing scripts
 AM_TESTS_ENVIRONMENT = export LSOF_DIALECT_DIR=$(LSOF_DIALECT_DIR); export LSOF_DIALECT=$(LSOF_DIALECT);
 # Dialect neutral
-TESTS = tests/case-00-hello.bash \
+DIALECT_NEUTRAL_TESTS = tests/case-00-hello.bash \
 	tests/case-01-version.bash \
+	tests/case-13-classic.bash \
+	tests/case-14-classic-opt.bash \
 	tests/case-20-exit-status.bash \
 	tests/case-20-fd-only-inclusion.bash \
 	tests/case-20-handle-missing-files.bash \
+	tests/case-20-offset-field.bash \
 	tests/case-20-repeat-count.bash \
 	tests/case-21-exit-Q-status.bash \
-	tests/case-22-empty-process-name.bash
+	tests/case-22-empty-process-name.bash \
+	tests/common.bash
+TESTS = $(DIALECT_NEUTRAL_TESTS)
+EXTRA_DIST += $(DIALECT_NEUTRAL_TESTS)
 
 # Dialect specific
 check_PROGRAMS =
-if LINUX
-check_PROGRAMS += dialects/linux/tests/epoll \
-	dialects/linux/tests/eventfd \
-	dialects/linux/tests/mmap \
-	dialects/linux/tests/mq_fork \
-	dialects/linux/tests/mq_open \
-	dialects/linux/tests/open_with_flags \
-	dialects/linux/tests/pidfd \
-	dialects/linux/tests/pipe \
-	dialects/linux/tests/pty \
-	dialects/linux/tests/ux 
-dialects_linux_tests_mq_fork_LDADD = -lrt
-dialects_linux_tests_mq_open_LDADD = -lrt
 
-TESTS += dialects/linux/tests/case-10-mqueue.bash \
+# Linux
+LINUX_TESTS = dialects/linux/tests/case-10-mqueue.bash \
 	dialects/linux/tests/case-10-ux-socket-state.bash \
 	dialects/linux/tests/case-20-epoll.bash \
 	dialects/linux/tests/case-20-eventfd-endpoint.bash \
@@ -108,6 +100,22 @@ TESTS += dialects/linux/tests/case-10-mqueue.bash \
 	dialects/linux/tests/case-20-pty-endpoint.bash \
 	dialects/linux/tests/case-20-ux-socket-endpoint.bash \
 	dialects/linux/tests/case-20-ux-socket-endpoint-unaccepted.bash
+EXTRA_DIST += $(LINUX_TESTS) dialects/linux/tests/Makefile dialects/linux/tests/case-00-linux-hello.bash
+if LINUX
+check_PROGRAMS += dialects/linux/tests/epoll \
+	dialects/linux/tests/eventfd \
+	dialects/linux/tests/mmap \
+	dialects/linux/tests/mq_fork \
+	dialects/linux/tests/mq_open \
+	dialects/linux/tests/open_with_flags \
+	dialects/linux/tests/pidfd \
+	dialects/linux/tests/pipe \
+	dialects/linux/tests/pty \
+	dialects/linux/tests/ux
+dialects_linux_tests_mq_fork_LDADD = -lrt
+dialects_linux_tests_mq_open_LDADD = -lrt
+
+TESTS += $(LINUX_TESTS)
 endif
 
 # Testing programs
