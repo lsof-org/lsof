@@ -10,6 +10,8 @@ nav:
   - faq.md
   - manpage.md
   - credits.md
+  - contributing.md
+  - maintaining.md
 plugins:
   - search
 markdown_extensions:
