@@ -578,8 +578,7 @@ get_fdinfo(p, msk, fi)
 			   So even if we found one, we can not exit the loop.
 			   However, we can assume tfd lines are continuous. */
 		     opt_flg != FDINFO_TFD
-		     && (rv == msk || (rv & FDINFO_TFD))
-						    )
+		     && (rv == msk || (rv & FDINFO_TFD)))
 		    || (
 			/* Too many tfds. */
 			opt_flg == FDINFO_TFD
@@ -836,18 +835,20 @@ nm2id(nm, id, idl)
 	int *id;			/* pointer to ID receiver */
 	int *idl;			/* pointer to ID length receiver */
 {
-	register int tid, tidl;
+	int tid, tidl;
+	int invalid;
 
 	for (*id = *idl = tid = tidl = 0; *nm; nm++) {
 
 #if	defined(__STDC__)	/* { */
-	    if (!isdigit((unsigned char)*nm))
+	    invalid = !isdigit((unsigned char)*nm);
 #else	/* !defined(__STDC__)	   } { */
-	    if (!isascii(*nm) || !isdigit((unsigned char)*cp))
+	    invalid = !isascii(*nm) || !isdigit((unsigned char)*cp);
 #endif	/* defined(__STDC__)	   } */
-		{
-		    return(1);
-		}
+	    if (invalid)
+	    {
+		return(1);
+	    }
 	    tid = tid * 10 + (int)(*nm - '0');
 	    tidl++;
 	}
@@ -1768,13 +1769,13 @@ read_id_stat(char *p,			/* path to status file */
 	}
 
 	/*
-	* Enter the command characters safely.  Supply them from the initial read
-	* of the stat file line, a '\n' if the initial read didn't yield a ')'
-	* command closure, or by reading the rest of the command a character at
-	* a time from the stat file.  Count embedded '(' characters and balance
-	* them with embedded ')' characters.  The opening '(' starts the balance
-	* count at one.
-	*/
+	 * Enter the command characters safely.  Supply them from the initial read
+	 * of the stat file line, a '\n' if the initial read didn't yield a ')'
+	 * command closure, or by reading the rest of the command a character at
+	 * a time from the stat file.  Count embedded '(' characters and balance
+	 * them with embedded ')' characters.  The opening '(' starts the balance
+	 * count at one.
+	 */
 	for (cx = es = 0;;) {
 	    if (!es)
 		ch = *cp++;
@@ -1787,9 +1788,9 @@ read_id_stat(char *p,			/* path to status file */
 	    if (ch == ')') {
 
 		/*
-		* Balance parentheses when a closure is encountered.  When
-		* they are balanced, this is the end of the command.
-		*/
+		 * Balance parentheses when a closure is encountered.  When
+		 * they are balanced, this is the end of the command.
+		 */
 		pc--;
 		if (!pc)
 		    break;
@@ -1804,11 +1805,11 @@ read_id_stat(char *p,			/* path to status file */
 	}
 	*cmd = cbf;
 	/*
-	* Read the remainder of the stat line if it was necessary to read command
-	* characters individually from the stat file.
-	*
-	* Separate the reminder into fields.
-	*/
+	 * Read the remainder of the stat line if it was necessary to read command
+	 * characters individually from the stat file.
+	 *
+	 * Separate the reminder into fields.
+	 */
 	if (es)
 	    cp = fgets(buf, sizeof(buf), fs);
 	(void) fclose(fs);
