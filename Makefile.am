@@ -71,7 +71,8 @@ TESTS = tests/case-00-hello.bash \
 	tests/case-20-fd-only-inclusion.bash \
 	tests/case-20-handle-missing-files.bash \
 	tests/case-20-repeat-count.bash \
-	tests/case-21-exit-Q-status.bash
+	tests/case-21-exit-Q-status.bash \
+	tests/case-22-empty-process-name.bash
 
 # Dialect specific
 check_PROGRAMS =

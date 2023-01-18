@@ -742,10 +742,13 @@ print_file()
 	    (void) printf(" %*s %s\n", NodeColW, NODETTL, NMTTL);
 	    Hdr++;
 	}
-/*
- * Size or print the command.
- */
-	cp = (Lp->cmd && *Lp->cmd != '\0') ? Lp->cmd : "(unknown)";
+	/*
+	* Size or print the command.
+	*
+	* CAUTION: command can be empty, see issue #246,
+	* use NULL to represent failure instead of empty string
+	*/
+	cp = Lp->cmd ? Lp->cmd : "(unknown)";
 	if (!PrPass) {
 	    len = safestrlen(cp, 2);
 	    if (CmdLim && (len > CmdLim))

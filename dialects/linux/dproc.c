@@ -339,12 +339,12 @@ gather_proc_info()
 		continue;
 	    uid = (UID_ARG)sb.st_uid;
 	    ht = pidts = 0;
-	/*
-	 * Get the PID's command name.
-	 */
+	    /*
+	     * Get the PID's command name.
+	     */
 	    (void) make_proc_path(pidpath, n, &path, &pathl, "stat");
 	    if ((prv = read_id_stat(path, pid, &cmd, &ppid, &pgid)) < 0)
-		cmd = "(unknown)";
+		cmd = NULL; /* NULL means failure to get command name */
 
 #if	defined(HASTASKS)
 	/*
@@ -356,11 +356,16 @@ gather_proc_info()
 	 * options work properly.
 	 */
 	    else if (!IgnTasks && (Selflags & SELTASK)) {
+		/*
+		 * Copy cmd before next call to read_id_stat due to static
+		 * variables
+		 */
 		if (cmd) {
 		    strncpy(cmdbuf, cmd, sizeof(cmdbuf) - 1);
+		    cmdbuf[sizeof(cmdbuf) - 1] = '\0';
+		    cmd = cmdbuf;
 		}
-		cmdbuf[sizeof(cmdbuf) - 1] = '\0';
-		cmd = cmdbuf;
+
 		(void) make_proc_path(pidpath, n, &taskpath, &taskpathl,
 				      "task");
 		tx = n + 4;
@@ -1436,10 +1441,9 @@ compare_mntns(pid)
  */
 
 static void
-process_proc_map(p, s, ss)
-	char *p;			/* path to process maps file */
-	struct stat *s;			/* executing text file state buffer */
-	int ss;				/* *s status -- i.e., SB_* values */
+process_proc_map(char *p,			/* path to process maps file */
+	struct stat *s,			/* executing text file state buffer */
+	int ss)				/* *s status -- i.e., SB_* values */
 {
 	char buf[MAXPATHLEN + 1], *ep, fmtbuf[32], **fp, nmabuf[MAXPATHLEN + 1];
 	dev_t dev;
@@ -1705,14 +1709,12 @@ process_proc_map(p, s, ss)
  *          1 == ID is a zombie
  *	    2 == ID is a thread
  */
-
 static int
-read_id_stat(p, id, cmd, ppid, pgid)
-	char *p;			/* path to status file */
-	int id;				/* ID: PID or LWP */
-	char **cmd;			/* malloc'd command name */
-	int *ppid;			/* returned parent PID for PID type */
-	int *pgid;			/* returned process group ID for PID
+read_id_stat(char *p,			/* path to status file */
+	int id,				/* ID: PID or LWP */
+	char **cmd,			/* malloc'd command name */
+	int *ppid,			/* returned parent PID for PID type */
+	int *pgid)			/* returned process group ID for PID
 					 * type */
 {
 	char buf[MAXPATHLEN], *cp, *cp1, **fp;
@@ -1757,14 +1759,22 @@ read_id_stat(p, id, cmd, ppid, pgid)
 	    goto read_id_stat_exit;
 	cp++;
 	pc = 1;			/* start the parenthesis balance count at 1 */
-/*
- * Enter the command characters safely.  Supply them from the initial read
- * of the stat file line, a '\n' if the initial read didn't yield a ')'
- * command closure, or by reading the rest of the command a character at
- * a time from the stat file.  Count embedded '(' characters and balance
- * them with embedded ')' characters.  The opening '(' starts the balance
- * count at one.
- */
+
+	/* empty process name to avoid leaking previous process name,
+	 * see issue #246
+	 */
+	if (cbf) {
+	    cbf[0] = '\0';
+	}
+
+	/*
+	* Enter the command characters safely.  Supply them from the initial read
+	* of the stat file line, a '\n' if the initial read didn't yield a ')'
+	* command closure, or by reading the rest of the command a character at
+	* a time from the stat file.  Count embedded '(' characters and balance
+	* them with embedded ')' characters.  The opening '(' starts the balance
+	* count at one.
+	*/
 	for (cx = es = 0;;) {
 	    if (!es)
 		ch = *cp++;
@@ -1776,10 +1786,10 @@ read_id_stat(p, id, cmd, ppid, pgid)
 		pc++;
 	    if (ch == ')') {
 
-	    /*
-	     * Balance parentheses when a closure is encountered.  When
-	     * they are balanced, this is the end of the command.
-	     */
+		/*
+		* Balance parentheses when a closure is encountered.  When
+		* they are balanced, this is the end of the command.
+		*/
 		pc--;
 		if (!pc)
 		    break;
@@ -1793,12 +1803,12 @@ read_id_stat(p, id, cmd, ppid, pgid)
 		es = 1;		/* Switch to fgetc() when a '\0' appears. */
 	}
 	*cmd = cbf;
-/*
- * Read the remainder of the stat line if it was necessary to read command
- * characters individually from the stat file.
- *
- * Separate the reminder into fields.
- */
+	/*
+	* Read the remainder of the stat line if it was necessary to read command
+	* characters individually from the stat file.
+	*
+	* Separate the reminder into fields.
+	*/
 	if (es)
 	    cp = fgets(buf, sizeof(buf), fs);
 	(void) fclose(fs);
@@ -1841,13 +1851,11 @@ read_id_stat(p, id, cmd, ppid, pgid)
  *	 This function should be used only when links have been successfully
  *	 resolved in the /proc path by getlinksrc().
  */
-
 static int
-statEx(p, s, ss)
-	char *p;			/* file path */
-	struct stat *s;			/* stat() result -- NULL if none
+statEx(char *p,			/* file path */
+	struct stat *s,			/* stat() result -- NULL if none
 					 * wanted */
-	int *ss;			/* stat() status --  SB_* values */
+	int *ss)			/* stat() status --  SB_* values */
 {
 	static size_t ca = 0;
 	static char *cb = NULL;
