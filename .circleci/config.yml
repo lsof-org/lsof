@@ -92,6 +92,7 @@ jobs:
             make
             sudo make install
             make check
+            cat test-suite.log
       - run:
           name: Rebuild and test using distribution tarball
           command: |

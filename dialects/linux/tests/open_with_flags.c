@@ -56,7 +56,7 @@ main(int argc, char **argv)
 	for (int i = 2; i < argc; i++)
 		flags |= encode(argv[i]);
 
-	int fd = open (fname, flags);
+	int fd = open (fname, flags, 0644);
 	if (fd < 0) {
 		perror("open");
 		return 1;
