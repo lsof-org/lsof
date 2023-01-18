@@ -34,11 +34,6 @@
 
 #if	defined(USE_LIB_CKKV)
 
-# if	!defined(lint)
-static char copyright[] =
-"@(#) Copyright 1998 Purdue Research Foundation.\nAll rights reserved.\n";
-# endif	/* !defined(lint) */
-
 #include "../lsof.h"
 #include <sys/utsname.h>
 

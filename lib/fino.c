@@ -43,11 +43,6 @@
 
 #if	defined(HASBLKDEV) || defined(USE_LIB_FIND_CH_INO)
 
-# if	!defined(lint)
-static char copyright[] =
-"@(#) Copyright 1997 Purdue Research Foundation.\nAll rights reserved.\n";
-# endif	/* !defined(lint) */
-
 #include "../lsof.h"
 
 #else	/* !defined(HASBLKDEV) && !defined(USE_LIB_FIND_CH_INO) */

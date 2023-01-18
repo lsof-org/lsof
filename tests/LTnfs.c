@@ -32,11 +32,6 @@
  * 4. This notice may not be removed or altered.
  */
 
-#ifndef lint
-static char copyright[] =
-"@(#) Copyright 2002 Purdue Research Foundation.\nAll rights reserved.\n";
-#endif
-
 #include "LsofTest.h"
 #include "lsof_fields.h"
 

@@ -158,11 +158,6 @@ each of the following conditions is met:
  * supported -- define HAS_NO_LONG_LONG.
  */
 
-# ifndef lint
-static char copyright[] =
-"@(#) Copyright 2000 Purdue Research Foundation.\nAll rights reserved.\n";
-# endif /* !defined(lint) */
-
 #include <varargs.h>
 
 #if	defined(__STDC__)

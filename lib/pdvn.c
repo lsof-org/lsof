@@ -34,11 +34,6 @@
 
 #if	defined(USE_LIB_PRINTDEVNAME)
 
-# if	!defined(lint)
-static char copyright[] =
-"@(#) Copyright 1997 Purdue Research Foundation.\nAll rights reserved.\n";
-# endif	/* !defined(lint) */
-
 #include "../lsof.h"
 
 #else	/* !defined(USE_LIB_PRINTDEVNAME) */

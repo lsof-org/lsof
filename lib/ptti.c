@@ -34,11 +34,6 @@
 
 #if	defined(USE_LIB_PRINT_TCPTPI)
 
-# if	!defined(lint)
-static char copyright[] =
-"@(#) Copyright 1997 Purdue Research Foundation.\nAll rights reserved.\n";
-# endif	/* !defined(lint) */
-
 #define	TCPSTATES			/* activate tcpstates[] */
 #include "../lsof.h"
 
