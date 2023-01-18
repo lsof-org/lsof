@@ -569,7 +569,6 @@ static struct tcp_udp6 *
 check_tcpudp6(INODETYPE i,			/* socket file's inode number */
 	char **p)			/* protocol return */
 {
-	int h;
 	struct tcp_udp6 *tp6;
 	tp6 = HASH_FIND_ELEMENT(TcpUdp6, TCPUDP6HASH, struct tcp_udp6, inode, i);
 

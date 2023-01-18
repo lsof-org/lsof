@@ -92,6 +92,15 @@
 # endif	/* LT_VERS>=1123 && defined(__GNUC__) */
 #endif	/* defined(LT_DIAL_hpux) */
 
+#if	defined(LT_DIAL_linux)
+/*
+ * Linux-specific items
+ */
+
+#undef	LT_SOCKLEN_T
+#define	LT_SOCKLEN_T	socklen_t
+#endif	/* defined(LT_DIAL_linux) */
+
 
 #if	defined(LT_DIAL_ou)
 /*

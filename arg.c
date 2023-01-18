@@ -1966,7 +1966,6 @@ enter_state_spec(ss)
 {
 	char *cp, *ne, *ns, *pr;
 	int err, d, f, i, tx, x;
-	size_t len;
 	static char *ssc = (char *)NULL;
 	char *ty;
 /*
