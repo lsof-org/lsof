@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 source tests/common.bash
 
 f=/tmp/lsof-${name}-$$
