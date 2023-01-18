@@ -1,5 +1,4 @@
 #!/bin/bash
-
 source tests/common.bash
 
 TARGET=$tcasedir/epoll

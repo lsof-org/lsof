@@ -1,5 +1,4 @@
 #!/bin/bash
-
 source tests/common.bash
 
 pat=".*DIR[ \t]\+.*CX.*[ \t]\+.*/tmp$"

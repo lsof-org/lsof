@@ -1,5 +1,4 @@
 #!/bin/bash
-
 source tests/common.bash
 
 if [[ $(id -u) != 0 ]]; then

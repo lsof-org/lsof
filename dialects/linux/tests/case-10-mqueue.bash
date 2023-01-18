@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 source tests/common.bash
 
 MQUEUE_MNTPOINT=/tmp/$$

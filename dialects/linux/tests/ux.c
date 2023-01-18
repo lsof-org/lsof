@@ -84,7 +84,7 @@ main(void)
       pause ();
 
       unlink (un.sun_path);
-      write(rendezvous[1], &b, 1);
+      (void) write(rendezvous[1], &b, 1);
       b++;
 
       return 0;

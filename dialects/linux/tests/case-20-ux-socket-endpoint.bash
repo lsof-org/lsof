@@ -1,3 +1,4 @@
+#!/bin/bash
 source tests/common.bash
 
 if [ -z "$(nc -h 2>&1 | grep '\-U')" ]; then

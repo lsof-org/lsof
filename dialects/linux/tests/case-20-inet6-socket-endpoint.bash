@@ -1,5 +1,4 @@
-#!/bin/sh
-
+#!/bin/bash
 source tests/common.bash
 
 nc -l -6 ::1 10000 > /dev/null < /dev/zero 2>> $report &

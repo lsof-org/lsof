@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 source tests/common.bash
 
 pat=".*DIR[ \t]\+.*PATH.*[ \t]\+.*/tmp$"
