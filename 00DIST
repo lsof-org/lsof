@@ -5465,6 +5465,8 @@ Supplement	Regenerated the 4.04 distribution to correct a non-
 
 		Add support for older automake versions (on e.g. CentOS 7)
 
+		Migrate testing scripts and programs to autotools
+
 4.9?.?		????????? ??, ????
 
 Vic Abell <abe@purdue.edu>
