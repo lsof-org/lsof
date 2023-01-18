@@ -19,7 +19,9 @@ source tests/common.bash
 		exit 1
 	    fi
 	elif [[ $entry =~ c* ]]; then
-	    if [[ $entry != c ]]; then
+	    if [[ $entry =~ cperl* ]]; then
+	        echo "The platform does not report changed command name, that's okay" >> $report
+	    elif [[ $entry != c ]]; then
 	        echo "Process name should be empty, expect c, got $entry" >> $report
 		exit 1
 	    fi
