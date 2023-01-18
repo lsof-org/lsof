@@ -76,7 +76,7 @@ case "${host_os}" in
 				LSOF_VERS=1900
 				;;
 			*)
-				AC_MSG_NOTICE([Unknown Darwin release: `uname -r`])
+				AC_MSG_NOTICE([Unknown Darwin release: $(uname -r)])
 				AC_MSG_NOTICE([Assuming Darwin 19.0])
 				LSOF_VERS=1900
 				;;
@@ -106,8 +106,11 @@ case "${host_os}" in
 			13*)
 				LSOF_VERS=13000
 				;;
+			14*)
+				LSOF_VERS=14000
+				;;
 			*)
-				AC_MSG_ERROR([Unknown FreeBSD release: `uname -r`])
+				AC_MSG_ERROR([Unknown FreeBSD release: $(uname -r)])
 				;;
 		esac
 
