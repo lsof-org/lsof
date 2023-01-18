@@ -1,8 +1,8 @@
 # See https://github.com/lsof-org/lsof/issues/128
-name=$(basename $0 .bash)
-lsof0="$1"
+source tests/common.bash
+
+lsof0="$lsof"
 lsof=
-report=$2
 
 f=/tmp/lsof-${name}-$$
 r=0

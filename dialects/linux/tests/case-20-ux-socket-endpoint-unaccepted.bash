@@ -1,11 +1,8 @@
 #!/bin/sh
 
-name=$(basename $0 .sh)
-lsof=$1
-report=$2
-tdir=$3
+source tests/common.bash
 
-TARGET=$tdir/ux
+TARGET=$tcasedir/ux
 
 $TARGET | {
     #

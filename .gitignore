@@ -118,6 +118,8 @@ dialects/linux/tests/mmap
 Makefile.in
 .deps/
 .dirstamp
+*.log
+*.trs
 
 # autoconf
 autom4te.cache
@@ -134,3 +136,4 @@ autom4te.cache
 /install-sh
 /missing
 /stamp-h1
+/test-driver

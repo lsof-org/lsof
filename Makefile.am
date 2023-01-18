@@ -53,12 +53,52 @@ endif
 lsof_CPPFLAGS = -I$(DIALECT_PATH) -I$(top_srcdir)/autotools
 lsof_CPPFLAGS += -DAUTOTOOLS
 
-# manpages
+# Manpages
 lsof.man: Lsof.8 version 00DIALECTS
 	soelim < Lsof.8 > $@
 man8_MANS = lsof.man
 EXTRA_DIST += Lsof.8
 
-# testing
-check:
-	bash check.bash $(LSOF_DIALECT)
+# Testing scripts
+TESTS = tests/case-00-hello.bash \
+	tests/case-01-version.bash \
+	tests/case-20-exit-status.bash \
+	tests/case-20-fd-only-inclusion.bash \
+	tests/case-20-handle-missing-files.bash \
+	tests/case-20-repeat-count.bash \
+	tests/case-21-exit-Q-status.bash
+
+check_PROGRAMS =
+if LINUX
+check_PROGRAMS += dialects/linux/tests/epoll \
+	dialects/linux/tests/eventfd \
+	dialects/linux/tests/mmap \
+	dialects/linux/tests/mq_fork \
+	dialects/linux/tests/mq_open \
+	dialects/linux/tests/open_with_flags \
+	dialects/linux/tests/pidfd \
+	dialects/linux/tests/pipe \
+	dialects/linux/tests/pty \
+	dialects/linux/tests/ux 
+dialects_linux_tests_mq_fork_LDADD = -lrt
+dialects_linux_tests_mq_open_LDADD = -lrt
+
+TESTS += dialects/linux/tests/case-10-mqueue.bash \
+	dialects/linux/tests/case-10-ux-socket-state.bash \
+	dialects/linux/tests/case-20-epoll.bash \
+	dialects/linux/tests/case-20-eventfd-endpoint.bash \
+	dialects/linux/tests/case-20-inet6-ffffffff-handling.bash \
+	dialects/linux/tests/case-20-inet6-socket-endpoint.bash \
+	dialects/linux/tests/case-20-inet-socket-endpoint.bash \
+	dialects/linux/tests/case-20-mmap.bash \
+	dialects/linux/tests/case-20-mqueue-endpoint.bash \
+	dialects/linux/tests/case-20-open-flags-cx.bash \
+	dialects/linux/tests/case-20-open-flags-path.bash \
+	dialects/linux/tests/case-20-open-flags-tmpf.bash \
+	dialects/linux/tests/case-20-pidfd-pid.bash \
+	dialects/linux/tests/case-20-pipe-endpoint.bash \
+	dialects/linux/tests/case-20-pipe-no-close-endpoint.bash \
+	dialects/linux/tests/case-20-pty-endpoint.bash \
+	dialects/linux/tests/case-20-ux-socket-endpoint.bash \
+	dialects/linux/tests/case-20-ux-socket-endpoint-unaccepted.bash
+endif

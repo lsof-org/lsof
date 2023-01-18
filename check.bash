@@ -63,7 +63,7 @@ run_one()
         s=ok
         nsuccessful=$((nsuccessful + 1))
         rm -f "$report"
-    elif [ "$s" = 2 ]; then
+    elif [ "$s" = 77 ]; then
         s=skipped
         nskipped=$((nskipped + 1))
         REPORTS_SKIPPED="${REPORTS_SKIPPED} ${report}"

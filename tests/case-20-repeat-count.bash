@@ -1,14 +1,15 @@
-name=$(basename $0 .bash)
-lsof=$1
-report=$2
+source tests/common.bash
 base=$(pwd)
 
-
-if [ $(${lsof} -r 1c1 -p $$ | tee -a $report | grep -e '=======' | wc -l) != 1 ]; then
+output=$(${lsof} -r 1c1 -p $$)
+echo "$output" >> $report
+if [ $(echo "$output" | grep -e '=======' | wc -l) != 1 ]; then
     exit 1
 fi
 
-if [ $(${lsof} -r 1c5 -p $$ | tee -a $report | grep -e '=======' | wc -l) != 5 ]; then
+output=$(${lsof} -r 1c5 -p $$)
+echo "$output" >> $report
+if [ $(echo "$output" | grep -e '=======' | wc -l) != 5 ]; then
     exit 1
 fi
 

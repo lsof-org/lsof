@@ -1,8 +1,6 @@
 #!/bin/sh
 
-lsof=$1
-report=$2
-tdir=$3
+source tests/common.bash
 
 cleanup()
 {
@@ -32,10 +30,11 @@ cleanup()
 cleanup
 
 # create a new namespace and mmap
-unshare --mount --propagation private $3/mount-and-mmap.bash $@ >> $report 2>&1
-if grep -q 'unshare failed: Operation not permitted' $report; then
-    echo "unshare is not supported on this platform" >> $report
-    exit 2
+output=$(unshare --mount --propagation private $3/mount-and-mmap.bash $@ 2>&1)
+echo "$output" >> $report
+if echo "$output" | grep -q 'unshare failed: Operation not permitted'; then
+    echo "unshare is not supported on this platform, skipping" >> $report
+    exit 77
 fi
 
 # get pid of the mmap process

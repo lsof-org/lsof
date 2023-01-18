@@ -1,17 +1,15 @@
 #!/bin/bash
 
-name=$(basename $0 .bash)
-lsof=$1
-report=$2
+source tests/common.bash
 
 if ! [ -r "/proc/self/stack" ]; then
-    echo "this platform doesn't allow to access /proc/\$PID/stack" >> $report
-    exit 2
+    echo "this platform doesn't allow to access /proc/\$PID/stack, skipping" >> $report
+    exit 77
 fi
 
 if [ -z "$(nc -h 2>&1 | grep '\-U')" ]; then
-    echo "nc does not support unix socket" >> $report
-    exit 2
+    echo "nc does not support unix socket, skipping" >> $report
+    exit 77
 fi
 
 ux=/tmp/$name-$$.sock

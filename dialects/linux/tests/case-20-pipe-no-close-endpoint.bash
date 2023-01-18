@@ -1,17 +1,14 @@
 #!/bin/sh
 
-name=$(basename $0 .bash)
-lsof=$1
-report=$2
-tdir=$3
+source tests/common.bash
 
-TARGET=$tdir/pipe
+TARGET=$tcasedir/pipe
 if ! [ -x $TARGET ]; then
     echo "target executable ( $TARGET ) is not found" >> $report
     exit 1
 fi
 
-{ ./$TARGET no-close & } | {
+{ $TARGET no-close & } | {
     read parent child fdr fdw;
     if [ -z "$parent" ] || [ -z "$child" ] || [ -z "$fdr" ] || [ -z "$fdw" ]; then
 	echo "unexpected output form target ( $TARGET )" >> $report

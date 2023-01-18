@@ -1,4 +1,5 @@
 #!/bin/sh
+source tests/common.bash
 
 pat=".*DIR[ \t]\+.*PATH.*[ \t]\+.*/tmp$"
-source $3/util-open-flags.bash "$@" "$pat" /tmp path
+source $tcasedir/util-open-flags.bash "$lsof" "$report" "$tcasedir" "$dialect" "$pat" /tmp path

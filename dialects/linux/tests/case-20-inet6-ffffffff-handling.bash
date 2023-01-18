@@ -1,12 +1,10 @@
 #!/bin/bash
 
-name=$(basename $0 .bash)
-lsof=$1
-report=$2
+source tests/common.bash
 
 if [[ $(id -u) != 0 ]]; then
     echo "root privileged is needed to run $(basename $0. sh)" >> "${report}"
-    exit 2
+    exit 77
 fi
 
 #
@@ -18,8 +16,8 @@ port=9999
 dev=lo
 
 if ! ip -6 address add "${v6addr}" dev "${dev}" 2>> "${report}"; then
-    echo "failed to add ipv6 address "${v6addr}" to ${dev}" >> "${report}"
-    exit 2
+    echo "failed to add ipv6 address "${v6addr}" to ${dev}, skipping" >> "${report}"
+    exit 77
 fi
 
 ip -6 address show >> "${report}"

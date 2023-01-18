@@ -1,8 +1,6 @@
 #!/bin/sh
 
-name=$(basename $0 .bash)
-lsof=$1
-report=$2
+source tests/common.bash
 
 nc -l -6 ::1 10000 > /dev/null < /dev/zero 2>> $report &
 server=$!
@@ -12,8 +10,8 @@ client=$!
 sleep 1
 
 if ! kill -0 $server 2>/dev/null; then
-    echo "Maybe ipv6 stack is not available on this system" >> $report
-    exit 2
+    echo "Maybe ipv6 stack is not available on this system, skipping" >> $report
+    exit 77
 fi
 
 sleep 1

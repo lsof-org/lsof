@@ -1,10 +1,8 @@
-name=$(basename $0 .bash)
-lsof=$1
-report=$2
+source tests/common.bash
 
 if [ -z "$(nc -h 2>&1 | grep '\-U')" ]; then
-    echo "nc does not support unix socket" >> $report
-    exit 2
+    echo "nc does not support unix socket, skipping" >> $report
+    exit 77
 fi
 
 ux=/tmp/$name-$$.sock

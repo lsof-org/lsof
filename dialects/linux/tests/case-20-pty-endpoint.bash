@@ -1,20 +1,17 @@
 #!/bin/sh
 
-name=$(basename $0 .bash)
-lsof=$1
-report=$2
-tdir=$3
+source tests/common.bash
 
 uname -r >> $report
 uname -r | sed -ne 's/^\([0-9]\+\)\.\([0-9]\+\)\.\([0-9]\+\).*/\1 \2/p' | {
     read major minor
     if [ "$major" -lt 4 ]; then
-	echo "pty endpoint features doesn't work on Linux $major"
-	exit 2
+	echo "pty endpoint features doesn't work on Linux $major, skipping"
+	exit 77
     fi
     if [ "$major" -eq 4 -a "$minor" -lt 13 ]; then
-	echo "pty endpoint features doesn't work on Linux $major.$minor"
-	exit 2
+	echo "pty endpoint features doesn't work on Linux $major.$minor, skipping"
+	exit 77
     fi
 } >> $report
 s=$?
@@ -22,13 +19,13 @@ if ! [ $s = 0 ]; then
     exit $s
 fi
 
-TARGET=$tdir/pty
+TARGET=$tcasedir/pty
 if ! [ -x $TARGET ]; then
     echo "target executable ( $TARGET ) is not found" >> $report
     exit 1
 fi
 
-{ ./$TARGET & } | {
+{ $TARGET & } | {
     read parent child fdm fds names;
     if [ -z "$parent" ] || [ -z "$child" ] || [ -z "$fdm" ] || [ -z "$fds" ] || [ -z "$names" ]; then
 	echo "unexpected output form target ( $TARGET )" >> $report

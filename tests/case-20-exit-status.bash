@@ -1,10 +1,9 @@
-name=$(basename $0 .bash)
-lsof=$1
-report=$2
+source tests/common.bash
 
 f=/tmp/lsof-${name}-$$
 
 {
+    # should fail if not exists
     $lsof $f > /dev/null
     s=$?
     case $s in
@@ -18,12 +17,13 @@ f=/tmp/lsof-${name}-$$
 	    ;;
     esac
 
+    # should fail if no one opens the file
     touch $f
     $lsof $f > /dev/null
     s=$?
     case $s in
 	1)
-	    echo "ok: touch $f; $lsof $f => 0"
+	    echo "ok: touch $f; $lsof $f => 1"
 	    rm $f
 	    ;;
 	*)
@@ -34,6 +34,7 @@ f=/tmp/lsof-${name}-$$
 	    ;;
     esac
 
+    # should succeed if some one opens the file
     g=/dev/null
     cat < /dev/zero > $g &
     pid=$!

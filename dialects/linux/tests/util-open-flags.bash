@@ -1,13 +1,11 @@
-lsof=$1
-report=$2
-tdir=$3
-dialect=$4
+source tests/common.bash
+
 pat=$5
 tfile=$6
 
 shift 6
 
-TARGET=$tdir/open_with_flags
+TARGET=$tcasedir/open_with_flags
 if ! [ -x $TARGET ]; then
     echo "target executable ( $TARGET ) is not found" >> $report
     exit 1
@@ -20,8 +18,8 @@ $TARGET $tfile "$@" 2>> $report | {
 
     if  [[ -z "$pid" ]]; then
 	if grep -q 'open: Operation not supported' $report; then
-	    echo "a flag passed to open is not supported on this platform" >> $report
-	    exit 2
+	    echo "a flag passed to open is not supported on this platform, skipping" >> $report
+	    exit 77
 	fi
 	echo "unexpected output form target ( $TARGET )" >> $report
 	exit 1
@@ -33,7 +31,9 @@ $TARGET $tfile "$@" 2>> $report | {
 
     echo "expected: $pat" >> $report
     echo "lsof output:" >> $report
-    $lsof +fg -p $pid | tee -a $report | grep -q "$pat"
+    output=$($lsof +fg -p $pid)
+    echo "$output" >> $report
+    echo "$output" | grep -q "$pat"
     result=$?
 
     kill $pid

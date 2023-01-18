@@ -1,4 +1,6 @@
 #!/bin/bash
 
+source tests/common.bash
+
 pat=".*REG[ \t]\+.*TMPF.*/tmp/.*$"
-source $3/util-open-flags.bash "$@" "$pat" /tmp tmpf rdwr
+source $tcasedir/util-open-flags.bash "$lsof" "$report" "$tcasedir" "$dialect" "$pat" /tmp tmpf rdwr

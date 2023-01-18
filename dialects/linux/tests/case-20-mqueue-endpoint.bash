@@ -1,13 +1,10 @@
 #!/bin/sh
 
-name=$(basename $0 .bash)
-lsof=$1
-report=$2
-tdir=$3
+source tests/common.bash
 
 MQUEUE_MNTPOINT=/tmp/$$
 
-TARGET=$tdir/mq_fork
+TARGET=$tcasedir/mq_fork
 if ! [ -x $TARGET ]; then
     echo "target executable ( $TARGET ) is not found" >> $report
     exit 1
@@ -16,13 +13,13 @@ fi
 if grep -q mqueue /proc/mounts; then
     :
 elif ! [ $(id -u) = 0 ]; then
-    echo "root privileged is needed to run $(basename $0. sh)" >> $report
-    exit 2
+    echo "root privileged is needed to run $(basename $0 .sh), skipping" >> $report
+    exit 77
 else
     mkdir -p ${MQUEUE_MNTPOINT}
     if ! mount -t mqueue none ${MQUEUE_MNTPOINT}; then
-	echo "failed to mount mqeueu file system"
-	exit 2
+	echo "failed to mount mqueue file system, skipping"
+	exit 77
     fi
 fi
 

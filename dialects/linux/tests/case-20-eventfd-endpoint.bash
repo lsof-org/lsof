@@ -1,18 +1,15 @@
-name=$(basename $0 .bash)
-lsof=$1
-report=$2
-tdir=$3
+source tests/common.bash
 
 uname -r >> $report
 uname -r | sed -ne 's/^\([0-9]\+\)\.\([0-9]\+\)\.\([0-9]\+\).*/\1 \2/p' | {
     read major minor
     if [ "$major" -lt 5 ]; then
-	echo "eventfd endpoint features doesn't work on Linux $major"
-	exit 2
+	echo "eventfd endpoint features doesn't work on Linux $major, skipping"
+	exit 77
     fi
     if [ "$major" -eq 5 -a "$minor" -lt 2 ]; then
-	echo "event endpoint features doesn't work on Linux $major.$minor"
-	exit 2
+	echo "event endpoint features doesn't work on Linux $major.$minor, skipping"
+	exit 77
     fi
 } >> $report
 s=$?
@@ -20,7 +17,7 @@ if ! [ $s = 0 ]; then
     exit $s
 fi
 
-TARGET=$tdir/eventfd
+TARGET=$tcasedir/eventfd
 if ! [ -x $TARGET ]; then
     echo "target executable ( $TARGET ) is not found" >> $report
     exit 1

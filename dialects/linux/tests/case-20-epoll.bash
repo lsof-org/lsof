@@ -1,10 +1,8 @@
 #!/bin/bash
 
-lsof=$1
-report=$2
-tdir=$3
+source tests/common.bash
 
-TARGET=$tdir/epoll
+TARGET=$tcasedir/epoll
 if ! [ -x $TARGET ]; then
     echo "target executable ( $TARGET ) is not found" >> $report
     exit 1
