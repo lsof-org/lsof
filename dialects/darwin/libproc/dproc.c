@@ -314,9 +314,9 @@ gather_proc_info()
 		    sizeof(tai), nb);
 		Error();
 	    }
-	/*
-	 * Check for process or command exclusion.
-	 */
+	    /*
+	     * Check for process or command exclusion.
+	     */
 	    if (is_proc_excl((int)pid, (int)tai.pbsd.pbi_pgid,
 			     (UID_ARG)tai.pbsd.pbi_uid, &pss, &sf))
 	    {
@@ -359,9 +359,12 @@ gather_proc_info()
 		} else
 		    cres = 0;
 	    }
-	/*
-	 * Allocate local process space.
-	 */
+	    /*
+	     * Allocate local process space.
+	     *
+	     * Caveat: pbi_name can be changed by setprogname(3), while pbi_comm
+	     * cannot. Should we allow empty pbi_name here?
+	     */
 	    alloc_lproc((int)pid, (int)tai.pbsd.pbi_pgid,
 		(int)tai.pbsd.pbi_ppid, (UID_ARG)tai.pbsd.pbi_uid,
 		(tai.pbsd.pbi_name[0] != '\0') ? tai.pbsd.pbi_name
