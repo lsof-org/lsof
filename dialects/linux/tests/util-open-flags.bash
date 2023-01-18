@@ -13,20 +13,22 @@ fi
 
 export LC_ALL=C
 
-$TARGET $tfile "$@" 2>> $report | {
+log=/tmp/$name-$$.log
+$TARGET $tfile "$@" 2>> $log | {
     read pid
 
     if  [[ -z "$pid" ]]; then
-	if grep -q 'open: Operation not supported' $report; then
-	    echo "a flag passed to open is not supported on this platform, skipping" >> $report
-	    exit 77
-	fi
-	echo "unexpected output form target ( $TARGET )" >> $report
+        if grep -q 'open: Operation not supported' $log; then
+            cat $log >> $report
+            echo "a flag passed to open is not supported on this platform, skipping" >> $report
+            exit 77
+        fi
+        echo "unexpected output form target ( $TARGET )" >> $report
 	exit 1
     fi
     if ! [ -e "/proc/$pid" ]; then
-	echo "the target process dead unexpectedly" >> $report
-	exit 1
+        echo "the target process dead unexpectedly" >> $report
+        exit 1
     fi
 
     echo "expected: $pat" >> $report
