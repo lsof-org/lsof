@@ -1,4 +1,5 @@
-[![lsof-org](https://circleci.com/gh/lsof-org/lsof.svg?style=svg)](https://circleci.com/gh/lsof-org/lsof)
+[![Circle CI](https://circleci.com/gh/lsof-org/lsof.svg?style=svg)](https://circleci.com/gh/lsof-org/lsof)
+[![Cirrus CI](https://img.shields.io/cirrus/github/lsof-org/lsof)](https://cirrus-ci.com/github/lsof-org/lsof)
 [![Read the Docs](https://readthedocs.org/projects/lsof/badge/?version=latest)](https://lsof.readthedocs.io/en/latest/)
 
 # lsof
