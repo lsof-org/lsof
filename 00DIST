@@ -5402,7 +5402,7 @@ Supplement	Regenerated the 4.04 distribution to correct a non-
 
 		[FreeBSD] configure: suggest variable to set if FreeBSD sys not 
         	found
-        	submitted by @emaste
+        	Submitted by @emaste
 
 
 		Updated 00FAQ with lookup to open files via mountpoint
@@ -5430,13 +5430,16 @@ Supplement	Regenerated the 4.04 distribution to correct a non-
 		[FreeBSD] sys/files.h no longer needs _KERNEL defined to 
                 include it (bsdimp #256)
 
+
 		docs: Describe fd number truncation in output (#261)
 
 4.96.5		December 26, 2022
 
 		[linux] Use correct scanf/printf format for uint64_t (#266)
 
+
 		Avoid C89-only constructs in Configure (#265)
+
 
 		[freebsd] add <sys/callout.h> for recent changes
 
@@ -5445,16 +5448,22 @@ Supplement	Regenerated the 4.04 distribution to correct a non-
 		[decof/du/tru64] Remove support because the os is no longer
 		updated for more than 10 years
 
+
 		[openstep/nextstep] Remove support because the os is no longer
 		updated for more than 20 years
 
+
 		Add experimental build system based on Autotools (#270)
+
 
 		Fixed LTsock testing on darwin (#272)
 
+
 		Remove NEW and OLD folders (#6)
 
+
 		Fix FreeBSD testcases (#271)
+
 
 		Rewrite documentation and publish at https://lsof.readthedocs.io/
 
@@ -5463,9 +5472,20 @@ Supplement	Regenerated the 4.04 distribution to correct a non-
 		Fix two potential null pointer access bug when gethostbyname2()
 		returns an empty address list
 
+
 		Add support for older automake versions (on e.g. CentOS 7)
 
+
 		Migrate testing scripts and programs to autotools
+
+
+		Extend CI to build on more Linux distros
+
+
+		[linux] Fix handling of empty command name, closing #246.
+		Add test from #246, where lsof returns stale command name when the
+		command name is empty. If getting command name failed, return
+		NULL instead of empty string
 
 4.9?.?		????????? ??, ????
 
