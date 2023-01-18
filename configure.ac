@@ -370,18 +370,17 @@ AC_CONFIG_LINKS([tests/common.bash:tests/common.bash
 	Lsof.8:Lsof.8 00DIALECTS:00DIALECTS 00DIST:00DIST])
 
 # Generation cflags for tests
-LSOF_TEST_CFLAGS=""
-LSOF_TEST_CFLAGS+=" -DLT_DIAL_$LSOF_TGT"
+LSOF_TEST_CFLAGS="-DLT_DIAL_$LSOF_TGT"
 
 # LT_BIGF
 if test "X$LSOF_TSTBIGF" != "X"	# {
 then
-  LSOF_TEST_CFLAGS+=" -DLT_BIGF"
+  LSOF_TEST_CFLAGS="$LSOF_TEST_CFLAGS -DLT_BIGF"
   if test "X$LSOF_TSTBIGF" != "X "	# {
   then
     for i in $LSOF_TSTBIGF	# {
     do
-      LSOF_TEST_CFLAGS+=" $i"
+      LSOF_TEST_CFLAGS="$LSOF_TEST_CFLAGS $i"
     done	# }
   fi	# }
 fi	# }
@@ -390,14 +389,14 @@ fi	# }
 echo $LSOF_CC | grep gcc > /dev/null 2>&1
 if test $? -eq 0	# {
 then
-  LSOF_TEST_CFLAGS+=" -DLT_GCC"
+  LSOF_TEST_CFLAGS="$LSOF_TEST_CFLAGS -DLT_GCC"
 else
-  LSOF_TEST_CFLAGS+=" -DLT_CC"
+  LSOF_TEST_CFLAGS="$LSOF_TEST_CFLAGS -DLT_CC"
 fi	# }
 
-LSOF_TEST_CFLAGS+=" -DLT_VERS=$LSOF_VERS"
+LSOF_TEST_CFLAGS="$LSOF_TEST_CFLAGS -DLT_VERS=$LSOF_VERS"
 # Override default lsof path
-LSOF_TEST_CFLAGS+=" -DLT_DEF_LSOF_PATH=\\\"$PWD/lsof\\\""
+LSOF_TEST_CFLAGS="$LSOF_TEST_CFLAGS -DLT_DEF_LSOF_PATH=\\\"$PWD/lsof\\\""
 AC_SUBST([LSOF_TEST_CFLAGS])
 
 # Finish
