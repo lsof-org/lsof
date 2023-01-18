@@ -363,18 +363,18 @@ AC_CONFIG_HEADERS([config.h])
 
 # Generation config files for tests
 echo "$CC" > tests/config.cc
-LSOF_TSTCFLG="tests/config.cflags"
-echo "-DLT_DIAL_$LSOF_TGT" > $LSOF_TSTCFLG
+LSOF_TEST_CFLAGS=""
+LSOF_TEST_CFLAGS+=" -DLT_DIAL_$LSOF_TGT"
 
 # LT_BIGF
 if test "X$LSOF_TSTBIGF" != "X"	# {
 then
-  echo "-DLT_BIGF" >> $LSOF_TSTCFLG
+  LSOF_TEST_CFLAGS+=" -DLT_BIGF"
   if test "X$LSOF_TSTBIGF" != "X "	# {
   then
     for i in $LSOF_TSTBIGF	# {
     do
-      echo "$i" >> $LSOF_TSTCFLG
+      LSOF_TEST_CFLAGS+=" $i"
     done	# }
   fi	# }
 fi	# }
@@ -383,12 +383,16 @@ fi	# }
 echo $LSOF_CC | grep gcc > /dev/null 2>&1
 if test $? -eq 0	# {
 then
-  echo "-DLT_GCC" >> $LSOF_TSTCFLG
+  LSOF_TEST_CFLAGS+=" -DLT_GCC"
 else
-  echo "-DLT_CC" >> $LSOF_TSTCFLG
+  LSOF_TEST_CFLAGS+=" -DLT_CC"
 fi	# }
 
-echo "-DLT_VERS=$LSOF_VERS" >> $LSOF_TSTCFLG
+LSOF_TEST_CFLAGS+=" -DLT_VERS=$LSOF_VERS"
+echo "$LSOF_TEST_CFLAGS" | tr " " "\n" > tests/config.cflags
+# Override default lsof path
+LSOF_TEST_CFLAGS+=" -DLT_DEF_LSOF_PATH=\\\"$PWD/lsof\\\""
+AC_SUBST([LSOF_TEST_CFLAGS])
 echo "" > tests/config.xobj
 echo "$LDFLAGS" > tests/config.ldflags
 

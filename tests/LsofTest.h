@@ -299,7 +299,9 @@ typedef int		pid_t;
  */
 
 #define	LT_DONT_DO_TEST		"this test does not run on this dialect."
+# if	!defined(LT_DEF_LSOF_PATH)
 #define	LT_DEF_LSOF_PATH	"../lsof"
+#endif  /* !defined(LT_DEF_LSOF_PATH) */
 
 # if	!defined(MAXPATHLEN)
 #define	MAXPATHLEN	1024

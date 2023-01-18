@@ -60,6 +60,7 @@ man8_MANS = lsof.man
 EXTRA_DIST += Lsof.8
 
 # Testing scripts
+# Dialect neutral
 TESTS = tests/case-00-hello.bash \
 	tests/case-01-version.bash \
 	tests/case-20-exit-status.bash \
@@ -68,6 +69,7 @@ TESTS = tests/case-00-hello.bash \
 	tests/case-20-repeat-count.bash \
 	tests/case-21-exit-Q-status.bash
 
+# Dialect specific
 check_PROGRAMS =
 if LINUX
 check_PROGRAMS += dialects/linux/tests/epoll \
@@ -102,3 +104,26 @@ TESTS += dialects/linux/tests/case-10-mqueue.bash \
 	dialects/linux/tests/case-20-ux-socket-endpoint.bash \
 	dialects/linux/tests/case-20-ux-socket-endpoint-unaccepted.bash
 endif
+
+# Testing programs
+TESTS += tests/LTbasic tests/LTbigf tests/LTdnlc tests/LTlock tests/LTnfs tests/LTnlink tests/LTsock tests/LTszoff tests/LTunix
+
+check_PROGRAMS += tests/LTbasic tests/LTbigf tests/LTdnlc tests/LTlock tests/LTnfs tests/LTnlink tests/LTsock tests/LTszoff tests/LTunix
+tests_LTbasic_SOURCES = tests/LTbasic.c tests/LTlib.c
+tests_LTbasic_CFLAGS = @LSOF_TEST_CFLAGS@
+tests_LTbigf_SOURCES = tests/LTbigf.c tests/LTlib.c
+tests_LTbigf_CFLAGS = @LSOF_TEST_CFLAGS@
+tests_LTdnlc_SOURCES = tests/LTdnlc.c tests/LTlib.c
+tests_LTdnlc_CFLAGS = @LSOF_TEST_CFLAGS@
+tests_LTlock_SOURCES = tests/LTlock.c tests/LTlib.c
+tests_LTlock_CFLAGS = @LSOF_TEST_CFLAGS@
+tests_LTnfs_SOURCES = tests/LTnfs.c tests/LTlib.c
+tests_LTnfs_CFLAGS = @LSOF_TEST_CFLAGS@
+tests_LTnlink_SOURCES = tests/LTnlink.c tests/LTlib.c
+tests_LTnlink_CFLAGS = @LSOF_TEST_CFLAGS@
+tests_LTsock_SOURCES = tests/LTsock.c tests/LTlib.c
+tests_LTsock_CFLAGS = @LSOF_TEST_CFLAGS@
+tests_LTszoff_SOURCES = tests/LTszoff.c tests/LTlib.c
+tests_LTszoff_CFLAGS = @LSOF_TEST_CFLAGS@
+tests_LTunix_SOURCES = tests/LTunix.c tests/LTlib.c
+tests_LTunix_CFLAGS = @LSOF_TEST_CFLAGS@
