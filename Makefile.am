@@ -58,6 +58,9 @@ lsof.man: Lsof.8 version 00DIALECTS
 	soelim < Lsof.8 > $@
 man8_MANS = lsof.man
 EXTRA_DIST += Lsof.8
+# Fix distcheck error
+clean-local:
+	rm -rf lsof.man
 
 # Testing scripts
 AM_TESTS_ENVIRONMENT = export LSOF_DIALECT_DIR=$(LSOF_DIALECT_DIR); export LSOF_DIALECT=$(LSOF_DIALECT);
