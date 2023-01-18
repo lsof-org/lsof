@@ -2,12 +2,22 @@ task:
   freebsd_instance:
     cpu: 1
     matrix:
-      - image: freebsd-13-1-release-amd64
-      - image: freebsd-12-2-release-amd64
       - image_family: freebsd-14-0-snap
-  install_script: pkg install -y bash
+      - image_family: freebsd-13-1
+      - image_family: freebsd-12-3
+  install_script: pkg install -y bash git autoconf automake groff
   build_script:
     - ./Configure -n freebsd
     - make
   test_script:
     - bash ./check.bash freebsd
+  autotools_build_script:
+    - git clean -fdx .
+    - autoreconf -vif
+    - ./configure
+    - make
+    - make install
+  autotools_test_script:
+    - make check
+    - cat test-suite.log
+    - make distcheck
