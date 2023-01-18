@@ -50,7 +50,7 @@ lsof_SOURCES += dialects/freebsd/dmnt.c \
 		dialects/freebsd/machine.h
 endif
 
-lsof_CPPFLAGS = -I$(DIALECT_PATH) -I$(top_srcdir)/autotools
+lsof_CPPFLAGS = -I$(DIALECT_PATH) -Iautotools
 lsof_CPPFLAGS += -DAUTOTOOLS
 
 # Manpages
@@ -60,6 +60,7 @@ man8_MANS = lsof.man
 EXTRA_DIST += Lsof.8
 
 # Testing scripts
+AM_TESTS_ENVIRONMENT = export LSOF_DIALECT_DIR=$(LSOF_DIALECT_DIR); export LSOF_DIALECT=$(LSOF_DIALECT);
 # Dialect neutral
 TESTS = tests/case-00-hello.bash \
 	tests/case-01-version.bash \

@@ -1,3 +1,4 @@
+#!/bin/bash
 source tests/common.bash
 
 f=/tmp/lsof-${name}-$$

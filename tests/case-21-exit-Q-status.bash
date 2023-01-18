@@ -1,3 +1,4 @@
+#!/bin/bash
 # See https://github.com/lsof-org/lsof/issues/128
 source tests/common.bash
 

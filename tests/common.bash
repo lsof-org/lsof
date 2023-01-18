@@ -7,9 +7,8 @@ if [ "$#" -ne 0 ]; then
 	dialect=$4
 else
 	# Autotools
-	lsof=./lsof
+	lsof=$PWD/lsof
 	report=/dev/stdout
-	# https://stackoverflow.com/questions/59895/how-do-i-get-the-directory-where-a-bash-script-is-located-from-within-the-script
-	tcasedir="$( dirname -- "$( readlink -f -- "$0"; )"; )"
-	dialect=dontcare
+	tcasedir=dialects/${LSOF_DIALECT_DIR}/tests
+	dialect=${LSOF_DIALECT}
 fi

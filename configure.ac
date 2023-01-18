@@ -361,8 +361,12 @@ AC_CONFIG_FILES([version])
 # Generate config.h
 AC_CONFIG_HEADERS([config.h])
 
-# Generation config files for tests
-echo "$CC" > tests/config.cc
+# For VPATH building
+AC_CONFIG_LINKS([tests/common.bash:tests/common.bash
+	dialects/linux/tests/util-open-flags.bash:dialects/linux/tests/util-open-flags.bash
+	Lsof.8:Lsof.8 00DIALECTS:00DIALECTS 00DIST:00DIST])
+
+# Generation cflags for tests
 LSOF_TEST_CFLAGS=""
 LSOF_TEST_CFLAGS+=" -DLT_DIAL_$LSOF_TGT"
 
@@ -389,12 +393,9 @@ else
 fi	# }
 
 LSOF_TEST_CFLAGS+=" -DLT_VERS=$LSOF_VERS"
-echo "$LSOF_TEST_CFLAGS" | tr " " "\n" > tests/config.cflags
 # Override default lsof path
 LSOF_TEST_CFLAGS+=" -DLT_DEF_LSOF_PATH=\\\"$PWD/lsof\\\""
 AC_SUBST([LSOF_TEST_CFLAGS])
-echo "" > tests/config.xobj
-echo "$LDFLAGS" > tests/config.ldflags
 
 # Finish
 AC_OUTPUT
