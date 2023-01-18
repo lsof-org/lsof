@@ -3,6 +3,12 @@
 version: 2.1
 
 executors:
+  ubuntu2204:
+    machine:
+      image: ubuntu-2204:2022.10.2 
+  debian11:
+    docker:
+      - image: docker.io/debian:11
   fedora36:
     docker:
       - image: docker.io/fedora:36
@@ -28,8 +34,10 @@ jobs:
       - run:
           name: Install build tools
           command: |
-            dnf -y install git gcc make sudo nmap-ncat iproute procps autoconf automake
+            dnf -y install git gcc make sudo nmap-ncat iproute procps autoconf automake || true
             dnf -y install libtirpc-devel || true
+            apt update || true
+            apt install -y git gcc make sudo ncat iproute2 procps autoconf automake libtirpc-dev groff || true
       - when:
           condition:
             equal: [ fedora36, << parameters.distro >> ]
@@ -82,7 +90,7 @@ jobs:
             autoreconf -vif
             ./configure
             make
-            make install
+            sudo make install
             make check
       - run:
           name: Rebuild and test using distribution tarball
@@ -94,7 +102,7 @@ jobs:
             cd lsof-*
             ./configure
             make
-            make install
+            sudo make install
             make check
   bigsur:
     macos:
@@ -143,5 +151,5 @@ workflows:
       - linux:
           matrix:
             parameters:
-              distro: [fedora36, fedora37, centos8, centos9]
+              distro: [fedora36, fedora37, centos8, centos9, debian11, ubuntu2204]
       - bigsur
