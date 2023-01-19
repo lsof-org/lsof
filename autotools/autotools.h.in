@@ -37,7 +37,7 @@
 
 #include "config.h"
 
-#if !HAVE_RPC_RPC_H
+#if !HAVE_RPC_RPC_H && !HAVE_LIBTIRPC
 #define HASNORPC_H
 #endif
 

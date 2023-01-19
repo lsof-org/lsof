@@ -150,7 +150,14 @@ AC_SUBST([LSOF_DIALECT])
 AC_SUBST([LSOF_DIALECT_DIR])
 
 # Check rpc/rpc.h
-AC_CHECK_HEADERS([rpc/rpc.h])
+AC_CHECK_HEADERS([rpc/rpc.h], [], [
+	# Fallback to libtirpc
+	PKG_CHECK_MODULES([LIBTIRPC], [libtirpc], [
+		CFLAGS="$CFLAGS $LIBTIRPC_CFLAGS"
+		LIBS="$LIBS $LIBTIRPC_LIBS"
+		AC_DEFINE([HAVE_LIBTIRPC], [1], [Define to 1 if libtirpc is used for rpc/rpc.h])
+	], [])
+])
 
 # Detect glibc for GLIBCV
 AC_CHECK_DECLS([__GLIBC__])

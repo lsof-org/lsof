@@ -991,6 +991,9 @@ usage(err, fh, version)
 #ifdef HASPTYEPT
 		"ptyept",
 #endif
+#if !defined(HASNORPC_H)
+		"rpc",
+#endif
 #ifdef HASSBSTATE
 		"sbstate",
 #endif
