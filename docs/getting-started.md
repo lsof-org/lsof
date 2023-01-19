@@ -51,6 +51,16 @@ Since 4.97.0, lsof introduces a new experimental autotools-based build system. I
 - Darwin
 - FreeBSD
 
+Build dependencies:
+
+- c compiler: gcc/clang/etc
+- autotools: autoconf/automake
+- make
+- pkg-config(optional): for package detection
+- libtirpc(optional): if your libc does not provide rpc
+- groff(optional): to process manpages
+- nc/iproute2(optional): for testing
+
 You can build lsof with the following commands:
 
 ```shell
