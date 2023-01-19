@@ -150,11 +150,24 @@ AC_SUBST([LSOF_DIALECT])
 AC_SUBST([LSOF_DIALECT_DIR])
 
 # Check rpc/rpc.h
-PKG_WITH_MODULES([LIBTIRPC], [libtirpc], [
-	CFLAGS="$CFLAGS $LIBTIRPC_CFLAGS"
-	LIBS="$LIBS $LIBTIRPC_LIBS"
+AC_ARG_WITH(libtirpc, AS_HELP_STRING([--with-libtirpc], [build with libtirpc support @<:@default=auto@:>@]))
+AS_IF([test "x$with_libtirpc" != xno], [
+	PKG_CHECK_MODULES([LIBTIRPC], [libtirpc], [
+		CFLAGS="$CFLAGS $LIBTIRPC_CFLAGS"
+		LIBS="$LIBS $LIBTIRPC_LIBS"
+		with_libtirpc=yes
+	], [
+		if test "x$with_libtirpc" != xauto
+		then
+			AC_MSG_ERROR([--with-libtirpc specified, but libtirpc could not be found])
+		fi
+		with_libtirpc=no
+	])
 ])
-PKG_HAVE_DEFINE_WITH_MODULES([LIBTIRPC], [libtirpc])
+
+AS_IF([test "x$with_libtirpc" = "xyes"],
+        [AC_DEFINE(HAVE_LIBTIRPC, 1, [Enable libtirpc support])])
+
 AC_CHECK_HEADERS([rpc/rpc.h])
 
 # Detect glibc for GLIBCV
