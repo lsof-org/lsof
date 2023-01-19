@@ -6,6 +6,12 @@ executors:
   ubuntu2204:
     machine:
       image: ubuntu-2204:2022.10.2 
+  opensuse15:
+    docker:
+      - image: docker.io/opensuse/leap:15
+  archlinux:
+    docker:
+      - image: docker.io/archlinux:latest
   debian11:
     docker:
       - image: docker.io/debian:11
@@ -38,6 +44,8 @@ jobs:
             dnf -y install libtirpc-devel || true
             apt update || true
             apt install -y git gcc make sudo ncat iproute2 procps autoconf automake libtirpc-dev groff pkg-config || true
+            pacman -Sy --noconfirm git gcc make sudo iproute2 procps autoconf automake groff pkg-config || true
+            zypper install -y git gcc make sudo iproute2 procps autoconf automake groff pkg-config gzip tar || true
       - when:
           condition:
             equal: [ fedora36, << parameters.distro >> ]
@@ -145,5 +153,5 @@ workflows:
       - linux:
           matrix:
             parameters:
-              distro: [fedora36, fedora37, centos8, centos9, debian11, ubuntu2204]
+              distro: [fedora36, fedora37, centos8, centos9, debian11, ubuntu2204, archlinux, opensuse15]
       - bigsur
