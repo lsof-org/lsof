@@ -743,11 +743,11 @@ print_file()
 	    Hdr++;
 	}
 	/*
-	* Size or print the command.
-	*
-	* CAUTION: command can be empty, see issue #246,
-	* use NULL to represent failure instead of empty string
-	*/
+	 * Size or print the command.
+	 *
+	 * CAUTION: command can be empty, see issue #246,
+	 * use NULL to represent failure instead of empty string
+	 */
 	cp = Lp->cmd ? Lp->cmd : "(unknown)";
 	if (!PrPass) {
 	    len = safestrlen(cp, 2);
@@ -1008,12 +1008,8 @@ print_file()
 	if (!PrPass) {
 	    if (Lf->sz_def) {
 
-#if	defined(HASPRINTSZ)
-		cp = HASPRINTSZ(Lf);
-#else	/* !defined(HASPRINTSZ) */
 		(void) snpf(buf, sizeof(buf), SzOffFmt_d, Lf->sz);
 		cp = buf;
-#endif	/* defined(HASPRINTSZ) */
 
 		len = strlen(cp);
 	    } else if (Lf->off_def) {
@@ -1044,13 +1040,7 @@ print_file()
 	} else {
 	    putchar(' ');
 	    if (Lf->sz_def)
-
-#if	defined(HASPRINTSZ)
-		(void) printf("%*.*s", SzOffColW, SzOffColW, HASPRINTSZ(Lf));
-#else	/* !defined(HASPRINTSZ) */
-	    (void) printf(SzOffFmt_dv, SzOffColW, Lf->sz);
-#endif	/* defined(HASPRINTSZ) */
-
+		(void) printf(SzOffFmt_dv, SzOffColW, Lf->sz);
 	    else if (Lf->off_def) {
 
 #if	defined(HASPRINTOFF)

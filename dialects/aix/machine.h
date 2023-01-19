@@ -370,7 +370,6 @@ typedef	long long	aligned_offset_t  __attribute__ ((aligned (8)));
 /* #define	HASPRINTINO	print_ino?	*/
 /* #define	HASPRINTNM	print_nm?	*/
 /* #define	HASPRINTOFF	print_off?	*/
-/* #define	HASPRINTSZ	print_sz?	*/
 
 
 /*

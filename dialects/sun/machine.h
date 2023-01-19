@@ -432,7 +432,6 @@ typedef struct pad_mutex {
 /* #define	HASPRINTINO	print_ino?	*/
 /* #define	HASPRINTNM	print_nm?	*/
 /* #define	HASPRINTOFF	print_off?	*/
-/* #define	HASPRINTSZ	print_sz?	*/
 
 
 /*

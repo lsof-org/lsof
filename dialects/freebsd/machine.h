@@ -353,7 +353,6 @@ typedef _Bool   bool;
 /* #define	HASPRINTINO	print_ino?	*/
 /* #define	HASPRINTNM	print_nm?	*/
 /* #define	HASPRINTOFF	print_off?	*/
-/* #define	HASPRINTSZ	print_sz?	*/
 
 
 /*

@@ -1579,12 +1579,8 @@ print_proc()
 	    if (FieldSel[LSOF_FIX_SIZE].st && Lf->sz_def) {
 		putchar(LSOF_FID_SIZE);
 
-#if	defined(HASPRINTSZ)
-		cp = HASPRINTSZ(Lf);
-#else	/* !defined(HASPRINTSZ) */
 		(void) snpf(buf, sizeof(buf), SzOffFmt_d, Lf->sz);
 		cp = buf;
-#endif	/* defined(HASPRINTSZ) */
 
 		(void) printf("%s", cp);
 		putchar(Terminator);

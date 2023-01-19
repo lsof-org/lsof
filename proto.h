@@ -284,10 +284,6 @@ _PROTOTYPE(extern void HASPRINTNM,(struct lfile *lf));
 _PROTOTYPE(extern char *HASPRINTOFF,(struct lfile *lf, int ty));
 # endif	/* defined(HASPRINTOFF) */
 
-# if	defined(HASPRINTSZ)
-_PROTOTYPE(extern char *HASPRINTSZ,(struct lfile *lf));
-# endif	/* defined(HASPRINTSZ) */
-
 # if	defined(HASPRIVNMCACHE)
 _PROTOTYPE(extern int HASPRIVNMCACHE,(struct lfile *lf));
 # endif	/* defined(HASPRIVNMCACHE) */
