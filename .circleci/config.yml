@@ -100,6 +100,10 @@ jobs:
     steps:
       - checkout
       - run:
+          name: Install pkg-config
+          command: |
+            brew install pkg-config
+      - run:
           name: Configure
           command: |
             LSOF_INCLUDE=/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include ./Configure -n darwin
