@@ -34,10 +34,10 @@ jobs:
       - run:
           name: Install build tools
           command: |
-            dnf -y install git gcc make sudo nmap-ncat iproute procps autoconf automake || true
+            dnf -y install git gcc make sudo nmap-ncat iproute procps autoconf automake pkg-config || true
             dnf -y install libtirpc-devel || true
             apt update || true
-            apt install -y git gcc make sudo ncat iproute2 procps autoconf automake libtirpc-dev groff || true
+            apt install -y git gcc make sudo ncat iproute2 procps autoconf automake libtirpc-dev groff pkg-config || true
       - when:
           condition:
             equal: [ fedora36, << parameters.distro >> ]

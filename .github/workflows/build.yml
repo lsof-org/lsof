@@ -13,6 +13,8 @@ jobs:
     runs-on: ${{ matrix.os }}
     steps:
     - uses: actions/checkout@v3
+    - name: install dependencies
+      run: sudo apt install -y pkg-config
     - name: autoconf
       run: autoreconf -vif
     - name: configure

@@ -5,7 +5,7 @@ task:
       - image_family: freebsd-14-0-snap
       - image_family: freebsd-13-1
       - image_family: freebsd-12-3
-  install_script: pkg install -y bash git autoconf automake groff
+  install_script: pkg install -y bash git autoconf automake groff pkgconf
   build_script:
     - ./Configure -n freebsd
     - make
