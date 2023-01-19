@@ -149,15 +149,17 @@ AM_CONDITIONAL([FREEBSD], [test x$LSOF_DIALECT_DIR = xfreebsd])
 AC_SUBST([LSOF_DIALECT])
 AC_SUBST([LSOF_DIALECT_DIR])
 
-# Check rpc/rpc.h
-AC_ARG_WITH(libtirpc, AS_HELP_STRING([--with-libtirpc], [build with libtirpc support @<:@default=auto@:>@]))
+# Check rpc/rpc.h or libtirpc
+# with_libtirpc=yes/no/auto
+AC_ARG_WITH(libtirpc, AS_HELP_STRING([--with-libtirpc],
+	[build with libtirpc support @<:@default=auto@:>@]), [], [with_libtirpc=auto])
 AS_IF([test "x$with_libtirpc" != xno], [
 	PKG_CHECK_MODULES([LIBTIRPC], [libtirpc], [
 		CFLAGS="$CFLAGS $LIBTIRPC_CFLAGS"
 		LIBS="$LIBS $LIBTIRPC_LIBS"
 		with_libtirpc=yes
 	], [
-		if test "x$with_libtirpc" != xauto
+		if test "x$with_libtirpc" = xyes
 		then
 			AC_MSG_ERROR([--with-libtirpc specified, but libtirpc could not be found])
 		fi
