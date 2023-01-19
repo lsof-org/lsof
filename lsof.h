@@ -730,6 +730,7 @@ extern int Fpgid;
 extern int Fppid;
 extern int FsearchErr;
 extern int Fsize;
+extern int Fhuman;
 extern int Fsv;
 extern int FsvByf;
 extern int FsvFlagX;

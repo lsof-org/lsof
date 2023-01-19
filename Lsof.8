@@ -10,7 +10,7 @@ lsof \- list open files
 .SH SYNOPSIS
 .B lsof
 [
-.B \-?abChlnNOPQRtUvVX
+.B \-?abChHlnNOPQRtUvVX
 ] [
 .BI \-A " A"
 ] [
@@ -896,6 +896,9 @@ The
 .B \-g
 option also enables the output display of PGID numbers.
 When specified without a PGID set that's all it does.
+.TP \w'names'u+4
+.B \-H
+directs lsof to print human readable sizes, e.g. 123.4K 456.7M.
 .TP \w'names'u+4
 .BI \-i " [i]"
 selects the listing of files any of whose Internet address

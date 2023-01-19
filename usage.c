@@ -340,7 +340,7 @@ usage(err, fh, version)
 	    (void) fprintf(stderr, " latest FAQ: %s\n", LSOF_FAQ_URL);
 	    (void) fprintf(stderr, " latest (non-formatted) man page: %s\n", LSOF_MAN_URL);
 	    (void) fprintf(stderr,
-		" usage: [-?ab%sh%slnNoOP%s%stUvV%s]",
+		" usage: [-?ab%shH%slnNoOP%s%stUvV%s]",
 
 #if	defined(HASNCACHE)
 		"C",
@@ -601,6 +601,8 @@ usage(err, fh, version)
 #if	defined(HASSELINUX)
 	    col = print_in_col(col, "-Z Z  context [Z]");
 #endif	/* defined(HASSELINUX) */
+
+	    col = print_in_col(col, "-H human readable size");
 
 	    col = print_in_col(col, "-- end option scan");
 	    if (col != 1)

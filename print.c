@@ -89,6 +89,7 @@ _PROTOTYPE(static void fill_porttab,(void));
 _PROTOTYPE(static char *lkup_port,(int p, int pr, int src));
 _PROTOTYPE(static char *lkup_svcnam,(int h, int p, int pr, int ss));
 _PROTOTYPE(static int printinaddr,(void));
+_PROTOTYPE(static int human_readable_size,(SZOFFTYPE sz, int print, int col));
 
 
 /*
@@ -1007,11 +1008,12 @@ print_file()
  */
 	if (!PrPass) {
 	    if (Lf->sz_def) {
-
-		(void) snpf(buf, sizeof(buf), SzOffFmt_d, Lf->sz);
-		cp = buf;
-
-		len = strlen(cp);
+		if (Fhuman) {
+		    len = human_readable_size(Lf->sz, 0, 0);
+		} else {
+		    (void) snpf(buf, sizeof(buf), SzOffFmt_d, Lf->sz);
+		    len = strlen(buf);
+		}
 	    } else if (Lf->off_def) {
 
 #if	defined(HASPRINTOFF)
@@ -1039,8 +1041,15 @@ print_file()
 		SzOffColW = len;
 	} else {
 	    putchar(' ');
-	    if (Lf->sz_def)
-		(void) printf(SzOffFmt_dv, SzOffColW, Lf->sz);
+	    if (Lf->sz_def) {
+		if (Fhuman) {
+		    human_readable_size(Lf->sz, 1, SzOffColW);
+		} else {
+		    (void) snpf(buf, sizeof(buf), SzOffFmt_d, Lf->sz);
+		    len = strlen(buf);
+		    (void) printf(SzOffFmt_dv, SzOffColW, Lf->sz);
+		}
+	    }
 	    else if (Lf->off_def) {
 
 #if	defined(HASPRINTOFF)
@@ -2845,3 +2854,42 @@ update_portmap(pt, pn)
 	pt->ss = 1;
 }
 #endif	/* !defined(HASNORPC_H) */
+
+/*
+ * Convert sz to human readable format, print to stdout if print=1
+ *
+ * Return the length of output
+ */
+int human_readable_size(SZOFFTYPE sz, int print, int col)
+{
+	char buf[128];
+	SZOFFTYPE base = 1024;
+	SZOFFTYPE unit = base;
+	SZOFFTYPE upper = base * base;
+	int suffix_count = 6;
+	char *suffix[6] = {"K", "M", "G", "T", "P", "E"};
+	int i;
+	int len;
+	double val;
+
+	if (sz < base) {
+	    /* <1KB */
+	    (void) snpf(buf, sizeof(buf), "%" SZOFFPSPEC "uB", sz);
+	} else {
+	    for(i = 0;i < suffix_count-1;i++) {
+		if (sz < upper) {
+		    break;
+		}
+		unit = upper;
+		upper = upper * base;
+	    }
+
+	    /* Avoid floating point overflow */
+	    val = (double)(sz / (unit / base)) / base;
+	    (void) snpf(buf, sizeof(buf), "%.1lf%s", val, suffix[i]);
+	}
+	if (print) {
+	    printf("%*s", col, buf);
+	}
+	return strlen(buf);
+}

@@ -166,6 +166,7 @@ int FportMap = 0;		/* +|-M option status */
 int Fpgid = 0;			/* -g option status */
 int Fppid = 0;			/* -R option status */
 int Fsize = 0;			/* -s option status */
+int Fhuman = 0;			/* -H option status */
 int FsColW;			/* FSTR-ADDR column width */
 int Fsv = FSV_DEFAULT;		/* file struct value selections */
 int FsvByf = 0;			/* Fsv was set by +f */
@@ -339,14 +340,10 @@ struct seluid *Suid = (struct seluid *)NULL;
 				/* User IDs to include or exclude */
 int SzColW;			/* SIZE column width */
 int SzOffColW;			/* SIZE/OFF column width */
-char *SzOffFmt_0t = (char *)NULL;
-				/* SZOFFTYPE 0t%u printf specification */
-char *SzOffFmt_d = (char *)NULL;
-				/* SZOFFTYPE %d printf  specification */
-char *SzOffFmt_dv = (char *)NULL;
-				/* SZOFFTYPE %*d printf  specification */
-char *SzOffFmt_x = (char *)NULL;
-				/* SZOFFTYPE %#x printf  specification */
+char *SzOffFmt_0t = (char *)NULL; /* SZOFFTYPE 0t%u printf specification */
+char *SzOffFmt_d = (char *)NULL; /* SZOFFTYPE %d printf specification */
+char *SzOffFmt_dv = (char *)NULL; /* SZOFFTYPE %*d printf specification */
+char *SzOffFmt_x = (char *)NULL; /* SZOFFTYPE %#x printf specification */
 int TaskCmdColW = 0;		/* task command column width */
 int TaskCmdLim = TASKCMDL;	/* TASKCMD column width limit (same as
 				 * CmdLim) */

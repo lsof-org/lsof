@@ -167,7 +167,7 @@ main(argc, argv)
  * Create option mask.
  */
 	(void) snpf(options, sizeof(options),
-	    "?a%sbc:%sD:d:%s%sf:F:g:hi:%s%slL:%s%snNo:Op:QPr:%ss:S:tT:u:UvVwx:%s%s%s",
+	    "?a%sbc:%sD:d:%s%sf:F:g:hHi:%s%slL:%s%snNo:Op:QPr:%ss:S:tT:u:UvVwx:%s%s%s",
 
 #if	defined(HAS_AFS) && defined(HASAOPT)
 	    "A:",
@@ -581,6 +581,9 @@ main(argc, argv)
 			err = 1;
 		}
 		Fpgid = 1;
+		break;
+	    case 'H':
+		Fhuman = 1;
 		break;
 	    case 'h':
 	    case '?':
