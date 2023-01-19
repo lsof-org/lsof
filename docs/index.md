@@ -32,3 +32,13 @@ Not maintained for lack of maintainers but pull requests are welcome:
 - SCO OpenServer
 - UnixWare
 
+lsof is tested in ci on the following platforms:
+
+- Debian 11
+- CentOS 8/9
+- Fedora 36/37
+- openSUSE Leap 15
+- Arch Linux
+- Ubuntu 18.04/20.04/22.04
+- FreeBSD 12/13/14
+- macOS Big Sur
