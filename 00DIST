@@ -5487,6 +5487,10 @@ Supplement	Regenerated the 4.04 distribution to correct a non-
 		command name is empty. If getting command name failed, return
 		NULL instead of empty string
 
+
+		Add --with/without-libtirpc option to autotools-based build
+		system and automatically detect libtirpc by default
+
 4.9?.?		????????? ??, ????
 
 Vic Abell <abe@purdue.edu>
