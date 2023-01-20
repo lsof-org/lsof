@@ -1,4 +1,4 @@
-	Apple Darwin 9, Mac OS X 10.[567], OS X 10.([89]|1[01]) and macOS (10.1[2345]|1[123])
-	FreeBSD 8.[234], 9.0 and 1[0123].0 for AMD64-based systems
-	Linux 2.1.72 and above for x86-based systems
+	Apple Darwin 9, Mac OS X 10, macOS 11 and above
+	FreeBSD 8.2 and above
+	Linux 2.1.72 and above
 	Solaris 9, 10 and 11
