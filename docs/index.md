@@ -44,3 +44,9 @@ lsof is tested in ci on the following platforms:
 - NixOS
 - openSUSE Leap 15
 - Ubuntu 18.04/20.04/22.04
+
+lsof is provided by package manager in the following repositories:
+
+<a href="https://repology.org/project/lsof/versions">
+    <img src="https://repology.org/badge/vertical-allrepos/lsof.svg" alt="Packaging status">
+</a>
