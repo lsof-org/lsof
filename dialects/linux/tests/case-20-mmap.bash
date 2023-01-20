@@ -31,7 +31,7 @@ cleanup
 # create a new namespace and mmap
 output=$(unshare --mount --propagation private $3/mount-and-mmap.bash $@ 2>&1)
 echo "$output" >> $report
-if echo "$output" | grep -q 'unshare failed: Operation not permitted'; then
+if echo "$output" | grep -q 'Operation not permitted'; then
     echo "unshare is not supported on this platform, skipping" >> $report
     exit 77
 fi
