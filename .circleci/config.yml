@@ -102,6 +102,16 @@ jobs:
             make check
             cat test-suite.log
             make distcheck
+  nixos:
+    docker:
+      - image: docker.io/nixos/nix:latest
+    steps:
+      - checkout
+      - run:
+          name: Build
+          command: |
+            nix-channel --update
+            nix-build
   bigsur:
     macos:
       xcode: 12.5.1
@@ -154,4 +164,5 @@ workflows:
           matrix:
             parameters:
               distro: [fedora36, fedora37, centos8, centos9, debian11, ubuntu2204, archlinux, opensuse15]
+      - nixos
       - bigsur
