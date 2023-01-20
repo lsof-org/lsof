@@ -146,7 +146,13 @@ Merge the changes.
 
 ### Update the version and release date in the source tree if you need
 
-See git log 7412e7445377c0f629c1ecb2eecfd14255935c7d.
+You should update the version and release date in the following files:
+
+- 00DIST
+- version
+- configure.ac
+
+And then re-generated `docs/manpapage.md` by running `manpage.sh` in `docs` folder.
 
 The version number has following form MAJOR.MINOR.MICRO.  When making a
 release, update the version number.  If the change from the last release
