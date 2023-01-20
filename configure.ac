@@ -156,6 +156,17 @@ AS_IF([test "x$enable_security" = xyes], [
 	CFLAGS="$CFLAGS -DHASSECURITY"
 ])
 
+# --enable-no-sock-security to define HASNOSOCKSECURITY
+AC_ARG_ENABLE(no_sock_security, AS_HELP_STRING([--enable-no-sock-security],
+	[combined with --enable-security, allow anyone to list anyone else's socket files @<:@default=no@:>@]), [], [enable_no_sock_security=no])
+AS_IF([test "x$enable_no_sock_security" = xyes], [
+	AS_IF([test "x$enable_security" = xyes], [
+		CFLAGS="$CFLAGS -DHASNOSOCKSECURITY"
+	], [
+		AC_MSG_ERROR([--enable-no-sock-security must be used with --enable-security])
+	])
+])
+
 # Check rpc/rpc.h or libtirpc
 # with_libtirpc=yes/no/auto
 AC_ARG_WITH(libtirpc, AS_HELP_STRING([--with-libtirpc],

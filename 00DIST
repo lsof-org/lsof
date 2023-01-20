@@ -5504,6 +5504,11 @@ Supplement	Regenerated the 4.04 distribution to correct a non-
 		Add --enable-security argument to configure to allow only the
 		root user to list all open files
 
+
+		Add --enable-no-sock-security argument to configure to allow
+		anyone to list anyone else's socket files when combined with
+		--enable-security
+
 4.9?.?		????????? ??, ????
 
 Vic Abell <abe@purdue.edu>
