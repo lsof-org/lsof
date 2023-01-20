@@ -56,9 +56,9 @@ Build dependencies:
 - c compiler: gcc/clang/etc
 - autotools: autoconf/automake
 - make
-- pkg-config(optional): for package detection
+- pkg-config: for package detection
+- groff: to process manpages
 - libtirpc(optional): if your libc does not provide rpc
-- groff(optional): to process manpages
 - nc/iproute2(optional): for testing
 
 You can build lsof with the following commands:
