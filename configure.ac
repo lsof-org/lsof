@@ -27,6 +27,9 @@ case "${host_os}" in
 		# Compute version
 		LSOF_VERS=`echo $LSOF_VSTR | sed 's/\./ /g' | awk '{printf "%d%d%03d",\$1,\$2,\$3}'`
 
+		# Always use large file
+		CFLAGS="$CFLAGS -D_FILE_OFFSET_BITS=64"
+
 		# Enable LTbigf test
 		LSOF_TSTBIGF="-D_FILE_OFFSET_BITS=64"
 		;;

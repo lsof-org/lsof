@@ -5509,6 +5509,8 @@ Supplement	Regenerated the 4.04 distribution to correct a non-
 		anyone to list anyone else's socket files when combined with
 		--enable-security
 
+		[linux] Always enable 64 bit off_t in configure.ac
+
 4.9?.?		????????? ??, ????
 
 Vic Abell <abe@purdue.edu>
