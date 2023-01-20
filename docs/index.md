@@ -35,6 +35,7 @@ Not maintained for lack of maintainers but pull requests are welcome:
 lsof is tested in ci on the following platforms:
 
 - Debian 11
+- NixOS
 - CentOS 8/9
 - Fedora 36/37
 - openSUSE Leap 15
