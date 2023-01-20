@@ -5491,6 +5491,8 @@ Supplement	Regenerated the 4.04 distribution to correct a non-
 		Add --with/without-libtirpc option to autotools-based build
 		system and automatically detect libtirpc by default
 
+		Add -H switch to print human readable size, e.g. 123.4K (#260)
+
 4.9?.?		????????? ??, ????
 
 Vic Abell <abe@purdue.edu>
