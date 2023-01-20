@@ -6,6 +6,9 @@ executors:
   ubuntu2204:
     machine:
       image: ubuntu-2204:2022.10.2 
+  alpine317:
+    docker:
+      - image: docker.io/alpine:3.17
   opensuse15:
     docker:
       - image: docker.io/opensuse/leap:15
@@ -46,6 +49,7 @@ jobs:
             apt install -y git gcc make sudo ncat iproute2 procps autoconf automake libtirpc-dev groff pkg-config || true
             pacman -Sy --noconfirm git gcc make sudo iproute2 procps autoconf automake groff pkg-config || true
             zypper install -y git gcc make sudo iproute2 procps autoconf automake groff pkg-config gzip tar || true
+            apk add sudo groff make gcc autoconf automake nmap-ncat iproute2 which strace gdb git pkgconf bash musl-dev linux-headers gzip || true
       - when:
           condition:
             equal: [ fedora36, << parameters.distro >> ]
@@ -163,6 +167,6 @@ workflows:
       - linux:
           matrix:
             parameters:
-              distro: [fedora36, fedora37, centos8, centos9, debian11, ubuntu2204, archlinux, opensuse15]
+              distro: [fedora36, fedora37, centos8, centos9, debian11, ubuntu2204, archlinux, opensuse15, alpine317]
       - nixos
       - bigsur
