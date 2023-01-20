@@ -650,10 +650,10 @@ POSIX Message Queueue implementation in Linux, and Linux eventfd
 should be displayed with endpoint information and the files of the endpoints should also be displayed.
 .IP
 Note 1: UNIX socket file endpoint information is only available when the
-compile flags line of
+features enabled line of
 .B \-v
-output contains HASUXSOCKEPT, and psudoterminal endpoint information is only
-available when the compile flags line contains HASPTYEPT.
+output contains uxsockept, and psudoterminal endpoint information is only
+available when the features enabled line contains ptyept.
 .IP
 Note 2: POSIX Message Queue file endpoint information is only available when mqueue
 file system is mounted.
@@ -679,10 +679,10 @@ is a slave device's minor device number; and
 and
 .I mode
 are the same as with pipe endpoint information.
-Note: psudoterminal endpoint information is only available when the compile
-flags line of
+Note: psudoterminal endpoint information is only available when the features
+enabled line of
 .B \-V
-output contains HASPTYEPT. In addition, this feature works on Linux kernels above 4.13.0.
+output contains ptyept. In addition, this feature works on Linux kernels above 4.13.0.
 .IP
 UNIX socket file endpoint information is displayed in the NAME column
 in the form
@@ -698,14 +698,14 @@ and
 .I mode
 are the same as with pipe endpoint information.
 Note: UNIX socket file endpoint information is available only when the
-compile flags line of
+features enabled line of
 .B \-v
-output contains HASUXSOCKEPT.
+output contains uxsockept.
 .IP
 INET socket file endpoint information is inserted to the value at the
-NAME column in th form
+NAME column in the form
 .br
-...`` \-> \fIPID,cmd,FDmode\fP'' ..., where
+`` \-> \fIPID,cmd,FDmode\fP'', where
 .I "PID, cmd, FD"
 and
 .I mode
@@ -3059,6 +3059,12 @@ The
 and
 .B \-s
 options are mutually exclusive; they can't both be specified.
+.IP
+If the
+.B \-H
+option is specified,
+.I lsof
+displays file size in human readable form.
 .IP
 For files that don't have a fixed size \- e.g., don't reside
 on a disk device \-
