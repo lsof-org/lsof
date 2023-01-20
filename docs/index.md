@@ -34,12 +34,13 @@ Not maintained for lack of maintainers but pull requests are welcome:
 
 lsof is tested in ci on the following platforms:
 
-- Debian 11
-- NixOS
-- CentOS 8/9
-- Fedora 36/37
-- openSUSE Leap 15
+- Alpine Linux 3.17
 - Arch Linux
-- Ubuntu 18.04/20.04/22.04
+- CentOS 8/9
+- Debian 11
+- Fedora 36/37
 - FreeBSD 12/13/14
 - macOS Big Sur
+- NixOS
+- openSUSE Leap 15
+- Ubuntu 18.04/20.04/22.04
