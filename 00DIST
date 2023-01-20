@@ -5500,6 +5500,10 @@ Supplement	Regenerated the 4.04 distribution to correct a non-
 
 		Add support for musl libc-based Linux distros
 
+
+		Add --enable-security argument to configure to allow only the
+		root user to list all open files
+
 4.9?.?		????????? ??, ????
 
 Vic Abell <abe@purdue.edu>

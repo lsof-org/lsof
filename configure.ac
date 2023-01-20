@@ -149,6 +149,13 @@ AM_CONDITIONAL([FREEBSD], [test x$LSOF_DIALECT_DIR = xfreebsd])
 AC_SUBST([LSOF_DIALECT])
 AC_SUBST([LSOF_DIALECT_DIR])
 
+# --enable-security to define HASSECURITY
+AC_ARG_ENABLE(security, AS_HELP_STRING([--enable-security],
+	[allow only the root user to list all open files @<:@default=no@:>@]), [], [enable_security=no])
+AS_IF([test "x$enable_security" = xyes], [
+	CFLAGS="$CFLAGS -DHASSECURITY"
+])
+
 # Check rpc/rpc.h or libtirpc
 # with_libtirpc=yes/no/auto
 AC_ARG_WITH(libtirpc, AS_HELP_STRING([--with-libtirpc],
