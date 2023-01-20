@@ -19,7 +19,8 @@ $TARGET $tfile "$@" 2>> $log | {
 
     if  [[ -z "$pid" ]]; then
         cat $log >> $report
-        if grep -q 'open: Operation not supported' $log; then
+        # musl prints "Not supported" instead of "Operation not supported"
+        if grep -E -q 'open: (Operation not supported|Not supported)' $log; then
             echo "a flag passed to open is not supported on this platform, skipping" >> $report
             exit 77
         fi
