@@ -17,7 +17,6 @@ CFLAGS="$CFLAGS -DLSOF_VSTR=\\\"$LSOF_TMP\\\""
 LSOF_DIALECT=unknown
 LSOF_DIALECT_DIR=unknown
 LSOF_TGT=unknown
-LSOF_TSTBIGF=""
 case "${host_os}" in
 	linux*)
 		LSOF_DIALECT=linux
@@ -31,7 +30,7 @@ case "${host_os}" in
 		CFLAGS="$CFLAGS -D_FILE_OFFSET_BITS=64"
 
 		# Enable LTbigf test
-		LSOF_TSTBIGF="-D_FILE_OFFSET_BITS=64"
+		LSOF_TEST_CFLAGS="$LSOF_TEST_CFLAGS -DLT_BIGF -D_FILE_OFFSET_BITS=64"
 		;;
 	darwin*)
 		LSOF_DIALECT=darwin
@@ -89,7 +88,7 @@ case "${host_os}" in
 		CFLAGS="$CFLAGS -DDARWINV=$LSOF_VERS"
 
 		# Enable LTbigf test
-		LSOF_TSTBIGF=" "
+		LSOF_TEST_CFLAGS="$LSOF_TEST_CFLAGS -DLT_BIGF"
 		;;
 	freebsd*)
 		LSOF_DIALECT=freebsd
@@ -379,6 +378,12 @@ AC_CHECK_MEMBERS([struct xtcpcb.t_maxseg], [], [], [#include <sys/types.h>
 AC_CHECK_MEMBERS([struct kinfo_file.kf_un.kf_sock.kf_sock_sendq], [], [], [#include <sys/types.h>
 	#include <sys/user.h>])
 
+# Detect sizeof(dev_t) for LT_DEV64
+AC_CHECK_SIZEOF([dev_t])
+AS_IF([test "x$ac_cv_sizeof_dev_t" = x8], [
+	LSOF_TEST_CFLAGS="$LSOF_TEST_CFLAGS -DLT_DEV64"
+])
+
 # Generate Makefile from Makefile.in/am
 AC_CONFIG_FILES([Makefile])
 
@@ -410,32 +415,8 @@ AC_CONFIG_LINKS([tests/common.bash:tests/common.bash
 	dialects/linux/tests/util-open-flags.bash:dialects/linux/tests/util-open-flags.bash
 	Lsof.8:Lsof.8 00DIALECTS:00DIALECTS 00DIST:00DIST])
 
-# Generation cflags for tests
-LSOF_TEST_CFLAGS="-DLT_DIAL_$LSOF_TGT"
-
-# LT_BIGF
-if test "X$LSOF_TSTBIGF" != "X"	# {
-then
-  LSOF_TEST_CFLAGS="$LSOF_TEST_CFLAGS -DLT_BIGF"
-  if test "X$LSOF_TSTBIGF" != "X "	# {
-  then
-    for i in $LSOF_TSTBIGF	# {
-    do
-      LSOF_TEST_CFLAGS="$LSOF_TEST_CFLAGS $i"
-    done	# }
-  fi	# }
-fi	# }
-
-# LT_GCC or LT_CC
-echo $LSOF_CC | grep gcc > /dev/null 2>&1
-if test $? -eq 0	# {
-then
-  LSOF_TEST_CFLAGS="$LSOF_TEST_CFLAGS -DLT_GCC"
-else
-  LSOF_TEST_CFLAGS="$LSOF_TEST_CFLAGS -DLT_CC"
-fi	# }
-
-LSOF_TEST_CFLAGS="$LSOF_TEST_CFLAGS -DLT_VERS=$LSOF_VERS"
+# Generate cflags for tests
+LSOF_TEST_CFLAGS="$LSOF_TEST_CFLAGS -DLT_DIAL_$LSOF_TGT -DLT_VERS=$LSOF_VERS"
 # Override default lsof path
 LSOF_TEST_CFLAGS="$LSOF_TEST_CFLAGS -DLT_DEF_LSOF_PATH=\\\"$PWD/lsof\\\""
 AC_SUBST([LSOF_TEST_CFLAGS])
