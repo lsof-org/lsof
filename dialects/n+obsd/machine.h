@@ -41,6 +41,10 @@
 
 #include <sys/types.h>
 #include <sys/param.h>
+#include <stdbool.h>
+#if __NetBSD_Version__ >= 499006200
+#define HASCWDINFO
+#endif
 
 
 /*
@@ -576,7 +580,9 @@
 /* #define	USE_LIB_READMNT			1	   rmnt.c */
 /* #define	USE_LIB_REGEX			1	   regex.c */
 
-# if	(defined(OPENBSDV) && OPENBSDV>=2010) || (defined(NETBSDV) && NETBSDV>=1002000)
+# if (defined(NETBSDV) && NETBSDV>=9099000)
+#define	USE_LIB_RNMT				1	/* rnmt.c */
+# elif	(defined(OPENBSDV) && OPENBSDV>=2010) || (defined(NETBSDV) && NETBSDV>=1002000)
 #define	USE_LIB_RNMH				1	/* rnmh.c */
 # else	/* (defined(OPENBSDV) && OPENBSDV<2010) && (defined(NETBSDV) && NETBSDV<1002000) */
 #define	USE_LIB_RNAM				1	/* rnam.c */
