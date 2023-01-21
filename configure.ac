@@ -97,6 +97,47 @@ AS_CASE([${host_os}],
 
 	# Enable LTbigf test
 	LSOF_TEST_CFLAGS="$LSOF_TEST_CFLAGS -DLT_BIGF"
+], [netbsd*],  [
+	LSOF_DIALECT=netbsd
+	LSOF_DIALECT_DIR=n+obsd
+	LSOF_TGT=netbsd
+
+	case $LSOF_VSTR in
+		8.[[0123]]*)
+			LSOF_VERS="8000000"
+			;;
+		8.99.*)
+			LSOF_VERS="8099000"
+			;;
+		9.[[0123]]*)
+			LSOF_VERS="9000000"
+			;;
+		9.99.10[[45678]])
+			LSOF_VERS="9099104"
+			;;
+		9.99.*)
+			LSOF_VERS="9099000"
+			;;
+		10.99.*)
+			LSOF_VERS="10099000"
+			;;
+		10.*.*)
+			LSOF_VERS="10000000"
+			;;
+		*)
+			AC_MSG_ERROR([Unknown NetBSD release: $(uname -r)])
+			;;
+	esac
+
+	# Add NETBSDV to cflags
+	CFLAGS="$CFLAGS -DNETBSDV=$LSOF_VERS"
+
+	# Define _KMEMUSER for paddr_t and __NAMECACHE_PRIVATE for struct namecache
+	CFLAGS="$CFLAGS -D_KMEMUSER -D__NAMECACHE_PRIVATE"
+
+	# Define HASNFSVATTRP because the relevant change in kernel src is in 1997
+	# We can safely assume that n_vattr is a pointer
+	CFLAGS="$CFLAGS -DHASNFSVATTRP"
 ], [
 	AC_MSG_ERROR(["Host $host_os not supported"])
 ])
@@ -105,6 +146,7 @@ AS_CASE([${host_os}],
 AM_CONDITIONAL([LINUX], [test x$LSOF_DIALECT_DIR = xlinux])
 AM_CONDITIONAL([DARWIN_LIBPROC], [test x$LSOF_DIALECT_DIR = xdarwin/libproc])
 AM_CONDITIONAL([FREEBSD], [test x$LSOF_DIALECT_DIR = xfreebsd])
+AM_CONDITIONAL([N_OBSD], [test x$LSOF_DIALECT_DIR = xn+obsd])
 
 # Pass LSOF_DIALECT/LSOF_DIALECT_DIR to Makefile.am
 AC_SUBST([LSOF_DIALECT])
@@ -276,6 +318,26 @@ AC_CHECK_MEMBERS([struct xtcpcb.t_maxseg], [], [], [#include <sys/types.h>
 # Detect struct kinfo_file.kf_un.kf_sock.kf_sock_sendq for HAS_KF_SOCK_SENDQ
 AC_CHECK_MEMBERS([struct kinfo_file.kf_un.kf_sock.kf_sock_sendq], [], [], [#include <sys/types.h>
 	#include <sys/user.h>])
+
+# Detect nfs/nfsproto.h for HASNFSPROTO
+AC_CHECK_HEADERS([nfs/nfsproto.h])
+
+# Detect uvm/uvm.h for HAS_UVM_INCL
+AC_CHECK_HEADERS([uvm/uvm.h])
+
+# Detect struct statvfs for HASSTATVFS
+AC_CHECK_TYPES([struct statvfs], [], [], [#include <sys/statvfs.h>])
+
+# Detect struct inode.i_ffs1_size for HASI_FFS1
+AC_CHECK_MEMBERS([struct inode.i_ffs1_size], [], [], [#include <ufs/ufs/inode.h>])
+
+# Detect getbootfile function for HASGETBOOTFILE
+AC_CHECK_DECLS([getbootfile()], [
+		LDFLAGS="$LDFLAGS -lutil"
+], [], [#include <util.h>])
+
+# Detect kvm_getproc2 function for HASKVMGETPROC2
+AC_CHECK_DECLS([kvm_getproc2], [], [], [#include <kvm.h>])
 
 # Detect sizeof(dev_t) for LT_DEV64
 AC_CHECK_SIZEOF([dev_t])

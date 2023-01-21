@@ -135,4 +135,29 @@
 #define HAS_KF_SOCK_SENDQ
 #endif
 
+#if HAVE_NFS_NFSPROTO_H
+#define HASNFSPROTO
+#endif
+
+#if HAVE_UVM_UVM_H
+#define UVM
+#define HAS_UVM_INCL
+#endif
+
+#if HAVE_STRUCT_STATVFS
+#define HASSTATVFS
+#endif
+
+#if HAVE_STRUCT_INODE_I_FFS1_SIZE
+#define HASI_FFS1
+#endif
+
+#if HAVE_DECL_GETBOOTFILE
+#define HASGETBOOTFILE
+#endif
+
+#if HAVE_DECL_KVM_GETPROC2
+#define HASKVMGETPROC2
+#endif
+
 #endif
