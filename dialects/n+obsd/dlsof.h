@@ -46,6 +46,9 @@
 #include <signal.h>
 #include <string.h>
 #include <unistd.h>
+#if (!defined(NETBSDV) || __NetBSD_Version__>=999001900)
+#include <sys/ptrace.h> /* pulled in by procfs.h, but needs to be pulled in before _KERNEL is defined */
+#endif
 
 # if	defined(HASGETBOOTFILE)
 #include <util.h>
@@ -95,6 +98,10 @@ struct uio;	/* dummy for function prototype in <sys/buf.h> */
 # endif	/* (defined(OPENBSDV) && OPENBSDV<3030)
 	   || (defined(NETBSDV) && __NetBSD_Version__>=106060000) */
 
+# if	defined(NETBSDV) && NETBSDV>=1003000
+#define	sockproto	NETBSD_sockproto
+# endif	/* defined(NETBSDV) && NETBSDV>=1003000 */
+
 #include <sys/mount.h>
 
 # if	(defined(OPENBSDV) && OPENBSDV>=3030) \
@@ -105,10 +112,6 @@ struct uio;	/* dummy for function prototype in <sys/buf.h> */
 
 #include <rpc/types.h>
 #include <sys/protosw.h>
-
-# if	defined(NETBSDV) && NETBSDV>=1003000
-#define	sockproto	NETBSD_sockproto
-# endif	/* defined(NETBSDV) && NETBSDV>=1003000 */
 
 #include <sys/socket.h>
 
@@ -147,6 +150,9 @@ struct uio;	/* dummy for function prototype in <sys/buf.h> */
 		   || (defined(NETBSDV) && __NetBSD_Version__<106060000) */
 
 #define	_KERNEL
+#ifndef	VFS_PROTOS
+#define	VFS_PROTOS(x)
+#endif
 struct nameidata;	/* to satisfy a function prototype in msdosfsmount.h */
 #include <msdosfs/msdosfsmount.h>
 #undef	_KERNEL
@@ -161,6 +167,7 @@ struct nameidata;	/* to satisfy a function prototype in msdosfsmount.h */
 #include <sys/socketvar.h>
 #include <sys/un.h>
 #include <sys/unpcb.h>
+#include <net/route.h>
 #include <netinet/in.h>
 #include <netinet/in_systm.h>
 #include <netinet/ip.h>
@@ -170,7 +177,6 @@ struct nameidata;	/* to satisfy a function prototype in msdosfsmount.h */
 #include <netinet6/in6_pcb.h>
 # endif	/* defined(HASIPv6) && defined(NETBSDV) && !defined(HASINRIAIPv6) */
 
-#include <net/route.h>
 #include <netinet/in_pcb.h>
 #include <netinet/ip_var.h>
 #include <netinet/tcp.h>
@@ -264,6 +270,9 @@ struct sockproto {
 
 #undef KERNEL
 #include <ufs/mfs/mfsnode.h>
+# if	defined(HASTMPFS)
+#include <fs/tmpfs/tmpfs.h>
+# endif	/* defined(HASTMPFS) */
 
 # if	defined(HASNFSPROTO)
 #include <nfs/rpcv2.h>
@@ -360,6 +369,16 @@ struct sockproto {
 #  if	defined(HASPROCFS_PFSROOT)
 #define	_KERNEL
 #  endif	/* defined(HASPROCFS_PFSROOT) */
+#if (defined(NETBSDV) && __NetBSD_Version__>=900000000)
+#include <sys/ptrace.h>
+#endif
+/* 
+ * Needed for definition of curlwp, which isn't used by this code base,
+ * but is exposed in procfs.h in an inline function declaration.
+ */
+#if (defined(NETBSDV) && __NetBSD_Version__>=999009300)
+extern struct lwp	*curlwp;
+#endif
 #include <miscfs/procfs/procfs.h>
 #  if	defined(HASPROCFS_PFSROOT)
 #undef	_KERNEL
@@ -370,7 +389,6 @@ struct sockproto {
 #define	Pregs		PFSregs
 #define	Pfile		PFSfile
 #define	Pfpregs		PFSfpregs
-#define	Pctl		PFSctl
 #define	Pstatus		PFSstatus
 #define	Pnote		PFSnote
 #define	Pnotepg		PFSnotepg
@@ -382,6 +400,9 @@ struct sockproto {
 #define	Pmap		PFSmap
 #define	Pmaps		PFSmaps
 #    endif	/* NETBSDV>=1006000 */
+#    if	NETBSDV<8099000
+#define	Pctl		PFSctl
+#    endif	/* NETBSDV<8099000 */
 #   endif	/* defined(NetBSDV) */
 #  endif	/* defined(HASPROCFS_PFSROOT) */
 #include <machine/reg.h>
@@ -489,7 +510,12 @@ extern KA_T Kpa;
 struct l_vfs {
 	KA_T addr;			/* kernel address */
 	fsid_t	fsid;			/* file system ID */
+#if defined(NETBSDV) && __NetBSD_Version__ >= 499002500
+	/* MFSNAMELEN was removed from the kernel source after 4.99.24 */
+	char type[sizeof(((struct statvfs *)NULL)->f_fstypename)];	/* type of file system */
+#else
 	char type[MFSNAMELEN];		/* type of file system */
+#endif
 	char *dir;			/* mounted directory */
 	char *fsname;			/* file system name */
 	struct l_vfs *next;		/* forward link */
@@ -565,7 +591,7 @@ struct sfile {
 #define	NCACHE_NODEADDR	nc_vp		/* node address in NCACHE */
 #define	NCACHE_PARADDR	nc_dvp		/* parent node address in NCACHE */
 
-#  if	(defined(OPENBSDV) && OPENBSDV>=2010) || (defined(NETBSDV) && NETBSDV>=1002000)
+#  if	(defined(OPENBSDV) && OPENBSDV>=2010) || (defined(NETBSDV) && NETBSDV>=1002000 && __NetBSD_Version__ < 999005400)
 #define	NCACHE_NXT	nc_hash.le_next	/* link in NCACHE */
 #  else	/* (defined(OPENBSDV) && OPENBSDV>=2010) || (defined(NETBSDV) && NETBSDV>=1002000) */
 #   if	defined(NetBSD1_0) && NetBSD<1994101
@@ -580,5 +606,13 @@ struct sfile {
 #define	NCACHE_NODEID	nc_vpid		/* node ID in NCACHE */
 #  endif	/* defined(HASNCVPID) */
 # endif  /* defined(HASNCACHE) */
+
+#if     defined(VV_ROOT)		/* NetBSD >= 4.99.33 */
+#define VNODE_VFLAG     v_vflag
+#define NCACHE_VROOT    VV_ROOT
+#else
+#define VNODE_VFLAG     v_flag
+#define NCACHE_VROOT    VROOT
+#endif  /* VV_ROOT */
 
 #endif	/* NETBSD_LSOF_H */
