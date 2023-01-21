@@ -109,6 +109,11 @@ AS_CASE([${host_os}],
 		8.99.*)
 			LSOF_VERS="8099000"
 			;;
+		8.*)
+			LSOF_VERS="8000000"
+			AC_MSG_WARN([Unsupported NetBSD release: $(uname -r)])
+			AC_MSG_WARN([Configuring for NetBSD 8.0])
+			;;
 		9.[[0123]]*)
 			LSOF_VERS="9000000"
 			;;
@@ -118,11 +123,18 @@ AS_CASE([${host_os}],
 		9.99.*)
 			LSOF_VERS="9099000"
 			;;
+		9.*)
+			LSOF_VERS="9000000"
+			AC_MSG_WARN([Unsupported NetBSD release: $(uname -r)])
+			AC_MSG_WARN([Configuring for NetBSD 9.0])
+			;;
 		10.99.*)
 			LSOF_VERS="10099000"
 			;;
-		10.*.*)
+		10.*)
 			LSOF_VERS="10000000"
+			AC_MSG_WARN([Unsupported NetBSD release: $(uname -r)])
+			AC_MSG_WARN([Configuring for NetBSD 10.0])
 			;;
 		*)
 			AC_MSG_ERROR([Unknown NetBSD release: $(uname -r)])
