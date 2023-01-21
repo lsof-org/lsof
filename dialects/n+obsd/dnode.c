@@ -37,6 +37,9 @@ static char copyright[] =
 
 #include "lsof.h"
 
+#if __NetBSD_Version__ > 399001800
+#define NOLOCKF
+#endif
 
 #if	defined(HAS_DINODE_U)
 #define	DINODE_U	dinode_u
@@ -193,12 +196,17 @@ process_node(va)
 	unsigned char ns;
 	unsigned char rdevs;
 	char *ep, *ty;
+#ifndef NOLOCKF
 	struct lockf lf, *lff, *lfp;
+#endif
 	struct inode i;
 	struct mfsnode m;
+#if	defined(HASTMPFS)
+	struct tmpfs_node tmp;
+#endif	/* defined(HASTMPFS) */
 	struct nfsnode n;
 	enum nodetype {NONODE, CDFSNODE, DOSNODE, EXT2NODE, FDESCNODE, INODE,
-		KERNFSNODE, MFSNODE, NFSNODE, PFSNODE, PTYFSNODE} nty;
+		KERNFSNODE, MFSNODE, NFSNODE, PFSNODE, PTYFSNODE, TMPFSNODE} nty;
 	enum vtype type;
 	struct vnode *v, vb;
 	struct l_vfs *vfs;
@@ -275,6 +283,11 @@ process_node(va)
 
 #if	defined(HASPTYFS)
 	struct ptyfsnode pt;
+#if __NetBSD_Version__ >= 499006200
+#define specinfo specnode
+#define vu_specinfo vu_specnode
+#define si_rdev sn_rdev
+#endif
 	struct specinfo si;
 #endif	/* defined(HASPTYFS) */
 
@@ -413,7 +426,7 @@ process_overlaid_node:
 	 */
 	    if (!v->v_data
 	    ||  kread((KA_T)v->v_data, (char *)&kn, sizeof(kn))) {
-		if (v->v_type != VDIR || !(v->v_flag && VROOT)) {
+		if (v->v_type != VDIR || !(v->VNODE_VFLAG && NCACHE_VROOT)) {
 		    (void) snpf(Namech, Namechl,
 			"can't read kernfs_node at: %s",
 			print_kptr((KA_T)v->v_data, (char *)NULL, 0));
@@ -448,7 +461,7 @@ process_overlaid_node:
 	 * size are fixed; otherwise, safely stat() the file to get the
 	 * inode number and size.
 	 */
-	    if (v->v_type == VDIR && (v->v_flag & VROOT)) {
+	    if (v->v_type == VDIR && (v->VNODE_VFLAG & NCACHE_VROOT)) {
 		(void) snpf(Namech, Namechl, "%s", _PATH_KERNFS);
 		ksb.st_ino = (ino_t)2;
 		ksb.st_size = DEV_BSIZE;
@@ -469,6 +482,19 @@ process_overlaid_node:
 	    }
 	    nty = MFSNODE;
 	    break;
+
+#if	defined(HASTMPFS)
+	case VT_TMPFS:
+	    if (!v->v_data
+	    ||  kread((KA_T)v->v_data, (char *)&tmp, sizeof(tmp))) {
+		(void) snpf(Namech, Namechl, "can't read tmpfs_node at: %s",
+		    print_kptr((KA_T)v->v_data, (char *)NULL, 0));
+		enter_nm(Namech);
+		return;
+	    }
+	    nty = TMPFSNODE;
+	    break;
+#endif	/* defined(HASTMPFS) */
 
 #if	defined(HASMSDOSFS)
 	case VT_MSDOSFS:
@@ -618,6 +644,7 @@ process_overlaid_node:
 
 	    }
 
+#ifndef NOLOCKF
 	    if ((lff = i.i_lockf)) {
 
 	    /*
@@ -666,6 +693,7 @@ process_overlaid_node:
 		    break;
 		} while ((lfp = lf.lf_next) && lfp != lff);
 	    }
+#endif
 	    break;
 	default:
 	    if (v->v_type == VBAD || v->v_type == VNON)
@@ -899,6 +927,13 @@ process_overlaid_node:
 	    break;
 #endif	/* defined(HASPTYFS) */
 
+#if	defined(HASTMPFS)
+	case TMPFSNODE:
+	    Lf->inode = (INODETYPE)tmp.tn_id;
+	    Lf->inp_ty = 1;
+	    break;
+#endif	/* defined(HASTMPFS) */
+
 	}
 
 /*
@@ -1017,6 +1052,13 @@ process_overlaid_node:
 			Lf->sz = (SZOFFTYPE)m.mfs_size;
 			Lf->sz_def = 1;
 			break;
+
+#if	defined(HASTMPFS)
+		    case TMPFSNODE:
+			Lf->sz = (SZOFFTYPE)tmp.tn_size;
+			Lf->sz_def = 1;
+			break;
+#endif	/* defined(HASTMPFS) */
 
 #if	defined(HASEXT2FS)
 		    case EXT2NODE:
@@ -1220,6 +1262,9 @@ process_overlaid_node:
 	    Lf->dev_def = Lf->rdev_def = 0;
 	    (void) snpf(Namech, Namechl, "%#x", m.mfs_baseoff);
 	    enter_dev_ch("memory");
+	} else if (nty == TMPFSNODE) {
+	    Lf->dev_def = Lf->rdev_def = 0;
+	    enter_dev_ch("memory");
 	}
 
 #if	defined(HASPROCFS)
@@ -1261,11 +1306,15 @@ process_overlaid_node:
 		(void) snpf(ep, sz, "/%d/fpregs", p.pfs_pid);
 		ty = "PFPR";
 		break;
+
+# if	defined(Pctl)
 	    case Pctl:
 		ep = endnm(&sz);
 		(void) snpf(ep, sz, "/%d/ctl", p.pfs_pid);
 		ty = "PCTL";
 		break;
+# endif	/* defined(Pctl) */
+
 	    case Pstatus:
 		ep = endnm(&sz);
 		(void) snpf(ep, sz, "/%d/status", p.pfs_pid);
