@@ -137,6 +137,9 @@ case "${host_os}" in
 				AC_MSG_WARN([No kernel sources in /usr/src/sys or /sys])
 			fi	# }
 		fi	# }
+
+		# Enable LTbigf test
+		LSOF_TEST_CFLAGS="$LSOF_TEST_CFLAGS -DLT_BIGF"
 		;;
 	*)
 		AC_MSG_ERROR(["Host $host_os not supported"])
