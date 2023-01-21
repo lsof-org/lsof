@@ -391,7 +391,17 @@ print_file_error:
  */
     if (tstr || tstR || tstw || tstW) {
 	tcp = (char *)NULL;
+#if	defined(LT_DIAL_freebsd)
+	(void) PrtMsg(
+	    "Hint: lsof is unable to get the lock status when running as non-root",
+	    Pn);
+	(void) PrtMsg(
+	    "in certain FreeBSD releases (e.g. FreeBSD 13.1), thus skipping the test",
+	    Pn);
+	xv = 77;
+#else
 	xv = 1;
+#endif
     } else {
 	tcp = "OK";
 	xv = 0;
