@@ -2767,6 +2767,12 @@ return(0); }
     fi	# }
 
     LSOF_CFGF="$LSOF_CFGF -DNETBSDV=$LSOF_VERS"
+
+    # For paddr_t
+    LSOF_CFGF="$LSOF_CFGF -D_KMEMUSER"
+    # For struct namecache
+    LSOF_CFGF="$LSOF_CFGF -D__NAMECACHE_PRIVATE"
+
     LSOF_TMP1="-DN_UNIXV=/netbsd"
     if test -r /dev/ksyms              # {
     then
