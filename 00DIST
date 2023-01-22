@@ -5510,9 +5510,18 @@ Supplement	Regenerated the 4.04 distribution to correct a non-
 		anyone to list anyone else's socket files when combined with
 		--enable-security
 
+
 		[linux] Always enable 64 bit off_t in configure.ac
 
+
 		[netbsd] Import patches from pkgsrc and port autotools-based build system to NetBSD
+
+
+		[netbsd] Fix lock status reading
+
+4.9?.?		????????? ??, ????
+
+		[netbsd] Get device numer of tmpfs instead of reporting zero
 
 4.9?.?		????????? ??, ????
 
