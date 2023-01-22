@@ -21,10 +21,10 @@ Actively maintained and supported:
 - Linux
 - FreeBSD
 - Darwin(macOS)
+- NetBSD
 
 Not maintained for lack of maintainers but pull requests are welcome:
 
-- NetBSD
 - OpenBSD
 - Solaris
 - IBM AIX
