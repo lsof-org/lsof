@@ -10,6 +10,7 @@ The following three dialects have ACTIVE maintainers:
 FreeBSD
 
 	@lrosenman
+	@jiegec
 
 Linux
 	
@@ -20,6 +21,7 @@ Linux
 NetBSD
 
 	@tnn2
+	@jiegec
 
 Darwin
 
