@@ -3574,6 +3574,67 @@ return(0); }
        LSOF_CFGF="$LSOF_CFGF -I`pwd`/dialects/n+obsd/include"
       fi       # }
     fi # }
+
+    # Generate lockf.h from kern/vfs_lockf.c
+    rm -f ./lockf.h
+    if test -r ${NETBSD_SYS}/kern/vfs_lockf.c	# {
+    then
+      # Find the line number of TAILQ_HEAD
+      LSOF_TMP1=`grep -n "^TAILQ_HEAD" ${NETBSD_SYS}/kern/vfs_lockf.c | sed 's/\([0-9]*\):.*$/\1/'`
+      if test "X$LSOF_TMP1" != "X"	# {
+      then
+        LSOF_TMP2=0
+        # Find the end of struct lockf
+        for i in `grep -n "};" ${NETBSD_SYS}/kern/vfs_lockf.c | sed 's/\([0-9]*\):.*/\1/'` # {
+        do
+          if test $LSOF_TMP2 -eq 0 -a $i -gt $LSOF_TMP1	# {
+          then
+            LSOF_TMP2=$i
+          fi	# }
+        done	# }
+        if test $LSOF_TMP2 -eq 0	# {
+        then
+          LSOF_TMP1=""
+        else
+          cat > ./lockf.h << LOCKF1
+/*
+* lockf_owner.h -- created by lsof configure script on
+LOCKF1
+          printf " * " >> ./lockf.h
+          date >> ./lockf.h
+          cat >> ./lockf.h << LOCKF2
+*/
+
+#if	!defined(LOCKF_H)
+#define	LOCKF_H
+
+LOCKF2
+          ed -s ${NETBSD_SYS}/kern/vfs_lockf.c >> ./lockf.h << LOCKF3
+${LSOF_TMP1},${LSOF_TMP2}p
+LOCKF3
+          if test $? -ne 0	# {
+          then
+	    LSOF_TMP1=""
+          else
+	    cat >> ./lockf.h << LOCKF4
+
+#endif	/* defined(LOCKF_H) */
+LOCKF4
+	  fi	# }
+        fi	# }
+      fi	# }
+    else
+      echo "FATAL ERROR: can't read ${NETBSD_SYS}/kern/vfs_lockf.c"
+    fi	# }
+
+    if test "X$LSOF_TMP1" != "X" -a "X$LSOF_TMP2" != "X0" # {
+    then
+      echo "lockf.h creation succeeded."
+      LSOF_CFGF="$LSOF_CFGF -DHAS_LOCKF_H"
+    else
+      echo "lockf.h creation failed (see 00FAQ)"
+    fi	# }
+
     LSOF_CFGL="$LSOF_CFGL -lkvm"
     LSOF_DIALECT_DIR=n+obsd
     ;;

@@ -71,6 +71,7 @@ tests/config.*
 version.h
 autotools.h
 lockf_owner.h
+lockf.h
 lsof.man
 /site
 

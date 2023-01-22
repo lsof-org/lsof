@@ -38,7 +38,11 @@ static char copyright[] =
 #include "lsof.h"
 
 #if __NetBSD_Version__ > 399001800
+#ifdef HAS_LOCKF_H
+#include "lockf.h"
+#else
 #define NOLOCKF
+#endif
 #endif
 
 #if	defined(HAS_DINODE_U)

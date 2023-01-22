@@ -377,6 +377,68 @@ AC_CHECK_HEADERS([fs/tmpfs/tmpfs.h])
 # Detect sys/pipe.h header for HAS_SYS_PIPEH
 AC_CHECK_HEADERS([sys/pipe.h])
 
+# Copy struct lockf definition from kernel source code for HAS_LOCKF_H
+AS_IF([test x$LSOF_DIALECT = xnetbsd], [
+	# Generate lockf.h from kern/vfs_lockf.c
+	rm -f ./lockf.h
+	AS_IF([test -r ${NETBSD_SYS}/kern/vfs_lockf.c], [
+		# Find the line number of TAILQ_HEAD
+		# Note extra quoting [[]] for M4
+		LSOF_TMP1=$(grep -n "^TAILQ_HEAD" ${NETBSD_SYS}/kern/vfs_lockf.c | sed 's/\([[0-9]]*\):.*$/\1/')
+		AS_IF([test "X$LSOF_TMP1" != "X"], [
+			LSOF_TMP2=0
+			# Find the end of struct lockf
+			for i in $(grep -n "};" ${NETBSD_SYS}/kern/vfs_lockf.c | sed 's/\([[0-9]]*\):.*/\1/') # {
+			do
+				AS_IF([test $LSOF_TMP2 -eq 0 -a $i -gt $LSOF_TMP1], [
+					LSOF_TMP2=$i
+				])
+			done	# }
+
+			AS_IF([test $LSOF_TMP2 -eq 0], [
+			        # Fail
+				LSOF_TMP1=""
+			], [
+				# Generate lockf.h
+				cat > ./lockf.h << LOCKF1
+/*
+ * lockf_owner.h -- created by lsof configure script on
+LOCKF1
+				printf " * " >> ./lockf.h
+				date >> ./lockf.h
+				cat >> ./lockf.h << LOCKF2
+ */
+
+#if	!defined(LOCKF_H)
+#define	LOCKF_H
+
+LOCKF2
+				ed -s ${NETBSD_SYS}/kern/vfs_lockf.c >> ./lockf.h << LOCKF3
+${LSOF_TMP1},${LSOF_TMP2}p
+LOCKF3
+				AS_IF([test $? -ne 0], [
+				        # Fail
+					LSOF_TMP1=""
+				], [
+					cat >> ./lockf.h << LOCKF4
+
+#endif	/* defined(LOCKF_H) */
+LOCKF4
+				])
+			])
+		])
+	], [
+	    	AC_MSG_ERROR([Can't read ${NETBSD_SYS}/kern/vfs_lockf.c])
+	])
+
+	AS_IF([test "X$LSOF_TMP1" != "X" -a "X$LSOF_TMP2" != "X0"], [
+		AC_MSG_NOTICE([lockf.h creation succeeded])
+		CFLAGS="$CFLAGS -DHAS_LOCKF_H"
+	], [
+		AC_MSG_ERROR([lockf.h creation failed (see 00FAQ)])
+	])
+])
+
 # Detect sizeof(dev_t) for LT_DEV64
 AC_CHECK_SIZEOF([dev_t])
 AS_IF([test "x$ac_cv_sizeof_dev_t" = x8], [

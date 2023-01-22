@@ -71,7 +71,7 @@ EXTRA_DIST += Lsof.8
 clean-local:
 	rm -rf lsof.man
 distclean-local:
-	rm -rf lockf_owner.h
+	rm -rf lockf_owner.h lockf.h
 
 # Testing scripts
 AM_TESTS_ENVIRONMENT = export LSOF_DIALECT_DIR=$(LSOF_DIALECT_DIR); export LSOF_DIALECT=$(LSOF_DIALECT);
