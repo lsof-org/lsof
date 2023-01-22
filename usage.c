@@ -993,6 +993,9 @@ usage(err, fh, version)
 #ifdef HASPTYEPT
 		"ptyept",
 #endif
+#ifdef HASPTYFS
+		"ptyfs",
+#endif
 #if !defined(HASNORPC_H)
 		"rpc",
 #endif
@@ -1011,7 +1014,7 @@ usage(err, fh, version)
 #ifdef HASTASKS
 		"tasks",
 #endif
-#ifdef HAS_TMPFS
+#if defined(HAS_TMPFS) || defined(HASTMPFS)
 		"tmpfs",
 #endif
 #ifdef HAS_XTCPCB_TMAXSEG

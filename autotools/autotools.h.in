@@ -160,4 +160,20 @@
 #define HASKVMGETPROC2
 #endif
 
+#if HAVE_FS_PTYFS_PTYFS_H
+#define HASPTYFS
+#endif
+
+#if HAVE_MISCFS_PROCFS_PROCFS_H
+#define HASPROCFS
+#endif
+
+#if HAVE_DECL_PFSROOT
+#define HASPROCFS_PFSROOT
+#endif
+
+#if HAVE_FS_TMPFS_TMPFS_H
+#define HASTMPFS
+#endif
+
 #endif

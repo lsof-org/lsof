@@ -150,6 +150,15 @@ AS_CASE([${host_os}],
 	# Define HASNFSVATTRP because the relevant change in kernel src is in 1997
 	# We can safely assume that n_vattr is a pointer
 	CFLAGS="$CFLAGS -DHASNFSVATTRP"
+
+	# Detect NetBSD source code
+	if test -d /usr/src/sys	# {
+	then
+		NETBSD_SYS=/usr/src/sys
+		CFLAGS="$CFLAGS -I$NETBSD_SYS"
+	else
+		AC_MSG_WARN([No kernel sources in /usr/src/sys])
+	fi	# }
 ], [
 	AC_MSG_ERROR(["Host $host_os not supported"])
 ])
@@ -345,11 +354,25 @@ AC_CHECK_MEMBERS([struct inode.i_ffs1_size], [], [], [#include <ufs/ufs/inode.h>
 
 # Detect getbootfile function for HASGETBOOTFILE
 AC_CHECK_DECLS([getbootfile()], [
-		LDFLAGS="$LDFLAGS -lutil"
+	LDFLAGS="$LDFLAGS -lutil"
 ], [], [#include <util.h>])
 
 # Detect kvm_getproc2 function for HASKVMGETPROC2
 AC_CHECK_DECLS([kvm_getproc2], [], [], [#include <kvm.h>])
+
+# Detect fs/ptyfs/ptyfs.h header for HASPTYFS
+AC_CHECK_HEADERS([fs/ptyfs/ptyfs.h])
+
+# Detect fs/ptyfs/ptyfs.h header for HASPROCFS
+AC_CHECK_HEADERS([miscfs/procfs/procfs.h])
+
+# Detect PFSroot enum for HASPROCFS_PFSROOT
+AC_CHECK_DECLS([PFSroot], [], [], [#define _KERNEL
+	#include <sys/types.h>
+	#include <miscfs/procfs/procfs.h>])
+
+# Detect fs/tmpfs/tmpfs.h header for HASTMPFS
+AC_CHECK_HEADERS([fs/tmpfs/tmpfs.h])
 
 # Detect sizeof(dev_t) for LT_DEV64
 AC_CHECK_SIZEOF([dev_t])
