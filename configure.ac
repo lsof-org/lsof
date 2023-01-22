@@ -1,5 +1,7 @@
 AC_INIT([lsof],[4.97.0])
 AM_INIT_AUTOMAKE([subdir-objects])
+# Locate custom m4 macros
+AC_CONFIG_MACRO_DIR([m4])
 
 # Require C compiler
 AC_PROG_CC
@@ -200,60 +202,9 @@ AC_CHECK_DECLS([SBS_CANTSENDMORE], [], [], [[#include <sys/types.h>
 
 # Detect lockf_entry definition for HAS_LOCKF_ENTRY
 AC_CHECK_TYPES([struct lockf_entry], [
-	# Generate lockf_owner.h from kern/kern_lockf.c
-	rm -f ./lockf_owner.h
-	AS_IF([test -r ${FREEBSD_SYS}/kern/kern_lockf.c], [
-		# Find the line number of struct lock_owner
-		# Note extra quoting [[]] for M4
-		LSOF_TMP1=$(grep -n "^struct lock_owner {" ${FREEBSD_SYS}/kern/kern_lockf.c | sed 's/\([[0-9]]*\):.*$/\1/')
-		AS_IF([test "X$LSOF_TMP1" != "X"], [
-			LSOF_TMP2=0
-			# Find the end of struct lock_owner
-			for i in $(grep -n "};" ${FREEBSD_SYS}/kern/kern_lockf.c | sed 's/\([[0-9]]*\):.*/\1/') # {
-			do
-				AS_IF([test $LSOF_TMP2 -eq 0 -a $i -gt $LSOF_TMP1], [
-					LSOF_TMP2=$i
-				])
-			done
-			AS_IF([test $LSOF_TMP2 -eq 0], [
-				LSOF_TMP1=""
-			], [
-				cat > ./lockf_owner.h << LOCKF_OWNER1
-/*
- * lockf_owner.h -- created by lsof Configure script on
-LOCKF_OWNER1
-				printf " * " >> ./lockf_owner.h
-				date >> ./lockf_owner.h
-				cat >> ./lockf_owner.h << LOCKF_OWNER2
- */
-
-#if	!defined(LOCKF_OWNER_H)
-#define	LOCKF_OWNER_H
-
-LOCKF_OWNER2
-				ed -s ${FREEBSD_SYS}/kern/kern_lockf.c >> ./lockf_owner.h << LOCKF_OWNER3
-${LSOF_TMP1},${LSOF_TMP2}p
-LOCKF_OWNER3
-				AS_IF([test $? -ne 0], [
-					LSOF_TMP1=""
-				], [
-					cat >> ./lockf_owner.h << LOCKF_OWNER4
-
-#endif	/* defined(LOCKF_OWNER_H) */
-LOCKF_OWNER4
-				])
-			])
-		])
-	], [
-		AC_MSG_ERROR([can't read ${FREEBSD_SYS}/kern/kern_lockf.c])
-	])
-
-	AS_IF([test "X$LSOF_TMP1" != "X" -a "X$LSOF_TMP2" != "X0"], [
-		AC_MSG_NOTICE([lockf_owner.h creation succeeded.])
-		CFLAGS="$CFLAGS -DHAS_LOCKF_ENTRY"
-	], [
-		AC_MSG_ERROR([lockf_owner.h creation failed (see 00FAQ)])
-	])
+	HEADER_GENERATE([lockf_owner.h], [${FREEBSD_SYS}/kern/kern_lockf.c], ["^struct lock_owner {"], ["^};"], [LOCKF_OWNER_H])
+	AC_MSG_NOTICE([lockf_owner.h creation succeeded.])
+	CFLAGS="$CFLAGS -DHAS_LOCKF_ENTRY"
 ], [], [#include <sys/types.h>
 		#include <sys/lockf.h>])
 
