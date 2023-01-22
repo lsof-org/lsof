@@ -851,6 +851,21 @@ process_overlaid_node:
 	    break;
 #endif	/* defined(HASPTYFS) */
 
+#if	defined(HASTMPFS)
+	case TMPFSNODE:
+	    if (vfs) {
+
+# if	defined(HASSTATVFS)
+		dev = (dev_t)vfs->fsid.__fsid_val[0];
+# else	/* !defined(HASSTATVFS) */
+		dev = (dev_t)vfs->fsid.val[0];
+# endif	/* defined(HASSTATVFS) */
+
+		devs = 1;
+	    }
+	    break;
+#endif	/* defined(HASTMPFS) */
+
 	}
 /*
  * Obtain the inode number.
@@ -1265,9 +1280,6 @@ process_overlaid_node:
 	else if (nty == MFSNODE) {
 	    Lf->dev_def = Lf->rdev_def = 0;
 	    (void) snpf(Namech, Namechl, "%#x", m.mfs_baseoff);
-	    enter_dev_ch("memory");
-	} else if (nty == TMPFSNODE) {
-	    Lf->dev_def = Lf->rdev_def = 0;
 	    enter_dev_ch("memory");
 	}
 
