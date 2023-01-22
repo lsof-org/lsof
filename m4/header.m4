@@ -52,12 +52,12 @@ AC_DEFUN([HEADER_GENERATE], [
 			], [
 				cat > $1 << EOF
 /*
-* $1.h -- created by lsof configure script on
+ * $1 -- created by lsof configure script on
 EOF
 				printf " * " >> $1
 				date >> $1
 				cat >> $1 << EOF
-*/
+ */
 
 #if	!defined($5)
 #define	$5
