@@ -7,7 +7,7 @@ EXTRA_DIST += tests/00README tests/TestDB tests/CkTestDB tests/Makefile tests/Ls
 
 # Dialect neutral sources
 lsof_SOURCES = arg.c main.c misc.c node.c print.c proc.c store.c usage.c util.c \
-	lib/ptti.c lib/isfn.c lib/pdvn.c lib/lkud.c lib/rdev.c lib/dvch.c lib/ckkv.c lib/fino.c
+	lib/ckkv.c lib/dvch.c lib/fino.c lib/isfn.c lib/lkud.c lib/pdvn.c lib/prfp.c lib/ptti.c lib/rdev.c lib/rnmt.c lib/rmnt.c lib/rnam.c lib/rnch.c lib/rnmh.c
 lsof_SOURCES += lsof.h lsof_fields.h proto.h hash.h
 DIALECT_ROOT = $(top_srcdir)/dialects
 DIALECT_PATH = $(DIALECT_ROOT)/$(LSOF_DIALECT_DIR)
@@ -48,6 +48,17 @@ lsof_SOURCES += dialects/freebsd/dmnt.c \
 		dialects/freebsd/machine.h
 endif
 
+if N_OBSD
+lsof_SOURCES += dialects/n+obsd/dmnt.c \
+		dialects/n+obsd/dnode.c \
+		dialects/n+obsd/dproc.c \
+		dialects/n+obsd/dsock.c \
+		dialects/n+obsd/dstore.c \
+		dialects/n+obsd/dlsof.h \
+		dialects/n+obsd/dproto.h \
+		dialects/n+obsd/machine.h
+endif
+
 lsof_CPPFLAGS = -I$(DIALECT_PATH) -Iautotools
 lsof_CPPFLAGS += -DAUTOTOOLS
 
@@ -60,7 +71,7 @@ EXTRA_DIST += Lsof.8
 clean-local:
 	rm -rf lsof.man
 distclean-local:
-	rm -rf lockf_owner.h
+	rm -rf lockf_owner.h lockf.h
 
 # Testing scripts
 AM_TESTS_ENVIRONMENT = export LSOF_DIALECT_DIR=$(LSOF_DIALECT_DIR); export LSOF_DIALECT=$(LSOF_DIALECT);

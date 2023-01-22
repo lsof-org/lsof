@@ -2628,7 +2628,7 @@ return(0); }
 	LSOF_TSTBIGF=" "
 	LSOF_VERS="1006000"
 	;;
-      1*)
+      1.*)
 	LSOF_VERS="1006000"
 	echo "!!!WARNING!!!  Unsupported NetBSD version: $LSOF_VSTR"
 	echo "!!!WARNING!!!  Configuring for NetBSD 1.6"
@@ -2649,7 +2649,7 @@ return(0); }
 	LSOF_TSTBIGF=" "
 	LSOF_VERS="2099010"
 	;;
-      2*)
+      2.*)
 	LSOF_VERS="2000000"
 	echo "!!!WARNING!!!  Unsupported NetBSD version: $LSOF_VSTR"
 	echo "!!!WARNING!!!  Configuring for NetBSD 2.0"
@@ -2662,37 +2662,122 @@ return(0); }
 	LSOF_TSTBIGF=" "
 	LSOF_VERS="3099000"
 	;;
-      3*)
+      3.*)
 	LSOF_VERS="3000000"
 	echo "!!!WARNING!!!  Unsupported NetBSD version: $LSOF_VSTR"
 	echo "!!!WARNING!!!  Configuring for NetBSD 3.0"
 	;;
+      4.0*)
+	LSOF_TSTBIGF=" "
+	LSOF_VERS="4000000"
+	;;
+      4.99.*)
+	LSOF_TSTBIGF=" "
+	LSOF_VERS="4099000"
+	;;
+      4.*)
+	LSOF_VERS="4000000"
+	echo "!!!WARNING!!!  Unsupported NetBSD version: $LSOF_VSTR"
+	echo "!!!WARNING!!!  Configuring for NetBSD 4.0"
+	;;
+      5.[012]*)
+	LSOF_TSTBIGF=" "
+	LSOF_VERS="5000000"
+	;;
+      5.99.*)
+	LSOF_TSTBIGF=" "
+	LSOF_VERS="5099000"
+	;;
+      5.*)
+	LSOF_VERS="5000000"
+	echo "!!!WARNING!!!  Unsupported NetBSD version: $LSOF_VSTR"
+	echo "!!!WARNING!!!  Configuring for NetBSD 5.0"
+	;;
+      6.[01]*)
+	LSOF_TSTBIGF=" "
+	LSOF_VERS="6000000"
+	;;
+      6.99.*)
+	LSOF_TSTBIGF=" "
+	LSOF_VERS="6099000"
+	;;
+      6.*)
+	LSOF_VERS="6000000"
+	echo "!!!WARNING!!!  Unsupported NetBSD version: $LSOF_VSTR"
+	echo "!!!WARNING!!!  Configuring for NetBSD 6.0"
+	;;
+      7.[01]*)
+	LSOF_TSTBIGF=" "
+	LSOF_VERS="7000000"
+	;;
+      7.99.*)
+	LSOF_TSTBIGF=" "
+	LSOF_VERS="7099000"
+	;;
+      7.*)
+	LSOF_VERS="7000000"
+	echo "!!!WARNING!!!  Unsupported NetBSD version: $LSOF_VSTR"
+	echo "!!!WARNING!!!  Configuring for NetBSD 7.0"
+	;;
+      8.[0123]*)
+	LSOF_TSTBIGF=" "
+	LSOF_VERS="8000000"
+	;;
+      8.99.*)
+	LSOF_TSTBIGF=" "
+	LSOF_VERS="8099000"
+	;;
+      8.*)
+	LSOF_VERS="8000000"
+	echo "!!!WARNING!!!  Unsupported NetBSD version: $LSOF_VSTR"
+	echo "!!!WARNING!!!  Configuring for NetBSD 8.0"
+	;;
+      9.[0123]*)
+	LSOF_TSTBIGF=" "
+	LSOF_VERS="9000000"
+	;;
+      9.99.10[45678])
+	LSOF_TSTBIGF=" "
+	LSOF_VERS="9099104"
+	;;
+      9.99.*)
+	LSOF_TSTBIGF=" "
+	LSOF_VERS="9099000"
+	;;
+      9.*)
+	LSOF_VERS="9000000"
+	echo "!!!WARNING!!!  Unsupported NetBSD version: $LSOF_VSTR"
+	echo "!!!WARNING!!!  Configuring for NetBSD 9.0"
+	;;
+      10.99.*)
+	LSOF_TSTBIGF=" "
+	LSOF_VERS="10099000"
+	;;
+      10.*)
+	LSOF_VERS="10000000"
+	echo "!!!WARNING!!!  Unsupported NetBSD version: $LSOF_VSTR"
+	echo "!!!WARNING!!!  Configuring for NetBSD 10.0"
+	;;
       *)
 	echo "Unknown NetBSD release: $LSOF_VSTR"
-	echo Assuming NetBSD 1.6
-	LSOF_VERS="1006000"
+	echo Assuming NetBSD 10.0
+	LSOF_VERS="10000000"
 	;;
       esac	# }
     fi	# }
 
-    # Test for legal NetBSD version.
-
-    case $LSOF_VERS in	# {
-    1002000|1003000|1004000|1005000|1006000)
-      ;;
-    2000000|2099009|2099010)
-      ;;
-    3000000|3099000)
-      ;;
-    *)
-      echo "Unknown NetBSD version: $LSOF_VERS"
-      rm -f $LSOF_HLP
-      exit 1
-      ;;
-    esac	# }
     LSOF_CFGF="$LSOF_CFGF -DNETBSDV=$LSOF_VERS"
+
+    # For paddr_t
+    LSOF_CFGF="$LSOF_CFGF -D_KMEMUSER"
+    # For struct namecache
+    LSOF_CFGF="$LSOF_CFGF -D__NAMECACHE_PRIVATE"
+
     LSOF_TMP1="-DN_UNIXV=/netbsd"
-    if test -r ${LSOF_INCLUDE}/util.h	# {
+    if test -r /dev/ksyms              # {
+    then
+      LSOF_TMP1="-DN_UNIXV=/dev/ksyms"
+    elif test -r ${LSOF_INCLUDE}/util.h        # {
     then
       grep -q getbootfile ${LSOF_INCLUDE}/util.h
       if test $? -eq 0	# {
@@ -3091,6 +3176,7 @@ return(0); }
     fi	# }
     LSOF_TMP2="sys/vnode.h"
     LSOF_NBSD_PTYFS=0
+    LSOF_NBSD_TMPFS=0
     if test -r ${LSOF_INCLUDE}/$LSOF_TMP2	# {
     then
       LSOF_TMP3="${LSOF_INCLUDE}/$LSOF_TMP2"
@@ -3168,16 +3254,29 @@ return(0); }
 	  fi	# }
 	fi	# }
       fi	# }
+      grep -q VT_TMPFS $LSOF_TMP3
+      if test $? -eq 0   # {
+      then
+       LSOF_TMP2="fs/tmpfs/tmpfs.h"
+       if test -r ${LSOF_INCLUDE}/$LSOF_TMP2   # {
+       then
+         LSOF_CFGF="$LSOF_CFGF -DHASTMPFS"
+       else
+         if test -r ${NETBSD_SYS}/$LSOF_TMP2   # {
+         then
+           if test $NETBSD_SYS != $LSOF_INCLUDE        # {
+           then
+             LSOF_CFGF="$LSOF_CFGF -DHASTMPFS"
+             LSOF_NBSD_TMPFS=1
+           fi  # }
+         fi    # }
+       fi      # }
+      fi       # }
       if test "X$NETBSD_UVM" = "X"	# {
       then
-	grep -q UVM $LSOF_TMP3
-	if test $? -ne 0	# {
+	if test -r ${LSOF_INCLUDE}/uvm	# {
 	then
-	  egrep -q "v_uvm;|v_uobj;" $LSOF_TMP3
-	  if test $? -eq 0	# {
-	  then
-	    NETBSD_UVM="Y"
-	  fi	# }
+	  NETBSD_UVM="Y"
 	fi	# }
       fi	# }
     fi	# }
@@ -3453,6 +3552,89 @@ return(0); }
 	LSOF_CFGF="$LSOF_CFGF -I`pwd`/dialects/n+obsd/include"
       fi	# }
     fi	# }
+    if test $LSOF_NBSD_TMPFS -eq 1     # {
+    then
+
+    # Make a local copy of $NETBSD_SYS/sys/fs/tmpfs/tmpfs.h.
+
+      if test ! -d dialects/n+obsd/include     # {
+      then
+       mkdir dialects/n+obsd/include
+      fi       # }
+      if test ! -d dialects/n+obsd/include/fs  # {
+      then
+       mkdir dialects/n+obsd/include/fs
+      fi       # }
+      rm -rf dialects/n+obsd/include/fs/tmpfs
+      mkdir dialects/n+obsd/include/fs/tmpfs
+      cp $NETBSD_SYS/fs/tmpfs/tmpfs.h dialects/n+obsd/include/fs/tmpfs
+      echo $LSOF_CFGF | grep /dialects/n+obsd/include > /dev/null 2>&1
+      if test $? -ne 0 # {
+      then
+       LSOF_CFGF="$LSOF_CFGF -I`pwd`/dialects/n+obsd/include"
+      fi       # }
+    fi # }
+
+    # Generate lockf.h from kern/vfs_lockf.c
+    rm -f ./lockf.h
+    if test -r ${NETBSD_SYS}/kern/vfs_lockf.c	# {
+    then
+      # Find the line number of TAILQ_HEAD
+      LSOF_TMP1=`grep -n "^TAILQ_HEAD" ${NETBSD_SYS}/kern/vfs_lockf.c | sed 's/\([0-9]*\):.*$/\1/'`
+      if test "X$LSOF_TMP1" != "X"	# {
+      then
+        LSOF_TMP2=0
+        # Find the end of struct lockf
+        for i in `grep -n "};" ${NETBSD_SYS}/kern/vfs_lockf.c | sed 's/\([0-9]*\):.*/\1/'` # {
+        do
+          if test $LSOF_TMP2 -eq 0 -a $i -gt $LSOF_TMP1	# {
+          then
+            LSOF_TMP2=$i
+          fi	# }
+        done	# }
+        if test $LSOF_TMP2 -eq 0	# {
+        then
+          LSOF_TMP1=""
+        else
+          cat > ./lockf.h << LOCKF1
+/*
+* lockf_owner.h -- created by lsof configure script on
+LOCKF1
+          printf " * " >> ./lockf.h
+          date >> ./lockf.h
+          cat >> ./lockf.h << LOCKF2
+*/
+
+#if	!defined(LOCKF_H)
+#define	LOCKF_H
+
+LOCKF2
+          ed -s ${NETBSD_SYS}/kern/vfs_lockf.c >> ./lockf.h << LOCKF3
+${LSOF_TMP1},${LSOF_TMP2}p
+LOCKF3
+          if test $? -ne 0	# {
+          then
+	    LSOF_TMP1=""
+          else
+	    cat >> ./lockf.h << LOCKF4
+
+#endif	/* defined(LOCKF_H) */
+LOCKF4
+	  fi	# }
+        fi	# }
+      fi	# }
+    else
+      echo "FATAL ERROR: can't read ${NETBSD_SYS}/kern/vfs_lockf.c"
+    fi	# }
+
+    if test "X$LSOF_TMP1" != "X" -a "X$LSOF_TMP2" != "X0" # {
+    then
+      echo "lockf.h creation succeeded."
+      LSOF_CFGF="$LSOF_CFGF -DHAS_LOCKF_H"
+    else
+      echo "lockf.h creation failed (see 00FAQ)"
+    fi	# }
+
     LSOF_CFGL="$LSOF_CFGL -lkvm"
     LSOF_DIALECT_DIR=n+obsd
     ;;
@@ -5125,7 +5307,7 @@ fi	# }
 echo "" >> $LSOF_MKFC
 if test "X$LSOF_DEBUG" = "X"	# {
 then
-  LSOF_DEBUG="-O"
+  LSOF_DEBUG=""
 else
   if test "X$LSOF_DEBUG" = "XNo-O"	# {
   then

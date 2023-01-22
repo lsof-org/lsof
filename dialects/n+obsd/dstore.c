@@ -47,7 +47,9 @@ struct file *Cfp;		/* current file's file struct pointer */
  */
 
 struct drive_Nl Drive_Nl[] = {
-
+#if (defined(NETBSDV) && NETBSDV>=9099000)
+	{ "rootvnode",	"rootvnode",	},
+#endif
 #if	(defined(OPENBSDV) && OPENBSDV>=2010) || (defined(NETBSDV) && NETBSDV>=1002000)
 	{ X_NCACHE,	"_nchashtbl",	},
 	{ X_NCSIZE,	"_nchash"	},
@@ -118,6 +120,8 @@ struct pff_tab Pof_tab[] = {
 
 # if	defined(UF_EXCLOSE)
 	{ (long)UF_EXCLOSE,	POF_CLOEXEC	},
+# else
+	{ (long)1,		POF_CLOEXEC	},
 # endif	/* defined(UF_EXCLOSE) */
 
 # if	defined(UF_MAPPED)

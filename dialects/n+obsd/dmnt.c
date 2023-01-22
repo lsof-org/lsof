@@ -44,6 +44,18 @@ static char copyright[] =
 #include <sys/statvfs.h>
 #endif  /* defined(NETBSDV) && defined(HASSTATVFS) */
 
+#if defined(NETBSDV)
+#include <sys/param.h>
+
+#if __NetBSD_Version__ >= 899000100
+#define __EXPOSE_MOUNT
+#endif
+#if __NetBSD_Version__ >= 399002400
+#include <sys/types.h>
+#include <sys/mount.h>
+#endif
+#endif
+
 #include "lsof.h"
 
 
@@ -93,7 +105,12 @@ readmnt()
 	for (; n; n--, mb++) {
 	    if (mb->f_fstypename[0] == '\0')
 		continue;
+#if defined(NETBSDV) && __NetBSD_Version__ >= 499002500
+	    /* MFSNAMELEN was removed from the kernel source after 4.99.24 */
+	    mb->f_fstypename[sizeof(mb->f_fstypename) - 1] = '\0';
+#else
 	    mb->f_fstypename[MFSNAMELEN - 1] = '\0';
+#endif
 	/*
 	 * Interpolate a possible symbolic directory link.
 	 */

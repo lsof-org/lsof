@@ -118,12 +118,17 @@
 #define HAS_V_LOCKF
 #endif
 
-// Check fdescfs v1 if needed later
+// Check fdescfs v1 on FreeBSD if needed later
 #if HAVE_FS_FDESCFS_FDESC_H
 #define HASFDESCFS 2
 #endif
 
-#if HAVE_FS_NULLFS_NULL_H
+// Check fdescfs v2 on NetBSD if needed later
+#if HAVE_MISCFS_FDESC_FDESC_H
+#define HASFDESCFS 1
+#endif
+
+#if HAVE_FS_NULLFS_NULL_H || HAVE_MISCFS_NULLFS_NULL_H
 #define HASNULLFS
 #endif
 
@@ -133,6 +138,55 @@
 
 #if HAVE_STRUCT_KINFO_FILE_KF_UN_KF_SOCK_KF_SOCK_SENDQ
 #define HAS_KF_SOCK_SENDQ
+#endif
+
+#if HAVE_NFS_NFSPROTO_H
+#define HASNFSPROTO
+#endif
+
+#if HAVE_UVM_UVM_H
+#define UVM
+#define HAS_UVM_INCL
+#endif
+
+#if HAVE_STRUCT_STATVFS
+#define HASSTATVFS
+#endif
+
+#if HAVE_STRUCT_INODE_I_FFS1_SIZE
+#define HASI_FFS1
+#endif
+
+#if HAVE_DECL_GETBOOTFILE
+#define HASGETBOOTFILE
+#endif
+
+#if HAVE_DECL_KVM_GETPROC2
+#define HASKVMGETPROC2
+#endif
+
+#if HAVE_FS_PTYFS_PTYFS_H
+#define HASPTYFS
+#endif
+
+#if HAVE_MISCFS_PROCFS_PROCFS_H
+#define HASPROCFS
+#endif
+
+#if HAVE_DECL_PFSROOT
+#define HASPROCFS_PFSROOT
+#endif
+
+#if HAVE_FS_TMPFS_TMPFS_H
+#define HASTMPFS
+#endif
+
+#if HAVE_SYS_PIPE_H
+#define HAS_SYS_PIPEH
+#endif
+
+#if HAVE_STRUCT_FDESCNODE_FD_LINK
+#define HASFDLINK
 #endif
 
 #endif

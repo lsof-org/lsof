@@ -13,10 +13,10 @@ INCL=	${DINC} -I..
 HDR=	../lsof.h ../proto.h ../dlsof.h ../dproto.h ../machine.h
 
 SRC=	ckkv.c cvfs.c dvch.c fino.c isfn.c lkud.c pdvn.c prfp.c \
-	ptti.c rdev.c regex.c rmnt.c rnam.c rnch.c rnmh.c snpf.c
+	ptti.c rdev.c regex.c rmnt.c rnam.c rnch.c rnmh.c rnmt.c snpf.c
 
 OBJ=	ckkv.o cvfs.o dvch.o fino.o isfn.o lkud.o pdvn.o prfp.o \
-	ptti.o rdev.o regex.o rmnt.o rnam.o rnch.o rnmh.o snpf.o
+	ptti.o rdev.o regex.o rmnt.o rnam.o rnch.o rnmh.o rnmt.o snpf.o
 
 all:	${LIB}
 
@@ -58,5 +58,7 @@ rnam.o: ${HDR} rnam.c
 rnch.o: ${HDR} rnch.c
 
 rnmh.o: ${HDR} rnmh.c
+
+rnmt.o: ${HDR} rnmt.c
 
 snpf.o: ${HDR} snpf.c

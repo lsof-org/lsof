@@ -36,6 +36,33 @@ static char copyright[] =
 
 #include "lsof.h"
 
+#if __NetBSD_Version__ >= 499006200
+  /*
+   * In NetBSD-4.99.62, struct fdfile was added, struct filedesc::fd_ofiles
+   * changed type from struct file ** to struct fdfile **, and
+   * fd_ofileflags disappeared from struct filedesc, being
+   * replaced by fields in struct fdfile.
+   */
+# define HAVE_STRUCT_FDFILE 1
+# define FILESTRUCT struct fdfile
+#else
+# undef HAVE_STRUCT_FDFILE
+# define FILESTRUCT struct file
+#endif
+#if __NetBSD_Version__ >= 599001400
+  /*
+   * Between NetBSD-5.99.13 and 5.99.14, struct fdtab was added, and
+   * struct filedesc::fd_ofiles and fd_nfiles were replaced by
+   * struct filedesc::fd_dt (a pointer to struct fdtab).
+   */
+# define HAVE_STRUCT_FDTAB 1
+# define NFILES(fd,dt) ((dt).dt_nfiles)
+# define OFILES(fd,dt) ((fd).fd_dt->dt_ff)
+#else
+# undef HAVE_STRUCT_FDTAB
+# define NFILES(fd,dt) ((fd).fd_nfiles)
+# define OFILES(fd,dt) ((fd).fd_ofiles)
+#endif
 
 _PROTOTYPE(static void enter_vn_text,(KA_T va, int *n));
 _PROTOTYPE(static void get_kernel_access,(void));
@@ -151,7 +178,7 @@ gather_proc_info()
 	struct filedesc fd;
 	int i, nf;
 	MALLOC_S nb;
-	static struct file **ofb = NULL;
+	static FILESTRUCT **ofb = NULL;
 	static int ofbb = 0;
 	short pss, sf;
 	int px;
@@ -177,6 +204,10 @@ gather_proc_info()
 #else	/* !defined(HASKVMGETPROC2) */
 	struct kinfo_proc *p;
 #endif	/* defined(HASKVMGETPROC2) */
+
+#if	HAVE_STRUCT_FDTAB
+	struct fdtab dt;
+#endif	/* HAVE_STRUCT_FDTAB */
 
 /*
  * Read the process table.
@@ -217,7 +248,14 @@ gather_proc_info()
 	    if (!p->P_FD
 	    ||  kread((KA_T)p->P_FD, (char *)&fd, sizeof(fd)))
 		continue;
-	    if (!fd.fd_refcnt || fd.fd_lastfile > fd.fd_nfiles)
+	    if (!fd.fd_refcnt)
+		continue;
+#if	HAVE_STRUCT_FDTAB
+	    if (!fd.fd_dt
+	    ||  kread((KA_T)fd.fd_dt, (char *)&dt, sizeof(dt)))
+		continue;
+#endif	/* ! HAVE_STRUCT_FDTAB */
+	    if (fd.fd_lastfile > NFILES(fd,dt))
 		continue;
 
 #if	defined(HASCWDINFO)
@@ -277,14 +315,14 @@ gather_proc_info()
 	/*
 	 * Read open file structure pointers.
 	 */
-	    if (!fd.fd_ofiles || (nf = fd.fd_nfiles) <= 0)
+	    if (!OFILES(fd,dt) || (nf = NFILES(fd,dt)) <= 0)
 		continue;
-	    nb = (MALLOC_S)(sizeof(struct file *) * nf);
+	    nb = (MALLOC_S)(sizeof(FILESTRUCT *) * nf);
 	    if (nb > ofbb) {
 		if (!ofb)
-		    ofb = (struct file **)malloc(nb);
+		    ofb = (FILESTRUCT **)malloc(nb);
 		else
-		    ofb = (struct file **)realloc((MALLOC_P *)ofb, nb);
+		    ofb = (FILESTRUCT **)realloc((MALLOC_P *)ofb, nb);
 		if (!ofb) {
 		    (void) fprintf(stderr, "%s: PID %d, no file * space\n",
 			Pn, p->P_PID);
@@ -292,7 +330,7 @@ gather_proc_info()
 		}
 		ofbb = nb;
 	    }
-	    if (kread((KA_T)fd.fd_ofiles, (char *)ofb, nb))
+	    if (kread((KA_T)OFILES(fd,dt), (char *)ofb, nb))
 		continue;
 
 #if	defined(HASFSTRUCT)
@@ -310,8 +348,10 @@ gather_proc_info()
 		    }
 		    pofb = nb;
 		}
+#if	! HAVE_STRUCT_FDFILE
 		if (!fd.fd_ofileflags || kread((KA_T)fd.fd_ofileflags, pof, nb))
 		    zeromem(pof, nb);
+#endif	/* ! HAVE_STRUCT_FDFILE */
 	    }
 #endif	/* defined(HASFSTRUCT) */
 
@@ -320,8 +360,20 @@ gather_proc_info()
 	 */
 	    for (i = 0; i < nf; i++) {
 		if (ofb[i]) {
+#if	HAVE_STRUCT_FDFILE
+		    struct fdfile fdf;
+		    if (kread((KA_T)ofb[i], (char *)&fdf, sizeof(fdf)))
+			continue;
+		    Cfp = fdf.ff_file;
+		    if (Cfp == NULL)
+			continue;
+		    if (pof)
+			pof[i] = fdf.ff_exclose;
+#else	/* ! HAVE_STRUCT_FDFILE */
+		    Cfp = ofb[i];
+#endif	/* ! HAVE_STRUCT_FDFILE */
 		    alloc_lfile(NULL, i);
-		    process_file((KA_T)(Cfp = ofb[i]));
+		    process_file((KA_T)Cfp);
 		    if (Lf->sf) {
 
 #if	defined(HASFSTRUCT)

@@ -30,7 +30,7 @@
  */
 
 
-#include "../machine.h"
+#include "machine.h"
 
 #if	defined(HASNCACHE) && defined(USE_LIB_RNCH)
 

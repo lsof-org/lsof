@@ -53,6 +53,9 @@ static char copyright[] =
 #undef	IN_LOCKED
 #undef	i_size
 #undef	IN_WANTED
+#undef  i_endoff
+#undef  i_diroff
+#undef  i_offset
 
 
 /*

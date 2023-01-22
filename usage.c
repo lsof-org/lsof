@@ -984,6 +984,9 @@ usage(err, fh, version)
 #ifdef HASNULLFS
 		"nullfs",
 #endif
+#ifdef HAS_SYS_PIPEH
+		"pipe",
+#endif
 #ifdef HASPROCFS
 		"procfs",
 #endif
@@ -992,6 +995,9 @@ usage(err, fh, version)
 #endif
 #ifdef HASPTYEPT
 		"ptyept",
+#endif
+#ifdef HASPTYFS
+		"ptyfs",
 #endif
 #if !defined(HASNORPC_H)
 		"rpc",
@@ -1011,7 +1017,7 @@ usage(err, fh, version)
 #ifdef HASTASKS
 		"tasks",
 #endif
-#ifdef HAS_TMPFS
+#if defined(HAS_TMPFS) || defined(HASTMPFS)
 		"tmpfs",
 #endif
 #ifdef HAS_XTCPCB_TMAXSEG

@@ -97,6 +97,70 @@ AS_CASE([${host_os}],
 
 	# Enable LTbigf test
 	LSOF_TEST_CFLAGS="$LSOF_TEST_CFLAGS -DLT_BIGF"
+], [netbsd*],  [
+	LSOF_DIALECT=netbsd
+	LSOF_DIALECT_DIR=n+obsd
+	LSOF_TGT=netbsd
+
+	case $LSOF_VSTR in
+		8.[[0123]]*)
+			LSOF_VERS="8000000"
+			;;
+		8.99.*)
+			LSOF_VERS="8099000"
+			;;
+		8.*)
+			LSOF_VERS="8000000"
+			AC_MSG_WARN([Unsupported NetBSD release: $(uname -r)])
+			AC_MSG_WARN([Configuring for NetBSD 8.0])
+			;;
+		9.[[0123]]*)
+			LSOF_VERS="9000000"
+			;;
+		9.99.10[[45678]])
+			LSOF_VERS="9099104"
+			;;
+		9.99.*)
+			LSOF_VERS="9099000"
+			;;
+		9.*)
+			LSOF_VERS="9000000"
+			AC_MSG_WARN([Unsupported NetBSD release: $(uname -r)])
+			AC_MSG_WARN([Configuring for NetBSD 9.0])
+			;;
+		10.99.*)
+			LSOF_VERS="10099000"
+			;;
+		10.*)
+			LSOF_VERS="10000000"
+			AC_MSG_WARN([Unsupported NetBSD release: $(uname -r)])
+			AC_MSG_WARN([Configuring for NetBSD 10.0])
+			;;
+		*)
+			AC_MSG_ERROR([Unknown NetBSD release: $(uname -r)])
+			;;
+	esac
+
+	# Add NETBSDV to cflags
+	CFLAGS="$CFLAGS -DNETBSDV=$LSOF_VERS"
+
+	# Define _KMEMUSER for paddr_t and __NAMECACHE_PRIVATE for struct namecache
+	CFLAGS="$CFLAGS -D_KMEMUSER -D__NAMECACHE_PRIVATE"
+
+	# Define HASNFSVATTRP because the relevant change in kernel src is in 1997
+	# We can safely assume that n_vattr is a pointer
+	CFLAGS="$CFLAGS -DHASNFSVATTRP"
+
+	# Check /dev/kmem
+	LSOF_TEST_CFLAGS="$LSOF_TEST_CFLAGS -DLT_KMEM"
+
+	# Detect NetBSD source code
+	AS_IF([test -d /usr/src/sys], [
+		NETBSD_SYS=/usr/src/sys
+		CFLAGS="$CFLAGS -I$NETBSD_SYS"
+	], [
+		AC_MSG_WARN([No kernel sources in /usr/src/sys])
+	])
 ], [
 	AC_MSG_ERROR(["Host $host_os not supported"])
 ])
@@ -105,6 +169,7 @@ AS_CASE([${host_os}],
 AM_CONDITIONAL([LINUX], [test x$LSOF_DIALECT_DIR = xlinux])
 AM_CONDITIONAL([DARWIN_LIBPROC], [test x$LSOF_DIALECT_DIR = xdarwin/libproc])
 AM_CONDITIONAL([FREEBSD], [test x$LSOF_DIALECT_DIR = xfreebsd])
+AM_CONDITIONAL([N_OBSD], [test x$LSOF_DIALECT_DIR = xn+obsd])
 
 # Pass LSOF_DIALECT/LSOF_DIALECT_DIR to Makefile.am
 AC_SUBST([LSOF_DIALECT])
@@ -276,6 +341,63 @@ AC_CHECK_MEMBERS([struct xtcpcb.t_maxseg], [], [], [#include <sys/types.h>
 # Detect struct kinfo_file.kf_un.kf_sock.kf_sock_sendq for HAS_KF_SOCK_SENDQ
 AC_CHECK_MEMBERS([struct kinfo_file.kf_un.kf_sock.kf_sock_sendq], [], [], [#include <sys/types.h>
 	#include <sys/user.h>])
+
+# Detect nfs/nfsproto.h for HASNFSPROTO
+AC_CHECK_HEADERS([nfs/nfsproto.h])
+
+# Detect uvm/uvm.h for HAS_UVM_INCL
+AC_CHECK_HEADERS([uvm/uvm.h])
+
+# Detect struct statvfs for HASSTATVFS
+AC_CHECK_TYPES([struct statvfs], [], [], [#include <sys/statvfs.h>])
+
+# Detect struct inode.i_ffs1_size for HASI_FFS1
+AC_CHECK_MEMBERS([struct inode.i_ffs1_size], [], [], [#include <ufs/ufs/inode.h>])
+
+# Detect getbootfile function for HASGETBOOTFILE
+AC_CHECK_DECLS([getbootfile()], [
+	LDFLAGS="$LDFLAGS -lutil"
+], [], [#include <util.h>])
+
+# Detect kvm_getproc2 function for HASKVMGETPROC2
+AC_CHECK_DECLS([kvm_getproc2], [], [], [#include <kvm.h>])
+
+# Detect fs/ptyfs/ptyfs.h header for HASPTYFS
+AC_CHECK_HEADERS([fs/ptyfs/ptyfs.h])
+
+# Detect fs/ptyfs/ptyfs.h header for HASPROCFS
+AC_CHECK_HEADERS([miscfs/procfs/procfs.h])
+
+# Detect PFSroot enum for HASPROCFS_PFSROOT
+AC_CHECK_DECLS([PFSroot], [], [], [#define _KERNEL
+	#include <sys/types.h>
+	#include <miscfs/procfs/procfs.h>])
+
+# Detect fs/tmpfs/tmpfs.h header for HASTMPFS
+AC_CHECK_HEADERS([fs/tmpfs/tmpfs.h])
+
+# Detect sys/pipe.h header for HAS_SYS_PIPEH
+AC_CHECK_HEADERS([sys/pipe.h])
+
+# Copy struct lockf definition from kernel source code for HAS_LOCKF_H
+AS_IF([test x$LSOF_DIALECT = xnetbsd], [
+	# Generate lockf.h from kern/vfs_lockf.c
+	HEADER_GENERATE([lockf.h], [${NETBSD_SYS}/kern/vfs_lockf.c], ["^TAILQ_HEAD"], ["^};"], [LOCKF_H])
+
+	AC_MSG_NOTICE([lockf.h creation succeeded])
+	CFLAGS="$CFLAGS -DHAS_LOCKF_H"
+])
+
+# Detect fdescfs version for HASFDESCFS
+AC_CHECK_HEADERS([miscfs/fdesc/fdesc.h])
+
+# Detect struct fdescnode.fd_link for HASFDLINK
+AC_CHECK_MEMBERS([struct fdescnode.fd_link], [], [], [#define _KERNEL
+	#include <sys/types.h>
+	#include <miscfs/fdesc/fdesc.h>])
+
+# Detect miscfs/nullfs/null.h header for HASNULLFS
+AC_CHECK_HEADERS([miscfs/nullfs/null.h], [], [], [#include <sys/mount.h>])
 
 # Detect sizeof(dev_t) for LT_DEV64
 AC_CHECK_SIZEOF([dev_t])
