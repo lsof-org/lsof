@@ -50,6 +50,7 @@ Since 4.97.0, lsof introduces a new experimental autotools-based build system. I
 - Linux
 - Darwin
 - FreeBSD
+- NetBSD
 
 Build dependencies:
 
