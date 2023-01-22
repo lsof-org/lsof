@@ -38,6 +38,10 @@
 #if	!defined(LSOF_MACHINE_H)
 #define	LSOF_MACHINE_H	1
 
+#ifdef AUTOTOOLS
+#include "autotools.h"
+#endif
+
 
 #include <sys/types.h>
 #include <sys/param.h>

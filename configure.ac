@@ -374,6 +374,9 @@ AC_CHECK_DECLS([PFSroot], [], [], [#define _KERNEL
 # Detect fs/tmpfs/tmpfs.h header for HASTMPFS
 AC_CHECK_HEADERS([fs/tmpfs/tmpfs.h])
 
+# Detect sys/pipe.h header for HAS_SYS_PIPEH
+AC_CHECK_HEADERS([sys/pipe.h])
+
 # Detect sizeof(dev_t) for LT_DEV64
 AC_CHECK_SIZEOF([dev_t])
 AS_IF([test "x$ac_cv_sizeof_dev_t" = x8], [

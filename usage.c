@@ -984,6 +984,9 @@ usage(err, fh, version)
 #ifdef HASNULLFS
 		"nullfs",
 #endif
+#ifdef HAS_SYS_PIPEH
+		"pipe",
+#endif
 #ifdef HASPROCFS
 		"procfs",
 #endif

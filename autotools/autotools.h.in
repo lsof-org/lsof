@@ -176,4 +176,8 @@
 #define HASTMPFS
 #endif
 
+#if HAVE_SYS_PIPE_H
+#define HAS_SYS_PIPEH
+#endif
+
 #endif
