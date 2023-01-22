@@ -151,14 +151,16 @@ AS_CASE([${host_os}],
 	# We can safely assume that n_vattr is a pointer
 	CFLAGS="$CFLAGS -DHASNFSVATTRP"
 
+	# Check /dev/kmem
+	LSOF_TEST_CFLAGS="$LSOF_TEST_CFLAGS -DLT_KMEM"
+
 	# Detect NetBSD source code
-	if test -d /usr/src/sys	# {
-	then
+	AS_IF([test -d /usr/src/sys], [
 		NETBSD_SYS=/usr/src/sys
 		CFLAGS="$CFLAGS -I$NETBSD_SYS"
-	else
+	], [
 		AC_MSG_WARN([No kernel sources in /usr/src/sys])
-	fi	# }
+	])
 ], [
 	AC_MSG_ERROR(["Host $host_os not supported"])
 ])
