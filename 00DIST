@@ -5511,6 +5511,8 @@ Supplement	Regenerated the 4.04 distribution to correct a non-
 
 		[linux] Always enable 64 bit off_t in configure.ac
 
+		[netbsd] Import patches from pkgsrc and port autotools-based build system to NetBSD
+
 4.9?.?		????????? ??, ????
 
 Vic Abell <abe@purdue.edu>
