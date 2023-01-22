@@ -118,12 +118,17 @@
 #define HAS_V_LOCKF
 #endif
 
-// Check fdescfs v1 if needed later
+// Check fdescfs v1 on FreeBSD if needed later
 #if HAVE_FS_FDESCFS_FDESC_H
 #define HASFDESCFS 2
 #endif
 
-#if HAVE_FS_NULLFS_NULL_H
+// Check fdescfs v2 on NetBSD if needed later
+#if HAVE_MISCFS_FDESC_FDESC_H
+#define HASFDESCFS 1
+#endif
+
+#if HAVE_FS_NULLFS_NULL_H || HAVE_MISCFS_NULLFS_NULL_H
 #define HASNULLFS
 #endif
 
@@ -178,6 +183,10 @@
 
 #if HAVE_SYS_PIPE_H
 #define HAS_SYS_PIPEH
+#endif
+
+#if HAVE_STRUCT_FDESCNODE_FD_LINK
+#define HASFDLINK
 #endif
 
 #endif

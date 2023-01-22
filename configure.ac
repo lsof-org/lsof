@@ -388,6 +388,17 @@ AS_IF([test x$LSOF_DIALECT = xnetbsd], [
 	CFLAGS="$CFLAGS -DHAS_LOCKF_H"
 ])
 
+# Detect fdescfs version for HASFDESCFS
+AC_CHECK_HEADERS([miscfs/fdesc/fdesc.h])
+
+# Detect struct fdescnode.fd_link for HASFDLINK
+AC_CHECK_MEMBERS([struct fdescnode.fd_link], [], [], [#define _KERNEL
+	#include <sys/types.h>
+	#include <miscfs/fdesc/fdesc.h>])
+
+# Detect miscfs/nullfs/null.h header for HASNULLFS
+AC_CHECK_HEADERS([miscfs/nullfs/null.h], [], [], [#include <sys/mount.h>])
+
 # Detect sizeof(dev_t) for LT_DEV64
 AC_CHECK_SIZEOF([dev_t])
 AS_IF([test "x$ac_cv_sizeof_dev_t" = x8], [
