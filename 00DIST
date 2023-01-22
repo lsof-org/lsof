@@ -135,6 +135,7 @@
 		4.96.4 October 18, 2022
 		4.96.5 December 26, 2022
 		4.97.0 January 17, 2023
+		4.98.0 January 22, 2023
 
 
 
@@ -5443,7 +5444,7 @@ Supplement	Regenerated the 4.04 distribution to correct a non-
 
 		[freebsd] add <sys/callout.h> for recent changes
 
-4.97.0		January 17 2023
+4.97.0		January 17, 2023
 
 		[decof/du/tru64] Remove support because the os is no longer
 		updated for more than 10 years
@@ -5467,7 +5468,7 @@ Supplement	Regenerated the 4.04 distribution to correct a non-
 
 		Rewrite documentation and publish at https://lsof.readthedocs.io/
 
-4.9?.?		????????? ??, ????
+4.98.0		January 22, 2023
 
 		Fix two potential null pointer access bug when gethostbyname2()
 		returns an empty address list

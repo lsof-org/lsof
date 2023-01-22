@@ -13,13 +13,14 @@ SYNOPSIS
        ] [ +|-w ] [ -x [fl] ] [ -z [z] ] [ -Z [Z] ] [ -- ] [names]
 
 DESCRIPTION
-       Lsof  revision  4.97.0  lists  on  its standard output file information
+       Lsof  revision  4.98.0  lists  on  its standard output file information
        about files opened by processes for the following UNIX dialects:
 
             Apple Darwin 9, Mac OS X 10, macOS 11 and above
             FreeBSD 8.2 and above
             Linux 2.1.72 and above
-            Solaris 9, 10 and 11
+            NetBSD 1.2 and above
+            Solaris 9, 10 and 11 and above
 
        (See the DISTRIBUTION section of this manual page  for  information  on
        how to obtain the latest lsof revision.)
@@ -2858,5 +2859,5 @@ SEE ALSO
        load(8), mount(8), netstat(1),  ofiles(8L),  open(2),  perl(1),  ps(1),
        readlink(2), setlocale(3), stat(2), strftime(3), time(2), uname(1).
 
-                                Revision-4.97.0                        LSOF(8)
+                                Revision-4.98.0                        LSOF(8)
 ```

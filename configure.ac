@@ -1,4 +1,4 @@
-AC_INIT([lsof],[4.97.0])
+AC_INIT([lsof],[4.98.0])
 AM_INIT_AUTOMAKE([subdir-objects])
 # Locate custom m4 macros
 AC_CONFIG_MACRO_DIR([m4])
