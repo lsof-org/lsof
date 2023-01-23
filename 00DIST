@@ -5523,6 +5523,12 @@ Supplement	Regenerated the 4.04 distribution to correct a non-
 
 		[netbsd] Get device numer of tmpfs instead of reporting zero
 
+
+		[openbsd] Rewrite OpenBSD support because OpenBSD disallows
+		kernel memory access and lsof has to switch to user mode API.
+		Currently, most features are working, but file path reporting
+		and lock status are not working for lack of kernel support.
+
 4.9?.?		????????? ??, ????
 
 Vic Abell <abe@purdue.edu>
