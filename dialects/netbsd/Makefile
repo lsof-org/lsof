@@ -1,5 +1,5 @@
 
-# N+OBSD Makefile
+# NetBSD Makefile
 #
 # $Id: Makefile,v 1.12 2008/04/15 13:30:14 abe Exp $
 

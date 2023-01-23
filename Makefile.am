@@ -48,15 +48,15 @@ lsof_SOURCES += dialects/freebsd/dmnt.c \
 		dialects/freebsd/machine.h
 endif
 
-if N_OBSD
-lsof_SOURCES += dialects/n+obsd/dmnt.c \
-		dialects/n+obsd/dnode.c \
-		dialects/n+obsd/dproc.c \
-		dialects/n+obsd/dsock.c \
-		dialects/n+obsd/dstore.c \
-		dialects/n+obsd/dlsof.h \
-		dialects/n+obsd/dproto.h \
-		dialects/n+obsd/machine.h
+if NETBSD
+lsof_SOURCES += dialects/netbsd/dmnt.c \
+		dialects/netbsd/dnode.c \
+		dialects/netbsd/dproc.c \
+		dialects/netbsd/dsock.c \
+		dialects/netbsd/dstore.c \
+		dialects/netbsd/dlsof.h \
+		dialects/netbsd/dproto.h \
+		dialects/netbsd/machine.h
 endif
 
 if OPENBSD

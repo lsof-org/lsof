@@ -1069,8 +1069,7 @@ Paul has provided test systems.  Ray Phillips provided a NetBSA
 Alpha test system.  Andrew Brown also provided a test system.
 
 The NetBSD dialect version of lsof is compiled using the dialect
-sources it shares with OpenBSD in the n+obsd dialect sub-directory.
-
+sources in the netbsd dialect sub-directory.
 
 
 OpenBSD
@@ -1078,7 +1077,7 @@ OpenBSD
 
 David Mazieres has provided OpenBSD test systems.  The OpenBSD
 dialect version of lsof is compiled using the dialect sources it
-shares with NetBSD in the n+obsd dialect sub-directory.
+shares with NetBSD in the openbsd dialect sub-directory.
 
 Kenneth Stailey has provided OpenBSD testing and advice.
 

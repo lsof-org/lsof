@@ -99,7 +99,7 @@ AS_CASE([${host_os}],
 	LSOF_TEST_CFLAGS="$LSOF_TEST_CFLAGS -DLT_BIGF"
 ], [netbsd*],  [
 	LSOF_DIALECT=netbsd
-	LSOF_DIALECT_DIR=n+obsd
+	LSOF_DIALECT_DIR=netbsd
 	LSOF_TGT=netbsd
 
 	case $LSOF_VSTR in
@@ -181,7 +181,7 @@ AS_CASE([${host_os}],
 AM_CONDITIONAL([LINUX], [test x$LSOF_DIALECT_DIR = xlinux])
 AM_CONDITIONAL([DARWIN_LIBPROC], [test x$LSOF_DIALECT_DIR = xdarwin/libproc])
 AM_CONDITIONAL([FREEBSD], [test x$LSOF_DIALECT_DIR = xfreebsd])
-AM_CONDITIONAL([N_OBSD], [test x$LSOF_DIALECT_DIR = xn+obsd])
+AM_CONDITIONAL([NETBSD], [test x$LSOF_DIALECT_DIR = xnetbsd])
 AM_CONDITIONAL([OPENBSD], [test x$LSOF_DIALECT_DIR = xopenbsd])
 
 # Pass LSOF_DIALECT/LSOF_DIALECT_DIR to Makefile.am

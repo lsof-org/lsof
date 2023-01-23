@@ -264,11 +264,6 @@ different source files -- e.g., dnode[123].c -- to eliminate node
 header file structure element name conflicts.  The source modules
 in a few subdirectories are organized that way.
 
-Unusual situations occur for NetBSD and OpenBSD, and for NEXTSTEP
-and OPENSTEP.  Each pair of dialects is so close in design that
-the same dialect sources from the n+obsd subdirectory serves NetBSD
-and OpenBSD; from n+os, NEXTSTEP and OPENSTEP.
-
 These are common files in lsof4/:
 
     Configure	the configuration script

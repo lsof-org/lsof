@@ -13,7 +13,7 @@
 # $Id: Mksrc,v 1.5 99/04/15 06:40:37 abe Exp $
 
 
-D=dialects/n+obsd
+D=dialects/netbsd
 L="dlsof.h dmnt.c dnode.c dnode1.c dproc.c dproto.h dsock.c dstore.c machine.h"
 
 for i in $L

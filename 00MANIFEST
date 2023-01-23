@@ -45,8 +45,9 @@ du/
 freebsd/
 hpux/
 linux/
-n+obsd/
+netbsd/
 n+os/
+openbsd/
 osr/
 sun/
 uw/
@@ -202,7 +203,7 @@ dsock.c
 dstore.c
 machine.h
 
-./dialects/n+obsd:
+./dialects/netbsd:
 Makefile
 Mksrc*
 dlsof.h

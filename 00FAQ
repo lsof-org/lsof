@@ -5764,7 +5764,7 @@ ______________________________________________________________________
 	other OpenBSD SPARC versions, but hasn't been tested there.
 
 	If you want to enable the hack for your OpenBSD SPARC
-	version, modify this code in .../dialects/n+obsd/dlsof.h:
+	version, modify this code in .../dialects/openbsd/dlsof.h:
 
 	    # if    defined(OPENBSDV)
 	    #  if   OPENBSDV==2030 && defined(__sparc__)
