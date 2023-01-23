@@ -708,18 +708,8 @@ possibilities
     HAS_AIO_REQ_STRUCT	is defined for Solaris 10 and above systems that
 			have the aio_req structure definition.
 
-    HAS_ATOMIC_T	indicates the Linux version has an
-			<asm/atomic.h> header file and it contains
-			"typedef struct .* atomic_t;"
-
     HASAOPT		indicates the dialect supports the AFS -A
 			option when HAS_AFS is also defined.
-
-    HAS_ASM_TERMIOBITS  indicates for Linux Alpha that the
-			<asm/termiobits.h> header file exists.
-
-    HASAX25CBPTR	indicates that the Linux sock struct has an
-			ax25_db pointer.
 
     HASBLKDEV		indicates the dialect has block device support.
 
@@ -727,9 +717,6 @@ possibilities
 			header file.
 
     HASCACHEFS		enables cache file system support for the
-			dialect.
-
-    HAS_CDFS		enables CDFS file system support for the
 			dialect.
 
     HASCDRNODE		enables/disables readcdrnode() in node.c.
@@ -762,12 +749,6 @@ possibilities
 			call.  See the 00DCACHE file of the lsof
 			distribution for more information on this
 			feature.
-
-    HASDENTRY		indicates the Linux version has a dentry
-			struct defined in <linux/dcache.h>.
-
-    HASDEVKNC           indicates the Linux version has a kernel
-			name cached keyed on device number.
 
     HAS_DINODE_U	indicates the OpenBSD version has a dinode_u
 			union in its inode structure.
@@ -816,15 +797,6 @@ possibilities
 
     HASFIFONODE		enables/disables readfifonode() in node.c.
 
-    HAS_FL_FD		indicates the Linux version has an fl_fd
-			element in the lock structure of <linux/fs.h>.
-
-    HAS_FL_FILE		indicates the Linux version has an fl_file
-			element in the lock structure of <linux/fs.h>.
-
-    HAS_FL_WHENCE	indicates the Linux version has an fl_whence
-			element in the lock structure of <linux/fs.h>.
-
     HAS_F_OPEN		indicates the UnixWare 7.x dialect has the
 			f_open member in its file struct.
 
@@ -855,10 +827,6 @@ possibilities
 
     HASGNODE		enables/disables readgnode() in node.c.
 
-    HASHASHPID		is defined when the Linux version (probably
-			above 2.1.35) has a pidhash_next member in
-			its task structure.
-
     HASHSNODE		enables/disables readhsnode() in node.c.
 
     HASI_E2FS_PTR	indicates the BSD dialect has a pointer in
@@ -876,12 +844,6 @@ possibilities
 			<netinet/tcp_var.h>.
 
     HASINODE		enables/disables readinode() in node.c.
-
-    HASINOKNC		indicates the Linux version has a kernel
-			name cache keyed on inode address.
-
-    HASINADDRSTR	is defined when the inp_[fl]addr members
-			of the inpcb structure are structures.
 
     HASINRIAIPv6	is defined if the dialect has the INRIA IPv6
 			support.  (HASIPv6 will also be defined.)
@@ -911,9 +873,6 @@ possibilities
 
     HAS_JFS2		The AIX >= 5.0 dialect has jfs2 support.
 
-    HASKERNELKEYT       indicates the Linux version has a
-			__kernel_key_t typedef in <linux/types.h>.
-
     HASKERNFS           is defined for BSD dialects for which
 			/kern file system support can be provided.
 
@@ -934,6 +893,7 @@ possibilities
 			"defined(_KVM_VNODE)" in <sys/vnode.h>.
 
     HASLFILEADD		defines additional, dialect-specific elements
+
     SETLFILEADD		in the lfile structure (defined in lsof.h).
 			HASLFILEADD is a macro. The accompanying SETFILEADD
 			macro is used in the alloc_lfile() function of
@@ -984,13 +944,7 @@ possibilities
     HASNCVPID           The *BSD dialect namecache struct has an
 			nc_vpid member.
 
-    HASNETDEVICE_H	indicates the Linux version has a netdevice.h
-			header file.
-
     HAS_NFS		enables NFS support for the dialect.
-
-    HASNFSKNC		indicates the LINUX version has a separate
-			NFS name cache.
 
     HASNFSPROTO         indicates the NetBSD or OpenBSD version
 			has the nfsproto.h header file.
@@ -1199,9 +1153,6 @@ possibilities
 
     HASSNODE		indicates the dialect has snode support.
 
-    HAS_SOCKET_SK	indicates that the Linux socket structure
-			has the ``struct sock *sk'' member.
-
     HASSOOPT            indicates the dialect has socket option
 			information (e.g., SO_* symbols) available.
 
@@ -1272,11 +1223,6 @@ possibilities
 
     HAS_UM_UFS		indicates the OpenBSD version has UM_UFS[12]
 			definitions.
-
-    HASUNMINSOCK	indicates the Linux version has a user name
-			element in the socket structure; a value of
-			0 says there is no unix_address member; 1,
-			there is.
 
     HASUINT16TYPE	is defined when the dialect has a typedef
 			for u_int16 that may conflict with some other
