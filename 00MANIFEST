@@ -78,26 +78,6 @@ j2_lock.h
 private_j2_snapshot.h
 
 ./dialects/darwin:
-get-hdr-loc.sh*
-kmem/
-libproc/
-
-./dialects/darwin/kmem:
-Makefile
-Mksrc*
-ddev.c
-dfile.c
-dlsof.h
-dmnt.c
-dnode.c
-dnode1.c
-dproc.c
-dproto.h
-dsock.c
-dstore.c
-machine.h
-
-./dialects/darwin/libproc:
 Makefile
 Mksrc*
 ddev.c

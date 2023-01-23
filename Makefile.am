@@ -25,16 +25,16 @@ lsof_SOURCES += dialects/linux/dfile.c \
 		dialects/linux/machine.h
 endif
 
-if DARWIN_LIBPROC
-lsof_SOURCES += dialects/darwin/libproc/ddev.c \
-		dialects/darwin/libproc/dfile.c \
-		dialects/darwin/libproc/dmnt.c \
-		dialects/darwin/libproc/dproc.c \
-		dialects/darwin/libproc/dsock.c \
-		dialects/darwin/libproc/dstore.c \
-		dialects/darwin/libproc/dlsof.h \
-		dialects/darwin/libproc/dproto.h \
-		dialects/darwin/libproc/machine.h
+if DARWIN
+lsof_SOURCES += dialects/darwin/ddev.c \
+		dialects/darwin/dfile.c \
+		dialects/darwin/dmnt.c \
+		dialects/darwin/dproc.c \
+		dialects/darwin/dsock.c \
+		dialects/darwin/dstore.c \
+		dialects/darwin/dlsof.h \
+		dialects/darwin/dproto.h \
+		dialects/darwin/machine.h
 endif
 
 if FREEBSD

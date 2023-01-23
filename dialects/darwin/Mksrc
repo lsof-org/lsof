@@ -13,7 +13,7 @@
 # $Id: Mksrc,v 1.5 2005/11/06 12:50:09 abe Exp $
 
 
-D=dialects/darwin/libproc
+D=dialects/darwin
 L="dlsof.h ddev.c dfile.c dmnt.c dproc.c dproto.h dsock.c dstore.c machine.h"
 
 for i in $L

@@ -35,7 +35,7 @@ AS_CASE([${host_os}],
 	LSOF_TEST_CFLAGS="$LSOF_TEST_CFLAGS -DLT_BIGF -D_FILE_OFFSET_BITS=64"
 ], [darwin*], [
 	LSOF_DIALECT=darwin
-	LSOF_DIALECT_DIR=darwin/libproc
+	LSOF_DIALECT_DIR=darwin
 	LSOF_TGT=darwin
 
 	AS_CASE([$LSOF_VSTR],
@@ -179,7 +179,7 @@ AS_CASE([${host_os}],
 
 # Pass dialect info to Makefile.am
 AM_CONDITIONAL([LINUX], [test x$LSOF_DIALECT_DIR = xlinux])
-AM_CONDITIONAL([DARWIN_LIBPROC], [test x$LSOF_DIALECT_DIR = xdarwin/libproc])
+AM_CONDITIONAL([DARWIN], [test x$LSOF_DIALECT_DIR = xdarwin])
 AM_CONDITIONAL([FREEBSD], [test x$LSOF_DIALECT_DIR = xfreebsd])
 AM_CONDITIONAL([NETBSD], [test x$LSOF_DIALECT_DIR = xnetbsd])
 AM_CONDITIONAL([OPENBSD], [test x$LSOF_DIALECT_DIR = xopenbsd])

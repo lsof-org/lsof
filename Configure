@@ -966,21 +966,6 @@ case $LSOF_TGT in	# {
     LSOF_CFGF="$LSOF_CFGF -mdynamic-no-pic"
     LSOF_CFGL="$LSOF_CFGL -lcurses"
 
-    if test "X$DARWIN_XNUDIR" != "X"	# {
-    then
-      LSOF_TMP2="${DARWIN_XNUDIR}/bsd"
-      LSOF_TMP3="${DARWIN_XNUDIR}/osfmk"
-      LSOF_TMP4=""
-    else
-      LSOF_TMP2="${DARWIN_XNU_HEADERS}/System/Library/Frameworks/Kernel.framework/Versions/A/PrivateHeaders"
-      LSOF_TMP3="${DARWIN_XNU_HEADERS}/System/Library/Frameworks/System.framework/Versions/B/PrivateHeaders"
-      LSOF_TMP4=""
-      if test "X$DARWIN_XNU_HEADERS" != "X"	# {
-      then
-	LSOF_TMP4="${DARWIN_XNU_HEADERS}/usr/include"
-      fi	# }
-    fi	# }
-
     # Test Darwin base.
 
     if test "X$DARWIN_BASE" = "X" -o "X$DARWIN_BASE" = "Xlibproc"	# {
@@ -995,34 +980,44 @@ case $LSOF_TGT in	# {
 	  if test -r ${LSOF_INCLUDE}/../local/include/libproc.h	# {
 	  then
 	    DARWIN_BASE="libproc"
-	    LSOF_TMP5="-I${LSOF_INCLUDE}/../local/include"
+	    LSOF_TMP5="${LSOF_INCLUDE}/../local/include"
 	  else
-	    echo "FATAL: can't find libproc.h"
-	    rm -f $LSOF_HLP
-	    exit 1
+	    if test -r /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/libproc.h	# {
+	    then
+	      DARWIN_BASE="libproc"
+	      LSOF_TMP5="/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/"
+            else
+              echo "FATAL: can't find libproc.h"
+              rm -f $LSOF_HLP
+              exit 1
+            fi
 	  fi	# }
 	fi	# }
       else
 
-      # The default Darwin base is /dev/kmem.
+        # The default Darwin base is libproc
 
-	DARWIN_BASE="/dev/kmem"
+	DARWIN_BASE="libproc"
       fi	# }
     fi	# }
+
     if test "X$DARWIN_BASE" = "Xlibproc"	# {
     then
 
-    # Configure for libproc-based Darwin lsof.
+      # Configure for libproc-based Darwin lsof.
 
       echo "Configuring libproc-based Darwin lsof"
       LSOF_CINFO="libproc-based"
-      LSOF_DIALECT_DIR=darwin/libproc
+      LSOF_DIALECT_DIR=darwin
       if test $LSOF_VERS -lt 1000 	# {
       then
 	LSOF_CFGL="$LSOF_CFGL -lproc"
       fi	# }
       LSOF_TSTKMEM=0
-      LSOF_DINC="$LSOF_DINC $LSOF_TMP5"
+      if test "X$LSOF_TMP5" != "X"  # {
+      then
+	LSOF_DINC="$LSOF_DINC -I$LSOF_TMP5"
+      fi  # }
       if test ! -r ${LSOF_INCLUDE}/sys/proc_info.h	# {
       then
 	if test "X$LSOF_TMP5" = "X" -o ! -r ${LSOF_TMP5}/sys/proc_info.h # {
@@ -1049,126 +1044,6 @@ case $LSOF_TGT in	# {
       then
 	LSOF_CFGF="$LSOF_CFGF -DHASUTMPX"
       fi	# }
-    else
-      if test "X$DARWIN_BASE" != "X/dev/kmem"	# {
-      then
-	echo "Darwin base unrecognized: $DARWIN_BASE"
-	rm -f $LSOF_HLP
-	exit 1
-      fi	# }
-
-    # Configure for /dev/kmem-based Darwin lsof.
-
-      echo "Configuring /dev/kmem-based Darwin lsof"
-      LSOF_CINFO="/dev/kmem-based"
-      LSOF_DIALECT_DIR=darwin/kmem
-
-    # Make sure needed /dev/kmem-base XNU Darwin kernel header files are
-    # present.
-
-      LSOF_TMP5=""
-      for i in $LSOF_TMP1	# {
-      do
-	LSOF_TMP6=0
-	for j in $LSOF_TMP2 $LSOF_TMP3 $LSOF_TMP4 $LSOF_INCLUDE	# {
-	do
-	  if test "X${j}" != "X" -a -r ${j}/${i}  # {
-	  then
-	    LSOF_TMP6=1
-	    break
-	  fi	# }
-	done	# }
-	if test $LSOF_TMP6 -ne 1	# {
-	then
-	  if test "X$LSOF_TMP5" = "X"	# {
-	  then
-	    LSOF_TMP5=$i
-	  else
-	    LSOF_TMP5="$LSOF_TMP5 $i"
-	  fi	# }
-	fi			# }
-      done	# }
-      if test "X$LSOF_TMP5" != "X"	# {
-      then
-
-      # If any Darwin XNU kernel header files are missing, call the
-      # get-hdr-loc.sh script to find the path.
-
-	LSOF_TMP6=`pwd`/dialects/darwin/get-hdr-loc.sh
-	if test ! -x $LSOF_TMP6	# {
-	then
-	  echo "FATAL: can't execute: $LSOF_TMP6"
-	  rm -f $LSOF_HLP
-	  exit 1
-	fi	# }
-	DARWIN_XNUDIR=`$LSOF_TMP6 $LSOF_TMP5`
-	if test $? -ne 0	# {
-	then
-	  echo "FATAL: $LSOF_TMP6 returns: $DARWIN_XNUDIR"
-	  rm -f $LSOF_HLP
-	  exit 1
-	fi	# }
-	LSOF_TMP2="${DARWIN_XNUDIR}/bsd"
-	LSOF_TMP3="${DARWIN_XNUDIR}/osfmk"
-	LSOF_TMP4=""
-      fi	# }
-
-    # Add header file paths for /dev/kmem-based Darwin lsof.
-
-      for i in $LSOF_TMP2 $LSOF_TMP3 $LSOF_TMP4 $LSOF_INCLUDE	# {
-      do
-	if test -d $i -a "X$i" != "X/usr/include"	# {
-	then
-	  LSOF_DINC="$LSOF_DINC -I${i}"
-	fi	# }
-      done	# }
-
-    # Make conditional feature definitions for /dev/kmem-based Darwin lsof.
-
-      for i in $LSOF_TMP2 $LSOF_TMP3 $LSOF_TMP4 $LSOF_INCLUDE      # {
-      do
-	if test "X${i}" != "X" -a -r ${i}/sys/namei.h	# {
-	then
-	  grep -q nc_vpid ${i}/sys/namei.h
-	  if test $? -eq 0	# {
-	  then
-	    LSOF_CFGF="$LSOF_CFGF -DHASNCVPID"
-	  fi	# }
-	  break
-	fi	# }
-      done	# }
-      for i in $LSOF_TMP2 $LSOF_TMP3 $LSOF_TMP4 $LSOF_INCLUDE	# {
-      do
-	if test "X${i}" != "X"	# {
-	then
-	  if test $LSOF_VERS -ge 800	# {
-	  then
-	    if test -r ${i}/sys/file_internal.h	# {
-	    then
-	      grep -q DTYPE_KQUEUE ${i}/sys/file_internal.h
-	      if test $? -eq 0	# {
-	      then
-	        LSOF_CFGF="$LSOF_CFGF -DHASKQUEUE"
-	      fi	# }
-	      break
-	    fi	# }
-	  else
-	    if test $LSOF_VERS -ge 700	# {
-	    then
-	      if test -r ${i}/sys/file.h	# {
-	      then
-	        grep -q DTYPE_KQUEUE ${i}/sys/file.h
-	        if test $? -eq 0	# {
-	        then
-	          LSOF_CFGF="$LSOF_CFGF -DHASKQUEUE"
-	        fi	# }
-	      fi	# }
-	      break
-	    fi	# }
-	  fi	# }
-	fi	# }
-      done	# }
-      LSOF_CFGF="$LSOF_CFGF -DHAS9660FS"
     fi	# }
     LSOF_CFGF="$LSOF_CFGF -DDARWINV=$LSOF_VERS"
     LSOF_CFLAGS_OVERRIDE=1
