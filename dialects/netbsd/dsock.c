@@ -1,5 +1,5 @@
 /*
- * dsock.c - NetBSD and OpenBSD socket processing functions for lsof
+ * dsock.c - NetBSD socket processing functions for lsof
  */
 
 
@@ -296,7 +296,7 @@ process_socket(sa)
 #endif
 		}
 
-#if	defined(HASIPv6) && (defined(OPENBSDV) || defined(HASINRIAIPv6))
+#if	defined(HASIPv6) && defined(HASINRIAIPv6)
 		else {
 		    la = (unsigned char *)&inp.inp_laddr6;
 		    if (!IN6_IS_ADDR_UNSPECIFIED(&inp.inp_faddr6)
@@ -306,7 +306,7 @@ process_socket(sa)
 			fp = (int)ntohs(inp.inp_fport);
 		    }
 		}
-#endif	/* defined(HASIPv6) && (defined(OPENBSDV) || defined(HASINRIAIPv6)) */
+#endif	/* defined(HASIPv6) && defined(HASINRIAIPv6) */
 
 	    }
 
@@ -340,11 +340,7 @@ process_socket(sa)
 		Lf->lts.state.i = (int)t.t_state;
 
 #if	defined(HASTCPOPT)
-# if	defined(OPENBSDV)
-		Lf->lts.mss = (unsigned long)t.t_maxseg;
-# else	/* !defined(OPENSDV) */
 		Lf->lts.mss = (unsigned long)t.t_ourmss;
-# endif	/* defined(OPENSDV) */
 
 		Lf->lts.msss = (unsigned char)1;
 		Lf->lts.topt = (unsigned int)t.t_flags;

@@ -1,5 +1,5 @@
 /*
- * dnode.c - NetBSD and OpenBSD node functions for lsof
+ * dnode.c - NetBSD node functions for lsof
  */
 
 
@@ -86,14 +86,8 @@ getmemsz(pid)
 		if (!p->P_VMSPACE
 		||  kread((KA_T)p->P_VMSPACE, (char *)&vm, sizeof(vm)))
 		    return;
-# if	defined(OPENBSDV)
-		Lf->sz = (SZOFFTYPE)((vm.vm_tsize + vm.vm_dsize
-		       + vm.vm_ssize) * sysconf(_SC_PAGESIZE));
-# else	/* !defined(OPENBSDV */
 		Lf->sz = (SZOFFTYPE)ctob(vm.vm_tsize + vm.vm_dsize
 						     + vm.vm_ssize);
-# endif	/* defined(OPENBSDV) */
-
 		Lf->sz_def = 1;
 		return;
 	    }
@@ -163,20 +157,8 @@ process_kqueue(ka)
 	KA_T ka;			/* kqueue file structure address */
 {
 
-# if	defined(OPENBSDV)
-	struct kqueue kq;		/* kqueue structure */
-# endif	/* defined(OPENBSDV) */
-
 	(void) snpf(Lf->type, sizeof(Lf->type), "KQUEUE");
 	enter_dev_ch(print_kptr(ka, (char *)NULL, 0));
-
-# if	defined(OPENBSDV)
-	if (!ka || kread(ka, (char *)&kq, sizeof(kq)))
-	    return;
-	(void) snpf(Namech, Namechl, "count=%d, state=%#x", kq.kq_count,
-	    kq.kq_state);
-	enter_nm(Namech);
-# endif	/* defined(OPENBSDV) */
 
 }
 #endif	/* defined(HASKQUEUE) */

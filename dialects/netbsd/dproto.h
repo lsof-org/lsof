@@ -1,5 +1,5 @@
 /*
- * dproto.h - NetBSD and OpenBSD function prototypes for lsof
+ * dproto.h - NetBSD function prototypes for lsof
  *
  * The _PROTOTYPE macro is defined in the common proto.h.
  */

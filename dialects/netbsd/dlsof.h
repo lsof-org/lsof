@@ -1,5 +1,5 @@
 /*
- * dlsof.h - NetBSD and OpenBSD header file for lsof
+ * dlsof.h - NetBSD header file for lsof
  */
 
 
@@ -61,12 +61,11 @@
 #include <sys/lwp.h>
 # endif	/* defined(HAS_LWP_H) */
 
-# if	(defined(OPENBSDV) && OPENBSDV>=3030) \
-  ||	(defined(NETBSDV) && __NetBSD_Version__>=106060000)
+# if	defined(NETBSDV) && __NetBSD_Version__>=106060000
 
-#  if	defined(OPENBSDV) ||  __NetBSD_Version__<399001100
+#  if	__NetBSD_Version__<399001100
 #define	_KERNEL
-#  endif	/* defined(OPENBSDV) ||  __NetBSD_Version__<399001100 */
+#  endif	/* __NetBSD_Version__<399001100 */
 
 #  if	defined(NETBSDV) && __NetBSD_Version__<399001100
 struct buf;	/* dummy for function prototype in <sys/buf.h> */
@@ -74,29 +73,24 @@ struct uio;	/* dummy for function prototype in <sys/buf.h> */
 #  endif	/* defined(NETBSDV && __NetBSD_Version__<399001100) */
 
 #include <sys/ucred.h>
-# endif	/* (defined(OPENBSDV) && OPENBSDV>=3030)
-	   || (defined(NETBSDV) && __NetBSD_Version__>=106060000) */
+# endif	/* defined(NETBSDV) && __NetBSD_Version__>=106060000 */
 
 # if	defined(NETBSDV) && __NetBSD_Version__<399001100
 #include <sys/buf.h>
 # endif	/* defined(NETBSDV) && __NetBSD_Version__<399001100 */
 
-# if	(defined(OPENBSDV) && OPENBSDV>=3030) \
-  ||	(defined(NETBSDV) && __NetBSD_Version__>=106060000 \
-  &&	__NetBSD_Version__<399001100)
+# if	defined(NETBSDV) && __NetBSD_Version__>=106060000 \
+  &&	__NetBSD_Version__<399001100
 #undef	_KERNEL
-# endif	/* (defined(OPENBSDV) && OPENBSDV>=3030) \
-	   || (defined(NETBSDV) && __NetBSD_Version__>=106060000 \
-	   &&  __NetBSD_Version__<399001100) */
+# endif	/* defined(NETBSDV) && __NetBSD_Version__>=106060000 \
+	   &&  __NetBSD_Version__<399001100 */
 
 #define	NFS
 #define m_stat	mnt_stat
 
-# if	(defined(OPENBSDV) && OPENBSDV>=3030) \
-  ||	(defined(NETBSDV) && __NetBSD_Version__>=106060000)
+# if	defined(NETBSDV) && __NetBSD_Version__>=106060000
 #define	_KERNEL
-# endif	/* (defined(OPENBSDV) && OPENBSDV<3030)
-	   || (defined(NETBSDV) && __NetBSD_Version__>=106060000) */
+# endif	/* defined(NETBSDV) && __NetBSD_Version__>=106060000 */
 
 # if	defined(NETBSDV) && NETBSDV>=1003000
 #define	sockproto	NETBSD_sockproto
@@ -104,11 +98,9 @@ struct uio;	/* dummy for function prototype in <sys/buf.h> */
 
 #include <sys/mount.h>
 
-# if	(defined(OPENBSDV) && OPENBSDV>=3030) \
-  ||	(defined(NETBSDV) && __NetBSD_Version__>=106060000)
+# if	defined(NETBSDV) && __NetBSD_Version__>=106060000
 #undef	_KERNEL
-# endif	/* (defined(OPENBSDV) && OPENBSDV>=3030)
-	   || (defined(NETBSDV) && __NetBSD_Version__>=106060000) */
+# endif	/* defined(NETBSDV) && __NetBSD_Version__>=106060000 */
 
 #include <rpc/types.h>
 #include <sys/protosw.h>
@@ -124,8 +116,7 @@ struct uio;	/* dummy for function prototype in <sys/buf.h> */
 #include <fs/msdosfs/fat.h>
 #  endif	/* HASMSDOSFS==1 */
 
-#  if	(defined(OPENBSDV) && OPENBSDV<3030) \
-   ||	(defined(NETBSDV) && __NetBSD_Version__<106060000)
+#  if	defined(NETBSDV) && __NetBSD_Version__<106060000
 /*
  * The netcred and netexport structures may be needed in the msdosfsmount
  * structure, defined in <msdosfs/msdosfsmount.h>.  So as a terrible hack,
@@ -146,8 +137,7 @@ struct uio;	/* dummy for function prototype in <sys/buf.h> */
  */
 
 #include "netexport.h"
-#  endif	/* (defined(OPENBSDV) && OPENBSDV<3030)
-		   || (defined(NETBSDV) && __NetBSD_Version__<106060000) */
+#  endif	/* defined(NETBSDV) && __NetBSD_Version__<106060000 */
 
 #define	_KERNEL
 #ifndef	VFS_PROTOS
@@ -184,25 +174,6 @@ struct nameidata;	/* to satisfy a function prototype in msdosfsmount.h */
 #include <netinet/tcp_fsm.h>
 #include <netinet/tcp_timer.h>
 #include <netinet/tcp_var.h>
-
-# if	defined(OPENBSDV)
-#  if	!defined(TF_ECN_PERMIT)
-#define	TF_ECN_PERMIT	0x00008000	/* other side said I could ECN */
-#  endif	/* !defined(TF_ECN_PERMIT) */
-
-#  if	!defined(TF_RCVD_CE)
-#define	TF_RCVD_CE	0x00010000	/* send ECE in subsequent segs */
-#  endif	/* !defined(TF_RCVD_CE) */
-
-#  if	!defined(TF_SEND_CWR)
-#define	TF_SEND_CWR	0x00020000	/* send CWR in next seg */
-#  endif	/* !defined(TF_SEND_CWR) */
-
-#  if	!defined(TF_DISABLE_ECN)
-#define	TF_DISABLE_ECN	0x00040000	/* disable ECN for this connection */
-#  endif	/* !defined(TF_DISABLE_ECN) */
-
-# endif	/* defined(OPENBSDV) */
 
 #include <sys/ucred.h>
 
@@ -426,9 +397,6 @@ struct vop_advlock_args;
 
 # if	defined(DTYPE_KQUEUE)
 #define	HASKQUEUE				/* has the kqueue file type */
-#  if	defined(OPENBSDV)
-#include <sys/eventvar.h>
-#  endif	/* defined(OPENBSDV) */
 # endif	/* defined(DTYPE_KQUEUE) */
 
 #include <sys/lockf.h>
@@ -436,10 +404,6 @@ struct vop_advlock_args;
 #undef	_KERNEL
 
 # if	defined(UVM)
-#  if	defined(OPENBSDV)
-#define	_UVM_UVM_FAULT_I_H_	1		/* avoid OpenBSD's
-						/* <uvm/uvm_fault_i.h */
-#  endif	/* defined(OPENBSDV) */
 #define	FALSE	0
 #define	TRUE	1
 #include <uvm/uvm.h>
@@ -458,15 +422,6 @@ struct vop_advlock_args;
 # endif	/* defined(HAS_UVM_INCL) */
 
 # if	defined(HAS_SYS_PIPEH)
-#  if	OPENBSDV==2030 && defined(__sparc__)
-#   if	defined(nbpg)
-#undef	nbpg
-#   endif	/* defined(nbpg) */
-#define	nbpg	4096		/* WARNING!!!  This should be 8192 for sun4,
-				 * but there's not much chance this value will
-				 * ever be used by any lsof code.  (See the
-				 * use of PIPE_NODIRECT in <sys/pipe.h>. */
-#  endif	/* OPENBSDV==2030 && defined(__sparc__) */
 #include <sys/pipe.h>
 #endif	/* defined(HAS_SYS_PIPEH) */
 
@@ -579,9 +534,9 @@ struct sfile {
  */
 
 # if     defined(HASNCACHE)
-#  if	(defined(OPENBSDV) && OPENBSDV>=2010) || (defined(NETBSDV) && NETBSDV>=1002000)
+#  if	defined(NETBSDV) && NETBSDV>=1002000
 #include <stddef.h>
-#endif	/* (defined(OPENBSDV) && OPENBSDV>=2010) || (defined(NETBSDV) && NETBSDV>=1002000) */
+#endif	/* defined(NETBSDV) && NETBSDV>=1002000 */
 
 #include <sys/uio.h>
 #include <sys/namei.h>
@@ -591,15 +546,15 @@ struct sfile {
 #define	NCACHE_NODEADDR	nc_vp		/* node address in NCACHE */
 #define	NCACHE_PARADDR	nc_dvp		/* parent node address in NCACHE */
 
-#  if	(defined(OPENBSDV) && OPENBSDV>=2010) || (defined(NETBSDV) && NETBSDV>=1002000 && __NetBSD_Version__ < 999005400)
+#  if	defined(NETBSDV) && NETBSDV>=1002000 && __NetBSD_Version__ < 999005400
 #define	NCACHE_NXT	nc_hash.le_next	/* link in NCACHE */
-#  else	/* (defined(OPENBSDV) && OPENBSDV>=2010) || (defined(NETBSDV) && NETBSDV>=1002000) */
+#  else	/* defined(NETBSDV) && NETBSDV>=1002000 */
 #   if	defined(NetBSD1_0) && NetBSD<1994101
 #define	NCACHE_NXT	nc_nxt		/* link in NCACHE */
 #   else	/* !defined(NetBSD1_0) || NetBSD>=1994101 */
 #define	NCACHE_NXT	nc_lru.tqe_next	/* link in NCACHE */
 #   endif	/* defined(NetBSD1_0) && NetBSD<1994101 */
-#  endif	/* (defined(OPENBSDV) && OPENBSDV>=2010) || (defined(NETBSDV) && NETBSDV>=1002000) */
+#  endif	/* defined(NETBSDV) && NETBSDV>=1002000 */
 
 #  if	defined(HASNCVPID)
 #define	NCACHE_PARID	nc_dvpid	/* parent node ID in NCACHE */

@@ -1,5 +1,5 @@
 /*
- * dnode1.c - NetBSD and OpenBSD node functions for lsof
+ * dnode1.c - NetBSD node functions for lsof
  *
  * This module must be separate to keep separate the multiple kernel inode
  * structure definitions.

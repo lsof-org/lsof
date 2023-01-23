@@ -1,5 +1,5 @@
 /*
- * machine.h - NetBSD and OpenBSD definitions for lsof
+ * machine.h - NetBSD definitions for lsof
  */
 
 
@@ -584,13 +584,13 @@
 /* #define	USE_LIB_READMNT			1	   rmnt.c */
 /* #define	USE_LIB_REGEX			1	   regex.c */
 
-# if (defined(NETBSDV) && NETBSDV>=9099000)
+# if	defined(NETBSDV) && NETBSDV>=9099000
 #define	USE_LIB_RNMT				1	/* rnmt.c */
-# elif	(defined(OPENBSDV) && OPENBSDV>=2010) || (defined(NETBSDV) && NETBSDV>=1002000)
+# elif	defined(NETBSDV) && NETBSDV>=1002000
 #define	USE_LIB_RNMH				1	/* rnmh.c */
-# else	/* (defined(OPENBSDV) && OPENBSDV<2010) && (defined(NETBSDV) && NETBSDV<1002000) */
+# else	/* defined(NETBSDV) && NETBSDV<1002000 */
 #define	USE_LIB_RNAM				1	/* rnam.c */
-# endif	/* (defined(OPENBSDV) && OPENBSDV>=2010) || (defined(NETBSDV) && NETBSDV>=1002000) */
+# endif	/* defined(NETBSDV) && NETBSDV>=1002000 */
 
 /* #define	USE_LIB_RNCH			1	   rnch.c */
 /* #define	USE_LIB_SNPF			1	   snpf.c */

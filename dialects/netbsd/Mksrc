@@ -1,6 +1,6 @@
 #!/bin/sh
 #
-# Mksrc - make NetBSD and OpenBSD source files
+# Mksrc - make NetBSD source files
 #
 # WARNING: This script assumes it is running from the main directory
 #	   of the lsof, version 4 distribution.

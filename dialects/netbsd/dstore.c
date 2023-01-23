@@ -1,5 +1,5 @@
 /*
- * dstore.c - NetBSD and OpenBSD global storage for lsof
+ * dstore.c - NetBSD and global storage for lsof
  */
 
 
@@ -50,10 +50,10 @@ struct drive_Nl Drive_Nl[] = {
 #if (defined(NETBSDV) && NETBSDV>=9099000)
 	{ "rootvnode",	"rootvnode",	},
 #endif
-#if	(defined(OPENBSDV) && OPENBSDV>=2010) || (defined(NETBSDV) && NETBSDV>=1002000)
+#if	defined(NETBSDV) && NETBSDV>=1002000
 	{ X_NCACHE,	"_nchashtbl",	},
 	{ X_NCSIZE,	"_nchash"	},
-#else	/* (defined(OPENBSDV) && OPENBSDV>=2010) || (defined(NETBSDV) && NETBSDV>=1002000) */
+#else	/* defined(NETBSDV) && NETBSDV>=1002000 */
 # if	defined(NetBSD1_0) && NetBSD<1994101
 	{ X_NCACHE,	"_nchhead",	},
 # else	/* !defined(NetBSD1_0) || NetBSD>=1994101 */
@@ -61,7 +61,7 @@ struct drive_Nl Drive_Nl[] = {
 # endif	/* defined(NetBSD1_0) && NetBSD<1994101 */
 
 	{ X_NCSIZE,	"_numcache"	},
-#endif	/* (defined(OPENBSDV) && OPENBSDV>=2010) || (defined(NETBSDV) && NETBSDV>=1002000) */
+#endif	/* defined(NETBSDV) && NETBSDV>=1002000 */
 
 	{ "pgshift",	"_pgshift"	},
 	{ "",		""		},

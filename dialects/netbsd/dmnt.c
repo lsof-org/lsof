@@ -1,5 +1,5 @@
 /*
- * dmnt.c - NetBSD and OpenBSD mount support functions for lsof
+ * dmnt.c - NetBSD mount support functions for lsof
  */
 
 

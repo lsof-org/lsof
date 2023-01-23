@@ -1,5 +1,5 @@
 /*
- * dproc.c - NetBSD and OpenBSD process access functions for lsof
+ * dproc.c - NetBSD process access functions for lsof
  */
 
 
@@ -294,19 +294,6 @@ gather_proc_info()
 		    link_lfile();
 	    }
 
-#if	defined(OPENBSDV) && OPENBSDV>=3020
-	/*
-	 * Save trace node information.
-	 */
-	    if (p->P_TRACEP) {
-		alloc_lfile("tr", -1);
-		Cfp = (struct file *)NULL;
-		process_node((KA_T)p->P_TRACEP);
-		if (Lf->sf)
-		    link_lfile();
-	    }
-#endif	/* defined(OPENBSDV) && OPENBSDV>=3020 */
-
 	/*
 	 * Save information on the text file.
 	 */
@@ -406,15 +393,7 @@ get_kernel_access()
  * Check kernel version.
  */
 	(void) ckkv(
-
-#if	defined(NETBSDV)
 		    "NetBSD",
-#else	/* !defined(NETBSDV) */
-# if	defined(OPENBSDV)
-		    "OpenBSD",
-# endif	/* defined(OPENBSDV) */
-#endif	/* defined(NETBSDV) */
-
 		    LSOF_VSTR, (char *)NULL, (char *)NULL);
 /*
  * Set name list file path.
