@@ -31,7 +31,7 @@
 
 #ifndef lint
 static char copyright[] =
-"@(#) Copyright 1994 Purdue Research Foundation.\nAll rights reserved.\n";
+    "@(#) Copyright 1994 Purdue Research Foundation.\nAll rights reserved.\n";
 #endif
 
 #include "lsof.h"
@@ -47,6 +47,7 @@ process_socket(struct kinfo_file *file)
 	char *type = NULL;
 	char buf[64];
 	int flag;
+	uint32_t lport, fport;
 
 	/* Alloc Lf and set fd */
 	alloc_lfile(NULL, file->fd_fd);
@@ -54,17 +55,17 @@ process_socket(struct kinfo_file *file)
 	/* Type name */
 	switch (file->so_family) {
 	case AF_INET:
-	     type_name = "IPv4";
-	     break;
+	    type_name = "IPv4";
+	    break;
 	case AF_INET6:
-	     type_name = "IPv6";
-	     break;
+	    type_name = "IPv6";
+	    break;
 	case AF_UNIX:
-	     type_name = "unix";
-	     break;
+	    type_name = "unix";
+	    break;
 	case AF_ROUTE:
-	     type_name = "rte";
-	     break;
+	    type_name = "rte";
+	    break;
 	}
 	if (type_name)
 	    (void) snpf(Lf->type, sizeof(Lf->type), "%s", type_name);
@@ -116,12 +117,14 @@ process_socket(struct kinfo_file *file)
 	    }
 
 	    /* Fill internet address info */
+	    lport = ntohs(file->inp_lport);
+	    fport = ntohs(file->inp_fport);
 	    if (file->inp_fport) {
-	        ent_inaddr((unsigned char *)file->inp_laddru, file->inp_lport,
-	            (unsigned char *)file->inp_faddru, file->inp_fport, file->so_family);
+	        ent_inaddr((unsigned char *)file->inp_laddru, lport,
+	            (unsigned char *)file->inp_faddru, fport, file->so_family);
 	    } else {
 		/* No foreign address on LISTEN sockets */
-	        ent_inaddr((unsigned char *)file->inp_laddru, file->inp_lport,
+	        ent_inaddr((unsigned char *)file->inp_laddru, lport,
 	            NULL, 0, file->so_family);
 	    }
 
@@ -134,6 +137,9 @@ process_socket(struct kinfo_file *file)
 	    /* Fill dev with pcb if available */
 	    if (file->inp_ppcb) {
 	        (void) snpf(buf, sizeof(buf), "0x%llx", file->inp_ppcb);
+	        enter_dev_ch(buf);
+	    } else if (file->so_pcb) {
+	        (void) snpf(buf, sizeof(buf), "0x%llx", file->so_pcb);
 	        enter_dev_ch(buf);
 	    }
 	} else if (file->so_family == AF_UNIX) {
@@ -186,5 +192,5 @@ process_socket(struct kinfo_file *file)
 
 	/* Finish */
 	if (Lf->sf)
-		link_lfile();
+	    link_lfile();
 }
