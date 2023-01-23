@@ -34,428 +34,157 @@ static char copyright[] =
 "@(#) Copyright 1994 Purdue Research Foundation.\nAll rights reserved.\n";
 #endif
 
-
 #include "lsof.h"
-
-
-#if	defined(HASIPv6)
-
-/*
- * IPv6_2_IPv4()  -- macro to define the address of an IPv4 address contained
- *		     in an IPv6 address
- */
-
-#define IPv6_2_IPv4(v6)	(((uint8_t *)((struct in6_addr *)v6)->s6_addr)+12)
-#endif	/* defined(HASIPv6) */
-
 
 /*
  * process_socket() - process socket
  */
-
 void
-process_socket(sa)
-	KA_T sa;			/* socket address in kernel */
+process_socket(struct kinfo_file *file)
 {
-#if     NETBSDV >= 9099104
-# define NETBSD_MERGED_INPCB
-#endif
-	struct domain d;
-	unsigned char *fa = (unsigned char *)NULL;
-	int fam;
-	int fp, lp;
-#ifdef  NETBSD_MERGED_INPCB
-	struct in4pcb inp;
-#else
-	struct inpcb inp;
-#endif
-	unsigned char *la = (unsigned char *)NULL;
-	struct protosw p;
-	struct socket s;
-	struct tcpcb t;
-	KA_T ta = (KA_T)NULL;
-	struct unpcb uc, unp;
-	struct sockaddr_un *ua = NULL;
-	struct sockaddr_un un;
+	char *type_name = NULL;
+	char *proto = NULL;
+	char *type = NULL;
+	char buf[64];
+	int flag;
 
-#if	defined(HASIPv6) && defined(NETBSDV) && !defined(HASINRIAIPv6)
-#ifdef  NETBSD_MERGED_INPCB
-# define in6p_ppcb in6p_pcb.inp_ppcb
-#endif
-	struct in6pcb in6p;
-#endif	/* defined(HASIPv6) && defined(NETBSDV) && !defined(HASINRIAIPv6) */
+	/* Alloc Lf and set fd */
+	alloc_lfile(NULL, file->fd_fd);
 
-#define	UNPADDR_IN_MBUF
-
-#if	defined(NETBSDV)
-# if	NETBSDV>=1004000
-#undef	UNPADDR_IN_MBUF
-# endif	/* NETBSDV>=1004000 */
-#endif	/* defined(NETBSDV) */
-
-#if	defined(UNPADDR_IN_MBUF)
-	struct mbuf mb;
-#endif	/* defined(UNPADDR_IN_MBUF) */
-
-	(void) snpf(Lf->type, sizeof(Lf->type), "sock");
-	Lf->inp_ty = 2;
-/*
- * Read the socket, protocol, and domain structures.
- */
-	if (!sa) {
-	    enter_nm("no socket address");
-	    return;
-	}
-	if (kread(sa, (char *) &s, sizeof(s))) {
-	    (void) snpf(Namech, Namechl, "can't read socket struct from %s",
-		print_kptr(sa, (char *)NULL, 0));
-	    enter_nm(Namech);
-	    return;
-	}
-	if (!s.so_type) {
-	    enter_nm("no socket type");
-	    return;
-	}
-	if (!s.so_proto
-	||  kread((KA_T)s.so_proto, (char *)&p, sizeof(p))) {
-	    (void) snpf(Namech, Namechl, "can't read protocol switch from %s",
-		print_kptr((KA_T)s.so_proto, (char *)NULL, 0));
-	    enter_nm(Namech);
-	    return;
-	}
-	if (!p.pr_domain
-	||  kread((KA_T)p.pr_domain, (char *)&d, sizeof(d))) {
-	    (void) snpf(Namech, Namechl, "can't read domain struct from %s",
-		print_kptr((KA_T)p.pr_domain, (char *)NULL, 0));
-	    enter_nm(Namech);
-	    return;
-	}
-/*
- * Save size information.
- */
-	if (Fsize) {
-	    if (Lf->access == 'r')
-		Lf->sz = (SZOFFTYPE)s.so_rcv.sb_cc;
-	    else if (Lf->access == 'w')
-		Lf->sz = (SZOFFTYPE)s.so_snd.sb_cc;
-	    else
-		Lf->sz = (SZOFFTYPE)(s.so_rcv.sb_cc + s.so_snd.sb_cc);
-	    Lf->sz_def = 1;
-	} else
-	    Lf->off_def = 1;
-
-#if	defined(HASTCPTPIQ)
-	Lf->lts.rq = s.so_rcv.sb_cc;
-	Lf->lts.sq = s.so_snd.sb_cc;
-	Lf->lts.rqs = Lf->lts.sqs = 1;
-#endif	/* defined(HASTCPTPIQ) */
-
-#if	defined(HASSOOPT)
-	Lf->lts.ltm = (unsigned int)s.so_linger;
-	Lf->lts.opt = (unsigned int)s.so_options;
-	Lf->lts.pqlen = (unsigned int)s.so_q0len;
-	Lf->lts.qlen = (unsigned int)s.so_qlen;
-	Lf->lts.qlim = (unsigned int)s.so_qlimit;
-	Lf->lts.rbsz = (unsigned long)s.so_rcv.sb_mbmax;
-	Lf->lts.sbsz = (unsigned long)s.so_snd.sb_mbmax;
-	Lf->lts.pqlens = Lf->lts.qlens = Lf->lts.qlims = Lf->lts.rbszs
-		       = Lf->lts.sbszs = (unsigned char)1;
-#endif	/* defined(HASSOOPT) */
-
-#if	defined(HASSOSTATE)
-	Lf->lts.ss = (unsigned int)s.so_state;
-#endif	/* defined(HASSOSTATE) */
-
-/*
- * Process socket by the associated domain family.
- */
-	switch ((fam = d.dom_family)) {
-/*
- * Process an Internet domain socket.
- */
+	/* Type name */
+	switch (file->so_family) {
 	case AF_INET:
-
-#if	defined(HASIPv6)
+	     type_name = "IPv4";
+	     break;
 	case AF_INET6:
-#endif	/* defined(HASIPv6) */
-
-	    if (Fnet) {
-		if (!FnetTy
-		||  ((FnetTy == 4) && (fam == AF_INET))
-
-#if	defined(HASIPv6)
-		||  ((FnetTy == 6) && (fam == AF_INET6))
-#endif	/* defined(HASIPv6) */
-		)
-
-		    Lf->sf |= SELNET;
-	    }
-	    printiproto(p.pr_protocol);
-
-#if	defined(HASIPv6)
-	    (void) snpf(Lf->type, sizeof(Lf->type),
-		(fam == AF_INET) ? "IPv4" : "IPv6");
-#else	/* !defined(HASIPv6) */
-	    (void) snpf(Lf->type, sizeof(Lf->type), "inet");
-#endif	/* defined(HASIPv6) */
-
-#if	defined(HASIPv6) && defined(NETBSDV) && !defined(HASINRIAIPv6)
-	    if (fam == AF_INET6) {
-
-	    /*
-	     * Read IPv6 protocol control block.
-	     */
-		if (!s.so_pcb
-		||  kread((KA_T)s.so_pcb, (char *)&in6p, sizeof(in6p))) {
-		    (void) snpf(Namech, Namechl, "can't read in6pcb at %s",
-			print_kptr((KA_T)s.so_pcb, (char *)NULL, 0));
-		    enter_nm(Namech);
-		    return;
-		}
-	    /*
-	     * Save IPv6 address information.
-	     */
-		enter_dev_ch(print_kptr((KA_T)(in6p.in6p_ppcb ? in6p.in6p_ppcb
-							      : s.so_pcb),
-					       (char *)NULL, 0));
-		if (p.pr_protocol == IPPROTO_TCP)
-		    ta = (KA_T)in6p.in6p_ppcb;
-#ifdef NETBSD_MERGED_INPCB
-	        la = (unsigned char *)&in6p_laddr(&in6p);
-	        lp = (int)ntohs(in6p.in6p_pcb.inp_lport);
-		if (!IN6_IS_ADDR_UNSPECIFIED(&in6p_faddr(&in6p))
-		||  (in6p.in6p_pcb.inp_fport))
-		{
-		    fa = (unsigned char *)&in6p_faddr(&in6p);
-		    fp = (int)ntohs(in6p.in6p_pcb.inp_fport);
-		}
-#else
-	        la = (unsigned char *)&in6p.in6p_laddr;
-	        lp = (int)ntohs(in6p.in6p_lport);
-		if (!IN6_IS_ADDR_UNSPECIFIED(&in6p.in6p_faddr)
-		||  in6p.in6p_fport)
-		{
-		    fa = (unsigned char *)&in6p.in6p_faddr;
-		    fp = (int)ntohs(in6p.in6p_fport);
-		}
-#endif
-	    } else
-#endif	/* defined(HASIPv6) && defined(NETBSDV) && !defined(HASINRIAIPv6) */
-
-	    {
-
-	    /*
-	     * Read IPv4 or IPv6 (NetBSD) protocol control block.
-	     */
-		if (!s.so_pcb
-		||  kread((KA_T)s.so_pcb, (char *)&inp, sizeof(inp))) {
-		    if (!s.so_pcb) {
-			(void) snpf(Namech, Namechl, "no PCB%s%s",
-			    (s.so_state & SS_CANTSENDMORE) ? ", CANTSENDMORE"
-							   : "",
-			    (s.so_state & SS_CANTRCVMORE) ? ", CANTRCVMORE"
-							  : "");
-		    } else {
-			(void) snpf(Namech, Namechl, "can't read inpcb at %s",
-			    print_kptr((KA_T)s.so_pcb, (char *)NULL, 0));
-		    }
-		    enter_nm(Namech);
-		    return;
-		}
-#ifdef  NETBSD_MERGED_INPCB
-#define inp_ppcb in4p_pcb.inp_ppcb
-#define inp_lport in4p_pcb.inp_lport
-#endif
-		enter_dev_ch(print_kptr((KA_T)(inp.inp_ppcb ? inp.inp_ppcb
-							    : s.so_pcb),
-					       (char *)NULL, 0));
-		if (p.pr_protocol == IPPROTO_TCP)
-		    ta = (KA_T)inp.inp_ppcb;
-		lp = (int)ntohs(inp.inp_lport);
-#ifdef  NETBSD_MERGED_INPCB
-#undef inp_ppcb
-#undef inp_lport
-#endif
-		if (fam == AF_INET) {
-
-		/*
-		 * Save IPv4 address information.
-		 */
-#ifdef NETBSD_MERGED_INPCB
-		    la = (unsigned char *)&in4p_laddr(&inp);
-		    if (in4p_faddr(&inp).s_addr != INADDR_ANY || inp.in4p_pcb.inp_fport) {
-			fa = (unsigned char *)&in4p_faddr(&inp);
-			fp = (int)ntohs(inp.in4p_pcb.inp_fport);
-		    }
-#else
-		    la = (unsigned char *)&inp.inp_laddr;
-		    if (inp.inp_faddr.s_addr != INADDR_ANY || inp.inp_fport) {
-			fa = (unsigned char *)&inp.inp_faddr;
-			fp = (int)ntohs(inp.inp_fport);
-		    }
-#endif
-		}
-
-#if	defined(HASIPv6) && (defined(OPENBSDV) || defined(HASINRIAIPv6))
-		else {
-		    la = (unsigned char *)&inp.inp_laddr6;
-		    if (!IN6_IS_ADDR_UNSPECIFIED(&inp.inp_faddr6)
-		    ||  inp.inp_fport)
-		    {
-			fa = (unsigned char *)&inp.inp_faddr6;
-			fp = (int)ntohs(inp.inp_fport);
-		    }
-		}
-#endif	/* defined(HASIPv6) && (defined(OPENBSDV) || defined(HASINRIAIPv6)) */
-
-	    }
-
-#if	defined(HASIPv6)
-	    if ((fam == AF_INET6)
-	    &&  ((la && IN6_IS_ADDR_V4MAPPED((struct in6_addr *)la))
-	    ||  ((fa && IN6_IS_ADDR_V4MAPPED((struct in6_addr *)fa))))) {
-
-	    /*
-	     * Adjust for IPv4 addresses mapped in IPv6 addresses.
-	     */
-		if (la)
-		    la = (unsigned char *)IPv6_2_IPv4(la);
-		if (fa)
-		    fa = (unsigned char *)IPv6_2_IPv4(fa);
-		fam = AF_INET;
-	    }
-#endif	/* defined(HASIPv6) */
-
-	/*
-	 * Enter local and remote addresses by address family.
-	 */
-	    if (fa || la)
-		(void) ent_inaddr(la, lp, fa, fp, fam);
-	/*
-	 * If the protocol is TCP, and its address is available, read the
-	 * TCP protocol control block and save its state.
-	 */
-	    if (ta && !kread(ta, (char *)&t, sizeof(t))) {
-		Lf->lts.type = 0;
-		Lf->lts.state.i = (int)t.t_state;
-
-#if	defined(HASTCPOPT)
-# if	defined(OPENBSDV)
-		Lf->lts.mss = (unsigned long)t.t_maxseg;
-# else	/* !defined(OPENSDV) */
-		Lf->lts.mss = (unsigned long)t.t_ourmss;
-# endif	/* defined(OPENSDV) */
-
-		Lf->lts.msss = (unsigned char)1;
-		Lf->lts.topt = (unsigned int)t.t_flags;
-#endif	/* defined(HASTCPOPT) */
-
-	    }
-	    break;
-/*
- * Process a ROUTE domain socket.
- */
-	case AF_ROUTE:
-	    (void) snpf(Lf->type, sizeof(Lf->type), "rte");
-	    if (s.so_pcb)
-		enter_dev_ch(print_kptr((KA_T)(s.so_pcb), (char *)NULL, 0));
-	    else
-		(void) snpf(Namech, Namechl, "no protocol control block");
-	    if (!Fsize)
-		Lf->off_def = 1;
-	    break;
-/*
- * Process a Unix domain socket.
- */
+	     type_name = "IPv6";
+	     break;
 	case AF_UNIX:
+	     type_name = "unix";
+	     break;
+	case AF_ROUTE:
+	     type_name = "rte";
+	     break;
+	}
+	if (type_name)
+	    (void) snpf(Lf->type, sizeof(Lf->type), "%s", type_name);
+
+	/*
+	 * Construct access code.
+	 */
+	if (file->fd_fd >= 0) {
+	    if ((flag = (file->f_flag & (FREAD | FWRITE))) == FREAD)
+	        Lf->access = 'r';
+	    else if (flag == FWRITE)
+	        Lf->access = 'w';
+	    else if (flag == (FREAD | FWRITE))
+	        Lf->access = 'u';
+	}
+
+	/* Fill iproto */
+	switch (file->so_type) {
+	case SOCK_STREAM:
+	    proto = "TCP";
+	    break;
+	case SOCK_DGRAM:
+	    proto = "UDP";
+	    break;
+	case SOCK_RAW:
+	    proto = "RAW";
+	    break;
+	}
+	if (proto) {
+	    (void) snpf(Lf->iproto, sizeof(Lf->iproto), "%s", proto);
+	    Lf->inp_ty = 2;
+	}
+
+	/* Fill offset, always zero */
+	Lf->off = 0;
+	Lf->off_def = 1;
+
+	if (file->so_family == AF_INET || file->so_family == AF_INET6) {
+	    /* Show this entry if -i */
+	    if (Fnet) {
+		/* Handle v4/v6 only */
+		if (FnetTy == 4 && file->so_family == AF_INET) {
+		    Lf->sf |= SELNET;
+		} else if (FnetTy == 6 && file->so_family == AF_INET6) {
+		    Lf->sf |= SELNET;
+		} else if (FnetTy == 0) {
+		    Lf->sf |= SELNET;
+		}
+	    }
+
+	    /* Fill internet address info */
+	    if (file->inp_fport) {
+	        ent_inaddr((unsigned char *)file->inp_laddru, file->inp_lport,
+	            (unsigned char *)file->inp_faddru, file->inp_fport, file->so_family);
+	    } else {
+		/* No foreign address on LISTEN sockets */
+	        ent_inaddr((unsigned char *)file->inp_laddru, file->inp_lport,
+	            NULL, 0, file->so_family);
+	    }
+
+	    /* Fill TCP state */
+	    if (file->so_type == SOCK_STREAM) {
+	        Lf->lts.type = 0;
+	        Lf->lts.state.i = file->t_state;
+	    }
+
+	    /* Fill dev with pcb if available */
+	    if (file->inp_ppcb) {
+	        (void) snpf(buf, sizeof(buf), "0x%llx", file->inp_ppcb);
+	        enter_dev_ch(buf);
+	    }
+	} else if (file->so_family == AF_UNIX) {
+	    /* Show this entry if requested */
+	    /* Via -U */
 	    if (Funix)
 		Lf->sf |= SELUNX;
-	    (void) snpf(Lf->type, sizeof(Lf->type), "unix");
-	/*
-	 * Read Unix protocol control block and the Unix address structure.
-	 */
-
-	    enter_dev_ch(print_kptr(sa, (char *)NULL, 0));
-	    if (kread((KA_T) s.so_pcb, (char *) &unp, sizeof(unp))) {
-		(void) snpf(Namech, Namechl, "can't read unpcb at %s",
-		    print_kptr((KA_T)s.so_pcb, (char *)NULL, 0));
-		break;
+	    /* Name matches */
+	    if (is_file_named(file->unp_path, 0)) {
+		Lf->sf |= SELNM;
 	    }
-	    if ((struct socket *)sa != unp.unp_socket) {
-		(void) snpf(Namech, Namechl, "unp_socket (%s) mismatch",
-		    print_kptr((KA_T)unp.unp_socket, (char *)NULL, 0));
-		break;
+
+	    /* Fill name */
+	    switch (file->so_type) {
+	    case SOCK_STREAM:
+	        type = "STREAM";
+	        break;
+	    case SOCK_DGRAM:
+	        type = "DGRAM";
+	        break;
+	    default:
+	        type = "UNKNOWN";
+	        break;
 	    }
-	    if (unp.unp_addr) {
 
-#if	defined(UNPADDR_IN_MBUF)
-		if (kread((KA_T)unp.unp_addr, (char *)&mb, sizeof(mb)))
-#else	/* !defined(UNPADDR_IN_MBUF) */
-		if (kread((KA_T)unp.unp_addr, (char *)&un, sizeof(un)))
-#endif	/* defined(UNPADDR_IN_MBUF) */
+	    (void) snpf(Namech, Namechl, "%s%stype=%s",
+		file->unp_path[0] ? file->unp_path : "",
+		file->unp_path[0] ? " " : "",
+		type);
+	    (void) enter_nm(Namech);
 
-		{
-		    (void) snpf(Namech, Namechl, "can't read unp_addr at %s",
-			print_kptr((KA_T)unp.unp_addr, (char *)NULL, 0));
-		    break;
-		}
-
-#if	defined(UNPADDR_IN_MBUF)
-		if (mb.m_hdr.mh_len == sizeof(struct sockaddr_un))
-		    ua = (struct sockaddr_un *) ((char *) &mb
-		       + (mb.m_hdr.mh_data - (caddr_t) unp.unp_addr));
-#else	/* !defined(UNPADDR_IN_MBUF) */
-		ua = &un;
-#endif	/* defined(UNPADDR_IN_MBUF) */
-
+	    /* Fill TCP state */
+	    if (file->so_type == SOCK_STREAM) {
+	        Lf->lts.type = 0;
+	        Lf->lts.state.i = file->t_state;
 	    }
-	    if (!ua) {
-		ua = &un;
-		(void) bzero((char *)ua, sizeof(un));
-		ua->sun_family = AF_UNSPEC;
-	    }
-	/*
-	 * Print information on Unix socket that has no address bound
-	 * to it, although it may be connected to another Unix domain
-	 * socket as a pipe.
-	 */
-	    if (ua->sun_family != AF_UNIX) {
-		if (ua->sun_family == AF_UNSPEC) {
-		    if (unp.unp_conn) {
-			if (kread((KA_T)unp.unp_conn, (char *)&uc, sizeof(uc)))
-			    (void) snpf(Namech, Namechl,
-				"can't read unp_conn at %s",
-				print_kptr((KA_T)unp.unp_conn,(char *)NULL,0));
-			else
-			    (void) snpf(Namech, Namechl, "->%s",
-				print_kptr((KA_T)uc.unp_socket,(char *)NULL,0));
-		    } else
-			(void) snpf(Namech, Namechl, "->(none)");
-		} else
-		    (void) snpf(Namech, Namechl, "unknown sun_family (%d)",
-			ua->sun_family);
-		break;
-	    }
-	    if (ua->sun_path[0]) {
 
-#if	defined(UNPADDR_IN_MBUF)
-		if (mb.m_len >= sizeof(struct sockaddr_un))
-		    mb.m_len = sizeof(struct sockaddr_un) - 1;
-		*((char *)ua + mb.m_len) = '\0';
-#else	/* !defined(UNPADDR_IN_MBUF) */
-		ua->sun_path[sizeof(ua->sun_path) - 1] = '\0';
-#endif	/* defined(UNPADDR_IN_MBUF) */
-
-		if (Sfile && is_file_named(ua->sun_path, 0))
-		    Lf->sf |= SELNM;
-		if (!Namech[0])
-		    (void) snpf(Namech, Namechl, "%s", ua->sun_path);
-	    } else
-		(void) snpf(Namech, Namechl, "no address");
-	    break;
-	default:
-	    printunkaf(fam, 1);
+	    /* Fill dev with so_pcb if available */
+	    if (file->so_pcb && file->so_pcb != (uint64_t)(-1)) {
+	        (void) snpf(buf, sizeof(buf), "0x%llx", file->so_pcb);
+	        enter_dev_ch(buf);
+	    }
+	} else if (file->so_family == AF_ROUTE) {
+	    /* Fill dev with f_data if available */
+	    if (file->f_data) {
+	        (void) snpf(buf, sizeof(buf), "0x%llx", file->f_data);
+	        enter_dev_ch(buf);
+	    }
 	}
-	if (Namech[0])
-	    enter_nm(Namech);
+
+	/* Finish */
+	if (Lf->sf)
+		link_lfile();
 }

@@ -13,8 +13,8 @@
 # $Id: Mksrc,v 1.5 99/04/15 06:40:37 abe Exp $
 
 
-D=dialects/n+obsd
-L="dlsof.h dmnt.c dnode.c dnode1.c dproc.c dproto.h dsock.c dstore.c machine.h"
+D=dialects/openbsd
+L="dfile.c dlsof.h dmnt.c dnode.c dproc.c dproto.h dsock.c dstore.c machine.h"
 
 for i in $L
 do

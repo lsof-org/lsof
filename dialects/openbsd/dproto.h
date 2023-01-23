@@ -1,5 +1,5 @@
 /*
- * dproto.h - NetBSD and OpenBSD function prototypes for lsof
+ * dproto.h - OpenBSD function prototypes for lsof
  *
  * The _PROTOTYPE macro is defined in the common proto.h.
  */
@@ -36,20 +36,9 @@
  * $Id: dproto.h,v 1.11 2005/08/08 19:53:24 abe Exp $
  */
 
-
-#if	!defined(N_UNIX)
-_PROTOTYPE(extern char *get_nlist_path,(int ap));
-#endif	/* !defined(N_UNIX) */
-
 _PROTOTYPE(extern int is_file_named,(char *p, int cd));
-_PROTOTYPE(extern struct l_vfs *readvfs,(KA_T vm));
 
-#if	defined(HAS_SYS_PIPE_H)
-_PROTOTYPE(extern void process_pipe,(KA_T pa));
-#endif	/* defined(HAS_SYS_PIPEH) */
-
-#if	defined(HAS9660FS)
-_PROTOTYPE(extern int read_iso_node,(struct vnode *v, dev_t *d, INODETYPE *ino, long *nl, SZOFFTYPE *sz));
-#endif	/* defined(HAS9660FS) */
-
-_PROTOTYPE(extern void process_socket,(KA_T sa));
+_PROTOTYPE(extern void process_vnode,(struct kinfo_file *file));
+_PROTOTYPE(extern void process_socket,(struct kinfo_file *file));
+_PROTOTYPE(extern void process_pipe,(struct kinfo_file *file));
+_PROTOTYPE(extern void process_kqueue_file,(struct kinfo_file *file));

@@ -1,5 +1,5 @@
 /*
- * dstore.c - NetBSD and OpenBSD global storage for lsof
+ * dstore.c - OpenBSD global storage for lsof
  */
 
 
@@ -38,48 +38,6 @@ static char copyright[] =
 #include "lsof.h"
 
 
-struct file *Cfp;		/* current file's file struct pointer */
-
-
-/*
- * Drive_Nl -- table to drive the building of Nl[] via build_Nl()
- *             (See lsof.h and misc.c.)
- */
-
-struct drive_Nl Drive_Nl[] = {
-#if (defined(NETBSDV) && NETBSDV>=9099000)
-	{ "rootvnode",	"rootvnode",	},
-#endif
-#if	(defined(OPENBSDV) && OPENBSDV>=2010) || (defined(NETBSDV) && NETBSDV>=1002000)
-	{ X_NCACHE,	"_nchashtbl",	},
-	{ X_NCSIZE,	"_nchash"	},
-#else	/* (defined(OPENBSDV) && OPENBSDV>=2010) || (defined(NETBSDV) && NETBSDV>=1002000) */
-# if	defined(NetBSD1_0) && NetBSD<1994101
-	{ X_NCACHE,	"_nchhead",	},
-# else	/* !defined(NetBSD1_0) || NetBSD>=1994101 */
-	{ X_NCACHE,	"_nclruhead"	},
-# endif	/* defined(NetBSD1_0) && NetBSD<1994101 */
-
-	{ X_NCSIZE,	"_numcache"	},
-#endif	/* (defined(OPENBSDV) && OPENBSDV>=2010) || (defined(NETBSDV) && NETBSDV>=1002000) */
-
-	{ "pgshift",	"_pgshift"	},
-	{ "",		""		},
-	{ NULL,		NULL		}
-};
-
-kvm_t *Kd;			/* kvm descriptor */
-KA_T Kpa;			/* kernel proc struct address */
-
-struct l_vfs *Lvfs = NULL;	/* local vfs structure table */
-
-int Np = 0;			/* number of kernel processes */
-
-#if	defined(HASKVMGETPROC2)
-struct kinfo_proc2 *P = NULL;	/* local process table copy */
-#else	/* !defined(HASKVMGETPROC2) */
-struct kinfo_proc *P = NULL;	/* local process table copy */
-#endif	/* defined(HASKVMGETPROC2) */
 
 #if	defined(HASFSTRUCT)
 /*
@@ -102,11 +60,19 @@ struct pff_tab Pff_tab[] = {
 
 # if	defined(FRSYNC)
 	{ (long)FRSYNC,		FF_RSYNC	},
-# endif	/* defined(FRSYNC( */
+# endif	/* defined(FRSYNC) */
 
+# if	defined(FMARK)
 	{ (long)FMARK,		FF_MARK		},
+# endif	/* defined(FMARK) */
+
+# if	defined(FDEFER)
 	{ (long)FDEFER,		FF_DEFER	},
+# endif	/* defined(FDEFER) */
+
+# if	defined(FHASLOCK)
 	{ (long)FHASLOCK,	FF_HASLOCK	},
+# endif	/* defined(FHASLOCK) */
 	{ (long)O_NOCTTY,	FF_NOCTTY	},
 	{ (long)0,		NULL 		}
 };

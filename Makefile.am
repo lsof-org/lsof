@@ -59,6 +59,18 @@ lsof_SOURCES += dialects/n+obsd/dmnt.c \
 		dialects/n+obsd/machine.h
 endif
 
+if OPENBSD
+lsof_SOURCES += dialects/openbsd/dfile.c \
+		dialects/openbsd/dmnt.c \
+		dialects/openbsd/dnode.c \
+		dialects/openbsd/dproc.c \
+		dialects/openbsd/dsock.c \
+		dialects/openbsd/dstore.c \
+		dialects/openbsd/dlsof.h \
+		dialects/openbsd/dproto.h \
+		dialects/openbsd/machine.h
+endif
+
 lsof_CPPFLAGS = -I$(DIALECT_PATH) -Iautotools
 lsof_CPPFLAGS += -DAUTOTOOLS
 

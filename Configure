@@ -3733,6 +3733,10 @@ LOCKF4
 	echo "!!!WARNING!!!  Unsupported OpenBSD 3.x version: $LSOF_VSTR"
 	echo "!!!WARNING!!!  Configuring for OpenBSD 3.9"
 	;;
+      7.2*)
+	LSOF_TSTBIGF=" "
+	LSOF_VERS=7020
+	;;
       *)
 	echo "Unknown OpenBSD release: $LSOF_VSTR"
 	echo Assuming OpenBSD 3.9
@@ -3744,7 +3748,7 @@ LOCKF4
     # Test for legal OpenBSD version.
 
     case $LSOF_VERS in	# {
-    1020|2050|2060|2070|2080|2090|3000|3010|3020|3030|3040|3050|3060|3070|3080|3090)
+    1020|2050|2060|2070|2080|2090|3000|3010|3020|3030|3040|3050|3060|3070|3080|3090|7020)
       ;;
     *)
       echo "Unknown OpenBSD version: $LSOF_VERS"
@@ -3753,7 +3757,8 @@ LOCKF4
       ;;
     esac	# }
     LSOF_CFGF="$LSOF_CFGF -DOPENBSDV=$LSOF_VERS"
-    if test -r /dev/ksyms	# {
+    LSOF_CFGF="$LSOF_CFGF -g -O0"
+    if test -e /dev/ksyms	# {
     then
       LSOF_CFGF="$LSOF_CFGF -DN_UNIXV=/dev/ksyms"
     else
@@ -3986,7 +3991,7 @@ LOCKF4
       LSOF_CFGF="$LSOF_CFGF -DHAS_SYS_PIPEH"
     fi	# }
     LSOF_CFGL="$LSOF_CFGL -lkvm"
-    LSOF_DIALECT_DIR=n+obsd
+    LSOF_DIALECT_DIR=openbsd
     ;;
 
 # Configure for SCO OpenServer.

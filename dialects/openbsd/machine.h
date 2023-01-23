@@ -1,5 +1,5 @@
 /*
- * machine.h - NetBSD and OpenBSD definitions for lsof
+ * machine.h - OpenBSD definitions for lsof
  */
 
 
@@ -46,9 +46,6 @@
 #include <sys/types.h>
 #include <sys/param.h>
 #include <stdbool.h>
-#if __NetBSD_Version__ >= 499006200
-#define HASCWDINFO
-#endif
 
 
 /*
@@ -186,7 +183,7 @@
  * use readinode() from node.c.
  */
 
-#define	HASINODE	1
+/* #define	HASINODE	1 */
 
 
 /*
@@ -210,7 +207,7 @@
  * reading the kernel's name list from an optional file.
  */
 
-#define	HASKOPT	1
+/* #define	HASKOPT	1 */
 
 
 /*
@@ -270,7 +267,7 @@
  * NCACHELDSFX is a set of C commands to execute after calling ncache_load().
  */
 
-#define	HASNCACHE	1
+/* #define	HASNCACHE	??? */
 /* #define	NCACHELDPFX	??? */
 /* #define	NCACHELDSFX	??? */
 
@@ -441,10 +438,6 @@
 
 #define	HASSETLOCALE	1
 
-# if	defined(NETBSDV) && NETBSDV>=1006000
-#define	HASWIDECHAR	1
-# endif	/* defined(NETBSDV) && NETBSDV>=1006000 */
-
 /* #define	WIDECHARINCL	<wchar.h>	*/
 
 
@@ -528,7 +521,7 @@
  * doesn't.
  */
 
-#define	HASVNODE	1
+/* #define	HASVNODE	1 */
 
 
 /*
@@ -578,19 +571,15 @@
 #define	USE_LIB_IS_FILE_NAMED			1	/* isfn.c */
 #define	USE_LIB_LKUPDEV				1	/* lkud.c */
 #define	USE_LIB_PRINTDEVNAME			1	/* pdvn.c */
-#define	USE_LIB_PROCESS_FILE			1	/* prfp.c */
+/* #define	USE_LIB_PROCESS_FILE		1	   prfp.c */
 #define	USE_LIB_PRINT_TCPTPI			1	/* ptti.c */
 #define	USE_LIB_READDEV				1	/* rdev.c */
 /* #define	USE_LIB_READMNT			1	   rmnt.c */
 /* #define	USE_LIB_REGEX			1	   regex.c */
 
-# if (defined(NETBSDV) && NETBSDV>=9099000)
-#define	USE_LIB_RNMT				1	/* rnmt.c */
-# elif	(defined(OPENBSDV) && OPENBSDV>=2010) || (defined(NETBSDV) && NETBSDV>=1002000)
-#define	USE_LIB_RNMH				1	/* rnmh.c */
-# else	/* (defined(OPENBSDV) && OPENBSDV<2010) && (defined(NETBSDV) && NETBSDV<1002000) */
-#define	USE_LIB_RNAM				1	/* rnam.c */
-# endif	/* (defined(OPENBSDV) && OPENBSDV>=2010) || (defined(NETBSDV) && NETBSDV>=1002000) */
+/* #define	USE_LIB_RNMT			1	   rnmt.c */
+/* #define	USE_LIB_RNMH			1	   rnmh.c */
+/* #define	USE_LIB_RNAM			1	   rnam.c */
 
 /* #define	USE_LIB_RNCH			1	   rnch.c */
 /* #define	USE_LIB_SNPF			1	   snpf.c */

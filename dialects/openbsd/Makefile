@@ -23,11 +23,11 @@ GRP=
 
 HDR=    lsof.h lsof_fields.h dlsof.h machine.h proto.h dproto.h
 
-SRC=    dmnt.c dnode.c dnode1.c dproc.c dsock.c dstore.c \
+SRC=    dfile.c dmnt.c dnode.c dproc.c dsock.c dstore.c \
 	arg.c main.c misc.c node.c print.c proc.c store.c usage.c \
 	util.c
 
-OBJ=	dmnt.o dnode.o dnode1.o dproc.o dsock.o dstore.o \
+OBJ=	dfile.o dmnt.o dnode.o dproc.o dsock.o dstore.o \
 	arg.o main.o misc.o node.o print.o proc.o store.o usage.o \
 	util.o
 
@@ -125,11 +125,11 @@ FRC:
 
 # DO NOT DELETE THIS LINE - make depend DEPENDS ON IT
 
+dfile.o:	${HDR} dfile.c
+
 dmnt.o:		${HDR} dmnt.c
 
 dnode.o:	${HDR} dnode.c
-
-dnode1.o:	${HDR} dnode1.c
 
 dproc.o:	${HDR} dproc.c
 

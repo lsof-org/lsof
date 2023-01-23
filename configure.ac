@@ -161,6 +161,10 @@ AS_CASE([${host_os}],
 	], [
 		AC_MSG_WARN([No kernel sources in /usr/src/sys])
 	])
+], [openbsd*], [
+	LSOF_DIALECT=openbsd
+	LSOF_DIALECT_DIR=openbsd
+	LSOF_TGT=openbsd
 ], [
 	AC_MSG_ERROR(["Host $host_os not supported"])
 ])
@@ -170,6 +174,7 @@ AM_CONDITIONAL([LINUX], [test x$LSOF_DIALECT_DIR = xlinux])
 AM_CONDITIONAL([DARWIN_LIBPROC], [test x$LSOF_DIALECT_DIR = xdarwin/libproc])
 AM_CONDITIONAL([FREEBSD], [test x$LSOF_DIALECT_DIR = xfreebsd])
 AM_CONDITIONAL([N_OBSD], [test x$LSOF_DIALECT_DIR = xn+obsd])
+AM_CONDITIONAL([OPENBSD], [test x$LSOF_DIALECT_DIR = xopenbsd])
 
 # Pass LSOF_DIALECT/LSOF_DIALECT_DIR to Makefile.am
 AC_SUBST([LSOF_DIALECT])
