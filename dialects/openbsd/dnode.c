@@ -103,12 +103,15 @@ process_vnode(struct kinfo_file *file)
 	}
 
 	/* Fill file size/offset */
-	if (Foffset) {
+	if (file->v_type == VBLK || file->v_type == VCHR) {
 	    Lf->off = file->f_offset;
 	    Lf->off_def = 1;
 	} else {
-	    Lf->sz = file->va_size;
-	    Lf->sz_def = 1;
+	    if (Foffset) {
+	    } else {
+	        Lf->sz = file->va_size;
+	        Lf->sz_def = 1;
+	    }
 	}
 
 	/* Fill inode */

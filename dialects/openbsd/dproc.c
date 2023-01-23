@@ -1,5 +1,5 @@
 /*
- * dproc.c - NetBSD and OpenBSD process access functions for lsof
+ * dproc.c - OpenBSD process access functions for lsof
  */
 
 
@@ -52,19 +52,22 @@ void
 gather_proc_info()
 {
 	short pss, sf;
-	int px; /* process loop index */
-	int fx; /* file loop index */
 	uid_t uid;
 	struct stat st;
-	struct kinfo_proc *procs = NULL;
-	struct kinfo_proc *proc;
-	int num_procs;
 	int mib[6];
 	size_t size = 0;
 	int res;
+
+	struct kinfo_proc *procs = NULL;
+	struct kinfo_proc *proc;
+	int num_procs;
+	int px; /* process loop index */
+
 	struct kinfo_file *files = NULL;
 	struct kinfo_file *file;
 	int num_files;
+	int fx; /* file loop index */
+
 	char path[PATH_MAX];
 
 	/*
@@ -164,7 +167,7 @@ gather_proc_info()
 
 	        /* Probe number of entries */
 	        if (sysctl(mib, 6, NULL, &size, NULL, 0) < 0) {
-		    (void) fprintf(stderr, "%s: can't read process table: %d\n",
+		    (void) fprintf(stderr, "%s: can't read file table: %d\n",
 	    		    Pn, errno);
 		    Error();
 	        }
