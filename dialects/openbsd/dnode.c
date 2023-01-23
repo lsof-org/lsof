@@ -82,6 +82,11 @@ process_vnode(struct kinfo_file *file)
 	    if (sysctl(mib, 3, path, &size, NULL, 0) >= 0) {
 		(void) snpf(Namech, Namechl, "%s", path);
 		enter_nm(Namech);
+
+		/* Handle name match */
+		if (is_file_named(path, 0)) {
+		    Lf->sf |= SELNM;
+		}
 	    }
 	}
 
@@ -116,20 +121,20 @@ process_vnode(struct kinfo_file *file)
 	/* Fill type */
 	switch(file->v_type) {
 	case VREG:
-		Lf->ntype = N_REGLR;
-		type_name = "REG";
-		break;
+	    Lf->ntype = N_REGLR;
+	    type_name = "REG";
+	    break;
 	case VDIR:
-		type_name = "DIR";
-		break;
+	    type_name = "DIR";
+	    break;
 	case VCHR:
-		Lf->ntype = N_CHR;
-		type_name = "CHR";
-		break;
+	    Lf->ntype = N_CHR;
+	    type_name = "CHR";
+	    break;
 	case VFIFO:
-		Lf->ntype = N_FIFO;
-		type_name = "FIFO";
-		break;
+	    Lf->ntype = N_FIFO;
+	    type_name = "FIFO";
+	    break;
 	}
 	if (type_name)
 	    (void) snpf(Lf->type, sizeof(Lf->type), "%s", type_name);
@@ -137,8 +142,18 @@ process_vnode(struct kinfo_file *file)
 	/* No way to read file path, request mount info  */
 	Lf->lmi_srch = 1;
 
+	/* Fill number of links */
+	if (Fnlink) {
+	    Lf->nlink = file->va_nlink;
+	    Lf->nlink_def = 1;
+
+	    /* Handle link count filter */
+	    if (Nlink && (Lf->nlink < Nlink))
+		Lf->sf |= SELNLINK;
+	}
+
 	/* Finish */
 	if (Lf->sf)
-		link_lfile();
+	    link_lfile();
 }
 
