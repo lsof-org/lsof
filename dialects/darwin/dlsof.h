@@ -83,9 +83,7 @@ typedef	uintptr_t	KA_T;
 #define	QSORT_P		void
 #define	READLEN_T	int
 #define	STRNCPY_L	size_t
-#define	SZOFFTYPE	unsigned long long
-					/* size and offset internal storage
-					 * type */
+#define	SZOFFTYPE	unsigned long long /* size and offset internal storage type */
 #define	SZOFFPSPEC	"ll"		/* SZOFFTYPE printf specification
 					 * modifier */
 

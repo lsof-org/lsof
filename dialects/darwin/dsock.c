@@ -36,7 +36,7 @@
 
 #ifndef lint
 static char copyright[] =
-"@(#) Copyright 2005 Apple Computer, Inc. and Purdue Research Foundation.\nAll rights reserved.\n";
+    "@(#) Copyright 2005 Apple Computer, Inc. and Purdue Research Foundation.\nAll rights reserved.\n";
 #endif
 
 
@@ -63,18 +63,18 @@ process_socket_common(si)
 	int fam, fp, lp, unl;
 	unsigned char *la = (unsigned char *)NULL;
 
-/*
- * Enter basic socket values.
- */
+	/*
+	 * Enter basic socket values.
+	 */
 	(void) snpf(Lf->type, sizeof(Lf->type), "sock");
 	Lf->inp_ty = 2;
-/*
- * Enter basic file information.
- */
+	/*
+	 * Enter basic file information.
+	 */
 	enter_file_info(&si->pfi);
-/*
- * Enable size or offset display.
- */
+	/*
+	 * Enable size or offset display.
+	 */
 	if (Fsize) {
 	    if (Lf->access == 'r')
 		Lf->sz = (SZOFFTYPE)si->psi.soi_rcv.sbi_cc;
@@ -88,18 +88,18 @@ process_socket_common(si)
 	    Lf->off_def = 1;
 
 #if	defined(HASTCPTPIQ)
-/*
- * Enter send and receive queue sizes.
- */
+	/*
+	 * Enter send and receive queue sizes.
+	 */
 	Lf->lts.rq = si->psi.soi_rcv.sbi_cc;
 	Lf->lts.sq = si->psi.soi_snd.sbi_cc;
 	Lf->lts.rqs = Lf->lts.sqs = (unsigned char)1;
 #endif	/* defined(HASTCPTPIQ) */
 
 #if	defined(HASSOOPT)
-/*
- * Enter socket options.
- */
+	/*
+	 * Enter socket options.
+	 */
 	Lf->lts.ltm = (unsigned int)(si->psi.soi_linger & 0xffff);
 	Lf->lts.opt = (unsigned int)(si->psi.soi_options & 0xffff);
 	Lf->lts.pqlen = (unsigned int)si->psi.soi_incqlen;
@@ -108,26 +108,26 @@ process_socket_common(si)
 	Lf->lts.rbsz = (unsigned long)si->psi.soi_rcv.sbi_mbmax;
 	Lf->lts.sbsz = (unsigned long)si->psi.soi_snd.sbi_mbmax;
 	Lf->lts.pqlens = Lf->lts.qlens = Lf->lts.qlims = Lf->lts.rbszs
-		       = Lf->lts.sbszs = (unsigned char)1;
+	    = Lf->lts.sbszs = (unsigned char)1;
 #endif	/* defined(HASSOOPT) */
 
 #if	defined(HASSOSTATE)
-/*
- * Enter socket state.
- */
+	/*
+	 * Enter socket state.
+	 */
 	Lf->lts.ss = (unsigned int)si->psi.soi_state;
 #endif	/* defined(HASSOSTATE) */
 
-/*
- * Process socket by its associated domain family.
- */
+	/*
+	 * Process socket by its associated domain family.
+	 */
 	switch ((fam = si->psi.soi_family)) {
 	case AF_INET:
 	case AF_INET6:
 
-	/*
-	 * Process IPv[46] sockets.
-	 */
+	    /*
+	     * Process IPv[46] sockets.
+	     */
 	    (void) snpf(Lf->type, sizeof(Lf->type),
 			(fam == AF_INET) ? "IPv4" : "IPv6");
 	    if ((si->psi.soi_kind != SOCKINFO_IN) &&
@@ -135,12 +135,12 @@ process_socket_common(si)
 	    {
 		break;
 	    }
-	/*
-	 * Process TCP state inclusions and exclusions, as required.
-	 */
+	    /*
+	     * Process TCP state inclusions and exclusions, as required.
+	     */
 	    if ((si->psi.soi_kind == SOCKINFO_TCP) && (TcpStXn || TcpStIn)) {
 		int tsnx = (int)si->psi.soi_proto.pri_tcp.tcpsi_state
-			 + TcpStOff;
+		    + TcpStOff;
 
 		if ((tsnx >= 0) && (tsnx < TcpNstates)) {
 		    if (TcpStXn) {
@@ -159,14 +159,14 @@ process_socket_common(si)
 		    }
 		}
 	    }
-	/*
-	 * Process an Internet domain socket.
-	 */
+	    /*
+	     * Process an Internet domain socket.
+	     */
 	    if (Fnet) {
 		if (!FnetTy
 		||  ((FnetTy == 4) && (fam == AF_INET))
 		||  ((FnetTy == 6) && (fam == AF_INET6))
-		)
+		    )
 		    Lf->sf |= SELNET;
 	    }
 	    printiproto(si->psi.soi_protocol);
@@ -179,23 +179,23 @@ process_socket_common(si)
 		enter_dev_ch(print_kptr((KA_T)si->psi.soi_pcb, (char *)NULL, 0));
 	    if (fam == AF_INET) {
 
-	    /*
-	     * Enter IPv4 address information.
-	     */
+		/*
+		 * Enter IPv4 address information.
+		 */
 		if (si->psi.soi_kind == SOCKINFO_TCP) {
 
-		/*
-		 * Enter information for a TCP socket.
-		 */
+		    /*
+		     * Enter information for a TCP socket.
+		     */
 		    la = (unsigned char *)&si->psi.soi_proto.pri_tcp.tcpsi_ini.insi_laddr.ina_46.i46a_addr4;
 		    lp = (int)ntohs(si->psi.soi_proto.pri_tcp.tcpsi_ini.insi_lport);
 		    fa = (unsigned char *)&si->psi.soi_proto.pri_tcp.tcpsi_ini.insi_faddr.ina_46.i46a_addr4;
 		    fp = (int)ntohs(si->psi.soi_proto.pri_tcp.tcpsi_ini.insi_fport);
 		} else {
 
-		/*
-		 * Enter information for a non-TCP socket.
-		 */
+		    /*
+		     * Enter information for a non-TCP socket.
+		     */
 		    la = (unsigned char *)&si->psi.soi_proto.pri_in.insi_laddr.ina_46.i46a_addr4;
 		    lp = (int)ntohs(si->psi.soi_proto.pri_in.insi_lport);
 		    fa = (unsigned char *)&si->psi.soi_proto.pri_in.insi_faddr.ina_46.i46a_addr4;
@@ -207,17 +207,17 @@ process_socket_common(si)
 		}
 	    } else {
 
-	    /*
-	     * Enter IPv6 address information
-	     */
+		/*
+		 * Enter IPv6 address information
+		 */
 		int v4mapped = 0;
 
 		if (si->psi.soi_kind == SOCKINFO_TCP)
 		{
 
-		/*
-		 * Enter TCP socket information.
-		 */
+		    /*
+		     * Enter TCP socket information.
+		     */
 		    la = (unsigned char *)&si->psi.soi_proto.pri_tcp.tcpsi_ini.insi_laddr.ina_6;
 		    lp = (int)ntohs(si->psi.soi_proto.pri_tcp.tcpsi_ini.insi_lport);
 		    fa = (unsigned char *)&si->psi.soi_proto.pri_tcp.tcpsi_ini.insi_faddr.ina_6;
@@ -226,9 +226,9 @@ process_socket_common(si)
 			v4mapped = 1;
 		} else {
 
-		/*
-		 * Enter non-TCP socket information.
-		 */
+		    /*
+		     * Enter non-TCP socket information.
+		     */
 		    la = (unsigned char *)&si->psi.soi_proto.pri_in.insi_laddr.ina_6;
 		    lp = (int)ntohs(si->psi.soi_proto.pri_in.insi_lport);
 		    fa = (unsigned char *)&si->psi.soi_proto.pri_in.insi_faddr.ina_6;
@@ -242,9 +242,9 @@ process_socket_common(si)
 		}
 		if (v4mapped) {
 
-		/*
-		 * Adjust IPv4 addresses mapped in IPv6 addresses.
-		 */
+		    /*
+		     * Adjust IPv4 addresses mapped in IPv6 addresses.
+		     */
 		    fam = AF_INET;
 		    if (la)
 			la = (unsigned char *)IPv6_2_IPv4(la);
@@ -252,21 +252,21 @@ process_socket_common(si)
 			fa = (unsigned char *)IPv6_2_IPv4(fa);
 		}
 	    }
-	/*
-	 * Enter local and remote addresses by address family.
-	 */
+	    /*
+	     * Enter local and remote addresses by address family.
+	     */
 	    if (fa || la)
 		(void) ent_inaddr(la, lp, fa, fp, fam);
 	    if (si->psi.soi_kind == SOCKINFO_TCP) {
 
-	    /*
-	     * Enter a TCP socket definition and its state.
-	     */
+		/*
+		 * Enter a TCP socket definition and its state.
+		 */
 		Lf->lts.type = 0;
 		Lf->lts.state.i = (int)si->psi.soi_proto.pri_tcp.tcpsi_state;
-	    /*
-	     * Enter TCP options.
-	     */
+		/*
+		 * Enter TCP options.
+		 */
 
 #if	defined(HASSOOPT)
 		Lf->lts.kai = (unsigned int)si->psi.soi_proto.pri_tcp.tcpsi_timer[TCPT_KEEP];
@@ -282,27 +282,27 @@ process_socket_common(si)
 	    break;
 	case AF_UNIX:
 
-	/*
-	 * Process a UNIX domain socket.
-	 */
+	    /*
+	     * Process a UNIX domain socket.
+	     */
 	    (void) snpf(Lf->type, sizeof(Lf->type), "unix");
 	    if (si->psi.soi_kind != SOCKINFO_UN)
 		break;
 	    if (Funix)
 		Lf->sf |= SELUNX;
 	    enter_dev_ch(print_kptr((KA_T)si->psi.soi_pcb, (char *)NULL, 0));
-	/*
-	 * Enter information on a UNIX domain socket that has no address bound
-	 * to it, although it may be connected to another UNIX domain socket
-	 * as a pipe.
-	 */
+	    /*
+	     * Enter information on a UNIX domain socket that has no address bound
+	     * to it, although it may be connected to another UNIX domain socket
+	     * as a pipe.
+	     */
 	    if (si->psi.soi_proto.pri_un.unsi_addr.ua_sun.sun_family != AF_UNIX)
 	    {
 		if (si->psi.soi_proto.pri_un.unsi_addr.ua_sun.sun_family
 		==  AF_UNSPEC)
 		{
 		    if (si->psi.soi_proto.pri_un.unsi_conn_pcb) {
-			    (void) snpf(Namech, Namechl, "->%s",
+			(void) snpf(Namech, Namechl, "->%s",
 				print_kptr((KA_T)si->psi.soi_proto.pri_un.unsi_conn_pcb, (char *)NULL, 0));
 		    } else
 			(void) snpf(Namech, Namechl, "->(none)");
@@ -328,18 +328,18 @@ process_socket_common(si)
 	    break;
 	case AF_ROUTE:
 
-	/*
-	 * Process a ROUTE domain socket.
-	 */
+	    /*
+	     * Process a ROUTE domain socket.
+	     */
 	    (void) snpf(Lf->type, sizeof(Lf->type), "rte");
 	    if (!Fsize)
 		Lf->off_def = 1;
 	    break;
 	case AF_NDRV:
 
-	/*
-	 * Process an NDRV domain socket.
-	 */
+	    /*
+	     * Process an NDRV domain socket.
+	     */
 	    (void) snpf(Lf->type, sizeof(Lf->type), "ndrv");
 	    if (si->psi.soi_kind != SOCKINFO_NDRV)
 		break;
@@ -351,17 +351,17 @@ process_socket_common(si)
 	    break;
 	case pseudo_AF_KEY:
 
-	/*
-	 * Process an [internal] key-management function socket.
-	 */
+	    /*
+	     * Process an [internal] key-management function socket.
+	     */
 	    (void) snpf(Lf->type, sizeof(Lf->type), "key");
 	    enter_dev_ch(print_kptr((KA_T)si->psi.soi_pcb, (char *)NULL, 0));
 	    break;
 	case AF_SYSTEM:
 
-	/*
-	 * Process a SYSTEM domain socket.
-	 */
+	    /*
+	     * Process a SYSTEM domain socket.
+	     */
 	    (void) snpf(Lf->type, sizeof(Lf->type), "systm");
 	    if (si->psi.soi_kind != SOCKINFO_KERN_EVENT)
 		break;
@@ -373,18 +373,18 @@ process_socket_common(si)
 	    break;
 	case AF_PPP:
 
-	/*
-	 * Process a PPP domain socket.
-	 */
+	    /*
+	     * Process a PPP domain socket.
+	     */
 	    (void) snpf(Lf->type, sizeof(Lf->type), "ppp");
 	    enter_dev_ch(print_kptr((KA_T)si->psi.soi_pcb, (char *)NULL, 0));
 	    break;
 	default:
 	    printunkaf(fam, 1);
 	}
-/*
- * If there are NAME column characters, enter them.
- */
+	/*
+	 * If there are NAME column characters, enter them.
+	 */
 	if (Namech[0])
 	    enter_nm(Namech);
 }
@@ -397,9 +397,9 @@ process_socket(pid, fd)
 {
 	int nb;
 	struct socket_fdinfo si;
-/*
- * Get socket information.
- */
+	/*
+	 * Get socket information.
+	 */
 	nb = proc_pidfdinfo(pid, fd, PROC_PIDFDSOCKETINFO, &si, sizeof(si));
 	if (nb <= 0) {
 	    (void) err2nm("socket");
@@ -426,9 +426,9 @@ process_fileport_socket(pid, fp)
 {
 	int nb;
 	struct socket_fdinfo si;
-/*
- * Get socket information.
- */
+	/*
+	 * Get socket information.
+	 */
 	nb = proc_pidfileportinfo(pid, fp, PROC_PIDFILEPORTSOCKETINFO, &si, sizeof(si));
 	if (nb <= 0) {
 	    (void) err2nm("socket");

@@ -36,7 +36,7 @@
 
 #ifndef lint
 static char copyright[] =
-"@(#) Copyright 2005 Apple Computer, Inc. and Purdue Research Foundation.\nAll rights reserved.\n";
+    "@(#) Copyright 2005 Apple Computer, Inc. and Purdue Research Foundation.\nAll rights reserved.\n";
 #endif
 
 
@@ -129,10 +129,10 @@ printdevname(dev, rdev, f, nty)
 	char *cp, *ttl;
 	struct l_dev *dp;
 	int i, len;
-/*
- * See if the device node resides in DDEV_DEVPATH.  If it does, return zero
- * to indicate the vnode path is to be used for the NAME column.
- */
+	/*
+	 * See if the device node resides in DDEV_DEVPATH.  If it does, return zero
+	 * to indicate the vnode path is to be used for the NAME column.
+	 */
 	if (*dev == DevDev)
 	    return(0);
 	readdev(0);
@@ -140,12 +140,12 @@ printdevname(dev, rdev, f, nty)
 	    if (*dev == ADev[i])
 		return(0);
 	}
-/*
- * This device is not in DDEV_DEVPATH.
- *
- * See if it has a DDEV_DEVPATH analogue by searching the device table for a
- * match without inode number and dev.
- */
+	/*
+	 * This device is not in DDEV_DEVPATH.
+	 *
+	 * See if it has a DDEV_DEVPATH analogue by searching the device table for a
+	 * match without inode number and dev.
+	 */
 
 #if	defined(HASBLKDEV)
 	if (nty == N_BLK)
@@ -156,9 +156,9 @@ printdevname(dev, rdev, f, nty)
 	    dp = lkupdev(&DevDev, rdev, 0, 1);
 	if (dp) {
 
-	/*
-	 * A match was found.  Record it as a name column addition.
-	 */
+	    /*
+	     * A match was found.  Record it as a name column addition.
+	     */
 	    ttl = (nty == N_BLK) ? LIKE_BLK_SPEC : LIKE_CHR_SPEC;
 	    len = (int)(1 + strlen(ttl) + 1 + strlen(dp->name) + 1);
 	    if (!(cp = (char *)malloc((MALLOC_S)(len + 1)))) {
@@ -170,9 +170,9 @@ printdevname(dev, rdev, f, nty)
 	    (void) add_nma(cp, len);
 	    (void) free((MALLOC_P *)cp);
 	}
-/*
- * Return zero to indicate the vnode path is to be used for the NAME column.
- */
+	/*
+	 * Return zero to indicate the vnode path is to be used for the NAME column.
+	 */
 	return(0);
 }
 
@@ -196,20 +196,20 @@ readdev(skip)
 	int j = 0;
 	MALLOC_S pl, sz;
 	struct stat sb;
-/*
- * Read device names but once.
- */
+	/*
+	 * Read device names but once.
+	 */
 	if (Sdev)
 	    return;
-/*
- * Prepare to scan DDEV_DEVPATH.
- */
+	/*
+	 * Prepare to scan DDEV_DEVPATH.
+	 */
 	Dstkn = Dstkx = 0;
 	Dstk = (char **)NULL;
 	(void) stkdir(DDEV_DEVPATH);
-/*
- * Unstack the next directory.
- */
+	/*
+	 * Unstack the next directory.
+	 */
 	while (--Dstkx >= 0) {
 	    if (!(dfp = OpenDir(Dstk[Dstkx]))) {
 
@@ -237,15 +237,15 @@ readdev(skip)
 	    }
 	    (void) free((FREE_P *)Dstk[Dstkx]);
 	    Dstk[Dstkx] = (char *)NULL;
-	/*
-	 * Scan the directory.
-	 */
+	    /*
+	     * Scan the directory.
+	     */
 	    for (dp = ReadDir(dfp); dp; dp = ReadDir(dfp)) {
 		if (dp->d_ino == 0 || dp->d_name[0] == '.')
 		    continue;
-	    /*
-	     * Form the full path name and get its status.
-	     */
+		/*
+		 * Form the full path name and get its status.
+		 */
 		dnamlen = (int)dp->d_namlen;
 		if (fp) {
 		    (void) free((FREE_P *)fp);
@@ -275,36 +275,36 @@ readdev(skip)
 
 		    continue;
 		}
-	    /*
-	     * If it's a subdirectory, stack its name for later
-	     * processing.
-	     */
+		/*
+		 * If it's a subdirectory, stack its name for later
+		 * processing.
+		 */
 		if ((sb.st_mode & S_IFMT) == S_IFDIR) {
 
-		/*
-		 * Skip /dev/fd.
-		 */
+		    /*
+		     * Skip /dev/fd.
+		     */
 		    if (strcmp(fp, "/dev/fd"))
 			(void) stkdir(fp);
 		    continue;
 		}
 		if ((sb.st_mode & S_IFMT) == S_IFLNK) {
 
-		/*
-		 * Ignore symbolic links.
-		 */
+		    /*
+		     * Ignore symbolic links.
+		     */
 		    continue;
 		}
 		if ((sb.st_mode & S_IFMT) == S_IFCHR) {
 
-		/*
-		 * Save character device information in Devtp[].
-		 */
+		    /*
+		     * Save character device information in Devtp[].
+		     */
 		    if (i >= Ndev) {
 			Ndev += DEVINCR;
 			if (!Devtp)
 			    Devtp = (struct l_dev *)malloc(
-				    (MALLOC_S)(sizeof(struct l_dev)*Ndev));
+							   (MALLOC_S)(sizeof(struct l_dev)*Ndev));
 			else
 			    Devtp = (struct l_dev *)realloc((MALLOC_P *)Devtp,
 				    (MALLOC_S)(sizeof(struct l_dev)*Ndev));
@@ -329,14 +329,13 @@ readdev(skip)
 # if	defined(HASBLKDEV)
 		if ((sb.st_mode & S_IFMT) == S_IFBLK) {
 
-		/*
-		 * Save block device information in BDevtp[].
-		 */
+		    /*
+		     * Save block device information in BDevtp[].
+		     */
 		    if (j >= BNdev) {
 			BNdev += DEVINCR;
 			if (!BDevtp)
-			    BDevtp = (struct l_dev *)malloc(
-				     (MALLOC_S)(sizeof(struct l_dev)*BNdev));
+			    BDevtp = (struct l_dev *)malloc((MALLOC_S)(sizeof(struct l_dev)*BNdev));
 			else
 			    BDevtp = (struct l_dev *)realloc((MALLOC_P *)BDevtp,
 				     (MALLOC_S)(sizeof(struct l_dev)*BNdev));
@@ -355,35 +354,35 @@ readdev(skip)
 		}
 # endif	/* defined(HASBLKDEV) */
 
-	    /*
-	     * Save a possible new st_dev number within DDEV_DEVPATH.
-	     */
+		/*
+		 * Save a possible new st_dev number within DDEV_DEVPATH.
+		 */
 		if (sb.st_dev != DevDev)
 		    (void) saveADev(&sb);
 	    }
 	    (void) CloseDir(dfp);
 	}
-/*
- * Free any unneeded space that was allocated.
- */
+	/*
+	 * Free any unneeded space that was allocated.
+	 */
 	if (ADev && (ADevU < ADevA)) {
 
-	/*
-	 * Reduce space allocated to additional DDEV_DEVPATH device numbers.
-	 */
+	    /*
+	     * Reduce space allocated to additional DDEV_DEVPATH device numbers.
+	     */
 	    if (!ADevU) {
 
-	    /*
-	     * If no space was used, free the entire allocation.
-	     */
+		/*
+		 * If no space was used, free the entire allocation.
+		 */
 		(void) free((FREE_P *)ADev);
 		ADev = (dev_t *)NULL;
 		ADevA = 0;
 	    } else {
 
-	    /*
-	     * Reduce the allocation to what was used.
-	     */
+		/*
+		 * Reduce the allocation to what was used.
+		 */
 		sz = (MALLOC_S)(ADevU * sizeof(dev_t));
 		if (!(ADev = (dev_t *)realloc((MALLOC_P *)ADev, sz))) {
 		    (void) fprintf(stderr, "%s: can't reduce ADev[]\n", Pn);
@@ -401,19 +400,18 @@ readdev(skip)
 	    (void) free((FREE_P *)path);
 
 # if	defined(HASBLKDEV)
-/*
- * Reduce the BDevtp[] (optional) and Devtp[] tables to their minimum
- * sizes; allocate and build sort pointer lists; and sort the tables by
- * device number.
- */
+	/*
+	 * Reduce the BDevtp[] (optional) and Devtp[] tables to their minimum
+	 * sizes; allocate and build sort pointer lists; and sort the tables by
+	 * device number.
+	 */
 	if (BNdev) {
 	    if (BNdev > j) {
 		BNdev = j;
 		BDevtp = (struct l_dev *)realloc((MALLOC_P *)BDevtp,
 			 (MALLOC_S)(sizeof(struct l_dev) * BNdev));
 	    }
-	    if (!(BSdev = (struct l_dev **)malloc(
-			  (MALLOC_S)(sizeof(struct l_dev *) * BNdev))))
+	    if (!(BSdev = (struct l_dev **)malloc((MALLOC_S)(sizeof(struct l_dev *) * BNdev))))
 	    {
 		(void) fprintf(stderr,
 		    "%s: no space for block device sort pointers\n", Pn);
@@ -442,8 +440,7 @@ readdev(skip)
 		Devtp = (struct l_dev *)realloc((MALLOC_P *)Devtp,
 			(MALLOC_S)(sizeof(struct l_dev) * Ndev));
 	    }
-	    if (!(Sdev = (struct l_dev **)malloc(
-			 (MALLOC_S)(sizeof(struct l_dev *) * Ndev))))
+	    if (!(Sdev = (struct l_dev **)malloc((MALLOC_S)(sizeof(struct l_dev *) * Ndev))))
 	    {
 		(void) fprintf(stderr,
 		    "%s: no space for character device sort pointers\n", Pn);
@@ -508,30 +505,30 @@ saveADev(s)
 {
 	int i;
 	MALLOC_S sz;
-/*
- * Process VCHR files.
- *
- * Optionally process VBLK files.
- */
+	/*
+	 * Process VCHR files.
+	 *
+	 * Optionally process VBLK files.
+	 */
 
 #if	defined(HASBLKDEV)
 	if (((s->st_mode & S_IFMT) != S_IFBLK)
 	&&  ((s->st_mode & S_IFMT) != S_IFCHR))
 #else	/* !defined(HASBLKDEV) */
-	if ((s->st_mode & S_IFCHR) != S_IFCHR)
+	    if ((s->st_mode & S_IFCHR) != S_IFCHR)
 #endif	/* defined(HASBLKDEV) */
 
 		return;
-/*
- * See if this is a new VBLK or VCHR st_dev value for ADev[].
- */
+	/*
+	 * See if this is a new VBLK or VCHR st_dev value for ADev[].
+	 */
 	for (i = 0; i < ADevU; i++) {
 	    if (s->st_dev == ADev[i])
 		return;
 	}
-/*
- * This is a new device number to add to ADev[].
- */
+	/*
+	 * This is a new device number to add to ADev[].
+	 */
 	if (ADevU >= ADevA) {
 	    ADevA += 16;
 	    sz = (MALLOC_S)(ADevA * sizeof(dev_t));

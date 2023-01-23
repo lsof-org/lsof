@@ -35,7 +35,7 @@
 
 #ifndef lint
 static char copyright[] =
-"@(#) Copyright 2005-2007 Apple Inc. and Purdue Research Foundation.\nAll rights reserved.\n";
+    "@(#) Copyright 2005-2007 Apple Inc. and Purdue Research Foundation.\nAll rights reserved.\n";
 #endif
 
 
@@ -55,9 +55,9 @@ enter_file_info(pfi)
 	struct proc_fileinfo *pfi;	/* pointer to process file info */
 {
 	int f;
-/*
- * Construct access code
- */
+	/*
+	 * Construct access code
+	 */
 	f = pfi->fi_openflags & (FREAD | FWRITE);
 	if (f == FREAD)
 	    Lf->access = 'r';
@@ -65,15 +65,15 @@ enter_file_info(pfi)
 	    Lf->access = 'w';
 	else if (f == (FREAD | FWRITE))
 	    Lf->access = 'u';
-/*
- * Save the offset / size
- */
+	/*
+	 * Save the offset / size
+	 */
 	Lf->off = (SZOFFTYPE)pfi->fi_offset;
 	if (Foffset)
 	    Lf->off_def = 1;
-/*
- * Save file structure information as requested.
- */
+	/*
+	 * Save file structure information as requested.
+	 */
 	if (Fsv & FSV_FG) {
 	    Lf->ffg = (long)pfi->fi_openflags;
 	    Lf->fsv |= FSV_FG;
@@ -101,9 +101,9 @@ enter_vnode_info(vip)
 	dev_t dev = 0;
 	int devs = 0;
 	struct mounts *mp;
-/*
- * Derive file type.
- */
+	/*
+	 * Derive file type.
+	 */
 	switch ((int)(vip->vip_vi.vi_stat.vst_mode & S_IFMT)) {
 	case S_IFIFO:
 	    cp = "FIFO";
@@ -142,9 +142,9 @@ enter_vnode_info(vip)
 	if (!Lf->type[0])
 	    (void) snpf(Lf->type, sizeof(Lf->type), "%s", cp);
 	Lf->ntype = Ntype;
-/*
- * Save device number and path
- */
+	/*
+	 * Save device number and path
+	 */
 	switch (Ntype) {
 	case N_FIFO:
 	    break;
@@ -157,30 +157,30 @@ enter_vnode_info(vip)
 	    Lf->dev = dev = vip->vip_vi.vi_stat.vst_dev;
 	    Lf->dev_def = devs = 1;
 	}
-/*
- * Save path name.
- */
+	/*
+	 * Save path name.
+	 */
 	vip->vip_path[sizeof(vip->vip_path) - 1] = '\0';
 	if (vip->vip_path[0] != '\0') {
 	    Lf->V_path = mkstrcpy(vip->vip_path, (MALLOC_S *)NULL);
 	}
-/*
- * Save node number.
- */
+	/*
+	 * Save node number.
+	 */
 	Lf->inode = (INODETYPE)vip->vip_vi.vi_stat.vst_ino;
 	Lf->inp_ty = 1;
-/*
- * Save link count, as requested.
- */
+	/*
+	 * Save link count, as requested.
+	 */
 	if (Fnlink) {
 	    Lf->nlink = vip->vip_vi.vi_stat.vst_nlink;
 	    Lf->nlink_def = 1;
 	    if (Nlink && (Lf->nlink < Nlink))
 		Lf->sf |= SELNLINK;
 	}
-/*
- * If a device number is defined, locate file system and save its identity.
- */
+	/*
+	 * If a device number is defined, locate file system and save its identity.
+	 */
 	if (devs) {
 	    for (mp = readmnt(); mp; mp = mp->next) {
 		if (dev == mp->dev) {
@@ -192,9 +192,9 @@ enter_vnode_info(vip)
 		}
 	    }
 	}
-/*
- * Save the file size.
- */
+	/*
+	 * Save the file size.
+	 */
 	switch (Ntype) {
 	case N_CHR:
 	case N_FIFO:
@@ -204,18 +204,18 @@ enter_vnode_info(vip)
 	    Lf->sz = (SZOFFTYPE)vip->vip_vi.vi_stat.vst_size;
 	    Lf->sz_def = 1;
 	}
-/*
- * Test for specified file.
- */
+	/*
+	 * Test for specified file.
+	 */
 	if (Sfile && is_file_named(NULL,
 				   ((Ntype == N_CHR) || (Ntype == N_BLK) ? 1
 									 : 0)))
 	{
 	    Lf->sf |= SELNM;
 	}
-/*
- * Enter name characters.
- */
+	/*
+	 * Enter name characters.
+	 */
 	if (!Lf->nm && Namech[0])
 	    enter_nm(Namech);
 }
@@ -234,23 +234,23 @@ err2nm(pfx)
 	switch (errno) {
 	case EBADF:
 
-	/*
-	 * The file descriptor is no longer available.
-	 */
+	    /*
+	     * The file descriptor is no longer available.
+	     */
 	    sfx = "FD unavailable";
 	    break;
 	case ESRCH:
 
-	/*
-	 * The process is no longer available.
-	 */
+	    /*
+	     * The process is no longer available.
+	     */
 	    sfx = "process unavailable";
 	    break;
 	default:
 
-	/*
-	 * All other errors are reported with strerror() information.
-	 */
+	    /*
+	     * All other errors are reported with strerror() information.
+	     */
 	    sfx = strerror(errno);
 	}
 	(void) snpf(Namech, Namechl, "%s: %s", pfx, sfx);
@@ -308,11 +308,11 @@ print_nm(lf)
 		gf &= ~(tp->val);
 		(void) printf("%s%s", tp->nm, gf ? "," : "");
 	    }
-	/*
-	 * If flag bits remain, print them in hex.  If hex output was
-	 * specified with +fG, print all flag values, including zero,
-	 * in hex.
-	 */
+	    /*
+	     * If flag bits remain, print them in hex.  If hex output was
+	     * specified with +fG, print all flag values, including zero,
+	     * in hex.
+	     */
 	    if (gf || FsvFlagX)
 		(void) printf("0x%lx", gf);
 	}
@@ -379,9 +379,9 @@ process_kqueue(pid, fd)
 {
 	struct kqueue_fdinfo kq;
 	int nb;
-/*
- * Get the kernel queue file information.
- */
+	/*
+	 * Get the kernel queue file information.
+	 */
 	(void) snpf(Lf->type, sizeof(Lf->type), "KQUEUE");
 	nb = proc_pidfdinfo(pid, fd, PROC_PIDFDKQUEUEINFO, &kq, sizeof(kq));
 	if (nb <= 0) {
@@ -396,13 +396,13 @@ process_kqueue(pid, fd)
 		sizeof(kq), nb);
 	    Error();
 	}
-/*
- * Enter the kernel queue file information.
- */
+	/*
+	 * Enter the kernel queue file information.
+	 */
 	enter_file_info(&kq.pfi);
-/*
- * Enter queue counts as NAME column information.
- */
+	/*
+	 * Enter queue counts as NAME column information.
+	 */
 	(void) snpf(Namech, Namechl,
 	    "count=%" SZOFFPSPEC "u, state=%#x",
 	    (SZOFFTYPE)kq.kqueueinfo.kq_stat.vst_size,
@@ -423,33 +423,33 @@ process_pipe_common(pi)
         size_t sz;
 
 	(void) snpf(Lf->type, sizeof(Lf->type), "PIPE");
-/*
- * Enter the pipe handle as the device.
- */
+	/*
+	 * Enter the pipe handle as the device.
+	 */
 	(void) snpf(dev_ch, sizeof(dev_ch), "%s",
 	    print_kptr((KA_T)pi->pipeinfo.pipe_handle, (char *)NULL, 0));
 	enter_dev_ch(dev_ch);
-/*
- * Enable offset or size reporting.
- */
+	/*
+	 * Enable offset or size reporting.
+	 */
 	if (Foffset)
 	    Lf->off_def = 1;
 	else {
 	    Lf->sz = (SZOFFTYPE)pi->pipeinfo.pipe_stat.vst_blksize;
 	    Lf->sz_def = 1;
 	}
-/*
- * If there is a peer handle, enter it in as NAME column information.
- */
+	/*
+	 * If there is a peer handle, enter it in as NAME column information.
+	 */
 	if (pi->pipeinfo.pipe_peerhandle) {
 	    (void) snpf(Namech, Namechl, "->%s",
 		print_kptr((KA_T)pi->pipeinfo.pipe_peerhandle, (char *)NULL, 0));
 	    enter_nm(Namech);
 	} else
 	    Namech[0] = '\0';
-/*
- * If the pipe has a count, add it to the NAME column.
- */
+	/*
+	 * If the pipe has a count, add it to the NAME column.
+	 */
 	if (pi->pipeinfo.pipe_stat.vst_size) {
 	    ep = endnm(&sz);
 	    (void) snpf(ep, sz, ", cnt=%" SZOFFPSPEC "u",
@@ -465,9 +465,9 @@ process_pipe(pid, fd)
 {
 	int nb;
 	struct pipe_fdinfo pi;
-/*
- * Get pipe file information.
- */
+	/*
+	 * Get pipe file information.
+	 */
 	nb = proc_pidfdinfo(pid, fd, PROC_PIDFDPIPEINFO, &pi, sizeof(pi));
 	if (nb <= 0) {
 	    (void) err2nm("pipe");
@@ -494,9 +494,9 @@ process_fileport_pipe(pid, fp)
 {
 	int nb;
 	struct pipe_fdinfo pi;
-/*
- * Get pipe file information.
- */
+	/*
+	 * Get pipe file information.
+	 */
 	nb = proc_pidfileportinfo(pid, fp, PROC_PIDFILEPORTPIPEINFO, &pi, sizeof(pi));
 	if (nb <= 0) {
 	    (void) err2nm("pipe");
@@ -527,9 +527,9 @@ process_psem(pid, fd)
 {
 	int nb;
 	struct psem_fdinfo ps;
-/*
- * Get the sempaphore file information.
- */
+	/*
+	 * Get the sempaphore file information.
+	 */
 	(void) snpf(Lf->type, sizeof(Lf->type), "PSXSEM");
 	nb = proc_pidfdinfo(pid, fd, PROC_PIDFDPSEMINFO, &ps, sizeof(ps));
 	if (nb <= 0) {
@@ -544,22 +544,22 @@ process_psem(pid, fd)
 		sizeof(ps), nb);
 	    Error();
 	}
-/*
- * Enter the semaphore file information.
- */
+	/*
+	 * Enter the semaphore file information.
+	 */
 	enter_file_info(&ps.pfi);
-/*
- * If there is a semaphore file name, enter it.
- */
+	/*
+	 * If there is a semaphore file name, enter it.
+	 */
 	if (ps.pseminfo.psem_name[0]) {
 	    ps.pseminfo.psem_name[sizeof(ps.pseminfo.psem_name) - 1] = '\0';
 	    (void) snpf(Namech, Namechl, "%s", ps.pseminfo.psem_name);
 	    enter_nm(Namech);
 	}
-/*
- * Unless file size has been specifically requested, enable the printing of
- * file offset.
- */
+	/*
+	 * Unless file size has been specifically requested, enable the printing of
+	 * file offset.
+	 */
 	if (!Fsize)
 	    Lf->off_def = 1;
 }
@@ -574,14 +574,14 @@ process_pshm_common(ps)
 	struct pshm_fdinfo *ps;
 {
 	(void) snpf(Lf->type, sizeof(Lf->type), "PSXSHM");
-/*
- * Enter the POSIX shared memory file information.
- */
+	/*
+	 * Enter the POSIX shared memory file information.
+	 */
 	enter_file_info(&ps->pfi);
-/*
- * If the POSIX shared memory file has a path name, enter it; otherwise, if it
- * has a mapping address, enter that.
- */
+	/*
+	 * If the POSIX shared memory file has a path name, enter it; otherwise, if it
+	 * has a mapping address, enter that.
+	 */
 	if (ps->pshminfo.pshm_name[0]) {
 	    ps->pshminfo.pshm_name[sizeof(ps->pshminfo.pshm_name) - 1] = '\0';
 	    (void) snpf(Namech, Namechl, "%s", ps->pshminfo.pshm_name);
@@ -591,9 +591,9 @@ process_pshm_common(ps)
 		print_kptr((KA_T)ps->pshminfo.pshm_mappaddr, (char *)NULL, 0));
 	    enter_nm(Namech);
 	}
-/*
- * Enable offset or size reporting.
- */
+	/*
+	 * Enable offset or size reporting.
+	 */
 	if (Foffset)
 	    Lf->off_def = 1;
 	else {
@@ -610,9 +610,9 @@ process_pshm(pid, fd)
 {
 	int nb;
 	struct pshm_fdinfo ps;
-/*
- * Get the POSIX shared memory file information.
- */
+	/*
+	 * Get the POSIX shared memory file information.
+	 */
 	nb = proc_pidfdinfo(pid, fd, PROC_PIDFDPSHMINFO, &ps, sizeof(ps));
 	if (nb <= 0) {
 	    (void) err2nm("POSIX shared memory");
@@ -639,9 +639,9 @@ process_fileport_pshm(pid, fp)
 {
 	int nb;
 	struct pshm_fdinfo ps;
-/*
- * Get the POSIX shared memory file information.
- */
+	/*
+	 * Get the POSIX shared memory file information.
+	 */
 	nb = proc_pidfileportinfo(pid, fp, PROC_PIDFILEPORTPSHMINFO, &ps, sizeof(ps));
 	if (nb <= 0) {
 	    (void) err2nm("POSIX shared memory");
@@ -669,9 +669,9 @@ static void
 process_vnode_common(vi)
 	struct vnode_fdinfowithpath *vi;
 {
-/*
- * Enter the file and vnode information.
- */
+	/*
+	 * Enter the file and vnode information.
+	 */
 	enter_file_info(&vi->pfi);
 	enter_vnode_info(&vi->pvip);
 }
@@ -689,12 +689,12 @@ process_vnode(pid, fd)
 	if (nb <= 0) {
 	    if (errno == ENOENT) {
 
-	    /*
-	     * The file descriptor's vnode may have been revoked.  This is a
-	     * bit of a hack, since an ENOENT error might not always mean the
-	     * descriptor's vnode has been revoked.  As the libproc API
-	     * matures, this code may need to be revisited.
-	     */
+		/*
+		 * The file descriptor's vnode may have been revoked.  This is a
+		 * bit of a hack, since an ENOENT error might not always mean the
+		 * descriptor's vnode has been revoked.  As the libproc API
+		 * matures, this code may need to be revisited.
+		 */
 		enter_nm("(revoked)");
 	    } else
 		(void) err2nm("vnode");
@@ -726,12 +726,12 @@ process_fileport_vnode(pid, fp)
 	if (nb <= 0) {
 	    if (errno == ENOENT) {
 
-	    /*
-	     * The file descriptor's vnode may have been revoked.  This is a
-	     * bit of a hack, since an ENOENT error might not always mean the
-	     * descriptor's vnode has been revoked.  As the libproc API
-	     * matures, this code may need to be revisited.
-	     */
+		/*
+		 * The file descriptor's vnode may have been revoked.  This is a
+		 * bit of a hack, since an ENOENT error might not always mean the
+		 * descriptor's vnode has been revoked.  As the libproc API
+		 * matures, this code may need to be revisited.
+		 */
 		enter_nm("(revoked)");
 	    } else
 		(void) err2nm("vnode");

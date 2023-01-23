@@ -36,7 +36,7 @@
 
 #ifndef lint
 static char copyright[] =
-"@(#) Copyright 2005 Apple Computer, Inc. and Purdue Research Foundation.\nAll rights reserved.\n";
+    "@(#) Copyright 2005 Apple Computer, Inc. and Purdue Research Foundation.\nAll rights reserved.\n";
 #endif
 
 
@@ -50,21 +50,21 @@ struct file *Cfp;			/* curent file's file struct pointer */
  */
 
 struct pff_tab Pff_tab[] = {
-	{ (long)FREAD,		FF_READ		},
-	{ (long)FWRITE,		FF_WRITE	},
-	{ (long)FNONBLOCK,	FF_NBLOCK	},
-	{ (long)FNDELAY,	FF_NDELAY	},
-	{ (long)FAPPEND,	FF_APPEND	},
-	{ (long)FASYNC,		FF_ASYNC	},
-	{ (long)FFSYNC,		FF_FSYNC	},
+    { (long)FREAD,		FF_READ		},
+    { (long)FWRITE,		FF_WRITE	},
+    { (long)FNONBLOCK,	FF_NBLOCK	},
+    { (long)FNDELAY,	FF_NDELAY	},
+    { (long)FAPPEND,	FF_APPEND	},
+    { (long)FASYNC,		FF_ASYNC	},
+    { (long)FFSYNC,		FF_FSYNC	},
 
 # if	defined(FHASLOCK)
-	{ (long)FHASLOCK,	FF_HASLOCK	},
+    { (long)FHASLOCK,	FF_HASLOCK	},
 # endif	/* defined(FHASLOCK) */
 
-	{ (long)O_NOCTTY,	FF_NOCTTY	},
-	{ (long)O_EVTONLY,	FF_EVTONLY	},
-	{ (long)0,		NULL 		}
+    { (long)O_NOCTTY,	FF_NOCTTY	},
+    { (long)O_EVTONLY,	FF_EVTONLY	},
+    { (long)0,		NULL 		}
 };
 
 
@@ -75,30 +75,30 @@ struct pff_tab Pff_tab[] = {
 struct pff_tab Pof_tab[] = {
 
 # if	defined(PROC_FP_SHARED)
-	{ (long)PROC_FP_SHARED,	"SH"		},
+    { (long)PROC_FP_SHARED,	"SH"		},
 # endif	/* defined(PROC_FP_SHARED) */
 
 # if	defined(PROC_FP_CLEXEC)
-	{ (long)PROC_FP_CLEXEC,	POF_CLOEXEC	},
+    { (long)PROC_FP_CLEXEC,	POF_CLOEXEC	},
 # endif	/* defined(PROC_FP_CLEXEC) */
 
 # if	defined(PROC_FP_GUARDED)
-	{ (long)PROC_FP_GUARDED,"GRD"		},
+    { (long)PROC_FP_GUARDED,"GRD"		},
 # endif	/* defined(PROC_FP_GUARDED) */
 
 # if	defined(UF_CLOSING)
-	{ (long)UF_CLOSING,	POF_CLOSING	},
+    { (long)UF_CLOSING,	POF_CLOSING	},
 # endif	/* defined(UF_CLOSING) */
 
 # if	defined(UF_EXCLOSE)
-	{ (long)UF_EXCLOSE,	POF_CLOEXEC	},
+    { (long)UF_EXCLOSE,	POF_CLOEXEC	},
 # endif	/* defined(UF_EXCLOSE) */
 
 # if	defined(UF_RESERVED)
-	{ (long)UF_RESERVED,	POF_RESERVED	},
+    { (long)UF_RESERVED,	POF_RESERVED	},
 # endif	/* defined(UF_RESERVED) */
 
-	{ (long)0,		NULL		}
+    { (long)0,		NULL		}
 };
 #endif	/* defined(HASFSTRUCT) */
 
@@ -109,11 +109,11 @@ struct pff_tab Pof_tab[] = {
  */
 
 struct pff_tab Pgf_tab[] = {
-	{ (long)PROC_FI_GUARD_CLOSE,		"CLOSE"		},
-	{ (long)PROC_FI_GUARD_DUP,		"DUP"		},
-	{ (long)PROC_FI_GUARD_SOCKET_IPC,	"SOCKET"	},
-	{ (long)PROC_FI_GUARD_FILEPORT,		"FILEPORT"	},
+    { (long)PROC_FI_GUARD_CLOSE,		"CLOSE"		},
+    { (long)PROC_FI_GUARD_DUP,		"DUP"		},
+    { (long)PROC_FI_GUARD_SOCKET_IPC,	"SOCKET"	},
+    { (long)PROC_FI_GUARD_FILEPORT,		"FILEPORT"	},
 
-	{ (long)0,				NULL		}
+    { (long)0,				NULL		}
 };
 #endif	/* defined(PROC_FP_GUARDED) */

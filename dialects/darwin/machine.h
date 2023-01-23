@@ -238,18 +238,18 @@
  * private lfile elements are used.
  */
 
-#define	HASLFILEADD char *V_path; \
-		    mach_port_t fileport; \
-		    uint32_t guardflags;
-#define CLRLFILEADD(lf)	if (lf->V_path) { \
-			    (void) free((FREE_P *)lf->V_path); \
-			    lf->V_path = (char *)NULL; \
-			} \
-			lf->fileport = MACH_PORT_NULL; \
-			lf->guardflags = 0;
-#define SETLFILEADD Lf->V_path = (char *)NULL; \
-		    Lf->fileport = MACH_PORT_NULL; \
-		    Lf->guardflags = 0;
+#define	HASLFILEADD char *V_path;		\
+    mach_port_t fileport;			\
+    uint32_t guardflags;
+#define CLRLFILEADD(lf)	if (lf->V_path) {	\
+	(void) free((FREE_P *)lf->V_path);	\
+	lf->V_path = (char *)NULL;		\
+    }						\
+    lf->fileport = MACH_PORT_NULL;		\
+    lf->guardflags = 0;
+#define SETLFILEADD Lf->V_path = (char *)NULL;	\
+    Lf->fileport = MACH_PORT_NULL;		\
+    Lf->guardflags = 0;
 
 
 /*
@@ -560,10 +560,8 @@
  * These are defined here, because they must be used in dlsof.h.
  */
 
-#define	INODETYPE	unsigned long long
-					/* inode number internal storage type */
-#define	INODEPSPEC	"ll"		/* INODETYPE printf specification
-					 * modifier */
+#define	INODETYPE	unsigned long long /* inode number internal storage type */
+#define	INODEPSPEC	"ll"		/* INODETYPE printf specification modifier */
 
 
 /*

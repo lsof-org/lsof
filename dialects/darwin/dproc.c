@@ -36,7 +36,7 @@
 
 #ifndef lint
 static char copyright[] =
-"@(#) Copyright 2005-2007 Apple Inc. and Purdue Research Foundation.\nAll rights reserved.\n";
+    "@(#) Copyright 2005-2007 Apple Inc. and Purdue Research Foundation.\nAll rights reserved.\n";
 #endif
 
 #include "lsof.h"
@@ -61,8 +61,7 @@ static char copyright[] =
  * Local static variables
  */
 
-static struct proc_fdinfo *Fds = (struct proc_fdinfo *)NULL;
-						/* FD buffer */
+static struct proc_fdinfo *Fds = (struct proc_fdinfo *)NULL; /* FD buffer */
 static int NbPids = 0;				/* bytes allocated to Pids */
 static int NbFds = 0;				/* bytes allocated to FDs */
 static int *Pids = (int *)NULL;			/* PID buffer */
@@ -73,8 +72,7 @@ static uint64_t *Threads = (uint64_t *)NULL;	/* Thread buffer */
 #endif	/* DARWINV>=900 */
 
 #if	defined(PROC_PIDLISTFILEPORTS)
-static struct proc_fileportinfo *Fps = (struct proc_fileportinfo *)NULL;
-						/* fileport buffer */
+static struct proc_fileportinfo *Fps = (struct proc_fileportinfo *)NULL; /* fileport buffer */
 static int NbFps = 0;				/* bytes allocated to fileports */
 #endif	/* PROC_PIDLISTFILEPORTS */
 
@@ -115,9 +113,9 @@ enter_vn_text(vip, n)
 	int *n;				/* number of vips[] entries in use */
 {
 	int i;
-/*
- * Ignore the request if the vnode information has already been entered.
- */
+	/*
+	 * Ignore the request if the vnode information has already been entered.
+	 */
 	for (i = 0; i < *n; i++) {
 	    if ((vip->vip_vi.vi_stat.vst_dev == Vips[i].dev)
 	    &&  (vip->vip_vi.vi_stat.vst_ino == Vips[i].ino))
@@ -125,22 +123,22 @@ enter_vn_text(vip, n)
 		return;
 	    }
 	}
-/*
- * Save the text file information.
- */
+	/*
+	 * Save the text file information.
+	 */
 	alloc_lfile(" txt", -1);
 	Cfp = (struct file *)NULL;
 	(void) enter_vnode_info(vip);
 	if (Lf->sf)
 	    link_lfile();
-/*
- * Record the entry of the vnode information.
- */
+	/*
+	 * Record the entry of the vnode information.
+	 */
 	if (i >= NVips) {
 
-	/*
-	 * Allocate space for recording the vnode information.
-	 */
+	    /*
+	     * Allocate space for recording the vnode information.
+	     */
 	    NVips += VIPS_INCR;
 	    NbVips += (int)(VIPS_INCR * sizeof(struct vips_info));
 	    if (!Vips)
@@ -154,9 +152,9 @@ enter_vn_text(vip, n)
 		Error();
 	    }
 	}
-/*
- * Record the vnode information.
- */
+	/*
+	 * Record the vnode information.
+	 */
 	Vips[*n].dev = vip->vip_vi.vi_stat.vst_dev;
 	Vips[*n].ino = vip->vip_vi.vi_stat.vst_ino;
 	(*n)++;
@@ -184,42 +182,42 @@ gather_proc_info()
 	short pss, sf;
 	struct proc_taskallinfo tai;
 	struct proc_vnodepathinfo vpi;
-/*
- * Define socket and regular file conditional processing flags.
- *
- * If only socket files have been selected, or socket files have been
- * selected, ANDed with other selection options, enable the skipping of
- * regular files.
- *
- * If socket files and some process options have been selected, enable
- * conditional skipping of regular file; i.e., regular files will be skipped
- * unless they belong to a process selected by one of the specified options.
- */
+	/*
+	 * Define socket and regular file conditional processing flags.
+	 *
+	 * If only socket files have been selected, or socket files have been
+	 * selected, ANDed with other selection options, enable the skipping of
+	 * regular files.
+	 *
+	 * If socket files and some process options have been selected, enable
+	 * conditional skipping of regular file; i.e., regular files will be skipped
+	 * unless they belong to a process selected by one of the specified options.
+	 */
 	if (Selflags & SELNW) {
 
-	/*
-	 * Some network files selection options have been specified.
-	 */
+	    /*
+	     * Some network files selection options have been specified.
+	     */
 	    if (Fand || !(Selflags & ~SELNW)) {
 
-	    /*
-	     * Selection ANDing or only network file options have been
-	     * specified, so set unconditional skipping of regular files
-	     * and socket file only checking.
-	     */
+		/*
+		 * Selection ANDing or only network file options have been
+		 * specified, so set unconditional skipping of regular files
+		 * and socket file only checking.
+		 */
 		cckreg = 0;
 		ckscko = 1;
 	    } else {
 
-	    /*
-	     * If ORed file selection options have been specified, or no
-	     * ORed process selection options have been specified, enable
-	     * unconditional file checking and clear socket file only
-	     * checking.
-	     *
-	     * If only ORed process selection options have been specified,
-	     * enable conditional file skipping and socket file only checking.
-	     */
+		/*
+		 * If ORed file selection options have been specified, or no
+		 * ORed process selection options have been specified, enable
+		 * unconditional file checking and clear socket file only
+		 * checking.
+		 *
+		 * If only ORed process selection options have been specified,
+		 * enable conditional file skipping and socket file only checking.
+		 */
 		if ((Selflags & SELFILE) || !(Selflags & SelProc))
 		    cckreg = ckscko = 0;
 		else
@@ -227,17 +225,17 @@ gather_proc_info()
 	    }
 	} else {
 
-	/*
-	 * No network file selection options were specified.  Enable
-	 * unconditional file checking and clear socket file only checking.
-	 */
+	    /*
+	     * No network file selection options were specified.  Enable
+	     * unconditional file checking and clear socket file only checking.
+	     */
 	    cckreg = ckscko = 0;
 	}
-/*
- * Determine how many bytes are needed to contain the PIDs on the system;
- * make sure sufficient buffer space is allocated to hold them (and a few
- * extra); then read the list of PIDs.
- */
+	/*
+	 * Determine how many bytes are needed to contain the PIDs on the system;
+	 * make sure sufficient buffer space is allocated to hold them (and a few
+	 * extra); then read the list of PIDs.
+	 */
 	if ((nb = proc_listpids(PROC_ALL_PIDS, 0, NULL, 0)) <= 0) {
 	    (void) fprintf(stderr, "%s: can't get PID byte count: %s\n",
 		Pn, strerror(errno));
@@ -258,9 +256,9 @@ gather_proc_info()
 		Error();
 	    }
 	}
-/*
- * Get the list of PIDs.
- */
+	/*
+	 * Get the list of PIDs.
+	 */
 	for (ef = 0; !ef;) {
 	    if ((nb = proc_listpids(PROC_ALL_PIDS, 0, Pids, NbPids)) <= 0) {
 		(void) fprintf(stderr, "%s: can't get list of PIDs: %s\n",
@@ -270,16 +268,16 @@ gather_proc_info()
 
 	    if ((nb + sizeof(int)) < NbPids) {
 
-	    /*
-	     * There is room in the buffer for at least one more PID.
-	     */
+		/*
+		 * There is room in the buffer for at least one more PID.
+		 */
 		np = nb / sizeof(int);
 		ef = 1;
 	    } else {
 
-	    /*
-	     * The PID buffer must be enlarged.
-	     */
+		/*
+		 * The PID buffer must be enlarged.
+		 */
 		NbPids += PIDS_INCR;
 		Pids = (int *)realloc((MALLOC_P *)Pids, (MALLOC_S)NbPids);
 		if (!Pids) {
@@ -290,9 +288,9 @@ gather_proc_info()
 		}
 	    }
 	}
-/*
- * Loop through the identified processes.
- */
+	/*
+	 * Loop through the identified processes.
+	 */
 	for (i = 0; i < np; i++) {
 	    if (!(pid = Pids[i]))
 		continue;
@@ -332,16 +330,16 @@ gather_proc_info()
 	    }
 	    if (cckreg) {
 
-	    /*
-	     * If conditional checking of regular files is enabled, enable
-	     * socket file only checking, based on the process' selection
-	     * status.
-	     */
+		/*
+		 * If conditional checking of regular files is enabled, enable
+		 * socket file only checking, based on the process' selection
+		 * status.
+		 */
 		ckscko = (sf & SelProc) ? 0 : 1;
 	    }
-	/*
-	 * Get root and current directory information.
-	 */
+	    /*
+	     * Get root and current directory information.
+	     */
 	    if (!ckscko) {
 		nb = proc_pidinfo(pid, PROC_PIDVNODEPATHINFO, 0, &vpi,
 		     sizeof(vpi));
@@ -371,20 +369,20 @@ gather_proc_info()
 					       : tai.pbsd.pbi_comm,
 		(int)pss, (int)sf);
 	    Plf = (struct lfile *)NULL;
-	/*
-	 * Save current working directory information.
-	 */
+	    /*
+	     * Save current working directory information.
+	     */
 	    if (!ckscko) {
 		if (cres || vpi.pvi_cdir.vip_path[0]) {
 		    alloc_lfile(CWD, -1);
 		    Cfp = (struct file *)NULL;
 		    if (cres) {
 
-		    /*
-		     * If the CWD|RTD information access error is ESRCH,
-		     * ignore it; otherwise report the error's message in the
-		     * CWD's NAME  column.
-		     */
+			/*
+			 * If the CWD|RTD information access error is ESRCH,
+			 * ignore it; otherwise report the error's message in the
+			 * CWD's NAME  column.
+			 */
 			if (cre != ESRCH) {
 			    (void) snpf(Namech, Namechl, "%s|%s info error: %s",
 				CWD + 1, RTD + 1, strerror(cre));
@@ -400,9 +398,9 @@ gather_proc_info()
 		    }
 		}
 	    }
-	/*
-	 * Save root directory information.
-	 */
+	    /*
+	     * Save root directory information.
+	     */
 	    if (!ckscko) {
 		if (!cres && vpi.pvi_rdir.vip_path[0]) {
 		    alloc_lfile(RTD, -1);
@@ -414,9 +412,9 @@ gather_proc_info()
 	    }
 
 #if	DARWINV>=900
-	/*
-	 * Check for per-thread current working directories
-	 */
+	    /*
+	     * Check for per-thread current working directories
+	     */
 	    if (!ckscko) {
 		if (tai.pbsd.pbi_flags & PROC_FLAG_THCWD) {
 	    	    (void) process_threads(pid, tai.ptinfo.pti_threadnum);
@@ -431,9 +429,9 @@ gather_proc_info()
 		(void) process_text(pid);
 
 #if	defined(PROC_PIDLISTFILEPORTS)
-	/*
-	 * Loop through the fileports
-	 */
+	    /*
+	     * Loop through the fileports
+	     */
 	    (void) process_fileports(pid, ckscko);
 #endif	/* PROC_PIDLISTFILEPORTS */
 
@@ -441,9 +439,9 @@ gather_proc_info()
 	 * Loop through the file descriptors.
 	 */
 	    (void) process_fds(pid, tai.pbsd.pbi_nfiles, ckscko);
-	/*
-	 * Examine results.
-	 */
+	    /*
+	     * Examine results.
+	     */
 	    if (examine_lproc())
 		return;
 	}
@@ -472,17 +470,17 @@ process_fds(pid, n, ckscko)
 {
 	int i, isock, nb, nf;
 	struct proc_fdinfo *fdp;
-/*
- * Make sure an FD buffer has been allocated.
- */
+	/*
+	 * Make sure an FD buffer has been allocated.
+	 */
 	if (!Fds) {
 	    NbFds = sizeof(struct proc_fdinfo) * n;
 	    Fds = (struct proc_fdinfo *)malloc((MALLOC_S)NbFds);
 	} else if (NbFds < sizeof(struct proc_fdinfo) * n) {
 
-	/*
-	 * More proc_fdinfo space is required.  Allocate it.
-	 */
+	    /*
+	     * More proc_fdinfo space is required.  Allocate it.
+	     */
 	    NbFds = sizeof(struct proc_fdinfo) * n;
 	    Fds = (struct proc_fdinfo *)realloc((MALLOC_P *)Fds,
 						(MALLOC_S)NbFds);
@@ -493,21 +491,21 @@ process_fds(pid, n, ckscko)
 		Pn, pid, (int)(NbFds / sizeof(struct proc_fdinfo)));
 	    Error();
 	}
-/*
- * Get FD information for the process.
- */
+	/*
+	 * Get FD information for the process.
+	 */
 	nb = proc_pidinfo(pid, PROC_PIDLISTFDS, 0, Fds, NbFds);
 	if (nb <= 0) {
 	    if (errno == ESRCH) {
 
-	    /*
-	     * Quit if no FD information is available for the process.
-	     */
+		/*
+		 * Quit if no FD information is available for the process.
+		 */
 		return;
 	    }
-	/*
-	 * Make a dummy file entry with an error message in its NAME column.
-	 */
+	    /*
+	     * Make a dummy file entry with an error message in its NAME column.
+	     */
 	    alloc_lfile(" err", -1);
 	    (void) snpf(Namech, Namechl, "FD info error: %s", strerror(errno));
 	    Namech[Namechl - 1] = '\0';
@@ -517,15 +515,15 @@ process_fds(pid, n, ckscko)
 	    return;
 	}
 	nf = (int)(nb / sizeof(struct proc_fdinfo));
-/*
- * Loop through the file descriptors.
- */
+	/*
+	 * Loop through the file descriptors.
+	 */
 	for (i = 0; i < nf; i++) {
 	    fdp = &Fds[i];
 	    alloc_lfile(NULL, (int)fdp->proc_fd);
-	/*
-	 * Process the file by its type.
-	 */
+	    /*
+	     * Process the file by its type.
+	     */
 	    isock = 0;
 	    switch (fdp->proc_fdtype) {
 	    case PROX_FDTYPE_ATALK:
@@ -586,9 +584,9 @@ process_fileports(pid, ckscko)
 	int ef, i, isock, nb = 0, nf;
 	struct proc_fileportinfo *fpi;
 
-/*
- * Get fileport information for the process.
- */
+	/*
+	 * Get fileport information for the process.
+	 */
 	for (ef = 0; !ef;) {
 	    nb = proc_pidinfo(pid, PROC_PIDLISTFILEPORTS, 0, Fps, NbFps);
 	    if (nb == 0) {
@@ -600,14 +598,14 @@ process_fileports(pid, ckscko)
 	    } else if (nb < 0) {
 		if (errno == ESRCH) {
 
-		/*
-		 * Quit if no fileport information is available for the process.
-		 */
+		    /*
+		     * Quit if no fileport information is available for the process.
+		     */
 		    return;
 		}
-	    /*
-	     * Make a dummy file entry with an error message in its NAME column.
-	     */
+		/*
+		 * Make a dummy file entry with an error message in its NAME column.
+		 */
 		alloc_lfile(" err", -1);
 		(void) snpf(Namech, Namechl, "FILEPORT info error: %s", strerror(errno));
 		Namech[Namechl - 1] = '\0';
@@ -618,9 +616,9 @@ process_fileports(pid, ckscko)
 
 	    if ((nb + sizeof(struct proc_fileportinfo)) < NbFps) {
 
-    	    /*
-	     * There is room in the buffer for at least one more fileport.
-	     */
+		/*
+		 * There is room in the buffer for at least one more fileport.
+		 */
 		ef = 1;
 	    } else {
 		if (Fps && ((nb = proc_pidinfo(pid, PROC_PIDLISTFILEPORTS, 0, NULL, 0)) <= 0)) {
@@ -642,20 +640,20 @@ process_fileports(pid, ckscko)
 	    }
 	}
 
-/*
- * Loop through the fileports.
- */
+	/*
+	 * Loop through the fileports.
+	 */
 	nf = (int)(nb / sizeof(struct proc_fileportinfo));
 	for (i = 0; i < nf; i++) {
 	    fpi = &Fps[i];
-	/*
-	 * fileport reported as "fp." with "(fileport=0xXXXX)" in the Name column
-	 */
+	    /*
+	     * fileport reported as "fp." with "(fileport=0xXXXX)" in the Name column
+	     */
 	    alloc_lfile(" fp.", -1);
 	    Lf->fileport = fpi->proc_fileport;
-	/*
-	 * Process the file by its type.
-	 */
+	    /*
+	     * Process the file by its type.
+	     */
 	    isock = 0;
 	    switch (fpi->proc_fdtype) {
 	    case PROX_FDTYPE_PIPE:
@@ -706,15 +704,15 @@ process_text(pid)
 	    if (nb <= 0) {
 		if ((errno == ESRCH) || (errno == EINVAL)) {
 
-		/*
-		 * Quit if no more text information is available for the
-		 * process.
-		 */
+		    /*
+		     * Quit if no more text information is available for the
+		     * process.
+		     */
 		    return;
 		}
-	    /*
-	     * Warn about all other errors via a NAME column message.
-	     */
+		/*
+		 * Warn about all other errors via a NAME column message.
+		 */
 		alloc_lfile(" txt", -1);
 		Cfp = (struct file *)NULL;
 		(void) snpf(Namech, Namechl,
@@ -754,9 +752,9 @@ process_threads(pid, n)
 	uint32_t n;			/* number of threads */
 {
 	int i, nb, nt;
-/*
- * Make sure a thread buffer has been allocated.
- */
+	/*
+	 * Make sure a thread buffer has been allocated.
+	 */
 	n += 10;
 	if (n > NbThreads) {
 	    while (n > NbThreads) {
@@ -774,24 +772,24 @@ process_threads(pid, n)
 		Error();
 	    }
 	}
-/*
- * Get thread information for the process.
- */
+	/*
+	 * Get thread information for the process.
+	 */
 	nb = proc_pidinfo(pid, PROC_PIDLISTTHREADS, 0, Threads, NbThreads);
 	if (nb <= 0) {
 	    if (errno == ESRCH) {
 
-	    /*
-	     * Quit if no thread information is available for the
-	     * process.
-	     */
+		/*
+		 * Quit if no thread information is available for the
+		 * process.
+		 */
 		return;
 	    }
 	}
 	nt = (int)(nb / sizeof(uint64_t));
-/*
- * Loop through the threads.
- */
+	/*
+	 * Loop through the threads.
+	 */
 	for (i = 0; i < nt; i++) {
 	    uint64_t t;
 	    struct proc_threadwithpathinfo tpi;
@@ -802,15 +800,15 @@ process_threads(pid, n)
 	    if (nb <= 0) {
 		if ((errno == ESRCH) || (errno == EINVAL)) {
 
-		/*
-		 * Quit if no more thread information is available for the
-		 * process.
-		 */
+		    /*
+		     * Quit if no more thread information is available for the
+		     * process.
+		     */
 		    return;
 		}
-	    /*
-	     * Warn about all other errors via a NAME column message.
-	     */
+		/*
+		 * Warn about all other errors via a NAME column message.
+		 */
 		alloc_lfile(TWD, -1);
 		Cfp = (struct file *)NULL;
 		(void) snpf(Namech, Namechl,

@@ -36,7 +36,7 @@
 
 #ifndef lint
 static char copyright[] =
-"@(#) Copyright 2005  Apple Computer, Inc. and Purdue Research Foundation.\nAll rights reserved.\n";
+    "@(#) Copyright 2005  Apple Computer, Inc. and Purdue Research Foundation.\nAll rights reserved.\n";
 #endif
 
 
@@ -73,31 +73,31 @@ readmnt()
 
 	if (Lmi || Lmist)
 	    return(Lmi);
-/*
- * Access mount information.
- */
+	/*
+	 * Access mount information.
+	 */
 	if ((n = getmntinfo(&mb, MNT_NOWAIT)) <= 0) {
 	    (void) fprintf(stderr, "%s: no mount information\n", Pn);
 	    return(0);
 	}
-/*
- * Read mount information.
- */
+	/*
+	 * Read mount information.
+	 */
 	for (; n; n--, mb++) {
 
 	    if (!mb->f_type)
 		continue;
-	/*
-	 * Avoid file systems that are not appropriate paths to
-	 * user data (e.g. automount maps, triggers).
-	 */
+	    /*
+	     * Avoid file systems that are not appropriate paths to
+	     * user data (e.g. automount maps, triggers).
+	     */
 #if	defined(DIR_MNTSTATUS_TRIGGER)
 	    (void) bzero((char *)&al, sizeof(al));
 	    al.bitmapcount = ATTR_BIT_MAP_COUNT;
 	    al.dirattr     = ATTR_DIR_MOUNTSTATUS;
 	    if (getattrlist(mb->f_mntonname, &al, &ab, sizeof(ab), 0) == 0) {
 		if (ab.mount_flags & DIR_MNTSTATUS_TRIGGER)
-			continue;	// if mount trigger
+		    continue;	// if mount trigger
 	    }
 #else	/* !defined(DIR_MNTSTATUS_TRIGGER) */
 	    if (mb->f_flags & MNT_AUTOMOUNTED) {
@@ -114,7 +114,7 @@ readmnt()
 		(void) free((FREE_P *)dn);
 	    if (!(dn = mkstrcpy(mb->f_mntonname, (MALLOC_S *)NULL))) {
 
-no_space_for_mount:
+	      no_space_for_mount:
 
 		(void) fprintf(stderr, "%s: no space for mount at ", Pn);
 		safestrprt(mb->f_mntonname, stderr, 0);
@@ -136,9 +136,9 @@ no_space_for_mount:
 	    }
 	    if (*dn != '/')
 		continue;
-	/*
-	 * Stat() the directory.
-	 */
+	    /*
+	     * Stat() the directory.
+	     */
 	    if (statsafely(dn, &sb)) {
 		if (!Fwarn) {
 		    (void) fprintf(stderr, "%s: WARNING: can't stat() ", Pn);
@@ -159,9 +159,9 @@ no_space_for_mount:
 			sb.st_dev);
 		}
 	    }
-	/*
-	 * Allocate and fill a local mount structure.
-	 */
+	    /*
+	     * Allocate and fill a local mount structure.
+	     */
 	    if (!(mtp = (struct mounts *)malloc(sizeof(struct mounts))))
 		goto no_space_for_mount;
 	    mtp->dir = dn;
@@ -172,27 +172,27 @@ no_space_for_mount:
 	    mtp->inode = (INODETYPE)sb.st_ino;
 	    mtp->mode = sb.st_mode;
 	    mtp->is_nfs = strcasecmp(mb->f_fstypename, "nfs") ? 0 : 1;
-	/*
-	 * Interpolate a possible file system (mounted-on) device name link.
-	 */
+	    /*
+	     * Interpolate a possible file system (mounted-on) device name link.
+	     */
 	    if (!(dn = mkstrcpy(mb->f_mntfromname, (MALLOC_S *)NULL)))
 		goto no_space_for_mount;
 	    mtp->fsname = dn;
 	    ln = Readlink(dn);
 	    dn = (char *)NULL;
-	/*
-	 * Stat() the file system (mounted-on) name and add file system
-	 * information to the local mount table entry.
-	 */
+	    /*
+	     * Stat() the file system (mounted-on) name and add file system
+	     * information to the local mount table entry.
+	     */
 	    if (!ln || statsafely(ln, &sb))
 		sb.st_mode = 0;
 	    mtp->fsnmres = ln;
 	    mtp->fs_mode = sb.st_mode;
 	    Lmi = mtp;
 	}
-/*
- * Clean up and return the local mount info table address.
- */
+	/*
+	 * Clean up and return the local mount info table address.
+	 */
 	if (dn)
 	    (void) free((FREE_P *)dn);
 	Lmist = 1;
