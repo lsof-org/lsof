@@ -981,6 +981,9 @@ usage(err, fh, version)
 #if	defined(HAS_KF_SOCK_SENDQ)
 		"kf_sock_sendq",
 #endif
+#if	defined(HAS_KF_FILE_NLINK)
+		"kf_file_nlink",
+#endif
 #if	defined(HASNULLFS)
 		"nullfs",
 #endif
