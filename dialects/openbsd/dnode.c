@@ -157,7 +157,7 @@ process_vnode(struct kinfo_file *file)
 
 	/* Handle name match, must be done late, because if_file_named checks
 	 * Lf->dev etc. */
-	if (Lf->nm && is_file_named(nm, 0)) {
+	if (is_file_named(nm, 0)) {
 		Lf->sf |= SELNM;
 	}
 
