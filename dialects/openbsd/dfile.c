@@ -54,7 +54,7 @@ process_kqueue_file(struct kinfo_file *file)
 
 	/* Fill dev with f_data if available */
 	if (file->f_data) {
-	    (void) snpf(buf, sizeof(buf), "0x%llx", file->f_data);
+	    (void) snpf(buf, sizeof(buf), "0x%" PRIx64, file->f_data);
 	    enter_dev_ch(buf);
 	}
 

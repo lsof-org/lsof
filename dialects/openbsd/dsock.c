@@ -136,10 +136,10 @@ process_socket(struct kinfo_file *file)
 
 	    /* Fill dev with pcb if available */
 	    if (file->inp_ppcb) {
-	        (void) snpf(buf, sizeof(buf), "0x%llx", file->inp_ppcb);
+	        (void) snpf(buf, sizeof(buf), "0x%" PRIx64, file->inp_ppcb);
 	        enter_dev_ch(buf);
 	    } else if (file->so_pcb) {
-	        (void) snpf(buf, sizeof(buf), "0x%llx", file->so_pcb);
+	        (void) snpf(buf, sizeof(buf), "0x%" PRIx64, file->so_pcb);
 	        enter_dev_ch(buf);
 	    }
 	} else if (file->so_family == AF_UNIX) {
@@ -179,13 +179,13 @@ process_socket(struct kinfo_file *file)
 
 	    /* Fill dev with so_pcb if available */
 	    if (file->so_pcb && file->so_pcb != (uint64_t)(-1)) {
-	        (void) snpf(buf, sizeof(buf), "0x%llx", file->so_pcb);
+	        (void) snpf(buf, sizeof(buf), "0x%" PRIx64, file->so_pcb);
 	        enter_dev_ch(buf);
 	    }
 	} else if (file->so_family == AF_ROUTE) {
 	    /* Fill dev with f_data if available */
 	    if (file->f_data) {
-	        (void) snpf(buf, sizeof(buf), "0x%llx", file->f_data);
+	        (void) snpf(buf, sizeof(buf), "0x%" PRIx64, file->f_data);
 	        enter_dev_ch(buf);
 	    }
 	}

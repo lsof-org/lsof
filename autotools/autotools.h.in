@@ -118,12 +118,12 @@
 #define HAS_V_LOCKF
 #endif
 
-// Check fdescfs v1 on FreeBSD if needed later
+/* Check fdescfs v1 on FreeBSD if needed later */
 #if HAVE_FS_FDESCFS_FDESC_H
 #define HASFDESCFS 2
 #endif
 
-// Check fdescfs v2 on NetBSD if needed later
+/* Check fdescfs v2 on NetBSD if needed later */
 #if HAVE_MISCFS_FDESC_FDESC_H
 #define HASFDESCFS 1
 #endif
