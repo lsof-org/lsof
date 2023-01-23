@@ -100,8 +100,10 @@ process_vnode(struct kinfo_file *file)
 	/* Fill file size/offset */
 	if (file->v_type == VBLK || file->v_type == VCHR) {
 	    /* blk/char devices have no size, only offset */
-	    Lf->off = file->f_offset;
-	    Lf->off_def = 1;
+	    if (file->f_offset != (uint64_t)(-1)) {
+	        Lf->off = file->f_offset;
+	        Lf->off_def = 1;
+	    }
 	} else {
 	    if (Foffset) {
 		Lf->off = file->f_offset;

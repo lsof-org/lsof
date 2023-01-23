@@ -138,7 +138,8 @@ process_socket(struct kinfo_file *file)
 	    if (file->inp_ppcb) {
 	        (void) snpf(buf, sizeof(buf), "0x%" PRIx64, file->inp_ppcb);
 	        enter_dev_ch(buf);
-	    } else if (file->so_pcb) {
+	    } else if (file->so_pcb && file->so_pcb != (uint64_t)(-1)) {
+		/* when running as non-root, -1 means not NULL */
 	        (void) snpf(buf, sizeof(buf), "0x%" PRIx64, file->so_pcb);
 	        enter_dev_ch(buf);
 	    }
