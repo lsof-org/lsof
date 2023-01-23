@@ -1,5 +1,5 @@
 /*
- * dsock.c - NetBSD and OpenBSD socket processing functions for lsof
+ * dsock.c - OpenBSD socket processing functions for lsof
  */
 
 
