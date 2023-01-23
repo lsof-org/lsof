@@ -399,6 +399,14 @@ print_file_error:
 	    "in certain FreeBSD releases (e.g. FreeBSD 13.1), thus skipping the test",
 	    Pn);
 	xv = 77;
+#elif	defined(LT_DIAL_openbsd)
+	(void) PrtMsg(
+	    "Hint: lsof is unable to get the lock status in OpenBSD",
+	    Pn);
+	(void) PrtMsg(
+	    "since OpenBSD kernel forbids kvm_read, thus skipping the test",
+	    Pn);
+	xv = 77;
 #else
 	xv = 1;
 #endif
