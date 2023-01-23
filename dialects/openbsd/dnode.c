@@ -82,11 +82,6 @@ process_vnode(struct kinfo_file *file)
 	    if (sysctl(mib, 3, path, &size, NULL, 0) >= 0) {
 		(void) snpf(Namech, Namechl, "%s", path);
 		enter_nm(Namech);
-
-		/* Handle name match */
-		if (is_file_named(path, 0)) {
-		    Lf->sf |= SELNM;
-		}
 	    }
 	}
 
@@ -158,6 +153,12 @@ process_vnode(struct kinfo_file *file)
 	    /* Handle link count filter */
 	    if (Nlink && (Lf->nlink < Nlink))
 		Lf->sf |= SELNLINK;
+	}
+
+	/* Handle name match, must be done late, because if_file_named checks
+	 * Lf->dev etc. */
+	if (Lf->nm && is_file_named(nm, 0)) {
+		Lf->sf |= SELNM;
 	}
 
 	/* Finish */
