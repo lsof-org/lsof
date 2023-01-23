@@ -38,11 +38,8 @@ static char copyright[] =
 #include "lsof.h"
 
 #if __NetBSD_Version__ > 399001800
-#ifdef HAS_LOCKF_H
+#if	defined(HAS_LOCKF_H)
 #include "lockf.h"
-#else
-#define NOLOCKF
-#endif
 #endif
 
 #if	defined(HAS_DINODE_U)
@@ -200,7 +197,7 @@ process_node(va)
 	unsigned char ns;
 	unsigned char rdevs;
 	char *ep, *ty;
-#ifndef NOLOCKF
+#if	defined(HAS_LOCKF_H)
 	struct lockf lf, *lff, *lfp;
 #endif
 	struct inode i;
@@ -648,7 +645,7 @@ process_overlaid_node:
 
 	    }
 
-#ifndef NOLOCKF
+#if	defined(HAS_LOCKF_H)
 	    if ((lff = i.i_lockf)) {
 
 	    /*
