@@ -392,6 +392,10 @@ print_file_error:
     if (tstr || tstR || tstw || tstW) {
 	tcp = (char *)NULL;
 #if	defined(LT_DIAL_freebsd)
+	/*
+	 * Note: in future FreeBSD releases with https://reviews.freebsd.org/D34756,
+	 * this will work as non-root user
+	 */
 	(void) PrtMsg(
 	    "Hint: lsof is unable to get the lock status when running as non-root",
 	    Pn);
