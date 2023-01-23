@@ -67,17 +67,17 @@ static int HbyNmCt = 0;			/* HbyNm entry count */
 					 * pair bucket count (power of 2!) */
 #define	SFFSHASH	1024		/* Sfile hash by file system device
 					 * number bucket count (power of 2!) */
+/* hash for Sfile by major device,
+ * minor device, and inode, modulo mod
+ * (mod must be a power of 2) */
 #define SFHASHDEVINO(maj, min, ino, mod) ((int)(((int)((((int)(maj+1))*((int)((min+1))))+ino)*31415)&(mod-1)))
-					/* hash for Sfile by major device,
-					 * minor device, and inode, modulo mod
-					 * (mod must be a power of 2) */
 #define	SFRDHASH	1024		/* Sfile hash by raw device number
 					 * bucket count (power of 2!) */
+/* hash for Sfile by major device,
+ * minor device, major raw device,
+ * minor raw device, and inode, modulo
+ * mod (mod must be a power of 2) */
 #define SFHASHRDEVI(maj, min, rmaj, rmin, ino, mod) ((int)(((int)((((int)(maj+1))*((int)((min+1))))+((int)(rmaj+1)*(int)(rmin+1))+ino)*31415)&(mod-1)))
-					/* hash for Sfile by major device,
-					 * minor device, major raw device,
-					 * minor raw device, and inode, modulo
-					 * mod (mod must be a power of 2) */
 #define	SFNMHASH	4096		/* Sfile hash by name bucket count
 					 * (must be a power of 2!) */
 
@@ -93,15 +93,15 @@ hashSfile()
 	int i;
 	struct sfile *s;
 	struct hsfile *sh, *sn;
-/*
- * Do nothing if there are no file search arguments cached or if the
- * hashes have already been constructed.
- */
+	/*
+	 * Do nothing if there are no file search arguments cached or if the
+	 * hashes have already been constructed.
+	 */
 	if (!Sfile || hs)
 	    return;
-/*
- * Allocate hash buckets by (device,inode), file system device, and file name.
- */
+	/*
+	 * Allocate hash buckets by (device,inode), file system device, and file name.
+	 */
 	if (!(HbyFdi = (struct hsfile *)calloc((MALLOC_S)SFDIHASH,
 					       sizeof(struct hsfile))))
 	{
@@ -135,10 +135,10 @@ hashSfile()
 	    Error();
 	}
 	hs++;
-/*
- * Scan the Sfile chain, building file, file system, raw device, and file
- * name hash bucket chains.
- */
+	/*
+	 * Scan the Sfile chain, building file, file system, raw device, and file
+	 * name hash bucket chains.
+	 */
 	for (s = Sfile; s; s = s->next) {
 	    for (i = 0; i < 3; i++) {
 		switch (i) {
@@ -175,10 +175,10 @@ hashSfile()
 		    } else
 			continue;
 		}
-	    /*
-	     * Add hash to the bucket's chain, allocating new entries for
-	     * all after the first.
-	     */
+		/*
+		 * Add hash to the bucket's chain, allocating new entries for
+		 * all after the first.
+		 */
 		if (!sh->s) {
 		    sh->s = s;
 		    sh->next = (struct hsfile *)NULL;
@@ -229,9 +229,9 @@ is_file_named(ty, p, mp, cd)
 	struct sfile *s = (struct sfile *)NULL;
 	struct hsfile *sh;
 	size_t sz;
-/*
- * Check for a path name match, as requested.
- */
+	/*
+	 * Check for a path name match, as requested.
+	 */
 	if ((ty == 2) && p && HbyNmCt) {
 	    for (sh = &HbyNm[hashbyname(p, SFNMHASH)]; sh; sh = sh->next) {
 		if ((s = sh->s) && strcmp(p, s->aname) == 0) {
@@ -240,9 +240,9 @@ is_file_named(ty, p, mp, cd)
 		}
 	    }
 	}
-/*
- * Check for a regular file by device and inode number.
- */
+	/*
+	 * Check for a regular file by device and inode number.
+	 */
 	if (!f && (ty < 2) && HbyFdiCt && Lf->dev_def
 	&& (Lf->inp_ty == 1 || Lf->inp_ty == 3))
 	{
@@ -260,9 +260,9 @@ is_file_named(ty, p, mp, cd)
 		}
 	    }
 	}
-/*
- * Check for a file system match.
- */
+	/*
+	 * Check for a file system match.
+	 */
 	if (!f && (ty == 1) && HbyFsdCt && Lf->dev_def) {
 	    for (sh = &HbyFsd[SFHASHDEVINO(GET_MAJ_DEV(Lf->dev),
 	    				   GET_MIN_DEV(Lf->dev), 0,
@@ -273,24 +273,24 @@ is_file_named(ty, p, mp, cd)
 		if ((s = sh->s) && (s->dev == Lf->dev)) {
 		    if (Lf->ntype != N_NFS) {
 
-		    /*
-		     * A non-NFS file matches to a non-NFS file system by
-		     * device.
-		     */
+			/*
+			 * A non-NFS file matches to a non-NFS file system by
+			 * device.
+			 */
 			if (!(smp = s->mp) || (smp->ty != N_NFS)) {
 			    f = 1;
 			    break;
 			}
 		    } else {
 
-		    /*
-		     * An NFS file must also match to a file system by the
-		     * the path name of the file system -- i.e., the first
-		     * part of the file's path.  This terrible, non-UNIX
-		     * hack is forced on lsof by an egregious error in
-		     * Linux NFS that can assign the same device number
-		     * to two different NFS mounts.
-		     */
+			/*
+			 * An NFS file must also match to a file system by the
+			 * the path name of the file system -- i.e., the first
+			 * part of the file's path.  This terrible, non-UNIX
+			 * hack is forced on lsof by an egregious error in
+			 * Linux NFS that can assign the same device number
+			 * to two different NFS mounts.
+			 */
 			if (p && mp && mp->dirl && mp->dir && s->name
 			&&  !strncmp(mp->dir, s->name, mp->dirl))
 			{
@@ -301,9 +301,9 @@ is_file_named(ty, p, mp, cd)
 		}
 	    }
 	}
-/*
- * Check for a character or block device match.
- */
+	/*
+	 * Check for a character or block device match.
+	 */
 	if (!f && !ty && HbyFrdCt && cd
 	&&  Lf->dev_def && (Lf->dev == DevDev)
 	&&  Lf->rdev_def
@@ -325,19 +325,19 @@ is_file_named(ty, p, mp, cd)
 		}
 	    }
 	}
-/*
- * Convert the name if a match occurred.
- */
+	/*
+	 * Convert the name if a match occurred.
+	 */
 	switch (f) {
 	case 0:
 	    return(0);
 	case 1:
 	    if (s->type) {
 
-	    /*
-	     * If the search argument isn't a file system, propagate it
-	     * to Namech[]; otherwise, let printname() compose the name.
-	     */
+		/*
+		 * If the search argument isn't a file system, propagate it
+		 * to Namech[]; otherwise, let printname() compose the name.
+		 */
 		(void) snpf(Namech, Namechl, "%s", s->name);
 		if (s->devnm) {
 		    ep = endnm(&sz);

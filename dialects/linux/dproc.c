@@ -160,9 +160,9 @@ enter_cntx_arg(cntx)
 	char *cntx;			       /* context */
 {
 	cntxlist_t *cntxp;
-/*
- * Search the argument list for a duplicate.
- */
+	/*
+	 * Search the argument list for a duplicate.
+	 */
 	for (cntxp = CntxArg; cntxp; cntxp = cntxp->next) {
 	    if (!strcmp(cntxp->cntx, cntx)) {
 		if (!Fwarn) {
@@ -172,9 +172,9 @@ enter_cntx_arg(cntx)
 		return(1);
 	    }
 	}
-/*
- * Create and link a new context argument list entry.
- */
+	/*
+	 * Create and link a new context argument list entry.
+	 */
 	if (!(cntxp = (cntxlist_t *)malloc((MALLOC_S)sizeof(cntxlist_t)))) {
 	    (void) fprintf(stderr, "%s: no space for context: %s\n", Pn, cntx);
 	    Error();
@@ -237,9 +237,9 @@ gather_proc_info()
 	DIR *ts;
 	UID_ARG uid;
 
-/*
- * Do one-time setup.
- */
+	/*
+	 * Do one-time setup.
+	 */
 	if (!pidpath) {
 	    pidx = strlen(PROCFS) + 1;
 	    pidpathl = pidx + 64 + 1;	/* 64 is growth room */
@@ -251,45 +251,45 @@ gather_proc_info()
 	    }
 	    (void) snpf(pidpath, pidpathl, "%s/", PROCFS);
 	}
-/*
- * Get lock and net information.
- */
+	/*
+	 * Get lock and net information.
+	 */
 	(void) make_proc_path(pidpath, pidx, &path, &pathl, "locks");
 	(void) get_locks(path);
 	(void) make_proc_path(pidpath, pidx, &path, &pathl, "net/");
 	(void) set_net_paths(path, strlen(path));
-/*
- * If only socket files have been selected, or socket files have been selected
- * ANDed with other selection options, enable the skipping of regular files.
- *
- * If socket files and some process options have been selected, enable
- * conditional skipping of regular file; i.e., regular files will be skipped
- * unless they belong to a process selected by one of the specified options.
- */
+	/*
+	 * If only socket files have been selected, or socket files have been selected
+	 * ANDed with other selection options, enable the skipping of regular files.
+	 *
+	 * If socket files and some process options have been selected, enable
+	 * conditional skipping of regular file; i.e., regular files will be skipped
+	 * unless they belong to a process selected by one of the specified options.
+	 */
 	if (Selflags & SELNW) {
 
-	/*
-	 * Some network files selection options have been specified.
-	 */
+	    /*
+	     * Some network files selection options have been specified.
+	     */
 	    if (Fand || !(Selflags & ~SELNW)) {
 
-	    /*
-	     * Selection ANDing or only network file options have been
-	     * specified, so set unconditional skipping of regular files
-	     * and socket file only checking.
-	     */
+		/*
+		 * Selection ANDing or only network file options have been
+		 * specified, so set unconditional skipping of regular files
+		 * and socket file only checking.
+		 */
 		Cckreg = 0;
 		Ckscko = 1;
 	    } else {
 
-	    /*
-	     * If ORed file selection options have been specified, or no ORed
-	     * process selection options have been specified, enable
-	     * unconditional file checking and clear socket file only checking.
-	     *
-	     * If only ORed process selection options have been specified,
-	     * enable conditional file skipping and socket file only checking.
-	     */
+		/*
+		 * If ORed file selection options have been specified, or no ORed
+		 * process selection options have been specified, enable
+		 * unconditional file checking and clear socket file only checking.
+		 *
+		 * If only ORed process selection options have been specified,
+		 * enable conditional file skipping and socket file only checking.
+		 */
 		if ((Selflags & SELFILE) || !(Selflags & SelProc))
 		    Cckreg = Ckscko = 0;
 		else
@@ -297,16 +297,16 @@ gather_proc_info()
 	    }
 	} else {
 
-	/*
-	 * No network file selection options were specified.  Enable
-	 * unconditional file checking and clear socket file only checking.
-	 */
+	    /*
+	     * No network file selection options were specified.  Enable
+	     * unconditional file checking and clear socket file only checking.
+	     */
 	    Cckreg = Ckscko = 0;
 	}
-/*
- * Read /proc, looking for PID directories.  Open each one and
- * gather its process and file information.
- */
+	/*
+	 * Read /proc, looking for PID directories.  Open each one and
+	 * gather its process and file information.
+	 */
 	if (!ps) {
 	    if (!(ps = opendir(PROCFS))) {
 		(void) fprintf(stderr, "%s: can't open %s\n", Pn, PROCFS);
@@ -317,9 +317,9 @@ gather_proc_info()
 	while ((dp = readdir(ps))) {
 	    if (nm2id(dp->d_name, &pid, &n))
 		continue;
-	/*
-	 * Build path to PID's directory.
-	 */
+	    /*
+	     * Build path to PID's directory.
+	     */
 	    if ((pidx + n + 1 + 1) > pidpathl) {
 		pidpathl = pidx + n + 1 + 1 + 64;
 		if (!(pidpath = (char *)realloc((MALLOC_P *)pidpath, pidpathl)))
@@ -332,9 +332,9 @@ gather_proc_info()
 	    }
 	    (void) snpf(pidpath + pidx, pidpathl - pidx, "%s/", dp->d_name);
 	    n += (pidx + 1);
-	/*
-	 * Process the PID's stat info.
-	 */
+	    /*
+	     * Process the PID's stat info.
+	     */
 	    if (stat(pidpath, &sb))
 		continue;
 	    uid = (UID_ARG)sb.st_uid;
@@ -347,14 +347,14 @@ gather_proc_info()
 		cmd = NULL; /* NULL means failure to get command name */
 
 #if	defined(HASTASKS)
-	/*
-	 * Task reporting has been selected, so save the process' command
-	 * string, so that task processing won't change it in the buffer of
-	 * read_id_stat().
-	 *
-	 * Check the tasks of the process first, so that the "-p<PID> -aK"
-	 * options work properly.
-	 */
+	    /*
+	     * Task reporting has been selected, so save the process' command
+	     * string, so that task processing won't change it in the buffer of
+	     * read_id_stat().
+	     *
+	     * Check the tasks of the process first, so that the "-p<PID> -aK"
+	     * options work properly.
+	     */
 	    else if (!IgnTasks && (Selflags & SELTASK)) {
 		/*
 		 * Copy cmd before next call to read_id_stat due to static
@@ -371,26 +371,26 @@ gather_proc_info()
 		tx = n + 4;
 		if ((ts = opendir(taskpath))) {
 
-		/*
-		 * Process the PID's tasks.  Record the open files of those
-		 * whose TIDs do not match the PID and which are themselves
-		 * not zombies.
-		 */
+		    /*
+		     * Process the PID's tasks.  Record the open files of those
+		     * whose TIDs do not match the PID and which are themselves
+		     * not zombies.
+		     */
 		    while ((dp = readdir(ts))) {
 
-		    /*
-		     * Get the task ID.  Skip the task if its ID matches the
-		     * process PID.
-		     */
+			/*
+			 * Get the task ID.  Skip the task if its ID matches the
+			 * process PID.
+			 */
 			if (nm2id(dp->d_name, &tid, &nl))
 			    continue;
 			if  (tid == pid) {
 			    pidts = 1;
 			    continue;
 			}
-		    /*
-		     * Form the path for the TID.
-		     */
+			/*
+			 * Form the path for the TID.
+			 */
 			if ((tx + 1 + nl + 1 + 4) > tidpathl) {
 			    tidpathl = tx + 1 + n + 1 + 4 + 64;
 			    if (tidpath)
@@ -409,16 +409,16 @@ gather_proc_info()
 			}
 			(void) snpf(tidpath, tidpathl, "%s/%s/stat", taskpath,
 			    dp->d_name);
-		    /*
-		     * Check the task state.
-		     */
+			/*
+			 * Check the task state.
+			 */
 			rv = read_id_stat(tidpath, tid, &tcmd, &tppid,
 					  &tpgid);
 			if ((rv < 0) || (rv == 1))
 			    continue;
-		    /*
-		     * Attempt to record the task.
-		     */
+			/*
+			 * Attempt to record the task.
+			 */
 			if (!process_id(tidpath, (tx + 1 + nl+ 1), cmd, uid,
 					pid, tppid, tpgid, tid, tcmd))
 			{
@@ -467,10 +467,10 @@ get_fdinfo(p, msk, fi)
 	int rv = 0;
 	unsigned long ul;
 	unsigned long long ull;
-/*
- * Signal no values returned (0) if no fdinfo pointer was provided or if the
- * fdinfo path can't be opened.
- */
+	/*
+	 * Signal no values returned (0) if no fdinfo pointer was provided or if the
+	 * fdinfo path can't be opened.
+	 */
 	if (!fi)
 	    return(0);
 
@@ -485,9 +485,9 @@ get_fdinfo(p, msk, fi)
 
 	if (!p || !*p || !(fs = fopen(p, "r")))
 	    return(0);
-/*
- * Read the fdinfo file.
- */
+	/*
+	 * Read the fdinfo file.
+	 */
 	while (fgets(buf, sizeof(buf), fs)) {
 	    int opt_flg = 0;
 	    if (get_fields(buf, (char *)NULL, &fp, (int *)NULL, 0) < 2)
@@ -496,9 +496,9 @@ get_fdinfo(p, msk, fi)
 		continue;
 	    if ((msk & FDINFO_FLAGS) && !strcmp(fp[0], "flags:")) {
 
-	    /*
-	     * Process a "flags:" line.
-	     */
+		/*
+		 * Process a "flags:" line.
+		 */
 		ep = (char *)NULL;
 		if ((ul = strtoul(fp[1], &ep, 0)) == ULONG_MAX
 		||  !ep || *ep)
@@ -508,9 +508,9 @@ get_fdinfo(p, msk, fi)
 		    break;
 	    } else if ((msk & FDINFO_POS) && !strcmp(fp[0], "pos:")) {
 
-	    /*
-	     * Process a "pos:" line.
-	     */
+		/*
+		 * Process a "pos:" line.
+		 */
 		ep = (char *)NULL;
 		if ((ull = strtoull(fp[1], &ep, 0)) == ULLONG_MAX
 		||  !ep || *ep)
@@ -534,9 +534,9 @@ get_fdinfo(p, msk, fi)
 #endif	/* defined(HASEPTOPTS) */
 		) {
 		int val;
-	    /*
-	     * Process a "tty-index:", "eventfd-id:", "Pid:", or "tfid:" line.
-	     */
+		/*
+		 * Process a "tty-index:", "eventfd-id:", "Pid:", or "tfid:" line.
+		 */
 		ep = (char *)NULL;
 		if ((ul = strtoul(fp[1], &ep, 0)) == ULONG_MAX
 		||  !ep || *ep)
@@ -544,9 +544,9 @@ get_fdinfo(p, msk, fi)
 
 		val = (int)ul;
 		if (val < 0) {
-		/*
-		 * Oops! If integer overflow occurred, reset the field.
-		 */
+		    /*
+		     * Oops! If integer overflow occurred, reset the field.
+		     */
 		    val = -1;
 		}
 
@@ -574,9 +574,9 @@ get_fdinfo(p, msk, fi)
 		}
 
 		if ((
-			/* There can be more than one tfd: lines.
-			   So even if we found one, we can not exit the loop.
-			   However, we can assume tfd lines are continuous. */
+		     /* There can be more than one tfd: lines.
+			So even if we found one, we can not exit the loop.
+			However, we can assume tfd lines are continuous. */
 		     opt_flg != FDINFO_TFD
 		     && (rv == msk || (rv & FDINFO_TFD)))
 		    || (
@@ -588,9 +588,9 @@ get_fdinfo(p, msk, fi)
 	    }
 	}
 	fclose(fs);
-/*
- * Signal via the return value what information was obtained. (0 == none)
- */
+	/*
+	 * Signal via the return value what information was obtained. (0 == none)
+	 */
 	return(rv);
 }
 
@@ -641,23 +641,23 @@ initialize()
 	struct l_fdinfo fi;
 	char path[MAXPATHLEN];
 	struct stat sb;
-/*
- * Test for -i and -X option conflict.
- */
+	/*
+	 * Test for -i and -X option conflict.
+	 */
 	if (Fxopt && (Fnet || Nwad)) {
 	    (void) fprintf(stderr, "%s: -i is useless when -X is specified.\n",
 		Pn);
 	    usage(1, 0, 0);
 	}
-/*
- * Open LSTAT_TEST_FILE and seek to byte LSTAT_TEST_SEEK, then lstat the
- * /proc/<PID>/fd/<FD> for LSTAT_TEST_FILE to see what position is reported.
- * If the result is LSTAT_TEST_SEEK, enable offset reporting.
- *
- * If the result isn't LSTAT_TEST_SEEK, next check the fdinfo file for the
- * open LSTAT_TEST_FILE file descriptor.  If it exists and contains a "pos:"
- * value, and if the value is LSTAT_TEST_SEEK, enable offset reporting.
- */
+	/*
+	 * Open LSTAT_TEST_FILE and seek to byte LSTAT_TEST_SEEK, then lstat the
+	 * /proc/<PID>/fd/<FD> for LSTAT_TEST_FILE to see what position is reported.
+	 * If the result is LSTAT_TEST_SEEK, enable offset reporting.
+	 *
+	 * If the result isn't LSTAT_TEST_SEEK, next check the fdinfo file for the
+	 * open LSTAT_TEST_FILE file descriptor.  If it exists and contains a "pos:"
+	 * value, and if the value is LSTAT_TEST_SEEK, enable offset reporting.
+	 */
 	if ((fd = open(LSTAT_TEST_FILE, O_RDONLY)) >= 0) {
 	    if (lseek(fd, (off_t)LSTAT_TEST_SEEK, SEEK_SET)
 	    == (off_t)LSTAT_TEST_SEEK) {
@@ -693,11 +693,11 @@ initialize()
 		    Pn);
 	    Fsv = 0;
 	}
-/*
- * Make sure the local mount info table is loaded if doing anything other
- * than just Internet lookups.  (HasNFS is defined during the loading of the
- * local mount table.)
- */
+	/*
+	 * Make sure the local mount info table is loaded if doing anything other
+	 * than just Internet lookups.  (HasNFS is defined during the loading of the
+	 * local mount table.)
+	 */
 	if (Selinet == 0)
 	    (void) readmnt();
 }
@@ -773,25 +773,25 @@ isefsys(path, type, l, rep, lfr)
 	len = (int) strlen(path);
 	for (ep = Efsysl; ep; ep = ep->next) {
 
-	/*
-	 * Look for a matching exempt file system path at the beginning of
-	 * the file path.
-	 */
+	    /*
+	     * Look for a matching exempt file system path at the beginning of
+	     * the file path.
+	     */
 	    if (ep->pathl > len)
 		continue;
 	    if (strncmp(ep->path, path, ep->pathl))
 		continue;
-	/*
-	 * If only reporting, return information as requested.
-	 */
+	    /*
+	     * If only reporting, return information as requested.
+	     */
 	    if (!l) {
 		if (rep)
 		    *rep = ep;
 		return(0);
 	    }
-	/*
-	 * Process an exempt file.
-	 */
+	    /*
+	     * Process an exempt file.
+	     */
 	    ds = 0;
 	    if ((mp = ep->mp)) {
 		if (mp->ds & SB_DEV) {
@@ -879,9 +879,9 @@ open_proc_stream(p, m, buf, sz, act)
 	FILE *fs;			/* opened stream */
 	static size_t psz = (size_t)0;	/* page size */
 	size_t tsz;			/* temporary size */
-/*
- * Open the stream.
- */
+	/*
+	 * Open the stream.
+	 */
 	if (!(fs = fopen(p, m))) {
 	    if (!act)
 		return((FILE *)NULL);
@@ -889,22 +889,22 @@ open_proc_stream(p, m, buf, sz, act)
 		Pn, p, m, strerror(errno));
 	    Error();
 	}
-/*
- * Return the stream if no buffer change is required.
- */
+	/*
+	 * Return the stream if no buffer change is required.
+	 */
 	if (!buf)
 	    return(fs);
-/*
- * Determine the buffer size required.
- */
+	/*
+	 * Determine the buffer size required.
+	 */
 	if (!(tsz = *sz)) {
 	    if (!psz)
 		psz = getpagesize();
 	    tsz = psz;
 	}
-/*
- * Allocate a buffer for the stream, as required.
- */
+	/*
+	 * Allocate a buffer for the stream, as required.
+	 */
 	if (!*buf) {
 	    if (!(*buf = (char *)malloc((MALLOC_S)tsz))) {
 		(void) fprintf(stderr,
@@ -914,9 +914,9 @@ open_proc_stream(p, m, buf, sz, act)
 	    }
 	    *sz = tsz;
 	}
-/*
- * Assign the buffer to the stream.
- */
+	/*
+	 * Assign the buffer to the stream.
+	 */
 	if (setvbuf(fs, *buf, _IOFBF, tsz)) {
 	    (void) fprintf(stderr, "%s: setvbuf(%s)=%d failure: %s\n",
 		Pn, p, (int)tsz, strerror(errno));
@@ -970,9 +970,9 @@ process_id(idp, idpl, cmd, uid, pid, ppid, pgid, tid, tcmd)
 	cntxlist_t *cntxp;
 #endif	/* defined(HASSELINUX) */
 
-/*
- * See if process is excluded.
- */
+	/*
+	 * See if process is excluded.
+	 */
 	if (is_proc_excl(pid, pgid, uid, &pss, &sf, tid)
 	||  is_cmd_excl(cmd, &pss, &sf))
 	{
@@ -987,20 +987,20 @@ process_id(idp, idpl, cmd, uid, pid, ppid, pgid, tid, tcmd)
 	}
 	if (Cckreg && !FeptE) {
 
-	/*
-	 * If conditional checking of regular files is enabled, enable
-	 * socket file only checking, based on the process' selection
-	 * status.
-	 */
+	    /*
+	     * If conditional checking of regular files is enabled, enable
+	     * socket file only checking, based on the process' selection
+	     * status.
+	     */
 	    Ckscko = (sf & SelProc) ? 0 : 1;
 	}
 	alloc_lproc(pid, pgid, ppid, uid, cmd, (int)pss, (int)sf);
 	Plf = (struct lfile *)NULL;
 
 #if	defined(HASTASKS)
-/*
- * Enter task information.
- */
+	/*
+	 * Enter task information.
+	 */
 	Lp->tid = tid;
 	if (tid && tcmd) {
 	    if (!(Lp->tcmd = mkstrcpy(tcmd, (MALLOC_S *)NULL))) {
@@ -1013,9 +1013,9 @@ process_id(idp, idpl, cmd, uid, pid, ppid, pgid, tid, tcmd)
 	}
 #endif	/* defined(HASTASKS) */
 
-/*
- * Process the ID's current working directory info.
- */
+	/*
+	 * Process the ID's current working directory info.
+	 */
 	efs = 0;
 	if (!Ckscko) {
 	    (void) make_proc_path(idp, idpl, &path, &pathl, "cwd");
@@ -1062,9 +1062,9 @@ process_id(idp, idpl, cmd, uid, pid, ppid, pgid, tid, tcmd)
 		    link_lfile();
 	    }
 	}
-/*
- * Process the ID's root directory info.
- */
+	/*
+	 * Process the ID's root directory info.
+	 */
 	lnk = ss = 0;
 	if (!Ckscko) {
 	    (void) make_proc_path(idp, idpl, &path, &pathl, "root");
@@ -1109,9 +1109,9 @@ process_id(idp, idpl, cmd, uid, pid, ppid, pgid, tid, tcmd)
 		    link_lfile();
 	    }
 	}
-/*
- * Process the ID's execution info.
- */
+	/*
+	 * Process the ID's execution info.
+	 */
 	lnk = ss = txts = 0;
 	if (!Ckscko) {
 	    (void) make_proc_path(idp, idpl, &path, &pathl, "exe");
@@ -1162,9 +1162,9 @@ process_id(idp, idpl, cmd, uid, pid, ppid, pgid, tid, tcmd)
 		    link_lfile();
 	    }
 	}
-/*
- * Process the ID's memory map info.
- */
+	/*
+	 * Process the ID's memory map info.
+	 */
 	if (!Ckscko) {
 	    (void) make_proc_path(idp, idpl, &path, &pathl, "maps");
 	    (void) process_proc_map(path, txts ? &sb : (struct stat *)NULL,
@@ -1172,14 +1172,14 @@ process_id(idp, idpl, cmd, uid, pid, ppid, pgid, tid, tcmd)
 	}
 
 #if	defined(HASSELINUX)
-/*
- * Process the PID's SELinux context.
- */
+	/*
+	 * Process the PID's SELinux context.
+	 */
 	if (Fcntx) {
 
-	/*
-	 * If the -Z (cntx) option was specified, match the valid contexts.
-	 */
+	    /*
+	     * If the -Z (cntx) option was specified, match the valid contexts.
+	     */
 	    errno = 0;
 	    if (getpidcon(pid, &Lp->cntx) == -1) {
 		Lp->cntx = (char *)NULL;
@@ -1195,9 +1195,9 @@ process_id(idp, idpl, cmd, uid, pid, ppid, pgid, tid, tcmd)
 		}
 	    } else if (CntxArg) {
 
-	    /*
-	     * See if context includes the process.
-	     */
+		/*
+		 * See if context includes the process.
+		 */
 		for (cntxp = CntxArg; cntxp; cntxp = cntxp->next) {
 		    if (cmp_cntx_eq(Lp->cntx, cntxp->cntx)) {
 			cntxp->f = 1;
@@ -1210,9 +1210,9 @@ process_id(idp, idpl, cmd, uid, pid, ppid, pgid, tid, tcmd)
 	}
 #endif	/* defined(HASSELINUX) */
 
-/*
- * Process the ID's file descriptor directory.
- */
+	/*
+	 * Process the ID's file descriptor directory.
+	 */
 	if ((i = make_proc_path(idp, idpl, &dpath, &dpathl, "fd/")) < 3)
 	    return(0);
 	dpath[i - 1] = '\0';
@@ -1466,10 +1466,10 @@ process_proc_map(char *p,			/* path to process maps file */
 	static char *vbuf = (char *)NULL;
 	static size_t vsz = (size_t)0;
 	int diff_mntns = 0;
-/*
- * Open the /proc/<pid>/maps file, assign a page size buffer to its stream,
- * and read it/
- */
+	/*
+	 * Open the /proc/<pid>/maps file, assign a page size buffer to its stream,
+	 * and read it/
+	 */
 	if (!(ms = open_proc_stream(p, "r", &vbuf, &vsz, 0)))
 	    return;
 
@@ -1482,19 +1482,19 @@ process_proc_map(char *p,			/* path to process maps file */
 		continue;			/* not enough fields */
 	    if (!fp[6] || !*fp[6])
 		continue;			/* no path name */
-	/*
-	 * See if the path ends in " (deleted)".  If it does, strip the
-	 * " (deleted)" characters and remember that they were there.
-	 */
+	    /*
+	     * See if the path ends in " (deleted)".  If it does, strip the
+	     * " (deleted)" characters and remember that they were there.
+	     */
 	    if (((ds = (int)strlen(fp[6])) > 10)
 	    &&  !strcmp(fp[6] + ds - 10, " (deleted)"))
 	    {
 		*(fp[6] + ds - 10) = '\0';
 	    } else
 		ds = 0;
-	/*
-	 * Assemble the major and minor device numbers.
-	 */
+	    /*
+	     * Assemble the major and minor device numbers.
+	     */
 	    ep = (char *)NULL;
 	    if (!fp[3] || !*fp[3]
 	    ||  (maj = strtol(fp[3], &ep, 16)) == LONG_MIN || maj == LONG_MAX
@@ -1505,10 +1505,10 @@ process_proc_map(char *p,			/* path to process maps file */
 	    ||  (min = strtol(fp[4], &ep, 16)) == LONG_MIN || min == LONG_MAX
 	    ||  !ep || *ep)
 		continue;
-	/*
-	 * Assemble the device and inode numbers.  If they are both zero, skip
-	 * the entry.
-	 */
+	    /*
+	     * Assemble the device and inode numbers.  If they are both zero, skip
+	     * the entry.
+	     */
 	    dev = (dev_t)makedev((int)maj, (int)min);
 	    if (!fp[5] || !*fp[5])
 		continue;
@@ -1518,26 +1518,26 @@ process_proc_map(char *p,			/* path to process maps file */
 		continue;
 	    if (!dev && !inode)
 		continue;
-	/*
-	 * See if the device + inode pair match that of the executable.
-	 * If they do, skip this map entry.
-	 */
+	    /*
+	     * See if the device + inode pair match that of the executable.
+	     * If they do, skip this map entry.
+	     */
 	    if (s && (ss & SB_DEV) && (ss & SB_INO)
 	    &&  (dev == s->st_dev) && (inode == (INODETYPE)s->st_ino))
 		continue;
-	/*
-	 * See if this device + inode pair has already been processed as
-	 * a map entry.
-	 */
+	    /*
+	     * See if this device + inode pair has already been processed as
+	     * a map entry.
+	     */
 	    for (i = 0; i < ns; i++) {
 		if (dev == sm[i].dev && inode == sm[i].inode)
 		    break;
 	    }
 	    if (i < ns)
 		continue;
-	/*
-	 * Record the processing of this map entry's device and inode pair.
-	 */
+	    /*
+	     * Record the processing of this map entry's device and inode pair.
+	     */
 	    if (ns >= sma) {
 		sma += 10;
 		len = (MALLOC_S)(sma * sizeof(struct saved_map));
@@ -1554,11 +1554,11 @@ process_proc_map(char *p,			/* path to process maps file */
 	    }
 	    sm[ns].dev = dev;
 	    sm[ns++].inode = inode;
-	/*
-	 * Allocate space for the mapped file, then get stat(2) information
-	 * for it.  Skip the stat(2) operation if this is on an exempt file
-	 * system.
-	 */
+	    /*
+	     * Allocate space for the mapped file, then get stat(2) information
+	     * for it.  Skip the stat(2) operation if this is on an exempt file
+	     * system.
+	     */
 	    alloc_lfile("mem", -1);
 	    if (Efsysl && !isefsys(fp[6], (char *)NULL, 0, &rep, NULL))
 		efs = sv = 1;
@@ -1605,14 +1605,14 @@ process_proc_map(char *p,			/* path to process maps file */
 	    }
 	    if (sv || efs) {
 		en = errno;
-	    /*
-	     * Applying stat(2) to the file was not possible (file is on an
-	     * exempt file system) or stat(2) failed, so manufacture a partial
-	     * stat(2) reply from the process' maps file entry.
-	     *
-	     * If the file has been deleted, reset its type to "DEL";
-	     * otherwise generate a stat() error name addition.
-	     */
+		/*
+		 * Applying stat(2) to the file was not possible (file is on an
+		 * exempt file system) or stat(2) failed, so manufacture a partial
+		 * stat(2) reply from the process' maps file entry.
+		 *
+		 * If the file has been deleted, reset its type to "DEL";
+		 * otherwise generate a stat() error name addition.
+		 */
 		zeromem((char *)&sb, sizeof(sb));
 		sb.st_dev = dev;
 		sb.st_ino = (ino_t)inode;
@@ -1630,16 +1630,16 @@ process_proc_map(char *p,			/* path to process maps file */
 		mss = SB_ALL;
 	    } else if ((sb.st_dev != dev) || ((INODETYPE)sb.st_ino != inode)) {
 
-	    /*
-	     * The stat(2) device and inode numbers don't match those obtained
-	     * from the process' maps file.
-	     *
-	     * If the file has been deleted, reset its type to "DEL"; otherwise
-	     * generate inconsistency name additions.
-	     *
-	     * Manufacture a partial stat(2) reply from the maps file
-	     * information.
-	     */
+		/*
+		 * The stat(2) device and inode numbers don't match those obtained
+		 * from the process' maps file.
+		 *
+		 * If the file has been deleted, reset its type to "DEL"; otherwise
+		 * generate inconsistency name additions.
+		 *
+		 * Manufacture a partial stat(2) reply from the maps file
+		 * information.
+		 */
 		if (ds)
 		    alloc_lfile("DEL", -1);
 		else if (!Fwarn) {
@@ -1671,19 +1671,19 @@ process_proc_map(char *p,			/* path to process maps file */
 		mss = SB_DEV | SB_INO | SB_MODE;
 	    } else
 		mss = SB_ALL;
-	/*
-	 * Record the file's information.
-	 */
+	    /*
+	     * Record the file's information.
+	     */
 	    if (!efs)
 		process_proc_node(fp[6], fp[6], &sb, mss, (struct stat *)NULL,
 				  0);
 	    else {
 
-	    /*
-	     * If this file is on an exempt file system, complete the lfile
-	     * structure, but change its type and add the exemption note to
-	     * the NAME column.
-	     */
+		/*
+		 * If this file is on an exempt file system, complete the lfile
+		 * structure, but change its type and add the exemption note to
+		 * the NAME column.
+		 */
 		Lf->dev = sb.st_dev;
 		Lf->inode = (ino_t)sb.st_ino;
 		Lf->dev_def = Lf->inp_ty = 1;
@@ -1725,10 +1725,10 @@ read_id_stat(char *p,			/* path to status file */
 	FILE *fs;
 	static char *vbuf = (char *)NULL;
 	static size_t vsz = (size_t)0;
-/*
- * Open the stat file path, assign a page size buffer to its stream,
- * and read the file's first line.
- */
+	/*
+	 * Open the stat file path, assign a page size buffer to its stream,
+	 * and read the file's first line.
+	 */
 	if (!(fs = open_proc_stream(p, "r", &vbuf, &vsz, 0)))
 	    return(-1);
 	if (!(cp = fgets(buf, sizeof(buf), fs))) {
@@ -1738,9 +1738,9 @@ read_id_stat(char *p,			/* path to status file */
 	    (void) fclose(fs);
 	    return(-1);
 	}
-/*
- * Skip to the first field, and make sure it is a matching ID.
- */
+	/*
+	 * Skip to the first field, and make sure it is a matching ID.
+	 */
 	cp1 = cp;
 	while (*cp && (*cp != ' ') && (*cp != '\t'))
 	    cp++;
@@ -1748,12 +1748,12 @@ read_id_stat(char *p,			/* path to status file */
 	    *cp = '\0';
 	if (atoi(cp1) != id)
 	    goto read_id_stat_exit;
-/*
- * The second field should contain the command, enclosed in parentheses.
- * If it also has embedded '\n' characters, replace them with '?' characters,
- * accumulating command characters until a closing parentheses appears.
- *
- */
+	/*
+	 * The second field should contain the command, enclosed in parentheses.
+	 * If it also has embedded '\n' characters, replace them with '?' characters,
+	 * accumulating command characters until a closing parentheses appears.
+	 *
+	 */
 	for (++cp; *cp && (*cp == ' '); cp++)
 	    ;
 	if (!cp || (*cp != '('))
@@ -1817,10 +1817,10 @@ read_id_stat(char *p,			/* path to status file */
 	    return(-1);
 	if (get_fields(cp, (char *)NULL, &fp, (int *)NULL, 0) < 3)
 	    return(-1);
-/*
- * Convert and return parent process (fourth field) and process group (fifth
- * field) IDs.
- */
+	/*
+	 * Convert and return parent process (fourth field) and process group (fifth
+	 * field) IDs.
+	 */
 	if (fp[1] && *fp[1])
 	    *ppid = atoi(fp[1]);
 	else
@@ -1829,9 +1829,9 @@ read_id_stat(char *p,			/* path to status file */
 	    *pgid = atoi(fp[2]);
 	else
 	    return(-1);
-/*
- * Check the state in the third field.  If it is 'Z', return that indication.
- */
+	/*
+	 * Check the state in the third field.  If it is 'Z', return that indication.
+	 */
 	if (fp[0] && !strcmp(fp[0], "Z"))
 	    return(1);
 	else if (fp[0] && !strcmp(fp[0], "T"))
@@ -1865,9 +1865,9 @@ statEx(char *p,			/* file path */
 	struct stat sb;
 	int st = 0;
 	size_t sz;
-/*
- * Make a copy of the path.
- */
+	/*
+	 * Make a copy of the path.
+	 */
 	sz = strlen(p);
 	if ((sz + 1) > ca) {
 	    if (cb)
@@ -1883,11 +1883,11 @@ statEx(char *p,			/* file path */
 	    ca = sz + 1;
 	}
 	(void) strcpy(cb, p);
-/*
- * Trim trailing leaves from the end of the path one at a time and do a safe
- * stat() on each trimmed result.  Stop when a safe stat() succeeds or doesn't
- * fail because of EACCES or EPERM.
- */
+	/*
+	 * Trim trailing leaves from the end of the path one at a time and do a safe
+	 * stat() on each trimmed result.  Stop when a safe stat() succeeds or doesn't
+	 * fail because of EACCES or EPERM.
+	 */
 	for (cp = strrchr(cb, '/'); cp && (cp != cb);) {
 	    *cp = '\0';
 	    if (!statsafely(cb, &sb)) {
@@ -1899,10 +1899,10 @@ statEx(char *p,			/* file path */
 		break;
 	    cp = strrchr(cb, '/');
 	}
-/*
- * If a stat() on a trimmed result succeeded, form partial results containing
- * only the device and raw device numbers.
- */
+	/*
+	 * If a stat() on a trimmed result succeeded, form partial results containing
+	 * only the device and raw device numbers.
+	 */
 	zeromem((char *)s, sizeof(struct stat));
 	if (st) {
 	    errno = 0;
@@ -1983,10 +1983,11 @@ snp_eventpoll(char *p, int len, int *tfds, int tfd_count)
 	    p[10] = ':'; /* "[eventpoll]" => "[eventpoll:" */
 	    int wl = snp_eventpoll_fds(p + 11, len, tfds, tfd_count);
 
+	    /* If the buffer doesn't have enough space, snp_eventpoll_fds puts
+	     * "..." at the end of the buffer. In that case we don't
+	     * have to "..." here.
+	     */
 	    const char *postfix = (
-		/* If the buffer doesn't have enough space, snp_eventpoll_fds puts
-		 * "..." at the end of the buffer. In that case we don't
-		 have to "..." here. */
 				   (wl > 3 && p [11 + wl - 1] == '.')
 				   ? "]"
 				   : ((tfd_count == EPOLL_MAX_TFDS)

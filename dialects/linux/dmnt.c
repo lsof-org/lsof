@@ -90,11 +90,11 @@ cvtoe(os)
 	int c, cl, cx, ol, ox, tx;
 	char *cs;
 	int tc;
-/*
- * Allocate space for a copy of the string in which octal-escaped characters
- * can be replaced by the octal value -- e.g., \040 with ' '.  Leave room for
- * a '\0' terminator.
- */
+	/*
+	 * Allocate space for a copy of the string in which octal-escaped characters
+	 * can be replaced by the octal value -- e.g., \040 with ' '.  Leave room for
+	 * a '\0' terminator.
+	 */
 	if (!(ol = (int)strlen(os)))
 	    return((char *)NULL);
 	if (!(cs = (char *)malloc(ol + 1))) {
@@ -103,26 +103,26 @@ cvtoe(os)
 		Pn, ol + 1);
 	    Error();
 	}
-/*
- * Copy the string, replacing octal-escaped characters as they are found.
- */
+	/*
+	 * Copy the string, replacing octal-escaped characters as they are found.
+	 */
 	for (cx = ox = 0, cl = ol; ox < ol; ox++) {
 	    if (((c = (int)os[ox]) == (int)'\\') && ((ox + 3) < ol)) {
 
-	    /*
-	     * The beginning of an octal-escaped character has been found.
-	     *
-	     * Convert the octal value to a character value.
-	     */
+		/*
+		 * The beginning of an octal-escaped character has been found.
+		 *
+		 * Convert the octal value to a character value.
+		 */
 		for (tc = 0, tx = 1; os[ox + tx] && (tx < 4); tx++) {
 		    if (((int)os[ox + tx] < (int)'0')
 		    ||  ((int)os[ox + tx] > (int)'7'))
 		    {
 
-		    /*
-		     * The escape isn't followed by octets, so ignore the
-		     * escape and just copy it.
-		     */
+			/*
+			 * The escape isn't followed by octets, so ignore the
+			 * escape and just copy it.
+			 */
 			break;
 		    }
 		    tc <<= 3;
@@ -130,23 +130,23 @@ cvtoe(os)
 		}
 		if (tx == 4) {
 
-		/*
-		 * If three octets (plus the escape) were assembled, use their
-		 * character-forming result.
-		 *
-		 * Otherwise copy the escape and what follows it until another
-		 * escape is found.
-		 */
+		    /*
+		     * If three octets (plus the escape) were assembled, use their
+		     * character-forming result.
+		     *
+		     * Otherwise copy the escape and what follows it until another
+		     * escape is found.
+		     */
 		    ox += 3;
 		    c = (tc & 0xff);
 		}
 	    }
 	    if (cx >= cl) {
 
-	    /*
-	     * Expand the copy string, as required.  Leave room for a '\0'
-	     * terminator.
-	     */
+		/*
+		 * Expand the copy string, as required.  Leave room for a '\0'
+		 * terminator.
+		 */
 		cl += 64;		/* (Make an arbitrary increase.) */
 		if (!(cs = (char *)realloc(cs, cl + 1))) {
 		    (void) fprintf(stderr,
@@ -155,14 +155,14 @@ cvtoe(os)
 		    Error();
 		}
 	    }
-	/*
-	 * Copy the character.
-	 */
+	    /*
+	     * Copy the character.
+	     */
 	    cs[cx++] = (char)c;
 	}
-/*
- * Terminate the copy and return its pointer.
- */
+	/*
+	 * Terminate the copy and return its pointer.
+	 */
 	cs[cx] = '\0';
 	return(cs);
 }
@@ -191,10 +191,10 @@ getmntdev(dn, dnl, s, ss)
 	    return(0);
 	if (!MSHash) {
 
-	/*
-	 * No mount supplement hash buckets have been allocated, so read the
-	 * mount supplement file and create hash buckets for its entries.
-	 */
+	    /*
+	     * No mount supplement hash buckets have been allocated, so read the
+	     * mount supplement file and create hash buckets for its entries.
+	     */
 	    char buf[(MAXPATHLEN*2) + 1], *dp, path[(MAXPATHLEN*2) + 1];
 	    dev_t dev;
 	    FILE *fs;
@@ -205,17 +205,17 @@ getmntdev(dn, dnl, s, ss)
 		return(0);
 	    if (!is_readable(MntSupP, 1)) {
 
-	    /*
-	     * The mount supplement file isn't readable.
-	     */
+		/*
+		 * The mount supplement file isn't readable.
+		 */
 		err = 1;
 		return(0);
 	    }
 	    if (!(fs = open_proc_stream(MntSupP, "r", &vbuf, &vsz, 0))) {
 
-	    /*
-	     * The mount supplement file can't be opened for reading.
-	     */
+		/*
+		 * The mount supplement file can't be opened for reading.
+		 */
 		if (!Fwarn)
 		    (void) fprintf(stderr, "%s: can't open(%s): %s\n",
 			Pn, MntSupP, strerror(errno));
@@ -223,19 +223,19 @@ getmntdev(dn, dnl, s, ss)
 		return(0);
 	    }
 	    buf[sizeof(buf) - 1] = '\0';
-	/*
-	 * Read the mount supplement file.
-	 */
+	    /*
+	     * Read the mount supplement file.
+	     */
 	    while (fgets(buf, sizeof(buf) - 1, fs)) {
 		ln++;
 		if ((dp = strchr(buf, '\n')))
 		    *dp = '\0';
 		if (buf[0] != '/') {
 
-		/*
-		 * The mount supplement line doesn't begin with the absolute
-		 * path character '/'.
-		 */
+		    /*
+		     * The mount supplement line doesn't begin with the absolute
+		     * path character '/'.
+		     */
 		    if (!Fwarn)
 			(void) fprintf(stderr,
 			    "%s: %s line %d: no path: \"%s\"\n",
@@ -245,10 +245,10 @@ getmntdev(dn, dnl, s, ss)
 		}
 		if (!(dp = strchr(buf, ' ')) || strncmp(dp + 1, "0x", 2)) {
 
-		/*
-		 * The path on the mount supplement line isn't followed by
-		 * " 0x".
-		 */
+		    /*
+		     * The path on the mount supplement line isn't followed by
+		     * " 0x".
+		     */
 		    if (!Fwarn)
 			(void) fprintf(stderr,
 			    "%s: %s line %d: no device: \"%s\"\n",
@@ -259,10 +259,10 @@ getmntdev(dn, dnl, s, ss)
 		sz = (size_t)(dp - buf);
 		(void) strncpy(path, buf, sz);
 		path[sz] = '\0';
-	    /*
-	     * Assemble the hexadecimal device number of the mount supplement
-	     * line.
-	     */
+		/*
+		 * Assemble the hexadecimal device number of the mount supplement
+		 * line.
+		 */
 		for (dev = 0, dp += 3; *dp; dp++) {
 		    if (!isxdigit((int)*dp))
 			break;
@@ -273,9 +273,9 @@ getmntdev(dn, dnl, s, ss)
 		}
 		if (*dp) {
 
-		/*
-		 * The device number couldn't be assembled.
-		 */
+		    /*
+		     * The device number couldn't be assembled.
+		     */
 		    if (!Fwarn)
 			(void) fprintf(stderr,
 			    "%s: %s line %d: illegal device: \"%s\"\n",
@@ -283,10 +283,10 @@ getmntdev(dn, dnl, s, ss)
 		    err = 1;
 		    continue;
 		}
-	    /*
-	     * Search the mount supplement hash buckets.  (Allocate them as
-	     * required.)
-	     */
+		/*
+		 * Search the mount supplement hash buckets.  (Allocate them as
+		 * required.)
+		 */
 		if (!MSHash) {
 		    if (!(MSHash = (mntsup_t **)calloc(HASHMNT,
 						       sizeof(mntsup_t *)))
@@ -304,11 +304,11 @@ getmntdev(dn, dnl, s, ss)
 		}
 		if (mp) {
 
-		/*
-		 * A path match was located.  If the device number is the
-		 * same, skip this mount supplement line.  Otherwise, issue
-		 * a warning.
-		 */
+		    /*
+		     * A path match was located.  If the device number is the
+		     * same, skip this mount supplement line.  Otherwise, issue
+		     * a warning.
+		     */
 		    if (mp->dev != dev) {
 			(void) fprintf(stderr,
 			    "%s: %s line %d path duplicate of %d: \"%s\"\n",
@@ -317,9 +317,9 @@ getmntdev(dn, dnl, s, ss)
 		    }
 		    continue;
 		}
-	    /*
-	     * Allocate and fill a new mount supplement hash entry.
-	     */
+		/*
+		 * Allocate and fill a new mount supplement hash entry.
+		 */
 		if (!(mpn = (mntsup_t *)malloc(sizeof(mntsup_t)))) {
 		    (void) fprintf(stderr,
 			"%s: no space for mount supplement entry: %d \"%s\"\n",
@@ -362,10 +362,10 @@ getmntdev(dn, dnl, s, ss)
 		return(0);
 	    }
 	}
-/*
- * If no errors have been detected reading the mount supplement file, search
- * its hash buckets for the supplied directory path.
- */
+	/*
+	 * If no errors have been detected reading the mount supplement file, search
+	 * its hash buckets for the supplied directory path.
+	 */
 	if (err)
 	    return(0);
 	h = hash_mnt(dn);
@@ -429,22 +429,22 @@ readmnt()
 
 	if (Lmi || Lmist)
 	    return(Lmi);
-/*
- * Open access to /proc/mounts, assigning a page size buffer to its stream.
- */
+	/*
+	 * Open access to /proc/mounts, assigning a page size buffer to its stream.
+	 */
 	(void) snpf(buf, sizeof(buf), "%s/mounts", PROCFS);
 	ms = open_proc_stream(buf, "r", &vbuf, &vsz, 1);
-/*
- * Read mount table entries.
- */
+	/*
+	 * Read mount table entries.
+	 */
 	while (fgets(buf, sizeof(buf), ms)) {
 	    if (get_fields(buf, (char *)NULL, &fp, (int *)NULL, 0) < 3
 	    ||  !fp[0] || !fp[1] || !fp[2])
 		continue;
-	/*
-	 * Convert octal-escaped characters in the device name and mounted-on
-	 * path name.
-	 */
+	    /*
+	     * Convert octal-escaped characters in the device name and mounted-on
+	     * path name.
+	     */
 	    if (fp0) {
 		(void) free((FREE_P *)fp0);
 		fp0 = (char *)NULL;
@@ -455,23 +455,23 @@ readmnt()
 	    }
 	    if (!(fp0 = cvtoe(fp[0])) || !(fp1 = cvtoe(fp[1])))
 		continue;
-	/*
-	 * Locate any colon (':') in the device name.
-	 *
-	 * If the colon is followed by * "(pid*" -- it's probably an
-	 * automounter entry.
-	 *
-	 * Ignore autofs, pipefs, and sockfs entries.
-	 */
+	    /*
+	     * Locate any colon (':') in the device name.
+	     *
+	     * If the colon is followed by * "(pid*" -- it's probably an
+	     * automounter entry.
+	     *
+	     * Ignore autofs, pipefs, and sockfs entries.
+	     */
 	    cp = strchr(fp0, ':');
 	    if (cp && !strncasecmp(++cp, "(pid", 4))
 		continue;
 	    if (!strcasecmp(fp[2], "autofs") || !strcasecmp(fp[2], "pipefs")
 	    ||  !strcasecmp(fp[2], "sockfs"))
 		continue;
-	/*
-	 * Interpolate a possible symbolic mounted directory link.
-	 */
+	    /*
+	     * Interpolate a possible symbolic mounted directory link.
+	     */
 	    if (dn)
 		(void) free((FREE_P *)dn);
 	    dn = fp1;
@@ -480,10 +480,10 @@ readmnt()
 #if	defined(HASEOPT)
 	    if (Efsysl) {
 
-	/*
-	 * If there is an -e file system list, check it to decide if a stat()
-	 * and Readlink() on this one should be performed.
-	 */
+		/*
+		 * If there is an -e file system list, check it to decide if a stat()
+		 * and Readlink() on this one should be performed.
+		 */
 		efsys_list_t *ep;
 
 		for (ignrdl = ignstat = 0, ep = Efsysl; ep; ep = ep->next) {
@@ -499,9 +499,9 @@ readmnt()
 
 		ignrdl = ignstat = 0;
 
-	/*
-	 * Avoid Readlink() when requested.
-	 */
+	    /*
+	     * Avoid Readlink() when requested.
+	     */
 	    if (!ignrdl) {
 		if (!(ln = Readlink(dn))) {
 		    if (!Fwarn) {
@@ -519,14 +519,14 @@ readmnt()
 		continue;
 	    dnl = strlen(dn);
 
-	/*
-	 * Test Mqueue directory
-	 */
+	    /*
+	     * Test Mqueue directory
+	     */
 	    mqueue = strcmp(fp[2], "mqueue");
 
-	/*
-	 * Test for duplicate and NFS directories.
-	 */
+	    /*
+	     * Test for duplicate and NFS directories.
+	     */
 	    for (mp = Lmi; mp; mp = mp->next) {
 		if ((dnl == mp->dirl) && !strcmp(dn, mp->dir))
 		    break;
@@ -539,11 +539,11 @@ readmnt()
 		HasNFS = 1;
 	    if (mp) {
 
-	    /*
-	     * If this duplicate directory is not root, ignore it.  If the
-	     * already remembered entry is NFS-mounted, ignore this one.  If
-	     * this one is NFS-mounted, ignore the already remembered entry.
-	     */
+		/*
+		 * If this duplicate directory is not root, ignore it.  If the
+		 * already remembered entry is NFS-mounted, ignore this one.  If
+		 * this one is NFS-mounted, ignore the already remembered entry.
+		 */
 		if (strcmp(dn, "/"))
 		    continue;
 		if (mp->ty == N_NFS)
@@ -551,9 +551,9 @@ readmnt()
 		if (nfs)
 		    continue;
 	    }
-	/*
-	 * Stat() the directory.
-	 */
+	    /*
+	     * Stat() the directory.
+	     */
 	    if (ignstat)
 		fr = 1;
 	    else {
@@ -574,10 +574,10 @@ readmnt()
 #if	defined(HASMNTSUP)
 	    if (fr) {
 
-	    /*
-	     * If the stat() failed or wasn't called, check the mount
-	     * supplement table, if possible.
-	     */
+		/*
+		 * If the stat() failed or wasn't called, check the mount
+		 * supplement table, if possible.
+		 */
 		if ((MntSup == 2) && MntSupP) {
 		    ds = 0;
 		    if (getmntdev(dn, dnl, &sb, &ds) || !(ds & SB_DEV)) {
@@ -643,10 +643,10 @@ readmnt()
 	    }
 
 #if	defined(HASMNTSUP)
-	/*
-	 * If support for the mount supplement file is defined and if the
-	 * +m option was supplied, print mount supplement information.
-	 */
+	    /*
+	     * If support for the mount supplement file is defined and if the
+	     * +m option was supplied, print mount supplement information.
+	     */
 	    if (MntSup == 1) {
 		if (mp->dev)
 		    (void) printf("%s %#lx\n", mp->dir, (long)mp->dev);
@@ -661,12 +661,12 @@ readmnt()
 	    dn = fp0;
 	    fp0 = (char *)NULL;
 	    mp->fsname = dn;
-	/*
-	 * Interpolate a possible file system (mounted-on) device name or
-	 * directory name link.
-	 *
-	 * Avoid Readlink() when requested.
-	 */
+	    /*
+	     * Interpolate a possible file system (mounted-on) device name or
+	     * directory name link.
+	     *
+	     * Avoid Readlink() when requested.
+	     */
 	    if (ignrdl || (*dn != '/')) {
 		if (!(ln = mkstrcpy(dn, (MALLOC_S *)NULL))) {
 		    (void) fprintf(stderr,
@@ -678,10 +678,10 @@ readmnt()
 	    } else
 		ln = Readlink(dn);
 	    dn = (char *)NULL;
-	/*
-	 * Stat() the file system (mounted-on) name and add file system
-	 * information to the local mount table entry.
-	 */
+	    /*
+	     * Stat() the file system (mounted-on) name and add file system
+	     * information to the local mount table entry.
+	     */
 	    if (ignstat || !ln || statsafely(ln, &sb))
 		sb.st_mode = 0;
 	    mp->fsnmres = ln;
@@ -689,9 +689,9 @@ readmnt()
 	    if (ne)
 		Lmi = mp;
 	}
-/*
- * Clean up and return the local mount info table address.
- */
+	/*
+	 * Clean up and return the local mount info table address.
+	 */
 	(void) fclose(ms);
 	if (dn)
 	    (void) free((FREE_P *)dn);

@@ -149,9 +149,9 @@ endpoint_enter(pxinfo_t **pinfo_hash, const char *table_name, int id)
 	struct lproc *lp;		/* local proc structure pointer */
 	pxinfo_t *np, *pi, *pe;		/* inode hash pointers */
 
-    /*
-     * Make sure this is a unique entry.
-     */
+	/*
+	 * Make sure this is a unique entry.
+	 */
 	for (h = HASHPINFO(id), pi = pinfo_hash[h], pe = (pxinfo_t *)NULL;
 	     pi;
 	     pe = pi, pi = pi->next
@@ -163,10 +163,10 @@ endpoint_enter(pxinfo_t **pinfo_hash, const char *table_name, int id)
 		    return;
 	    }
 	}
-   /*
-    * Allocate, fill and link a new pipe info structure used for pty
-    * to the end of the pty device hash chain.
-    */
+	/*
+	 * Allocate, fill and link a new pipe info structure used for pty
+	 * to the end of the pty device hash chain.
+	 */
 	if (!(np = (pxinfo_t *)malloc(sizeof(pxinfo_t)))) {
 	    (void) fprintf(stderr,
 		"%s: no space for pipeinfo for %s, PID %d, FD %s\n",
@@ -245,9 +245,9 @@ static void
 enter_pinfo()
 {
 	if (!Pinfo) {
-	/*
-	 * Allocate pipe info hash buckets.
-	 */
+	    /*
+	     * Allocate pipe info hash buckets.
+	     */
 	    if (!(Pinfo = (pxinfo_t **)calloc(PINFOBUCKS, sizeof(pxinfo_t *))))
 	    {
 		(void) fprintf(stderr,
@@ -423,9 +423,9 @@ void
 enter_psxmqinfo()
 {
 	if (!PSXMQinfo) {
-	/*
-	 * Allocate posix mq info hash buckets.
-	 */
+	    /*
+	     * Allocate posix mq info hash buckets.
+	     */
 	    if (!(PSXMQinfo = (pxinfo_t **)calloc(PINFOBUCKS, sizeof(pxinfo_t *))))
 	    {
 		(void) fprintf(stderr,
@@ -474,9 +474,9 @@ void
 enter_evtfdinfo(int id)
 {
 	if (!EvtFDinfo) {
-	/*
-	 * Allocate eventfd info hash buckets.
-	 */
+	    /*
+	     * Allocate eventfd info hash buckets.
+	     */
 	    if (!(EvtFDinfo = (pxinfo_t **)calloc(PINFOBUCKS, sizeof(pxinfo_t *))))
 	    {
 		(void) fprintf(stderr,
@@ -542,9 +542,9 @@ get_fields(ln, sep, fr, eb, en)
 		    break;
 		if (*cp == ' ')  {
 
-		/*
-		 * See if this field may have an embedded space.
-		 */
+		    /*
+		     * See if this field may have an embedded space.
+		     */
 		    if (!eb || !en)
 			break;
 		    else {
@@ -560,18 +560,18 @@ get_fields(ln, sep, fr, eb, en)
 		}
 		if (sep) {
 
-		/*
-		 * See if the character is in the separator list.
-		 */
+		    /*
+		     * See if the character is in the separator list.
+		     */
 		    for (sp = sep; *sp; sp++) {
 			if (*sp == *cp)
 			    break;
 		    }
 		    if (*sp) {
 
-		    /*
-		     * See if this field may have an embedded separator.
-		     */
+			/*
+			 * See if this field may have an embedded separator.
+			 */
 			if (!eb || !en)
 			    break;
 			else {
@@ -629,9 +629,9 @@ get_locks(p)
 	char type;
 	static char *vbuf = (char *)NULL;
 	static size_t vsz = (size_t)0;
-/*
- * Destroy previous lock information.
- */
+	/*
+	 * Destroy previous lock information.
+	 */
 	if (LckH) {
 	    for (i = 0; i < PIDBUCKS; i++) {
 		for (lp = LckH[i]; lp; lp = np) {
@@ -642,9 +642,9 @@ get_locks(p)
 	    }
 	} else {
 
-	/*
-	 * If first time, allocate the lock PID hash buckets.
-	 */
+	    /*
+	     * If first time, allocate the lock PID hash buckets.
+	     */
 	    LckH = (struct llock **)calloc((MALLOC_S)PIDBUCKS,
 					   sizeof(struct llock *));
 	    if (!LckH) {
@@ -654,10 +654,10 @@ get_locks(p)
 		Error();
 	    }
 	}
-/*
- * Open the /proc lock file, assign a page size buffer to its stream,
- * and read it.
- */
+	/*
+	 * Open the /proc lock file, assign a page size buffer to its stream,
+	 * and read it.
+	 */
 	if (!(ls = open_proc_stream(p, "r", &vbuf, &vsz, 0)))
 	    return;
 	while (fgets(buf, sizeof(buf), ls)) {
@@ -665,9 +665,9 @@ get_locks(p)
 		continue;
 	    if (!fp[1] || strcmp(fp[1], "->") == 0)
 		continue;
-	/*
-	 * Get lock type.
-	 */
+	    /*
+	     * Get lock type.
+	     */
 	    if (!fp[3])
 		continue;
 	    if (*fp[3] == 'R')
@@ -676,15 +676,15 @@ get_locks(p)
 		mode = 1;
 	    else
 		continue;
-	/*
-	 * Get PID.
-	 */
+	    /*
+	     * Get PID.
+	     */
 	    if (!fp[4] || !*fp[4])
 		continue;
 	    pid = atoi(fp[4]);
-	/*
-	 * Get device number.
-	 */
+	    /*
+	     * Get device number.
+	     */
 	    ec = (char *)NULL;
 	    if (!fp[5] || !*fp[5]
 	    ||  (maj = strtol(fp[5], &ec, 16)) == LONG_MIN || maj == LONG_MAX
@@ -696,17 +696,17 @@ get_locks(p)
 	    ||  !ec || *ec)
 		continue;
 	    dev = (dev_t)makedev((int)maj, (int)min);
-	/*
-	 * Get inode number.
-	 */
+	    /*
+	     * Get inode number.
+	     */
 	    ec = (char *)NULL;
 	    if (!fp[7] || !*fp[7]
 	    ||  (inode = strtoull(fp[7], &ec, 0)) == ULONG_MAX
 	    ||  !ec || *ec)
 		continue;
-	/*
-	 * Get lock extent.  Convert it and the lock type to a lock character.
-	 */
+	    /*
+	     * Get lock extent.  Convert it and the lock type to a lock character.
+	     */
 	    if (!fp[8] || !*fp[8] || !fp[9] || !*fp[9])
 		continue;
 	    ec = (char *)NULL;
@@ -724,9 +724,9 @@ get_locks(p)
 		type = ex ? 'W' : 'w';
 	    else
 		type = ex ? 'R' : 'r';
-	/*
-	 * Look for this lock via the hash buckets.
-	 */
+	    /*
+	     * Look for this lock via the hash buckets.
+	     */
 	    h = HASHPID(pid);
 	    for (lp = LckH[h]; lp; lp = lp->next) {
 		if (lp->pid == pid
@@ -737,9 +737,9 @@ get_locks(p)
 	    }
 	    if (lp)
 		continue;
-	/*
-	 * Allocate a new llock structure and link it to the PID hash bucket.
-	 */
+	    /*
+	     * Allocate a new llock structure and link it to the PID hash bucket.
+	     */
 	    if (!(lp = (struct llock *)malloc(sizeof(struct llock)))) {
 		(void) snpf(buf, sizeof(buf), InodeFmt_d, inode);
 		(void) fprintf(stderr,
@@ -778,9 +778,9 @@ process_proc_node(p, pbr, s, ss, l, ls)
 	struct mounts *mp = (struct mounts *)NULL;
 	size_t sz;
 	char *tn;
-/*
- * Set the access mode, if possible.
- */
+	/*
+	 * Set the access mode, if possible.
+	 */
 	if (l && (ls & SB_MODE) && ((l->st_mode & S_IFMT) == S_IFLNK)) {
 	    if ((access = l->st_mode & (S_IRUSR | S_IWUSR)) == S_IRUSR)
 		Lf->access = 'r';
@@ -789,9 +789,9 @@ process_proc_node(p, pbr, s, ss, l, ls)
 	    else
 		Lf->access = 'u';
 	}
-/*
- * Determine node type.
- */
+	/*
+	 * Determine node type.
+	 */
 	if (ss & SB_MODE) {
 	    type = s->st_mode & S_IFMT;
 	    switch (type) {
@@ -816,9 +816,9 @@ process_proc_node(p, pbr, s, ss, l, ls)
 	}
 	if (Selinet)
 	    return;
-/*
- * Save the device.  If it is an NFS device, change the node type to N_NFS.
- */
+	/*
+	 * Save the device.  If it is an NFS device, change the node type to N_NFS.
+	 */
 	if (ss & SB_DEV) {
 	    Lf->dev = s->st_dev;
 	    Lf->dev_def = 1;
@@ -852,9 +852,9 @@ process_proc_node(p, pbr, s, ss, l, ls)
 		}
 	    }
 	}
-/*
- * Save the inode number.
- */
+	/*
+	 * Save the inode number.
+	 */
 	if (ss & SB_INO) {
 	    Lf->inode = (INODETYPE)s->st_ino;
 	    Lf->inp_ty = 1;
@@ -870,14 +870,14 @@ process_proc_node(p, pbr, s, ss, l, ls)
 #endif	/* defined(HASEPTOPTS) */
 
 	}
-/*
- * Check for a lock.
- */
+	/*
+	 * Check for a lock.
+	 */
 	if (Lf->dev_def && (Lf->inp_ty == 1))
 	    (void) check_lock();
-/*
- * Save the file size.
- */
+	/*
+	 * Save the file size.
+	 */
 	switch (Ntype) {
 	case N_BLK:
 	case N_CHR:
@@ -900,18 +900,18 @@ process_proc_node(p, pbr, s, ss, l, ls)
 		}
 	    }
 	}
-/*
- * Record the link count.
- */
+	/*
+	 * Record the link count.
+	 */
 	if (Fnlink && (ss & SB_NLINK)) {
 	    Lf->nlink = (long)s->st_nlink;
 	    Lf->nlink_def = 1;
 	    if (Nlink && (Lf->nlink < Nlink))
 		Lf->sf |= SELNLINK;
 	}
-/*
- * Format the type name.
- */
+	/*
+	 * Format the type name.
+	 */
 	if (ss & SB_MODE) {
 	    switch (type) {
 	    case S_IFBLK:
@@ -951,23 +951,23 @@ process_proc_node(p, pbr, s, ss, l, ls)
 	    tn = "unknown";
 	if (tn)
 	    (void) snpf(Lf->type, sizeof(Lf->type), "%s", tn);
-/*
- * Record an NFS file selection.
- */
+	/*
+	 * Record an NFS file selection.
+	 */
 	if (Ntype == N_NFS && Fnfs)
 	    Lf->sf |= SELNFS;
-/*
- * Test for specified file.
- */
+	/*
+	 * Test for specified file.
+	 */
 	if (Sfile
 	&& is_file_named(1, p, mp,
 			 ((type == S_IFCHR) || (type == S_IFBLK)) ? 1 : 0))
 	    Lf->sf |= SELNM;
-/*
- * If no NAME information has been stored, store the path.
- *
- * Store the remote host and mount point for an NFS file.
- */
+	/*
+	 * If no NAME information has been stored, store the path.
+	 *
+	 * Store the remote host and mount point for an NFS file.
+	 */
 	if (!Namech[0]) {
 	    (void) snpf(Namech, Namechl, "%s", p);
 	    if ((Ntype == N_NFS) && mp && mp->fsname) {

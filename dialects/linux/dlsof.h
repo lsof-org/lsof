@@ -124,9 +124,9 @@ typedef	unsigned long	KA_T;
 #define	STRNML		32
 
 # if	defined(_FILE_OFFSET_BITS) && _FILE_OFFSET_BITS==64
+/* size and offset internal storage
+ * type */
 #define	SZOFFTYPE	unsigned long long
-					/* size and offset internal storage
-					 * type */
 #define	SZOFFPSPEC	"ll"		/* SZOFFTYPE print specification
 					 * modifier */
 # endif	/* defined(_FILE_OFFSET_BITS) && _FILE_OFFSET_BITS==64 */
