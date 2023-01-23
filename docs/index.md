@@ -22,10 +22,10 @@ Actively maintained and supported:
 - FreeBSD
 - Darwin(macOS)
 - NetBSD
+- OpenBSD
 
 Not maintained for lack of maintainers but pull requests are welcome:
 
-- OpenBSD
 - Solaris
 - IBM AIX
 - HP-UX
