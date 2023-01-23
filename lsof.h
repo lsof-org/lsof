@@ -38,7 +38,7 @@
 #if	!defined(LSOF_H)
 #define	LSOF_H	1
 
-#ifdef AUTOTOOLS
+#if	defined(AUTOTOOLS)
 #include "autotools.h"
 #endif
 #include "machine.h"

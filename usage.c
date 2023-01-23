@@ -966,67 +966,67 @@ usage(err, fh, version)
 		(void) fprintf(stderr, "    system info: %s\n", cp);
 	    // display configurations that might affect output
 	    char *features[] = {
-#ifdef HASEFFNLINK
+#if	defined(HASEFFNLINK)
 		"effnlink",
 #endif
-#ifdef HASFDESCFS
+#if	defined(HASFDESCFS)
 		"fdescfs",
 #endif
-#ifdef HASF_VNODE
+#if	defined(HASF_VNODE)
 		"f_vnode",
 #endif
-#ifdef HASIPv6
+#if	defined(HASIPv6)
 		"ipv6",
 #endif
-#ifdef HAS_KF_SOCK_SENDQ
+#if	defined(HAS_KF_SOCK_SENDQ)
 		"kf_sock_sendq",
 #endif
-#ifdef HASNULLFS
+#if	defined(HASNULLFS)
 		"nullfs",
 #endif
-#ifdef HAS_SYS_PIPEH
+#if	defined(HAS_SYS_PIPEH)
 		"pipe",
 #endif
-#ifdef HASPROCFS
+#if	defined(HASPROCFS)
 		"procfs",
 #endif
-#ifdef HASPSEUDOFS
+#if	defined(HASPSEUDOFS)
 		"pseudofs",
 #endif
-#ifdef HASPTYEPT
+#if	defined(HASPTYEPT)
 		"ptyept",
 #endif
-#ifdef HASPTYFS
+#if	defined(HASPTYFS)
 		"ptyfs",
 #endif
-#if !defined(HASNORPC_H)
+#if	!defined(HASNORPC_H)
 		"rpc",
 #endif
-#ifdef HASSBSTATE
+#if	defined(HASSBSTATE)
 		"sbstate",
 #endif
-#ifdef HASSELINUX
+#if	defined(HASSELINUX)
 		"selinux",
 #endif
-#ifdef HASSOOPT
+#if	defined(HASSOOPT)
 		"soopt",
 #endif
-#ifdef HASSOSTATE
+#if	defined(HASSOSTATE)
 		"sostate",
 #endif
-#ifdef HASTASKS
+#if	defined(HASTASKS)
 		"tasks",
 #endif
-#if defined(HAS_TMPFS) || defined(HASTMPFS)
+#if	defined(HAS_TMPFS) || defined(HASTMPFS)
 		"tmpfs",
 #endif
-#ifdef HAS_XTCPCB_TMAXSEG
+#if	defined(HAS_XTCPCB_TMAXSEG)
 		"xtcpcb_tmaxseg",
 #endif
-#ifdef HASUXSOCKEPT
+#if	defined(HASUXSOCKEPT)
 		"uxsockept",
 #endif
-#ifdef HAS_V_LOCKF
+#if	defined(HAS_V_LOCKF)
 		"v_lockf",
 #endif
 	    };

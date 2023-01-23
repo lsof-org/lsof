@@ -53,7 +53,7 @@ static char copyright[] =
 #define	THREADS_INCR	(sizeof(uint64_t) * 32)	/* Threads space increment */
 #endif	/* DARWINV>=900 */
 
-#ifdef	PROC_PIDLISTFILEPORTS
+#if	defined(PROC_PIDLISTFILEPORTS)
 #define	FILEPORTS_INCR	(sizeof(struct proc_fileportinfo) * 32)	/* Fileports space increment */
 #endif	/* PROC_PIDLISTFILEPORTS */
 
@@ -72,7 +72,7 @@ static int NbThreads = 0;			/* Threads bytes allocated */
 static uint64_t *Threads = (uint64_t *)NULL;	/* Thread buffer */
 #endif	/* DARWINV>=900 */
 
-#ifdef	PROC_PIDLISTFILEPORTS
+#if	defined(PROC_PIDLISTFILEPORTS)
 static struct proc_fileportinfo *Fps = (struct proc_fileportinfo *)NULL;
 						/* fileport buffer */
 static int NbFps = 0;				/* bytes allocated to fileports */
@@ -101,7 +101,7 @@ _PROTOTYPE(static void process_text,(int pid));
 _PROTOTYPE(static void process_threads,(int pid, uint32_t n));
 #endif	/* DARWINV>=900 */
 
-#ifdef	PROC_PIDLISTFILEPORTS
+#if	defined(PROC_PIDLISTFILEPORTS)
 _PROTOTYPE(static void process_fileports,(int pid, int ckscko));
 #endif	/* PROC_PIDLISTFILEPORTS */
 
@@ -430,7 +430,7 @@ gather_proc_info()
 	    if (!ckscko)
 		(void) process_text(pid);
 
-#ifdef	PROC_PIDLISTFILEPORTS
+#if	defined(PROC_PIDLISTFILEPORTS)
 	/*
 	 * Loop through the fileports
 	 */
@@ -573,7 +573,7 @@ process_fds(pid, n, ckscko)
 }
 
 
-#ifdef	PROC_PIDLISTFILEPORTS
+#if	defined(PROC_PIDLISTFILEPORTS)
 /*
  * process_fileports() -- process fileports
  */

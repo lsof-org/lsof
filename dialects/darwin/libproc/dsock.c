@@ -418,7 +418,7 @@ process_socket(pid, fd)
 }
 
 
-#ifdef	PROC_PIDLISTFILEPORTS
+#if	defined(PROC_PIDLISTFILEPORTS)
 void
 process_fileport_socket(pid, fp)
 	int pid;			/* PID */

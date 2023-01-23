@@ -38,7 +38,7 @@
 
 #include "../machine.h"
 
-#ifdef	USE_LIB_SNPF
+#if	defined(USE_LIB_SNPF)
 
 /*
  * Sendmail copyright statements:

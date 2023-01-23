@@ -486,7 +486,7 @@ process_pipe(pid, fd)
 }
 
 
-#ifdef	PROC_PIDLISTFILEPORTS
+#if	defined(PROC_PIDLISTFILEPORTS)
 void
 process_fileport_pipe(pid, fp)
 	int pid;			/* PID */
@@ -631,7 +631,7 @@ process_pshm(pid, fd)
 }
 
 
-#ifdef	PROC_PIDLISTFILEPORTS
+#if	defined(PROC_PIDLISTFILEPORTS)
 void
 process_fileport_pshm(pid, fp)
 	int pid;			/* PID */
@@ -713,7 +713,7 @@ process_vnode(pid, fd)
 }
 
 
-#ifdef	PROC_PIDLISTFILEPORTS
+#if	defined(PROC_PIDLISTFILEPORTS)
 void
 process_fileport_vnode(pid, fp)
 	int pid;			/* PID */

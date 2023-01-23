@@ -25,6 +25,37 @@ emacs -batch dialects/linux/dsock.c -l $PWD/format.el
 The formatter may not function properly in some corner cases. You will have to
 rewrite the code to make it happy.
 
+Use as few #if/#else/#endif constructs as possible, even at
+the cost of nearly-duplicate code.
+
+When #if/#else/#endif constructs are necessary:
+
+Use the form
+
+```c
+#if	defined(s<symbol>)
+```
+
+in preference to
+
+```c
+#ifdef	<symbol>
+```
+
+to allow easier addition of tests to the #if.
+
+- Indent them to signify their level -- e.g.,
+
+```c
+#if	/* level one */
+# if	/* level two */
+# endif	/* level two */
+#else	/* level one */
+#endif	/* level one */
+```
+
+Use ANSI standard comments on #else and #endif statements.
+
 ## Testing
 
 There are two test mechanism, the original one by Via Abell and a script-based
