@@ -165,6 +165,14 @@ AS_CASE([${host_os}],
 	LSOF_DIALECT=openbsd
 	LSOF_DIALECT_DIR=openbsd
 	LSOF_TGT=openbsd
+
+	AS_CASE([$LSOF_VSTR],
+	[7.2],	[LSOF_VERS=7020],
+	[
+		AC_MSG_NOTICE([Unknown OpenBSD release: $(uname -r)])
+		AC_MSG_NOTICE([Assuming OpenBSD 7.2])
+		LSOF_VERS=7020
+	])
 ], [
 	AC_MSG_ERROR(["Host $host_os not supported"])
 ])

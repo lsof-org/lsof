@@ -102,9 +102,14 @@ process_vnode(struct kinfo_file *file)
 	        Lf->access = 'u';
 	}
 
-	/* Fill file size */
-	Lf->sz = file->va_size;
-	Lf->sz_def = 1;
+	/* Fill file size/offset */
+	if (Foffset) {
+	    Lf->off = file->f_offset;
+	    Lf->off_def = 1;
+	} else {
+	    Lf->sz = file->va_size;
+	    Lf->sz_def = 1;
+	}
 
 	/* Fill inode */
 	Lf->inode = file->va_fileid;
