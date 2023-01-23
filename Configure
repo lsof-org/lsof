@@ -3756,241 +3756,29 @@ LOCKF4
       exit 1
       ;;
     esac	# }
+
     LSOF_CFGF="$LSOF_CFGF -DOPENBSDV=$LSOF_VERS"
-    LSOF_CFGF="$LSOF_CFGF -g -O0"
-    if test -e /dev/ksyms	# {
-    then
-      LSOF_CFGF="$LSOF_CFGF -DN_UNIXV=/dev/ksyms"
-    else
-      LSOF_CFGF="$LSOF_CFGF -DN_UNIXV=/bsd"
-    fi
-    if test -r ${LSOF_INCLUDE}/nfs/nfsproto.h	# {
-    then
-      LSOF_CFGF="$LSOF_CFGF -DHASNFSPROTO"
-    fi	# }
+
     if test -r ${LSOF_INCLUDE}/netinet6/in6.h	# {
     then
       LSOF_CFGF="$LSOF_CFGF -DHASIPv6"
     fi	# }
-    LSOF_TMP1=0
+
     if test "X$OPENBSD_SYS" = "X"	# {
     then
       OPENBSD_SYS="/sys"
     fi	# }
-    if test -r ${OPENBSD_SYS}/miscfs/fdesc/fdesc.h	# {
-    then
-      grep -q Fctty ${OPENBSD_SYS}/miscfs/fdesc/fdesc.h
-      if test $? -eq 0	# {
-      then
-	LSOF_CFGF="$LSOF_CFGF -DHASFDESCFS=1"
-      else
-	LSOF_CFGF="$LSOF_CFGF -DHASFDESCFS=2"
-      fi	# }
-      grep -q fd_link ${OPENBSD_SYS}/miscfs/fdesc/fdesc.h
-      if test $? -eq 0	# {
-      then
-	LSOF_CFGF="$LSOF_CFGF -DHASFDLINK"
-      fi	# }
-      LSOF_TMP1=1
-    fi	# }
-    if test -r ${LSOF_INCLUDE}/sys/vnode.h	# {
-    then
-      grep -q VT_LFS ${LSOF_INCLUDE}/sys/vnode.h
-      if test $? -eq 0   # {
-      then
-	LSOF_CFGF="$LSOF_CFGF -DHASLFS"
-      fi	# }
-    fi	# }
-    if test -r ${LSOF_INCLUDE}/miscfs/nullfs/null.h	# {
-    then
-      LSOF_CFGF="$LSOF_CFGF -DHASNULLFS"
-    else
-      if test -r ${OPENBSD_SYS}/miscfs/nullfs/null.h	# {
-      then
-	LSOF_CFGF="$LSOF_CFGF -DHASNULLFS"
-	LSOF_TMP1=1
-      fi	# }
-    fi	# }
+
     if test -d ${OPENBSD_SYS}/miscfs/procfs	# {
     then
       LSOF_CFGF="$LSOF_CFGF -DHASPROCFS"
-      LSOF_TMP1=1
     fi	# }
-    if test -d ${OPENBSD_SYS}/isofs/cd9660	# {
-    then
-      LSOF_CFGF="$LSOF_CFGF -DHAS9660FS=1"
-      LSOF_TMP1=1
-    else
-      if test -d ${OPENBSD_SYS}/fs/cd9660	# {
-      then
-	LSOF_CFGF="$LSOF_CFGF -DHAS9660FS=2"
-	LSOF_TMP1=1
-      fi	# }
-    fi	# }
-    if test -d ${OPENBSD_SYS}/msdosfs	# {
-    then
-      LSOF_CFGF="$LSOF_CFGF -DHASMSDOSFS=1"
-      LSOF_TMP1=1
-    else
-      if test -d ${OPENBSD_SYS}/fs/msdosfs	# {
-      then
-	LSOF_CFGF="$LSOF_CFGF -DHASMSDOSFS=2"
-	LSOF_TMP1=1
-      fi	# }
-    fi	# }
-    if test -r ${OPENBSD_SYS}/miscfs/kernfs/kernfs.h	# {
-    then
-      grep -q "kt_name;" ${OPENBSD_SYS}/miscfs/kernfs/kernfs.h
-      if test $? -eq 0	# {
-	then
- 	  LSOF_CFGF="$LSOF_CFGF -DHASKERNFS"
-	  LSOF_TMP1=1
-      fi	# }
-    fi	# }
-    if test $LSOF_TMP1 -eq 1 -a "X$LSOF_INCLUDE" != "X$OPENBSD_SYS"	# {
-    then
-      LSOF_DINC="-I$LSOF_INCLUDE -I$OPENBSD_SYS"
-    fi	# }
-    grep -q VT_EXT2FS ${LSOF_INCLUDE}/sys/vnode.h
-    if test $? -eq 0	# {
-    then
-      LSOF_TMP1=1
-      if test -r ${LSOF_INCLUDE}/ufs/ufs/inode.h	# {
-      then
-	grep -q "*e2fs_din" ${LSOF_INCLUDE}/ufs/ufs/inode.h
-	if test $? -eq 0	# {
-	then
-	  LSOF_CFGF="$LSOF_CFGF -DHASI_E2FS_PTR"
-	fi	# }
-	grep -q "^#define[ 	]i_e2din" ${LSOF_INCLUDE}/ufs/ufs/inode.h
-	if test $? -eq 0	# {
-	then
-	  LSOF_TMP1=2
-	fi	# }
-      fi	# }
-      LSOF_CFGF="$LSOF_CFGF -DHASEXT2FS=$LSOF_TMP1"
-    fi	# }
-    if test -r ${LSOF_INCLUDE}/ufs/ufs/inode.h	# {
-    then
-      grep -q i_effnlink ${LSOF_INCLUDE}/ufs/ufs/inode.h
-      if test $? -eq 0	# {
-      then
-	LSOF_CFGF="$LSOF_CFGF -DHASEFFNLINK=i_effnlink"
-      fi	# }
-      grep -q dinode_u ${LSOF_INCLUDE}/ufs/ufs/inode.h
-      if test $? -eq 0	# {
-      then
-	LSOF_CFGF="$LSOF_CFGF -DHAS_DINODE_U"
-      fi	# }
-      grep -q i_ffs1_size ${LSOF_INCLUDE}/ufs/ufs/inode.h
-      if test $? -eq 0	# {
-      then
-	LSOF_CFGF="$LSOF_CFGF -DHASI_FFS1"
-      fi	# }
-      grep -q UM_UFS ${LSOF_INCLUDE}/ufs/ufs/inode.h
-      if test $? -eq 0	# {
-      then
-	LSOF_CFGF="$LSOF_CFGF -DHAS_UM_UFS"
-      fi	# }
-    fi	# }
-    if test -r ${LSOF_INCLUDE}/sys/namei.h
-    then
-      grep -q nc_vpid ${LSOF_INCLUDE}/sys/namei.h
-      if test $? -eq 0	# {
-      then
-	LSOF_CFGF="$LSOF_CFGF -DHASNCVPID"
-      fi	# }
-    fi	# }
-    if test "X$OPENBSD_UVM" = "X"	# {
-    then
-      if test -r ${LSOF_INCLUDE}/sys/vnode.h	# {
-      then
-	grep -q UVM ${LSOF_INCLUDE}/sys/vnode.h
-	if test $? -ne 0	# {
-	then
-	  egrep -q "v_uvm;|v_uobj;" ${LSOF_INCLUDE}/sys/vnode.h
-	  if test $? -eq 0	# {
-	  then
-	    OPENBSD_UVM="Y"
-	  fi	# }
-	fi	# }
-      fi	# }
-    fi	# }
-    if test "X$OPENBSD_UVM" = "XY" -o "X$OPENBSD_UVM" = "Xy"	# {
-    then
-      LSOF_CFGF="$LSOF_CFGF -DUVM"
-      if test -d ${LSOF_INCLUDE}/uvm	# {
-      then
-	LSOF_CFGF="$LSOF_CFGF -DHAS_UVM_INCL"
-      fi	# }
-    fi	# }
-    if test -r ${LSOF_INCLUDE}/sys/mount.h -a $LSOF_VERS -lt 3030	# {
-    then
 
-      # Build a local OpenBSD netexport.h header file for possible use by
-      # <msdosfs/msdosfsmount.h>.  Make sure CFGL contains a -I for it.
-
-      LSOF_TMP1=${LSOF_TMPC}.edscr
-      LSOF_TMP2=${LSOF_TMPC}.netcred
-      LSOF_TMP3=${LSOF_TMPC}.netexport
-      LSOF_TMP4=dialects/netbsd/include/netexport.h
-      if test ! -d dialects/netbsd/include	# {
-      then
-	mkdir dialects/netbsd/include
-      fi	# }
-      rm -f $LSOF_TMP1 $LSOF_TMP2 $LSOF_TMP3 $LSOF_TMP4
-      echo "/^struct netcred" > $LSOF_TMP1
-      echo "1,.-1d" >> $LSOF_TMP1
-      echo "/^};" >> $LSOF_TMP1
-      echo "1,.w $LSOF_TMP2" >> $LSOF_TMP1
-      ed ${LSOF_INCLUDE}/sys/mount.h < $LSOF_TMP1 > /dev/null 2>&1
-      rm -f $LSOF_TMP1
-      echo "/^struct netexport" > $LSOF_TMP1
-      echo "1,.-1d" >> $LSOF_TMP1
-      echo "/^};" >> $LSOF_TMP1
-      echo "1,.w $LSOF_TMP3" >> $LSOF_TMP1
-      ed ${LSOF_INCLUDE}/sys/mount.h < $LSOF_TMP1 > /dev/null 2>&1
-      echo "/*" > $LSOF_TMP4
-      echo " * netexport.h" >> $LSOF_TMP4
-      echo -n " * Created by Configure: " >> $LSOF_TMP4
-      echo `date` >> $LSOF_TMP4
-      echo " */" >> $LSOF_TMP4
-      echo "" >> $LSOF_TMP4
-      echo "#if	!defined(NETEXPORT_H)" >> $LSOF_TMP4
-      echo "#define	NETEXPORT_H" >> $LSOF_TMP4
-      echo "" >> $LSOF_TMP4
-      echo "#include <net/radix.h>" >> $LSOF_TMP4
-      echo "" >> $LSOF_TMP4
-      if test -r $LSOF_TMP2	# {
-      then
-	cat $LSOF_TMP2 >> $LSOF_TMP4
-	echo "" >> $LSOF_TMP4
-      fi	# }
-      if test -r $LSOF_TMP3	# {
-      then
-	cat $LSOF_TMP3 >> $LSOF_TMP4
-      fi	# }
-      echo "#endif	/* !defined(NETEXPORT_H) */" >> $LSOF_TMP4
-      rm -f $LSOF_TMP1 $LSOF_TMP2 $LSOF_TMP3
-      echo $LSOF_CFGF | grep /dialects/netbsd/include > /dev/null 2>&1
-      if test $? -ne 0	# {
-      then
-	LSOF_CFGF="$LSOF_CFGF -I`pwd`/dialects/netbsd/include"
-      fi	# }
-    fi	# }
-    if test -r ${LSOF_INCLUDE}/sys/lockf.h	# {
-    then
-      grep vop_advlock_args ${LSOF_INCLUDE}/sys/lockf.h > /dev/null
-      if test $? -eq 0	# {
-      then
-	LSOF_CFGF="$LSOF_CFGF -DHAS_ADVLOCK_ARGS"
-      fi	# }
-    fi	# }
     if test -r ${LSOF_INCLUDE}/sys/pipe.h	# {
     then
       LSOF_CFGF="$LSOF_CFGF -DHAS_SYS_PIPEH"
     fi	# }
-    LSOF_CFGL="$LSOF_CFGL -lkvm"
+
     LSOF_DIALECT_DIR=openbsd
     ;;
 
