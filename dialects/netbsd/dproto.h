@@ -44,7 +44,7 @@ _PROTOTYPE(extern char *get_nlist_path,(int ap));
 _PROTOTYPE(extern int is_file_named,(char *p, int cd));
 _PROTOTYPE(extern struct l_vfs *readvfs,(KA_T vm));
 
-#if	defined(HAS_SYS_PIPE_H)
+#if	defined(HAS_SYS_PIPEH)
 _PROTOTYPE(extern void process_pipe,(KA_T pa));
 #endif	/* defined(HAS_SYS_PIPEH) */
 
