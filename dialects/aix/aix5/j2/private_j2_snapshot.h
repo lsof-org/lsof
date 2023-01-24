@@ -9,9 +9,9 @@
  *	    not affect lsof's use of the JFS2 inode structure.
  */
 
-#if	!defined(_H_J2_SNAPSHOT)
-#define	_H_J2_SNAPSHOT
+#if !defined(_H_J2_SNAPSHOT)
+#    define _H_J2_SNAPSHOT
 struct snapshotObject {
-	uint64 d1;
+    uint64 d1;
 };
-#endif	/* !defined(_H_J2_SNAPSHOT) */
+#endif /* !defined(_H_J2_SNAPSHOT) */

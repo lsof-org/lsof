@@ -2,7 +2,6 @@
  * dnode.c - OpenBSD node functions for lsof
  */
 
-
 /*
  * Copyright 1994 Purdue Research Foundation, West Lafayette, Indiana
  * 47907.  All rights reserved.
@@ -34,53 +33,47 @@ static char copyright[] =
     "@(#) Copyright 1994 Purdue Research Foundation.\nAll rights reserved.\n";
 #endif
 
-
 #include "lsof.h"
 
 /*
  * process_kqueue() -- process kqueue file
  */
-void
-process_kqueue_file(struct kinfo_file *file)
-{
-	char buf[64];
-	int flag;
+void process_kqueue_file(struct kinfo_file *file) {
+    char buf[64];
+    int flag;
 
-	/* Alloc Lf and set fd */
-	alloc_lfile(NULL, file->fd_fd);
+    /* Alloc Lf and set fd */
+    alloc_lfile(NULL, file->fd_fd);
 
-	/* Fill type name*/
-	(void) snpf(Lf->type, sizeof(Lf->type), "KQUEUE");
+    /* Fill type name*/
+    (void)snpf(Lf->type, sizeof(Lf->type), "KQUEUE");
 
-	/* Fill dev with f_data if available */
-	if (file->f_data) {
-	    (void) snpf(buf, sizeof(buf), "0x%" PRIx64, file->f_data);
-	    enter_dev_ch(buf);
-	}
+    /* Fill dev with f_data if available */
+    if (file->f_data) {
+        (void)snpf(buf, sizeof(buf), "0x%" PRIx64, file->f_data);
+        enter_dev_ch(buf);
+    }
 
-	/* Fill offset */
-	Lf->off = 0;
-	Lf->off_def = 1;
+    /* Fill offset */
+    Lf->off = 0;
+    Lf->off_def = 1;
 
-	/*
-	 * Construct access code.
-	 */
-	if ((flag = (file->f_flag & (FREAD | FWRITE))) == FREAD)
-	    Lf->access = 'r';
-	else if (flag == FWRITE)
-	    Lf->access = 'w';
-	else if (flag == (FREAD | FWRITE))
-	    Lf->access = 'u';
+    /*
+     * Construct access code.
+     */
+    if ((flag = (file->f_flag & (FREAD | FWRITE))) == FREAD)
+        Lf->access = 'r';
+    else if (flag == FWRITE)
+        Lf->access = 'w';
+    else if (flag == (FREAD | FWRITE))
+        Lf->access = 'u';
 
-	/* Finish */
-	if (Lf->sf)
-		link_lfile();
+    /* Finish */
+    if (Lf->sf)
+        link_lfile();
 }
 
 /*
  * process_pipe() - process a file structure whose type is DTYPE_PIPE
  */
-void
-process_pipe(struct kinfo_file *file)
-{
-}
+void process_pipe(struct kinfo_file *file) {}

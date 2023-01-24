@@ -5,7 +5,6 @@
  * structure definitions.
  */
 
-
 /*
  * Copyright 1995 Purdue Research Foundation, West Lafayette, Indiana
  * 47907.  All rights reserved.
@@ -34,21 +33,19 @@
 
 #ifndef lint
 static char copyright[] =
-"@(#) Copyright 1994 Purdue Research Foundation.\nAll rights reserved.\n";
+    "@(#) Copyright 1994 Purdue Research Foundation.\nAll rights reserved.\n";
 #endif
 
+#if defined(HASVXFS)
 
-#if	defined(HASVXFS)
-
-# if	defined(HPUXKERNBITS) && HPUXKERNBITS>=64
-#define _INO_T
+#    if defined(HPUXKERNBITS) && HPUXKERNBITS >= 64
+#        define _INO_T
 typedef int ino_t;
-#define _TIME_T
+#        define _TIME_T
 typedef int time_t;
-# endif	/* defined(HPUXKERNBITS) && HPUXKERNBITS>=64 */
+#    endif /* defined(HPUXKERNBITS) && HPUXKERNBITS>=64 */
 
-#include "lsof.h"
-
+#    include "lsof.h"
 
 /*
  * HP-UX versions below 10.20:
@@ -69,88 +66,85 @@ typedef int time_t;
  *    Don't #define _KERNEL.  Include a different set of VXFS header files.
  */
 
+#    if HPUXV >= 1020
+#        undef te_offset
+#        undef i_size
+#        undef di_size
+#        define pool_id_t vx_pool_id_t
 
-# if	HPUXV>=1020
-#undef	te_offset
-#undef	i_size
-#undef	di_size
-#define	pool_id_t	vx_pool_id_t
+#        if HPUXV >= 1030
+#            define ulong vx_ulong /* avoid <sys/stream.h> conflict */
+#        endif                     /* HPUXV>=1030 */
 
-#  if	HPUXV>=1030
-#define	ulong	vx_ulong		/* avoid <sys/stream.h> conflict */
-#  endif	/* HPUXV>=1030 */
+#        include <sys/fs/vx_hpux.h>
+#        include <sys/fs/vx_port.h>
+#        include <sys/fs/vx_inode.h>
 
-#include <sys/fs/vx_hpux.h>
-#include <sys/fs/vx_port.h>
-#include <sys/fs/vx_inode.h>
+#        if HPUXV >= 1030
+#            undef ulong
+#        endif /* HPUXV>=1030 */
 
-#  if	HPUXV>=1030
-#undef	ulong
-#  endif	/* HPUXV>=1030 */
+#    else /* HPUXV<1020 */
 
-# else	/* HPUXV<1020 */
-
-#define	pool_id_t	caddr_t
-#define	sv_sema_t	caddr_t
-#define	_KERNEL
-#include <sys/fs/vx_hpux.h>
-#include <sys/fs/vx_inode.h>
-#undef	_KERNEL
-# endif	/* HPUXV>=1020 */
-
+#        define pool_id_t caddr_t
+#        define sv_sema_t caddr_t
+#        define _KERNEL
+#        include <sys/fs/vx_hpux.h>
+#        include <sys/fs/vx_inode.h>
+#        undef _KERNEL
+#    endif /* HPUXV>=1020 */
 
 /*
  * read_vxnode() - read Veritas file system inode information
  */
 
-int
-read_vxnode(v, vfs, dev, devs, rdev, rdevs)
-	struct vnode *v;		/* local containing vnode */
-	struct l_vfs *vfs;		/* local vfs structure */
-	dev_t *dev;			/* device number receiver */
-	int *devs;			/* device status receiver */
-	dev_t *rdev;			/* raw device number receiver */
-	int *rdevs;			/* raw device status receiver */
+int read_vxnode(v, vfs, dev, devs, rdev, rdevs)
+struct vnode *v;   /* local containing vnode */
+struct l_vfs *vfs; /* local vfs structure */
+dev_t *dev;        /* device number receiver */
+int *devs;         /* device status receiver */
+dev_t *rdev;       /* raw device number receiver */
+int *rdevs;        /* raw device status receiver */
 {
-	struct vx_inode i;
+    struct vx_inode i;
 
-	if (!v->v_data || kread((KA_T)v->v_data, (char *)&i, sizeof(i)))
-	    return(1);
-/*
- * Return device numbers.
- */
-	if (vfs && vfs->fsname)
-	    *dev = vfs->dev;
-	else
-	    *dev = i.i_dev;
-	*devs = 1;
-	if ((v->v_type == VCHR) || (v->v_type == VBLK)) {
-	    *rdev = v->v_rdev;
-	    *rdevs = 1;
-	}
-/*
- * Record inode number.
- */
-	Lf->inode = (INODETYPE)i.i_number;
-	Lf->inp_ty = 1;
-/*
- * Record size.
- */
-	if (Foffset || ((v->v_type == VCHR || v->v_type == VBLK) && !Fsize))
-	    Lf->off_def = 1;
-	else {
-	    Lf->sz = (SZOFFTYPE)i.i_size;
-	    Lf->sz_def = 1;
-	}
-/*
- * Record link count.
- */
-	if (Fnlink) {
-	    Lf->nlink = (long)i.i_nlink;
-	    Lf->nlink_def = 1;
-	    if (Nlink && (Lf->nlink < Nlink))
-		Lf->sf |= SELNLINK;
-	}
-	return(0);
+    if (!v->v_data || kread((KA_T)v->v_data, (char *)&i, sizeof(i)))
+        return (1);
+    /*
+     * Return device numbers.
+     */
+    if (vfs && vfs->fsname)
+        *dev = vfs->dev;
+    else
+        *dev = i.i_dev;
+    *devs = 1;
+    if ((v->v_type == VCHR) || (v->v_type == VBLK)) {
+        *rdev = v->v_rdev;
+        *rdevs = 1;
+    }
+    /*
+     * Record inode number.
+     */
+    Lf->inode = (INODETYPE)i.i_number;
+    Lf->inp_ty = 1;
+    /*
+     * Record size.
+     */
+    if (Foffset || ((v->v_type == VCHR || v->v_type == VBLK) && !Fsize))
+        Lf->off_def = 1;
+    else {
+        Lf->sz = (SZOFFTYPE)i.i_size;
+        Lf->sz_def = 1;
+    }
+    /*
+     * Record link count.
+     */
+    if (Fnlink) {
+        Lf->nlink = (long)i.i_nlink;
+        Lf->nlink_def = 1;
+        if (Nlink && (Lf->nlink < Nlink))
+            Lf->sf |= SELNLINK;
+    }
+    return (0);
 }
-#endif	/* defined(HASVXFS) */
+#endif /* defined(HASVXFS) */

@@ -2,7 +2,6 @@
  * dsock.c - OpenBSD socket processing functions for lsof
  */
 
-
 /*
  * Copyright 1994 Purdue Research Foundation, West Lafayette, Indiana
  * 47907.  All rights reserved.
@@ -39,159 +38,157 @@ static char copyright[] =
 /*
  * process_socket() - process socket
  */
-void
-process_socket(struct kinfo_file *file)
-{
-	char *type_name = NULL;
-	char *proto = NULL;
-	char *type = NULL;
-	char buf[64];
-	int flag;
-	uint32_t lport, fport;
+void process_socket(struct kinfo_file *file) {
+    char *type_name = NULL;
+    char *proto = NULL;
+    char *type = NULL;
+    char buf[64];
+    int flag;
+    uint32_t lport, fport;
 
-	/* Alloc Lf and set fd */
-	alloc_lfile(NULL, file->fd_fd);
+    /* Alloc Lf and set fd */
+    alloc_lfile(NULL, file->fd_fd);
 
-	/* Type name */
-	switch (file->so_family) {
-	case AF_INET:
-	    type_name = "IPv4";
-	    break;
-	case AF_INET6:
-	    type_name = "IPv6";
-	    break;
-	case AF_UNIX:
-	    type_name = "unix";
-	    break;
-	case AF_ROUTE:
-	    type_name = "rte";
-	    break;
-	}
-	if (type_name)
-	    (void) snpf(Lf->type, sizeof(Lf->type), "%s", type_name);
+    /* Type name */
+    switch (file->so_family) {
+    case AF_INET:
+        type_name = "IPv4";
+        break;
+    case AF_INET6:
+        type_name = "IPv6";
+        break;
+    case AF_UNIX:
+        type_name = "unix";
+        break;
+    case AF_ROUTE:
+        type_name = "rte";
+        break;
+    }
+    if (type_name)
+        (void)snpf(Lf->type, sizeof(Lf->type), "%s", type_name);
 
-	/*
-	 * Construct access code.
-	 */
-	if (file->fd_fd >= 0) {
-	    if ((flag = (file->f_flag & (FREAD | FWRITE))) == FREAD)
-	        Lf->access = 'r';
-	    else if (flag == FWRITE)
-	        Lf->access = 'w';
-	    else if (flag == (FREAD | FWRITE))
-	        Lf->access = 'u';
-	}
+    /*
+     * Construct access code.
+     */
+    if (file->fd_fd >= 0) {
+        if ((flag = (file->f_flag & (FREAD | FWRITE))) == FREAD)
+            Lf->access = 'r';
+        else if (flag == FWRITE)
+            Lf->access = 'w';
+        else if (flag == (FREAD | FWRITE))
+            Lf->access = 'u';
+    }
 
-	/* Fill iproto */
-	switch (file->so_type) {
-	case SOCK_STREAM:
-	    proto = "TCP";
-	    break;
-	case SOCK_DGRAM:
-	    proto = "UDP";
-	    break;
-	case SOCK_RAW:
-	    proto = "RAW";
-	    break;
-	}
-	if (proto) {
-	    (void) snpf(Lf->iproto, sizeof(Lf->iproto), "%s", proto);
-	    Lf->inp_ty = 2;
-	}
+    /* Fill iproto */
+    switch (file->so_type) {
+    case SOCK_STREAM:
+        proto = "TCP";
+        break;
+    case SOCK_DGRAM:
+        proto = "UDP";
+        break;
+    case SOCK_RAW:
+        proto = "RAW";
+        break;
+    }
+    if (proto) {
+        (void)snpf(Lf->iproto, sizeof(Lf->iproto), "%s", proto);
+        Lf->inp_ty = 2;
+    }
 
-	/* Fill offset, always zero */
-	Lf->off = 0;
-	Lf->off_def = 1;
+    /* Fill offset, always zero */
+    Lf->off = 0;
+    Lf->off_def = 1;
 
-	if (file->so_family == AF_INET || file->so_family == AF_INET6) {
-	    /* Show this entry if -i */
-	    if (Fnet) {
-		/* Handle v4/v6 only */
-		if (FnetTy == 4 && file->so_family == AF_INET) {
-		    Lf->sf |= SELNET;
-		} else if (FnetTy == 6 && file->so_family == AF_INET6) {
-		    Lf->sf |= SELNET;
-		} else if (FnetTy == 0) {
-		    Lf->sf |= SELNET;
-		}
-	    }
+    if (file->so_family == AF_INET || file->so_family == AF_INET6) {
+        /* Show this entry if -i */
+        if (Fnet) {
+            /* Handle v4/v6 only */
+            if (FnetTy == 4 && file->so_family == AF_INET) {
+                Lf->sf |= SELNET;
+            } else if (FnetTy == 6 && file->so_family == AF_INET6) {
+                Lf->sf |= SELNET;
+            } else if (FnetTy == 0) {
+                Lf->sf |= SELNET;
+            }
+        }
 
-	    /* Fill internet address info */
-	    lport = ntohs(file->inp_lport);
-	    fport = ntohs(file->inp_fport);
-	    if (file->inp_fport) {
-	        ent_inaddr((unsigned char *)file->inp_laddru, lport,
-	            (unsigned char *)file->inp_faddru, fport, file->so_family);
-	    } else {
-		/* No foreign address on LISTEN sockets */
-	        ent_inaddr((unsigned char *)file->inp_laddru, lport,
-	            NULL, 0, file->so_family);
-	    }
+        /* Fill internet address info */
+        lport = ntohs(file->inp_lport);
+        fport = ntohs(file->inp_fport);
+        if (file->inp_fport) {
+            ent_inaddr((unsigned char *)file->inp_laddru, lport,
+                       (unsigned char *)file->inp_faddru, fport,
+                       file->so_family);
+        } else {
+            /* No foreign address on LISTEN sockets */
+            ent_inaddr((unsigned char *)file->inp_laddru, lport, NULL, 0,
+                       file->so_family);
+        }
 
-	    /* Fill TCP state */
-	    if (file->so_type == SOCK_STREAM) {
-	        Lf->lts.type = 0;
-	        Lf->lts.state.i = file->t_state;
-	    }
+        /* Fill TCP state */
+        if (file->so_type == SOCK_STREAM) {
+            Lf->lts.type = 0;
+            Lf->lts.state.i = file->t_state;
+        }
 
-	    /* Fill dev with pcb if available */
-	    if (file->inp_ppcb) {
-	        (void) snpf(buf, sizeof(buf), "0x%" PRIx64, file->inp_ppcb);
-	        enter_dev_ch(buf);
-	    } else if (file->so_pcb && file->so_pcb != (uint64_t)(-1)) {
-		/* when running as non-root, -1 means not NULL */
-	        (void) snpf(buf, sizeof(buf), "0x%" PRIx64, file->so_pcb);
-	        enter_dev_ch(buf);
-	    }
-	} else if (file->so_family == AF_UNIX) {
-	    /* Show this entry if requested */
-	    /* Via -U */
-	    if (Funix)
-		Lf->sf |= SELUNX;
-	    /* Name matches */
-	    if (is_file_named(file->unp_path, 0)) {
-		Lf->sf |= SELNM;
-	    }
+        /* Fill dev with pcb if available */
+        if (file->inp_ppcb) {
+            (void)snpf(buf, sizeof(buf), "0x%" PRIx64, file->inp_ppcb);
+            enter_dev_ch(buf);
+        } else if (file->so_pcb && file->so_pcb != (uint64_t)(-1)) {
+            /* when running as non-root, -1 means not NULL */
+            (void)snpf(buf, sizeof(buf), "0x%" PRIx64, file->so_pcb);
+            enter_dev_ch(buf);
+        }
+    } else if (file->so_family == AF_UNIX) {
+        /* Show this entry if requested */
+        /* Via -U */
+        if (Funix)
+            Lf->sf |= SELUNX;
+        /* Name matches */
+        if (is_file_named(file->unp_path, 0)) {
+            Lf->sf |= SELNM;
+        }
 
-	    /* Fill name */
-	    switch (file->so_type) {
-	    case SOCK_STREAM:
-	        type = "STREAM";
-	        break;
-	    case SOCK_DGRAM:
-	        type = "DGRAM";
-	        break;
-	    default:
-	        type = "UNKNOWN";
-	        break;
-	    }
+        /* Fill name */
+        switch (file->so_type) {
+        case SOCK_STREAM:
+            type = "STREAM";
+            break;
+        case SOCK_DGRAM:
+            type = "DGRAM";
+            break;
+        default:
+            type = "UNKNOWN";
+            break;
+        }
 
-	    (void) snpf(Namech, Namechl, "%s%stype=%s",
-		file->unp_path[0] ? file->unp_path : "",
-		file->unp_path[0] ? " " : "",
-		type);
-	    (void) enter_nm(Namech);
+        (void)snpf(Namech, Namechl, "%s%stype=%s",
+                   file->unp_path[0] ? file->unp_path : "",
+                   file->unp_path[0] ? " " : "", type);
+        (void)enter_nm(Namech);
 
-	    /* Fill TCP state */
-	    if (file->so_type == SOCK_STREAM) {
-	        Lf->lts.type = 0;
-	        Lf->lts.state.i = file->t_state;
-	    }
+        /* Fill TCP state */
+        if (file->so_type == SOCK_STREAM) {
+            Lf->lts.type = 0;
+            Lf->lts.state.i = file->t_state;
+        }
 
-	    /* Fill dev with so_pcb if available */
-	    if (file->so_pcb && file->so_pcb != (uint64_t)(-1)) {
-	        (void) snpf(buf, sizeof(buf), "0x%" PRIx64, file->so_pcb);
-	        enter_dev_ch(buf);
-	    }
-	} else if (file->so_family == AF_ROUTE) {
-	    /* Fill dev with f_data if available */
-	    if (file->f_data) {
-	        (void) snpf(buf, sizeof(buf), "0x%" PRIx64, file->f_data);
-	        enter_dev_ch(buf);
-	    }
-	}
+        /* Fill dev with so_pcb if available */
+        if (file->so_pcb && file->so_pcb != (uint64_t)(-1)) {
+            (void)snpf(buf, sizeof(buf), "0x%" PRIx64, file->so_pcb);
+            enter_dev_ch(buf);
+        }
+    } else if (file->so_family == AF_ROUTE) {
+        /* Fill dev with f_data if available */
+        if (file->f_data) {
+            (void)snpf(buf, sizeof(buf), "0x%" PRIx64, file->f_data);
+            enter_dev_ch(buf);
+        }
+    }
 
-	/* Finish */
-	if (Lf->sf)
-	    link_lfile();
+    /* Finish */
+    if (Lf->sf)
+        link_lfile();
 }

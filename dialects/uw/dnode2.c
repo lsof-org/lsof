@@ -33,81 +33,77 @@
 
 #ifndef lint
 static char copyright[] =
-"@(#) Copyright 1996 Purdue Research Foundation.\nAll rights reserved.\n";
+    "@(#) Copyright 1996 Purdue Research Foundation.\nAll rights reserved.\n";
 #endif
-
 
 #include "lsof.h"
 
-#if	defined(HASVXFS)
+#if defined(HASVXFS)
 
-# if	UNIXWAREV<70000
-#undef	fs_bsize
-#undef	IFMT
-#undef	IFIFO
-#undef	IFCHR
-#undef	IFDIR
-#undef	IFNAM
-#undef	IFBLK
-#undef	IFREG
-#undef	IFLNK
-#undef	ISUID
-#undef	ISGID
-#undef	ISVTX
-#undef	IREAD
-#undef	IWRITE
-#undef	IEXEC
-#include <sys/fs/vx_inode.h>
-# else	/* UNIXWAREV>=70000 */
-struct vx_inode{
-	unsigned long d1[28];
-	dev_t i_dev;
-	unsigned long i_number;
-	unsigned long d2[76];
-	unsigned long i_nlink;
-	unsigned long d3[2];
-	unsigned long long i_size;
-	unsigned long d4[8];
-	dev_t i_rdev;
+#    if UNIXWAREV < 70000
+#        undef fs_bsize
+#        undef IFMT
+#        undef IFIFO
+#        undef IFCHR
+#        undef IFDIR
+#        undef IFNAM
+#        undef IFBLK
+#        undef IFREG
+#        undef IFLNK
+#        undef ISUID
+#        undef ISGID
+#        undef ISVTX
+#        undef IREAD
+#        undef IWRITE
+#        undef IEXEC
+#        include <sys/fs/vx_inode.h>
+#    else  /* UNIXWAREV>=70000 */
+struct vx_inode {
+    unsigned long d1[28];
+    dev_t i_dev;
+    unsigned long i_number;
+    unsigned long d2[76];
+    unsigned long i_nlink;
+    unsigned long d3[2];
+    unsigned long long i_size;
+    unsigned long d4[8];
+    dev_t i_rdev;
 };
-# endif	/* UNIXWAREV<70000 */
-#endif	/* defined(HASVXFS) */
-
+#    endif /* UNIXWAREV<70000 */
+#endif     /* defined(HASVXFS) */
 
 /*
  * readvxfslino() - read vxfs inode's local inode information
  */
 
-int
-readvxfslino(v, i)
-	struct vnode *v;		/* containing vnode */
-	struct l_ino *i;		/* local inode information */
+int readvxfslino(v, i)
+struct vnode *v; /* containing vnode */
+struct l_ino *i; /* local inode information */
 {
 
-#if	defined(HASVXFS)
-	struct vx_inode vx;
+#if defined(HASVXFS)
+    struct vx_inode vx;
 
-	if (kread((KA_T)v->v_data, (char *)&vx, sizeof(vx)))
-	    return(1);
-	i->dev = vx.i_dev;
-	i->dev_def = 1;
-	i->nlink = (long)vx.i_nlink;
-	i->nlink_def = 1;
-	i->nm = (char *)NULL;
-	i->number = (INODETYPE)vx.i_number;
-	i->number_def = 1;
-	if (v->v_type == VCHR) {
-	    i->rdev = vx.i_rdev;
-	    i->rdev_def = 1;
-	} else {
-	    i->rdev = (dev_t)0;
-	    i->rdev_def = 0;
-	}
-	i->size = (SZOFFTYPE)vx.i_size;
-	i->size_def = 1;
-	return(0);
-#else	/* !defined(HASVXFS) */
-	return(1);
-#endif	/* defined(HASVXFS) */
-
+    if (kread((KA_T)v->v_data, (char *)&vx, sizeof(vx)))
+        return (1);
+    i->dev = vx.i_dev;
+    i->dev_def = 1;
+    i->nlink = (long)vx.i_nlink;
+    i->nlink_def = 1;
+    i->nm = (char *)NULL;
+    i->number = (INODETYPE)vx.i_number;
+    i->number_def = 1;
+    if (v->v_type == VCHR) {
+        i->rdev = vx.i_rdev;
+        i->rdev_def = 1;
+    } else {
+        i->rdev = (dev_t)0;
+        i->rdev_def = 0;
+    }
+    i->size = (SZOFFTYPE)vx.i_size;
+    i->size_def = 1;
+    return (0);
+#else  /* !defined(HASVXFS) */
+    return (1);
+#endif /* defined(HASVXFS) */
 }

@@ -11,9 +11,9 @@
  * Purdue University
  */
 
-#if	!defined(LSOF_J2_LOCK_H)
-#define	LSOF_J2_LOCK_H
-typedef	long		event_t;
-#define	MUTEXLOCK_T	Simple_lock
-#define	RDWRLOCK_T	Complex_lock
-#endif	/* !defined(LSOF_J2_LOCK_H) */
+#if !defined(LSOF_J2_LOCK_H)
+#    define LSOF_J2_LOCK_H
+typedef long event_t;
+#    define MUTEXLOCK_T Simple_lock
+#    define RDWRLOCK_T Complex_lock
+#endif /* !defined(LSOF_J2_LOCK_H) */

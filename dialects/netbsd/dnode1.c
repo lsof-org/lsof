@@ -5,7 +5,6 @@
  * structure definitions.
  */
 
-
 /*
  * Copyright 1995 Purdue Research Foundation, West Lafayette, Indiana
  * 47907.  All rights reserved.
@@ -34,64 +33,59 @@
 
 #ifndef lint
 static char copyright[] =
-"@(#) Copyright 1994 Purdue Research Foundation.\nAll rights reserved.\n";
+    "@(#) Copyright 1994 Purdue Research Foundation.\nAll rights reserved.\n";
 #endif
-
 
 #include "lsof.h"
 
-#if	defined(HAS9660FS)
+#if defined(HAS9660FS)
 /*
  * Undo some conflicting node header file definitions.
  */
 
-#undef	doff_t
-#undef	i_dev
-#undef	i_devvp
-#undef	i_number
-#undef	IN_ACCESS
-#undef	IN_LOCKED
-#undef	i_size
-#undef	IN_WANTED
-#undef  i_endoff
-#undef  i_diroff
-#undef  i_offset
-
+#    undef doff_t
+#    undef i_dev
+#    undef i_devvp
+#    undef i_number
+#    undef IN_ACCESS
+#    undef IN_LOCKED
+#    undef i_size
+#    undef IN_WANTED
+#    undef i_endoff
+#    undef i_diroff
+#    undef i_offset
 
 /*
  * At last, #include the desired header files.
  */
 
-# if	HAS9660FS==1
-#include <isofs/cd9660/iso.h>
-#include <isofs/cd9660/cd9660_node.h>
-# else	/* HAS9660FS!=1 */
-#include <fs/cd9660/iso.h>
-#include <fs/cd9660/cd9660_node.h>
-# endif	/* HAS9660FS==1 */
-
+#    if HAS9660FS == 1
+#        include <isofs/cd9660/iso.h>
+#        include <isofs/cd9660/cd9660_node.h>
+#    else /* HAS9660FS!=1 */
+#        include <fs/cd9660/iso.h>
+#        include <fs/cd9660/cd9660_node.h>
+#    endif /* HAS9660FS==1 */
 
 /*
  * read_iso_node() -- read CD 9660 iso_node
  */
 
-int
-read_iso_node(v, d, ino, nl, sz)
-	struct vnode *v;		/* containing vnode */
-	dev_t *d;			/* returned device number */
-	INODETYPE *ino;			/* returned inode number */
-	long *nl;			/* returned link count */
-	SZOFFTYPE *sz;			/* returned size */
+int read_iso_node(v, d, ino, nl, sz)
+struct vnode *v; /* containing vnode */
+dev_t *d;        /* returned device number */
+INODETYPE *ino;  /* returned inode number */
+long *nl;        /* returned link count */
+SZOFFTYPE *sz;   /* returned size */
 {
-	struct iso_node i;
+    struct iso_node i;
 
-	if (!v->v_data
-	||  kread((KA_T)v->v_data, (char *)&i, sizeof(i)))
-	    return(1);
-	*d = i.i_dev;
-	*ino = (INODETYPE)i.i_number;
-	*nl = i.inode.iso_links;
-	*sz = (SZOFFTYPE)i.i_size;
-	return(0);
+    if (!v->v_data || kread((KA_T)v->v_data, (char *)&i, sizeof(i)))
+        return (1);
+    *d = i.i_dev;
+    *ino = (INODETYPE)i.i_number;
+    *nl = i.inode.iso_links;
+    *sz = (SZOFFTYPE)i.i_size;
+    return (0);
 }
-#endif	/* defined(HAS9660FS) */
+#endif /* defined(HAS9660FS) */

@@ -2,7 +2,6 @@
  * dstore.c - SCO UnixWare global storage for lsof
  */
 
-
 /*
  * Copyright 1996 Purdue Research Foundation, West Lafayette, Indiana
  * 47907.  All rights reserved.
@@ -31,90 +30,82 @@
 
 #ifndef lint
 static char copyright[] =
-"@(#) Copyright 1996 Purdue Research Foundation.\nAll rights reserved.\n";
+    "@(#) Copyright 1996 Purdue Research Foundation.\nAll rights reserved.\n";
 #endif
-
 
 #include "lsof.h"
 
-
-int CloneMaj;				/* clone major device number (see
-					 * HaveCloneMaj) */
-
+int CloneMaj; /* clone major device number (see
+               * HaveCloneMaj) */
 
 /*
  * Drive_Nl -- table to drive the building of Nl[] via build_Nl()
  *             (See lsof.h and misc.c.)
  */
 
-struct drive_Nl Drive_Nl[] = {
-	{ "cdev",	"cdevsw"	},	/* UW < 7 */
-	{ "cmaj",	"clonemajor"	},	/* UW >= 7 */
-	{ "ncdev",	"cdevswsz"	},	/* UW < 7 */
-	{ X_NCACHE,	"ncache"	},
-	{ X_NCSIZE,	"ncsize"	},
-	{ "proc",	"practive"	},
-	{ "sgvnops",	"segvn_ops"	},
-	{ "sgdnops",	"segdev_ops"	},
-	{ "var",	"v"		},
-	{ "",		""		},
-	{ NULL,		NULL		}
-};
+struct drive_Nl Drive_Nl[] = {{"cdev", "cdevsw"},     /* UW < 7 */
+                              {"cmaj", "clonemajor"}, /* UW >= 7 */
+                              {"ncdev", "cdevswsz"},  /* UW < 7 */
+                              {X_NCACHE, "ncache"},
+                              {X_NCSIZE, "ncsize"},
+                              {"proc", "practive"},
+                              {"sgvnops", "segvn_ops"},
+                              {"sgdnops", "segdev_ops"},
+                              {"var", "v"},
+                              {"", ""},
+                              {NULL, NULL}};
 
-char **Fsinfo = NULL;			/* file system information */
-int Fsinfomax = 0;			/* maximum file system type */
-int HaveCloneMaj = 0;			/* CloneMaj status */
-int Kd = -1;				/* /dev/kmem file descriptor */
-short Nfstyp = 0;			/* number of fstypsw[] entries */
+char **Fsinfo = NULL; /* file system information */
+int Fsinfomax = 0;    /* maximum file system type */
+int HaveCloneMaj = 0; /* CloneMaj status */
+int Kd = -1;          /* /dev/kmem file descriptor */
+short Nfstyp = 0;     /* number of fstypsw[] entries */
 
-#if	defined(HASFSTRUCT)
+#if defined(HASFSTRUCT)
 /*
  * Pff_tab[] - table for printing file flags
  */
 
-struct pff_tab Pff_tab[] = {
-	{ (long)FREAD,		FF_READ		},
-	{ (long)FWRITE,		FF_WRITE	},
-	{ (long)FNDELAY,	FF_NDELAY	},
+struct pff_tab Pff_tab[] = {{(long)FREAD, FF_READ},
+                            {(long)FWRITE, FF_WRITE},
+                            {(long)FNDELAY, FF_NDELAY},
 
-# if	defined(FDIRECT)
-	{ (long)FDIRECT,	FF_DIRECT	},
-# endif	/* defined(FDIRECT) */
+#    if defined(FDIRECT)
+                            {(long)FDIRECT, FF_DIRECT},
+#    endif /* defined(FDIRECT) */
 
-	{ (long)FAPPEND,	FF_APPEND	},
+                            {(long)FAPPEND, FF_APPEND},
 
-# if	defined(FASYNC)
-	{ (long)FASYNC,		FF_ASYNC	},
-# endif	/* defined(FASYNC) */
+#    if defined(FASYNC)
+                            {(long)FASYNC, FF_ASYNC},
+#    endif /* defined(FASYNC) */
 
-	{ (long)FSYNC,		FF_SYNC		},
+                            {(long)FSYNC, FF_SYNC},
 
-# if	defined(FDSYNC)
-	{ (long)FDSYNC,		FF_DSYNC	},
-# endif	/* defined(FDSYNC) */
+#    if defined(FDSYNC)
+                            {(long)FDSYNC, FF_DSYNC},
+#    endif /* defined(FDSYNC) */
 
-# if	defined(FLARGEFILE)
-	{ (long)FLARGEFILE,	FF_LARGEFILE	},
-# endif	/* defined(FLARGEFILE) */
+#    if defined(FLARGEFILE)
+                            {(long)FLARGEFILE, FF_LARGEFILE},
+#    endif /* defined(FLARGEFILE) */
 
-# if	defined(FCLONE)
-	{ (long)FCLONE,		FF_CLONE	},
-# endif	/* defined(FCLONE) */
+#    if defined(FCLONE)
+                            {(long)FCLONE, FF_CLONE},
+#    endif /* defined(FCLONE) */
 
-# if	defined(FILE_MBLK)
-	{ (long)FILE_MBLK,	FF_FILE_MBLK	},
-# endif	/* defined(FILE_MBLK) */
+#    if defined(FILE_MBLK)
+                            {(long)FILE_MBLK, FF_FILE_MBLK},
+#    endif /* defined(FILE_MBLK) */
 
-	{ (long)FNONBLOCK,	FF_NBLOCK	},
-	{ (long)FNOCTTY,	FF_NOCTTY	},
+                            {(long)FNONBLOCK, FF_NBLOCK},
+                            {(long)FNOCTTY, FF_NOCTTY},
 
-# if	defined(FNMFS)
-	{ (long)FNMFS,		FF_NMFS		},
-# endif	/* defined(FNMFS) */
+#    if defined(FNMFS)
+                            {(long)FNMFS, FF_NMFS},
+#    endif /* defined(FNMFS) */
 
-	{ (long)0,		NULL		}
-};
-
+                            {(long)0, NULL}};
 
 /*
  * Pof_tab[] - table for print process open file flags
@@ -122,12 +113,11 @@ struct pff_tab Pff_tab[] = {
 
 struct pff_tab Pof_tab[] = {
 
-	{ (long)FCLOSEXEC,	POF_CLOEXEC	},
+    {(long)FCLOSEXEC, POF_CLOEXEC},
 
-# if	defined(UF_FDLOCK)
-	{ (long)UF_FDLOCK,	POF_FDLOCK	},
-# endif	/* defined(UF_FDLOCK) */
+#    if defined(UF_FDLOCK)
+    {(long)UF_FDLOCK, POF_FDLOCK},
+#    endif /* defined(UF_FDLOCK) */
 
-	{ (long)0,		NULL		}
-};
-#endif	/* defined(HASFSTRUCT) */
+    {(long)0, NULL}};
+#endif /* defined(HASFSTRUCT) */

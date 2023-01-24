@@ -4,7 +4,6 @@
  * The _PROTOTYPE macro is defined in the common proto.h.
  */
 
-
 /*
  * Copyright 1994 Purdue Research Foundation, West Lafayette, Indiana
  * 47907.  All rights reserved.
@@ -31,14 +30,13 @@
  * 4. This notice may not be removed or altered.
  */
 
-
 /*
  * $Id: dproto.h,v 1.11 2005/08/08 19:53:24 abe Exp $
  */
 
-_PROTOTYPE(extern int is_file_named,(char *p, int cd));
+_PROTOTYPE(extern int is_file_named, (char *p, int cd));
 
-_PROTOTYPE(extern void process_vnode,(struct kinfo_file *file));
-_PROTOTYPE(extern void process_socket,(struct kinfo_file *file));
-_PROTOTYPE(extern void process_pipe,(struct kinfo_file *file));
-_PROTOTYPE(extern void process_kqueue_file,(struct kinfo_file *file));
+_PROTOTYPE(extern void process_vnode, (struct kinfo_file * file));
+_PROTOTYPE(extern void process_socket, (struct kinfo_file * file));
+_PROTOTYPE(extern void process_pipe, (struct kinfo_file * file));
+_PROTOTYPE(extern void process_kqueue_file, (struct kinfo_file * file));

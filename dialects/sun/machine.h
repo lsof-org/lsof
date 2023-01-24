@@ -2,7 +2,6 @@
  * machine.h - Solaris definitions for lsof
  */
 
-
 /*
  * Copyright 1994 Purdue Research Foundation, West Lafayette, Indiana
  * 47907.  All rights reserved.
@@ -29,15 +28,14 @@
  * 4. This notice may not be removed or altered.
  */
 
-
 /*
  * $Id: machine.h,v 1.48 2018/02/14 14:24:07 abe Exp $
  */
 
-#if	!defined(LSOF_MACHINE_H)
-#define	LSOF_MACHINE_H  1
+#if !defined(LSOF_MACHINE_H)
+#    define LSOF_MACHINE_H 1
 
-# if	defined(HAS_LGRP_ROOT_CONFLICT)
+#    if defined(HAS_LGRP_ROOT_CONFLICT)
 /*
  * <sys/lgrp.h> must be #include'd early on some older Solaris systems at
  * version 9 and Solaris 10 before _KMEMUSER or _KERNEL are defined to avoid
@@ -45,12 +43,11 @@
  * and a macro in <sys/lgrp_user.h>.
  */
 
-#include <sys/lgrp.h>
-# endif	/* defined(HAS_LGRP_ROOT_CONFLICT) */
+#        include <sys/lgrp.h>
+#    endif /* defined(HAS_LGRP_ROOT_CONFLICT) */
 
-
-# if	solaris>=100000
-#  if	!defined(HAS_AIO_REQ_STRUCT)
+#    if solaris >= 100000
+#        if !defined(HAS_AIO_REQ_STRUCT)
 /*
  * When <sys.aio_req.h> lacks one, define a dummy aio_req structure for
  * Solaris >= 10 systems.
@@ -61,9 +58,11 @@
  * compilation errors.
  */
 
-typedef struct aio_req { int dummy; } aio_req_t;
+typedef struct aio_req {
+    int dummy;
+} aio_req_t;
 
-#  endif	/* !defined(HAS_AIO_REQ_STRUCT) */
+#        endif /* !defined(HAS_AIO_REQ_STRUCT) */
 
 /*
  * Include <sys/utsname.h> so it won't be corrupted for 32 bit compilations
@@ -72,11 +71,10 @@ typedef struct aio_req { int dummy; } aio_req_t;
  * Daniel Trinkle identified this requirement.
  */
 
-#include <sys/utsname.h>
-# endif	/* solaris>=100000 */
+#        include <sys/utsname.h>
+#    endif /* solaris>=100000 */
 
-
-# if	solaris>=20600
+#    if solaris >= 20600
 /*
  * <sys/poll.h> must be #include'd for Solaris >= 2.6 while _KMEMUSER is
  * defined.  Since <netdb.h> also #include's <sys/poll.h> and <netdb.h>
@@ -84,12 +82,13 @@ typedef struct aio_req { int dummy; } aio_req_t;
  * here to set things up properly.
  */
 
-#define	_KMEMUSER	1
-#define	__BIT_TYPES_DEFINED__	1	/* work around to keep the BIND
-					 * <sys/bitypes.h> from colliding with
-					 * the Solaris <sys/int_types.h> */
+#        define _KMEMUSER 1
+#        define __BIT_TYPES_DEFINED__                                          \
+            1 /* work around to keep the BIND                                  \
+               * <sys/bitypes.h> from colliding with                           \
+               * the Solaris <sys/int_types.h> */
 
-#  if	defined(HAS_PAD_MUTEX)
+#        if defined(HAS_PAD_MUTEX)
 /*
  * Some versions of Solaris 11 need to have the pad_mutex_t typedef defined.
  * However, it is only defined by <sys/mutex.h> when _KERNEL is defined, and
@@ -101,60 +100,56 @@ typedef struct aio_req { int dummy; } aio_req_t;
  * This brute force work-around was supplied by Carson Gaspar.
  */
 
-#include	<sys/mutex.h>
+#            include <sys/mutex.h>
 typedef struct pad_mutex {
-	kmutex_t	pad_mutex;
-#   if	defined(_LP64)
-	char		pad_pad[64 - sizeof (kmutex_t)];
-#   endif	/* defined(_LP64) */
+    kmutex_t pad_mutex;
+#            if defined(_LP64)
+    char pad_pad[64 - sizeof(kmutex_t)];
+#            endif /* defined(_LP64) */
 } pad_mutex_t;
-#  endif	/* defined(HAS_PAD_MUTEX) */
+#        endif /* defined(HAS_PAD_MUTEX) */
 
-#include <sys/poll.h>
+#        include <sys/poll.h>
 
-# if	solaris>=80000
-#include <sys/wait.h>
-#include <sys/types32.h>
-#define	_KERNEL	1
-#include <netinet/in.h>
-#undef	_KERNEL
-#define	ipa_32	s6_ipaddr.ipa_32
-# endif	/* solaris>=80000 */
+#        if solaris >= 80000
+#            include <sys/wait.h>
+#            include <sys/types32.h>
+#            define _KERNEL 1
+#            include <netinet/in.h>
+#            undef _KERNEL
+#            define ipa_32 s6_ipaddr.ipa_32
+#        endif /* solaris>=80000 */
 
-# endif	/* solaris>=20600 */
-
+#    endif /* solaris>=20600 */
 
 /*
  * CAN_USE_CLNT_CREATE is defined for those dialects where RPC clnt_create()
  * can be used to obtain a CLIENT handle in lieu of clnttcp_create().
  */
 
-# if	solaris>=20501
-#define	CAN_USE_CLNT_CREATE	1
-# endif	/* solaris>=20501 */
-
+#    if solaris >= 20501
+#        define CAN_USE_CLNT_CREATE 1
+#    endif /* solaris>=20501 */
 
 /*
  * DEVDEV_PATH defines the path to the directory that contains device
  * nodes.
  */
 
-# if	solaris<100000
-#define	DEVDEV_PATH	"/dev"
-# else	/* solaris>=100000 */
-#define	DEVDEV_PATH	"/devices"
-# endif	/* solaris<100000 */
-
+#    if solaris < 100000
+#        define DEVDEV_PATH "/dev"
+#    else /* solaris>=100000 */
+#        define DEVDEV_PATH "/devices"
+#    endif /* solaris<100000 */
 
 /*
  * GET_MAX_FD is defined for those dialects that provide a function other than
  * getdtablesize() to obtain the maximum file descriptor number plus one.
  */
 
-# if	solaris<20500
-#define	GET_MAX_FD	get_max_fd
-# endif	/* solaris<20500 */
-
+#    if solaris < 20500
+#        define GET_MAX_FD get_max_fd
+#    endif /* solaris<20500 */
 
 /*
  * HASAOPT is defined for those dialects that have AFS support; it specifies
@@ -162,16 +157,14 @@ typedef struct pad_mutex {
  * supplied with the -A <path> option.
  */
 
-#define	HASAOPT		1
-
+#    define HASAOPT 1
 
 /*
  * HASBLKDEV is defined for those dialects that want block device information
  * recorded in BDevtp[].
  */
 
-#define	HASBLKDEV	1
-
+#    define HASBLKDEV 1
 
 /*
  * HASDCACHE is defined for those dialects that support a device cache
@@ -198,12 +191,11 @@ typedef struct pad_mutex {
  * information on device cache file path construction.
  */
 
-#define	HASDCACHE	1
-#define	HASENVDC	"LSOFDEVCACHE"
-#define	HASPERSDC	"%h/%p.lsof_%L"
-#define	HASPERSDCPATH	"LSOFPERSDCPATH"
+#    define HASDCACHE 1
+#    define HASENVDC "LSOFDEVCACHE"
+#    define HASPERSDC "%h/%p.lsof_%L"
+#    define HASPERSDCPATH "LSOFPERSDCPATH"
 /* #define	HASSYSDC	"/your/choice/of/path" */
-
 
 /*
  * HASCDRNODE is defined for those dialects that have CD-ROM nodes.
@@ -211,28 +203,24 @@ typedef struct pad_mutex {
 
 /* #define	HASCDRNODE	1 */
 
-
 /*
  * HASEOPT is defined for dialects that support the +|-e option.
  */
 
 /* #define	HASEOPT	1 */
 
-
 /*
  * HASFIFONODE is defined for those dialects that have FIFO nodes.
  */
 
-#define	HASFIFONODE	1
-
+#    define HASFIFONODE 1
 
 /*
  * HASFSINO is defined for those dialects that have the file system
  * inode element, fs_ino, in the lfile structure definition in lsof.h.
  */
 
-#define	HASFSINO	1
-
+#    define HASFSINO 1
 
 /*
  * HASFSTRUCT is defined if the dialect has a file structure.
@@ -250,13 +238,12 @@ typedef struct pad_mutex {
  *   HASNOFSNADDR -- has no file structure node address
  */
 
-#define	HASFSTRUCT	1
+#    define HASFSTRUCT 1
 /* #define	FSV_DEFAULT	FSV_? | FSV_? | FSV_? */
 /* #define	HASNOFSADDR	1	has no file structure address */
 /* #define	HASNOFSFLAGS	1	has no file structure flags */
 /* #define	HASNOFSCOUNT	1	has no file structure count */
 /* #define	HASNOFSNADDR	1	has no file structure node address */
-
 
 /*
  * HASGNODE is defined for those dialects that have gnodes.
@@ -264,13 +251,11 @@ typedef struct pad_mutex {
 
 /* #define	HASGNODE	1 */
 
-
 /*
  * HASHSNODE is defined for those dialects that have High Sierra nodes.
  */
 
-#define	HASHSNODE	1
-
+#    define HASHSNODE 1
 
 /*
  * HASINODE is defined for those dialects that have inodes and wish to
@@ -279,7 +264,6 @@ typedef struct pad_mutex {
 
 /* #define	HASINODE	1	*/
 
-
 /*
  * HASINTSIGNAL is defined for those dialects whose signal function returns
  * an int.
@@ -287,22 +271,19 @@ typedef struct pad_mutex {
 
 /* #define	HASINTSIGNAL	1 */
 
-
 /*
  * HASKERNIDCK is defined for those dialects that support the comparison of
  * the build to running kernel identity.
  */
 
-#define	HASKERNIDCK	1
-
+#    define HASKERNIDCK 1
 
 /*
  * HASKOPT is defined for those dialects that support the -k option of
  * reading the kernel's name list from an optional file.
  */
 
-#define	HASKOPT	1
-
+#    define HASKOPT 1
 
 /*
  * HASLFILEADD is defined for those dialects that need additional elements
@@ -322,22 +303,20 @@ typedef struct pad_mutex {
  * private lfile elements are used.
  */
 
-# if	solaris>=10000 && defined(HAS_V_PATH)
-#define	HASLFILEADD	KA_T V_path;
-#define	CLRLFILEADD(lf)	(lf)->V_path = (KA_T)NULL;
-#define SETLFILEADD Lf->V_path = (KA_T)NULL;
-# endif	/* solaris>=10000 && defined(HAS_V_PATH) */
-
+#    if solaris >= 10000 && defined(HAS_V_PATH)
+#        define HASLFILEADD KA_T V_path;
+#        define CLRLFILEADD(lf) (lf)->V_path = (KA_T)NULL;
+#        define SETLFILEADD Lf->V_path = (KA_T)NULL;
+#    endif /* solaris>=10000 && defined(HAS_V_PATH) */
 
 /*
  * HASMNTSTAT indicates the dialect supports the mount stat(2) result option
  * in its l_vfs and mounts structures.
  */
 
-# if	solaris>=10000 && defined(HAS_V_PATH)
-#define	HASMNTSTAT	1
-# endif	/* solaris>=10000 && defined(HAS_V_PATH) */
-
+#    if solaris >= 10000 && defined(HAS_V_PATH)
+#        define HASMNTSTAT 1
+#    endif /* solaris>=10000 && defined(HAS_V_PATH) */
 
 /*
  * HASMNTSUP is defined for those dialects that support the mount supplement
@@ -346,14 +325,12 @@ typedef struct pad_mutex {
 
 /* #define	HASMNTSUP	1	*/
 
-
 /*
  * HASMOPT is defined for those dialects that support the reading of
  * kernel memory from an alternate file.
  */
 
-#define	HASMOPT	1
-
+#    define HASMOPT 1
 
 /*
  * HASNCACHE is defined for those dialects that have a kernel name cache
@@ -365,24 +342,22 @@ typedef struct pad_mutex {
  * NCACHELDSFX is a set of C commands to execute after calling ncache_load().
  */
 
-# if	solaris>=10000 && defined(HAS_V_PATH)
+#    if solaris >= 10000 && defined(HAS_V_PATH)
 /* #define	HASNCACHE	1	*/
-#else	/* solaris<10 || !defined(HAS_V_PATH) */
-#define	HASNCACHE	1
-# endif	/* solaris>=10000 && defined(HAS_V_PATH) */
+#    else /* solaris<10 || !defined(HAS_V_PATH) */
+#        define HASNCACHE 1
+#    endif /* solaris>=10000 && defined(HAS_V_PATH) */
 
-#define	NCACHELDPFX	open_kvm();	/* do before calling ncache_load() */
+#    define NCACHELDPFX open_kvm(); /* do before calling ncache_load() */
 
 /* #define	NCACHELDSFX	??? */
-
 
 /*
  * HASNLIST is defined for those dialects that use nlist() to acccess
  * kernel symbols.
  */
 
-#define	HASNLIST	1
-
+#    define HASNLIST 1
 
 /*
  * HASPIPEFN is defined for those dialects that have a special function to
@@ -394,13 +369,11 @@ typedef struct pad_mutex {
 
 /* #define	HASPIPEFN	process_pipe? */
 
-
 /*
  * HASPIPENODE is defined for those dialects that have pipe nodes.
  */
 
 /* #define	HASPIPENODE	1 */
-
 
 /*
  * HASPMAPENABLED is defined when the reporting of portmapper registration
@@ -409,14 +382,12 @@ typedef struct pad_mutex {
 
 /* #define	HASPMAPENABLED	1 */
 
-
 /*
  * HASPPID is defined for those dialects that support identification of
  * the parent process IDentifier (PPID) of a process.
  */
 
-#define	HASPPID		1
-
+#    define HASPPID 1
 
 /*
  * HASPRINTDEV, HASPRINTINO, HASPRINTNM, HASPRINTOFF, and HASPRINTSZ
@@ -425,14 +396,13 @@ typedef struct pad_mutex {
  * called from print_file().
  */
 
-# if	solaris<100000
-#define	HASPRINTDEV	print_dev
-# endif	/* solaris<100000 */
+#    if solaris < 100000
+#        define HASPRINTDEV print_dev
+#    endif /* solaris<100000 */
 
 /* #define	HASPRINTINO	print_ino?	*/
 /* #define	HASPRINTNM	print_nm?	*/
 /* #define	HASPRINTOFF	print_off?	*/
-
 
 /*
  * HASPRIVFILETYPE and PRIVFILETYPE are defined for dialects that have a
@@ -447,7 +417,6 @@ typedef struct pad_mutex {
 /* #define	HASPRIVFILETYPE	process_shmf?	*/
 /* #define	PRIVFILETYPE	??	*/
 
-
 /*
  * HASPRIVNMCACHE is defined for dialects that have a private method for
  * printing cached NAME column values for some files.  HASPRIVNAMECACHE
@@ -457,16 +426,15 @@ typedef struct pad_mutex {
  * returns non-zero if it prints a name to stdout.
  */
 
-# if	solaris>=10000 && defined(HAS_V_PATH)
-#define	HASPRIVNMCACHE	print_v_path
-# else	/* solaris<10 || !defined(HAS_V_PATH) */
-#  if	defined(HASVXFSRNL)
-#define	HASPRIVNMCACHE	print_vxfs_rnl_path
-#  else	/* !defined(HASVXFSRNL) */
+#    if solaris >= 10000 && defined(HAS_V_PATH)
+#        define HASPRIVNMCACHE print_v_path
+#    else /* solaris<10 || !defined(HAS_V_PATH) */
+#        if defined(HASVXFSRNL)
+#            define HASPRIVNMCACHE print_vxfs_rnl_path
+#        else  /* !defined(HASVXFSRNL) */
 /* #define	HASPRIVNMCACHE	<function name>	*/
-#  endif	/* defined(HASVXFSRNL) */
-# endif	/* solaris>=10000 && defined(HAS_V_PATH) */
-
+#        endif /* defined(HASVXFSRNL) */
+#    endif     /* solaris>=10000 && defined(HAS_V_PATH) */
 
 /*
  * HASPRIVPRIPP is defined for dialects that have a private function for
@@ -475,7 +443,6 @@ typedef struct pad_mutex {
  */
 
 /* #define	HASPRIVPRIPP	1	*/
-
 
 /*
  * HASPROCFS is defined for those dialects that have a proc file system --
@@ -501,17 +468,15 @@ typedef struct pad_mutex {
  * by inode number.
  */
 
-#define	HASPROCFS	"proc"
-#define	HASFSTYPE	1
-#define	HASPINODEN	1
-
+#    define HASPROCFS "proc"
+#    define HASFSTYPE 1
+#    define HASPINODEN 1
 
 /*
  * HASRNODE is defined for those dialects that have rnodes.
  */
 
-#define	HASRNODE	1
-
+#    define HASRNODE 1
 
 /*
  * Define HASSECURITY to restrict the listing of all open files to the
@@ -522,7 +487,6 @@ typedef struct pad_mutex {
 
 /* #define	HASSECURITY	1	*/
 
-
 /*
  * If HASSECURITY is defined, define HASNOSOCKSECURITY to allow users
  * restricted by HASSECURITY to list any open socket files, provide their
@@ -530,7 +494,6 @@ typedef struct pad_mutex {
  */
 
 /* #define	HASNOSOCKSECURITY	1	*/
-
 
 /*
  * HASSETLOCALE is defined for those dialects that have <locale.h> and
@@ -545,20 +508,18 @@ typedef struct pad_mutex {
  * <ctype.h>, do that here.
  */
 
-#define	HASSETLOCALE	1
-#define	HASWIDECHAR	1
-#define	WIDECHARINCL	<wchar.h>
-#define __XPG4_CHAR_CLASS__
-#include	<ctype.h>
-#undef __XPG4_CHAR_CLASS__
-
+#    define HASSETLOCALE 1
+#    define HASWIDECHAR 1
+#    define WIDECHARINCL <wchar.h>
+#    define __XPG4_CHAR_CLASS__
+#    include <ctype.h>
+#    undef __XPG4_CHAR_CLASS__
 
 /*
  * HASSNODE is defined for those dialects that have snodes.
  */
 
-#define	HASSNODE	1
-
+#    define HASSNODE 1
 
 /*
  * HASTASKS is defined for those dialects that have task reporting support.
@@ -566,19 +527,17 @@ typedef struct pad_mutex {
 
 /* #define	HASTASKS	1 */
 
-
 /*
  * HASSOOPT, HASSOSTATE and HASTCPOPT define the availability of information
  * on socket options (SO_* symbols), socket states (SS_* symbols) and TCP
  * options.
  */
 
-# if	solaris>=20600
-#define	HASSOOPT	1	/* has socket option information */
+#    if solaris >= 20600
+#        define HASSOOPT 1 /* has socket option information */
 /* #define	HASSOSTATE	1	has socket state information */
-#define	HASTCPOPT	1	/* has TCP options or flags */
-# endif	/* solaris>=20600 */
-
+#        define HASTCPOPT 1 /* has TCP options or flags */
+#    endif                  /* solaris>=20600 */
 
 /*
  * Define HASSPECDEVD to be the name of a function that handles the results
@@ -597,33 +556,29 @@ typedef struct pad_mutex {
 
 /* #define	HASSPECDEVD	process_dev_stat */
 
-
 /*
  * HASSTREAMS is defined for those dialects that support streams.
  */
 
-#define	HASSTREAMS	1
-
+#    define HASSTREAMS 1
 
 /*
  * HASTCPTPIQ is defined for dialects where it is possible to report the
  * TCP/TPI Recv-Q and Send-Q values produced by netstat.
  */
 
-# if	solaris==20300 || solaris>=20500
-#define	HASTCPTPIQ	1
-# endif	/* solaris==20300 || solaris>=20500 */
-
+#    if solaris == 20300 || solaris >= 20500
+#        define HASTCPTPIQ 1
+#    endif /* solaris==20300 || solaris>=20500 */
 
 /*
  * HASTCPTPIW is defined for dialects where it is possible to report the
  * TCP/TPI send and receive window sizes produced by netstat.
  */
 
-# if	solaris==20300 || solaris>=20500
-#define	HASTCPTPIW	1
-# endif	/* solaris==20300 || solaris>=20500 */
-
+#    if solaris == 20300 || solaris >= 20500
+#        define HASTCPTPIW 1
+#    endif /* solaris==20300 || solaris>=20500 */
 
 /*
  * HASTCPUDPSTATE is defined for dialects that have TCP and UDP state
@@ -631,15 +586,13 @@ typedef struct pad_mutex {
  * speed improvements.
  */
 
-#define	HASTCPUDPSTATE	1
-
+#    define HASTCPUDPSTATE 1
 
 /*
  * HASTMPNODE is defined for those dialects that have tmpnodes.
  */
 
-#define	HASTMPNODE	1
-
+#    define HASTMPNODE 1
 
 /*
  * HASVNODE is defined for those dialects that use the Sun virtual file system
@@ -647,8 +600,7 @@ typedef struct pad_mutex {
  * R4 usually don't.
  */
 
-#define	HASVNODE	1
-
+#    define HASVNODE 1
 
 /*
  * HASXOPT is defined for those dialects that have an X option.  It
@@ -656,11 +608,10 @@ typedef struct pad_mutex {
  * option's default binary value -- 0 or 1.
  */
 
-# if	solaris>=10000 && defined(HAS_V_PATH)
-#define	HASXOPT		"report deleted paths"
-#define	HASXOPT_VALUE	0
-# endif	/* solaris>=10000 && defined(HAS_V_PATH) */
-
+#    if solaris >= 10000 && defined(HAS_V_PATH)
+#        define HASXOPT "report deleted paths"
+#        define HASXOPT_VALUE 0
+#    endif /* solaris>=10000 && defined(HAS_V_PATH) */
 
 /*
  * INODETYPE and INODEPSPEC define the internal node number type and its
@@ -670,21 +621,20 @@ typedef struct pad_mutex {
  * These are defined here, because they must be used in dlsof.h.
  */
 
-# if	solaris>=20501
-#define	INODETYPE	unsigned long long
-					/* inode number internal storage type */
-#define	INODEPSPEC	"ll"		/* INODETYPE printf specification
-					 * modifier */
-# endif	/* solaris>=20501 */
-
+#    if solaris >= 20501
+#        define INODETYPE unsigned long long
+/* inode number internal storage type */
+#        define INODEPSPEC                                                     \
+            "ll" /* INODETYPE printf specification                             \
+                  * modifier */
+#    endif       /* solaris>=20501 */
 
 /*
  * UID_ARG defines the size of a User ID number when it is passed
  * as a function argument.
  */
 
-#define	UID_ARG	long
-
+#    define UID_ARG long
 
 /*
  * Each USE_LIB_<function_name> is defined for dialects that use the
@@ -695,11 +645,11 @@ typedef struct pad_mutex {
  * header files.
  */
 
-#define	USE_LIB_CKKV				1	/* ckkv.c */
-#define	USE_LIB_COMPLETEVFS			1	/* cvfs.c */
-#define	USE_LIB_FIND_CH_INO			1	/* fino.c */
+#    define USE_LIB_CKKV 1        /* ckkv.c */
+#    define USE_LIB_COMPLETEVFS 1 /* cvfs.c */
+#    define USE_LIB_FIND_CH_INO 1 /* fino.c */
 /* #define	USE_LIB_IS_FILE_NAMED		1	   isfn.c */
-#define	USE_LIB_LKUPDEV				1	/* lkud.c */
+#    define USE_LIB_LKUPDEV 1 /* lkud.c */
 /* #define	USE_LIB_PRINTDEVNAME		1	   pdvn.c */
 /* #define	USE_LIB_PROCESS_FILE		1	   prfp.c */
 /* #define	USE_LIB_PRINT_TCPTPI		1	   ptti.c */
@@ -708,18 +658,17 @@ typedef struct pad_mutex {
 /* #define	USE_LIB_REGEX			1	   regex.c */
 /* #define	USE_LIB_RNAM			1	   rnam.c */
 
-# if	solaris<90000
-#define	USE_LIB_RNCH				1	/* rnch.c */
-# endif	/* solaris<90000 */
+#    if solaris < 90000
+#        define USE_LIB_RNCH 1 /* rnch.c */
+#    endif                     /* solaris<90000 */
 
 /* #define	USE_LIB_RNMH			1	   rnmh.c */
 
-# if	solaris<20600
-#define	USE_LIB_SNPF				1	/* snpf.c */
-# else	/* solaris>=20600 */
-#define	snpf	snprintf	   /* use the system's snprintf() */
-# endif	/* solaris<20600 */
-
+#    if solaris < 20600
+#        define USE_LIB_SNPF 1 /* snpf.c */
+#    else                      /* solaris>=20600 */
+#        define snpf snprintf  /* use the system's snprintf() */
+#    endif                     /* solaris<20600 */
 
 /*
  * WARNDEVACCESS is defined for those dialects that should issue a warning
@@ -727,8 +676,7 @@ typedef struct pad_mutex {
  * The warning can be inhibited by the lsof caller with the -w option.
  */
 
-#define	WARNDEVACCESS	1
-
+#    define WARNDEVACCESS 1
 
 /*
  * WARNINGSTATE is defined for those dialects that want to suppress all lsof
@@ -737,20 +685,18 @@ typedef struct pad_mutex {
 
 /* #define	WARNINGSTATE	1	warnings are enabled by default */
 
-
 /*
  * WILLDROPGID is defined for those dialects whose lsof executable runs
  * setgid(not_real_GID) and whose setgid power can be relinquished after
  * the dialect's initialize() function has been executed.
  */
 
-#define	WILLDROPGID	1
-
+#    define WILLDROPGID 1
 
 /*
  * zeromem is a macro that uses bzero or memset.
  */
 
-#define	zeromem(a, l)		memset((void *)a, 0, l)
+#    define zeromem(a, l) memset((void *)a, 0, l)
 
-#endif	/* !defined(LSOF_MACHINE_H) */
+#endif /* !defined(LSOF_MACHINE_H) */

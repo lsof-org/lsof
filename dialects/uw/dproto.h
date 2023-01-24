@@ -4,7 +4,6 @@
  * The _PROTOTYPE macro is defined in the common proto.h.
  */
 
-
 /*
  * Copyright 1996 Purdue Research Foundation, West Lafayette, Indiana
  * 47907.  All rights reserved.
@@ -31,19 +30,17 @@
  * 4. This notice may not be removed or altered.
  */
 
+_PROTOTYPE(extern int get_max_fd, (void));
+_PROTOTYPE(extern int is_file_named, (char *p, int cd));
+_PROTOTYPE(extern void process_socket, (char *pr, struct queue *q));
+_PROTOTYPE(extern int readbfslino, (struct vnode * v, struct l_ino *i));
+_PROTOTYPE(extern int readcdfslino, (struct vnode * v, struct l_ino *i));
+_PROTOTYPE(extern int readdosfslino, (struct vnode * v, struct l_ino *i));
+_PROTOTYPE(extern int reads5lino, (struct vnode * v, struct l_ino *i));
+_PROTOTYPE(extern int readvxfslino, (struct vnode * v, struct l_ino *i));
+_PROTOTYPE(extern int strcasecmp, (char *s1, char *s2));
+_PROTOTYPE(extern int strncasecmp, (char *s1, char *s2, int n));
 
-
-_PROTOTYPE(extern int get_max_fd,(void));
-_PROTOTYPE(extern int is_file_named,(char *p, int cd));
-_PROTOTYPE(extern void process_socket,(char *pr, struct queue *q));
-_PROTOTYPE(extern int readbfslino,(struct vnode *v, struct l_ino *i));
-_PROTOTYPE(extern int readcdfslino,(struct vnode *v, struct l_ino *i));
-_PROTOTYPE(extern int readdosfslino,(struct vnode *v, struct l_ino *i));
-_PROTOTYPE(extern int reads5lino,(struct vnode *v, struct l_ino *i));
-_PROTOTYPE(extern int readvxfslino,(struct vnode *v, struct l_ino *i));
-_PROTOTYPE(extern int strcasecmp,(char *s1, char *s2));
-_PROTOTYPE(extern int strncasecmp,(char *s1, char *s2, int n));
-
-#if	UNIXWAREV>=70101
-_PROTOTYPE(extern int process_unix_sockstr,(struct vnode *v, KA_T na));
-#endif	/* UNIXWAREV>=70101 */
+#if UNIXWAREV >= 70101
+_PROTOTYPE(extern int process_unix_sockstr, (struct vnode * v, KA_T na));
+#endif /* UNIXWAREV>=70101 */

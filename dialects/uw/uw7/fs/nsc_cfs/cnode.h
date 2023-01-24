@@ -3,7 +3,6 @@
  *	      the kind folks at SCO
  */
 
-
 /*
  * Copyright 2001 Purdue Research Foundation, West Lafayette, Indiana
  * 47907.  All rights reserved.
@@ -30,49 +29,47 @@
  * 4. This notice may not be removed or altered.
  */
 
-#if	!defined(FS_NSC_CFS_CNODE_H)
-#define	FS_NSC_CFS_CNODE_H	1
+#if !defined(FS_NSC_CFS_CNODE_H)
+#    define FS_NSC_CFS_CNODE_H 1
 
-#include <sys/nsc_synch.h>
-
+#    include <sys/nsc_synch.h>
 
 /*
  * chandle_t definition from the kernel's <fs/nsc_cfs/cfs.h>
  */
 
-#define CFS_FHSIZE 44
+#    define CFS_FHSIZE 44
 
 typedef struct cfhandle {
-	char fh_data[CFS_FHSIZE];
+    char fh_data[CFS_FHSIZE];
 } cfhandle_t;
-
 
 /*
  * CFS node structure
  */
 
 typedef struct cnode {
-	struct cnode	*c_freef;	/* free list forward pointer */
-	struct cnode	*c_freeb;	/* free list back pointer */
-	struct cnode	*c_hash;	/* cnode hash chain */
-	struct vnode	c_vnode;	/* vnode for remote file */
-	cfhandle_t	c_fh;		/* file handle */
-	void *c_hp;			/* Hash pointer */
-	u_long		c_flags;	/* flags, see below */
-	union {
-		daddr_t C_nextr;	/* next byte read offset (read-ahead) */
-		int	C_lastcookie;	/* last readdir cookie */
-	} c_c;
-	long		c_owner;	/* proc index for locker of cnode */
-	long		c_count;	/* number of cnode locks for c_owner */
-	long		c_lwpid;	/* lwp id of locker of cnode */
-	CONDITION_T	c_cxlock;	/* Synch structure */
-	int		c_rw_excl;	/* RW locked exclusively */
-	/* Credentials here are only for use by cfs-as-nfs-client. */
-	struct cred	*c_cred;	/* current credentials */
-	struct vattr	c_attr;		/* cached vnode attributes */
-/*
- * Lsof needs nothing below c_attr.
- */
+    struct cnode *c_freef; /* free list forward pointer */
+    struct cnode *c_freeb; /* free list back pointer */
+    struct cnode *c_hash;  /* cnode hash chain */
+    struct vnode c_vnode;  /* vnode for remote file */
+    cfhandle_t c_fh;       /* file handle */
+    void *c_hp;            /* Hash pointer */
+    u_long c_flags;        /* flags, see below */
+    union {
+        daddr_t C_nextr;  /* next byte read offset (read-ahead) */
+        int C_lastcookie; /* last readdir cookie */
+    } c_c;
+    long c_owner;         /* proc index for locker of cnode */
+    long c_count;         /* number of cnode locks for c_owner */
+    long c_lwpid;         /* lwp id of locker of cnode */
+    CONDITION_T c_cxlock; /* Synch structure */
+    int c_rw_excl;        /* RW locked exclusively */
+    /* Credentials here are only for use by cfs-as-nfs-client. */
+    struct cred *c_cred; /* current credentials */
+    struct vattr c_attr; /* cached vnode attributes */
+                         /*
+                          * Lsof needs nothing below c_attr.
+                          */
 } cnode_t;
-#endif	/* !defined(FS_NSC_CFS_CNODE_H) */
+#endif /* !defined(FS_NSC_CFS_CNODE_H) */

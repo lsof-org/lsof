@@ -4,7 +4,6 @@
  * The _PROTOTYPE macro is defined in the common proto.h.
  */
 
-
 /*
  * Portions Copyright 2005 Apple Computer, Inc.  All rights reserved.
  *
@@ -35,27 +34,25 @@
  * 4. This notice may not be removed or altered.
  */
 
-
 /*
  * $Id: dproto.h,v 1.6 2012/04/10 16:41:04 abe Exp abe $
  */
 
-_PROTOTYPE(extern void enter_file_info,(struct proc_fileinfo *pfi));
-_PROTOTYPE(extern void enter_vnode_info,(struct vnode_info_path *vip));
-_PROTOTYPE(extern void err2nm,(char *pfx));
-_PROTOTYPE(extern int is_file_named,(char *p, int cd));
-_PROTOTYPE(extern void process_atalk,(int pid, int32_t fd));
-_PROTOTYPE(extern void process_fsevents,(int pid, int32_t fd));
-_PROTOTYPE(extern void process_kqueue,(int pid, int32_t fd));
-_PROTOTYPE(extern void process_pipe,(int pid, int32_t fd));
-_PROTOTYPE(extern void process_psem,(int pid, int32_t fd));
-_PROTOTYPE(extern void process_pshm,(int pid, int32_t fd));
-_PROTOTYPE(extern void process_socket,(int pid, int32_t fd));
-_PROTOTYPE(extern void process_vnode,(int pid, int32_t fd));
-#if	defined(PROC_PIDLISTFILEPORTS)
-_PROTOTYPE(extern void process_fileport_pipe,(int pid, uint32_t fileport));
-_PROTOTYPE(extern void process_fileport_pshm,(int pid, uint32_t fileport));
-_PROTOTYPE(extern void process_fileport_socket,(int pid, uint32_t fileport));
-_PROTOTYPE(extern void process_fileport_vnode,(int pid, uint32_t fileport));
-#endif	/* PROC_PIDLISTFILEPORTS */
-
+_PROTOTYPE(extern void enter_file_info, (struct proc_fileinfo * pfi));
+_PROTOTYPE(extern void enter_vnode_info, (struct vnode_info_path * vip));
+_PROTOTYPE(extern void err2nm, (char *pfx));
+_PROTOTYPE(extern int is_file_named, (char *p, int cd));
+_PROTOTYPE(extern void process_atalk, (int pid, int32_t fd));
+_PROTOTYPE(extern void process_fsevents, (int pid, int32_t fd));
+_PROTOTYPE(extern void process_kqueue, (int pid, int32_t fd));
+_PROTOTYPE(extern void process_pipe, (int pid, int32_t fd));
+_PROTOTYPE(extern void process_psem, (int pid, int32_t fd));
+_PROTOTYPE(extern void process_pshm, (int pid, int32_t fd));
+_PROTOTYPE(extern void process_socket, (int pid, int32_t fd));
+_PROTOTYPE(extern void process_vnode, (int pid, int32_t fd));
+#if defined(PROC_PIDLISTFILEPORTS)
+_PROTOTYPE(extern void process_fileport_pipe, (int pid, uint32_t fileport));
+_PROTOTYPE(extern void process_fileport_pshm, (int pid, uint32_t fileport));
+_PROTOTYPE(extern void process_fileport_socket, (int pid, uint32_t fileport));
+_PROTOTYPE(extern void process_fileport_vnode, (int pid, uint32_t fileport));
+#endif /* PROC_PIDLISTFILEPORTS */
