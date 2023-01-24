@@ -46,11 +46,11 @@
  * Local function prototypes
  */
 
-_PROTOTYPE(static char *cvtoe,(char *os));
+_PROTOTYPE(static char *convert_octal_escaped,(char *orig_str));
 
 #if	defined(HASMNTSUP)
-_PROTOTYPE(static int getmntdev,(char *dn, size_t dnl, struct stat *s, int *ss));
-_PROTOTYPE(static int hash_mnt,(char *dn));
+_PROTOTYPE(static int getmntdev,(char *dir_name, size_t dir_name_len, struct stat *s, int *ss));
+_PROTOTYPE(static int hash_mnt,(char *dir_name));
 #endif	/* defined(HASMNTSUP) */
 
 
@@ -60,8 +60,8 @@ _PROTOTYPE(static int hash_mnt,(char *dn));
 
 #if	defined(HASMNTSUP)
 typedef struct mntsup {
-	char *dn;			/* mounted directory name */
-	size_t dnl;			/* strlen(dn) */
+	char *dir_name;			/* mounted directory name */
+	size_t dir_name_len;		/* strlen(dir_name) */
 	dev_t dev;			/* device number */
 	int ln;				/* line on which defined */
 	struct mntsup *next;		/* next entry */
@@ -80,43 +80,41 @@ static mntsup_t **MSHash = (mntsup_t **)NULL;		/* mount supplement
 
 
 /*
- * cvtoe() -- convert octal-escaped characters in string
+ * convert_octal_escaped() -- convert octal-escaped characters in string
  */
-
 static char *
-cvtoe(os)
-	char *os;			/* original string */
+convert_octal_escaped(char *orig_str /* original string */)
 {
-	int c, cl, cx, ol, ox, tx;
-	char *cs;
-	int tc;
+	int cur_ch, cvt_len, cvt_idx, orig_len, orig_idx, temp_idx;
+	char *cvt_str;
+	int temp_ch;
 	/*
 	 * Allocate space for a copy of the string in which octal-escaped characters
 	 * can be replaced by the octal value -- e.g., \040 with ' '.  Leave room for
 	 * a '\0' terminator.
 	 */
-	if (!(ol = (int)strlen(os)))
+	if (!(orig_len = (int)strlen(orig_str)))
 	    return((char *)NULL);
-	if (!(cs = (char *)malloc(ol + 1))) {
+	if (!(cvt_str = (char *)malloc(orig_len + 1))) {
 	    (void) fprintf(stderr,
-		"%s: can't allocate %d bytes for octal-escaping.\n",
-		Pn, ol + 1);
+			   "%s: can't allocate %d bytes for octal-escaping.\n",
+			   Pn, orig_len + 1);
 	    Error();
 	}
 	/*
 	 * Copy the string, replacing octal-escaped characters as they are found.
 	 */
-	for (cx = ox = 0, cl = ol; ox < ol; ox++) {
-	    if (((c = (int)os[ox]) == (int)'\\') && ((ox + 3) < ol)) {
+	for (cvt_idx = orig_idx = 0, cvt_len = orig_len; orig_idx < orig_len; orig_idx++) {
+	    if (((cur_ch = (int)orig_str[orig_idx]) == (int)'\\') && ((orig_idx + 3) < orig_len)) {
 
 		/*
 		 * The beginning of an octal-escaped character has been found.
 		 *
 		 * Convert the octal value to a character value.
 		 */
-		for (tc = 0, tx = 1; os[ox + tx] && (tx < 4); tx++) {
-		    if (((int)os[ox + tx] < (int)'0')
-		    ||  ((int)os[ox + tx] > (int)'7'))
+		for (temp_ch = 0, temp_idx = 1; orig_str[orig_idx + temp_idx] && (temp_idx < 4); temp_idx++) {
+		    if (((int)orig_str[orig_idx + temp_idx] < (int)'0')
+			||  ((int)orig_str[orig_idx + temp_idx] > (int)'7'))
 		    {
 
 			/*
@@ -125,10 +123,10 @@ cvtoe(os)
 			 */
 			break;
 		    }
-		    tc <<= 3;
-		    tc += (int)(os[ox + tx] - '0');
+		    temp_ch <<= 3;
+		    temp_ch += (int)(orig_str[orig_idx + temp_idx] - '0');
 		}
-		if (tx == 4) {
+		if (temp_idx == 4) {
 
 		    /*
 		     * If three octets (plus the escape) were assembled, use their
@@ -137,34 +135,36 @@ cvtoe(os)
 		     * Otherwise copy the escape and what follows it until another
 		     * escape is found.
 		     */
-		    ox += 3;
-		    c = (tc & 0xff);
+		    orig_idx += 3;
+		    cur_ch = (temp_ch & 0xff);
 		}
 	    }
-	    if (cx >= cl) {
 
+	    if (cvt_idx >= cvt_len) {
 		/*
 		 * Expand the copy string, as required.  Leave room for a '\0'
 		 * terminator.
 		 */
-		cl += 64;		/* (Make an arbitrary increase.) */
-		if (!(cs = (char *)realloc(cs, cl + 1))) {
+		cvt_len += 64;		/* (Make an arbitrary increase.) */
+		if (!(cvt_str = (char *)realloc(cvt_str, cvt_len + 1))) {
 		    (void) fprintf(stderr,
-			"%s: can't realloc %d bytes for octal-escaping.\n",
-			Pn, cl + 1);
+				   "%s: can't realloc %d bytes for octal-escaping.\n",
+				   Pn, cvt_len + 1);
 		    Error();
 		}
 	    }
+
 	    /*
 	     * Copy the character.
 	     */
-	    cs[cx++] = (char)c;
+	    cvt_str[cvt_idx++] = (char)cur_ch;
 	}
+
 	/*
 	 * Terminate the copy and return its pointer.
 	 */
-	cs[cx] = '\0';
-	return(cs);
+	cvt_str[cvt_idx] = '\0';
+	return(cvt_str);
 }
 
 
@@ -172,14 +172,13 @@ cvtoe(os)
 /*
  * getmntdev() - get mount device from mount supplement
  */
-
 static int
-getmntdev(dn, dnl, s, ss)
-	char *dn;			/* mounted directory name */
-	size_t dnl;			/* strlen(dn) */
-	struct stat *s;			/* stat(2) buffer receptor */
-	int *ss;			/* stat(2) status result -- i.e., SB_*
-					 * values */
+getmntdev(
+	  char *dir_name,		/* mounted directory name */
+	  size_t dir_name_len,		/* strlen(dir_name) */
+	  struct stat *s,		/* stat(2) buffer receptor */
+	  int *ss			/* stat(2) status result -- i.e., SB_*
+					 * values */)
 {
 	static int err = 0;
 	int h;
@@ -218,7 +217,7 @@ getmntdev(dn, dnl, s, ss)
 		 */
 		if (!Fwarn)
 		    (void) fprintf(stderr, "%s: can't open(%s): %s\n",
-			Pn, MntSupP, strerror(errno));
+				   Pn, MntSupP, strerror(errno));
 		err = 1;
 		return(0);
 	    }
@@ -238,8 +237,8 @@ getmntdev(dn, dnl, s, ss)
 		     */
 		    if (!Fwarn)
 			(void) fprintf(stderr,
-			    "%s: %s line %d: no path: \"%s\"\n",
-			    Pn, MntSupP, ln, buf);
+				       "%s: %s line %d: no path: \"%s\"\n",
+				       Pn, MntSupP, ln, buf);
 		    err = 1;
 		    continue;
 		}
@@ -251,8 +250,8 @@ getmntdev(dn, dnl, s, ss)
 		     */
 		    if (!Fwarn)
 			(void) fprintf(stderr,
-			    "%s: %s line %d: no device: \"%s\"\n",
-			    Pn, MntSupP, ln, buf);
+				       "%s: %s line %d: no device: \"%s\"\n",
+				       Pn, MntSupP, ln, buf);
 		    err = 1;
 		    continue;
 		}
@@ -278,8 +277,8 @@ getmntdev(dn, dnl, s, ss)
 		     */
 		    if (!Fwarn)
 			(void) fprintf(stderr,
-			    "%s: %s line %d: illegal device: \"%s\"\n",
-			    Pn, MntSupP, ln, buf);
+				       "%s: %s line %d: illegal device: \"%s\"\n",
+				       Pn, MntSupP, ln, buf);
 		    err = 1;
 		    continue;
 		}
@@ -292,14 +291,14 @@ getmntdev(dn, dnl, s, ss)
 						       sizeof(mntsup_t *)))
 			) {
 			(void) fprintf(stderr,
-			    "%s: no space for mount supplement hash buckets\n",
-			    Pn);
+				       "%s: no space for mount supplement hash buckets\n",
+				       Pn);
 			Error();
 		    }
 		}
 		h = hash_mnt(path);
 		for (mp = MSHash[h]; mp; mp = mp->next) {
-		    if ((mp->dnl == dnl) && !strcmp(mp->dn, path))
+		    if ((mp->dir_name_len == dir_name_len) && !strcmp(mp->dir_name, path))
 			break;
 		}
 		if (mp) {
@@ -311,8 +310,8 @@ getmntdev(dn, dnl, s, ss)
 		     */
 		    if (mp->dev != dev) {
 			(void) fprintf(stderr,
-			    "%s: %s line %d path duplicate of %d: \"%s\"\n",
-			    Pn, MntSupP, ln, mp->ln, buf);
+				       "%s: %s line %d path duplicate of %d: \"%s\"\n",
+				       Pn, MntSupP, ln, mp->ln, buf);
 			err = 1;
 		    }
 		    continue;
@@ -322,18 +321,18 @@ getmntdev(dn, dnl, s, ss)
 		 */
 		if (!(mpn = (mntsup_t *)malloc(sizeof(mntsup_t)))) {
 		    (void) fprintf(stderr,
-			"%s: no space for mount supplement entry: %d \"%s\"\n",
-			Pn, ln, buf);
+				   "%s: no space for mount supplement entry: %d \"%s\"\n",
+				   Pn, ln, buf);
 		    Error();
 		}
-		if (!(mpn->dn = (char *)malloc(sz + 1))) {
+		if (!(mpn->dir_name = (char *)malloc(sz + 1))) {
 		    (void) fprintf(stderr,
-			"%s: no space for mount supplement path: %d \"%s\"\n",
-			Pn, ln, buf);
+				   "%s: no space for mount supplement path: %d \"%s\"\n",
+				   Pn, ln, buf);
 		    Error();
 		}
-		(void) strcpy(mpn->dn, path);
-		mpn->dnl = sz;
+		(void) strcpy(mpn->dir_name, path);
+		mpn->dir_name_len = sz;
 		mpn->dev = dev;
 		mpn->ln = ln;
 		mpn->next = MSHash[h];
@@ -342,7 +341,7 @@ getmntdev(dn, dnl, s, ss)
 	    if (ferror(fs)) {
 		if (!Fwarn)
 		    (void) fprintf(stderr, "%s: error reading %s\n",
-			Pn, MntSupP);
+				   Pn, MntSupP);
 		err = 1;
 	    }
 	    (void) fclose(fs);
@@ -351,8 +350,8 @@ getmntdev(dn, dnl, s, ss)
 		    for (h = 0; h < HASHMNT; h++) {
 			for (mp = MSHash[h]; mp; mp = mpn) {
 			    mpn = mp->next;
-			    if (mp->dn)
-				(void) free((MALLOC_P *)mp->dn);
+			    if (mp->dir_name)
+				(void) free((MALLOC_P *)mp->dir_name);
 			    (void) free((MALLOC_P *)mp);
 			}
 		    }
@@ -362,15 +361,16 @@ getmntdev(dn, dnl, s, ss)
 		return(0);
 	    }
 	}
+
 	/*
 	 * If no errors have been detected reading the mount supplement file, search
 	 * its hash buckets for the supplied directory path.
 	 */
 	if (err)
 	    return(0);
-	h = hash_mnt(dn);
+	h = hash_mnt(dir_name);
 	for (mp = MSHash[h]; mp; mp = mp->next) {
-	    if ((dnl == mp->dnl) && !strcmp(dn, mp->dn)) {
+	    if ((dir_name_len == mp->dir_name_len) && !strcmp(dir_name, mp->dir_name)) {
 		zeromem((char *)s, sizeof(struct stat));
 		s->st_dev = mp->dev;
 		*ss |= SB_DEV;
@@ -384,20 +384,18 @@ getmntdev(dn, dnl, s, ss)
 /*
  * hash_mnt() - hash mount point
  */
-
 static int
-hash_mnt(dn)
-	char *dn;			/* mount point directory name */
+hash_mnt(char *dir_name /* mount point directory name */)
 {
 	register int i, h;
 	size_t l;
 
-	if (!(l = strlen(dn)))
+	if (!(l = strlen(dir_name)))
 	    return(0);
 	if (l == 1)
-	    return((int)*dn & (HASHMNT - 1));
+	    return((int)*dir_name & (HASHMNT - 1));
 	for (i = h = 0; i < (int)(l - 1); i++) {
-	    h ^= ((int)dn[i] * (int)dn[i+1]) << ((i*3)%13);
+	    h ^= ((int)dir_name[i] * (int)dir_name[i+1]) << ((i*3)%13);
 	}
 	return(h & (HASHMNT - 1));
 }
@@ -407,7 +405,6 @@ hash_mnt(dn)
 /*
  * readmnt() - read mount table
  */
-
 struct mounts *
 readmnt()
 {
@@ -439,7 +436,7 @@ readmnt()
 	 */
 	while (fgets(buf, sizeof(buf), ms)) {
 	    if (get_fields(buf, (char *)NULL, &fp, (int *)NULL, 0) < 3
-	    ||  !fp[0] || !fp[1] || !fp[2])
+		||  !fp[0] || !fp[1] || !fp[2])
 		continue;
 	    /*
 	     * Convert octal-escaped characters in the device name and mounted-on
@@ -453,7 +450,7 @@ readmnt()
 		(void) free((FREE_P *)fp1);
 		fp1 = (char *)NULL;
 	    }
-	    if (!(fp0 = cvtoe(fp[0])) || !(fp1 = cvtoe(fp[1])))
+	    if (!(fp0 = convert_octal_escaped(fp[0])) || !(fp1 = convert_octal_escaped(fp[1])))
 		continue;
 	    /*
 	     * Locate any colon (':') in the device name.
@@ -467,8 +464,9 @@ readmnt()
 	    if (cp && !strncasecmp(++cp, "(pid", 4))
 		continue;
 	    if (!strcasecmp(fp[2], "autofs") || !strcasecmp(fp[2], "pipefs")
-	    ||  !strcasecmp(fp[2], "sockfs"))
+		||  !strcasecmp(fp[2], "sockfs"))
 		continue;
+
 	    /*
 	     * Interpolate a possible symbolic mounted directory link.
 	     */
@@ -506,7 +504,7 @@ readmnt()
 		if (!(ln = Readlink(dn))) {
 		    if (!Fwarn) {
 			(void) fprintf(stderr,
-			"      Output information may be incomplete.\n");
+				       "      Output information may be incomplete.\n");
 		    }
 		    continue;
 		}
@@ -551,6 +549,7 @@ readmnt()
 		if (nfs)
 		    continue;
 	    }
+
 	    /*
 	     * Stat() the directory.
 	     */
@@ -560,12 +559,12 @@ readmnt()
 		if ((fr = statsafely(dn, &sb))) {
 		    if (!Fwarn) {
 			(void) fprintf(stderr, "%s: WARNING: can't stat() ",
-			    Pn);
+				       Pn);
 			safestrprt(fp[2], stderr, 0);
 			(void) fprintf(stderr, " file system ");
 			safestrprt(dn, stderr, 1);
 			(void) fprintf(stderr,
-			    "      Output information may be incomplete.\n");
+				       "      Output information may be incomplete.\n");
 		    }
 		} else
 		    ds = SB_ALL;
@@ -582,8 +581,8 @@ readmnt()
 		    ds = 0;
 		    if (getmntdev(dn, dnl, &sb, &ds) || !(ds & SB_DEV)) {
 			(void) fprintf(stderr,
-			    "%s: assuming dev=%#lx for %s from %s\n",
-			    Pn, (long)sb.st_dev, dn, MntSupP);
+				       "%s: assuming dev=%#lx for %s from %s\n",
+				       Pn, (long)sb.st_dev, dn, MntSupP);
 		    }
 		} else {
 		    if (!ignstat)
@@ -599,10 +598,10 @@ readmnt()
 	    }
 #endif	/* defined(HASMNTSUP) */
 
-	/*
-	 * Fill a local mount structure or reuse a previous entry when
-	 * indicated.
-	 */
+	    /*
+	     * Fill a local mount structure or reuse a previous entry when
+	     * indicated.
+	     */
 	    if (mp) {
 		ne = 0;
 		if (mp->dir) {
@@ -617,7 +616,7 @@ readmnt()
 		ne = 1;
 		if (!(mp = (struct mounts *)malloc(sizeof(struct mounts)))) {
 		    (void) fprintf(stderr,
-			"%s: can't allocate mounts struct for: ", Pn);
+				   "%s: can't allocate mounts struct for: ", Pn);
 		    safestrprt(dn, stderr, 1);
 		    Error();
 	        }
@@ -655,12 +654,13 @@ readmnt()
 	    }
 #endif	/* defined(HASMNTSUP) */
 
-	/*
-	 * Save mounted-on device or directory name.
-	 */
+	    /*
+	     * Save mounted-on device or directory name.
+	     */
 	    dn = fp0;
 	    fp0 = (char *)NULL;
 	    mp->fsname = dn;
+
 	    /*
 	     * Interpolate a possible file system (mounted-on) device name or
 	     * directory name link.
@@ -670,7 +670,7 @@ readmnt()
 	    if (ignrdl || (*dn != '/')) {
 		if (!(ln = mkstrcpy(dn, (MALLOC_S *)NULL))) {
 		    (void) fprintf(stderr,
-			"%s: can't allocate space for: ", Pn);
+				   "%s: can't allocate space for: ", Pn);
 		    safestrprt(dn, stderr, 1);
 		    Error();
 		}
@@ -678,6 +678,7 @@ readmnt()
 	    } else
 		ln = Readlink(dn);
 	    dn = (char *)NULL;
+
 	    /*
 	     * Stat() the file system (mounted-on) name and add file system
 	     * information to the local mount table entry.
@@ -689,6 +690,7 @@ readmnt()
 	    if (ne)
 		Lmi = mp;
 	}
+
 	/*
 	 * Clean up and return the local mount info table address.
 	 */

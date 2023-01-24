@@ -1447,7 +1447,6 @@ safestrlen(sp, flags)
  * safestrprt() - print a string "safely" to the indicated stream -- i.e.,
  *		  print unprintable characters in a printable form
  */
-
 void
 safestrprt(sp, fs, flags)
 	char *sp;			/* string to print pointer pointer */

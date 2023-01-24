@@ -85,7 +85,6 @@ static int HbyNmCt = 0;			/* HbyNm entry count */
 /*
  * hashSfile() - hash Sfile entries for use in is_file_named() searches
  */
-
 void
 hashSfile()
 {
@@ -106,32 +105,32 @@ hashSfile()
 					       sizeof(struct hsfile))))
 	{
 	    (void) fprintf(stderr,
-		"%s: can't allocate space for %d (dev,ino) hash buckets\n",
-		Pn, SFDIHASH);
+			   "%s: can't allocate space for %d (dev,ino) hash buckets\n",
+			   Pn, SFDIHASH);
 	    Error();
 	}
 	if (!(HbyFrd = (struct hsfile *)calloc((MALLOC_S)SFRDHASH,
 					       sizeof(struct hsfile))))
 	{
 	    (void) fprintf(stderr,
-		"%s: can't allocate space for %d rdev hash buckets\n",
-		Pn, SFRDHASH);
+			   "%s: can't allocate space for %d rdev hash buckets\n",
+			   Pn, SFRDHASH);
 	    Error();
 	}
 	if (!(HbyFsd = (struct hsfile *)calloc((MALLOC_S)SFFSHASH,
 					       sizeof(struct hsfile))))
 	{
 	    (void) fprintf(stderr,
-		"%s: can't allocate space for %d file sys hash buckets\n",
-		Pn, SFFSHASH);
+			   "%s: can't allocate space for %d file sys hash buckets\n",
+			   Pn, SFFSHASH);
 	    Error();
 	}
 	if (!(HbyNm = (struct hsfile *)calloc((MALLOC_S)SFNMHASH,
 					      sizeof(struct hsfile))))
 	{
 	    (void) fprintf(stderr,
-		"%s: can't allocate space for %d name hash buckets\n",
-		Pn, SFNMHASH);
+			   "%s: can't allocate space for %d name hash buckets\n",
+			   Pn, SFNMHASH);
 	    Error();
 	}
 	hs++;
@@ -184,12 +183,11 @@ hashSfile()
 		    sh->next = (struct hsfile *)NULL;
 		    continue;
 		} else {
-		    if (!(sn = (struct hsfile *)malloc(
-						       (MALLOC_S)sizeof(struct hsfile))))
+		    if (!(sn = (struct hsfile *)malloc((MALLOC_S)sizeof(struct hsfile))))
 		    {
 			(void) fprintf(stderr,
-			    "%s: can't allocate hsfile bucket for: %s\n",
-			    Pn, s->aname);
+				       "%s: can't allocate hsfile bucket for: %s\n",
+				       Pn, s->aname);
 			Error();
 		    }
 		    sn->s = s;
@@ -204,24 +202,27 @@ hashSfile()
 /*
  * is_file_named() - is this file named?
  */
-
 int
-is_file_named(ty, p, mp, cd)
-	int ty;				/* search type: 0 = only by device
-					 *		    and inode
-					 *		1 = by device and
-					 *		    inode, or by file
-					 *		    system device and
-					 *		    path for NFS file
-					 *		    systems
-					 *		2 = only by path
-					 */
-	char *p;			/* path name (device and inode are
-					 * identified via *Lf) */
-	struct mounts *mp;		/* NFS file system (NULL if not) */
-	int cd;				/* character or block type file --
-					 * VCHR or VBLK vnode, or S_IFCHR
-					 * or S_IFBLK inode */
+is_file_named(
+	      /* search type:	0 = only by device
+	       *		    and inode
+	       *		1 = by device and
+	       *		    inode, or by file
+	       *		    system device and
+	       *		    path for NFS file
+	       *		    systems
+	       *		2 = only by path
+	       */
+	      int search_type,
+	      /* path name (device and inode are
+	       * identified via *Lf) */
+	      char *path,
+	      /* NFS file system (NULL if not) */
+	      struct mounts *nfs_mount,		
+	      /* character or block type file --
+	       * VCHR or VBLK vnode, or S_IFCHR
+	       * or S_IFBLK inode */
+	      int cd)
 {
 	char *ep;
 	int f = 0;
@@ -229,22 +230,24 @@ is_file_named(ty, p, mp, cd)
 	struct sfile *s = (struct sfile *)NULL;
 	struct hsfile *sh;
 	size_t sz;
+
 	/*
 	 * Check for a path name match, as requested.
 	 */
-	if ((ty == 2) && p && HbyNmCt) {
-	    for (sh = &HbyNm[hashbyname(p, SFNMHASH)]; sh; sh = sh->next) {
-		if ((s = sh->s) && strcmp(p, s->aname) == 0) {
-		    f = 2;
+	if ((search_type == 2) && path && HbyNmCt) {
+	    for (sh = &HbyNm[hashbyname(path, SFNMHASH)]; sh; sh = sh->next) {
+		if ((s = sh->s) && strcmp(path, s->aname) == 0) {
+		    f = 2; /* Found match by path */
 		    break;
 		}
 	    }
 	}
+
 	/*
 	 * Check for a regular file by device and inode number.
 	 */
-	if (!f && (ty < 2) && HbyFdiCt && Lf->dev_def
-	&& (Lf->inp_ty == 1 || Lf->inp_ty == 3))
+	if (!f && (search_type < 2) && HbyFdiCt && Lf->dev_def
+	    && (Lf->inp_ty == 1 || Lf->inp_ty == 3))
 	{
 	    for (sh = &HbyFdi[SFHASHDEVINO(GET_MAJ_DEV(Lf->dev),
 					   GET_MIN_DEV(Lf->dev),
@@ -254,16 +257,17 @@ is_file_named(ty, p, mp, cd)
 		 sh = sh->next)
 	    {
 		if ((s = sh->s) && (Lf->dev == s->dev)
-		&&  (Lf->inode == s->i)) {
-		    f = 1;
+		    &&  (Lf->inode == s->i)) {
+		    f = 1; /* Found match by inode and dev */
 		    break;
 		}
 	    }
 	}
+
 	/*
 	 * Check for a file system match.
 	 */
-	if (!f && (ty == 1) && HbyFsdCt && Lf->dev_def) {
+	if (!f && (search_type == 1) && HbyFsdCt && Lf->dev_def) {
 	    for (sh = &HbyFsd[SFHASHDEVINO(GET_MAJ_DEV(Lf->dev),
 	    				   GET_MIN_DEV(Lf->dev), 0,
 					   SFFSHASH)];
@@ -278,7 +282,7 @@ is_file_named(ty, p, mp, cd)
 			 * device.
 			 */
 			if (!(smp = s->mp) || (smp->ty != N_NFS)) {
-			    f = 1;
+			    f = 1; /* Found match by fs */
 			    break;
 			}
 		    } else {
@@ -291,23 +295,24 @@ is_file_named(ty, p, mp, cd)
 			 * Linux NFS that can assign the same device number
 			 * to two different NFS mounts.
 			 */
-			if (p && mp && mp->dirl && mp->dir && s->name
-			&&  !strncmp(mp->dir, s->name, mp->dirl))
+			if (path && nfs_mount && nfs_mount->dirl && nfs_mount->dir && s->name
+			    &&  !strncmp(nfs_mount->dir, s->name, nfs_mount->dirl))
 			{
-			    f = 1;
+			    f = 1; /* Found match by fs */
 			    break;
 		 	}
 		    }
 		}
 	    }
 	}
+
 	/*
 	 * Check for a character or block device match.
 	 */
-	if (!f && !ty && HbyFrdCt && cd
-	&&  Lf->dev_def && (Lf->dev == DevDev)
-	&&  Lf->rdev_def
-	&& (Lf->inp_ty == 1 || Lf->inp_ty == 3))
+	if (!f && !search_type && HbyFrdCt && cd
+	    &&  Lf->dev_def && (Lf->dev == DevDev)
+	    &&  Lf->rdev_def
+	    && (Lf->inp_ty == 1 || Lf->inp_ty == 3))
 	{
 	    for (sh = &HbyFrd[SFHASHRDEVI(GET_MAJ_DEV(Lf->dev),
 					  GET_MIN_DEV(Lf->dev),
@@ -318,9 +323,9 @@ is_file_named(ty, p, mp, cd)
 		 sh = sh->next)
 	    {
 		if ((s = sh->s) && (s->dev == Lf->dev)
-		&&  (s->rdev == Lf->rdev) && (s->i == Lf->inode))
+		    &&  (s->rdev == Lf->rdev) && (s->i == Lf->inode))
 		{
-		    f = 1;
+		    f = 1; /* Found match by inode and dev */
 		    break;
 		}
 	    }
@@ -329,9 +334,9 @@ is_file_named(ty, p, mp, cd)
 	 * Convert the name if a match occurred.
 	 */
 	switch (f) {
-	case 0:
+	case 0: /* Not found */
 	    return(0);
-	case 1:
+	case 1: /* Found match by inode and dev or fs */
 	    if (s->type) {
 
 		/*
@@ -345,8 +350,8 @@ is_file_named(ty, p, mp, cd)
 		}
 	    }
 	    break;
-	case 2:
-	    (void) strcpy(Namech, p);
+	case 2: /* Found match by path */
+	    (void) strcpy(Namech, path);
 	    break;
 	}
 	if (s)
@@ -362,19 +367,17 @@ is_file_named(ty, p, mp, cd)
  *	 since it is called by printname() in print.c, an ersatz one
  *	 is provided here.
  */
-
 int
-printdevname(dev, rdev, f, nty)
-	dev_t *dev;			/* device */
-        dev_t *rdev;                    /* raw device */
-        int f;                          /* 1 = follow with '\n' */
-	int nty;			/* node type: N_BLK or N_chr */
+printdevname(dev_t *dev,			/* device */
+	     dev_t *rdev,                       /* raw device */
+	     int newline,                       /* 1 = follow with '\n' */
+	     int node_type)			/* node type: N_BLK or N_chr */
 {
 	char buf[128];
 
 	(void) snpf(buf, sizeof(buf), "%s device: %d,%d",
-		    (nty == N_BLK) ? "BLK" : "CHR",
+		    (node_type == N_BLK) ? "BLK" : "CHR",
 		    (int)GET_MAJ_DEV(*rdev), (int)GET_MIN_DEV(*rdev));
-	safestrprt(buf, stdout, f);
+	safestrprt(buf, stdout, newline);
 	return(1);
 }
