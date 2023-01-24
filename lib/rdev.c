@@ -32,7 +32,7 @@
 
 #if defined(USE_LIB_READDEV)
 
-#    include "../lsof.h"
+#    include "../common.h"
 
 _PROTOTYPE(static int rmdupdev, (struct l_dev * **dp, int n, char *nm));
 
@@ -69,7 +69,7 @@ _PROTOTYPE(static int rmdupdev, (struct l_dev * **dp, int n, char *nm));
  *	#define	RDEV_STATFN	private_stat
  *
  * 6. Define HAS_STD_CLONE to request that clone device information be stored
- *    in standard clone structures (defined in lsof.h and addressed via
+ *    in standard clone structures (defined in common.h and addressed via
  *    Clone).  If HAS_STD_CLONE is defined, these must also be defined:
  *
  *	a.  Define CLONEMAJ to be the name of the constant or
@@ -484,7 +484,4 @@ struct l_dev *dp; /* device table pointer */
     return (1);
 }
 #    endif /* defined(HASDCACHE) */
-#else      /* !defined(USE_LIB_READDEV) */
-char rdev_d1[] = "d";
-char *rdev_d2 = rdev_d1;
 #endif     /* defined(USE_LIB_READDEV) */

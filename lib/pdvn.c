@@ -32,11 +32,9 @@
 
 #if defined(USE_LIB_PRINTDEVNAME)
 
-#    include "../lsof.h"
+#    include "../common.h"
 
 #else  /* !defined(USE_LIB_PRINTDEVNAME) */
-char pdvn_d1[] = "d";
-char *pdvn_d2 = pdvn_d1;
 #endif /* defined(USE_LIB_PRINTDEVNAME) */
 
 /*

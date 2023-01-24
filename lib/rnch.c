@@ -32,7 +32,7 @@
 
 #if defined(HASNCACHE) && defined(USE_LIB_RNCH)
 
-#    include "../lsof.h"
+#    include "../common.h"
 
 /*
  * rnch.c - read Sun format (struct ncache) name cache
@@ -782,7 +782,4 @@ int *fp;   /* full path reply */
     }
     return (cp);
 }
-#else  /* !defined(HASNCACHE) || !defined(USE_LIB_RNCH) */
-char rnch_d1[] = "d";
-char *rnch_d2 = rnch_d1;
 #endif /* defined(HASNCACHE) && defined(USE_LIB_RNCH) */

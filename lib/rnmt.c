@@ -20,7 +20,7 @@
 #    include <sys/vnode_impl.h>
 #    include <err.h>
 
-#    include "../lsof.h"
+#    include "../common.h"
 
 /*
  * rnmt.c - read NetBSD=>10-style red-black tree kernel name cache

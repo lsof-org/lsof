@@ -43,7 +43,7 @@
 
 #if defined(USE_LIB_COMPLETEVFS)
 
-#    include "../lsof.h"
+#    include "../common.h"
 
 /*
  * completevfs() - complete local vfs structure
@@ -92,7 +92,4 @@ dev_t *dev;                                   /* device */
         }
     }
 }
-#else  /* !defined(USE_LIB_COMPLETEVFS) */
-char cvfs_d1[] = "d";
-char *cvfs_d2 = cvfs_d1;
 #endif /* defined(USE_LIB_COMPLETEVFS) */

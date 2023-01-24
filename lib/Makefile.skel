@@ -10,7 +10,7 @@ CDEF=	${RC_CFLAGS}
 CDEFS=	${CDEF} ${CFGF}
 INCL=	${DINC} -I..
 
-HDR=	../lsof.h ../proto.h ../dlsof.h ../dproto.h ../machine.h
+HDR=	../common.h ../proto.h ../dlsof.h ../dproto.h ../machine.h
 
 SRC=	ckkv.c cvfs.c dvch.c fino.c isfn.c lkud.c pdvn.c prfp.c \
 	ptti.c rdev.c regex.c rmnt.c rnam.c rnch.c rnmh.c rnmt.c snpf.c

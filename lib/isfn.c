@@ -55,7 +55,7 @@
 
 #if defined(USE_LIB_IS_FILE_NAMED)
 
-#    include "../lsof.h"
+#    include "common.h"
 
 /*
  * Local structures
@@ -132,7 +132,7 @@ static int HbyNmCt = 0; /* HbyNm entry count */
  * hashSfile() - hash Sfile entries for use in is_file_named() searches
  */
 
-void hashSfile() {
+void hashSfile(struct lsof_context *ctx) {
     static int hs = 0;
     int i;
     int sfplm = 3;
@@ -260,12 +260,12 @@ void hashSfile() {
  * is_file_named() - is this file named?
  */
 
-int is_file_named(p, cd)
-char *p; /* path name; NULL = search by device
-          * and inode (from *Lf) */
-int cd;  /* character or block type file --
-          * VCHR or VBLK vnode, or S_IFCHR
-          * or S_IFBLK inode */
+int is_file_named(struct lsof_context *ctx,
+                  char *p, /* path name, NULL = search by device
+                            * and inode (from *Lf) */
+                  int cd)  /* character or block type file --
+                            * VCHR or VBLK vnode, or S_IFCHR
+                            * or S_IFBLK inode */
 {
     char *ep;
     int f = 0;
@@ -360,7 +360,7 @@ int cd;  /* character or block type file --
              */
             (void)snpf(Namech, Namechl, "%s", s->name);
             if (s->devnm) {
-                ep = endnm(&sz);
+                ep = endnm(ctx, &sz);
                 (void)snpf(ep, sz, " (%s)", s->devnm);
             }
         }
@@ -377,7 +377,4 @@ int cd;  /* character or block type file --
         s->f = 1;
     return (1);
 }
-#else  /* !defined(USE_LIB_IS_FILE_NAMED) */
-char isfn_d1[] = "d";
-char *isfn_d2 = isfn_d1;
 #endif /* defined(USE_LIB_IS_FILE_NAMED) */

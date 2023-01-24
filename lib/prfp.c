@@ -32,7 +32,7 @@
 
 #if defined(USE_LIB_PROCESS_FILE)
 
-#    include "../lsof.h"
+#    include "../common.h"
 
 /*
  * process_file() - process file
@@ -89,28 +89,28 @@ void process_file(fp) KA_T fp; /* kernel file structure address */
              */
 
 #        if !defined(HASNOFSCOUNT)
-        if (Fsv & FSV_CT) {
+        if (FSV_CT) {
             Lf->fct = (long)f.f_count;
             Lf->fsv |= FSV_CT;
         }
 #        endif /* !defined(HASNOFSCOUNT) */
 
 #        if !defined(HASNOFSADDR)
-        if (Fsv & FSV_FA) {
+        if (FSV_FA) {
             Lf->fsa = fp;
             Lf->fsv |= FSV_FA;
         }
 #        endif /* !defined(HASNOFSADDR) */
 
 #        if !defined(HASNOFSFLAGS)
-        if (Fsv & FSV_FG) {
+        if (FSV_FG) {
             Lf->ffg = (long)f.f_flag;
             Lf->fsv |= FSV_FG;
         }
 #        endif /* !defined(HASNOFSFLAGS) */
 
 #        if !defined(HASNOFSNADDR)
-        if (Fsv & FSV_NI) {
+        if (FSV_NI) {
             Lf->fna = (KA_T)f.f_data;
             Lf->fsv |= FSV_NI;
         }
@@ -217,7 +217,4 @@ void process_file(fp) KA_T fp; /* kernel file structure address */
     }
     enter_nm("no more information");
 }
-#else  /* !defined(USE_LIB_PROCESS_FILE) */
-char prfp_d1[] = "d";
-char *prfp_d2 = prfp_d1;
 #endif /* defined(USE_LIB_PROCESS_FILE) */

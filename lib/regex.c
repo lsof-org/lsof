@@ -1371,10 +1371,10 @@ typedef struct {
         do {                                                                   \
             char *destination;                                                 \
             /* Must be int, so when we don't save any registers, the           \
-               arithmetic of 0 + -1 isn't done as unsigned.  */                                         \
+               arithmetic of 0 + -1 isn't done as unsigned.  */                \
             /* Can't be int, since there is not a shred of a guarantee that    \
-               int is wide enough to hold a value of something to which                          \
-               pointer can be assigned */                                                                \
+               int is wide enough to hold a value of something to which        \
+               pointer can be assigned */                                      \
             active_reg_t this_reg;                                             \
                                                                                \
             DEBUG_STATEMENT(failure_id++);                                     \
@@ -1388,7 +1388,7 @@ typedef struct {
             DEBUG_PRINT2("  slots needed: %ld\n", NUM_FAILURE_ITEMS);          \
             DEBUG_PRINT2("     available: %d\n", REMAINING_AVAIL_SLOTS);       \
                                                                                \
-            /* Ensure we have enough space allocated for what we will push. */                                                                            \
+            /* Ensure we have enough space allocated for what we will push. */ \
             while (REMAINING_AVAIL_SLOTS < NUM_FAILURE_ITEMS) {                \
                 if (!DOUBLE_FAIL_STACK(fail_stack))                            \
                     return failure_code;                                       \
@@ -1508,7 +1508,7 @@ typedef struct {
                                                                                \
             /* If the saved string location is NULL, it came from an           \
                on_failure_keep_string_jump opcode, and we want to throw away   \
-               the saved NULL, thus retaining our current position in the                        \
+               the saved NULL, thus retaining our current position in the      \
                string.  */                                                     \
             string_temp = POP_FAILURE_POINTER();                               \
             if (string_temp != NULL)                                           \
@@ -5946,7 +5946,4 @@ weak_alias(__regfree, regfree)
 #        endif
 
 #    endif /* not emacs  */
-#else      /* !defined(USE_LIB_REGEX) */
-char regex_d1[] = "d";
-char *regex_d2 = regex_d1;
 #endif     /* defined(USE_LIB_REGEX) */

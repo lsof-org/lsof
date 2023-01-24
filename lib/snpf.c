@@ -709,7 +709,4 @@ int c;                                       /* character to output */
     Length++;
 }
 
-#else  /* !defined(USE_LIB_SNPF) */
-char snpf_d1[] = "d";
-char *snpf_d2 = snpf_d1;
 #endif /* defined(USE_LIB_SNPF) */

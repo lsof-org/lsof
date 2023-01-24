@@ -32,7 +32,7 @@
 
 #if defined(HASDCACHE)
 
-#    include "../lsof.h"
+#    include "../common.h"
 
 /*
  * dvch.c - module that contains common device cache functions
@@ -619,7 +619,7 @@ struct stat *s; /* stat() receiver */
         /*
          * Check for access permission.
          */
-        if (!is_readable(DCpath[DCpathX], 0)) {
+        if (!is_readable(ctx, DCpath[DCpathX], 0)) {
             if (DCpathX == 2 && errno == ENOENT)
                 return (2);
             if (!Fwarn)
@@ -1349,7 +1349,4 @@ unsigned *c; /* checksum receiver */
     }
     return (0);
 }
-#else  /* !defined(HASDCACHE) */
-char dvch_d1[] = "d";
-char *dvch_d2 = dvch_d1;
 #endif /* defined(HASDCACHE) */

@@ -9,6 +9,6 @@ else
 	# Autotools
 	lsof=$PWD/lsof
 	report=/dev/stdout
-	tcasedir=dialects/${LSOF_DIALECT_DIR}/tests
+	tcasedir=lib/dialects/${LSOF_DIALECT_DIR}/tests
 	dialect=${LSOF_DIALECT}
 fi

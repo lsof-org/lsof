@@ -282,7 +282,7 @@ These are the common function source files in lsof4/:
 
     arg.c	common argument processing functions
 
-    lsof.h	common header file that #include's the dialect-specific
+    common.h	common header file that #include's the dialect-specific
 		header files
 
     main.c	common main function for lsof 4
@@ -677,7 +677,7 @@ possibilities
 
     FSV_DEFAULT		defines the default file structure values to
 			list.  It may be composed of or'd FSV_*
-			(See lsof.h) values.  The default is none (0).
+			(See common.h) values.  The default is none (0).
 
     GET_MAJ_DEV         is a macro to get major portion from device
 			number instead of via the standard major()
@@ -796,7 +796,7 @@ possibilities
 			f_open member in its file struct.
 
     HASFSINO            enables the inclusion of the fs_ino element
-			in the lfile structure definition in lsof.h.
+			in the lfile structure definition in common.h.
 			This contains the file system's inode number
 			and may be needed when searching the kernel
 			name cache.  See dialects/osr/dproc.c for
@@ -889,7 +889,7 @@ possibilities
 
     HASLFILEADD		defines additional, dialect-specific elements
 
-    SETLFILEADD		in the lfile structure (defined in lsof.h).
+    SETLFILEADD		in the lfile structure (defined in common.h).
 			HASLFILEADD is a macro. The accompanying SETFILEADD
 			macro is used in the alloc_lfile() function of
 			proc.c to preset the additional elements.

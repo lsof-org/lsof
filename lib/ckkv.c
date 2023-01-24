@@ -32,18 +32,18 @@
 
 #if defined(USE_LIB_CKKV)
 
-#    include "../lsof.h"
+#    include "common.h"
 #    include <sys/utsname.h>
 
 /*
  * ckkv() - check kernel version
  */
 
-void ckkv(d, er, ev, ea) char *d; /* dialect */
-char *er;                         /* expected revision; NULL, no test */
-char *ev;                         /* expected version; NULL, no test */
-char *ea;                         /* expected architecture; NULL, no
-                                   * test */
+void ckkv(struct lsof_context *ctx, char *d, /* dialect */
+          char *er, /* expected revision, NULL, no test */
+          char *ev, /* expected version, NULL, no test */
+          char *ea) /* expected architecture, NULL, no
+                     * test */
 {
 
 #    if defined(HASKERNIDCK)
@@ -77,6 +77,4 @@ char *ea;                         /* expected architecture; NULL, no
 #    endif /* defined(HASKERNIDCK) */
 }
 #else  /* !defined(USE_LIB_CKKV) */
-char ckkv_d1[] = "d";
-char *ckkv_d2 = ckkv_d1;
 #endif /* defined(USE_LIB_CKKV) */

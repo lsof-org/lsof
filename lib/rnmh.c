@@ -33,7 +33,7 @@
 
 #if defined(HASNCACHE) && defined(USE_LIB_RNMH)
 
-#    include "../lsof.h"
+#    include "../common.h"
 
 /*
  * rnmh.c - read BSD format hashed kernel name cache
@@ -712,7 +712,4 @@ int *fp;   /* full path reply */
     }
     return (cp);
 }
-#else  /* !defined(HASNCACHE) || !defined(USE_LIB_RNMH) */
-char rnmh_d1[] = "d";
-char *rnmh_d2 = rnmh_d1;
 #endif /* defined(HASNCACHE) && defined(USE_LIB_RNMH) */

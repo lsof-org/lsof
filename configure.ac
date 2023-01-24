@@ -1,5 +1,6 @@
 AC_INIT([lsof],[4.98.0])
 AM_INIT_AUTOMAKE([subdir-objects])
+LT_INIT()
 # Locate custom m4 macros
 AC_CONFIG_MACRO_DIR([m4])
 
@@ -445,13 +446,14 @@ AC_CONFIG_HEADERS([config.h])
 
 # For VPATH building
 AC_CONFIG_LINKS([tests/common.bash:tests/common.bash
-	dialects/linux/tests/util-open-flags.bash:dialects/linux/tests/util-open-flags.bash
+	lib/dialects/linux/tests/util-open-flags.bash:lib/dialects/linux/tests/util-open-flags.bash
 	Lsof.8:Lsof.8 00DIALECTS:00DIALECTS 00DIST:00DIST])
 
 # Generate cflags for tests
 LSOF_TEST_CFLAGS="$LSOF_TEST_CFLAGS -DLT_DIAL_$LSOF_TGT -DLT_VERS=$LSOF_VERS"
 # Override default lsof path
 LSOF_TEST_CFLAGS="$LSOF_TEST_CFLAGS -DLT_DEF_LSOF_PATH=\\\"$PWD/lsof\\\""
+LSOF_TEST_CFLAGS="$LSOF_TEST_CFLAGS -I$PWD/include"
 AC_SUBST([LSOF_TEST_CFLAGS])
 
 # Finish

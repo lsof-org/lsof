@@ -92,6 +92,7 @@ lsof.man
 # Traditional test related files
 #
 LTbasic
+LTbasic2
 LTbigf
 LTdnlc
 LTlock
@@ -104,19 +105,20 @@ LTunix
 #
 # Dialect specific test related files
 #
-dialects/linux/tests/epoll
-dialects/linux/tests/eventfd
-dialects/linux/tests/mq_fork
-dialects/linux/tests/mq_open
-dialects/linux/tests/open_with_flags
-dialects/linux/tests/pidfd
-dialects/linux/tests/pipe
-dialects/linux/tests/pty
-dialects/linux/tests/ux
-dialects/linux/tests/mmap
+lib/dialects/linux/tests/epoll
+lib/dialects/linux/tests/eventfd
+lib/dialects/linux/tests/mq_fork
+lib/dialects/linux/tests/mq_open
+lib/dialects/linux/tests/open_with_flags
+lib/dialects/linux/tests/pidfd
+lib/dialects/linux/tests/pipe
+lib/dialects/linux/tests/pty
+lib/dialects/linux/tests/ux
+lib/dialects/linux/tests/mmap
 
 # automake
 Makefile.in
+.libs/
 .deps/
 .dirstamp
 *.log
@@ -135,6 +137,11 @@ autom4te.cache
 /configure
 /depcomp
 /install-sh
+/libtool
+/ltmain.sh
 /missing
 /stamp-h1
 /test-driver
+
+# Doxygen
+/output

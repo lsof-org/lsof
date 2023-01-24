@@ -32,7 +32,7 @@
 
 #if defined(HASNCACHE) && defined(USE_LIB_RNAM)
 
-#    include "../lsof.h"
+#    include "../common.h"
 
 /*
  * rnam.c - read BSD format (struct namecache or nch) name cache
@@ -640,7 +640,4 @@ int *fp;   /* full path reply */
 #    endif /* defined(NCACHE_PARADDR) && defined(NCACHE_PARID) */
     return (cp);
 }
-#else  /* !defined(HASNCACHE) || !defined(USE_LIB_RNAM) */
-char rnam_d1[] = "d";
-char *rnam_d2 = rnam_d1;
 #endif /* defined(HASNCACHE) && defined(USE_LIB_RNAM) */

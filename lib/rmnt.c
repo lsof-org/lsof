@@ -32,7 +32,7 @@
 
 #if defined(USE_LIB_READMNT)
 
-#    include "../lsof.h"
+#    include "../common.h"
 
 /*
  * The caller may define:
@@ -223,7 +223,4 @@ struct mounts *readmnt() {
     Lmist = 1;
     return (Lmi);
 }
-#else  /* !defined(USE_LIB_READMNT) */
-char rmnt_d1[] = "d";
-char *rmnt_d2 = rmnt_d1;
 #endif /* defined(USE_LIB_READMNT) */
