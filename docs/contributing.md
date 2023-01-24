@@ -16,10 +16,12 @@ across dialects.
 
 ## Code style
 
-C sources should be formatted by `format.el`, e.g.:
+C sources should be formatted by `clang-format`, e.g.:
 
 ```shell
-emacs -batch dialects/linux/dsock.c -l $PWD/format.el
+clang-format -i lib/dialcets/linux/dsock.c
+# or
+git-clang-format
 ```
 
 The formatter may not function properly in some corner cases. You will have to
@@ -33,13 +35,13 @@ When #if/#else/#endif constructs are necessary:
 Use the form
 
 ```c
-#if	defined(s<symbol>)
+#if defined(s<symbol>)
 ```
 
 in preference to
 
 ```c
-#ifdef	<symbol>
+#ifdef <symbol>
 ```
 
 to allow easier addition of tests to the #if.
@@ -47,11 +49,11 @@ to allow easier addition of tests to the #if.
 - Indent them to signify their level -- e.g.,
 
 ```c
-#if	/* level one */
-# if	/* level two */
-# endif	/* level two */
-#else	/* level one */
-#endif	/* level one */
+#if		/* level one */
+#  if		/* level two */
+#  endif	/* level two */
+#else		/* level one */
+#endif		/* level one */
 ```
 
 Use ANSI standard comments on #else and #endif statements.
