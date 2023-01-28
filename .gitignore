@@ -92,6 +92,7 @@ lsof.man
 #
 # Symbolic links to a dialect implementation
 #
+/ddev.c
 /dfile.c
 /dlsof.h
 /dmnt.c

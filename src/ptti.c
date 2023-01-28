@@ -32,7 +32,6 @@
 
 #if defined(USE_LIB_PRINT_TCPTPI)
 
-#    define TCPSTATES /* activate tcpstates[] */
 #    include "common.h"
 #    include "cli.h"
 
