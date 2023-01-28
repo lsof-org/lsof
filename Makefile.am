@@ -81,8 +81,8 @@ lsof_SOURCES += src/dialects/darwin/dprint.c
 endif
 lsof_LDADD = liblsof.la
 
-liblsof_la_CPPFLAGS = -I$(DIALECT_PATH) -Iautotools -DAUTOTOOLS -Ilib -Iinclude
-lsof_CPPFLAGS = -I$(DIALECT_PATH) -Iautotools -DAUTOTOOLS -Ilib -Iinclude -Isrc
+liblsof_la_CPPFLAGS = -I$(DIALECT_PATH) -Iautotools -DAUTOTOOLS -I$(top_srcdir)/lib -I$(top_srcdir)/include
+lsof_CPPFLAGS = -I$(DIALECT_PATH) -Iautotools -DAUTOTOOLS -I$(top_srcdir)/lib -I$(top_srcdir)/include -I$(top_srcdir)/src
 
 
 # Testing scripts
@@ -149,27 +149,27 @@ TESTS += tests/LTbasic tests/LTbigf tests/LTdnlc tests/LTlock tests/LTnfs tests/
 
 check_PROGRAMS += tests/LTbasic tests/LTbigf tests/LTdnlc tests/LTlock tests/LTnfs tests/LTnlink tests/LTsock tests/LTszoff tests/LTunix
 tests_LTbasic_SOURCES = tests/LTbasic.c tests/LTlib.c
-tests_LTbasic_CFLAGS = @LSOF_TEST_CFLAGS@
+tests_LTbasic_CFLAGS = @LSOF_TEST_CFLAGS@ -I$(top_srcdir)/include
 tests_LTbigf_SOURCES = tests/LTbigf.c tests/LTlib.c
-tests_LTbigf_CFLAGS = @LSOF_TEST_CFLAGS@
+tests_LTbigf_CFLAGS = @LSOF_TEST_CFLAGS@ -I$(top_srcdir)/include
 tests_LTdnlc_SOURCES = tests/LTdnlc.c tests/LTlib.c
-tests_LTdnlc_CFLAGS = @LSOF_TEST_CFLAGS@
+tests_LTdnlc_CFLAGS = @LSOF_TEST_CFLAGS@ -I$(top_srcdir)/include
 tests_LTlock_SOURCES = tests/LTlock.c tests/LTlib.c
-tests_LTlock_CFLAGS = @LSOF_TEST_CFLAGS@
+tests_LTlock_CFLAGS = @LSOF_TEST_CFLAGS@ -I$(top_srcdir)/include
 tests_LTnfs_SOURCES = tests/LTnfs.c tests/LTlib.c
-tests_LTnfs_CFLAGS = @LSOF_TEST_CFLAGS@
+tests_LTnfs_CFLAGS = @LSOF_TEST_CFLAGS@ -I$(top_srcdir)/include
 tests_LTnlink_SOURCES = tests/LTnlink.c tests/LTlib.c
-tests_LTnlink_CFLAGS = @LSOF_TEST_CFLAGS@
+tests_LTnlink_CFLAGS = @LSOF_TEST_CFLAGS@ -I$(top_srcdir)/include
 tests_LTsock_SOURCES = tests/LTsock.c tests/LTlib.c
-tests_LTsock_CFLAGS = @LSOF_TEST_CFLAGS@
+tests_LTsock_CFLAGS = @LSOF_TEST_CFLAGS@ -I$(top_srcdir)/include
 tests_LTszoff_SOURCES = tests/LTszoff.c tests/LTlib.c
-tests_LTszoff_CFLAGS = @LSOF_TEST_CFLAGS@
+tests_LTszoff_CFLAGS = @LSOF_TEST_CFLAGS@ -I$(top_srcdir)/include
 tests_LTunix_SOURCES = tests/LTunix.c tests/LTlib.c
-tests_LTunix_CFLAGS = @LSOF_TEST_CFLAGS@
+tests_LTunix_CFLAGS = @LSOF_TEST_CFLAGS@ -I$(top_srcdir)/include
 
 TESTS += tests/LTbasic2
 check_PROGRAMS += tests/LTbasic2
-tests_LTbasic2_CFLAGS = -Iinclude
+tests_LTbasic2_CFLAGS = -I$(top_srcdir)/include
 tests_LTbasic2_LDADD = liblsof.la
 
 # Documentation
