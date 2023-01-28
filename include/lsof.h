@@ -43,12 +43,13 @@
  * liblsof provides a cross platform mechanism to list open files. To use
  * liblsof, you should:
  *
- * 1. Check if compile-time and run-time API versions match
- * 2. Create a context via `lsof_new()`
+ * 1. Check if compile-time and run-time API versions match.
+ * 2. Create a context via `lsof_new()`.
  * 3. Set options of the context via `lsof_select_process()` etc.
- * 4. freeze context via `lsof_freeze()`
- * 5. List open files via `lsof_gather()`
- * 6. Destroy the context via `lsof_destroy()`
+ * 4. freeze context via `lsof_freeze()`.
+ * 5. List open files via `lsof_gather()`, you can call `lsof_gather()` multiple
+ * times. Remember to free the result via `lsof_free_result()`.
+ * 6. Destroy the context via `lsof_destroy()`.
  */
 
 /** lsof error returns */

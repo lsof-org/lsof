@@ -1370,6 +1370,18 @@ void print_fd(enum lsof_fd_type fd_type, int fd_num, char *buf) {
     case LSOF_FD_DELETED:
         (void)snpf(buf, FDLEN, "del");
         break;
+    case LSOF_FD_FILEPORT:
+        (void)snpf(buf, FDLEN, "fp.");
+        break;
+    case LSOF_FD_TASK_CWD:
+        (void)snpf(buf, FDLEN, "twd");
+        break;
+    case LSOF_FD_CTTY:
+        (void)snpf(buf, FDLEN, "ctty");
+        break;
+    case LSOF_FD_JAIL_DIR:
+        (void)snpf(buf, FDLEN, "jld");
+        break;
     default:
         fprintf(stderr, "Unknown fd type: %d\n", (int)fd_type);
         buf[0] = '\0';
