@@ -683,9 +683,6 @@ extern int CntxStatus;
 extern unsigned DCcksum;
 extern int DCfd;
 extern FILE *DCfs;
-extern char *DCpathArg;
-extern char *DCpath[];
-extern int DCpathX;
 extern int DCrebuilt;
 extern int DCstate;
 extern int DCunsafe;
@@ -947,23 +944,11 @@ struct lproc {
     struct lfile *file; /* open files of process */
 };
 
-extern char *Memory;
-
-#    if defined(HASPROCFS)
-extern struct mounts *Mtprocfs;
-#    endif
-
-extern gid_t Mygid;
-extern uid_t Myuid;
-
 #    if defined(HASNLIST)
 #        if !defined(NLIST_TYPE)
 #            define NLIST_TYPE nlist
 #        endif /* !defined(NLIST_TYPE) */
-extern struct NLIST_TYPE *Nl;
-extern int Nll;
-#    endif /* defined(HASNLIST) */
-extern char *Nmlst;
+#    endif     /* defined(HASNLIST) */
 
 struct nwad {
     char *arg;                    /* argument */
@@ -997,9 +982,6 @@ struct procfsid {
     struct procfsid *next; /* forward link */
 };
 
-extern int Procfind;
-extern struct procfsid *Procfsid;
-extern int Procsrch;
 #    endif /* defined(HASPROCFS) */
 
 extern int PrPass;
@@ -1124,7 +1106,11 @@ struct lsof_context {
     int sel_all;  /* SELALL flags, modified by IgnTasks */
     int sel_inet; /* select only Internet socket files */
 
-    int my_pid; /* lsof's process ID */
+    int my_pid;      /* lsof's process ID */
+    uid_t my_uid;    /* real UID of this lsof process */
+    gid_t my_gid;    /* real GID of this lsof process */
+    int setgid;      /* setgid state */
+    int setuid_root; /* setuid-root state */
 
     long nlink; /* report nlink values below this number
                  * (0 = report all nlink values) */
@@ -1171,6 +1157,18 @@ struct lsof_context {
     /* security context arguments supplied with -Z */
     cntxlist_t *sel_selinux_context;
 
+#    if defined(HASPROCFS)
+    /* /proc mount entry */
+    struct mounts *procfs_mount;
+    int procfs_found; /* 1 when searching for an proc file system
+                       * file and one was found */
+    /* proc file system PID search table */
+    struct procfsid *procfs_table;
+    /* 1 if searching for any proc file system
+     * file */
+    int procfs_search;
+#    endif /* defined(HASPROCFS) */
+
     /** When frozen, paramters must not be changed */
     uint8_t frozen;
 
@@ -1197,6 +1195,40 @@ struct lsof_context {
     /* pointer to BDevtp[] pointers, sorted
      * by device */
     struct l_dev **block_dev_table_sorted;
+
+    /* device cache paths, indexed by DCpathX
+     * when it's >= 0 */
+    char *dev_cache_paths[4];
+    int dev_cache_path_index;    /* device cache path index:
+                                  *	-1 = path not defined
+                                  *	 0 = defined via -D
+                                  *	 1 = defined via HASENVDC
+                                  *	 2 = defined via HASSYSDC
+                                  *	 3 = defined via HASPERSDC and
+                                  *	     HASPERSDCPATH */
+    char *dev_cache_path_arg;    /* device cache path from -D[b|r|u]<path> */
+    unsigned dev_cache_checksum; /* device cache file checksum */
+    int dev_cache_fd;            /* device cache file descriptor */
+    FILE *dev_cache_fp;          /* stream pointer for DCfd */
+    int dev_cache_rebuilt;       /* an unsafe device cache file has been
+                                  * rebuilt */
+    int dev_cache_state;         /* device cache state:
+                                  *	0 = ignore (-Di)
+                                  *	1 = build (-Db[path])
+                                  *	2 = read; don't rebuild (-Dr[path])
+                                  *	3 = update; read and rebuild if
+                                  *	    necessary (-Du[path])
+                                  */
+    int dev_cache_unsafe;        /* device cache file is potentially unsafe,
+                                  * (The [cm]time check failed.) */
+
+#    if defined(HASNLIST)
+    /* kernel name list */
+    struct NLIST_TYPE *name_list;
+    int name_list_size;
+#    endif                /* defined(HASNLIST) */
+    char *name_list_path; /* namelist file path */
+    char *core_file_path; /* core file path */
 
     /** Output */
     /** Pointer to current process */
@@ -1278,8 +1310,14 @@ struct lsof_context {
 #    define Fand (ctx->logic_and)
 /* -x option */
 #    define Fxopt (ctx->x_opt)
-/* pid of current process */
+/* pid/uid/gid of current process */
 #    define Mypid (ctx->my_pid)
+#    define Myuid (ctx->my_uid)
+#    define Mygid (ctx->my_gid)
+/* setgid state */
+#    define Setgid (ctx->setgid)
+/* setuid-root state */
+#    define Setuidroot (ctx->setuid_root)
 /* avoid blocking */
 #    define Fblock (ctx->avoid_blocking)
 /* avoid forking overhead */
@@ -1352,6 +1390,26 @@ struct lsof_context {
 #    define Sdev (ctx->dev_table_sorted)
 /* select selinux context */
 #    define CntxArg (ctx->sel_selinux_context)
+/* device cache */
+#    define DCpath (ctx->dev_cache_paths)
+#    define DCpathArg (ctx->dev_cache_path_arg)
+#    define DCpathX (ctx->dev_cache_path_index)
+#    define DCcksum (ctx->dev_cache_checksum)
+#    define DCfd (ctx->dev_cache_fd)
+#    define DCfs (ctx->dev_cache_fp)
+#    define DCrebuilt (ctx->dev_cache_rebuilt)
+#    define DCstate (ctx->dev_cache_state)
+#    define DCunsafe (ctx->dev_cache_unsafe)
+/* name list */
+#    define Nl (ctx->name_list)
+#    define Nll (ctx->name_list_size)
+#    define Nmlst (ctx->name_list_path)
+#    define Memory (ctx->core_file_path)
+/* procfs */
+#    define Mtprocfs (ctx->procfs_mount)
+#    define Procsrch (ctx->procfs_search)
+#    define Procfsid (ctx->procfs_table)
+#    define Procfind (ctx->procfs_found)
 
 /* Utility macro to free if non-null and set the pointer to null */
 #    define CLEAN(ptr)                                                         \

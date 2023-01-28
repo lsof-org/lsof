@@ -88,7 +88,8 @@ static int CtSigs[] = {0, SIGINT, SIGKILL};
 static struct drive_Nl *Build_Nl = (struct drive_Nl *)NULL;
 /* the default Drive_Nl address */
 
-void build_Nl(d) struct drive_Nl *d; /* data to drive the construction */
+void build_Nl(struct lsof_context *ctx,
+              struct drive_Nl *d) /* data to drive the construction */
 {
     struct drive_Nl *dp;
     int i, n;
@@ -703,12 +704,12 @@ void enter_nm(struct lsof_context *ctx, char *m) {
  * get_Nl_value() - get Nl value for nickname
  */
 
-int get_Nl_value(nn, d, v)
-char *nn;           /* nickname of requested entry */
-struct drive_Nl *d; /* drive_Nl table that built Nl
-                     * (if NULL, use Build_Nl) */
-KA_T *v;            /* returned value (if NULL,
-                     * return nothing) */
+int get_Nl_value(struct lsof_context *ctx,
+                 char *nn,           /* nickname of requested entry */
+                 struct drive_Nl *d, /* drive_Nl table that built Nl
+                                      * (if NULL, use Build_Nl) */
+                 KA_T *v)            /* returned value (if NULL,
+                                      * return nothing) */
 {
     int i;
 
@@ -962,8 +963,7 @@ char *readlink_inner(struct lsof_context *ctx,
 
         path_too_long:
             if (ctx->err && !Fwarn) {
-                (void)fprintf(ctx->err,
-                              "%s: readlink() path too long: ", Pn);
+                (void)fprintf(ctx->err, "%s: readlink() path too long: ", Pn);
                 safestrprt(orig_path, stderr, 1);
             }
             return ((char *)NULL);
@@ -1051,7 +1051,7 @@ char *readlink_inner(struct lsof_context *ctx,
          * If there are too many symbolic links, report an error, clear
          * the stack, and return no path.
          */
-        if (ctx->err, !Fwarn) {
+        if (ctx->err && !Fwarn) {
             (void)fprintf(
                 ctx->err,
                 "%s: too many (> %d) symbolic links in readlink() path: ", Pn,
@@ -1509,3 +1509,20 @@ dev_t *d; /* device receptacle */
     *d = r;
     return (s);
 }
+
+#if defined(WILLDROPGID)
+/*
+ * dropgid() - drop setgid permission
+ */
+
+void dropgid(struct lsof_context *ctx) {
+    if (!Setuidroot && Setgid) {
+        if (setgid(Mygid) < 0) {
+            (void)fprintf(stderr, "%s: can't setgid(%d): %s\n", Pn, (int)Mygid,
+                          strerror(errno));
+            Error();
+        }
+        Setgid = 0;
+    }
+}
+#endif /* defined(WILLDROPGID) */

@@ -65,20 +65,3 @@ void Exit(enum ExitStatus xv) /* exit() value */
  * Error() - exit with an error status
  */
 void Error() { Exit(LSOF_EXIT_ERROR); }
-
-#if defined(WILLDROPGID)
-/*
- * dropgid() - drop setgid permission
- */
-
-void dropgid(struct lsof_context *ctx) {
-    if (!Setuidroot && Setgid) {
-        if (setgid(Mygid) < 0) {
-            (void)fprintf(stderr, "%s: can't setgid(%d): %s\n", Pn, (int)Mygid,
-                          strerror(errno));
-            Error();
-        }
-        Setgid = 0;
-    }
-}
-#endif /* defined(WILLDROPGID) */

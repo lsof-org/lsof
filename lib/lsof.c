@@ -30,7 +30,7 @@
 
 #include "lsof.h"
 #ifdef AUTOTOOLS
-#include "config.h"
+#    include "config.h"
 #endif
 #include "common.h"
 #include <unistd.h>
@@ -65,6 +65,13 @@ struct lsof_context *lsof_new() {
         /* Initialize selection flags */
         SelAll = SELALL;
         SelProc = SELPROC;
+        /* device cache path index: -1 = path not defined */
+        ctx->dev_cache_path_index = -1;
+        ctx->dev_cache_fd = -1;
+        /*	device cache state:
+         *  3 = update; read and rebuild if
+         *	    necessary (-Du[path]) */
+        ctx->dev_cache_state = 3;
     }
     return ctx;
 }
@@ -185,6 +192,7 @@ enum lsof_error lsof_output_stream(struct lsof_context *ctx, FILE *fp,
     ctx->err = fp;
     ctx->program_name = mkstrcpy(program_name, NULL);
     ctx->warn = warn;
+    return LSOF_SUCCESS;
 }
 
 void lsof_destroy(struct lsof_context *ctx) {
@@ -314,8 +322,7 @@ enum lsof_error lsof_select_process_regex(struct lsof_context *ctx, char *x) {
      */
     if (!*x || (*x != '/')) {
         if (ctx->err) {
-            (void)fprintf(ctx->err,
-                          "%s: regexp doesn't begin with '/': ", Pn);
+            (void)fprintf(ctx->err, "%s: regexp doesn't begin with '/': ", Pn);
             if (x)
                 safestrprt(x, ctx->err, 1);
         }
@@ -394,8 +401,8 @@ enum lsof_error lsof_select_process_regex(struct lsof_context *ctx, char *x) {
             break;
         default:
             if (ctx->err)
-                (void)fprintf(ctx->err, "%s: invalid regexp modifier: %c\n",
-                              Pn, (int)*xm);
+                (void)fprintf(ctx->err, "%s: invalid regexp modifier: %c\n", Pn,
+                              (int)*xm);
             i = 1;
         }
     }
@@ -426,8 +433,7 @@ enum lsof_error lsof_select_process_regex(struct lsof_context *ctx, char *x) {
         ctx->cmd_regex_cap += 32;
         xl = (MALLOC_S)(ctx->cmd_regex_cap * sizeof(lsof_rx_t));
         if (CmdRx)
-            CmdRx =
-                (lsof_rx_t *)realloc((MALLOC_P *)CmdRx, xl);
+            CmdRx = (lsof_rx_t *)realloc((MALLOC_P *)CmdRx, xl);
         else
             CmdRx = (lsof_rx_t *)malloc(xl);
         if (!CmdRx) {
@@ -509,8 +515,7 @@ enum lsof_error lsof_select_uid_login(struct lsof_context *ctx, uint32_t uid,
         if (!Suid)
             Suid = (struct seluid *)malloc(len);
         else
-            Suid =
-                (struct seluid *)realloc((MALLOC_P *)Suid, len);
+            Suid = (struct seluid *)realloc((MALLOC_P *)Suid, len);
         if (!Suid) {
             if (ctx->err) {
                 (void)fprintf(stderr, "%s: no space for UIDs", Pn);
@@ -700,8 +705,8 @@ enum lsof_error lsof_select_pid_pgid(struct lsof_context *ctx, int32_t id,
                 (MALLOC_S)(sizeof(struct int_lst) * (*cap)));
         if (!(*sel)) {
             if (ctx->err) {
-                (void)fprintf(ctx->err, "%s: no space for %d process%s IDs",
-                              Pn, *cap, is_pid ? "" : " group");
+                (void)fprintf(ctx->err, "%s: no space for %d process%s IDs", Pn,
+                              *cap, is_pid ? "" : " group");
             }
             return LSOF_ERROR_NO_MEMORY;
         }
@@ -723,9 +728,8 @@ enum lsof_error lsof_select_pid_pgid(struct lsof_context *ctx, int32_t id,
 
 enum lsof_error lsof_select_pid(struct lsof_context *ctx, int32_t pid,
                                 int exclude) {
-    enum lsof_error res = lsof_select_pid_pgid(
-        ctx, pid, &Spid, &Mxpid, &Npid,
-        &Npidi, &Npidx, exclude, 1);
+    enum lsof_error res = lsof_select_pid_pgid(ctx, pid, &Spid, &Mxpid, &Npid,
+                                               &Npidi, &Npidx, exclude, 1);
     /* Record number of unselected PIDs for optimization */
     ctx->num_unsel_pid = Npid;
     return res;
@@ -733,8 +737,7 @@ enum lsof_error lsof_select_pid(struct lsof_context *ctx, int32_t pid,
 
 enum lsof_error lsof_select_pgid(struct lsof_context *ctx, int32_t pgid,
                                  int exclude) {
-    return lsof_select_pid_pgid(ctx, pgid, &Spgid, &Mxpgid,
-                                &Npgid, &Npgidi,
+    return lsof_select_pid_pgid(ctx, pgid, &Spgid, &Mxpgid, &Npgid, &Npgidi,
                                 &Npgidx, exclude, 0);
 }
 

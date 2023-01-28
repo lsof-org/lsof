@@ -30,7 +30,6 @@
 
 #include "common.h"
 
-
 #if defined(HASCDRNODE)
 /*
  * readcdrnode() - read CD-ROM node
@@ -108,9 +107,8 @@ struct hsnode *h; /* hsnode buffer */
  * readinode() - read inode
  */
 
-int readinode(ia, i)
-KA_T ia;         /* inode kernel address */
-struct inode *i; /* inode buffer */
+int readinode(struct lsof_context *ctx, KA_T ia, /* inode kernel address */
+              struct inode *i)                   /* inode buffer */
 {
     if (kread((KA_T)ia, (char *)i, sizeof(struct inode))) {
         (void)snpf(Namech, Namechl, "can't read inode at %s",
@@ -198,9 +196,9 @@ struct tmpnode *t; /* tmpnode buffer pointer */
  * readvnode() - read vnode
  */
 
-int readvnode(va, v)
-KA_T va;         /* vnode kernel space address */
-struct vnode *v; /* vnode buffer pointer */
+int readvnode(struct lsof_context *ctx,
+              KA_T va,         /* vnode kernel space address */
+              struct vnode *v) /* vnode buffer pointer */
 {
     if (kread((KA_T)va, (char *)v, sizeof(struct vnode))) {
         (void)snpf(Namech, Namechl, "can't read vnode at %s",

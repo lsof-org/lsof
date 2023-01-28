@@ -94,6 +94,8 @@ enum lsof_fd_type {
     LSOF_FD_DELETED,      /**< Deleted file */
     LSOF_FD_FILEPORT,     /**< Darwin fileport */
     LSOF_FD_TASK_CWD,     /**< Per task/thread cwd */
+    LSOF_FD_CTTY,         /**< Character TTY */
+    LSOF_FD_JAIL_DIR,     /**< Jail directory */
 };
 
 /** File type */

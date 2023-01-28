@@ -119,7 +119,7 @@ char *det;                                  /* detail lines prefix
          */
         (void)fprintf(stderr, "%sDevice cache file read-only paths:\n",
                       ttl ? ttl : "");
-        if ((dx = dcpath(1, 0)) < 0)
+        if ((dx = dcpath(ctx, 1, 0)) < 0)
             (void)fprintf(stderr, "%snone\n", det ? det : "");
         else {
             (void)fprintf(stderr, "%sNamed via -D: %s\n", det ? det : "",
@@ -155,7 +155,7 @@ char *det;                                  /* detail lines prefix
         }
         (void)fprintf(stderr, "%sDevice cache file write paths:\n",
                       ttl ? ttl : "");
-        if ((dx = dcpath(2, 0)) < 0)
+        if ((dx = dcpath(ctx, 2, 0)) < 0)
             (void)fprintf(stderr, "%snone\n", det ? det : "");
         else {
             (void)fprintf(stderr, "%sNamed via -D: %s\n", det ? det : "",
@@ -194,7 +194,7 @@ char *det;                                  /* detail lines prefix
 #    if defined(HASENVDC) || defined(HASPERSDC) || defined(HASSYSDC)
         cp = NULL;
 #        if defined(HASENVDC)
-        if ((dx = dcpath(1, 0)) >= 0)
+        if ((dx = dcpath(ctx, 1, 0)) >= 0)
             cp = DCpath[1];
 #        endif /* defined(HASENVDC) */
 #        if defined(HASSYSDC)
@@ -202,7 +202,7 @@ char *det;                                  /* detail lines prefix
             cp = HASSYSDC;
 #        endif /* defined(HASSYSDC) */
 #        if defined(HASPERSDC)
-        if (!cp && dx != -1 && (dx = dcpath(1, 0)) >= 0)
+        if (!cp && dx != -1 && (dx = dcpath(ctx, 1, 0)) >= 0)
             cp = DCpath[3];
 #        endif /* defined(HASPERSDC) */
         if (cp)
@@ -647,8 +647,8 @@ int version;                 /* ``-v'' status */
 #    if defined(N_UNIX)
                             : N_UNIX
 #    else  /* !defined(N_UNIX) */
-                      : (Nmlst = get_nlist_path(1)) ? Nmlst
-                                                    : "none found"
+                      : (Nmlst = get_nlist_path(ctx, 1)) ? Nmlst
+                                                         : "none found"
 #    endif /* defined(N_UNIX) */
 
         );

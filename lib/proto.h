@@ -76,13 +76,14 @@ _PROTOTYPE(extern int ck_fd_status,
            (struct lsof_context * ctx, enum lsof_fd_type fd_type, int num));
 _PROTOTYPE(extern int ck_file_arg, (int i, int ac, char *av[], int fv, int rs,
                                     struct stat *sbp, int accept_deleted_file));
-_PROTOTYPE(extern void ckkv, (struct lsof_context *ctx, char *d, char *er, char *ev, char *ea));
-_PROTOTYPE(extern void clr_devtab, (void));
+_PROTOTYPE(extern void ckkv,
+           (struct lsof_context * ctx, char *d, char *er, char *ev, char *ea));
+_PROTOTYPE(extern void clr_devtab, (struct lsof_context * ctx));
 _PROTOTYPE(extern int compdev, (COMP_P * a1, COMP_P *a2));
 _PROTOTYPE(extern int comppid, (COMP_P * a1, COMP_P *a2));
 
 #    if defined(WILLDROPGID)
-_PROTOTYPE(extern void dropgid, (struct lsof_context *ctx));
+_PROTOTYPE(extern void dropgid, (struct lsof_context * ctx));
 #    endif /* defined(WILLDROPGID) */
 
 _PROTOTYPE(extern char *endnm, (struct lsof_context * ctx, size_t *sz));
@@ -111,7 +112,7 @@ _PROTOTYPE(extern void ent_inaddr,
 _PROTOTYPE(extern int examine_lproc, (struct lsof_context * ctx));
 _PROTOTYPE(extern void Exit, (enum ExitStatus xv)) exiting;
 _PROTOTYPE(extern void Error, ()) exiting;
-_PROTOTYPE(extern void find_ch_ino, (struct lsof_context *ctx));
+_PROTOTYPE(extern void find_ch_ino, (struct lsof_context * ctx));
 
 #    if defined(HASEPTOPTS)
 _PROTOTYPE(extern void clear_pinfo, (struct lsof_context * ctx));
@@ -193,14 +194,15 @@ _PROTOTYPE(extern int is_readable,
 _PROTOTYPE(extern int kread, (KA_T addr, char *buf, READLEN_T len));
 _PROTOTYPE(extern void link_lfile, (struct lsof_context * ctx));
 _PROTOTYPE(extern struct l_dev *lkupdev,
-           (struct lsof_context *ctx, dev_t * dev, dev_t *rdev, int i, int r));
+           (struct lsof_context * ctx, dev_t *dev, dev_t *rdev, int i, int r));
 _PROTOTYPE(extern int main, (int argc, char *argv[]));
 _PROTOTYPE(extern int lstatsafely,
            (struct lsof_context * ctx, char *path, struct stat *buf));
 _PROTOTYPE(extern char *mkstrcpy, (char *src, MALLOC_S *rlp));
 _PROTOTYPE(extern char *mkstrcat, (char *s1, int l1, char *s2, int l2, char *s3,
                                    int l3, MALLOC_S *clp));
-_PROTOTYPE(extern int printdevname, (struct lsof_context *ctx, dev_t * dev, dev_t *rdev, int f, int nty));
+_PROTOTYPE(extern int printdevname, (struct lsof_context * ctx, dev_t *dev,
+                                     dev_t *rdev, int f, int nty));
 _PROTOTYPE(extern void print_file, (void));
 _PROTOTYPE(extern void print_init, (void));
 _PROTOTYPE(extern void printname, (int nl));
@@ -209,15 +211,16 @@ _PROTOTYPE(extern int print_proc, (void));
 _PROTOTYPE(extern void print_fd,
            (enum lsof_fd_type fd_type, int fd_num, char *buf));
 _PROTOTYPE(extern char *printuid, (UID_ARG uid, int *ty));
-_PROTOTYPE(extern void printunkaf, (struct lsof_context *ctx, int fam, int ty));
+_PROTOTYPE(extern void printunkaf,
+           (struct lsof_context * ctx, int fam, int ty));
 _PROTOTYPE(extern char *printsockty, (int ty));
 _PROTOTYPE(extern void process_file, (KA_T fp));
 _PROTOTYPE(extern void process_node, (KA_T f));
 _PROTOTYPE(extern char *Readlink, (struct lsof_context * ctx, char *arg));
-_PROTOTYPE(extern void readdev, (struct lsof_context *ctx, int skip));
+_PROTOTYPE(extern void readdev, (struct lsof_context * ctx, int skip));
 _PROTOTYPE(extern struct mounts *readmnt, (struct lsof_context * ctx));
 _PROTOTYPE(extern void clean_mnt, (struct lsof_context * ctx));
-_PROTOTYPE(extern void rereaddev, (void));
+_PROTOTYPE(extern void rereaddev, (struct lsof_context * ctx));
 _PROTOTYPE(extern char *safepup, (unsigned int c, int *cl));
 _PROTOTYPE(extern int safestrlen, (char *sp, int flags));
 _PROTOTYPE(extern void safestrprtn, (char *sp, int len, FILE *fs, int flags));
@@ -227,13 +230,13 @@ _PROTOTYPE(extern int statsafely,
 _PROTOTYPE(extern void stkdir, (struct lsof_context * ctx, char *p));
 _PROTOTYPE(extern void usage, (int err, int fh, int version));
 _PROTOTYPE(extern int util_strftime, (char *fmtr, int fmtl, char *fmt));
-_PROTOTYPE(extern int vfy_dev, (struct l_dev * dp));
+_PROTOTYPE(extern int vfy_dev, (struct lsof_context * ctx, struct l_dev *dp));
 _PROTOTYPE(extern char *x2dev, (char *s, dev_t *d));
 
 #    if defined(HASBLKDEV)
-_PROTOTYPE(extern void find_bl_ino, (struct lsof_context *ctx));
+_PROTOTYPE(extern void find_bl_ino, (struct lsof_context * ctx));
 _PROTOTYPE(extern struct l_dev *lkupbdev,
-           (struct lsof_context *ctx, dev_t * dev, dev_t *rdev, int i, int r));
+           (struct lsof_context * ctx, dev_t *dev, dev_t *rdev, int i, int r));
 _PROTOTYPE(extern int printbdevname, (dev_t * dev, dev_t *rdev, int f));
 #    endif /* defined(HASBLKDEV) */
 
@@ -242,15 +245,17 @@ _PROTOTYPE(extern int readcdrnode, (KA_T ca, struct cdrnode *c));
 #    endif /* defined(HASCDRNODE) */
 
 #    if defined(HASDCACHE)
-_PROTOTYPE(extern void alloc_dcache, (void));
+_PROTOTYPE(extern void alloc_dcache, (struct lsof_context * ctx));
 _PROTOTYPE(extern void crc, (char *b, int l, unsigned *s));
 _PROTOTYPE(extern void crdbld, (void));
 _PROTOTYPE(extern int ctrl_dcache, (char *p));
-_PROTOTYPE(extern int dcpath, (int rw, int npw));
-_PROTOTYPE(extern int open_dcache, (int m, int r, struct stat *sb));
-_PROTOTYPE(extern int read_dcache, (void));
-_PROTOTYPE(extern int wr2DCfd, (char *b, unsigned *c));
-_PROTOTYPE(extern void write_dcache, (void));
+_PROTOTYPE(extern int dcpath, (struct lsof_context * ctx, int rw, int npw));
+_PROTOTYPE(extern int open_dcache,
+           (struct lsof_context * ctx, int m, int r, struct stat *sb));
+_PROTOTYPE(extern int read_dcache, (struct lsof_context * ctx));
+_PROTOTYPE(extern int wr2DCfd,
+           (struct lsof_context * ctx, char *b, unsigned *c));
+_PROTOTYPE(extern void write_dcache, (struct lsof_context * ctx));
 #    endif /* defined(HASDCACHE) */
 
 #    if defined(HASFIFONODE)
@@ -275,7 +280,8 @@ _PROTOTYPE(extern int readhsnode, (KA_T ha, struct hsnode *h));
 #    endif /* defined(HASHSNODE) */
 
 #    if defined(HASINODE)
-_PROTOTYPE(extern int readinode, (KA_T ia, struct inode *i));
+_PROTOTYPE(extern int readinode,
+           (struct lsof_context * ctx, KA_T ia, struct inode *i));
 #    endif /* defined(HASINODE) */
 
 #    if defined(HASNCACHE)
@@ -284,8 +290,10 @@ _PROTOTYPE(extern char *ncache_lookup, (char *buf, int blen, int *fp));
 #    endif /* defined(HASNCACHE) */
 
 #    if defined(HASNLIST)
-_PROTOTYPE(extern void build_Nl, (struct drive_Nl * d));
-_PROTOTYPE(extern int get_Nl_value, (char *nn, struct drive_Nl *d, KA_T *v));
+_PROTOTYPE(extern void build_Nl,
+           (struct lsof_context * ctx, struct drive_Nl *d));
+_PROTOTYPE(extern int get_Nl_value,
+           (struct lsof_context * ctx, char *nn, struct drive_Nl *d, KA_T *v));
 #    endif /* defined(HASNLIST) */
 
 #    if defined(HASPIPENODE)
@@ -313,7 +321,7 @@ _PROTOTYPE(extern int HASPRIVNMCACHE, (struct lfile * lf));
 #    endif /* defined(HASPRIVNMCACHE) */
 
 #    if !defined(HASPRIVPRIPP)
-_PROTOTYPE(extern void printiproto, (struct lsof_context *ctx, int p));
+_PROTOTYPE(extern void printiproto, (struct lsof_context * ctx, int p));
 #    endif /* !defined(HASPRIVPRIPP) */
 
 #    if defined(HASRNODE)
@@ -321,7 +329,8 @@ _PROTOTYPE(extern int readrnode, (KA_T ra, struct rnode *r));
 #    endif /* defined(HASRNODE) */
 
 #    if defined(HASSPECDEVD)
-_PROTOTYPE(extern void HASSPECDEVD, (struct lsof_context *ctx, char *p, struct stat *s));
+_PROTOTYPE(extern void HASSPECDEVD,
+           (struct lsof_context * ctx, char *p, struct stat *s));
 #    endif /* defined(HASSPECDEVD) */
 
 #    if defined(HASSNODE)
@@ -341,7 +350,8 @@ _PROTOTYPE(extern int readtnode, (KA_T ta, struct tmpnode *t));
 #    endif /* defined(HASTMPNODE) */
 
 #    if defined(HASVNODE)
-_PROTOTYPE(extern int readvnode, (KA_T va, struct vnode *v));
+_PROTOTYPE(extern int readvnode,
+           (struct lsof_context * ctx, KA_T va, struct vnode *v));
 #    endif /* defined(HASVNODE) */
 
 #    if defined(USE_LIB_SNPF)

@@ -82,7 +82,8 @@ static char copyright[] =
  * Local function prototypes
  */
 
-_PROTOTYPE(static int ckstate, (struct xtcpcb * pcb, int fam));
+_PROTOTYPE(static int ckstate,
+           (struct lsof_context * ctx, struct xtcpcb *pcb, int fam));
 
 static int cmp_xunpcb_sock_pcb(const void *a, const void *b) {
     const struct xunpcb *pcb1 = (const struct xunpcb *)a;
@@ -267,7 +268,7 @@ void free_pcb_lists(struct pcb_lists *pcbs) {
  *	    1 == stop processing file
  */
 
-static int ckstate(struct xtcpcb *pcb, int fam) {
+static int ckstate(struct lsof_context *ctx, struct xtcpcb *pcb, int fam) {
 #if __FreeBSD_version >= 1200026
     int tsnx;
 
@@ -367,7 +368,8 @@ static void find_pcb_and_xsocket(struct pcb_lists *pcbs, int domain, int type,
  * process_socket() - process socket
  */
 
-void process_socket(struct kinfo_file *kf, struct pcb_lists *pcbs) {
+void process_socket(struct lsof_context *ctx, struct kinfo_file *kf,
+                    struct pcb_lists *pcbs) {
     unsigned char *fa = (unsigned char *)NULL;
     int fam;
     int fp, lp;
@@ -444,7 +446,7 @@ void process_socket(struct kinfo_file *kf, struct pcb_lists *pcbs) {
                     Lf->sf |= SELNET;
             }
         }
-        printiproto(kf->kf_sock_protocol);
+        printiproto(ctx, kf->kf_sock_protocol);
 
         (void)snpf(Lf->type, sizeof(Lf->type),
                    (fam == AF_INET) ? "IPv4" : "IPv6");
@@ -460,18 +462,19 @@ void process_socket(struct kinfo_file *kf, struct pcb_lists *pcbs) {
                 (void)snpf(Namech, Namechl, "can't read in6pcb at %s",
                            print_kptr((KA_T)kf->kf_un.kf_sock.kf_sock_pcb,
                                       (char *)NULL, 0));
-                enter_nm(Namech);
+                enter_nm(ctx, Namech);
                 return;
             }
             /*
              * Save IPv6 address information.
              */
             if (kf->kf_sock_protocol == IPPROTO_TCP) {
-                if ((ts = ckstate((struct xtcpcb *)pcb, fam)) == 1) {
+                if ((ts = ckstate(ctx, (struct xtcpcb *)pcb, fam)) == 1) {
                     return;
                 }
             }
-            enter_dev_ch(print_kptr((KA_T)(kf->kf_un.kf_sock.kf_sock_inpcb
+            enter_dev_ch(ctx,
+                         print_kptr((KA_T)(kf->kf_un.kf_sock.kf_sock_inpcb
                                                ? kf->kf_un.kf_sock.kf_sock_inpcb
                                                : kf->kf_un.kf_sock.kf_sock_pcb),
                                     (char *)NULL, 0));
@@ -500,14 +503,15 @@ void process_socket(struct kinfo_file *kf, struct pcb_lists *pcbs) {
                     (kf->kf_un.kf_sock.kf_sock_rcv_sb_state & SBS_CANTRCVMORE)
                         ? ", CANTRCVMORE"
                         : "");
-                enter_nm(Namech);
+                enter_nm(ctx, Namech);
                 return;
             }
             if (kf->kf_sock_protocol == IPPROTO_TCP) {
-                if ((ts = ckstate((struct xtcpcb *)pcb, fam)) == 1)
+                if ((ts = ckstate(ctx, (struct xtcpcb *)pcb, fam)) == 1)
                     return;
             }
-            enter_dev_ch(print_kptr((KA_T)(kf->kf_un.kf_sock.kf_sock_inpcb
+            enter_dev_ch(ctx,
+                         print_kptr((KA_T)(kf->kf_un.kf_sock.kf_sock_inpcb
                                                ? kf->kf_un.kf_sock.kf_sock_inpcb
                                                : kf->kf_un.kf_sock.kf_sock_pcb),
                                     (char *)NULL, 0));
@@ -542,7 +546,7 @@ void process_socket(struct kinfo_file *kf, struct pcb_lists *pcbs) {
          * Enter local and remote addresses by address family.
          */
         if (fa || la)
-            (void)ent_inaddr(la, lp, fa, fp, fam);
+            (void)ent_inaddr(ctx, la, lp, fa, fp, fam);
         if (ts == 0) {
             struct xtcpcb *tcp_pcb = (struct xtcpcb *)pcb;
             Lf->lts.type = 0;
@@ -567,7 +571,7 @@ void process_socket(struct kinfo_file *kf, struct pcb_lists *pcbs) {
     case AF_ROUTE:
         (void)snpf(Lf->type, sizeof(Lf->type), "rte");
         if (s && s->so_pcb)
-            enter_dev_ch(print_kptr((KA_T)(s->so_pcb), (char *)NULL, 0));
+            enter_dev_ch(ctx, print_kptr((KA_T)(s->so_pcb), (char *)NULL, 0));
         else
             (void)snpf(Namech, Namechl, "no protocol control block");
         Lf->off_def = 1;
@@ -586,7 +590,7 @@ void process_socket(struct kinfo_file *kf, struct pcb_lists *pcbs) {
 
         if (unix_pcb)
             enter_dev_ch(
-                print_kptr(unix_pcb->xu_socket.xso_so, (char *)NULL, 0));
+                ctx, print_kptr(unix_pcb->xu_socket.xso_so, (char *)NULL, 0));
         else {
             (void)snpf(
                 Namech, Namechl, "can't read unpcb at %s",
@@ -602,7 +606,7 @@ void process_socket(struct kinfo_file *kf, struct pcb_lists *pcbs) {
                 unl = sizeof(ua->sun_path) - 1;
             ua->sun_path[unl] = '\0';
 
-            if (ua->sun_path[0] && Sfile && is_file_named(ua->sun_path, 0))
+            if (ua->sun_path[0] && Sfile && is_file_named(ctx, ua->sun_path, 0))
                 Lf->sf |= SELNM;
             if (ua->sun_path[0] && !Namech[0])
                 (void)snpf(Namech, Namechl, "%s", ua->sun_path);
@@ -625,8 +629,8 @@ void process_socket(struct kinfo_file *kf, struct pcb_lists *pcbs) {
         break;
     }
     default:
-        printunkaf(fam, 1);
+        printunkaf(ctx, fam, 1);
     }
     if (Namech[0])
-        enter_nm(Namech);
+        enter_nm(ctx, Namech);
 }
