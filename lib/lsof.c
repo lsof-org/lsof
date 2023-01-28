@@ -263,7 +263,7 @@ enum lsof_error lsof_select_process(struct lsof_context *ctx, char *command,
         if (ctx->err) {
             (void)fprintf(ctx->err, "%s: \"-c ", Pn);
             (void)safestrprt(command, ctx->err, 2);
-            (void)fprintf(ctx->err, "\" length (%d) > what system", len);
+            (void)fprintf(ctx->err, "\" length (%zu) > what system", len);
             (void)fprintf(ctx->err, " provides (%d)\n", MAXSYSCMDL);
         }
         CLEAN(cp);

@@ -125,7 +125,7 @@ static void endpoint_enter(struct lsof_context *ctx, pxinfo_t **pinfo_hash,
     if (!(np = (pxinfo_t *)malloc(sizeof(pxinfo_t)))) {
         if (ctx->err)
             (void)fprintf(ctx->err,
-                          "%s: no space for pipeinfo for %s, PID %d, FD %s\n",
+                          "%s: no space for pipeinfo for %s, PID %d, FD %d\n",
                           table_name, Pn, Lp->pid, Lf->fd_num);
         return;
     }
