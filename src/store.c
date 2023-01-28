@@ -46,9 +46,6 @@ struct clone *Clone = (struct clone *)NULL;
 int CmdColW; /* COMMAND column width */
 
 #if defined(HASSELINUX)
-cntxlist_t *CntxArg = (cntxlist_t *)NULL;
-/* security context arguments supplied with
- * -Z */
 int CntxColW;       /* security context column width */
 int CntxStatus = 0; /* security context status: 0 == disabled,
                      * 1 == enabled */

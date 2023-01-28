@@ -672,15 +672,12 @@ struct str_lst {
     struct str_lst *next; /* next list entry */
 };
 
-#    if defined(HASSELINUX)
 typedef struct cntxlist {
     char *cntx;            /* zone name */
     int f;                 /* "find" flag (used only in CntxArg) */
     struct cntxlist *next; /* next zone hash entry */
 } cntxlist_t;
-extern cntxlist_t *CntxArg;
 extern int CntxStatus;
-#    endif /* defined(HASSELINUX) */
 
 #    if defined(HASDCACHE)
 extern unsigned DCcksum;
@@ -1171,6 +1168,9 @@ struct lsof_context {
                           *		      6==IPv6 */
     int avoid_forking;   /* -O option status */
 
+    /* security context arguments supplied with -Z */
+    cntxlist_t *sel_selinux_context;
+
     /** When frozen, paramters must not be changed */
     uint8_t frozen;
 
@@ -1350,6 +1350,8 @@ struct lsof_context {
 #    define Devtp (ctx->dev_table)
 #    define Ndev (ctx->dev_table_size)
 #    define Sdev (ctx->dev_table_sorted)
+/* select selinux context */
+#    define CntxArg (ctx->sel_selinux_context)
 
 /* Utility macro to free if non-null and set the pointer to null */
 #    define CLEAN(ptr)                                                         \

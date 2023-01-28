@@ -1132,35 +1132,33 @@ static int process_id(struct lsof_context *ctx,
     /*
      * Process the PID's SELinux context.
      */
-    if (Fcntx) {
+
+    /*
+     * match the valid contexts.
+     */
+    errno = 0;
+    if (getpidcon(pid, &Lp->cntx) == -1) {
+        Lp->cntx = (char *)NULL;
+        if (!Fwarn) {
+            (void)snpf(nmabuf, sizeof(nmabuf), "(getpidcon: %s)",
+                       strerror(errno));
+            if (!(Lp->cntx = strdup(nmabuf))) {
+                (void)fprintf(stderr, "%s: no context error space: PID %ld", Pn,
+                              (long)Lp->pid);
+                Error();
+            }
+        }
+    } else if (CntxArg) {
 
         /*
-         * If the -Z (cntx) option was specified, match the valid contexts.
+         * See if context includes the process.
          */
-        errno = 0;
-        if (getpidcon(pid, &Lp->cntx) == -1) {
-            Lp->cntx = (char *)NULL;
-            if (!Fwarn) {
-                (void)snpf(nmabuf, sizeof(nmabuf), "(getpidcon: %s)",
-                           strerror(errno));
-                if (!(Lp->cntx = strdup(nmabuf))) {
-                    (void)fprintf(stderr, "%s: no context error space: PID %ld",
-                                  Pn, (long)Lp->pid);
-                    Error();
-                }
-            }
-        } else if (CntxArg) {
-
-            /*
-             * See if context includes the process.
-             */
-            for (cntxp = CntxArg; cntxp; cntxp = cntxp->next) {
-                if (cmp_cntx_eq(Lp->cntx, cntxp->cntx)) {
-                    cntxp->f = 1;
-                    Lp->pss |= PS_PRI;
-                    Lp->sf |= SELCNTX;
-                    break;
-                }
+        for (cntxp = CntxArg; cntxp; cntxp = cntxp->next) {
+            if (cmp_cntx_eq(Lp->cntx, cntxp->cntx)) {
+                cntxp->f = 1;
+                Lp->pss |= PS_PRI;
+                Lp->sf |= SELCNTX;
+                break;
             }
         }
     }
