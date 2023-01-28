@@ -1362,9 +1362,6 @@ void print_fd(enum lsof_fd_type fd_type, int fd_num, char *buf) {
     case LSOF_FD_PROGRAM_TEXT:
         (void)snpf(buf, FDLEN, "txt");
         break;
-    case LSOF_FD_TTY:
-        (void)snpf(buf, FDLEN, "tty");
-        break;
     case LSOF_FD_MEMORY:
         (void)snpf(buf, FDLEN, "mem");
         break;

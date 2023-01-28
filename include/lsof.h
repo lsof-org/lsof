@@ -91,7 +91,6 @@ enum lsof_fd_type {
     LSOF_FD_ROOT_DIR,   /**< Root directory */
     LSOF_FD_PARENT_DIR, /**< Parent directory */
     LSOF_FD_PROGRAM_TEXT, /**< Program text */
-    LSOF_FD_TTY,          /**< TTY */
     LSOF_FD_MEMORY,       /**< Memory */
     LSOF_FD_DELETED,      /**< Deleted file */
     LSOF_FD_FILEPORT,     /**< Darwin fileport */
