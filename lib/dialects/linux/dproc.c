@@ -145,8 +145,7 @@ char *ucntx; /* user supplied context */
  * enter_cntx_arg() - enter name ecurity context argument
  */
 
-int enter_cntx_arg(cntx)
-char *cntx; /* context */
+int enter_cntx_arg(struct lsof_context *ctx, char *cntx) /* context */
 {
     cntxlist_t *cntxp;
     /*

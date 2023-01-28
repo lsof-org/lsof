@@ -35,7 +35,7 @@
  */
 
 #if defined(HASSELINUX)
-_PROTOTYPE(extern int enter_cntx_arg, (char *cnxt));
+_PROTOTYPE(extern int enter_cntx_arg, (struct lsof_context *ctx, char *cnxt));
 #endif /* defined(HASSELINUX) */
 
 _PROTOTYPE(extern int get_fields, (struct lsof_context * ctx, char *ln,

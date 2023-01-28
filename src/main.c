@@ -999,7 +999,7 @@ closed:
                     /*
                      * Add to the context name argument hash.
                      */
-                    if (enter_cntx_arg(GOv))
+                    if (enter_cntx_arg(ctx, GOv))
                         err = 1;
                 } else if (GOv) {
                     GOx1 = GObk[0];
