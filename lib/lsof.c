@@ -29,13 +29,17 @@
  */
 
 #include "lsof.h"
+#ifdef AUTOTOOLS
 #include "config.h"
+#endif
 #include "common.h"
 #include <unistd.h>
 
 int lsof_get_api_version() { return LSOF_API_VERSION; }
 
+#ifdef AUTOTOOLS
 char *lsof_get_library_version() { return PACKAGE_VERSION; }
+#endif
 
 struct lsof_context *lsof_new() {
     struct lsof_context *ctx =

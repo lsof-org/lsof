@@ -76,6 +76,20 @@ lsof.man
 /site
 
 #
+# Symbolic links to lsof cli
+#
+/arg.c
+/dprint.c
+/main.c
+/misc.c
+/node.c
+/print.c
+/ptti.c
+/store.c
+/usage.c
+/util.c
+
+#
 # Symbolic links to a dialect implementation
 #
 /dfile.c

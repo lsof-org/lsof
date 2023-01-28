@@ -1326,10 +1326,12 @@ void clean_lfile(struct lsof_context *ctx, struct lfile *lf) {
     memset(lf, 0, sizeof(struct lfile));
 }
 
+#ifdef AUTOTOOLS
 /*
  * Error() - exit with an error status
  */
 void Error() { exit(1); }
+#endif
 
 /* Print lsof_fd_type and fd_num, sizeof(buf) should >= FDLEN */
 void print_fd(enum lsof_fd_type fd_type, int fd_num, char *buf) {

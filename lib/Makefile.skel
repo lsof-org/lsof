@@ -8,15 +8,15 @@ LIB=	liblsof.a
 
 CDEF=	${RC_CFLAGS}
 CDEFS=	${CDEF} ${CFGF}
-INCL=	${DINC} -I..
+INCL=	${DINC} -I.. -I../include -Idialects/${DIALECT_DIR}
 
-HDR=	../common.h ../proto.h ../dlsof.h ../dproto.h ../machine.h
+HDR=	common.h proto.h proto.h
 
-SRC=	ckkv.c cvfs.c dvch.c fino.c isfn.c lkud.c pdvn.c prfp.c \
-	ptti.c rdev.c regex.c rmnt.c rnam.c rnch.c rnmh.c rnmt.c snpf.c
+SRC=	ckkv.c cvfs.c dvch.c fino.c isfn.c lkud.c lsof.c misc.c pdvn.c prfp.c \
+	print.c proc.c ptti.c rdev.c regex.c rmnt.c rnam.c rnch.c rnmh.c rnmt.c snpf.c
 
-OBJ=	ckkv.o cvfs.o dvch.o fino.o isfn.o lkud.o pdvn.o prfp.o \
-	ptti.o rdev.o regex.o rmnt.o rnam.o rnch.o rnmh.o rnmt.o snpf.o
+OBJ=	ckkv.o cvfs.o dvch.o fino.o isfn.o lkud.o lsof.o misc.o pdvn.o prfp.o \
+	print.o proc.o ptti.o rdev.o regex.o rmnt.o rnam.o rnch.o rnmh.o rnmt.o snpf.o
 
 all:	${LIB}
 
@@ -49,7 +49,7 @@ ptti.o:	${HDR} ptti.c
 
 rdev.o: ${HDR} rdev.c
 
-regex.o: ${HDR} ../regex.h regex.c
+regex.o: ${HDR} regex.h regex.c
 
 rmnt.o: ${HDR} rmnt.c
 

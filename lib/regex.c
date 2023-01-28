@@ -40,7 +40,7 @@
  * 4. This notice may not be removed or altered.
  */
 
-#include "../machine.h"
+#include "machine.h"
 
 #ifdef USE_LIB_REGEX
 /*

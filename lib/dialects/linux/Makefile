@@ -17,19 +17,19 @@ P=
 CDEF=
 CDEFS=  ${CDEF} ${CFGF}
 DEP=	${CFGD} ${CFGDN}
-INCL=	${DINC}
+INCL=	${DINC} -Iinclude -Ilib -Isrc -I.
 CFLAGS=	-Wall ${CDEFS} ${INCL} ${DEP} ${DEBUG}
 
 GRP=
 
-HDR=    common.h lsof_fields.h dlsof.h machine.h proto.h dproto.h
+HDR=	lib/common.h include/lsof_fields.h dlsof.h machine.h lib/proto.h dproto.h
 
-SRC=    dfile.c dmnt.c dnode.c dproc.c dsock.c dstore.c \
-	arg.c main.c misc.c node.c print.c proc.c store.c usage.c \
+SRC=    dfile.c dmnt.c dnode.c dprint.c dproc.c dsock.c dstore.c \
+	arg.c main.c misc.c node.c print.c store.c usage.c \
 	util.c
 
-OBJ=	dfile.o dmnt.o dnode.o dproc.o dsock.o dstore.o \
-	arg.o main.o misc.o node.o print.o proc.o store.o usage.o \
+OBJ=	dfile.o dmnt.o dnode.o dprint.o dproc.o dsock.o dstore.o \
+	arg.o main.o misc.o node.o print.o store.o usage.o \
 	util.o
 
 MAN=	lsof.8
@@ -56,7 +56,7 @@ clean: FRC
 	rm -f machine.h.old new_machine.h
 	(cd lib; ${MAKE} -f Makefile.skel clean)
 	(cd tests; ${MAKE} clean)
-	(cd dialects/linux/tests; ${MAKE} clean)
+	(cd lib/dialects/linux/tests; ${MAKE} clean)
 
 install: all FRC
 	@echo ''

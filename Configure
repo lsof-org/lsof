@@ -4802,18 +4802,18 @@ fi	# }
 
 # Make sure target directory exists.
 
-if test ! -d ./dialects/$LSOF_DIALECT_DIR	# {
+if test ! -d ./lib/dialects/$LSOF_DIALECT_DIR	# {
 then
-  echo "Can't configure for $LSOF_TGT -- ./dialects/$LSOF_DIALECT_DIR doesn't exist."
+  echo "Can't configure for $LSOF_TGT -- ./lib/dialects/$LSOF_DIALECT_DIR doesn't exist."
   rm -f $LSOF_HLP
   exit 1
 fi	# }
 
 # Make sure $LSOF_MK exists in the target directory.
 
-if test ! -r ./dialects/$LSOF_DIALECT_DIR/$LSOF_MK	# {
+if test ! -r ./lib/dialects/$LSOF_DIALECT_DIR/$LSOF_MK	# {
 then
-  echo "Can't configure for $LSOF_TGT -- ./dialects/$LSOF_DIALECT_DIR/$LSOF_MK doesn't exist."
+  echo "Can't configure for $LSOF_TGT -- ./lib/dialects/$LSOF_DIALECT_DIR/$LSOF_MK doesn't exist."
   rm -f $LSOF_HLP
   exit 1
 fi	# }
@@ -4833,9 +4833,9 @@ then
 else
   LSOF_REST=$LSOF_TMP1
 fi	# }
-if test ! -r ./dialects/$LSOF_DIALECT_DIR/$LSOF_REST	# {
+if test ! -r ./lib/dialects/$LSOF_DIALECT_DIR/$LSOF_REST	# {
 then
-  echo "Can't configure for $LSOF_TGT -- ./dialects/$LSOF_DIALECT_DIR/$LSOF_REST doesn't exist."
+  echo "Can't configure for $LSOF_TGT -- ./lib/dialects/$LSOF_DIALECT_DIR/$LSOF_REST doesn't exist."
   rm -f $LSOF_HLP
   exit 1
 fi	# }
@@ -4921,7 +4921,7 @@ if test "X$LSOF_MKC" = "X"	# {
 then
   LSOF_MKC="ln -s"
 fi	# }
-LSOF_MKC=$LSOF_MKC ./dialects/$LSOF_DIALECT_DIR/$LSOF_MK $LSOF_TGT $LSOF_VERS
+LSOF_MKC=$LSOF_MKC ./lib/dialects/$LSOF_DIALECT_DIR/$LSOF_MK $LSOF_TGT $LSOF_VERS
 
 # Make $LSOF_MKFC and ${LSOF_LIB}/$LSOF_LIBMKF.
 
@@ -5002,12 +5002,14 @@ then
   echo "" >> $LSOF_MKFC
   echo "KVM=	$LSOF_DISTRIBKVM" >> $LSOF_MKFC
 fi	# }
+echo "" >> $LSOF_MKFC
+echo "DIALECT_DIR=	$LSOF_DIALECT_DIR" >> $LSOF_MKFC
 rm -f ${LSOF_LIB}/$LSOF_LIBMKF
 if test "X$LSOF_LIB_NO" = "X"	# {
 then
   cp $LSOF_MKFC ${LSOF_LIB}/$LSOF_LIBMKF
 fi	# }
-cat ./dialects/$LSOF_DIALECT_DIR/$LSOF_REST >> $LSOF_MKFC
+cat ./lib/dialects/$LSOF_DIALECT_DIR/$LSOF_REST >> $LSOF_MKFC
 if test "X$LSOF_CFLAGS_OVERRIDE" != "X"	# {
 then
   sed -i -e 's/^CFLAGS=/override CFLAGS=/' $LSOF_MKFC
@@ -5021,6 +5023,8 @@ then
   #
   # Add the library Makefile skeleton section.
 
+  echo "" >> ${LSOF_LIB}/$LSOF_LIBMKF
+  echo "DIALECT_DIR=	$LSOF_DIALECT_DIR" >> ${LSOF_LIB}/$LSOF_LIBMKF
   echo "" >> ${LSOF_LIB}/$LSOF_LIBMKF
   if test "X$LSOF_AR" = "X"	# {
   then
@@ -5083,6 +5087,7 @@ echo "$LSOF_TSTCC created"
 # Create test cflags file.
 
 echo "-DLT_DIAL_$LSOF_TGT" > $LSOF_TSTCFLG
+echo "-I../include" >> $LSOF_TSTCFLG
 if test "X$LSOF_TSTBIGF" != "X"	# {
 then
   echo "-DLT_BIGF" >> $LSOF_TSTCFLG
