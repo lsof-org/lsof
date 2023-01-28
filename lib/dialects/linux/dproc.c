@@ -847,9 +847,6 @@ FILE *open_proc_stream(struct lsof_context *ctx,
      * Open the stream.
      */
     if (!(fs = fopen(p, m))) {
-        if (ctx->stderr)
-            (void)fprintf(stderr, "%s: can't fopen(%s, \"%s\"): %s\n", Pn, p, m,
-                          strerror(errno));
         return ((FILE *)NULL);
     }
     /*
