@@ -915,8 +915,8 @@ int is_readable(struct lsof_context *ctx, char *path, /* file path */
                 int msg) /* issue warning message if 1 */
 {
     if (access(path, R_OK) < 0) {
-        if (ctx->stderr && !Fwarn && msg == 1)
-            (void)fprintf(ctx->stderr, ACCESSERRFMT, Pn, path, strerror(errno));
+        if (ctx->err && !Fwarn && msg == 1)
+            (void)fprintf(ctx->err, ACCESSERRFMT, Pn, path, strerror(errno));
         return (0);
     }
     return (1);
@@ -961,8 +961,8 @@ char *readlink_inner(struct lsof_context *ctx,
         if ((len = argp2 - arg) >= (int)sizeof(tbuf)) {
 
         path_too_long:
-            if (ctx->stderr && !Fwarn) {
-                (void)fprintf(ctx->stderr,
+            if (ctx->err && !Fwarn) {
+                (void)fprintf(ctx->err,
                               "%s: readlink() path too long: ", Pn);
                 safestrprt(orig_path, stderr, 1);
             }
@@ -1051,12 +1051,12 @@ char *readlink_inner(struct lsof_context *ctx,
          * If there are too many symbolic links, report an error, clear
          * the stack, and return no path.
          */
-        if (ctx->stderr, !Fwarn) {
+        if (ctx->err, !Fwarn) {
             (void)fprintf(
-                ctx->stderr,
+                ctx->err,
                 "%s: too many (> %d) symbolic links in readlink() path: ", Pn,
                 MAXSYMLINKS);
-            safestrprt(orig_path, ctx->stderr, 1);
+            safestrprt(orig_path, ctx->err, 1);
         }
         return ((char *)NULL);
     }
@@ -1075,10 +1075,10 @@ char *Readlink(struct lsof_context *ctx,
      * See if avoiding kernel blocks.
      */
     if (Fblock) {
-        if (ctx->stderr && !Fwarn) {
-            (void)fprintf(ctx->stderr, "%s: avoiding readlink(", Pn);
+        if (ctx->err && !Fwarn) {
+            (void)fprintf(ctx->err, "%s: avoiding readlink(", Pn);
             safestrprt(arg, stderr, 0);
-            (void)fprintf(ctx->stderr, "): -b was specified.\n");
+            (void)fprintf(ctx->err, "): -b was specified.\n");
         }
         return mkstrcpy(arg, NULL);
     }

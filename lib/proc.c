@@ -65,7 +65,7 @@ void add_nma(struct lsof_context *ctx, char *cp, /* string to add */
         Lf->nma = (char *)malloc((MALLOC_S)(len + 1));
     }
     if (!Lf->nma) {
-        if (ctx->stderr)
+        if (ctx->err)
             (void)fprintf(stderr, "%s: no name addition space: PID %ld, FD %s",
                           Pn, (long)Lp->pid, fd);
         return;

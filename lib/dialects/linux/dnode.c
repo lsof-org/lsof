@@ -123,8 +123,8 @@ static void endpoint_enter(struct lsof_context *ctx, pxinfo_t **pinfo_hash,
      * to the end of the pty device hash chain.
      */
     if (!(np = (pxinfo_t *)malloc(sizeof(pxinfo_t)))) {
-        if (ctx->stderr)
-            (void)fprintf(ctx->stderr,
+        if (ctx->err)
+            (void)fprintf(ctx->err,
                           "%s: no space for pipeinfo for %s, PID %d, FD %s\n",
                           table_name, Pn, Lp->pid, Lf->fd_num);
         return;
@@ -197,8 +197,8 @@ static void enter_pinfo(struct lsof_context *ctx) {
          * Allocate pipe info hash buckets.
          */
         if (!(Pinfo = (pxinfo_t **)calloc(PINFOBUCKS, sizeof(pxinfo_t *)))) {
-            if (ctx->stderr) {
-                (void)fprintf(ctx->stderr,
+            if (ctx->err) {
+                (void)fprintf(ctx->err,
                               "%s: no space for %d pipe info buckets\n", Pn,
                               PINFOBUCKS);
             }
@@ -244,8 +244,8 @@ void enter_ptmxi(struct lsof_context *ctx, int mn) /* minor number of device */
      */
     if (!PtyInfo) {
         if (!(PtyInfo = (pxinfo_t **)calloc(PINFOBUCKS, sizeof(pxinfo_t *)))) {
-            if (ctx->stderr) {
-                (void)fprintf(ctx->stderr,
+            if (ctx->err) {
+                (void)fprintf(ctx->err,
                               "%s: no space for %d pty info buckets\n", Pn,
                               PINFOBUCKS);
             }
@@ -356,7 +356,7 @@ void enter_psxmqinfo(struct lsof_context *ctx) {
          */
         if (!(PSXMQinfo =
                   (pxinfo_t **)calloc(PINFOBUCKS, sizeof(pxinfo_t *)))) {
-            if (ctx->stderr) {
+            if (ctx->err) {
                 (void)fprintf(stderr,
                               "%s: no space for %d posix mq info buckets\n ",
                               Pn, PINFOBUCKS);
@@ -403,8 +403,8 @@ void enter_evtfdinfo(struct lsof_context *ctx, int id) {
          */
         if (!(EvtFDinfo =
                   (pxinfo_t **)calloc(PINFOBUCKS, sizeof(pxinfo_t *)))) {
-            if (ctx->stderr) {
-                (void)fprintf(ctx->stderr,
+            if (ctx->err) {
+                (void)fprintf(ctx->err,
                               "%s: no space for %d envet fd info buckets\n", Pn,
                               PINFOBUCKS);
             }
@@ -520,9 +520,9 @@ int get_fields(struct lsof_context *ctx, char *ln, /* input line */
             else
                 ctxd.get_fields_buffer = (char **)malloc(len);
             if (!ctxd.get_fields_buffer) {
-                if (ctx->stderr) {
+                if (ctx->err) {
                     (void)fprintf(
-                        ctx->stderr,
+                        ctx->err,
                         "%s: can't allocate %d bytes for field pointers.\n", Pn,
                         (int)len);
                 }
@@ -571,8 +571,8 @@ void get_locks(struct lsof_context *ctx, char *p) /* /proc lock path */
         LckH =
             (struct llock **)calloc((MALLOC_S)PIDBUCKS, sizeof(struct llock *));
         if (!LckH) {
-            if (ctx->stderr)
-                (void)fprintf(ctx->stderr,
+            if (ctx->err)
+                (void)fprintf(ctx->err,
                               "%s: can't allocate %d lock hash bytes\n", Pn,
                               (int)(sizeof(struct llock *) * PIDBUCKS));
             return;
@@ -661,9 +661,9 @@ void get_locks(struct lsof_context *ctx, char *p) /* /proc lock path */
          */
         if (!(lp = (struct llock *)malloc(sizeof(struct llock)))) {
             (void)snpf(buf, sizeof(buf), "%" INODEPSPEC "d", inode);
-            if (ctx->stderr) {
+            if (ctx->err) {
                 (void)fprintf(
-                    ctx->stderr,
+                    ctx->err,
                     "%s: can't allocate llock: PID %d; dev %x; inode %s\n", Pn,
                     pid, (int)dev, buf);
             }

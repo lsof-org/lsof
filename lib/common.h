@@ -1213,7 +1213,7 @@ struct lsof_context {
     struct lfile *prev_file;
 
     /** Warnings and errors */
-    FILE *stderr;
+    FILE *err;
     char *program_name;
     int warn;
 

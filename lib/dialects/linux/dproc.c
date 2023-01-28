@@ -153,8 +153,8 @@ int enter_cntx_arg(struct lsof_context *ctx, char *cntx) /* context */
      */
     for (cntxp = CntxArg; cntxp; cntxp = cntxp->next) {
         if (!strcmp(cntxp->cntx, cntx)) {
-            if (ctx->stderr && !Fwarn) {
-                (void)fprintf(ctx->stderr, "%s: duplicate context: %s\n", Pn,
+            if (ctx->err && !Fwarn) {
+                (void)fprintf(ctx->err, "%s: duplicate context: %s\n", Pn,
                               cntx);
             }
             return (1);
@@ -164,7 +164,7 @@ int enter_cntx_arg(struct lsof_context *ctx, char *cntx) /* context */
      * Create and link a new context argument list entry.
      */
     if (!(cntxp = (cntxlist_t *)malloc((MALLOC_S)sizeof(cntxlist_t)))) {
-        if (ctx->stderr) {
+        if (ctx->err) {
             (void)fprintf(stderr, "%s: no space for context: %s\n", Pn, cntx);
         }
         return (1);
@@ -191,8 +191,8 @@ static MALLOC_S alloc_cbf(struct lsof_context *ctx,
     else
         *cbf = (char *)malloc(len);
     if (!*cbf) {
-        if (ctx->stderr) {
-            (void)fprintf(ctx->stderr, "%s: can't allocate command %d bytes\n",
+        if (ctx->err) {
+            (void)fprintf(ctx->err, "%s: can't allocate command %d bytes\n",
                           Pn, (int)len);
         }
         return 0;
@@ -231,8 +231,8 @@ void gather_proc_info(struct lsof_context *ctx) {
         pidx = strlen(PROCFS) + 1;
         pidpathl = pidx + 64 + 1; /* 64 is growth room */
         if (!(pidpath = (char *)malloc(pidpathl))) {
-            if (ctx->stderr) {
-                (void)fprintf(ctx->stderr,
+            if (ctx->err) {
+                (void)fprintf(ctx->err,
                               "%s: can't allocate %d bytes for \"%s/\"<pid>\n",
                               Pn, (int)pidpathl, PROCFS);
             }
@@ -313,9 +313,9 @@ void gather_proc_info(struct lsof_context *ctx) {
         if ((pidx + n + 1 + 1) > pidpathl) {
             pidpathl = pidx + n + 1 + 1 + 64;
             if (!(pidpath = (char *)realloc((MALLOC_P *)pidpath, pidpathl))) {
-                if (ctx->stderr) {
+                if (ctx->err) {
                     (void)fprintf(
-                        ctx->stderr,
+                        ctx->err,
                         "%s: can't allocate %d bytes for \"%s/%s/\"\n", Pn,
                         (int)pidpathl, PROCFS, dp->d_name);
                 }
@@ -391,13 +391,13 @@ void gather_proc_info(struct lsof_context *ctx) {
                         else
                             tidpath = (char *)malloc((MALLOC_S)tidpathl);
                         if (!tidpath) {
-                            if (ctx->stderr) {
+                            if (ctx->err) {
 
                                 (void)fprintf(
-                                    ctx->stderr,
+                                    ctx->err,
                                     "%s: can't allocate %d task bytes", Pn,
                                     tidpathl);
-                                (void)fprintf(ctx->stderr,
+                                (void)fprintf(ctx->err,
                                               " for \"%s/%s/stat\"\n", taskpath,
                                               dp->d_name);
                             }
@@ -711,7 +711,7 @@ int make_proc_path(struct lsof_context *ctx,
         else
             cp = (char *)malloc(rl);
         if (!cp) {
-            if (ctx->stderr) {
+            if (ctx->err) {
                 (void)fprintf(stderr, "%s: can't allocate %d bytes for %s%s\n",
                               Pn, (int)rl, pp, sf);
             }
@@ -866,9 +866,9 @@ FILE *open_proc_stream(struct lsof_context *ctx,
      */
     if (!*buf) {
         if (!(*buf = (char *)malloc((MALLOC_S)tsz))) {
-            if (ctx->stderr) {
+            if (ctx->err) {
                 (void)fprintf(
-                    ctx->stderr,
+                    ctx->err,
                     "%s: can't allocate %d bytes for %s stream buffer\n", Pn,
                     (int)tsz, p);
             }
@@ -880,8 +880,8 @@ FILE *open_proc_stream(struct lsof_context *ctx,
      * Assign the buffer to the stream.
      */
     if (setvbuf(fs, *buf, _IOFBF, tsz)) {
-        if (ctx->stderr) {
-            (void)fprintf(ctx->stderr, "%s: setvbuf(%s)=%d failure: %s\n", Pn,
+        if (ctx->err) {
+            (void)fprintf(ctx->err, "%s: setvbuf(%s)=%d failure: %s\n", Pn,
                           p, (int)tsz, strerror(errno));
         }
         return NULL;

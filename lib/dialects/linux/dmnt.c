@@ -74,8 +74,8 @@ static char *convert_octal_escaped(struct lsof_context *ctx,
     if (!(orig_len = (int)strlen(orig_str)))
         return ((char *)NULL);
     if (!(cvt_str = (char *)malloc(orig_len + 1))) {
-        if (ctx->stderr) {
-            (void)fprintf(ctx->stderr,
+        if (ctx->err) {
+            (void)fprintf(ctx->err,
                           "%s: can't allocate %d bytes for octal-escaping.\n",
                           Pn, orig_len + 1);
         }
@@ -129,7 +129,7 @@ static char *convert_octal_escaped(struct lsof_context *ctx,
              */
             cvt_len += 64; /* (Make an arbitrary increase.) */
             if (!(cvt_str = (char *)realloc(cvt_str, cvt_len + 1))) {
-                if (ctx->stderr) {
+                if (ctx->err) {
                     (void)fprintf(
                         stderr,
                         "%s: can't realloc %d bytes for octal-escaping.\n", Pn,
@@ -197,8 +197,8 @@ getmntdev(
             /*
              * The mount supplement file can't be opened for reading.
              */
-            if (ctx->stderr && !Fwarn)
-                (void)fprintf(ctx->stderr, "%s: can't open(%s): %s\n", Pn,
+            if (ctx->err && !Fwarn)
+                (void)fprintf(ctx->err, "%s: can't open(%s): %s\n", Pn,
                               MntSupP, strerror(errno));
             ctxd.mount_sup_error = 1;
             return (0);
@@ -217,8 +217,8 @@ getmntdev(
                  * The mount supplement line doesn't begin with the absolute
                  * path character '/'.
                  */
-                if (ctx->stderr && !Fwarn)
-                    (void)fprintf(ctx->stderr,
+                if (ctx->err && !Fwarn)
+                    (void)fprintf(ctx->err,
                                   "%s: %s line %d: no path: \"%s\"\n", Pn,
                                   MntSupP, ln, buf);
                 ctxd.mount_sup_error = 1;
@@ -230,8 +230,8 @@ getmntdev(
                  * The path on the mount supplement line isn't followed by
                  * " 0x".
                  */
-                if (ctx->stderr && !Fwarn)
-                    (void)fprintf(ctx->stderr,
+                if (ctx->err && !Fwarn)
+                    (void)fprintf(ctx->err,
                                   "%s: %s line %d: no device: \"%s\"\n", Pn,
                                   MntSupP, ln, buf);
                 ctxd.mount_sup_error = 1;
@@ -257,8 +257,8 @@ getmntdev(
                 /*
                  * The device number couldn't be assembled.
                  */
-                if (ctx->stderr && !Fwarn)
-                    (void)fprintf(ctx->stderr,
+                if (ctx->err && !Fwarn)
+                    (void)fprintf(ctx->err,
                                   "%s: %s line %d: illegal device: \"%s\"\n",
                                   Pn, MntSupP, ln, buf);
                 ctxd.mount_sup_error = 1;
@@ -271,9 +271,9 @@ getmntdev(
             if (!MSHash) {
                 if (!(MSHash =
                           (mntsup_t **)calloc(HASHMNT, sizeof(mntsup_t *)))) {
-                    if (ctx->stderr) {
+                    if (ctx->err) {
                         (void)fprintf(
-                            ctx->stderr,
+                            ctx->err,
                             "%s: no space for mount supplement hash buckets\n",
                             Pn);
                     }
@@ -305,18 +305,18 @@ getmntdev(
              * Allocate and fill a new mount supplement hash entry.
              */
             if (!(mpn = (mntsup_t *)malloc(sizeof(mntsup_t)))) {
-                if (ctx->stderr) {
+                if (ctx->err) {
                     (void)fprintf(
-                        ctx->stderr,
+                        ctx->err,
                         "%s: no space for mount supplement entry: %d \"%s\"\n",
                         Pn, ln, buf);
                 }
                 return (0);
             }
             if (!(mpn->dir_name = (char *)malloc(sz + 1))) {
-                if (ctx->stderr) {
+                if (ctx->err) {
                     (void)fprintf(
-                        ctx->stderr,
+                        ctx->err,
                         "%s: no space for mount supplement path: %d \"%s\"\n",
                         Pn, ln, buf);
                 }
@@ -330,8 +330,8 @@ getmntdev(
             MSHash[h] = mpn;
         }
         if (ferror(fs)) {
-            if (ctx->stderr && !Fwarn)
-                (void)fprintf(ctx->stderr, "%s: error reading %s\n", Pn,
+            if (ctx->err && !Fwarn)
+                (void)fprintf(ctx->err, "%s: error reading %s\n", Pn,
                               MntSupP);
             ctxd.mount_sup_error = 1;
         }
@@ -492,9 +492,9 @@ struct mounts *readmnt(struct lsof_context *ctx) {
          */
         if (!ignrdl) {
             if (!(ln = Readlink(ctx, dn))) {
-                if (ctx->stderr && !Fwarn) {
+                if (ctx->err && !Fwarn) {
                     (void)fprintf(
-                        ctx->stderr,
+                        ctx->err,
                         "      Output information may be incomplete.\n");
                 }
                 continue;
@@ -548,12 +548,12 @@ struct mounts *readmnt(struct lsof_context *ctx) {
             fr = 1;
         else {
             if ((fr = statsafely(ctx, dn, &sb))) {
-                if (ctx->stderr, !Fwarn) {
-                    (void)fprintf(ctx->stderr, "%s: WARNING: can't stat() ",
+                if (ctx->err && !Fwarn) {
+                    (void)fprintf(ctx->err, "%s: WARNING: can't stat() ",
                                   Pn);
-                    safestrprt(fp[2], ctx->stderr, 0);
-                    (void)fprintf(ctx->stderr, " file system ");
-                    safestrprt(dn, ctx->stderr, 1);
+                    safestrprt(fp[2], ctx->err, 0);
+                    (void)fprintf(ctx->err, " file system ");
+                    safestrprt(dn, ctx->err, 1);
                     (void)fprintf(
                         stderr,
                         "      Output information may be incomplete.\n");
@@ -572,8 +572,8 @@ struct mounts *readmnt(struct lsof_context *ctx) {
             if ((MntSup == 2) && MntSupP) {
                 ds = 0;
                 if (getmntdev(ctx, dn, dnl, &sb, &ds) || !(ds & SB_DEV)) {
-                    if (ctx->stderr) {
-                        (void)fprintf(ctx->stderr,
+                    if (ctx->err) {
+                        (void)fprintf(ctx->err,
                                       "%s: assuming dev=%#lx for %s from %s\n",
                                       Pn, (long)sb.st_dev, dn, MntSupP);
                     }
@@ -614,10 +614,10 @@ struct mounts *readmnt(struct lsof_context *ctx) {
         } else {
             ne = 1;
             if (!(mp = (struct mounts *)malloc(sizeof(struct mounts)))) {
-                if (ctx->stderr) {
-                    (void)fprintf(ctx->stderr,
+                if (ctx->err) {
+                    (void)fprintf(ctx->err,
                                   "%s: can't allocate mounts struct for: ", Pn);
-                    safestrprt(dn, ctx->stderr, 1);
+                    safestrprt(dn, ctx->err, 1);
                 }
                 return NULL;
             }
@@ -670,10 +670,10 @@ struct mounts *readmnt(struct lsof_context *ctx) {
          */
         if (ignrdl || (*dn != '/')) {
             if (!(ln = mkstrcpy(dn, (MALLOC_S *)NULL))) {
-                if (ctx->stderr) {
-                    (void)fprintf(ctx->stderr,
+                if (ctx->err) {
+                    (void)fprintf(ctx->err,
                                   "%s: can't allocate space for: ", Pn);
-                    safestrprt(dn, ctx->stderr, 1);
+                    safestrprt(dn, ctx->err, 1);
                 }
                 return NULL;
             }

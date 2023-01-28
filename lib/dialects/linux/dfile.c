@@ -81,9 +81,9 @@ void hashSfile(struct lsof_context *ctx) {
      */
     if (!(HbyFdi = (struct hsfile *)calloc((MALLOC_S)SFDIHASH,
                                            sizeof(struct hsfile)))) {
-        if (ctx->stderr) {
+        if (ctx->err) {
             (void)fprintf(
-                ctx->stderr,
+                ctx->err,
                 "%s: can't allocate space for %d (dev,ino) hash buckets\n", Pn,
                 SFDIHASH);
         }
@@ -91,8 +91,8 @@ void hashSfile(struct lsof_context *ctx) {
     }
     if (!(HbyFrd = (struct hsfile *)calloc((MALLOC_S)SFRDHASH,
                                            sizeof(struct hsfile)))) {
-        if (ctx->stderr) {
-            (void)fprintf(ctx->stderr,
+        if (ctx->err) {
+            (void)fprintf(ctx->err,
                           "%s: can't allocate space for %d rdev hash buckets\n",
                           Pn, SFRDHASH);
         }
@@ -100,9 +100,9 @@ void hashSfile(struct lsof_context *ctx) {
     }
     if (!(HbyFsd = (struct hsfile *)calloc((MALLOC_S)SFFSHASH,
                                            sizeof(struct hsfile)))) {
-        if (ctx->stderr) {
+        if (ctx->err) {
             (void)fprintf(
-                ctx->stderr,
+                ctx->err,
                 "%s: can't allocate space for %d file sys hash buckets\n", Pn,
                 SFFSHASH);
         }
@@ -110,8 +110,8 @@ void hashSfile(struct lsof_context *ctx) {
     }
     if (!(HbyNm = (struct hsfile *)calloc((MALLOC_S)SFNMHASH,
                                           sizeof(struct hsfile)))) {
-        if (ctx->stderr) {
-            (void)fprintf(ctx->stderr,
+        if (ctx->err) {
+            (void)fprintf(ctx->err,
                           "%s: can't allocate space for %d name hash buckets\n",
                           Pn, SFNMHASH);
         }
@@ -167,7 +167,7 @@ void hashSfile(struct lsof_context *ctx) {
             } else {
                 if (!(sn = (struct hsfile *)malloc(
                           (MALLOC_S)sizeof(struct hsfile)))) {
-                    if (ctx->stderr) {
+                    if (ctx->err) {
 
                         (void)fprintf(
                             stderr,

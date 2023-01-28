@@ -182,7 +182,7 @@ enum lsof_error lsof_output_stream(struct lsof_context *ctx, FILE *fp,
     if (!ctx) {
         return LSOF_ERROR_INVALID_ARGUMENT;
     }
-    ctx->stderr = fp;
+    ctx->err = fp;
     ctx->program_name = mkstrcpy(program_name, NULL);
     ctx->warn = warn;
 }
@@ -244,8 +244,8 @@ enum lsof_error lsof_select_process(struct lsof_context *ctx, char *command,
     for (str = Cmdl; str; str = str->next) {
         if (str->x != exclude) {
             if (!strcmp(str->str, command)) {
-                if (ctx->stderr) {
-                    (void)fprintf(ctx->stderr, "%s: -c^%s and -c%s conflict.\n",
+                if (ctx->err) {
+                    (void)fprintf(ctx->err, "%s: -c^%s and -c%s conflict.\n",
                                   Pn, str->str, command);
                 }
                 return LSOF_ERROR_INVALID_ARGUMENT;
@@ -260,11 +260,11 @@ enum lsof_error lsof_select_process(struct lsof_context *ctx, char *command,
 #if defined(MAXSYSCMDL)
     if (len > MAXSYSCMDL) {
         /* Impossible to match */
-        if (ctx->stderr) {
-            (void)fprintf(ctx->stderr, "%s: \"-c ", Pn);
-            (void)safestrprt(command, ctx->stderr, 2);
-            (void)fprintf(ctx->stderr, "\" length (%d) > what system", len);
-            (void)fprintf(ctx->stderr, " provides (%d)\n", MAXSYSCMDL);
+        if (ctx->err) {
+            (void)fprintf(ctx->err, "%s: \"-c ", Pn);
+            (void)safestrprt(command, ctx->err, 2);
+            (void)fprintf(ctx->err, "\" length (%d) > what system", len);
+            (void)fprintf(ctx->err, " provides (%d)\n", MAXSYSCMDL);
         }
         CLEAN(cp);
         return LSOF_ERROR_INVALID_ARGUMENT;
@@ -313,11 +313,11 @@ enum lsof_error lsof_select_process_regex(struct lsof_context *ctx, char *x) {
      * Make sure the supplied string starts a regular expression.
      */
     if (!*x || (*x != '/')) {
-        if (ctx->stderr) {
-            (void)fprintf(ctx->stderr,
+        if (ctx->err) {
+            (void)fprintf(ctx->err,
                           "%s: regexp doesn't begin with '/': ", Pn);
             if (x)
-                safestrprt(x, ctx->stderr, 1);
+                safestrprt(x, ctx->err, 1);
         }
         return LSOF_ERROR_INVALID_ARGUMENT;
     }
@@ -331,9 +331,9 @@ enum lsof_error lsof_select_process_regex(struct lsof_context *ctx, char *x) {
             break;
     }
     if (*xe != '/') {
-        if (ctx->stderr) {
-            (void)fprintf(ctx->stderr, "%s: regexp doesn't end with '/': ", Pn);
-            safestrprt(x, ctx->stderr, 1);
+        if (ctx->err) {
+            (void)fprintf(ctx->err, "%s: regexp doesn't end with '/': ", Pn);
+            safestrprt(x, ctx->err, 1);
         }
         return LSOF_ERROR_INVALID_ARGUMENT;
     }
@@ -345,18 +345,18 @@ enum lsof_error lsof_select_process_regex(struct lsof_context *ctx, char *x) {
         switch (*xm) {
         case 'b': /* This is a basic expression. */
             if (++bmod > 1) {
-                if (bmod == 2 && ctx->stderr) {
-                    (void)fprintf(ctx->stderr,
+                if (bmod == 2 && ctx->err) {
+                    (void)fprintf(ctx->err,
                                   "%s: b regexp modifier already used: ", Pn);
-                    safestrprt(x, ctx->stderr, 1);
+                    safestrprt(x, ctx->err, 1);
                 }
                 return LSOF_ERROR_INVALID_ARGUMENT;
             } else if (xmod) {
-                if (++bxmod == 1 && ctx->stderr) {
+                if (++bxmod == 1 && ctx->err) {
                     (void)fprintf(
-                        ctx->stderr,
+                        ctx->err,
                         "%s: b and x regexp modifiers conflict: ", Pn);
-                    safestrprt(x, ctx->stderr, 1);
+                    safestrprt(x, ctx->err, 1);
                 }
                 return LSOF_ERROR_INVALID_ARGUMENT;
             } else
@@ -364,10 +364,10 @@ enum lsof_error lsof_select_process_regex(struct lsof_context *ctx, char *x) {
             break;
         case 'i': /* Ignore case. */
             if (++imod > 1) {
-                if (imod == 2 && ctx->stderr) {
-                    (void)fprintf(ctx->stderr,
+                if (imod == 2 && ctx->err) {
+                    (void)fprintf(ctx->err,
                                   "%s: i regexp modifier already used: ", Pn);
-                    safestrprt(x, ctx->stderr, 1);
+                    safestrprt(x, ctx->err, 1);
                 }
                 i = 1;
             } else
@@ -375,26 +375,26 @@ enum lsof_error lsof_select_process_regex(struct lsof_context *ctx, char *x) {
             break;
         case 'x': /* This is an extended expression. */
             if (++xmod > 1) {
-                if (xmod == 2 && ctx->stderr) {
-                    (void)fprintf(ctx->stderr,
+                if (xmod == 2 && ctx->err) {
+                    (void)fprintf(ctx->err,
                                   "%s: x regexp modifier already used: ", Pn);
-                    safestrprt(x, ctx->stderr, 1);
+                    safestrprt(x, ctx->err, 1);
                 }
                 i = 1;
             } else if (bmod) {
-                if (++bxmod == 1 && ctx->stderr) {
+                if (++bxmod == 1 && ctx->err) {
                     (void)fprintf(
-                        ctx->stderr,
+                        ctx->err,
                         "%s: b and x regexp modifiers conflict: ", Pn);
-                    safestrprt(x, ctx->stderr, 1);
+                    safestrprt(x, ctx->err, 1);
                 }
                 i = 1;
             } else
                 co |= REG_EXTENDED;
             break;
         default:
-            if (ctx->stderr)
-                (void)fprintf(ctx->stderr, "%s: invalid regexp modifier: %c\n",
+            if (ctx->err)
+                (void)fprintf(ctx->err, "%s: invalid regexp modifier: %c\n",
                               Pn, (int)*xm);
             i = 1;
         }
@@ -408,7 +408,7 @@ enum lsof_error lsof_select_process_regex(struct lsof_context *ctx, char *x) {
      */
     xl = (MALLOC_S)(xe - xb);
     if (!(xp = (char *)malloc(xl + 1))) {
-        if (ctx->stderr) {
+        if (ctx->err) {
             (void)fprintf(stderr, "%s: no regexp space for: ", Pn);
             safestrprt(x, stderr, 1);
         }
@@ -431,7 +431,7 @@ enum lsof_error lsof_select_process_regex(struct lsof_context *ctx, char *x) {
         else
             CmdRx = (lsof_rx_t *)malloc(xl);
         if (!CmdRx) {
-            if (ctx->stderr) {
+            if (ctx->err) {
                 (void)fprintf(stderr, "%s: no space for regexp: ", Pn);
                 safestrprt(x, stderr, 1);
             }
@@ -444,7 +444,7 @@ enum lsof_error lsof_select_process_regex(struct lsof_context *ctx, char *x) {
      * Compile the expression.
      */
     if ((re = regcomp(&CmdRx[i].cx, xp, co))) {
-        if (ctx->stderr) {
+        if (ctx->err) {
             (void)fprintf(stderr, "%s: regexp error: ", Pn);
             safestrprt(x, stderr, 0);
             (void)regerror(re, &CmdRx[i].cx, &reb[0], sizeof(reb));
@@ -492,8 +492,8 @@ enum lsof_error lsof_select_uid_login(struct lsof_context *ctx, uint32_t uid,
         }
 
         /* Conflict */
-        if (ctx->stderr) {
-            (void)fprintf(ctx->stderr,
+        if (ctx->err) {
+            (void)fprintf(ctx->err,
                           "%s: UID %d has been included and excluded.\n", Pn,
                           (int)uid);
         }
@@ -512,7 +512,7 @@ enum lsof_error lsof_select_uid_login(struct lsof_context *ctx, uint32_t uid,
             Suid =
                 (struct seluid *)realloc((MALLOC_P *)Suid, len);
         if (!Suid) {
-            if (ctx->stderr) {
+            if (ctx->err) {
                 (void)fprintf(stderr, "%s: no space for UIDs", Pn);
             }
             return LSOF_ERROR_NO_MEMORY;
@@ -520,7 +520,7 @@ enum lsof_error lsof_select_uid_login(struct lsof_context *ctx, uint32_t uid,
     }
     if (login) {
         if (!(lp = mkstrcpy(login, (MALLOC_S *)NULL))) {
-            if (ctx->stderr) {
+            if (ctx->err) {
                 (void)fprintf(stderr, "%s: no space for login: ", Pn);
                 safestrprt(login, stderr, 1);
             }
@@ -555,7 +555,7 @@ enum lsof_error lsof_select_login(struct lsof_context *ctx, char *login,
 
     /* Convert login to uid, then call lsof_select_uid_login */
     if ((pw = getpwnam(login)) == NULL) {
-        if (ctx->stderr) {
+        if (ctx->err) {
             (void)fprintf(stderr, "%s: can't get UID for ", Pn);
             safestrprt(login, stderr, 1);
         }
@@ -596,7 +596,7 @@ enum lsof_error lsof_select_fd(struct lsof_context *ctx,
      */
     if (FdlTy >= 0) {
         if (FdlTy != exclude) {
-            if (ctx->stderr) {
+            if (ctx->err) {
                 /*
                  * Report a mixture.
                  */
@@ -614,7 +614,7 @@ enum lsof_error lsof_select_fd(struct lsof_context *ctx,
                     }
                 }
                 buf[sizeof(buf) - 1] = '\0';
-                (void)fprintf(ctx->stderr, "%s: %s in an %s -d list: %s\n", Pn,
+                (void)fprintf(ctx->err, "%s: %s in an %s -d list: %s\n", Pn,
                               exclude ? "exclude" : "include",
                               FdlTy ? "exclude" : "include", buf);
             }
@@ -677,8 +677,8 @@ enum lsof_error lsof_select_pid_pgid(struct lsof_context *ctx, int32_t id,
             if (exclude == (*sel)[i].x) {
                 return LSOF_SUCCESS;
             }
-            if (ctx->stderr) {
-                (void)fprintf(ctx->stderr,
+            if (ctx->err) {
+                (void)fprintf(ctx->err,
                               "%s: P%sID %d has been included and excluded.\n",
                               Pn, is_pid ? "" : "G", id);
             }
@@ -699,8 +699,8 @@ enum lsof_error lsof_select_pid_pgid(struct lsof_context *ctx, int32_t id,
                 (MALLOC_P *)(*sel),
                 (MALLOC_S)(sizeof(struct int_lst) * (*cap)));
         if (!(*sel)) {
-            if (ctx->stderr) {
-                (void)fprintf(ctx->stderr, "%s: no space for %d process%s IDs",
+            if (ctx->err) {
+                (void)fprintf(ctx->err, "%s: no space for %d process%s IDs",
                               Pn, *cap, is_pid ? "" : " group");
             }
             return LSOF_ERROR_NO_MEMORY;
@@ -842,7 +842,7 @@ enum lsof_error lsof_select_proto_state(struct lsof_context *ctx, int tcp,
         if (!*state_incl) {
             if (!(*state_incl = (unsigned char *)calloc(
                       (MALLOC_S)num_states, sizeof(unsigned char)))) {
-                if (ctx->stderr) {
+                if (ctx->err) {
                     (void)fprintf(stderr,
                                   "%s: no %s state inclusion table space\n", Pn,
                                   ty);
@@ -853,7 +853,7 @@ enum lsof_error lsof_select_proto_state(struct lsof_context *ctx, int tcp,
         if (!*state_excl) {
             if (!(*state_excl = (unsigned char *)calloc(
                       (MALLOC_S)num_states, sizeof(unsigned char)))) {
-                if (ctx->stderr) {
+                if (ctx->err) {
                     (void)fprintf(stderr,
                                   "%s: no %s state exclusion table space\n", Pn,
                                   ty);
@@ -862,7 +862,7 @@ enum lsof_error lsof_select_proto_state(struct lsof_context *ctx, int tcp,
             }
         }
     } else {
-        if (ctx->stderr) {
+        if (ctx->err) {
             (void)fprintf(stderr, "%s: no %s state names available: %s\n", Pn,
                           ty, state);
         }
@@ -881,7 +881,7 @@ enum lsof_error lsof_select_proto_state(struct lsof_context *ctx, int tcp,
     }
 
     if (!found) {
-        if (ctx->stderr) {
+        if (ctx->err) {
             (void)fprintf(stderr, "%s: unknown %s state name: %s\n", Pn, ty,
                           state);
         }
@@ -891,8 +891,8 @@ enum lsof_error lsof_select_proto_state(struct lsof_context *ctx, int tcp,
     /* Find duplicate and conflict */
     if (exclude) {
         if ((*state_incl)[i]) {
-            if (ctx->stderr) {
-                (void)fprintf(ctx->stderr,
+            if (ctx->err) {
+                (void)fprintf(ctx->err,
                               "%s: can't include and exclude %s state: %s\n",
                               Pn, ty, states[i]);
             }
@@ -903,8 +903,8 @@ enum lsof_error lsof_select_proto_state(struct lsof_context *ctx, int tcp,
         }
     } else {
         if ((*state_excl)[i]) {
-            if (ctx->stderr) {
-                (void)fprintf(ctx->stderr,
+            if (ctx->err) {
+                (void)fprintf(ctx->err,
                               "%s: can't include and exclude %s state: %s\n",
                               Pn, ty, states[i]);
             }
@@ -952,17 +952,17 @@ enum lsof_error lsof_exempt_fs(struct lsof_context *ctx, char *orig_path,
     }
 
     if (!orig_path || (*orig_path != '/')) {
-        if (ctx->stderr && ctx->warn) {
-            (void)fprintf(ctx->stderr,
+        if (ctx->err && ctx->warn) {
+            (void)fprintf(ctx->err,
                           "%s: -e not followed by a file system path: \"%s\"\n",
                           Pn, orig_path);
         }
         return LSOF_ERROR_INVALID_ARGUMENT;
     }
     if (!(ec = mkstrcpy(orig_path, (MALLOC_S *)NULL))) {
-        if (ctx->stderr) {
-            (void)fprintf(ctx->stderr, "%s: no space for -e string: ", Pn);
-            safestrprt(orig_path, ctx->stderr, 1);
+        if (ctx->err) {
+            (void)fprintf(ctx->err, "%s: no space for -e string: ", Pn);
+            safestrprt(orig_path, ctx->err, 1);
         }
         return LSOF_ERROR_NO_MEMORY;
     }
@@ -990,8 +990,8 @@ enum lsof_error lsof_exempt_fs(struct lsof_context *ctx, char *orig_path,
     }
 
     if (!(ep = (efsys_list_t *)malloc((MALLOC_S)(sizeof(efsys_list_t))))) {
-        if (ctx->stderr) {
-            (void)fprintf(ctx->stderr, "%s: no space for \"-e %s\" entry\n", Pn,
+        if (ctx->err) {
+            (void)fprintf(ctx->err, "%s: no space for \"-e %s\" entry\n", Pn,
                           orig_path);
         }
         return LSOF_ERROR_NO_MEMORY;

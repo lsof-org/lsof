@@ -966,8 +966,8 @@ static void get_uxpeeri(struct lsof_context *ctx) {
      * Get a netlink socket.
      */
     if ((ns = socket(AF_NETLINK, SOCK_DGRAM, NETLINK_SOCK_DIAG)) == -1) {
-        if (ctx->stderr)
-            (void)fprintf(ctx->stderr, "%s: netlink socket error: %s\n", Pn,
+        if (ctx->err)
+            (void)fprintf(ctx->err, "%s: netlink socket error: %s\n", Pn,
                           strerror(errno));
         return;
     }
@@ -975,8 +975,8 @@ static void get_uxpeeri(struct lsof_context *ctx) {
      * Request peer information.
      */
     if (get_diagmsg(ns) < 0) {
-        if (ctx->stderr)
-            (void)fprintf(ctx->stderr, "%s: netlink peer request error: %s\n",
+        if (ctx->err)
+            (void)fprintf(ctx->err, "%s: netlink peer request error: %s\n",
                           Pn, strerror(errno));
         goto get_uxpeeri_exit;
     }
@@ -991,9 +991,9 @@ static void get_uxpeeri(struct lsof_context *ctx) {
             if (hp->nlmsg_type == NLMSG_DONE)
                 goto get_uxpeeri_exit;
             if (hp->nlmsg_type == NLMSG_ERROR) {
-                if (ctx->stderr)
+                if (ctx->err)
                     (void)fprintf(
-                        ctx->stderr,
+                        ctx->err,
                         "%s: netlink UNIX socket msg peer info error\n", Pn);
                 goto get_uxpeeri_exit;
             }
@@ -1034,8 +1034,8 @@ static void parse_diag(struct lsof_context *ctx,
         switch (rp->rta_type) {
         case UNIX_DIAG_PEER:
             if (len < 4) {
-                if (ctx->stderr)
-                    (void)fprintf(ctx->stderr,
+                if (ctx->err)
+                    (void)fprintf(ctx->err,
                                   "%s: unix_diag: msg length (%d) < 4)\n", Pn,
                                   len);
                 return;
