@@ -472,8 +472,10 @@ char *argv[]; /* arguments */
                                "ERROR!!!  no %s socket by host and port: %s@%s",
                                PtNm[ti], host, port);
                 buf[bufl - 1] = '\0';
-                if (pem)
+                if (pem) {
                     (void)PrtMsg(pem, Pn);
+                    free(pem);
+                }
                 pem = MkStrCpy(buf, &tk);
             }
             if (!(tj & LT_FBYIP)) {
@@ -485,8 +487,10 @@ char *argv[]; /* arguments */
                                "ERROR!!!  no %s socket by IP and port: %s@%s",
                                PtNm[ti], ipaddr, port);
                 buf[bufl - 1] = '\0';
-                if (pem)
+                if (pem) {
                     (void)PrtMsg(pem, Pn);
+                    free(pem);
+                }
                 pem = MkStrCpy(buf, &tk);
             }
             if (!(tj & LT_FBYPORT)) {
@@ -498,14 +502,18 @@ char *argv[]; /* arguments */
                                "ERROR!!!  no %s socket by port: %s", PtNm[ti],
                                port);
                 buf[bufl - 1] = '\0';
-                if (pem)
+                if (pem) {
                     (void)PrtMsg(pem, Pn);
+                    free(pem);
+                }
                 pem = MkStrCpy(buf, &tk);
             }
         }
     }
-    if (pem)
+    if (pem) {
         (void)PrtMsgX(pem, Pn, CleanupSrvr, 1);
+        free(pem);
+    }
     /*
      * Exit successfully.
      */
@@ -631,6 +639,12 @@ int fn; /* function -- an LT_FBY* value */
     opv[ti] = (char *)NULL;
     if ((cem = ExecLsof(opv)))
         return (cem);
+
+    /* Free MkStrCpy space */
+    for (tj = 1;tj <= NFDPARA;tj++) {
+        free(opv[tj]);
+    }
+
     /*
      * Read lsof output.
      */

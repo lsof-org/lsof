@@ -229,6 +229,7 @@ char *argv[]; /* arguments */
     char *tstr = (char *)NULL; /* "r" lock test result */
     char *tstW = (char *)NULL; /* "W" lock test result */
     char *tstw = (char *)NULL; /* "w" lock test result */
+    char *tstNFS = (char *)NULL; /* NFS test result */
     int xv = 0;                /* exit value */
                                /*
                                 * Get program name and PID, issue start message, and build space prefix.
@@ -307,7 +308,7 @@ char *argv[]; /* arguments */
     /*
      * Quit (with a hint) if the test file is on an NFS file system.
      */
-    if (!tstwlsof("-wNa", " ")) {
+    if (!(tstNFS = tstwlsof("-wNa", " "))) {
         (void)printf("ERROR!!!  %s is NFS-mounted.\n", Path);
         MsgStat = 1;
         (void)PrtMsg("Lsof can't report lock information on files that", Pn);

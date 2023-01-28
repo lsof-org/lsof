@@ -260,8 +260,9 @@ int accept_deleted_file; /* if non-zero, don't report an error even
                             (void)fprintf(stderr, ": %s\n", strerror(en));
                         }
                         Sfile = sfp->next;
-                        (void)free((FREE_P *)sfp);
                         ErrStat = 1;
+                        CLEAN(sfp);
+                        CLEAN(path);
                         continue;
                     }
 
@@ -1111,12 +1112,9 @@ char *na; /* Internet address string pointer */
                               "%s: no space for protocol name from: -i ", Pn);
                 safestrprt(na, stderr, 1);
             nwad_exit:
-                if (n.proto)
-                    (void)free((FREE_P *)n.proto);
-                if (hn)
-                    (void)free((FREE_P *)hn);
-                if (sn)
-                    (void)free((FREE_P *)sn);
+                CLEAN(n.proto);
+                CLEAN(hn);
+                CLEAN(sn);
                 return (1);
             }
             /*
@@ -1430,8 +1428,8 @@ char *na; /* Internet address string pointer */
         if (!*wa)
             break;
     }
-    if (sn)
-        (void)free((FREE_P *)sn);
+    CLEAN(hn);
+    CLEAN(sn);
     return (0);
 }
 
