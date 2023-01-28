@@ -621,6 +621,23 @@ int ss; /* search status: 1 = Pth[pr][h]
 }
 
 /*
+ * print_access() - print enum lsof_file_access_mode
+ */
+char print_access(enum lsof_file_access_mode access) {
+    switch (access) {
+    default:
+    case LSOF_FILE_ACCESS_NONE:
+        return ' ';
+    case LSOF_FILE_ACCESS_READ:
+        return 'r';
+    case LSOF_FILE_ACCESS_WRITE:
+        return 'w';
+    case LSOF_FILE_ACCESS_READ_WRITE:
+        return 'u';
+    }
+}
+
+/*
  * print_file() - print file
  */
 
@@ -630,6 +647,7 @@ void print_file() {
     char *cp = (char *)NULL;
     dev_t dev;
     int devs, len;
+    char access;
 
     if (PrPass && !Hdr) {
 
@@ -832,19 +850,20 @@ void print_file() {
      * Size or print the file descriptor, access mode and lock status.
      */
     print_fd(Lf->fd_type, Lf->fd_num, fd);
+    access = print_access(Lf->access);
     if (!PrPass) {
         (void)snpf(buf, sizeof(buf), "%s%c%c", fd,
-                   (Lf->lock == ' ')     ? Lf->access
-                   : (Lf->access == ' ') ? '-'
-                                         : Lf->access,
+                   (Lf->lock == ' ') ? access
+                   : (access == ' ') ? '-'
+                                     : access,
                    Lf->lock);
         if ((len = strlen(buf)) > FdColW)
             FdColW = len;
     } else
         (void)printf(" %*.*s%c%c", FdColW - 2, FdColW - 2, fd,
-                     (Lf->lock == ' ')     ? Lf->access
-                     : (Lf->access == ' ') ? '-'
-                                           : Lf->access,
+                     (Lf->lock == ' ') ? access
+                     : (access == ' ') ? '-'
+                                       : access,
                      Lf->lock);
     /*
      * Size or print the type.
@@ -1311,7 +1330,6 @@ void print_init() {
 #endif /* defined(HASZONES) */
 }
 
-
 /*
  * printname() - print output name field
  */
@@ -1723,7 +1741,6 @@ int *ty;     /* returned UID type pointer (NULL
     return (user);
 }
 
-
 #if !defined(HASNORPC_H)
 /*
  * update_portmap() - update a portmap entry with its port number or service
@@ -1804,6 +1821,8 @@ int print_proc() {
     int lc, len, st, ty;
     int rv = 0;
     unsigned long ul;
+    char access;
+
     /*
      * If nothing in the process has been selected, skip it.
      */
@@ -1911,7 +1930,8 @@ int print_proc() {
          * Print selected fields.
          */
         if (FieldSel[LSOF_FIX_ACCESS].st) {
-            (void)printf("%c%c%c", LSOF_FID_ACCESS, Lf->access, Terminator);
+            access = print_access(Lf->access);
+            (void)printf("%c%c%c", LSOF_FID_ACCESS, access, Terminator);
             lc++;
         }
         if (FieldSel[LSOF_FIX_LOCK].st) {

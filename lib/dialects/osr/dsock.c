@@ -255,9 +255,9 @@ void process_socket(i) struct inode *i; /* inode pointer */
             Lf->lts.rqs = Lf->lts.sqs = 1;
 #endif /* defined(HASTCPTPIQ) */
 
-            if (Lf->access == 'r')
+            if (Lf->access == LSOF_FILE_ACCESS_READ)
                 Lf->sz = (SZOFFTYPE)t.t_iqsize;
-            else if (Lf->access == 'w')
+            else if (Lf->access == LSOF_FILE_ACCESS_WRITE)
                 Lf->sz = (SZOFFTYPE)t.t_qsize;
             else
                 Lf->sz = (SZOFFTYPE)(t.t_iqsize + t.t_qsize);

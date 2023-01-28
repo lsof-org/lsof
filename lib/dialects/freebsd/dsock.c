@@ -392,9 +392,9 @@ void process_socket(struct lsof_context *ctx, struct kinfo_file *kf,
  * Save size information.
  */
 #if defined(HAS_KF_SOCK_SENDQ)
-    if (Lf->access == 'r')
+    if (Lf->access == LSOF_FILE_ACCESS_READ)
         Lf->sz = (SZOFFTYPE)kf->kf_un.kf_sock.kf_sock_recvq;
-    else if (Lf->access == 'w')
+    else if (Lf->access == LSOF_FILE_ACCESS_WRITE)
         Lf->sz = (SZOFFTYPE)kf->kf_un.kf_sock.kf_sock_sendq;
     else
         Lf->sz = (SZOFFTYPE)kf->kf_un.kf_sock.kf_sock_recvq +

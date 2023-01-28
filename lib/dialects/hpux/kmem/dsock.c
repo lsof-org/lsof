@@ -429,11 +429,11 @@ void process_lla(la) KA_T la; /* link level CB address in kernel */
      * Determine access mode.
      */
     if ((lcb.lla_flags & LLA_FWRITE | LLA_FREAD) == LLA_FWRITE)
-        Lf->access = 'w';
+        Lf->access = LSOF_FILE_ACCESS_WRITE;
     else if ((lcb.lla_flags & LLA_FWRITE | LLA_FREAD) == LLA_FREAD)
-        Lf->access = 'r';
+        Lf->access = LSOF_FILE_ACCESS_READ;
     else if (lcb.lla_flags & LLA_FWRITE | LLA_FREAD)
-        Lf->access = 'u';
+        Lf->access = LSOF_FILE_ACCESS_READ_WRITE;
     /*
      * Determine the open mode, if possible.
      */
@@ -542,9 +542,9 @@ void process_socket(sa) KA_T sa; /* socket address in kernel */
     /*
      * Save size information for HP-UX < 10.30.
      */
-    if (Lf->access == 'r')
+    if (Lf->access == LSOF_FILE_ACCESS_READ)
         Lf->sz = (SZOFFTYPE)s.so_rcv.sb_cc;
-    else if (Lf->access == 'w')
+    else if (Lf->access == LSOF_FILE_ACCESS_WRITE)
         Lf->sz = (SZOFFTYPE)s.so_snd.sb_cc;
     else
         Lf->sz = (SZOFFTYPE)(s.so_rcv.sb_cc + s.so_snd.sb_cc);
@@ -774,9 +774,9 @@ void process_socket(sa) KA_T sa; /* socket address in kernel */
             rb.sb_cc = 0;
         if (!s.so_snd || kread((KA_T)s.so_snd, (char *)&sb, sizeof(sb)))
             sb.sb_cc = 0;
-        if (Lf->access == 'r')
+        if (Lf->access == LSOF_FILE_ACCESS_READ)
             Lf->sz = (SZOFFTYPE)rb.sb_cc;
-        else if (Lf->access == 'w')
+        else if (Lf->access == LSOF_FILE_ACCESS_WRITE)
             Lf->sz = (SZOFFTYPE)sb.sb_cc;
         else
             Lf->sz = (SZOFFTYPE)(rb.sb_cc + sb.sb_cc);
@@ -1025,9 +1025,9 @@ enum vtype vt;                                     /* vnode type */
         Lf->lts.rqs = Lf->lts.sqs = 1;
 #        endif /* defined(HASTCPTPIQ) */
 
-        if (Lf->access == 'r')
+        if (Lf->access == LSOF_FILE_ACCESS_READ)
             Lf->sz = (SZOFFTYPE)rq;
-        else if (Lf->access == 'w')
+        else if (Lf->access == LSOF_FILE_ACCESS_WRITE)
             Lf->sz = (SZOFFTYPE)sq;
         else
             Lf->sz = (SZOFFTYPE)(rq + sq);

@@ -746,7 +746,7 @@ extern int LastPid;
 
 /** lsof private file struct */
 struct lfile {
-    char access;
+    enum lsof_file_access_mode access;
     char lock;
     unsigned char dev_def;   /* device number definition status */
     unsigned char inp_ty;    /* inode/iproto type

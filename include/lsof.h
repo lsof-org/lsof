@@ -61,10 +61,11 @@ enum lsof_error {
 
 /** File access mode */
 enum lsof_file_access_mode {
-    LSOF_FILE_ACCESS_UNKNOWN,    /**< Unknown */
-    LSOF_FILE_ACCESS_READ,       /**< Read */
-    LSOF_FILE_ACCESS_WRITE,      /**< Write */
-    LSOF_FILE_ACCESS_READ_WRITE, /**< Read and write */
+    LSOF_FILE_ACCESS_NONE = 0,  /**< None */
+    LSOF_FILE_ACCESS_READ = 1,  /**< Read */
+    LSOF_FILE_ACCESS_WRITE = 2, /**< Write */
+    LSOF_FILE_ACCESS_READ_WRITE =
+        LSOF_FILE_ACCESS_READ | LSOF_FILE_ACCESS_WRITE, /**< Read and write */
 };
 
 /** File lock mode */

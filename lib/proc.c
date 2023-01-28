@@ -115,7 +115,8 @@ void alloc_lfile(struct lsof_context *ctx,
     /*
      * Initialize the structure.
      */
-    Lf->access = Lf->lock = ' ';
+    Lf->access = LSOF_FILE_ACCESS_NONE;
+    Lf->lock = ' ';
     Lf->dev_def = Lf->inp_ty = Lf->is_com = Lf->is_nfs = Lf->is_stream =
         Lf->lmi_srch = Lf->nlink_def = Lf->off_def = Lf->sz_def = Lf->rdev_def =
             (unsigned char)0;
