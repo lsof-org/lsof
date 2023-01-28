@@ -448,7 +448,6 @@ int rbln;   /* response buffer length */
 
 { return (stat(path, (struct stat *)rbuf)); }
 
-
 /*
  * enter_dev_ch() - enter device characters in file structure
  */
@@ -940,42 +939,19 @@ int lstatsafely(struct lsof_context *ctx, char *path, /* file path */
     return (doinchild(ctx, dolstat, path, (char *)buf, sizeof(struct stat)));
 }
 
-/*
- * Readlink() - read and interpret file system symbolic links
- */
-
-char *Readlink(struct lsof_context *ctx,
-               char *arg) /* argument to be interpreted */
-{
+/* internal recursive function */
+char *readlink_inner(struct lsof_context *ctx,
+                     char *arg, /* argument to be interpreted */
+                     char *orig_path, int recursion_depth) {
     char abuf[MAXPATHLEN + 1];
     int alen;
     char *ap;
     char *argp1, *argp2;
     int i, len, llen, slen;
     char lbuf[MAXPATHLEN + 1];
-    static char *op = (char *)NULL;
-    static int ss = 0;
-    char *s1;
-    static char **stk = (char **)NULL;
-    static int sx = 0;
     char tbuf[MAXPATHLEN + 1];
-    /*
-     * See if avoiding kernel blocks.
-     */
-    if (Fblock) {
-        if (!Fwarn) {
-            (void)fprintf(stderr, "%s: avoiding readlink(", Pn);
-            safestrprt(arg, stderr, 0);
-            (void)fprintf(stderr, "): -b was specified.\n");
-        }
-        op = (char *)NULL;
-        return (arg);
-    }
-    /*
-     * Save the original path.
-     */
-    if (!op)
-        op = arg;
+    char *s1;
+    char *res;
     /*
      * Evaluate each component of the argument for a symbolic link.
      */
@@ -985,11 +961,11 @@ char *Readlink(struct lsof_context *ctx,
         if ((len = argp2 - arg) >= (int)sizeof(tbuf)) {
 
         path_too_long:
-            if (!Fwarn) {
-                (void)fprintf(stderr, "%s: readlink() path too long: ", Pn);
-                safestrprt(op ? op : arg, stderr, 1);
+            if (ctx->stderr && !Fwarn) {
+                (void)fprintf(ctx->stderr,
+                              "%s: readlink() path too long: ", Pn);
+                safestrprt(orig_path, stderr, 1);
             }
-            op = (char *)NULL;
             return ((char *)NULL);
         }
         (void)strncpy(tbuf, arg, len);
@@ -1062,68 +1038,51 @@ char *Readlink(struct lsof_context *ctx,
         alen += (llen + slen - 1);
     }
     /*
-     * If the assembled path and argument are the same, free all but the
-     * last string in the stack, and return the argument.
+     * If the assembled path and argument are the same return the argument.
      */
     if (strcmp(arg, abuf) == 0) {
-        for (i = 0; i < sx; i++) {
-            if (i < (sx - 1))
-                (void)free((FREE_P *)stk[i]);
-            stk[i] = (char *)NULL;
-        }
-        sx = 0;
-        op = (char *)NULL;
         return mkstrcpy(arg, NULL);
     }
     /*
-     * If the assembled path and argument are different, add it to the
-     * string stack, then Readlink() it.
+     * If the assembled path and argument are different, readlink_inner() it.
      */
-    if (!(s1 = mkstrcpy(abuf, (MALLOC_S *)NULL))) {
-
-    no_readlink_space:
-
-        (void)fprintf(stderr, "%s: no Readlink string space for ", Pn);
-        safestrprt(abuf, stderr, 1);
-        Error();
-    }
-    if (sx >= MAXSYMLINKS) {
-
+    if (recursion_depth >= MAXSYMLINKS) {
         /*
          * If there are too many symbolic links, report an error, clear
          * the stack, and return no path.
          */
-        if (!Fwarn) {
+        if (ctx->stderr, !Fwarn) {
             (void)fprintf(
-                stderr,
+                ctx->stderr,
                 "%s: too many (> %d) symbolic links in readlink() path: ", Pn,
                 MAXSYMLINKS);
-            safestrprt(op ? op : arg, stderr, 1);
+            safestrprt(orig_path, ctx->stderr, 1);
         }
-        for (i = 0; i < sx; i++) {
-            (void)free((FREE_P *)stk[i]);
-            stk[i] = (char *)NULL;
-        }
-        (void)free((FREE_P *)stk);
-        (void)free((FREE_P *)s1);
-        stk = (char **)NULL;
-        ss = sx = 0;
-        s1 = (char *)NULL;
-        op = (char *)NULL;
         return ((char *)NULL);
     }
-    if (++sx > ss) {
-        if (!stk)
-            stk = (char **)malloc((MALLOC_S)(sizeof(char *) * sx));
-        else
-            stk = (char **)realloc((MALLOC_P *)stk,
-                                   (MALLOC_S)(sizeof(char *) * sx));
-        if (!stk)
-            goto no_readlink_space;
-        ss = sx;
+    return (readlink_inner(ctx, abuf, orig_path, recursion_depth));
+}
+
+/*
+ * Readlink() - read and interpret file system symbolic links
+ *
+ * caller should free() the return value if non-NULL
+ */
+char *Readlink(struct lsof_context *ctx,
+               char *arg) /* argument to be interpreted */
+{
+    /*
+     * See if avoiding kernel blocks.
+     */
+    if (Fblock) {
+        if (ctx->stderr && !Fwarn) {
+            (void)fprintf(ctx->stderr, "%s: avoiding readlink(", Pn);
+            safestrprt(arg, stderr, 0);
+            (void)fprintf(ctx->stderr, "): -b was specified.\n");
+        }
+        return mkstrcpy(arg, NULL);
     }
-    stk[sx - 1] = s1;
-    return (Readlink(ctx, s1));
+    return readlink_inner(ctx, arg, arg, 0);
 }
 
 #if defined(HASSTREAMS)
