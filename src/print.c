@@ -621,23 +621,6 @@ int ss; /* search status: 1 = Pth[pr][h]
 }
 
 /*
- * print_access() - print enum lsof_file_access_mode
- */
-char print_access(enum lsof_file_access_mode access) {
-    switch (access) {
-    default:
-    case LSOF_FILE_ACCESS_NONE:
-        return ' ';
-    case LSOF_FILE_ACCESS_READ:
-        return 'r';
-    case LSOF_FILE_ACCESS_WRITE:
-        return 'w';
-    case LSOF_FILE_ACCESS_READ_WRITE:
-        return 'u';
-    }
-}
-
-/*
  * print_file() - print file
  */
 

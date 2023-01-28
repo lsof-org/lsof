@@ -987,7 +987,7 @@ static void prt_pinfo(struct lsof_context *ctx, pxinfo_t *pp, /* peer info */
     ef = pp->lf;
     print_fd(ef->fd_type, ef->fd_num, fd);
     (void)snpf(nma, sizeof(nma) - 1, "%d,%.*s,%s%c", ep->pid, CmdLim, ep->cmd,
-               fd, ef->access);
+               fd, print_access(ef->access));
     (void)add_nma(ctx, nma, strlen(nma));
     if (ps) {
 
@@ -1086,7 +1086,7 @@ static void prt_psxmqinfo(struct lsof_context *ctx,
     ef = pp->lf;
     print_fd(ef->fd_type, ef->fd_num, fd);
     (void)snpf(nma, sizeof(nma) - 1, "%d,%.*s,%s%c", ep->pid, CmdLim, ep->cmd,
-               fd, ef->access);
+               fd, print_access(ef->access));
     (void)add_nma(ctx, nma, strlen(nma));
     if (ps) {
 
@@ -1185,7 +1185,7 @@ static void prt_evtfdinfo(struct lsof_context *ctx,
     ef = pp->lf;
     print_fd(ef->fd_type, ef->fd_num, fd);
     (void)snpf(nma, sizeof(nma) - 1, "%d,%.*s,%s%c", ep->pid, CmdLim, ep->cmd,
-               fd, ef->access);
+               fd, print_access(ef->access));
     (void)add_nma(ctx, nma, strlen(nma));
     if (ps) {
 
@@ -1299,10 +1299,10 @@ static void prt_ptyinfo(struct lsof_context *ctx, pxinfo_t *pp, /* peer info */
     print_fd(ef->fd_type, ef->fd_num, fd);
     if (prt_edev) {
         (void)snpf(nma, sizeof(nma) - 1, "->/dev/pts/%d %d,%.*s,%s%c",
-                   Lf->tty_index, ep->pid, CmdLim, ep->cmd, fd, ef->access);
+                   Lf->tty_index, ep->pid, CmdLim, ep->cmd, fd, print_access(ef->access));
     } else {
         (void)snpf(nma, sizeof(nma) - 1, "%d,%.*s,%s%c", ep->pid, CmdLim,
-                   ep->cmd, fd, ef->access);
+                   ep->cmd, fd, print_access(ef->access));
     }
     (void)add_nma(ctx, nma, strlen(nma));
     if (ps) {

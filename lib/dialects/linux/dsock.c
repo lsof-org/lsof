@@ -1084,7 +1084,7 @@ static void prt_uxs(struct lsof_context *ctx, uxsin_t *p, /* peer info */
         ef = pp->lf;
         print_fd(ef->fd_type, ef->fd_num, fd);
         (void)snpf(nma, sizeof(nma) - 1, "%d,%s,%s%c", ep->pid, ep->cmd, fd,
-                   ef->access);
+                   print_access(ef->access));
         (void)add_nma(ctx, nma, strlen(nma));
         if (mk && FeptE == 2) {
 
@@ -1247,7 +1247,7 @@ static void prt_nets_common(struct lsof_context *ctx, void *p, /* peer info */
         ef = pp->lf;
         print_fd(ef->fd_type, ef->fd_num, fd);
         (void)snpf(nma, sizeof(nma) - 1, "%d,%s,%s%c", ep->pid, ep->cmd, fd,
-                   ef->access);
+                   print_access(ef->access));
         (void)add_nma(ctx, nma, strlen(nma));
         if (mk && FeptE == 2) {
 
