@@ -38,32 +38,32 @@ static char copyright[] =
 /*
  * process_vnode() - process vnode
  */
-void process_vnode(struct kinfo_file *file) {
-    char *nm = NULL;
+void process_vnode(struct lsof_context *ctx, struct kinfo_file *file) {
+    enum lsof_fd_type fd_type;
     int num = -1;
     uint32_t flag;
     char *type_name = NULL;
     int mib[3];
     size_t size;
-    char path[PATH_MAX];
+    char path[PATH_MAX] = {0};
 
     /* Alloc Lf and set fd */
     switch (file->fd_fd) {
     case KERN_FILE_TEXT:
-        nm = "txt";
+        fd_type = LSOF_FD_PROGRAM_TEXT;
         break;
     case KERN_FILE_CDIR:
-        nm = "cwd";
-
+        fd_type = LSOF_FD_CWD;
         break;
     case KERN_FILE_RDIR:
-        nm = "rtd";
+        fd_type = LSOF_FD_ROOT_DIR;
         break;
     default:
+        fd_type = LSOF_FD_NUMERIC;
         num = file->fd_fd;
         break;
     }
-    alloc_lfile(nm, num);
+    alloc_lfile(ctx, fd_type, num);
 
     if (file->fd_fd == KERN_FILE_CDIR) {
         /*
@@ -76,7 +76,7 @@ void process_vnode(struct kinfo_file *file) {
         size = sizeof(path);
         if (sysctl(mib, 3, path, &size, NULL, 0) >= 0) {
             (void)snpf(Namech, Namechl, "%s", path);
-            enter_nm(Namech);
+            enter_nm(ctx, Namech);
         }
     }
 
@@ -152,11 +152,11 @@ void process_vnode(struct kinfo_file *file) {
 
     /* Handle name match, must be done late, because if_file_named checks
      * Lf->dev etc. */
-    if (is_file_named(nm, 0)) {
+    if (path[0] && is_file_named(ctx, path, 0)) {
         Lf->sf |= SELNM;
     }
 
     /* Finish */
     if (Lf->sf)
-        link_lfile();
+        link_lfile(ctx);
 }

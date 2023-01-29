@@ -74,6 +74,7 @@ lockf_owner.h
 lockf.h
 lsof.man
 /site
+lib/dialects/netbsd/include
 
 #
 # Symbolic links to lsof cli
@@ -97,6 +98,7 @@ lsof.man
 /dlsof.h
 /dmnt.c
 /dnode.c
+/dnode1.c
 /dproc.c
 /dproto.h
 /dsock.c

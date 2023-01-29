@@ -153,4 +153,6 @@ struct sfile {
 #    define DIRTYPE dirent
 #    define HASDNAMLEN 1 /* struct DIRTYPE has d_namlen element */
 
+struct lsof_context_dialect {};
+
 #endif /* OPENBSD_LSOF_H */

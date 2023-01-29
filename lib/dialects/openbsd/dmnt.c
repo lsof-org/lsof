@@ -45,7 +45,7 @@ static int Lmist = 0;                              /* Lmi status */
 /*
  * readmnt() - read mount table
  */
-struct mounts *readmnt() {
+struct mounts *readmnt(struct lsof_context *ctx) {
     char *dn = (char *)NULL;
     char *ln;
     struct mounts *mtp;
@@ -86,7 +86,7 @@ struct mounts *readmnt() {
             (void)fprintf(stderr, ")\n");
             Error();
         }
-        if ((ln = Readlink(dn)) == NULL) {
+        if ((ln = Readlink(ctx, dn)) == NULL) {
             if (!Fwarn) {
                 (void)fprintf(stderr,
                               "      Output information may be incomplete.\n");
@@ -102,7 +102,7 @@ struct mounts *readmnt() {
         /*
          * Stat() the directory.
          */
-        if (statsafely(dn, &sb)) {
+        if (statsafely(ctx, dn, &sb)) {
             if (!Fwarn) {
                 (void)fprintf(stderr, "%s: WARNING: can't stat() ", Pn);
                 safestrprt(mb->f_fstypename, stderr, 0);
@@ -141,13 +141,13 @@ struct mounts *readmnt() {
         if (!(dn = mkstrcpy(mb->f_mntfromname, (MALLOC_S *)NULL)))
             goto no_space_for_mount;
         mtp->fsname = dn;
-        ln = Readlink(dn);
+        ln = Readlink(ctx, dn);
         dn = (char *)NULL;
         /*
          * Stat() the file system (mounted-on) name and add file system
          * information to the local mount table entry.
          */
-        if (!ln || statsafely(ln, &sb))
+        if (!ln || statsafely(ctx, ln, &sb))
             sb.st_mode = 0;
         mtp->fsnmres = ln;
         mtp->fs_mode = sb.st_mode;
