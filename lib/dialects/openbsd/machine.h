@@ -458,7 +458,7 @@
  * TCP/TPI send and receive window sizes produced by netstat.
  */
 
-/* #define	HASTCPTPIW	1 */
+#define	HASTCPTPIW	1
 
 /*
  * HASTMPNODE is defined for those dialects that have tmpnodes.

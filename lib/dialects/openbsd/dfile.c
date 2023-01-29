@@ -48,6 +48,11 @@ void process_kqueue_file(struct lsof_context *ctx, struct kinfo_file *file) {
     /* Fill type name*/
     (void)snpf(Lf->type, sizeof(Lf->type), "KQUEUE");
 
+    /* Display count and state */
+    (void)snpf(Namech, Namechl, "count=%d, state=%#x", file->kq_count,
+               file->kq_state);
+    enter_nm(ctx, Namech);
+
     /* Fill dev with f_data if available */
     if (file->f_data) {
         (void)snpf(buf, sizeof(buf), "0x%" PRIx64, file->f_data);
@@ -76,4 +81,45 @@ void process_kqueue_file(struct lsof_context *ctx, struct kinfo_file *file) {
 /*
  * process_pipe() - process a file structure whose type is DTYPE_PIPE
  */
-void process_pipe(struct lsof_context *ctx, struct kinfo_file *file) {}
+void process_pipe(struct lsof_context *ctx, struct kinfo_file *file) {
+    char buf[64];
+    int flag;
+
+    /* Alloc Lf and set fd */
+    alloc_lfile(ctx, LSOF_FD_NUMERIC, file->fd_fd);
+
+    /* Fill type name*/
+    (void)snpf(Lf->type, sizeof(Lf->type), "PIPE");
+
+    /* Fill dev with f_data if available */
+    if (file->f_data) {
+        (void)snpf(buf, sizeof(buf), "0x%" PRIx64, file->f_data);
+        enter_dev_ch(ctx, buf);
+    }
+
+    /* Display peer and state */
+    if (file->pipe_peer)
+        (void)snpf(Namech, Namechl, "->0x%" PRIx64 ", state=%d",
+                   file->pipe_peer, file->pipe_state);
+    else
+        (void)snpf(Namech, Namechl, "state=%d", file->pipe_state);
+    enter_nm(ctx, Namech);
+
+    /* Fill offset */
+    Lf->off = 0;
+    Lf->off_def = 1;
+
+    /*
+     * Construct access code.
+     */
+    if ((flag = (file->f_flag & (FREAD | FWRITE))) == FREAD)
+        Lf->access = LSOF_FILE_ACCESS_READ;
+    else if (flag == FWRITE)
+        Lf->access = LSOF_FILE_ACCESS_WRITE;
+    else if (flag == (FREAD | FWRITE))
+        Lf->access = LSOF_FILE_ACCESS_READ_WRITE;
+
+    /* Finish */
+    if (Lf->sf)
+        link_lfile(ctx);
+}

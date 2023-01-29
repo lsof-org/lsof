@@ -126,10 +126,14 @@ void process_socket(struct lsof_context *ctx, struct kinfo_file *file) {
                        file->so_family);
         }
 
-        /* Fill TCP state */
+        /* Fill TCP state and window */
         if (file->so_type == SOCK_STREAM) {
             Lf->lts.type = 0;
             Lf->lts.state.i = file->t_state;
+            Lf->lts.rws = 1;
+            Lf->lts.rw = file->t_rcv_wnd;
+            Lf->lts.wws = 1;
+            Lf->lts.ww = file->t_snd_wnd;
         }
 
         /* Fill dev with pcb if available */
@@ -168,12 +172,6 @@ void process_socket(struct lsof_context *ctx, struct kinfo_file *file) {
                    file->unp_path[0] ? file->unp_path : "",
                    file->unp_path[0] ? " " : "", type);
         (void)enter_nm(ctx, Namech);
-
-        /* Fill TCP state */
-        if (file->so_type == SOCK_STREAM) {
-            Lf->lts.type = 0;
-            Lf->lts.state.i = file->t_state;
-        }
 
         /* Fill dev with so_pcb if available */
         if (file->so_pcb && file->so_pcb != (uint64_t)(-1)) {
