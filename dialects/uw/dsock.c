@@ -1104,7 +1104,7 @@ find_unix_sockaddr_un(ka)
 	    char *ch = (char *)NULL;
 	    int ct, pct;
 	    struct strioctl ioc;
-	    int sock = -1;
+	    int sock;
 
 	    if (alct < 0)
 		return((struct sockaddr_un *)NULL);
