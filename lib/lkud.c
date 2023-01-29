@@ -93,7 +93,7 @@ lkupbdev_again:
             if ((i == 0) || (ty != 1) || (inode == dp->inode)) {
 
 #    if defined(HASDCACHE)
-                if (DCunsafe && !dp->v && !vfy_dev(dp))
+                if (DCunsafe && !dp->v && !vfy_dev(ctx, dp))
                     goto lkupbdev_again;
 #    endif /* defined(HASDCACHE) */
 
@@ -108,7 +108,7 @@ lkupbdev_again:
 
 #    if defined(HASDCACHE)
     if (DCunsafe && r) {
-        (void)rereaddev();
+        (void)rereaddev(ctx);
         goto lkupbdev_again;
     }
 #    endif /* defined(HASDCACHE) */

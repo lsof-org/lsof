@@ -110,7 +110,7 @@ printdevname_again:
 
 #    if defined(HASBLKDEV)
     if (nty == N_BLK)
-        dp = lkupbdev(dev, rdev, 1, r);
+        dp = lkupbdev(ctx, dev, rdev, 1, r);
     else
 #    endif /* defined(HASBLKDEV) */
 
@@ -125,7 +125,7 @@ printdevname_again:
 
 #    if defined(HASBLKDEV)
     if (nty == N_BLK)
-        dp = lkupbdev(&DevDev, rdev, 0, r);
+        dp = lkupbdev(ctx, &DevDev, rdev, 0, r);
     else
 #    endif /* defined(HASBLKDEV) */
 

@@ -348,7 +348,7 @@ void readdev(struct lsof_context *ctx,
         }
         (void)qsort((QSORT_P *)BSdev, (size_t)BNdev,
                     (size_t)sizeof(struct l_dev *), compdev);
-        BNdev = rmdupdev(&BSdev, BNdev, "block");
+        BNdev = rmdupdev(ctx, &BSdev, BNdev, "block");
     }
 
 #        if !defined(NOWARNBLKDEV)

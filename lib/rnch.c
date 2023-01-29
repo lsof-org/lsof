@@ -594,32 +594,8 @@ void ncache_load() {
         }
 #    endif /* defined(NCACHE_NXT) */
     }
-    /*
-     * Reduce memory usage, as required.
-     */
-
-#    if !defined(NCACHE_NXT)
-    if (!RptTm)
-        (void)free((FREE_P *)kca);
-#    endif /* !defined(NCACHE_NXT) */
 
     if (n < 1) {
-        if (!RptTm && Ncache) {
-
-            /*
-             * If not in repeat mode, free the space that has been malloc'd
-             * to the local name cache.
-             */
-            for (i = 0, lc = Ncache; i < Nc; i++, lc++) {
-                if (lc->nm) {
-                    (void)free((FREE_P *)lc->nm);
-                    lc->nm = (char *)NULL;
-                }
-            }
-            (void)free((FREE_P *)Ncache);
-            Ncache = (struct l_nch *)NULL;
-            Nc = 0;
-        }
         if (!Fwarn)
             (void)fprintf(stderr, "%s: WARNING: unusable name cache size: %d\n",
                           Pn, n);
@@ -627,11 +603,6 @@ void ncache_load() {
     }
     if (n < Nc) {
         Nc = n;
-        if (!RptTm) {
-            len = Nc * sizeof(struct l_nch);
-            if (!(Ncache = (struct l_nch *)realloc(Ncache, len)))
-                goto no_local_space;
-        }
     }
     /*
      * Build a hash table to locate Ncache entries.

@@ -464,17 +464,8 @@ void ncache_load() {
      * Reduce memory usage, as required.
      */
 
-#    if !defined(NCACHE_NXT)
-    if (!RptTm)
-        (void)free((FREE_P *)kca);
-#    endif /* !defined(NCACHE_NXT) */
-
     if (n < 1) {
         Nc = 0;
-        if (!RptTm) {
-            (void)free((FREE_P *)Ncache);
-            Ncache = (struct l_nch *)NULL;
-        }
         if (!Fwarn)
             (void)fprintf(stderr, "%s: WARNING: unusable name cache size: %d\n",
                           Pn, n);
@@ -482,11 +473,6 @@ void ncache_load() {
     }
     if (n < Nc) {
         Nc = n;
-        if (!RptTm) {
-            len = Nc * sizeof(struct l_nch);
-            if (!(Ncache = (struct l_nch *)realloc(Ncache, len)))
-                goto no_local_space;
-        }
     }
     /*
      * Build a hash table to locate Ncache entries.

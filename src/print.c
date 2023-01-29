@@ -1419,7 +1419,7 @@ void printname(nl) int nl; /* NL status */
 #        endif /* defined(NCACHELDPFX) */
 
                     (void)
-                ncache_load();
+                ncache_load(ctx);
 
 #        if defined(NCACHELDSFX)
                 NCACHELDSFX
@@ -1427,7 +1427,7 @@ void printname(nl) int nl; /* NL status */
 
                 NcacheReload = 0;
             }
-            if ((cp = ncache_lookup(buf, sizeof(buf), &fp))) {
+            if ((cp = ncache_lookup(ctx, buf, sizeof(buf), &fp))) {
                 char *cp1;
 
                 if (*cp == '\0')

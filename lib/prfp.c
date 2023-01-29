@@ -32,7 +32,7 @@
 
 #if defined(USE_LIB_PROCESS_FILE)
 
-#    include "../common.h"
+#    include "common.h"
 
 /*
  * process_file() - process file
@@ -48,7 +48,8 @@
  *			#define FILEPTR	foobar
  */
 
-void process_file(fp) KA_T fp; /* kernel file structure address */
+void process_file(struct lsof_context *ctx,
+                  KA_T fp) /* kernel file structure address */
 {
     struct file f;
     int flag;
@@ -67,7 +68,7 @@ void process_file(fp) KA_T fp; /* kernel file structure address */
     if (kread((KA_T)fp, (char *)&f, sizeof(f))) {
         (void)snpf(Namech, Namechl, "can't read file struct from %s",
                    print_kptr(fp, (char *)NULL, 0));
-        enter_nm(Namech);
+        enter_nm(ctx, Namech);
         return;
     }
     Lf->off = (SZOFFTYPE)f.f_offset;
@@ -126,7 +127,7 @@ void process_file(fp) KA_T fp; /* kernel file structure address */
         case DTYPE_PIPE:
 #        if defined(HASPIPEFN)
             if (!Selinet)
-                HASPIPEFN((KA_T)f.f_data);
+                HASPIPEFN(ctx, (KA_T)f.f_data);
 #        endif /* defined(HASPIPEFN) */
             return;
 #    endif /* defined(DTYPE_PIPE) */
@@ -160,19 +161,19 @@ void process_file(fp) KA_T fp; /* kernel file structure address */
 #    endif /* defined(DTYPE_VNODE) */
 
 #    if defined(HASF_VNODE)
-            process_node((KA_T)f.f_vnode);
+            process_node(ctx, (KA_T)f.f_vnode);
 #    else  /* !defined(HASF_VNODE) */
-            process_node((KA_T)f.f_data);
+            process_node(ctx, (KA_T)f.f_data);
 #    endif /* defined(HASF_VNODE) */
 
             return;
         case DTYPE_SOCKET:
-            process_socket((KA_T)f.f_data);
+            process_socket(ctx, (KA_T)f.f_data);
             return;
 
 #    if defined(HASKQUEUE)
         case DTYPE_KQUEUE:
-            process_kqueue((KA_T)f.f_data);
+            process_kqueue(ctx, (KA_T)f.f_data);
             return;
 #    endif /* defined(HASKQUEUE) */
 
@@ -201,7 +202,7 @@ void process_file(fp) KA_T fp; /* kernel file structure address */
                 (void)snpf(Namech, Namechl,
                            "no more information; ty=%d file may be closing",
                            (int)f.f_type);
-                enter_nm(Namech);
+                enter_nm(ctx, Namech);
                 return;
             }
 #    endif /* defined(X_BADFILEOPS) */
@@ -210,11 +211,11 @@ void process_file(fp) KA_T fp; /* kernel file structure address */
                 (void)snpf(Namech, Namechl, "%s file struct, ty=%d, op=%s",
                            print_kptr(fp, tbuf, sizeof(tbuf)), (int)f.f_type,
                            print_kptr((KA_T)f.f_ops, (char *)NULL, 0));
-                enter_nm(Namech);
+                enter_nm(ctx, Namech);
                 return;
             }
         }
     }
-    enter_nm("no more information");
+    enter_nm(ctx, "no more information");
 }
 #endif /* defined(USE_LIB_PROCESS_FILE) */

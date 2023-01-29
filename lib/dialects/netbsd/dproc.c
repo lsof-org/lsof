@@ -63,9 +63,10 @@ static char copyright[] =
 #    define OFILES(fd, dt) ((fd).fd_ofiles)
 #endif
 
-_PROTOTYPE(static void enter_vn_text, (KA_T va, int *n));
-_PROTOTYPE(static void get_kernel_access, (void));
-_PROTOTYPE(static void process_text, (KA_T vm));
+_PROTOTYPE(static void enter_vn_text,
+           (struct lsof_context * ctx, KA_T va, int *n));
+_PROTOTYPE(static void get_kernel_access, (struct lsof_context * ctx));
+_PROTOTYPE(static void process_text, (struct lsof_context * ctx, KA_T vm));
 
 /*
  * Local static values
@@ -78,10 +79,10 @@ static KA_T *Vp = NULL; /* vnode address cache */
  * ckkv - check kernel version
  */
 
-void ckkv(d, er, ev, ea) char *d; /* dialect */
-char *er;                         /* expected release */
-char *ev;                         /* expected version */
-char *ea;                         /* expected architecture */
+void ckkv(struct lsof_context *ctx, char *d, /* dialect */
+          char *er,                          /* expected release */
+          char *ev,                          /* expected version */
+          char *ea)                          /* expected architecture */
 {
 
 #if defined(HASKERNIDCK)
@@ -116,8 +117,8 @@ char *ea;                         /* expected architecture */
  * enter_vn_text() - enter a vnode text reference
  */
 
-static void enter_vn_text(va, n) KA_T va; /* vnode address */
-int *n;                                   /* Vp[] entries in use */
+static void enter_vn_text(struct lsof_context *ctx, KA_T va, /* vnode address */
+                          int *n) /* Vp[] entries in use */
 {
     int i;
     /*
@@ -130,11 +131,11 @@ int *n;                                   /* Vp[] entries in use */
     /*
      * Save the text file information.
      */
-    alloc_lfile(" txt", -1);
+    alloc_lfile(ctx, LSOF_FD_PROGRAM_TEXT, -1);
     Cfp = (struct file *)NULL;
-    process_node((KA_T)va);
+    process_node(ctx, (KA_T)va);
     if (Lf->sf)
-        link_lfile();
+        link_lfile(ctx);
     if (i >= Nv) {
 
         /*
@@ -162,7 +163,7 @@ int *n;                                   /* Vp[] entries in use */
  * gather_proc_info() -- gather process information
  */
 
-void gather_proc_info() {
+void gather_proc_info(struct lsof_context *ctx) {
     struct filedesc fd;
     int i, nf;
     MALLOC_S nb;
@@ -228,7 +229,7 @@ void gather_proc_info() {
          * Read file structure pointers.
          */
         uid = p->P_UID;
-        if (is_proc_excl((int)p->P_PID, (int)p->P_PGID, (UID_ARG)uid, &pss,
+        if (is_proc_excl(ctx, (int)p->P_PID, (int)p->P_PGID, (UID_ARG)uid, &pss,
                          &sf)) {
             continue;
         }
@@ -251,38 +252,38 @@ void gather_proc_info() {
         /*
          * Allocate a local process structure.
          */
-        if (is_cmd_excl(p->P_COMM, &pss, &sf))
+        if (is_cmd_excl(ctx, p->P_COMM, &pss, &sf))
             continue;
-        alloc_lproc((int)p->P_PID, (int)p->P_PGID, (int)p->P_PPID, (UID_ARG)uid,
-                    p->P_COMM, (int)pss, (int)sf);
+        alloc_lproc(ctx, (int)p->P_PID, (int)p->P_PGID, (int)p->P_PPID,
+                    (UID_ARG)uid, p->P_COMM, (int)pss, (int)sf);
         Plf = (struct lfile *)NULL;
         Kpa = (KA_T)p->P_ADDR;
         /*
          * Save current working directory information.
          */
         if (CDIR) {
-            alloc_lfile(CWD, -1);
+            alloc_lfile(ctx, LSOF_FD_CWD, -1);
             Cfp = (struct file *)NULL;
-            process_node((KA_T)CDIR);
+            process_node(ctx, (KA_T)CDIR);
             if (Lf->sf)
-                link_lfile();
+                link_lfile(ctx);
         }
         /*
          * Save root directory information.
          */
         if (RDIR) {
-            alloc_lfile(RTD, -1);
+            alloc_lfile(ctx, LSOF_FD_ROOT_DIR, -1);
             Cfp = (struct file *)NULL;
-            process_node((KA_T)RDIR);
+            process_node(ctx, (KA_T)RDIR);
             if (Lf->sf)
-                link_lfile();
+                link_lfile(ctx);
         }
 
         /*
          * Save information on the text file.
          */
         if (p->P_VMSPACE)
-            process_text((KA_T)p->P_VMSPACE);
+            process_text(ctx, (KA_T)p->P_VMSPACE);
         /*
          * Read open file structure pointers.
          */
@@ -341,22 +342,22 @@ void gather_proc_info() {
 #else  /* ! HAVE_STRUCT_FDFILE */
                 Cfp = ofb[i];
 #endif /* ! HAVE_STRUCT_FDFILE */
-                alloc_lfile(NULL, i);
-                process_file((KA_T)Cfp);
+                alloc_lfile(ctx, LSOF_FD_NUMERIC, i);
+                process_file(ctx, (KA_T)Cfp);
                 if (Lf->sf) {
 
 #if defined(HASFSTRUCT)
                     Lf->pof = (long)pof[i];
 #endif /* defined(HASFSTRUCT) */
 
-                    link_lfile();
+                    link_lfile(ctx);
                 }
             }
         }
         /*
          * Examine results.
          */
-        if (examine_lproc())
+        if (examine_lproc(ctx))
             return;
     }
 }
@@ -365,12 +366,12 @@ void gather_proc_info() {
  * get_kernel_access() - get access to kernel memory
  */
 
-static void get_kernel_access() {
+static void get_kernel_access(struct lsof_context *ctx) {
     KA_T v;
     /*
      * Check kernel version.
      */
-    (void)ckkv("NetBSD", LSOF_VSTR, (char *)NULL, (char *)NULL);
+    (void)ckkv(ctx, "NetBSD", LSOF_VSTR, (char *)NULL, (char *)NULL);
     /*
      * Set name list file path.
      */
@@ -380,7 +381,7 @@ static void get_kernel_access() {
         Nmlst = N_UNIX;
 #else  /* !defined(N_UNIX) */
     {
-        if (!(Nmlst = get_nlist_path(1))) {
+        if (!(Nmlst = get_nlist_path(ctx, 1))) {
             (void)fprintf(stderr, "%s: can't get kernel name list path\n", Pn);
             Error();
         }
@@ -393,7 +394,7 @@ static void get_kernel_access() {
      * before attempting to open the (Memory) file.
      */
     if (Memory)
-        (void)dropgid();
+        (void)dropgid(ctx);
 #else  /* !defined(WILLDROPGID) */
     /*
      * See if the non-KMEM memory and name list files are readable.
@@ -421,7 +422,7 @@ static void get_kernel_access() {
                       strerror(errno));
         Error();
     }
-    (void)build_Nl(Drive_Nl);
+    (void)build_Nl(ctx, Drive_Nl);
     if (kvm_nlist(Kd, Nl) < 0) {
         (void)fprintf(stderr, "%s: can't read namelist from %s\n", Pn, Nmlst);
         Error();
@@ -432,13 +433,13 @@ static void get_kernel_access() {
      * Drop setgid permission, if necessary.
      */
     if (!Memory)
-        (void)dropgid();
+        (void)dropgid(ctx);
 #endif /* defined(WILLDROPGID) */
 
     /*
      * Read the kernel's page shift amount, if possible.
      */
-    if (get_Nl_value("pgshift", Drive_Nl, &v) < 0 || !v ||
+    if (get_Nl_value(ctx, "pgshift", Drive_Nl, &v) < 0 || !v ||
         kread((KA_T)v, (char *)&pgshift, sizeof(pgshift)))
         pgshift = 0;
 }
@@ -448,11 +449,11 @@ static void get_kernel_access() {
  * get_nlist_path() - get kernel name list path
  */
 
-char *get_nlist_path(ap)
-int ap; /* on success, return an allocated path
-         * string pointer if 1; return a
-         * constant character pointer if 0;
-         * return NULL if failure */
+char *get_nlist_path(struct lsof_context *ctx,
+                     int ap) /* on success, return an allocated path
+                              * string pointer if 1; return a
+                              * constant character pointer if 0;
+                              * return NULL if failure */
 {
     const char *bf;
     static char *bfc;
@@ -481,7 +482,12 @@ int ap; /* on success, return an allocated path
  * initialize() - perform all initialization
  */
 
-void initialize() { get_kernel_access(); }
+void initialize(struct lsof_context *ctx) { get_kernel_access(ctx); }
+
+/*
+ * deinitialize() - perform all cleanup
+ */
+void deinitialize(struct lsof_context *ctx) {}
 
 /*
  * kread() - read from kernel memory
@@ -501,7 +507,8 @@ READLEN_T len; /* length to read */
 /*
  * process_text() - process text information
  */
-void process_text(vm) KA_T vm; /* kernel vm space pointer */
+void process_text(struct lsof_context *ctx,
+                  KA_T vm) /* kernel vm space pointer */
 {
     int i, j;
     KA_T ka;
@@ -549,7 +556,7 @@ void process_text(vm) KA_T vm; /* kernel vm space pointer */
          * type as a vnode pointer.
          */
         if ((e->etype > UVM_ET_OBJ) && e->object.uvm_obj)
-            (void)enter_vn_text((KA_T)e->object.uvm_obj, &n);
+            (void)enter_vn_text(ctx, (KA_T)e->object.uvm_obj, &n);
 #else  /* !defined(UVM) */
         /*
          * Read the map entry's object and the object's shadow.

@@ -190,21 +190,3 @@ struct tmpnode *t; /* tmpnode buffer pointer */
     return (0);
 }
 #endif /* defined(HASTMPNODE) */
-
-#if defined(HASVNODE)
-/*
- * readvnode() - read vnode
- */
-
-int readvnode(struct lsof_context *ctx,
-              KA_T va,         /* vnode kernel space address */
-              struct vnode *v) /* vnode buffer pointer */
-{
-    if (kread((KA_T)va, (char *)v, sizeof(struct vnode))) {
-        (void)snpf(Namech, Namechl, "can't read vnode at %s",
-                   print_kptr(va, (char *)NULL, 0));
-        return (1);
-    }
-    return (0);
-}
-#endif /* defined(HASVNODE) */

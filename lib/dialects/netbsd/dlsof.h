@@ -568,4 +568,6 @@ struct sfile {
 #        define NCACHE_VROOT VROOT
 #    endif /* VV_ROOT */
 
+struct lsof_context_dialect {};
+
 #endif /* NETBSD_LSOF_H */

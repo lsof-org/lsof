@@ -73,7 +73,6 @@ int Ffilesys = 0;            /* -f option status:
                               *    2 = paths must be file systems */
 
 #if defined(HASNCACHE)
-int Fncache = 1;      /* -C option status */
 int NcacheReload = 1; /* 1 == call ncache_load() */
 #endif                /* defined(HASNCACHE) */
 

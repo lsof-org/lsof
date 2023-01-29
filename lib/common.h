@@ -700,7 +700,6 @@ extern int Fhelp;
 extern int Fhost;
 
 #    if defined(HASNCACHE)
-extern int Fncache;
 extern int NcacheReload;
 #    endif /* defined(HASNCACHE) */
 
@@ -1230,6 +1229,9 @@ struct lsof_context {
     char *name_list_path; /* namelist file path */
     char *core_file_path; /* core file path */
 
+    /* name cache */
+    int name_cache_enable; /* -C option status */
+
     /** Output */
     /** Pointer to current process */
     struct lproc *cur_proc;
@@ -1410,6 +1412,8 @@ struct lsof_context {
 #    define Procsrch (ctx->procfs_search)
 #    define Procfsid (ctx->procfs_table)
 #    define Procfind (ctx->procfs_found)
+/* name cache */
+#    define Fncache (ctx->name_cache_enable)
 
 /* Utility macro to free if non-null and set the pointer to null */
 #    define CLEAN(ptr)                                                         \

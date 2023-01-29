@@ -753,14 +753,6 @@ int *n; /* returned ps[] entry count */
                 rc = 0;
         }
     } while (rc > 0);
-    /*
-     * Reduce ps[] to a minimum, unless repeat mode is in effect.
-     */
-    if (!RptTm && ps && np && (np < npa)) {
-        nb = (MALLOC_S)(np * sizeof(struct pst_status));
-        if (!(ps = (struct pst_status *)realloc((MALLOC_P *)ps, nb)))
-            goto ps_alloc_error;
-    }
     *n = np;
     return (ps);
 }

@@ -110,7 +110,7 @@ _PROTOTYPE(static int rw_clone_sect, (int m));
  * alloc_bdcache() - allocate block device cache
  */
 
-void alloc_bdcache() {
+void alloc_bdcache(struct lsof_context *ctx) {
     if (!(BDevtp =
               (struct l_dev *)calloc((MALLOC_S)BNdev, sizeof(struct l_dev)))) {
         (void)fprintf(stderr, "%s: no space for block devices\n", Pn);
@@ -940,7 +940,7 @@ int read_dcache(struct lsof_context *ctx) {
      * Compute the block device count; allocate BSdev[] and BDevtp[] space.
      */
     if ((BNdev = atoi(&buf[len])) > 0) {
-        alloc_bdcache();
+        alloc_bdcache(ctx);
         /*
          * Read the block device lines and store their information in BDevtp[].
          * Construct the BSdev[] pointers to BDevtp[].
@@ -1171,7 +1171,7 @@ int m; /* mode: 1 = read; 2 = write */
         for (c = Clone, n = 0; c; c = c->next, n++)
             ;
         (void)snpf(buf, sizeof(buf), "clone section: %d\n", n);
-        if (wr2DCfd(buf, &DCcksum))
+        if (wr2DCfd(ctx, buf, &DCcksum))
             return (1);
         /*
          * Write the clone section lines.
@@ -1193,7 +1193,7 @@ int m; /* mode: 1 = read; 2 = write */
                 return (1);
             }
             (void)snpf(buf, sizeof(buf), "%d %s\n", j, dp->name);
-            if (wr2DCfd(buf, &DCcksum))
+            if (wr2DCfd(ctx, buf, &DCcksum))
                 return (1);
         }
         return (0);
@@ -1265,14 +1265,14 @@ void write_dcache(struct lsof_context *ctx) {
      * Write the block device section from the contents of BSdev[] and BDevtp[].
      */
     (void)snpf(buf, sizeof(buf), "block device section: %d\n", BNdev);
-    if (wr2DCfd(buf, &DCcksum))
+    if (wr2DCfd(ctx, buf, &DCcksum))
         return;
     if (BNdev) {
         for (i = 0; i < BNdev; i++) {
             dp = BSdev[i];
             (void)snpf(buf, sizeof(buf), "%lx %ld %s\n", (long)dp->rdev,
                        (long)dp->inode, dp->name);
-            if (wr2DCfd(buf, &DCcksum))
+            if (wr2DCfd(ctx, buf, &DCcksum))
                 return;
         }
     }

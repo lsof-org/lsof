@@ -72,6 +72,8 @@ struct lsof_context *lsof_new() {
          *  3 = update; read and rebuild if
          *	    necessary (-Du[path]) */
         ctx->dev_cache_state = 3;
+        /* enable name cache */
+        ctx->name_cache_enable = 1;
     }
     return ctx;
 }
