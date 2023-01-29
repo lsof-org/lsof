@@ -4458,7 +4458,7 @@ struct pid *pids; /* pid structure receiver */
         ty = "POBJ";
         break;
     case PR_LWPDIR:
-        (void)snpf(Namech, Namechl - 1, "/%s/%d/lpw", HASPROCFS, (int)prpid);
+        (void)snpf(Namech, Namechl - 1, "/%s/%d/lwp", HASPROCFS, (int)prpid);
         ty = "PLDR";
         break;
     case PR_LWPIDDIR:

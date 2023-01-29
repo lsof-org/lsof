@@ -1291,7 +1291,7 @@ process_overlaid_node:
         case Pfd:
             ep = endnm(&sz);
             (void)snpf(ep, sz, "/%d/fd", p.pfs_pid);
-            ty = "PFD";
+            ty = "PFDR";
             break;
 #    endif /* defined(Pfd) */
 
