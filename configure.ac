@@ -356,6 +356,10 @@ AC_CHECK_MEMBERS([struct xtcpcb.t_maxseg], [], [], [#include <sys/types.h>
 AC_CHECK_MEMBERS([struct kinfo_file.kf_un.kf_sock.kf_sock_sendq], [], [], [#include <sys/types.h>
 	#include <sys/user.h>])
 
+# Detect struct kinfo_file.kf_un.kf_file.kf_file_nlink for HAS_KF_FILE_NLINK
+AC_CHECK_MEMBERS([struct kinfo_file.kf_un.kf_file.kf_file_nlink], [], [], [#include <sys/types.h>
+	#include <sys/user.h>])
+
 # Detect nfs/nfsproto.h for HASNFSPROTO
 AC_CHECK_HEADERS([nfs/nfsproto.h])
 
