@@ -97,7 +97,8 @@ DIALECT_NEUTRAL_TESTS = tests/case-00-hello.bash \
 	tests/case-20-offset-field.bash \
 	tests/case-20-repeat-count.bash \
 	tests/case-21-exit-Q-status.bash \
-	tests/case-22-empty-process-name.bash
+	tests/case-22-empty-process-name.bash \
+	tests/case-23-c-option.bash
 TESTS = $(DIALECT_NEUTRAL_TESTS)
 EXTRA_DIST += $(DIALECT_NEUTRAL_TESTS) \
 	tests/case-13-classic.bash \
