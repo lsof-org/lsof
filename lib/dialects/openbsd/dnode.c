@@ -127,6 +127,10 @@ void process_vnode(struct lsof_context *ctx, struct kinfo_file *file) {
     case VDIR:
         type_name = "DIR";
         break;
+    case VBLK:
+        Ntype = N_BLK;
+        type_name = "BLK";
+        break;
     case VCHR:
         Ntype = N_CHR;
         type_name = "CHR";
@@ -152,7 +156,7 @@ void process_vnode(struct lsof_context *ctx, struct kinfo_file *file) {
 
     /* Handle name match, must be done late, because if_file_named checks
      * Lf->dev etc. */
-    if (path[0] && is_file_named(ctx, path, 0)) {
+    if (is_file_named(ctx, path, 0)) {
         Lf->sf |= SELNM;
     }
 
