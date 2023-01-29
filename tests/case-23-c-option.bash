@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 source tests/common.bash
 
-file=$(mktemp /tmp/case-23-c-option.XXXXX)
+file=$(mktemp /tmp/case-23-c-option.XXXXXX)
 
 # lsof -clsof finds itself
 $lsof -n -clsof > $file &
