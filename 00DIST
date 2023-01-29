@@ -5534,6 +5534,16 @@ Supplement	Regenerated the 4.04 distribution to correct a non-
 		[darwin] Remove /dev/kmem backend because it no longer exists on
 		current macOS releases. Use libproc backend instead.
 
+		
+		[linux] Do not hard-code fd numbers in epoll test, fixing tests
+		on Void Linux
+
+
+		[freebsd] Use kf_file_nlink if provided by kernel instead of
+		stat(). This commit requires kernel with
+		https://reviews.freebsd.org/D38169. It brings back the ability
+		to list deleted files via `lsof +L1`. Closes #264.
+
 4.9?.?		????????? ??, ????
 
 Vic Abell <abe@purdue.edu>
