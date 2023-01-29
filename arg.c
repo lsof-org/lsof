@@ -993,7 +993,7 @@ enter_dir(d, descend)
 	char *av[2];
 	dev_t ddev;
 	DIR *dfp;
-	char *dn = (char *)NULL;
+	char *dn;
 	MALLOC_S dnl, dnamlen;
 	struct DIRTYPE *dp;
 	int en, sl;
