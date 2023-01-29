@@ -627,15 +627,15 @@ KA_T na;                /* node address */
      * Construct lock code.
      */
     if ((lk = pd->psfd_lckflag) & PS_FPARTRDLCK)
-        Lf->lock = 'r';
+        Lf->lock = LSOF_LOCK_READ_PARTIAL;
     else if (lk & PS_FPARTWRLCK)
-        Lf->lock = 'w';
+        Lf->lock = LSOF_LOCK_WRITE_PARTIAL;
     else if (lk & PS_FFULLRDLCK)
-        Lf->lock = 'R';
+        Lf->lock = LSOF_LOCK_READ_FULL;
     else if (lk & PS_FFULLWRLCK)
-        Lf->lock = 'W';
+        Lf->lock = LSOF_LOCK_WRITE_FULL;
     else
-        Lf->lock = ' ';
+        Lf->lock = LSOF_LOCK_NONE;
     /*
      * Derive type from modes.
      */

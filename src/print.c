@@ -631,6 +631,7 @@ void print_file() {
     dev_t dev;
     int devs, len;
     char access;
+    char lock;
 
     if (PrPass && !Hdr) {
 
@@ -834,20 +835,21 @@ void print_file() {
      */
     print_fd(Lf->fd_type, Lf->fd_num, fd);
     access = print_access(Lf->access);
+    lock = print_lock(Lf->lock);
     if (!PrPass) {
         (void)snpf(buf, sizeof(buf), "%s%c%c", fd,
-                   (Lf->lock == ' ') ? access
+                   (lock == ' ')     ? access
                    : (access == ' ') ? '-'
                                      : access,
-                   Lf->lock);
+                   lock);
         if ((len = strlen(buf)) > FdColW)
             FdColW = len;
     } else
         (void)printf(" %*.*s%c%c", FdColW - 2, FdColW - 2, fd,
-                     (Lf->lock == ' ') ? access
+                     (lock == ' ')     ? access
                      : (access == ' ') ? '-'
                                        : access,
-                     Lf->lock);
+                     lock);
     /*
      * Size or print the type.
      */
@@ -1805,6 +1807,7 @@ int print_proc() {
     int rv = 0;
     unsigned long ul;
     char access;
+    char lock;
 
     /*
      * If nothing in the process has been selected, skip it.
@@ -1918,7 +1921,8 @@ int print_proc() {
             lc++;
         }
         if (FieldSel[LSOF_FIX_LOCK].st) {
-            (void)printf("%c%c%c", LSOF_FID_LOCK, Lf->lock, Terminator);
+            lock = print_lock(Lf->lock);
+            (void)printf("%c%c%c", LSOF_FID_LOCK, lock, Terminator);
             lc++;
         }
         if (FieldSel[LSOF_FIX_TYPE].st) {

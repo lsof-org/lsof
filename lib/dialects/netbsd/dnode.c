@@ -645,11 +645,13 @@ process_overlaid_node:
                 else
                     lt = 0;
                 if (lf.lf_type == F_RDLCK)
-                    Lf->lock = lt ? 'R' : 'r';
+                    Lf->lock =
+                        lt ? LSOF_LOCK_READ_FULL : LSOF_LOCK_READ_PARTIAL;
                 else if (lf.lf_type == F_WRLCK)
-                    Lf->lock = lt ? 'W' : 'w';
+                    Lf->lock =
+                        lt ? LSOF_LOCK_WRITE_FULL : LSOF_LOCK_WRITE_PARTIAL;
                 else if (lf.lf_type == (F_RDLCK | F_WRLCK))
-                    Lf->lock = 'u';
+                    Lf->lock = LSOF_LOCK_READ_WRITE;
                 break;
             } while ((lfp = lf.lf_next) && lfp != lff);
         }

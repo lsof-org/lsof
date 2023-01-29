@@ -63,9 +63,11 @@ static void get_lock_state_sysctl(struct kinfo_file *kf,
     if (lock != NULL) {
         int whole_file = (lock->kl_start == 0 && lock->kl_len == 0);
         if (lock->kl_rw == KLOCKF_RW_READ)
-            Lf->lock = whole_file ? 'R' : 'r';
+            Lf->lock =
+                whole_file ? LSOF_LOCK_READ_FULL : LSOF_LOCK_READ_PARTIAL;
         else if (lock->kl_rw == KLOCKF_RW_WRITE)
-            Lf->lock = whole_file ? 'W' : 'w';
+            Lf->lock =
+                whole_file ? LSOF_LOCK_WRITE_FULL : LSOF_LOCK_WRITE_PARTIAL;
     }
 }
 #endif /* KERN_LOCKF */
@@ -97,9 +99,9 @@ static void get_lock_state_kvm(struct lsof_context *ctx,
             else
                 lt = 0;
             if (le.lf_type == F_RDLCK)
-                Lf->lock = lt ? 'R' : 'r';
+                Lf->lock = lt ? LSOF_LOCK_READ_FULL : LSOF_LOCK_READ_PARTIAL;
             else if (le.lf_type == F_WRLCK)
-                Lf->lock = lt ? 'W' : 'w';
+                Lf->lock = lt ? LSOF_LOCK_WRITE_FULL : LSOF_LOCK_WRITE_PARTIAL;
             return;
         }
     } while ((lep = (KA_T)le.lf_link.le_next) && (lep != lef));
@@ -138,9 +140,9 @@ static void get_lock_state_kvm(struct lsof_context *ctx,
             else
                 lt = 0;
             if (lf.lf_type == F_RDLCK)
-                Lf->lock = lt ? 'R' : 'r';
+                Lf->lock = lt ? LSOF_LOCK_READ_FULL : LSOF_LOCK_READ_PARTIAL;
             else if (lf.lf_type == F_WRLCK)
-                Lf->lock = lt ? 'W' : 'w';
+                Lf->lock = lt ? LSOF_LOCK_WRITE_FULL : LSOF_LOCK_WRITE_PARTIAL;
             break;
         } while ((lfp = (KA_T)lf.lf_next) && (lfp != f));
     }

@@ -1098,3 +1098,32 @@ char print_access(enum lsof_file_access_mode access) {
         return 'u';
     }
 }
+
+/*
+ * print_lock() - print enum lsof_lock_mode
+ */
+char print_lock(enum lsof_lock_mode lock) {
+    switch (lock) {
+    default:
+    case LSOF_LOCK_NONE:
+        return ' ';
+    case LSOF_LOCK_UNKNOWN:
+        return 'U';
+    case LSOF_LOCK_READ_PARTIAL:
+        return 'r';
+    case LSOF_LOCK_READ_FULL:
+        return 'R';
+    case LSOF_LOCK_WRITE_PARTIAL:
+        return 'w';
+    case LSOF_LOCK_WRITE_FULL:
+        return 'W';
+    case LSOF_LOCK_READ_WRITE:
+        return 'u';
+    case LSOF_LOCK_SOLARIS_NFS:
+        return 'N';
+    case LSOF_LOCK_SCO_PARTIAL:
+        return 'x';
+    case LSOF_LOCK_SCO_FULL:
+        return 'X';
+    }
+}

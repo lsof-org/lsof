@@ -1000,7 +1000,7 @@ struct vnode *v; /* vnode pointer */
  * isvlocked() - is Solaris vnode locked?
  */
 
-static char isvlocked(va)
+static enum lsof_lock_mode isvlocked(va)
 struct vnode *va; /* local vnode address */
 {
 
@@ -1034,7 +1034,7 @@ struct vnode *va; /* local vnode address */
 #endif     /* solaris>=20300 */
 
     if (va->v_filocks == NULL)
-        return (' ');
+        return (LSOF_LOCK_NONE);
 
 #if solaris < 20500
 #    if solaris > 20300 ||                                                     \
@@ -1048,7 +1048,7 @@ struct vnode *va; /* local vnode address */
         i = 0;
         do {
             if (kread(fp, (char *)&f, sizeof(f)))
-                return (' ');
+                return (LSOF_LOCK_NONE);
             i++;
             if (f.set.l_pid != (pid_t)Lp->pid)
                 continue;
@@ -1059,13 +1059,13 @@ struct vnode *va; /* local vnode address */
                 l = 0;
             switch (f.set.l_type & (F_RDLCK | F_WRLCK)) {
             case F_RDLCK:
-                return (l ? 'R' : 'r');
+                return (l ? LSOF_LOCK_READ_FULL : LSOF_LOCK_READ_PARTIAL);
             case F_WRLCK:
-                return (l ? 'W' : 'w');
+                return (l ? LSOF_LOCK_WRITE_FULL : LSOF_LOCK_WRITE_PARTIAL);
             case F_RDLCK | F_WRLCK:
-                return ('u');
+                return (LSOF_LOCK_READ_WRITE);
             default:
-                return ('N');
+                return (LSOF_LOCK_SOLARIS_NFS);
             }
         } while ((fp = (KA_T)f.next) && (fp != ff) && (i < 10000));
     }
@@ -1076,7 +1076,7 @@ struct vnode *va; /* local vnode address */
     i = 0;
     do {
         if (kread(lp, (char *)&ld, sizeof(ld)))
-            return (' ');
+            return (LSOF_LOCK_NONE);
         i++;
         if (!(LOCK_FLAGS & ACTIVE_LOCK) || LOCK_OWNER != (pid_t)Lp->pid)
             continue;
@@ -1094,16 +1094,17 @@ struct vnode *va; /* local vnode address */
             l = 0;
         switch (LOCK_TYPE) {
         case F_RDLCK:
-            return (l ? 'R' : 'r');
+            return (l ? LSOF_LOCK_READ_FULL : LSOF_LOCK_READ_PARTIAL);
         case F_WRLCK:
-            return (l ? 'W' : 'w');
+            return (l ? LSOF_LOCK_WRITE_FULL : LSOF_LOCK_WRITE_PARTIAL);
         case (F_RDLCK | F_WRLCK):
-            return ('u');
+            return (LSOF_LOCK_READ_WRITE);
         default:
-            return ('L');
+            /* It was 'L' since 1997, dunno what is it */
+            return (LSOF_LOCK_UNKNOWN);
         }
     } while ((lp = (KA_T)LOCK_NEXT) && (lp != lf) && (i < 10000));
-    return (' ');
+    return (LSOF_LOCK_NONE);
 #endif /* solaris>=20300 */
 }
 

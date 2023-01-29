@@ -247,13 +247,13 @@ void process_node(na) KA_T na; /* inode kernel space address */
             if (fl.flags & F_XOUT)
 #endif /* OSRV<500 */
 
-                Lf->lock = l ? 'X' : 'x';
+                Lf->lock = l ? LSOF_LOCK_SCO_FULL : LSOF_LOCK_SCO_PARTIAL;
             else if (fl.set.l_type == F_RDLCK)
-                Lf->lock = l ? 'R' : 'r';
+                Lf->lock = l ? LSOF_LOCK_READ_FULL : LSOF_LOCK_READ_PARTIAL;
             else if (fl.set.l_type == F_WRLCK)
-                Lf->lock = l ? 'W' : 'w';
+                Lf->lock = l ? LSOF_LOCK_WRITE_FULL : LSOF_LOCK_WRITE_PARTIAL;
             else if (fl.set.l_type == (F_RDLCK | F_WRLCK))
-                Lf->lock = 'u';
+                Lf->lock = LSOF_LOCK_READ_WRITE;
             break;
         } while ((flp = (KA_T)fl.next) && flp != flf);
     }

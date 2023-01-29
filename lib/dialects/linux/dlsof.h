@@ -213,7 +213,7 @@ struct llock {
     int pid;
     dev_t dev;
     INODETYPE inode;
-    char type;
+    enum lsof_lock_mode type;
     struct llock *next;
 };
 

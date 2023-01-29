@@ -528,7 +528,7 @@ struct vfs *kv;   /* copy of kernel VFS structure */
  * isvlocked() - is a vnode locked
  */
 
-static char isvlocked(va)
+static enum lsof_lock_mode isvlocked(va)
 struct vnode *va; /* local vnode address */
 {
     struct filock f;
@@ -536,7 +536,7 @@ struct vnode *va; /* local vnode address */
     int i, l;
 
     if (!(flf = (KA_T)va->v_filocks))
-        return (' ');
+        return (LSOF_LOCK_NONE);
     flp = flf;
     i = 0;
     do {
@@ -564,13 +564,13 @@ struct vnode *va; /* local vnode address */
             l = 0;
         switch (f.set.l_type & (F_RDLCK | F_WRLCK)) {
         case F_RDLCK:
-            return ((l) ? 'R' : 'r');
+            return ((l) ? LSOF_LOCK_READ_FULL : LSOF_LOCK_READ_PARTIAL);
         case F_WRLCK:
-            return ((l) ? 'W' : 'w');
+            return ((l) ? LSOF_LOCK_WRITE_FULL : LSOF_LOCK_WRITE_PARTIAL);
         case (F_RDLCK + F_WRLCK):
-            return ('u');
+            return (LSOF_LOCK_READ_WRITE);
         default:
-            return (' ');
+            return (LSOF_LOCK_NONE);
         }
     } while (flp != (KA_T)f.next && (flp = (KA_T)f.next) && flp != flf);
     return (' ');

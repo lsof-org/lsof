@@ -106,7 +106,9 @@ enum lsof_file_type {
 
 /** Network protocol */
 enum lsof_protocol {
-    LSOF_PROTOCOL_TCP, /**< TCP */
+    LSOF_PROTOCOL_NONE, /**< No network protocol */
+    LSOF_PROTOCOL_TCP,  /**< TCP */
+    LSOF_PROTOCOL_UDP,  /**< UDP */
 };
 
 /** Display hint of NODE column for lsof cli */
