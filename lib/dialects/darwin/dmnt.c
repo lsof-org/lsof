@@ -43,9 +43,6 @@ static char copyright[] = "@(#) Copyright 2005  Apple Computer, Inc. and "
  * Local static information
  */
 
-static struct mounts *Lmi = (struct mounts *)NULL; /* local mount info */
-static int Lmist = 0;                              /* Lmi status */
-
 /*
  * readmnt() -- read mount table
  */

@@ -1232,6 +1232,10 @@ struct lsof_context {
     /* name cache */
     int name_cache_enable; /* -C option status */
 
+    /* local mount info */
+    struct mounts *local_mount_info;
+    int local_mount_info_valid;
+
     /** Output */
     /** Pointer to current process */
     struct lproc *cur_proc;
@@ -1414,6 +1418,9 @@ struct lsof_context {
 #    define Procfind (ctx->procfs_found)
 /* name cache */
 #    define Fncache (ctx->name_cache_enable)
+/* local mount info */
+#    define Lmi (ctx->local_mount_info)
+#    define Lmist (ctx->local_mount_info_valid)
 
 /* Utility macro to free if non-null and set the pointer to null */
 #    define CLEAN(ptr)                                                         \

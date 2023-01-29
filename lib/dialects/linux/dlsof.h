@@ -255,9 +255,6 @@ struct lsof_context_dialect {
     struct hsfile *sfile_hash_name;
     int sfile_hash_name_count;
 
-    /* local mount info */
-    struct mounts *local_mount_info;
-    int local_mount_info_valid;
     /* mount supplement
      * hash buckets */
     mntsup_t **mount_sup_hash;
@@ -305,9 +302,6 @@ struct lsof_context_dialect {
 #    define HbyNmCt (ctxd.sfile_hash_name_count)
 /* mount supplement */
 #    define MSHash (ctxd.mount_sup_hash)
-/* local mount info */
-#    define Lmi (ctxd.local_mount_info)
-#    define Lmist (ctxd.local_mount_info_valid)
 /* endpoint buckets */
 #    define Pinfo (ctxd.pipe_endpoint_buckets)
 #    define PtyInfo (ctxd.pty_endpoint_buckets)

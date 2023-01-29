@@ -60,9 +60,6 @@ static char copyright[] =
  * Local static definitions
  */
 
-static struct mounts *Lmi = (struct mounts *)NULL; /* local mount info */
-static int Lmist = 0;                              /* Lmi status */
-
 /*
  * readmnt() - read mount table
  */
