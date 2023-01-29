@@ -37,6 +37,8 @@ static char copyright[] =
 
 _PROTOTYPE(static void process_kinfo_file,
            (struct lsof_context * ctx, struct kinfo_file *file));
+_PROTOTYPE(static void process_tty,
+           (struct lsof_context * ctx, struct kinfo_proc *proc));
 
 /*
  * Local static values
@@ -195,6 +197,7 @@ void gather_proc_info(struct lsof_context *ctx) {
             }
         };
 
+        process_tty(ctx, proc);
         for (file = files, fx = 0; fx < num_files; fx++, file++) {
             process_kinfo_file(ctx, file);
         }
@@ -235,4 +238,49 @@ void process_kinfo_file(struct lsof_context *ctx, struct kinfo_file *file) {
         process_kqueue_file(ctx, file);
         break;
     }
+}
+
+/*
+ * process_tty() - process tty of kinfo_proc
+ */
+static void process_tty(struct lsof_context *ctx, struct kinfo_proc *proc) {
+    char *dev;
+    struct stat st;
+    if ((proc->p_eflag & EPROC_CTTY) == 0)
+        return;
+
+    /* Alloc Lf */
+    alloc_lfile(ctx, LSOF_FD_CTTY, -1);
+
+    /* Fill type name */
+    (void)snpf(Lf->type, sizeof(Lf->type), "CHR");
+
+    /* rdev is known, dev is /dev */
+    Lf->rdev = proc->p_tdev;
+    Lf->rdev_def = 1;
+
+    /* we don't know inode or dev of the tty, so we have to get name via
+     * devname() */
+    if ((dev = devname(Lf->rdev, S_IFCHR))) {
+        (void)snpf(Namech, Namechl, "/dev/%s", dev);
+        enter_nm(ctx, Namech);
+
+        /* stat() to get inode */
+        if (stat(Namech, &st) == 0 && st.st_rdev == Lf->rdev) {
+            Lf->inode = st.st_ino;
+            Lf->inp_ty = 1;
+
+            Lf->dev = st.st_dev;
+            Lf->dev_def = 1;
+        }
+    }
+
+    /* Handle name match */
+    if (is_file_named(ctx, NULL, 1)) {
+        Lf->sf |= SELNM;
+    }
+
+    /* Finish */
+    if (Lf->sf)
+        link_lfile(ctx);
 }

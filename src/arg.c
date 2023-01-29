@@ -657,6 +657,8 @@ int excl; /* exclusion on match */
                 fd_type = LSOF_FD_MEMORY;
             } else if (strcmp(nm, "del") == 0) {
                 fd_type = LSOF_FD_DELETED;
+            } else if (strcmp(nm, "ctty") == 0) {
+                fd_type = LSOF_FD_CTTY;
             } else if (strcmp(nm, "fd") == 0) {
                 /* pseudo fd type meaning whole range of fd */
                 fd_type = LSOF_FD_NUMERIC;
