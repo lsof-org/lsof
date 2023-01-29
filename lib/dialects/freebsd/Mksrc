@@ -12,14 +12,21 @@
 #
 # $Id: Mksrc,v 1.5 2008/04/15 13:31:47 abe Exp $
 
+mksrc() {
+  for i in $L
+  do
+    rm -f $i
+    $LSOF_MKC $D/$i $i
+    echo "$LSOF_MKC $D/$i $i"
+  done
+}
 
-D=dialects/freebsd
+D=lib/dialects/freebsd
 L="dlsof.h dmnt.c dnode.c dproc.c dproto.h dsock.c dstore.c machine.h"
 
-for i in $L
-do
-  rm -f $i
-  $LSOF_MKC $D/$i $i
-  echo "$LSOF_MKC $D/$i $i"
-done
+mksrc
 
+D=src
+L="arg.c main.c misc.c node.c print.c ptti.c store.c usage.c util.c"
+
+mksrc
