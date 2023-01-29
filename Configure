@@ -1795,6 +1795,13 @@ struct xtcpcb pcb; pcb.t_maxseg = 0;
       LSOF_CFGF="$LSOF_CFGF -DHAS_KF_SOCK_SENDQ"
     fi	# }
 
+    # Does struct kinfo_file have kf_un.kf_file.kf_file_nlink?
+    grep -q kf_file_nlink ${LSOF_INCLUDE}/sys/user.h
+    if test $? -eq 0	# {
+    then
+      LSOF_CFGF="$LSOF_CFGF -DHAS_KF_FILE_NLINK"
+    fi	# }
+
     LSOF_DIALECT_DIR=freebsd
     ;;
 
