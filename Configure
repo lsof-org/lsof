@@ -5094,7 +5094,6 @@ echo "$LSOF_TSTCC created"
 # Create test cflags file.
 
 echo "-DLT_DIAL_$LSOF_TGT" > $LSOF_TSTCFLG
-echo "-I../include" >> $LSOF_TSTCFLG
 if test "X$LSOF_TSTBIGF" != "X"	# {
 then
   echo "-DLT_BIGF" >> $LSOF_TSTCFLG
