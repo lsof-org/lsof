@@ -615,7 +615,7 @@ void process_node(na) KA_T na; /* vnode kernel space address */
     struct so_so so;
     KA_T sqp = (KA_T)NULL;
     size_t sz;
-    char tbuf[32], *ty;
+    char tbuf[32];
     enum vtype type;
     struct sockaddr_un ua;
 
@@ -1241,35 +1241,35 @@ get_lock_state:
     }
     switch (type) {
     case VNON:
-        ty = "VNON";
+        Lf->type = LSOF_FILE_VNODE_VNON;
         break;
     case VREG:
-        ty = "VREG";
+        Lf->type = LSOF_FILE_VNODE_VREG;
         break;
     case VDIR:
-        ty = "VDIR";
+        Lf->type = LSOF_FILE_VNODE_VDIR;
         break;
     case VBLK:
-        ty = "VBLK";
+        Lf->type = LSOF_FILE_VNODE_VBLK;
         Ntype = N_BLK;
         break;
     case VCHR:
-        ty = "VCHR";
+        Lf->type = LSOF_FILE_VNODE_VCHR;
         if (Lf->is_stream == 0)
             Ntype = N_CHR;
         break;
     case VLNK:
-        ty = "VLNK";
+        Lf->type = LSOF_FILE_VNODE_VLNK;
         break;
 
 #if defined(VSOCK)
     case VSOCK:
-        ty = "SOCK";
+        Lf->type = LSOF_FILE_VNODE_VSOCK;
         break;
 #endif /* VSOCK */
 
     case VBAD:
-        ty = "VBAD";
+        Lf->type = LSOF_FILE_VNODE_VBAD;
         break;
     case VFIFO:
         if (!Lf->dev_ch || Lf->dev_ch[0] == '\0') {
@@ -1278,17 +1278,16 @@ get_lock_state:
             Lf->rdev = rdev;
             Lf->rdev_def = rdevs;
         }
-        ty = "FIFO";
+        Lf->type = LSOF_FILE_VNODE_VFIFO;
         break;
     case VUNNAMED:
-        ty = "UNNM";
+        Lf->type = LSOF_FILE_VNODE_VUNNAMED;
         break;
     default:
-        (void)snpf(Lf->type, sizeof(Lf->type), "%04o", (type & 0xfff));
-        ty = NULL;
+        Lf->type = LSOF_FILE_UNKNOWN;
+        Lf->unknown_file_type = type;
+        break;
     }
-    if (ty)
-        (void)snpf(Lf->type, sizeof(Lf->type), "%s", ty);
     /*
      * If this is a VBLK file and it's missing an inode number, try to
      * supply one.
@@ -1309,7 +1308,7 @@ get_lock_state:
     if (Ntype == N_STREAM && sqp) {
         if (Funix)
             Lf->sf |= SELUNX;
-        (void)snpf(Lf->type, sizeof(Lf->type), "unix");
+        Lf->type = LSOF_FILE_UNIX;
         if (!Namech[0] && so.laddr.buf && so.laddr.len == sizeof(ua) &&
             !kread((KA_T)so.laddr.buf, (char *)&ua, sizeof(ua))) {
             ua.sun_path[sizeof(ua.sun_path) - 1] = '\0';

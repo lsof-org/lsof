@@ -631,6 +631,7 @@ void print_file() {
     dev_t dev;
     int devs, len;
     char access;
+    char type[TYPEL];
     char lock;
 
     if (PrPass && !Hdr) {
@@ -854,10 +855,13 @@ void print_file() {
      * Size or print the type.
      */
     if (!PrPass) {
-        if ((len = strlen(Lf->type)) > TypeColW)
+        print_file_type(Lf->type, Lf->unknown_file_type, type, sizeof(type));
+        if ((len = strlen(type)) > TypeColW)
             TypeColW = len;
-    } else
-        (void)printf(" %*.*s", TypeColW, TypeColW, Lf->type);
+    } else {
+        print_file_type(Lf->type, Lf->unknown_file_type, type, sizeof(type));
+        (void)printf(" %*.*s", TypeColW, TypeColW, type);
+    }
 
 #if defined(HASFSTRUCT)
     /*
@@ -1802,7 +1806,7 @@ int human_readable_size(SZOFFTYPE sz, int print, int col) {
  */
 
 int print_proc() {
-    char buf[128], *cp;
+    char buf[128], *cp, type[TYPEL];
     int lc, len, st, ty;
     int rv = 0;
     unsigned long ul;
@@ -1926,12 +1930,10 @@ int print_proc() {
             lc++;
         }
         if (FieldSel[LSOF_FIX_TYPE].st) {
-            for (cp = Lf->type; *cp == ' '; cp++)
-                ;
-            if (*cp) {
-                (void)printf("%c%s%c", LSOF_FID_TYPE, cp, Terminator);
-                lc++;
-            }
+            print_file_type(Lf->type, Lf->unknown_file_type, type,
+                            sizeof(type));
+            (void)printf("%c%s%c", LSOF_FID_TYPE, type, Terminator);
+            lc++;
         }
 
 #if defined(HASFSTRUCT)

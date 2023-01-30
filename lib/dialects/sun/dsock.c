@@ -708,7 +708,6 @@ struct sonode *so; /* pointer to socket's sonode */
     tcph_t *tha = (tcph_t *)NULL; /* TCP header structure address */
 #    endif /* defined(HAS_CONN_NEW) */
 
-    char *ty; /* TCP type */
     udp_t uc; /* local UDP control structure */
               /*
                * Read VSOCK's connection information.  Enter its address as the protocol
@@ -738,10 +737,9 @@ struct sonode *so; /* pointer to socket's sonode */
          * Set INET type -- IPv4 or IPv6.
          */
         if (af == AF_INET)
-            ty = "IPv4";
+            Lf->type = LSOF_FILE_IPV4;
         else
-            ty = "IPv6";
-        (void)snpf(Lf->type, sizeof(Lf->type), ty);
+            Lf->type = LSOF_FILE_IPV6;
 
         switch (cs.conn_ulp) {
         case IPPROTO_TCP:
@@ -1048,10 +1046,9 @@ struct sonode *so; /* pointer to socket's sonode */
          * Set INET type -- IPv4 or IPv6.
          */
         if (af == AF_INET)
-            ty = "IPv4";
+            Lf->type = LSOF_FILE_IPV4;
         else
-            ty = "IPv6";
-        (void)snpf(Lf->type, sizeof(Lf->type), ty);
+            Lf->type = LSOF_FILE_IPV6;
         /*
          * Set protocol name.
          */
@@ -1254,14 +1251,14 @@ char *ty;                            /* socket type name */
 
 #if defined(HASIPv6)
     if (strrchr(ty, '6')) {
-        (void)snpf(Lf->type, sizeof(Lf->type), "IPv6");
+        Lf->type = LSOF_FILE_IPV6;
         af = AF_INET6;
     } else {
-        (void)snpf(Lf->type, sizeof(Lf->type), "IPv4");
+        Lf->type = LSOF_FILE_IPV4;
         af = AF_INET;
     }
 #else  /* !defined(HASIPv6) */
-    (void)snpf(Lf->type, sizeof(Lf->type), "inet");
+    Lf->type = LSOF_FILE_INET;
     af = AF_INET;
 #endif /* defined(HASIPv6) */
 

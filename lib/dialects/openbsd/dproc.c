@@ -253,7 +253,7 @@ static void process_tty(struct lsof_context *ctx, struct kinfo_proc *proc) {
     alloc_lfile(ctx, LSOF_FD_CTTY, -1);
 
     /* Fill type name */
-    (void)snpf(Lf->type, sizeof(Lf->type), "CHR");
+    Lf->type = LSOF_FILE_CHAR;
 
     /* rdev is known, dev is /dev */
     Lf->rdev = proc->p_tdev;

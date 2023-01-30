@@ -1047,7 +1047,7 @@ struct pst_socket *s; /* optional socket information
     /*
      * Set default type.
      */
-    (void)snpf(Lf->type, sizeof(Lf->type), "sock");
+    Lf->type = LSOF_FILE_SOCKET;
     Lf->inp_ty = 2;
     /*
      * Generate and save node ID.
@@ -1127,15 +1127,14 @@ struct pst_socket *s; /* optional socket information
     case PS_AF_INET:
         if (Fnet && (!FnetTy || (FnetTy != 6)))
             Lf->sf |= SELNET;
-        (void)snpf(Lf->type, sizeof(Lf->type),
-
+        Lf->type =
 #if defined(HASIPv6)
-                   "IPv4"
+            LSOF_FILE_IPV4
 #else  /* !defined(HASIPv6) */
-                   "inet"
+            LSOF_FILE_INET
 #endif /* defined(HASIPv6) */
+            ;
 
-        );
         printpsproto(s->pst_protocol);
         enter_dev_ch(print_kptr(na, (char *)NULL, 0));
         switch (s->pst_protocol) {
@@ -1172,7 +1171,7 @@ struct pst_socket *s; /* optional socket information
         af = AF_INET6;
         if (Fnet && (!FnetTy || (FnetTy != 4)))
             Lf->sf |= SELNET;
-        (void)snpf(Lf->type, sizeof(Lf->type), "IPv6");
+        Lf->type = LSOF_FILE_IPV6;
         printpsproto(s->pst_protocol);
         enter_dev_ch(print_kptr(na, (char *)NULL, 0));
         switch (s->pst_protocol) {
@@ -1218,7 +1217,7 @@ struct pst_socket *s; /* optional socket information
     case PS_AF_UNIX:
         if (Funix)
             Lf->sf |= SELUNX;
-        (void)snpf(Lf->type, sizeof(Lf->type), "unix");
+        Lf->type = LSOF_FILE_UNIX;
         if (((len = (size_t)s->pst_boundaddr_len) > 0) &&
             (len <= sizeof(struct sockaddr_un))) {
             ua = (struct sockaddr_un *)s->pst_boundaddr;
@@ -1339,7 +1338,6 @@ int ckscko; /* socket file only checking
              * if 1 */
 {
     struct clone *cl;
-    char *cp;
     struct l_dev *dp = (struct l_dev *)NULL;
     int hx, i, ncx, nsn, nsr;
     size_t nb, nl;
@@ -1378,18 +1376,17 @@ int ckscko; /* socket file only checking
      */
     switch (f->psf_ftype) {
     case PS_TYPE_STREAMS:
-        cp = "STR";
+        Lf->type = LSOF_FILE_STREAM;
         break;
     case PS_TYPE_SOCKET:
         if (f->psf_subtype == PS_SUBTYPE_SOCKSTR) {
-            cp = "STSO";
+            Lf->type = LSOF_FILE_STREAM_SOCKET;
             break;
         }
         /* fall through */
     default:
-        cp = "unkn";
+        Lf->type = LSOF_FILE_UNKNOWN;
     }
-    (void)snpf(Lf->type, sizeof(Lf->type), "%s", cp);
     /*
      * Allocate sufficient space for stream structures, then read them.
      */

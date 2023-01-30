@@ -602,7 +602,7 @@ struct pst_fid *opfid;  /* opaque file ID for this file */
 struct psfileid *psfid; /* PSTAT file ID for this file */
 KA_T na;                /* node address */
 {
-    char *cp, buf[32];
+    char buf[32];
     dev_t dev;
     int devs = 0;
     int32_t lk;
@@ -641,33 +641,30 @@ KA_T na;                /* node address */
      */
     switch ((int)(pd->psfd_mode & PS_IFMT)) {
     case PS_IFREG:
-        cp = "REG";
+        Lf->type = LSOF_FILE_REGULAR;
         Ntype = N_REGLR;
         break;
     case PS_IFBLK:
-        cp = "BLK";
+        Lf->type = LSOF_FILE_BLOCK;
         Ntype = N_BLK;
         break;
     case PS_IFDIR:
-        cp = "DIR";
+        Lf->type = LSOF_FILE_DIR;
         Ntype = N_REGLR;
         break;
     case PS_IFCHR:
-        cp = "CHR";
+        Lf->type = LSOF_FILE_CHAR;
         Ntype = N_CHR;
         break;
     case PS_IFIFO:
-        cp = "FIFO";
+        Lf->type = LSOF_FILE_FIFO;
         Ntype = N_FIFO;
         break;
     default:
-        (void)snpf(buf, sizeof(buf), "%04o",
-                   (unsigned int)(((pd->psfd_mode & PS_IFMT) >> 12) & 0xfff));
-        cp = buf;
+        Lf->type = LSOF_FILE_UNKNOWN;
+        Lf->unknown_file_type = (pd->psfd_mode & PS_IFMT);
         Ntype = N_REGLR;
     }
-    if (!Lf->type[0])
-        (void)snpf(Lf->type, sizeof(Lf->type), "%s", cp);
     /*
      * Save device number.
      */

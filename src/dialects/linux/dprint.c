@@ -73,7 +73,7 @@ void print_tcptpi(struct lsof_context *ctx, int nl) /* 1 == '\n' required */
     int ps = 0;
     int s;
 
-    if (!strcmp(Lf->type, "unix")) {
+    if (Lf->type == LSOF_FILE_UNIX) {
         print_unix(ctx, nl);
         return;
     }

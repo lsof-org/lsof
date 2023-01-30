@@ -92,7 +92,7 @@ void process_socket(struct lsof_context *ctx,
     struct mbuf mb;
 #endif /* defined(UNPADDR_IN_MBUF) */
 
-    (void)snpf(Lf->type, sizeof(Lf->type), "sock");
+    Lf->type = LSOF_FILE_SOCKET;
     Lf->inp_ty = 2;
     /*
      * Read the socket, protocol, and domain structures.
@@ -183,10 +183,9 @@ void process_socket(struct lsof_context *ctx,
         printiproto(ctx, p.pr_protocol);
 
 #if defined(HASIPv6)
-        (void)snpf(Lf->type, sizeof(Lf->type),
-                   (fam == AF_INET) ? "IPv4" : "IPv6");
+        Lf->type = (fam == AF_INET) ? LSOF_FILE_IPV4 : LSOF_FILE_IPV6;
 #else  /* !defined(HASIPv6) */
-        (void)snpf(Lf->type, sizeof(Lf->type), "inet");
+        Lf->type = LSOF_FILE_INET;
 #endif /* defined(HASIPv6) */
 
 #if defined(HASIPv6) && defined(NETBSDV) && !defined(HASINRIAIPv6)
@@ -335,7 +334,7 @@ void process_socket(struct lsof_context *ctx,
          * Process a ROUTE domain socket.
          */
     case AF_ROUTE:
-        (void)snpf(Lf->type, sizeof(Lf->type), "rte");
+        Lf->type = LSOF_FILE_ROUTE;
         if (s.so_pcb)
             enter_dev_ch(ctx, print_kptr((KA_T)(s.so_pcb), (char *)NULL, 0));
         else
@@ -348,7 +347,7 @@ void process_socket(struct lsof_context *ctx,
     case AF_UNIX:
         if (Funix)
             Lf->sf |= SELUNX;
-        (void)snpf(Lf->type, sizeof(Lf->type), "unix");
+        Lf->type = LSOF_FILE_UNIX;
         /*
          * Read Unix protocol control block and the Unix address structure.
          */

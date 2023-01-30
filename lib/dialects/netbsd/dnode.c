@@ -146,8 +146,7 @@ lkup_dev_tty_again:
 void process_kqueue(struct lsof_context *ctx,
                     KA_T ka) /* kqueue file structure address */
 {
-
-    (void)snpf(Lf->type, sizeof(Lf->type), "KQUEUE");
+    Lf->type = LSOF_FILE_KQUEUE;
     enter_dev_ch(ctx, print_kptr(ka, (char *)NULL, 0));
 }
 #endif /* defined(HASKQUEUE) */
@@ -164,7 +163,7 @@ void process_node(struct lsof_context *ctx,
     unsigned char lt;
     unsigned char ns;
     unsigned char rdevs;
-    char *ep, *ty;
+    char *ep;
 #if defined(HAS_LOCKF_H)
     struct lockf lf, *lff, *lfp;
 #endif
@@ -1167,44 +1166,42 @@ process_overlaid_node:
     Lf->rdev_def = rdevs;
     switch (type) {
     case VNON:
-        ty = "VNON";
+        Lf->type = LSOF_FILE_VNODE_VNON;
         break;
     case VREG:
-        ty = "VREG";
+        Lf->type = LSOF_FILE_VNODE_VREG;
         break;
     case VDIR:
-        ty = "VDIR";
+        Lf->type = LSOF_FILE_VNODE_VDIR;
         break;
     case VBLK:
-        ty = "VBLK";
+        Lf->type = LSOF_FILE_VNODE_VBLK;
         Ntype = N_BLK;
         break;
     case VCHR:
-        ty = "VCHR";
+        Lf->type = LSOF_FILE_VNODE_VCHR;
         Ntype = N_CHR;
         break;
     case VLNK:
-        ty = "VLNK";
+        Lf->type = LSOF_FILE_VNODE_VLNK;
         break;
 
 #if defined(VSOCK)
     case VSOCK:
-        ty = "SOCK";
+        Lf->type = LSOF_FILE_VNODE_VSOCK;
         break;
 #endif /* defined(VSOCK) */
 
     case VBAD:
-        ty = "VBAD";
+        Lf->type = LSOF_FILE_VNODE_VBAD;
         break;
     case VFIFO:
-        ty = "FIFO";
+        Lf->type = LSOF_FILE_VNODE_VFIFO;
         break;
     default:
-        (void)snpf(Lf->type, sizeof(Lf->type), "%04o", (type & 0xfff));
-        ty = NULL;
+        Lf->type = LSOF_FILE_UNKNOWN;
+        Lf->unknown_file_type = type;
     }
-    if (ty)
-        (void)snpf(Lf->type, sizeof(Lf->type), "%s", ty);
     /*
      * Handle some special cases:
      *
@@ -1226,72 +1223,71 @@ process_overlaid_node:
 #if defined(HASPROCFS)
     else if (nty == PFSNODE) {
         Lf->dev_def = Lf->rdev_def = 0;
-        ty = NULL;
         (void)snpf(Namech, Namechl, "/%s", HASPROCFS);
         switch (p.pfs_type) {
         case Proot:
-            ty = "PDIR";
+            Lf->type = LSOF_FILE_PROC_DIR;
             break;
         case Pcurproc:
             ep = endnm(ctx, &sz);
             (void)snpf(ep, sz, "/curproc");
-            ty = "PCUR";
+            Lf->type = LSOF_FILE_PROC_CUR_PROC;
             break;
         case Pproc:
             ep = endnm(ctx, &sz);
             (void)snpf(ep, sz, "/%d", p.pfs_pid);
-            ty = "PDIR";
+            Lf->type = LSOF_FILE_PROC_PID;
             break;
         case Pfile:
             ep = endnm(ctx, &sz);
             (void)snpf(ep, sz, "/%d/file", p.pfs_pid);
-            ty = "PFIL";
+            Lf->type = LSOF_FILE_PROC_FILE;
             break;
         case Pmem:
             ep = endnm(ctx, &sz);
             (void)snpf(ep, sz, "/%d/mem", p.pfs_pid);
-            ty = "PMEM";
+            Lf->type = LSOF_FILE_PROC_MEMORY;
             break;
         case Pregs:
             ep = endnm(ctx, &sz);
             (void)snpf(ep, sz, "/%d/regs", p.pfs_pid);
-            ty = "PREG";
+            Lf->type = LSOF_FILE_PROC_REGS;
             break;
         case Pfpregs:
             ep = endnm(ctx, &sz);
             (void)snpf(ep, sz, "/%d/fpregs", p.pfs_pid);
-            ty = "PFPR";
+            Lf->type = LSOF_FILE_PROC_FP_REGS;
             break;
 
 #    if defined(Pctl)
         case Pctl:
             ep = endnm(&sz);
             (void)snpf(ep, sz, "/%d/ctl", p.pfs_pid);
-            ty = "PCTL";
+            Lf->type = LSOF_FILE_PROC_CTRL;
             break;
 #    endif /* defined(Pctl) */
 
         case Pstatus:
             ep = endnm(ctx, &sz);
             (void)snpf(ep, sz, "/%d/status", p.pfs_pid);
-            ty = "PSTA";
+            Lf->type = LSOF_FILE_PROC_STATUS;
             break;
         case Pnote:
             ep = endnm(ctx, &sz);
             (void)snpf(ep, sz, "/%d/note", p.pfs_pid);
-            ty = "PNTF";
+            Lf->type = LSOF_FILE_PROC_PROC_NOTIFIER;
             break;
         case Pnotepg:
             ep = endnm(ctx, &sz);
             (void)snpf(ep, sz, "/%d/notepg", p.pfs_pid);
-            ty = "PGID";
+            Lf->type = LSOF_FILE_PROC_GROUP_NOTIFIER;
             break;
 
 #    if defined(Pfd)
         case Pfd:
             ep = endnm(&sz);
             (void)snpf(ep, sz, "/%d/fd", p.pfs_pid);
-            ty = "PFDR";
+            Lf->type = LSOF_FILE_PROC_FD_DIR;
             break;
 #    endif /* defined(Pfd) */
 
@@ -1299,7 +1295,7 @@ process_overlaid_node:
         case Pmap:
             ep = endnm(&sz);
             (void)snpf(ep, sz, "/%d/map", p.pfs_pid);
-            ty = "PMAP";
+            Lf->type = LSOF_FILE_PROC_MAP;
             break;
 #    endif /* defined(Pmap) */
 
@@ -1307,12 +1303,10 @@ process_overlaid_node:
         case Pmaps:
             ep = endnm(&sz);
             (void)snpf(ep, sz, "/%d/maps", p.pfs_pid);
-            ty = "PMPS";
+            Lf->type = LSOF_FILE_PROC_MAPS;
             break;
 #    endif /* defined(Pmaps) */
         }
-        if (ty)
-            (void)snpf(Lf->type, sizeof(Lf->type), ty);
     }
 #endif /* defined(HASPROCFS) */
 
@@ -1335,8 +1329,6 @@ process_overlaid_node:
             Lf->sz_def = 1;
             break;
         }
-        if (ty)
-            (void)snpf(Lf->type, sizeof(Lf->type), ty);
     }
 #endif /* defined(HASPTYFS) */
 
@@ -1423,7 +1415,7 @@ void process_pipe(struct lsof_context *ctx,
         enter_nm(ctx, Namech);
         return;
     }
-    (void)snpf(Lf->type, sizeof(Lf->type), "PIPE");
+    Lf->type = LSOF_FILE_PIPE;
     enter_dev_ch(ctx, print_kptr(pa, (char *)NULL, 0));
     Lf->off_def = 1;
     Lf->sz = (SZOFFTYPE)p.pipe_buffer.size;

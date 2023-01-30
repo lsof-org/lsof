@@ -68,7 +68,7 @@ void process_socket(i) struct inode *i; /* inode pointer */
     struct un_dev ud;
 #endif /* OSRV<500 */
 
-    (void)snpf(Lf->type, sizeof(Lf->type), "sock");
+    Lf->type = LSOF_TYPE_SOCKET;
     /*
      * Read socket.
      */
@@ -105,7 +105,7 @@ void process_socket(i) struct inode *i; /* inode pointer */
     case AF_INET:
         if (Fnet)
             Lf->sf |= SELNET;
-        (void)snpf(Lf->type, sizeof(Lf->type), "inet");
+        Lf->type = LSOF_TYPE_INET;
         printiproto((int)s.so_proto.pr_protocol);
         Lf->inp_ty = 2;
         /*
@@ -275,7 +275,7 @@ void process_socket(i) struct inode *i; /* inode pointer */
     case AF_UNIX:
         if (Funix)
             Lf->sf |= SELUNX;
-        (void)snpf(Lf->type, sizeof(Lf->type), "unix");
+        Lf->type = LSOF_TYPE_UNIX;
         /*
          * Read Unix protocol control block and the Unix address structure.
          */

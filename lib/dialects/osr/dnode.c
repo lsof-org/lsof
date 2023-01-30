@@ -108,7 +108,6 @@ void process_node(na) KA_T na; /* inode kernel space address */
     struct queue q;
     struct qinit qi;
     struct stdata sd;
-    char *tn;
     int type;
     struct udpdev udp;
     short udptm = 0;
@@ -604,50 +603,48 @@ void process_node(na) KA_T na; /* inode kernel space address */
      */
     switch (type) {
     case IFDIR:
-        tn = "DIR";
+        Lf->type = LSOF_FILE_DIR;
         break;
     case IFBLK:
-        tn = "BLK";
+        Lf->type = LSOF_FILE_BLOCK;
         break;
     case IFCHR:
-        tn = "CHR";
+        Lf->type = LSOF_FILE_CHAR;
         break;
     case IFREG:
-        tn = "REG";
+        Lf->type = LSOF_FILE_REGULAR;
         break;
     case IFMPC:
-        tn = "MPC";
+        Lf->type = LSOF_FILE_MULTIPLEXED_CHAR;
         break;
     case IFMPB:
-        tn = "MPB";
+        Lf->type = LSOF_FILE_MULTIPLEXED_BLOCK;
         break;
     case IFNAM:
         if (i.i_rdev == S_INSEM)
-            tn = "XSEM";
+            Lf->type = LSOF_FILE_SCO_SEMA;
         else if (i.i_rdev == S_INSHD)
-            tn = "XSD";
+            Lf->type = LSOF_FILE_SCO_SHARED;
         else {
-            tn = "XNAM";
+            Lf->type = LSOF_FILE_SCO_UNKNOWN;
             (void)snpf(Namech, Namechl, "unknown Xenix special file type: %x",
                        i.i_rdev);
         }
         break;
     case IFIFO:
-        tn = "FIFO";
+        Lf->type = LSOF_FILE_FIFO;
         break;
 
 #if defined(IFLNK)
     case IFLNK:
-        tn = "LINK";
+        Lf->type = LSOF_FILE_LINK;
         break;
 #endif /* defined(IFLNK) */
 
     default:
-        (void)snpf(Lf->type, sizeof(Lf->type), "%04o", ((type >> 12) & 0xfff));
-        tn = NULL;
+        Lf->type = LSOF_FILE_UNKNOWN;
+        Lf->unknown_file_type = type;
     }
-    if (tn)
-        (void)snpf(Lf->type, sizeof(Lf->type), "%s", tn);
     /*
      * Save the file system names.
      */

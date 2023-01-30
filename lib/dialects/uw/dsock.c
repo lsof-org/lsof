@@ -793,9 +793,9 @@ struct queue *q;                     /* queue at end of stream */
     }
 
 #if defined(HASIPv6)
-    (void)snpf(Lf->type, sizeof(Lf->type), (ipv == 6) ? "IPv6" : "IPv4");
+    Lf->type = (ipv == 6) ? LSOF_FILE_IPV6 : LSOF_FILE_IPV4;
 #else  /* !defined(HASIPv6) */
-    (void)snpf(Lf->type, sizeof(Lf->type), "inet");
+    Lf->type = LSOF_FILE_INET;
 #endif /* defined(HASIPv6) */
 
     /*
@@ -957,7 +957,7 @@ KA_T na;         /* kernel vnode address */
      */
     if (ss.family != PF_UNIX)
         return (0);
-    (void)snpf(Lf->type, sizeof(Lf->type), "unix");
+    Lf->type = LSOF_FILE_UNIX;
     if (Funix)
         Lf->sf |= SELUNX;
     Lf->is_stream = 0;

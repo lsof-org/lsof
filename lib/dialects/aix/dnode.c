@@ -185,7 +185,8 @@ void process_node(va) KA_T va; /* vnode kernel space address */
     struct vfs *la = NULL;
     int rdevs = 0;
     size_t sz;
-    char tbuf[32], *ty;
+    char tbuf[32];
+    enum lsof_file_type ty;
     enum vtype type;
     struct l_vfs *vfs;
     static struct vnode *v = (struct vnode *)NULL;
@@ -1016,7 +1017,7 @@ void process_node(va) KA_T va; /* vnode kernel space address */
     switch (type) {
 
     case VNON:
-        ty = "VNON";
+        ty = LSOF_FILE_VNODE_VNON;
         Lf->dev = dev;
         Lf->dev_def = devs;
         Lf->rdev = rdev;
@@ -1024,14 +1025,14 @@ void process_node(va) KA_T va; /* vnode kernel space address */
         break;
     case VREG:
     case VDIR:
-        ty = (type == VREG) ? "VREG" : "VDIR";
+        ty = (type == VREG) ? LSOF_FILE_VNODE_VREG : LSOF_FILE_VNODE_VDIR;
         Lf->dev = dev;
         Lf->dev_def = devs;
         Lf->rdev = rdev;
         Lf->rdev_def = rdevs;
         break;
     case VBLK:
-        ty = "VBLK";
+        ty = LSOF_FILE_VNODE_VBLK;
         Lf->dev = dev;
         Lf->dev_def = devs;
         Lf->rdev = rdev;
@@ -1039,7 +1040,7 @@ void process_node(va) KA_T va; /* vnode kernel space address */
         Ntype = N_BLK;
         break;
     case VCHR:
-        ty = "VCHR";
+        ty = LSOF_FILE_VNODE_VCHR;
         Lf->dev = dev;
         Lf->dev_def = devs;
         Lf->rdev = rdev;
@@ -1047,7 +1048,7 @@ void process_node(va) KA_T va; /* vnode kernel space address */
         Ntype = N_CHR;
         break;
     case VLNK:
-        ty = "VLNK";
+        ty = LSOF_FILE_VNODE_VLNK;
         Lf->dev = dev;
         Lf->dev_def = devs;
         Lf->rdev = rdev;
@@ -1056,7 +1057,7 @@ void process_node(va) KA_T va; /* vnode kernel space address */
 
 #if defined(VSOCK)
     case VSOCK:
-        ty = "SOCK";
+        ty = LSOF_FILE_VNODE_VSOCK;
         Lf->dev = dev;
         Lf->dev_def = devs;
         Lf->rdev = rdev;
@@ -1065,7 +1066,7 @@ void process_node(va) KA_T va; /* vnode kernel space address */
 #endif
 
     case VBAD:
-        ty = "VBAD";
+        ty = LSOF_FILE_VNODE_VBAD;
         Lf->dev = dev;
         Lf->dev_def = devs;
         Lf->rdev = rdev;
@@ -1078,7 +1079,7 @@ void process_node(va) KA_T va; /* vnode kernel space address */
             Lf->rdev = rdev;
             Lf->rdev_def = rdevs;
         }
-        ty = "FIFO";
+        ty = LSOF_FILE_VNODE_VFIFO;
         break;
     case VMPC:
         Lf->rdev = g.gn_rdev;
@@ -1094,18 +1095,16 @@ void process_node(va) KA_T va; /* vnode kernel space address */
 #endif /* AIXV<3200 */
 
         Ntype = N_CHR;
-        ty = "VMPC";
+        ty = LSOF_FILE_VNODE_VMPC;
         break;
     default:
         Lf->dev = dev;
         Lf->dev_def = devs;
         Lf->rdev = rdev;
         Lf->rdev_def = rdevs;
-        (void)snpf(Lf->type, sizeof(Lf->type), "%04o", (type & 0xfff));
-        ty = (char *)NULL;
+        Lf->type = LSOF_FILE_UNKNOWN;
+        Lf->unknown_file_type = type;
     }
-    if (ty)
-        (void)snpf(Lf->type, sizeof(Lf->type), "%s", ty);
 
 #if defined(HASBLKDEV)
     /*
@@ -1161,9 +1160,9 @@ void process_shmt(sa) KA_T sa; /* shared memory transport node struct
         return;
     }
     /*
-     * Set type to " SMT" and put shmtnode structure address in device column.
+     * Set type to SMT and put shmtnode structure address in device column.
      */
-    (void)snpf(Lf->type, sizeof(Lf->type), " SMT");
+    Lf->type = LSOF_FILE_SHARED_MEM_TRANSPORT;
     if (!sa || kread((KA_T)sa, (char *)&mn, sizeof(mn))) {
         (void)snpf(Namech, Namechl, "can't read shmtnode: %s",
                    print_kptr(sa, (char *)NULL, 0));

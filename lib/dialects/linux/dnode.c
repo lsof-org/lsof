@@ -720,7 +720,6 @@ void process_proc_node(struct lsof_context *ctx,
     char *cp;
     struct mounts *mp = (struct mounts *)NULL;
     size_t sz;
-    char *tn;
     /*
      * Set the access mode, if possible.
      */
@@ -849,42 +848,37 @@ void process_proc_node(struct lsof_context *ctx,
     if (ss & SB_MODE) {
         switch (type) {
         case S_IFBLK:
-            tn = "BLK";
+            Lf->type = LSOF_FILE_BLOCK;
             break;
         case S_IFCHR:
-            tn = "CHR";
+            Lf->type = LSOF_FILE_CHAR;
             break;
         case S_IFDIR:
-            tn = "DIR";
+            Lf->type = LSOF_FILE_DIR;
             break;
         case S_IFIFO:
-            tn = "FIFO";
+            Lf->type = LSOF_FILE_FIFO;
             break;
         case S_IFREG:
             if (Lf->dev == MqueueDev)
-                tn = "PSXMQ";
+                Lf->type = LSOF_FILE_POSIX_MQ;
             else
-                tn = "REG";
+                Lf->type = LSOF_FILE_REGULAR;
             break;
         case S_IFLNK:
-            tn = "LINK";
-            break;
-        case S_ISVTX:
-            tn = "VTXT";
+            Lf->type = LSOF_FILE_LINK;
             break;
         default:
             if (Ntype == N_ANON_INODE)
-                tn = "a_inode";
+                Lf->type = LSOF_FILE_ANON_INODE;
             else {
-                (void)snpf(Lf->type, sizeof(Lf->type), "%04o",
-                           ((type >> 12) & 0xf));
-                tn = (char *)NULL;
+                Lf->type = LSOF_FILE_UNKNOWN;
+                Lf->unknown_file_type = type >> 12;
             }
         }
     } else
-        tn = "unknown";
-    if (tn)
-        (void)snpf(Lf->type, sizeof(Lf->type), "%s", tn);
+        Lf->type = LSOF_FILE_UNKNOWN;
+
     /*
      * Record an NFS file selection.
      */

@@ -73,7 +73,7 @@ void process_socket(sa) KA_T sa; /* socket address in kernel */
     /*
      * Set socket file variables.
      */
-    (void)snpf(Lf->type, sizeof(Lf->type), "sock");
+    Lf->type = LSOF_FILE_VNODE_SOCK;
     Lf->inp_ty = 2;
     /*
      * Read socket and protocol switch structures.
@@ -216,10 +216,9 @@ void process_socket(sa) KA_T sa; /* socket address in kernel */
         printiproto(p.pr_protocol);
 
 #if defined(HASIPv6)
-        (void)snpf(Lf->type, sizeof(Lf->type),
-                   fam == AF_INET ? "IPv4" : "IPv6");
+        Lf->type = fam == AF_INET ? LSOF_FILE_IPV4 : LSOF_FILE_IPV6;
 #else  /* !defined(HASIPv6) */
-        (void)snpf(Lf->type, sizeof(Lf->type), "inet");
+        Lf->type = LSOF_FILE_INET;
 #endif /* defined(HASIPv6) */
 
         /*
@@ -297,7 +296,7 @@ void process_socket(sa) KA_T sa; /* socket address in kernel */
          * Process a ROUTE domain socket.
          */
     case AF_ROUTE:
-        (void)snpf(Lf->type, sizeof(Lf->type), "rte");
+        Lf->type = LSOF_FILE_ROUTE;
         if (s.so_pcb)
             enter_dev_ch(print_kptr((KA_T)(s.so_pcb), (char *)NULL, 0));
         else
@@ -310,7 +309,7 @@ void process_socket(sa) KA_T sa; /* socket address in kernel */
     case AF_UNIX:
         if (Funix)
             Lf->sf |= SELUNX;
-        (void)snpf(Lf->type, sizeof(Lf->type), "unix");
+        Lf->type = LSOF_FILE_UNIX;
         /*
          * Read Unix protocol control block and the Unix address structure.
          */

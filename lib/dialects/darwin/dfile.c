@@ -38,12 +38,13 @@ static char copyright[] = "@(#) Copyright 2005-2007 Apple Inc. and Purdue "
 
 #include "common.h"
 
-
 /*
  * enter_file_info() -- enter file information
  */
 
-void enter_file_info(struct lsof_context *ctx, struct proc_fileinfo *pfi) /* pointer to process file info */
+void enter_file_info(
+    struct lsof_context *ctx,
+    struct proc_fileinfo *pfi) /* pointer to process file info */
 {
     int f;
     /*
@@ -83,50 +84,49 @@ void enter_vnode_info(
     struct lsof_context *ctx,
     struct vnode_info_path *vip) /* pointer to vnode info with path */
 {
-    char buf[32], *cp;
+    char buf[32];
     dev_t dev = 0;
     int devs = 0;
     struct mounts *mp;
+
     /*
      * Derive file type.
      */
     switch ((int)(vip->vip_vi.vi_stat.vst_mode & S_IFMT)) {
     case S_IFIFO:
-        cp = "FIFO";
+        Lf->type = LSOF_FILE_FIFO;
         Ntype = N_FIFO;
         break;
     case S_IFCHR:
-        cp = "CHR";
+        Lf->type = LSOF_FILE_CHAR;
         Ntype = N_CHR;
         break;
     case S_IFDIR:
-        cp = "DIR";
+        Lf->type = LSOF_FILE_DIR;
         Ntype = N_REGLR;
         break;
     case S_IFBLK:
-        cp = "BLK";
+        Lf->type = LSOF_FILE_BLOCK;
         Ntype = N_BLK;
         break;
 
 #if defined(S_IFLNK)
     case S_IFLNK:
-        cp = "LINK";
+        Lf->type = LSOF_FILE_LINK;
         Ntype = N_REGLR;
         break;
 #endif /* defined(S_IFLNK) */
 
     case S_IFREG:
-        cp = "REG";
+        Lf->type = LSOF_FILE_REGULAR;
         Ntype = N_REGLR;
         break;
     default:
-        (void)snpf(buf, sizeof(buf), "%04o",
-                   (((vip->vip_vi.vi_stat.vst_mode & S_IFMT) >> 12) & 0xfff));
-        cp = buf;
+        Lf->type = LSOF_FILE_UNKNOWN;
+        Lf->unknown_file_type = ((vip->vip_vi.vi_stat.vst_mode & S_IFMT) >> 12);
         Ntype = N_REGLR;
     }
-    if (!Lf->type[0])
-        (void)snpf(Lf->type, sizeof(Lf->type), "%s", cp);
+
     /*
      * Save device number and path
      */
@@ -191,7 +191,8 @@ void enter_vnode_info(
      * Test for specified file.
      */
     if (Sfile &&
-        is_file_named(ctx, NULL, ((Ntype == N_CHR) || (Ntype == N_BLK) ? 1 : 0))) {
+        is_file_named(ctx, NULL,
+                      ((Ntype == N_CHR) || (Ntype == N_BLK) ? 1 : 0))) {
         Lf->sf |= SELNM;
     }
     /*
@@ -235,7 +236,6 @@ void err2nm(struct lsof_context *ctx, char *pfx) /* Namech message prefix */
     enter_nm(ctx, Namech);
 }
 
-
 /*
  * print_v_path() -- print vnode's path
  */
@@ -257,7 +257,7 @@ struct lfile *lf;
 void process_atalk(struct lsof_context *ctx, int pid, /* PID */
                    int32_t fd)                        /* FD */
 {
-    (void)snpf(Lf->type, sizeof(Lf->type), "ATALK");
+    Lf->type = LSOF_FILE_APPLETALK;
     return;
 }
 
@@ -268,7 +268,7 @@ void process_atalk(struct lsof_context *ctx, int pid, /* PID */
 void process_fsevents(struct lsof_context *ctx, int pid, /* PID */
                       int32_t fd)                        /* FD */
 {
-    (void)snpf(Lf->type, sizeof(Lf->type), "FSEVENTS");
+    Lf->type = LSOF_FILE_FSEVENTS;
 }
 
 /*
@@ -283,7 +283,7 @@ void process_kqueue(struct lsof_context *ctx, int pid, /* PID */
     /*
      * Get the kernel queue file information.
      */
-    (void)snpf(Lf->type, sizeof(Lf->type), "KQUEUE");
+    Lf->type = LSOF_FILE_KQUEUE;
     nb = proc_pidfdinfo(pid, fd, PROC_PIDFDKQUEUEINFO, &kq, sizeof(kq));
     if (nb <= 0) {
         (void)err2nm(ctx, "kqueue");
@@ -319,7 +319,7 @@ static void process_pipe_common(struct lsof_context *ctx,
     char dev_ch[32], *ep;
     size_t sz;
 
-    (void)snpf(Lf->type, sizeof(Lf->type), "PIPE");
+    Lf->type = LSOF_FILE_PIPE;
     /*
      * Enter the pipe handle as the device.
      */
@@ -416,7 +416,7 @@ void process_psem(struct lsof_context *ctx, int pid, /* PID */
     /*
      * Get the sempaphore file information.
      */
-    (void)snpf(Lf->type, sizeof(Lf->type), "PSXSEM");
+    Lf->type = LSOF_FILE_POSIX_SEMA;
     nb = proc_pidfdinfo(pid, fd, PROC_PIDFDPSEMINFO, &ps, sizeof(ps));
     if (nb <= 0) {
         (void)err2nm(ctx, "semaphore");
@@ -452,9 +452,9 @@ void process_psem(struct lsof_context *ctx, int pid, /* PID */
  * process_pshm() -- process POSIX shared memory file
  */
 
-static void process_pshm_common(struct lsof_context *ctx, struct pshm_fdinfo *ps)
-{
-    (void)snpf(Lf->type, sizeof(Lf->type), "PSXSHM");
+static void process_pshm_common(struct lsof_context *ctx,
+                                struct pshm_fdinfo *ps) {
+    Lf->type = LSOF_FILE_POSIX_SHM;
     /*
      * Enter the POSIX shared memory file information.
      */
@@ -482,7 +482,7 @@ static void process_pshm_common(struct lsof_context *ctx, struct pshm_fdinfo *ps
 }
 
 void process_pshm(struct lsof_context *ctx, int pid, /* PID */
-int32_t fd)                         /* FD */
+                  int32_t fd)                        /* FD */
 {
     int nb;
     struct pshm_fdinfo ps;
@@ -507,7 +507,7 @@ int32_t fd)                         /* FD */
 
 #if defined(PROC_PIDLISTFILEPORTS)
 void process_fileport_pshm(struct lsof_context *ctx, int pid, /* PID */
-uint32_t fp)                                 /* FILEPORT */
+                           uint32_t fp)                       /* FILEPORT */
 {
     int nb;
     struct pshm_fdinfo ps;
@@ -537,8 +537,8 @@ uint32_t fp)                                 /* FILEPORT */
  * process_vnode() -- process a vnode file
  */
 
-static void process_vnode_common(struct lsof_context *ctx, struct vnode_fdinfowithpath *vi)
-{
+static void process_vnode_common(struct lsof_context *ctx,
+                                 struct vnode_fdinfowithpath *vi) {
     /*
      * Enter the file and vnode information.
      */
@@ -547,7 +547,7 @@ static void process_vnode_common(struct lsof_context *ctx, struct vnode_fdinfowi
 }
 
 void process_vnode(struct lsof_context *ctx, int pid, /* PID */
-int32_t fd)                          /* FD */
+                   int32_t fd)                        /* FD */
 {
     int nb;
     struct vnode_fdinfowithpath vi;
@@ -581,7 +581,7 @@ int32_t fd)                          /* FD */
 
 #if defined(PROC_PIDLISTFILEPORTS)
 void process_fileport_vnode(struct lsof_context *ctx, int pid, /* PID */
-uint32_t fp)                                  /* FILEPORT */
+                            uint32_t fp)                       /* FILEPORT */
 {
     int nb;
     struct vnode_fdinfowithpath vi;

@@ -45,8 +45,8 @@ void process_kqueue_file(struct lsof_context *ctx, struct kinfo_file *file) {
     /* Alloc Lf and set fd */
     alloc_lfile(ctx, LSOF_FD_NUMERIC, file->fd_fd);
 
-    /* Fill type name*/
-    (void)snpf(Lf->type, sizeof(Lf->type), "KQUEUE");
+    /* Fill type name */
+    Lf->type = LSOF_FILE_KQUEUE;
 
     /* Display count and state */
     (void)snpf(Namech, Namechl, "count=%d, state=%#x", file->kq_count,
@@ -88,8 +88,8 @@ void process_pipe(struct lsof_context *ctx, struct kinfo_file *file) {
     /* Alloc Lf and set fd */
     alloc_lfile(ctx, LSOF_FD_NUMERIC, file->fd_fd);
 
-    /* Fill type name*/
-    (void)snpf(Lf->type, sizeof(Lf->type), "PIPE");
+    /* Fill type name */
+    Lf->type = LSOF_FILE_PIPE;
 
     /* Fill dev with f_data if available */
     if (file->f_data) {

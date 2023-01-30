@@ -59,12 +59,12 @@ static void process_socket_common(struct lsof_context *ctx,
     /*
      * Enter basic socket values.
      */
-    (void)snpf(Lf->type, sizeof(Lf->type), "sock");
+    Lf->type = LSOF_FILE_SOCKET;
     Lf->inp_ty = 2;
     /*
      * Enter basic file information.
      */
-    enter_file_info(ctx,&si->pfi);
+    enter_file_info(ctx, &si->pfi);
     /*
      * Enable size or offset display.
      */
@@ -118,8 +118,7 @@ static void process_socket_common(struct lsof_context *ctx,
         /*
          * Process IPv[46] sockets.
          */
-        (void)snpf(Lf->type, sizeof(Lf->type),
-                   (fam == AF_INET) ? "IPv4" : "IPv6");
+        Lf->type = (fam == AF_INET) ? LSOF_FILE_IPV4 : LSOF_FILE_IPV6);
         if ((si->psi.soi_kind != SOCKINFO_IN) &&
             (si->psi.soi_kind != SOCKINFO_TCP)) {
             break;
@@ -158,10 +157,12 @@ static void process_socket_common(struct lsof_context *ctx,
         printiproto(ctx, si->psi.soi_protocol);
         if ((si->psi.soi_kind == SOCKINFO_TCP) &&
             si->psi.soi_proto.pri_tcp.tcpsi_tp) {
-            enter_dev_ch(ctx,print_kptr((KA_T)si->psi.soi_proto.pri_tcp.tcpsi_tp,
+            enter_dev_ch(ctx,
+                         print_kptr((KA_T)si->psi.soi_proto.pri_tcp.tcpsi_tp,
                                     (char *)NULL, 0));
         } else
-            enter_dev_ch(ctx,print_kptr((KA_T)si->psi.soi_pcb, (char *)NULL, 0));
+            enter_dev_ch(ctx,
+                         print_kptr((KA_T)si->psi.soi_pcb, (char *)NULL, 0));
         if (fam == AF_INET) {
 
             /*
@@ -249,7 +250,7 @@ static void process_socket_common(struct lsof_context *ctx,
          * Enter local and remote addresses by address family.
          */
         if (fa || la)
-            (void)ent_inaddr(ctx,la, lp, fa, fp, fam);
+            (void)ent_inaddr(ctx, la, lp, fa, fp, fam);
         if (si->psi.soi_kind == SOCKINFO_TCP) {
 
             /*
@@ -278,12 +279,12 @@ static void process_socket_common(struct lsof_context *ctx,
         /*
          * Process a UNIX domain socket.
          */
-        (void)snpf(Lf->type, sizeof(Lf->type), "unix");
+        Lf->type = LSOF_FILE_UNIX;
         if (si->psi.soi_kind != SOCKINFO_UN)
             break;
         if (Funix)
             Lf->sf |= SELUNX;
-        enter_dev_ch(ctx,print_kptr((KA_T)si->psi.soi_pcb, (char *)NULL, 0));
+        enter_dev_ch(ctx, print_kptr((KA_T)si->psi.soi_pcb, (char *)NULL, 0));
         /*
          * Enter information on a UNIX domain socket that has no address bound
          * to it, although it may be connected to another UNIX domain socket
@@ -317,8 +318,8 @@ static void process_socket_common(struct lsof_context *ctx,
             si->psi.soi_proto.pri_un.unsi_addr.ua_sun.sun_path[unl] = '\0';
             if (si->psi.soi_proto.pri_un.unsi_addr.ua_sun.sun_path[0] &&
                 Sfile &&
-                is_file_named(ctx,
-                    si->psi.soi_proto.pri_un.unsi_addr.ua_sun.sun_path, 0))
+                is_file_named(
+                    ctx, si->psi.soi_proto.pri_un.unsi_addr.ua_sun.sun_path, 0))
                 Lf->sf |= SELNM;
             if (si->psi.soi_proto.pri_un.unsi_addr.ua_sun.sun_path[0] &&
                 !Namech[0])
@@ -332,7 +333,7 @@ static void process_socket_common(struct lsof_context *ctx,
         /*
          * Process a ROUTE domain socket.
          */
-        (void)snpf(Lf->type, sizeof(Lf->type), "rte");
+        Lf->type = LSOF_FILE_ROUTE;
         Lf->off_def = 1;
         break;
     case AF_NDRV:
@@ -340,7 +341,7 @@ static void process_socket_common(struct lsof_context *ctx,
         /*
          * Process an NDRV domain socket.
          */
-        (void)snpf(Lf->type, sizeof(Lf->type), "ndrv");
+        Lf->type = LSOF_FILE_NET_DRIVER;
         if (si->psi.soi_kind != SOCKINFO_NDRV)
             break;
         enter_dev_ch(ctx, print_kptr((KA_T)si->psi.soi_pcb, (char *)NULL, 0));
@@ -356,7 +357,7 @@ static void process_socket_common(struct lsof_context *ctx,
         /*
          * Process an [internal] key-management function socket.
          */
-        (void)snpf(Lf->type, sizeof(Lf->type), "key");
+        Lf->type = LSOF_FILE_INTERNAL_KEY;
         enter_dev_ch(ctx, print_kptr((KA_T)si->psi.soi_pcb, (char *)NULL, 0));
         break;
     case AF_SYSTEM:
@@ -364,7 +365,7 @@ static void process_socket_common(struct lsof_context *ctx,
         /*
          * Process a SYSTEM domain socket.
          */
-        (void)snpf(Lf->type, sizeof(Lf->type), "systm");
+        Lf->type = LSOF_FILE_SYSTEM;
         if (si->psi.soi_kind != SOCKINFO_KERN_EVENT)
             break;
         enter_dev_ch(ctx, print_kptr((KA_T)si->psi.soi_pcb, (char *)NULL, 0));
@@ -378,7 +379,7 @@ static void process_socket_common(struct lsof_context *ctx,
         /*
          * Process a PPP domain socket.
          */
-        (void)snpf(Lf->type, sizeof(Lf->type), "ppp");
+        Lf->type = LSOF_FILE_PPP;
         enter_dev_ch(ctx, print_kptr((KA_T)si->psi.soi_pcb, (char *)NULL, 0));
         break;
     default:

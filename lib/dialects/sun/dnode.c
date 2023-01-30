@@ -1273,7 +1273,7 @@ void process_node(va) KA_T va; /* vnode kernel space address */
     struct l_dev *sdp = (struct l_dev *)NULL;
     size_t sz;
     struct tmpnode t;
-    char tbuf[128], *ty, ubuf[128];
+    char tbuf[128], ubuf[128];
     int tbufx;
     enum vtype type;
     struct sockaddr_un ua;
@@ -3432,7 +3432,7 @@ void process_node(va) KA_T va; /* vnode kernel space address */
     switch (type) {
 
     case VNON:
-        ty = "VNON";
+        Lf->type = LSOF_FILE_VNODE_VNON;
         Lf->dev = dev;
         Lf->dev_def = devs;
         Lf->rdev = rdev;
@@ -3440,14 +3440,14 @@ void process_node(va) KA_T va; /* vnode kernel space address */
         break;
     case VREG:
     case VDIR:
-        ty = (type == VREG) ? "VREG" : "VDIR";
+        Lf->type = (type == VREG) ? LSOF_FILE_VNODE_VREG : LSOF_FILE_VNODE_VDIR;
         Lf->dev = dev;
         Lf->dev_def = devs;
         Lf->rdev = rdev;
         Lf->rdev_def = rdevs;
         break;
     case VBLK:
-        ty = "VBLK";
+        Lf->type = LSOF_FILE_VNODE_VBLK;
         Lf->dev = dev;
         Lf->dev_def = devs;
         Lf->rdev = rdev;
@@ -3455,15 +3455,15 @@ void process_node(va) KA_T va; /* vnode kernel space address */
         Ntype = N_BLK;
         break;
     case VCHR:
+        Lf->type = LSOF_FILE_VNODE_VCHR;
         Lf->dev = dev;
         Lf->dev_def = devs;
         Lf->rdev = rdev;
         Lf->rdev_def = rdevs;
         if (unix_sock) {
-            ty = "unix";
+            Lf->type = LSOF_FILE_UNIX;
             break;
         }
-        ty = "VCHR";
         if (Lf->is_stream == 0 && Lf->is_com == 0)
             Ntype = N_CHR;
         break;
@@ -3474,14 +3474,14 @@ void process_node(va) KA_T va; /* vnode kernel space address */
         Lf->dev_def = devs;
         Lf->rdev = rdev;
         Lf->rdev_def = rdevs;
-        ty = "DOOR";
+        Lf->type = LSOF_FILE_DOOR;
         if (dns)
             (void)idoorkeep(&dn);
         break;
 #endif /* solaris>=20500 */
 
     case VLNK:
-        ty = "VLNK";
+        Lf->type = LSOF_FILE_VNODE_VLNK;
         Lf->dev = dev;
         Lf->dev_def = devs;
         Lf->rdev = rdev;
@@ -3490,7 +3490,7 @@ void process_node(va) KA_T va; /* vnode kernel space address */
 
 #if solaris >= 100000
     case VPORT:
-        ty = "PORT";
+        Lf->type = LSOF_FILE_PORT;
         Lf->dev = dev;
         Lf->dev_def = devs;
         Lf->rdev = rdev;
@@ -3508,7 +3508,7 @@ void process_node(va) KA_T va; /* vnode kernel space address */
         Lf->dev_def = devs;
         Lf->rdev = rdev;
         Lf->rdev_def = rdevs;
-        ty = (char *)NULL;
+        Lf->type = LSOF_FILE_UNKNOWN;
         break;
 #endif /* solaris>=20600 */
 
@@ -3517,16 +3517,16 @@ void process_node(va) KA_T va; /* vnode kernel space address */
 
 #    if solaris >= 20600
         if (so.so_family == AF_UNIX) {
-            ty = "unix";
+            Lf->type = LSOF_FILE_UNIX;
             if (Funix)
                 Lf->sf |= SELUNX;
         } else {
             if (so.so_family == AF_INET) {
 
 #        if defined(HASIPv6)
-                ty = "IPv4";
+                Lf->type = LSOF_FILE_IPV4;
 #        else  /* !defined(HASIPv6) */
-                ty = "inet";
+                Lf->type = LSOF_FILE_INET;
 #        endif /* defined(HASIPv6) */
 
                 (void)snpf(Namech, Namechl - 1, printsockty(so.so_type));
@@ -3539,7 +3539,7 @@ void process_node(va) KA_T va; /* vnode kernel space address */
 
 #        if defined(HASIPv6)
             else if (so.so_family == AF_INET6) {
-                ty = "IPv6";
+                Lf->type = LSOF_FILE_IPV6;
                 (void)snpf(Namech, Namechl - 1, printsockty(so.so_type));
                 Namech[Namechl - 1] = '\0';
                 if (TcpStIn || UdpStIn || TcpStXn || UdpStXn)
@@ -3550,7 +3550,7 @@ void process_node(va) KA_T va; /* vnode kernel space address */
 #        endif /* defined(HASIPv6) */
 
             else {
-                ty = "sock";
+                Lf->type = LSOF_FILE_SOCKET;
                 (void)printunkaf(so.so_family, 0);
                 ep = endnm(&sz);
                 (void)snpf(ep, sz, ", %s", printsockty(so.so_type));
@@ -3566,14 +3566,14 @@ void process_node(va) KA_T va; /* vnode kernel space address */
 #endif /* defined(HAS_VSOCK) */
 
     case VBAD:
-        ty = "VBAD";
+        Lf->type = LSOF_FILE_VNODE_VBAD;
         Lf->dev = dev;
         Lf->dev_def = devs;
         Lf->rdev = rdev;
         Lf->rdev_def = rdevs;
         break;
     case VFIFO:
-        ty = "FIFO";
+        Lf->type = LSOF_FILE_VNODE_VFIFO;
         if (!Lf->dev_ch || Lf->dev_ch[0] == '\0') {
             Lf->dev = dev;
             Lf->dev_def = devs;
@@ -3586,11 +3586,9 @@ void process_node(va) KA_T va; /* vnode kernel space address */
         Lf->dev_def = devs;
         Lf->rdev = rdev;
         Lf->rdev_def = rdevs;
-        (void)snpf(Lf->type, sizeof(Lf->type), "%04o", (type & 0xfff));
-        ty = (char *)NULL;
+        Lf->type = LSOF_TYPE_UNKNOWN;
+        Lf->unknown_file_type = type;
     }
-    if (ty)
-        (void)snpf(Lf->type, sizeof(Lf->type), "%s", ty);
     /*
      * If this a Solaris common vnode/snode void some information.
      */
@@ -4235,7 +4233,6 @@ struct pid *pids; /* pid structure receiver */
     struct proc pp;
     pid_t prpid;
     id_t prtid;
-    char *ty = (char *)NULL;
 #    endif /* solaris>=20600 */
 
     if (!v->v_data || kread((KA_T)v->v_data, (char *)&pr, sizeof(pr))) {
@@ -4345,15 +4342,15 @@ struct pid *pids; /* pid structure receiver */
     switch (pr.pr_type) {
     case PR_PROCDIR:
         (void)snpf(Namech, Namechl - 1, "/%s", HASPROCFS);
-        ty = "PDIR";
+        Lf->type = LSOF_FILE_PROC_DIR;
         break;
     case PR_PIDDIR:
         (void)snpf(Namech, Namechl - 1, "/%s/%d", HASPROCFS, (int)prpid);
-        ty = "PDIR";
+        Lf->type = LSOF_FILE_PROC_PID;
         break;
     case PR_AS:
         (void)snpf(Namech, Namechl - 1, "/%s/%d/as", HASPROCFS, (int)prpid);
-        ty = "PAS";
+        Lf->type = LSOF_FILE_PROC_AS;
         if (prpcs && kread((KA_T)pc.prc_proc, (char *)&p, sizeof(p)) == 0 &&
             p.p_as && kread((KA_T)p.p_as, (char *)&as, sizeof(as)) == 0) {
             Lf->sz = (SZOFFTYPE)as.a_size;
@@ -4362,163 +4359,160 @@ struct pid *pids; /* pid structure receiver */
         break;
     case PR_CTL:
         (void)snpf(Namech, Namechl - 1, "/%s/%d/ctl", HASPROCFS, (int)prpid);
-        ty = "PCTL";
+        Lf->type = LSOF_FILE_PROC_CTRL;
         break;
     case PR_STATUS:
         (void)snpf(Namech, Namechl - 1, "/%s/%d/status", HASPROCFS, (int)prpid);
-        ty = "PSTA";
+        Lf->type = LSOF_FILE_PROC_STATUS;
         break;
     case PR_LSTATUS:
         (void)snpf(Namech, Namechl - 1, "/%s/%d/lstatus", HASPROCFS,
                    (int)prpid);
-        ty = "PLST";
+        Lf->type = LSOF_FILE_PROC_LSTATUS;
         break;
     case PR_PSINFO:
         (void)snpf(Namech, Namechl - 1, "/%s/%d/psinfo", HASPROCFS, (int)prpid);
-        ty = "PSIN";
+        Lf->type = LSOF_FILE_PROC_PSINFO;
         break;
     case PR_LPSINFO:
         (void)snpf(Namech, Namechl - 1, "/%s/%d/lpsinfo", HASPROCFS,
                    (int)prpid);
-        ty = "PLPI";
+        Lf->type = LSOF_FILE_PROC_LPS_INFO;
         break;
     case PR_MAP:
         (void)snpf(Namech, Namechl - 1, "/%s/%d/map", HASPROCFS, (int)prpid);
-        ty = "PMAP";
+        Lf->type = LSOF_FILE_PROC_MAP;
         break;
     case PR_RMAP:
         (void)snpf(Namech, Namechl - 1, "/%s/%d/rmap", HASPROCFS, (int)prpid);
-        ty = "PRMP";
+        Lf->type = LSOF_FILE_PROC_RMAP;
         break;
     case PR_XMAP:
         (void)snpf(Namech, Namechl - 1, "/%s/%d/xmap", HASPROCFS, (int)prpid);
-        ty = "PXMP";
+        Lf->type = LSOF_FILE_PROC_XMAP;
         break;
     case PR_CRED:
         (void)snpf(Namech, Namechl - 1, "/%s/%d/cred", HASPROCFS, (int)prpid);
-        ty = "PCRE";
+        Lf->type = LSOF_FILE_PROC_CRED;
         break;
     case PR_SIGACT:
         (void)snpf(Namech, Namechl - 1, "/%s/%d/sigact", HASPROCFS, (int)prpid);
-        ty = "PSGA";
+        Lf->type = LSOF_FILE_PROC_SIGACT;
         break;
     case PR_AUXV:
         (void)snpf(Namech, Namechl - 1, "/%s/%d/auxv", HASPROCFS, (int)prpid);
-        ty = "PAXV";
+        Lf->type = LSOF_FILE_PROC_AUXV;
         break;
 
 #        if defined(HASPR_LDT)
     case PR_LDT:
         (void)snpf(Namech, Namechl - 1, "/%s/%d/ldt", HASPROCFS, (int)prpid);
-        ty = "PLDT";
+        Lf->type = LSOF_FILE_PROC_LDT;
         break;
 #        endif /* defined(HASPR_LDT) */
 
     case PR_USAGE:
         (void)snpf(Namech, Namechl - 1, "/%s/%d/usage", HASPROCFS, (int)prpid);
-        ty = "PUSG";
+        Lf->type = LSOF_FILE_PROC_USAGE;
         break;
     case PR_LUSAGE:
         (void)snpf(Namech, Namechl - 1, "/%s/%d/lusage", HASPROCFS, (int)prpid);
-        ty = "PLU";
+        Lf->type = LSOF_FILE_PROC_LUSAGE;
         break;
     case PR_PAGEDATA:
         (void)snpf(Namech, Namechl - 1, "/%s/%d/pagedata", HASPROCFS,
                    (int)prpid);
-        ty = "PGD";
+        Lf->type = LSOF_FILE_PROC_PAGE_DATA;
         break;
     case PR_WATCH:
         (void)snpf(Namech, Namechl - 1, "/%s/%d/watch", HASPROCFS, (int)prpid);
-        ty = "PW";
+        Lf->type = LSOF_FILE_PROC_WATCH;
         break;
     case PR_CURDIR:
         (void)snpf(Namech, Namechl - 1, "/%s/%d/cwd", HASPROCFS, (int)prpid);
-        ty = "PCWD";
+        Lf->type = LSOF_FILE_PROC_CWD;
         break;
     case PR_ROOTDIR:
         (void)snpf(Namech, Namechl - 1, "/%s/%d/root", HASPROCFS, (int)prpid);
-        ty = "PRTD";
+        Lf->type = LSOF_FILE_PROC_ROOT;
         break;
     case PR_FDDIR:
         (void)snpf(Namech, Namechl - 1, "/%s/%d/fd", HASPROCFS, (int)prpid);
-        ty = "PFDR";
+        Lf->type = LSOF_FILE_PROC_FD_DIR;
         break;
     case PR_FD:
         (void)snpf(Namech, Namechl - 1, "/%s/%d/fd/%d", HASPROCFS, (int)prpid,
                    pr.pr_index);
-        ty = "PFD";
+        Lf->type = LSOF_FILE_PROC_FD;
         break;
     case PR_OBJECTDIR:
         (void)snpf(Namech, Namechl - 1, "/%s/%d/object", HASPROCFS, (int)prpid);
-        ty = "PODR";
+        Lf->type = LSOF_FILE_PROC_OBJ_DIR;
         break;
     case PR_OBJECT:
-        (void)snpf(Namech, Namechl - 1, "/%s/%d/object/", HASPROCFS,
-                   (int)prpid);
-        ty = "POBJ";
+        (void)snpf(Namech, Namechl - 1, "/%s/%d/object", HASPROCFS, (int)prpid);
+        Lf->type = LSOF_FILE_PROC_OBJ;
         break;
     case PR_LWPDIR:
         (void)snpf(Namech, Namechl - 1, "/%s/%d/lwp", HASPROCFS, (int)prpid);
-        ty = "PLDR";
+        Lf->type = LSOF_FILE_PROC_LWP_DIR;
         break;
     case PR_LWPIDDIR:
         (void)snpf(Namech, Namechl, "/%s/%d/lwp/%d", HASPROCFS, (int)prpid,
                    (int)prtid);
-        ty = "PLDR";
+        Lf->type = LSOF_FILE_PROC_LWP_DIR;
         break;
     case PR_LWPCTL:
         (void)snpf(Namech, Namechl - 1, "/%s/%d/lwp/%d/lwpctl", HASPROCFS,
                    (int)prpid, (int)prtid);
-        ty = "PLC";
+        Lf->type = LSOF_FILE_PROC_LWP_CTL;
         break;
     case PR_LWPSTATUS:
         (void)snpf(Namech, Namechl - 1, "/%s/%d/lwp/%d/lwpstatus", HASPROCFS,
                    (int)prpid, (int)prtid);
-        ty = "PLWS";
+        Lf->type = LSOF_FILE_PROC_LWP_STATUS;
         break;
     case PR_LWPSINFO:
         (void)snpf(Namech, Namechl - 1, "/%s/%d/lwp/%d/lwpsinfo", HASPROCFS,
                    (int)prpid, (int)prtid);
-        ty = "PLWI";
+        Lf->type = LSOF_FILE_PROC_LWP_SINFO;
         break;
     case PR_LWPUSAGE:
         (void)snpf(Namech, Namechl - 1, "/%s/%d/lwp/%d/lwpusage", HASPROCFS,
                    (int)prpid, (int)prtid);
-        ty = "PLWU";
+        Lf->type = LSOF_FILE_PROC_LWP_USAGE;
         break;
     case PR_XREGS:
         (void)snpf(Namech, Namechl - 1, "/%s/%d/lwp/%d/xregs", HASPROCFS,
                    (int)prpid, (int)prtid);
-        ty = "PLWX";
+        Lf->type = LSOF_FILE_PROC_LWP_XREGS;
         break;
 
 #        if defined(HASPR_GWINDOWS)
     case PR_GWINDOWS:
         (void)snpf(Namech, Namechl - 1, "/%s/%d/lwp/%d/gwindows", HASPROCFS,
                    (int)prpid, (int)prtid);
-        ty = "PLWG";
+        Lf->type = LSOF_FILE_PROC_LWP_GWINDOWS;
         break;
 #        endif /* defined(HASPR_GWINDOWS) */
 
     case PR_PIDFILE:
         (void)snpf(Namech, Namechl - 1, "/%s/%d", HASPROCFS, (int)prpid);
-        ty = "POPF";
+        Lf->type = LSOF_FILE_PROC_OLD_PID;
         break;
     case PR_LWPIDFILE:
         (void)snpf(Namech, Namechl - 1, "/%s/%d", HASPROCFS, (int)prpid);
-        ty = "POLP";
+        Lf->type = LSOF_FILE_PROC_OLD_LWP;
         break;
     case PR_OPAGEDATA:
         (void)snpf(Namech, Namechl - 1, "/%s/%d", HASPROCFS, (int)prpid);
-        ty = "POPG";
+        Lf->type = LSOF_FILE_PROC_OLD_PAGE;
         break;
     default:
-        ty = (char *)NULL;
+        Lf->type = LSOF_FILE_UNKNOWN;
+        Lf->unknown_file_type = pr.pr_type;
+        break;
     }
-    if (ty)
-        (void)snpf(Lf->type, sizeof(Lf->type), "%s", ty);
-    else
-        (void)snpf(Lf->type, sizeof(Lf->type), "%04o", (pr.pr_type & 0xfff));
     /*
      * Record the Solaris 2.6 /proc file system inode number.
      */

@@ -413,7 +413,7 @@ void process_lla(la) KA_T la; /* link level CB address in kernel */
     struct lla_cb lcb;
     size_t sz;
 
-    (void)snpf(Lf->type, sizeof(Lf->type), "lla");
+    Lf->type = LSOF_FILE_LINK_LEVEL_ACCESS;
     Lf->inp_ty = 2;
     enter_dev_ch(print_kptr(la, (char *)NULL, 0));
     /*
@@ -500,7 +500,7 @@ void process_socket(sa) KA_T sa; /* socket address in kernel */
 #    endif /* HPUXV<1030 */
 #endif     /* HPUXV>=800 */
 
-    (void)snpf(Lf->type, sizeof(Lf->type), "sock");
+    Lf->type = LSOF_FILE_SOCKET;
     Lf->inp_ty = 2;
     /*
      * Read socket structure.
@@ -577,7 +577,7 @@ void process_socket(sa) KA_T sa; /* socket address in kernel */
     case AF_CCITT:
         if (Fnet)
             Lf->sf |= SELNET;
-        (void)snpf(Lf->type, sizeof(Lf->type), "x.25");
+        Lf->type = LSOF_FILE_X25;
         (void)snpf(Lf->iproto, sizeof(Lf->iproto), "%.*s", IPROTOL, "CCITT");
         /*
          * Get the X25 PCB and its extension.
@@ -642,7 +642,7 @@ void process_socket(sa) KA_T sa; /* socket address in kernel */
     case AF_INET:
         if (Fnet)
             Lf->sf |= SELNET;
-        (void)snpf(Lf->type, sizeof(Lf->type), "inet");
+        Lf->type = LSOF_FILE_INET;
         printiproto(p.pr_protocol);
 
 #if HPUXV >= 1030
@@ -764,7 +764,7 @@ void process_socket(sa) KA_T sa; /* socket address in kernel */
     case AF_UNIX:
         if (Funix)
             Lf->sf |= SELUNX;
-        (void)snpf(Lf->type, sizeof(Lf->type), "unix");
+        Lf->type = LSOF_FILE_UNIX;
 
 #if HPUXV >= 1030
         /*
@@ -923,7 +923,7 @@ enum vtype vt;                                     /* vnode type */
      */
     if (Fnet)
         Lf->sf |= SELNET;
-    (void)snpf(Lf->type, sizeof(Lf->type), "inet");
+    Lf->type = LSOF_FILE_INET;
     if (pn) {
         (void)snpf(Lf->iproto, sizeof(Lf->iproto), pn);
         Lf->inp_ty = 2;
