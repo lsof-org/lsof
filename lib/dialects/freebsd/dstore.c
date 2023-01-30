@@ -112,3 +112,10 @@ struct pff_tab Pof_tab[] = {
  */
 
 KA_T X_bfopsa; /* badfileops kernel address */
+
+/* FreeBSD 12 has a bug that leaves undefined symbol __start_set_pcpu and
+ * __stop_set_pcpu but not actually using it. Workaround the issue like
+ * https://github.com/freebsd/freebsd-src/commit/56e8cb87c6054a302503c33b39a4bd658f505c4a
+ */
+uintptr_t *__start_set_pcpu;
+uintptr_t *__stop_set_pcpu;
