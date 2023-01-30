@@ -118,7 +118,7 @@ static void process_socket_common(struct lsof_context *ctx,
         /*
          * Process IPv[46] sockets.
          */
-        Lf->type = (fam == AF_INET) ? LSOF_FILE_IPV4 : LSOF_FILE_IPV6);
+        Lf->type = (fam == AF_INET) ? LSOF_FILE_IPV4 : LSOF_FILE_IPV6;
         if ((si->psi.soi_kind != SOCKINFO_IN) &&
             (si->psi.soi_kind != SOCKINFO_TCP)) {
             break;
