@@ -50,7 +50,8 @@ _PROTOTYPE(static void get_lock_state_kvm, (struct lsof_context * ctx, KA_T f));
  */
 
 #ifdef KERN_LOCKF
-static void get_lock_state_sysctl(struct kinfo_file *kf,
+static void get_lock_state_sysctl(struct lsof_context *ctx,
+                                  struct kinfo_file *kf,
                                   struct lock_list *locks) {
     struct kinfo_lockf key, *lock;
 
@@ -185,7 +186,7 @@ void process_eventfd(struct lsof_context *ctx, struct kinfo_file *kf) {
     Lf->type = LSOF_FILE_EVENTFD;
 #    if __FreeBSD_version >= 1400062
     enter_dev_ch(
-        print_kptr(kf->kf_un.kf_eventfd.kf_eventfd_addr, (char *)NULL, 0));
+        ctx, print_kptr(kf->kf_un.kf_eventfd.kf_eventfd_addr, (char *)NULL, 0));
 #    endif /* __FreeBSD_version >= 1400062 */
     (void)snpf(Namech, Namechl, "value=%ju, flags=0x%x",
                kf->kf_un.kf_eventfd.kf_eventfd_value,
@@ -387,7 +388,7 @@ process_overlaid_node:
     }
 
 #ifdef KERN_LOCKF
-    get_lock_state_sysctl(kf, locks);
+    get_lock_state_sysctl(ctx, kf, locks);
 #elif defined(HAS_V_LOCKF)
     if (v && v->v_lockf)
         (void)get_lock_state_kvm(ctx, (KA_T)v->v_lockf);
@@ -696,11 +697,11 @@ void process_pipe(struct lsof_context *ctx, struct kinfo_file *kf, KA_T pa) {
     }
 #if __FreeBSD_version >= 1400062
     if (kf->kf_un.kf_pipe.kf_pipe_buffer_in) {
-        ep = endnm(&sz);
+        ep = endnm(ctx, &sz);
         (void)snpf(ep, sz, ", in=%d", kf->kf_un.kf_pipe.kf_pipe_buffer_in);
     }
     if (kf->kf_un.kf_pipe.kf_pipe_buffer_out) {
-        ep = endnm(&sz);
+        ep = endnm(ctx, &sz);
         (void)snpf(ep, sz, ", out=%d", kf->kf_un.kf_pipe.kf_pipe_buffer_out);
     }
 #else  /* __FreeBSD_version < 1400062 */
