@@ -254,7 +254,16 @@ AC_SYS_LARGEFILE
 AC_CHECK_FUNCS([strftime])
 
 # Detect selinux headers for HASSELINUX
-AC_CHECK_HEADERS([selinux/selinux.h], [LIBS="$LIBS -lselinux"])
+# with_selinux=yes/no/auto
+AC_ARG_WITH(selinux, AS_HELP_STRING([--with-selinux],
+	[build with selinux support @<:@default=auto@:>@]), [], [with_selinux=auto])
+AS_IF([test "x$with_selinux" != xno], [
+	AC_CHECK_HEADERS([selinux/selinux.h], [LIBS="$LIBS -lselinux"], [
+		AS_IF([test "x$with_selinux" = xyes], [
+			AC_MSG_ERROR([--with-selinux specified, but libselinux could not be found])
+		])
+	])
+])
 
 # Detect utmpx headers for HASUTMPX
 AC_CHECK_HEADERS([utmpx.h])
