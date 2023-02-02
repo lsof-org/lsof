@@ -6,6 +6,9 @@ liblsof_la_SOURCES = lib/ckkv.c lib/dvch.c lib/fino.c lib/isfn.c lib/lkud.c lib/
 liblsof_la_SOURCES += lib/common.h lib/regex.h lib/proto.h lib/hash.h
 include_HEADERS = include/lsof.h include/lsof_fields.h
 
+# Hide internal functions
+AM_CFLAGS = -fvisibility=hidden
+
 DIALECT_ROOT = $(top_srcdir)/lib/dialects
 DIALECT_PATH = $(DIALECT_ROOT)/$(LSOF_DIALECT_DIR)
 
@@ -73,13 +76,16 @@ bin_PROGRAMS = lsof
 
 lsof_SOURCES = src/arg.c src/main.c src/misc.c src/node.c src/print.c src/ptti.c src/store.c src/usage.c src/util.c
 lsof_SOURCES += src/cli.h
+
 if LINUX
 lsof_SOURCES += src/dialects/linux/dprint.c
 endif
 if DARWIN
 lsof_SOURCES += src/dialects/darwin/dprint.c
 endif
-lsof_LDADD = liblsof.la
+# TODO: link to dynamic library instead after internal functions are no longer used
+lsof_SOURCES += $(liblsof_la_SOURCES)
+#lsof_LDADD = liblsof.la
 
 liblsof_la_CPPFLAGS = -I$(DIALECT_PATH) -Iautotools -DAUTOTOOLS -I$(top_srcdir)/lib -I$(top_srcdir)/include
 lsof_CPPFLAGS = -I$(DIALECT_PATH) -Iautotools -DAUTOTOOLS -I$(top_srcdir)/lib -I$(top_srcdir)/include -I$(top_srcdir)/src

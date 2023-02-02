@@ -1333,6 +1333,7 @@ void clean_lfile(struct lsof_context *ctx, struct lfile *lf) {
 /*
  * Error() - exit with an error status
  */
+__attribute__((weak))
 void Error() { exit(1); }
 #endif
 

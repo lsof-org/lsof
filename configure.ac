@@ -189,6 +189,10 @@ AM_CONDITIONAL([OPENBSD], [test x$LSOF_DIALECT_DIR = xopenbsd])
 AC_SUBST([LSOF_DIALECT])
 AC_SUBST([LSOF_DIALECT_DIR])
 
+# Export public function with default visibility
+AC_DEFINE([API_EXPORT], [__attribute__ ((visibility ("default")))],
+	[Set visibility to default for exported API functions.])
+
 # --enable-security to define HASSECURITY
 AC_ARG_ENABLE(security, AS_HELP_STRING([--enable-security],
 	[allow only the root user to list all open files @<:@default=no@:>@]), [], [enable_security=no])

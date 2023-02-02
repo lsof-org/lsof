@@ -35,12 +35,19 @@
 #include "common.h"
 #include <unistd.h>
 
+#ifndef API_EXPORT
+#    define API_EXPORT
+#endif
+
+API_EXPORT
 int lsof_get_api_version() { return LSOF_API_VERSION; }
 
 #ifdef AUTOTOOLS
+API_EXPORT
 char *lsof_get_library_version() { return PACKAGE_VERSION; }
 #endif
 
+API_EXPORT
 struct lsof_context *lsof_new() {
     struct lsof_context *ctx =
         (struct lsof_context *)malloc(sizeof(struct lsof_context));
@@ -78,6 +85,7 @@ struct lsof_context *lsof_new() {
     return ctx;
 }
 
+API_EXPORT
 enum lsof_error lsof_freeze(struct lsof_context *ctx) {
     enum lsof_error ret = LSOF_SUCCESS;
     if (ctx->frozen) {
@@ -90,6 +98,7 @@ enum lsof_error lsof_freeze(struct lsof_context *ctx) {
     return ret;
 }
 
+API_EXPORT
 enum lsof_error lsof_gather(struct lsof_context *ctx,
                             struct lsof_result **result) {
     enum lsof_error ret = LSOF_SUCCESS;
@@ -188,6 +197,7 @@ enum lsof_error lsof_gather(struct lsof_context *ctx,
     return ret;
 }
 
+API_EXPORT
 enum lsof_error lsof_output_stream(struct lsof_context *ctx, FILE *fp,
                                    char *program_name, int warn) {
     if (!ctx) {
@@ -199,6 +209,7 @@ enum lsof_error lsof_output_stream(struct lsof_context *ctx, FILE *fp,
     return LSOF_SUCCESS;
 }
 
+API_EXPORT
 void lsof_destroy(struct lsof_context *ctx) {
     struct str_lst *lst, *lst_next;
     if (!ctx) {
@@ -219,6 +230,7 @@ void lsof_destroy(struct lsof_context *ctx) {
     free(ctx);
 }
 
+API_EXPORT
 void lsof_free_result(struct lsof_result *result) {
     int pi, fi;
     struct lsof_process *p;
@@ -241,6 +253,7 @@ void lsof_free_result(struct lsof_result *result) {
     CLEAN(result);
 }
 
+API_EXPORT
 enum lsof_error lsof_select_process(struct lsof_context *ctx, char *command,
                                     int exclude) {
     char *cp; /* command copy */
@@ -306,6 +319,7 @@ enum lsof_error lsof_select_process(struct lsof_context *ctx, char *command,
     return LSOF_SUCCESS;
 }
 
+API_EXPORT
 enum lsof_error lsof_select_process_regex(struct lsof_context *ctx, char *x) {
     int bmod = 0;
     int bxmod = 0;
@@ -550,11 +564,13 @@ enum lsof_error lsof_select_uid_login(struct lsof_context *ctx, uint32_t uid,
     return LSOF_SUCCESS;
 }
 
+API_EXPORT
 enum lsof_error lsof_select_uid(struct lsof_context *ctx, uint32_t uid,
                                 int exclude) {
     return lsof_select_uid_login(ctx, uid, NULL, exclude);
 }
 
+API_EXPORT
 enum lsof_error lsof_select_login(struct lsof_context *ctx, char *login,
                                   int exclude) {
     struct passwd *pw;
@@ -573,6 +589,7 @@ enum lsof_error lsof_select_login(struct lsof_context *ctx, char *login,
     return lsof_select_uid_login(ctx, pw->pw_uid, login, exclude);
 }
 
+API_EXPORT
 enum lsof_error lsof_avoid_blocking(struct lsof_context *ctx) {
     if (!ctx || ctx->frozen) {
         return LSOF_ERROR_INVALID_ARGUMENT;
@@ -581,6 +598,7 @@ enum lsof_error lsof_avoid_blocking(struct lsof_context *ctx) {
     return LSOF_SUCCESS;
 }
 
+API_EXPORT
 enum lsof_error lsof_logic_and(struct lsof_context *ctx) {
     if (!ctx || ctx->frozen) {
         return LSOF_ERROR_INVALID_ARGUMENT;
@@ -589,6 +607,7 @@ enum lsof_error lsof_logic_and(struct lsof_context *ctx) {
     return LSOF_SUCCESS;
 }
 
+API_EXPORT
 enum lsof_error lsof_select_fd(struct lsof_context *ctx,
                                enum lsof_fd_type fd_type, int fd_num_lo,
                                int fd_num_hi, int exclude) {
@@ -627,7 +646,7 @@ enum lsof_error lsof_select_fd(struct lsof_context *ctx,
                               exclude ? "exclude" : "include",
                               FdlTy ? "exclude" : "include", buf);
             }
-            return (1);
+            return LSOF_ERROR_INVALID_ARGUMENT;
         }
     }
 
@@ -636,7 +655,7 @@ enum lsof_error lsof_select_fd(struct lsof_context *ctx,
      */
     if (!(f = (struct fd_lst *)malloc((MALLOC_S)sizeof(struct fd_lst)))) {
         (void)fprintf(stderr, "%s: no space for FD list entry\n", Pn);
-        Error();
+        return LSOF_ERROR_NO_MEMORY;
     }
 
     /*
@@ -730,6 +749,7 @@ enum lsof_error lsof_select_pid_pgid(struct lsof_context *ctx, int32_t id,
     return LSOF_SUCCESS;
 }
 
+API_EXPORT
 enum lsof_error lsof_select_pid(struct lsof_context *ctx, int32_t pid,
                                 int exclude) {
     enum lsof_error res = lsof_select_pid_pgid(ctx, pid, &Spid, &Mxpid, &Npid,
@@ -739,12 +759,14 @@ enum lsof_error lsof_select_pid(struct lsof_context *ctx, int32_t pid,
     return res;
 }
 
+API_EXPORT
 enum lsof_error lsof_select_pgid(struct lsof_context *ctx, int32_t pgid,
                                  int exclude) {
     return lsof_select_pid_pgid(ctx, pgid, &Spgid, &Mxpgid, &Npgid, &Npgidi,
                                 &Npgidx, exclude, 0);
 }
 
+API_EXPORT
 enum lsof_error lsof_select_inet(struct lsof_context *ctx, int inet_proto) {
     if (!ctx || ctx->frozen) {
         return LSOF_ERROR_INVALID_ARGUMENT;
@@ -773,6 +795,7 @@ enum lsof_error lsof_select_inet(struct lsof_context *ctx, int inet_proto) {
     return LSOF_SUCCESS;
 }
 
+API_EXPORT
 enum lsof_error lsof_select_unix_socket(struct lsof_context *ctx) {
     if (!ctx || ctx->frozen) {
         return LSOF_ERROR_INVALID_ARGUMENT;
@@ -784,6 +807,7 @@ enum lsof_error lsof_select_unix_socket(struct lsof_context *ctx) {
     return LSOF_SUCCESS;
 }
 
+API_EXPORT
 enum lsof_error lsof_select_task(struct lsof_context *ctx, int show) {
     if (!ctx || ctx->frozen) {
         return LSOF_ERROR_INVALID_ARGUMENT;
@@ -809,6 +833,7 @@ enum lsof_error lsof_select_task(struct lsof_context *ctx, int show) {
     return LSOF_SUCCESS;
 }
 
+API_EXPORT
 enum lsof_error lsof_select_proto_state(struct lsof_context *ctx, int tcp,
                                         char *state, int exclude) {
     int num_states;
@@ -925,6 +950,7 @@ enum lsof_error lsof_select_proto_state(struct lsof_context *ctx, int tcp,
     return LSOF_SUCCESS;
 }
 
+API_EXPORT
 enum lsof_error lsof_select_nfs(struct lsof_context *ctx) {
     if (!ctx || ctx->frozen) {
         return LSOF_ERROR_INVALID_ARGUMENT;
@@ -935,6 +961,7 @@ enum lsof_error lsof_select_nfs(struct lsof_context *ctx) {
     return LSOF_SUCCESS;
 }
 
+API_EXPORT
 enum lsof_error lsof_select_num_links(struct lsof_context *ctx, int threshold) {
     if (!ctx || ctx->frozen) {
         return LSOF_ERROR_INVALID_ARGUMENT;
@@ -947,6 +974,7 @@ enum lsof_error lsof_select_num_links(struct lsof_context *ctx, int threshold) {
     return LSOF_SUCCESS;
 }
 
+API_EXPORT
 enum lsof_error lsof_exempt_fs(struct lsof_context *ctx, char *orig_path,
                                int avoid_readlink) {
     char *ec;         /* pointer to copy of path */
@@ -1012,6 +1040,7 @@ enum lsof_error lsof_exempt_fs(struct lsof_context *ctx, char *orig_path,
     return LSOF_SUCCESS;
 }
 
+API_EXPORT
 enum lsof_error lsof_avoid_forking(struct lsof_context *ctx, int avoid) {
     if (!ctx || ctx->frozen) {
         return LSOF_ERROR_INVALID_ARGUMENT;
