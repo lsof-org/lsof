@@ -489,7 +489,7 @@ static int rmdupdev(struct lsof_context *ctx,
     if (!(*dp = (struct l_dev **)realloc(
               (MALLOC_P *)*dp, (MALLOC_S)(j * sizeof(struct l_dev *))))) {
         if (ctx->err)
-            (void)fprintf(ctx->Err, "%s: can't realloc %s device pointers\n",
+            (void)fprintf(ctx->err, "%s: can't realloc %s device pointers\n",
                           Pn, nm);
         Error(ctx);
     }
