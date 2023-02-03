@@ -120,6 +120,8 @@
 #            define vprintf __kernel_vprintf
 #            define vsprintf __kernel_vsprintf
 #            define vsnprintf __kernel_vsnprintf
+#            define fls __kernel_fls
+#            define exit __kernel_exit
 #        endif /* solaris>=110000 */
 #        include <inet/ipclassifier.h>
 #        undef ffs
@@ -136,6 +138,8 @@
 #            undef vprintf
 #            undef vsprintf
 #            undef vsnprintf
+#            undef fls
+#            undef exit
 #        endif /* solaris>=110000 */
 #    endif     /* defined(HAS_IPCLASSIFIER_H) */
 
@@ -201,6 +205,12 @@
 
 #    if solaris >= 20500
 #        include <sys/tiuser.h>
+#        if solaris >= 110000
+#            define _KERNEL
+#            include <sys/rgm.h>
+#            include <rpc/rpc_tags.h>
+#            undef _KERNEL
+#        endif /* solaris>=110000 */
 #        include <rpc/auth.h>
 #        include <rpc/clnt.h>
 
@@ -638,8 +648,9 @@ extern int Unof; /* u_nofiles value */
  */
 
 #    if defined(HASDCACHE)
-#        define DCACHE_CLONE rw_clone_sect /* clone function for read_dcache   \
-                                            */
+#        define DCACHE_CLONE                                                   \
+            rw_clone_sect /* clone function for read_dcache                    \
+                           */
 #        define DCACHE_CLR                                                     \
             clr_sect /* function to clear clone and                            \
                       * pseudo caches when reading the                         \
