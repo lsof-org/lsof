@@ -4245,6 +4245,7 @@ struct pid *pids; /* pid structure receiver */
     prcommon_t pc, ppc;
     int pcs, ppcs, prpcs, prppcs;
     struct proc pp;
+    kthread_t thread;
     pid_t prpid;
     id_t prtid;
     char *ty = (char *)NULL;
@@ -4338,16 +4339,21 @@ struct pid *pids; /* pid structure receiver */
             prppcs = 0;
     } else
         ppcs = prppcs = 0;
-    if (pcs && pc.prc_pid)
-        pids->pid_id = prpid = pc.prc_pid;
-    else if (ppcs && ppc.prc_pid)
-        pids->pid_id = prpid = ppc.prc_pid;
+    if (prpcs && p.p_pidp &&
+        kread((KA_T)p.p_pidp, (char *)pids, sizeof(struct pid)) == 0)
+        prpid = pids->pid_id;
+    else if (prppcs && pp.p_pidp &&
+             kread((KA_T)pp.p_pidp, (char *)pids, sizeof(struct pid)) == 0)
+        prpid = pids->pid_id;
     else
         pids->pid_id = prpid = (pid_t)0;
-    if (pcs && pc.prc_tid)
-        prtid = pc.prc_tid;
-    else if (ppcs && ppc.prc_tid)
-        prtid = ppc.prc_tid;
+    if (pcs && pc.prc_thread &&
+        kread((KA_T)pc.prc_thread, (char *)&thread, sizeof(kthread_t)) == 0)
+        prtid = thread.t_tid;
+    else if (ppcs && ppc.prc_thread &&
+             kread((KA_T)ppc.prc_thread, (char *)&thread, sizeof(kthread_t)) ==
+                 0)
+        prtid = thread.t_tid;
     else
         prtid = (id_t)0;
     /*
@@ -4512,14 +4518,20 @@ struct pid *pids; /* pid structure receiver */
         break;
 #        endif /* defined(HASPR_GWINDOWS) */
 
+#        if defined(PR_PIDFILE)
     case PR_PIDFILE:
         (void)snpf(Namech, Namechl - 1, "/%s/%d", HASPROCFS, (int)prpid);
         ty = "POPF";
         break;
+#        endif /* defined(PR_PIDFILE) */
+
+#        if defined(PR_LWPIDFILE)
     case PR_LWPIDFILE:
         (void)snpf(Namech, Namechl - 1, "/%s/%d", HASPROCFS, (int)prpid);
         ty = "POLP";
         break;
+#        endif /* defined(PR_LWPIDFILE) */
+
     case PR_OPAGEDATA:
         (void)snpf(Namech, Namechl - 1, "/%s/%d", HASPROCFS, (int)prpid);
         ty = "POPG";
