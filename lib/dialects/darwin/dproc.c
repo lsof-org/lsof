@@ -149,7 +149,7 @@ static void enter_vn_text(struct lsof_context *ctx,
                 (struct vips_info *)realloc((MALLOC_P *)Vips, (MALLOC_S)NbVips);
         if (!Vips) {
             if (ctx->err)
-                (void)fprintf(ctx->Err, "%s: PID %d: no text recording space\n",
+                (void)fprintf(ctx->err, "%s: PID %d: no text recording space\n",
                               Pn, Lp->pid);
             Error(ctx);
             return;
