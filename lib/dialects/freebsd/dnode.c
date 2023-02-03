@@ -570,7 +570,7 @@ process_overlaid_node:
         break;
     default:
         Lf->type = LSOF_FILE_UNKNOWN;
-        Lf->unknown_file_type = kf_vtype;
+        Lf->unknown_file_type_number = kf_vtype;
     }
 
     /*

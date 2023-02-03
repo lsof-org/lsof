@@ -643,7 +643,7 @@ void process_node(na) KA_T na; /* inode kernel space address */
 
     default:
         Lf->type = LSOF_FILE_UNKNOWN;
-        Lf->unknown_file_type = type;
+        Lf->unknown_file_type_number = type;
     }
     /*
      * Save the file system names.

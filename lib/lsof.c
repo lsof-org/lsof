@@ -139,7 +139,14 @@ enum lsof_error lsof_gather(struct lsof_context *ctx,
         lp = &ctx->procs[pi];
 
         p->command = lp->cmd;
+        lp->cmd = NULL;
         p->pid = lp->pid;
+
+#if defined(HASTASKS)
+        p->tid = lp->tid;
+        p->task_cmd = lp->tcmd;
+        lp->tcmd = NULL;
+#endif
         p->pgid = lp->pgid;
         p->ppid = lp->ppid;
         p->uid = lp->uid;
@@ -164,12 +171,29 @@ enum lsof_error lsof_gather(struct lsof_context *ctx,
             f->access = lf->access;
             f->lock = lf->lock;
 
-            f->inode = lf->inode;
-            f->inode_valid = lf->inp_ty == 1 || lf->inp_ty == 3;
+            /* TYPE column */
+            f->file_type = lf->type;
+            f->unknown_file_type_number = lf->unknown_file_type_number;
 
+            /* DEVICE column */
             f->dev = lf->dev;
             f->dev_valid = lf->dev_def;
 
+            /* SIZE, SIZE/OFF, OFFSET column */
+            f->size = lf->sz;
+            f->size_valid = lf->sz_def;
+            f->offset = lf->off;
+            f->offset_valid = lf->off_def;
+
+            /* NLINK column */
+            f->num_links = lf->nlink;
+            f->num_links_valid = lf->nlink_def;
+
+            /* NODE column */
+            f->inode = lf->inode;
+            f->inode_valid = lf->inp_ty == 1 || lf->inp_ty == 3;
+
+            /* NAME column */
             f->name = lf->nm;
             lf->nm = NULL;
 

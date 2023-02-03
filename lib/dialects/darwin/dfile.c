@@ -123,7 +123,7 @@ void enter_vnode_info(
         break;
     default:
         Lf->type = LSOF_FILE_UNKNOWN;
-        Lf->unknown_file_type = ((vip->vip_vi.vi_stat.vst_mode & S_IFMT) >> 12);
+        Lf->unknown_file_type_number = vip->vip_vi.vi_stat.vst_mode;
         Ntype = N_REGLR;
     }
 

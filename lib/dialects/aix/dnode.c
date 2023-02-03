@@ -1103,7 +1103,7 @@ void process_node(va) KA_T va; /* vnode kernel space address */
         Lf->rdev = rdev;
         Lf->rdev_def = rdevs;
         Lf->type = LSOF_FILE_UNKNOWN;
-        Lf->unknown_file_type = type;
+        Lf->unknown_file_type_number = type;
     }
 
 #if defined(HASBLKDEV)

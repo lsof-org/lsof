@@ -235,7 +235,7 @@ enum lsof_file_type {
                               special device */
     LSOF_FILE_VNODE_VUNNAMED, /**< The vnode represents an unnamed file */
 
-    /* Unknown, see unknown_file_type for raw value */
+    /* Unknown, see unknown_file_type_number for raw value */
     LSOF_FILE_UNKNOWN, /**< Unknown file type, only raw numbers provided */
 };
 
@@ -247,7 +247,7 @@ enum lsof_protocol {
 };
 
 /** Display hint of NODE column for lsof cli */
-enum lsof_display_node {
+enum lsof_display_node_hint {
     LSOF_DISPLAY_NODE_NONE,          /**< Neither inode nor protocol is shown */
     LSOF_DISPLAY_NODE_INODE_DECIMAL, /**< Display inode in decimal */
     LSOF_DISPLAY_NODE_INODE_HEX,     /**< Display inode in hex */
@@ -278,6 +278,8 @@ struct lsof_file {
 
     /* TYPE column */
     enum lsof_file_type file_type;
+    /* store raw file type number when file_type == LSOF_FILE_UNKNOWN */
+    uint32_t unknown_file_type_number;
 
     /* DEVICE column */
     /** Device ID of device containing file, use major() and minor() to extract
@@ -317,11 +319,11 @@ struct lsof_file {
     /** Network protocol */
     enum lsof_protocol protocol;
 
-    /** Display hint of NODE column */
-    enum lsof_display_node display_node_hint;
-
     /** Whether \ref protocol field is valid */
     uint8_t protocol_valid;
+
+    /** Display hint of NODE column */
+    enum lsof_display_node_hint display_node_hint;
 
     /* NAME column */
     /** File name or description */

@@ -881,7 +881,7 @@ void process_proc_node(struct lsof_context *ctx,
                 Lf->type = LSOF_FILE_ANON_INODE;
             else {
                 Lf->type = LSOF_FILE_UNKNOWN;
-                Lf->unknown_file_type = type >> 12;
+                Lf->unknown_file_type_number = type;
             }
         }
     } else

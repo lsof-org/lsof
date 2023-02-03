@@ -1200,7 +1200,7 @@ process_overlaid_node:
         break;
     default:
         Lf->type = LSOF_FILE_UNKNOWN;
-        Lf->unknown_file_type = type;
+        Lf->unknown_file_type_number = type;
     }
     /*
      * Handle some special cases:

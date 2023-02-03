@@ -797,8 +797,8 @@ struct lfile {
 
     char iproto[IPROTOL];
     enum lsof_file_type type;
-    uint32_t
-        unknown_file_type; /* store file type when type == LSOF_FILE_UNKNOWN */
+    uint32_t unknown_file_type_number; /* store file type when type ==
+                                          LSOF_FILE_UNKNOWN */
 
     unsigned int sf; /* select flags -- SEL* symbols */
     int ch;          /* VMPC channel: -1 = none */

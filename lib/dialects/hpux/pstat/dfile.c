@@ -662,7 +662,7 @@ KA_T na;                /* node address */
         break;
     default:
         Lf->type = LSOF_FILE_UNKNOWN;
-        Lf->unknown_file_type = (pd->psfd_mode & PS_IFMT);
+        Lf->unknown_file_type_number = pd->psfd_mode;
         Ntype = N_REGLR;
     }
     /*

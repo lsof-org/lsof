@@ -3587,7 +3587,7 @@ void process_node(va) KA_T va; /* vnode kernel space address */
         Lf->rdev = rdev;
         Lf->rdev_def = rdevs;
         Lf->type = LSOF_TYPE_UNKNOWN;
-        Lf->unknown_file_type = type;
+        Lf->unknown_file_type_number = type;
     }
     /*
      * If this a Solaris common vnode/snode void some information.
@@ -4522,7 +4522,7 @@ struct pid *pids; /* pid structure receiver */
         break;
     default:
         Lf->type = LSOF_FILE_UNKNOWN;
-        Lf->unknown_file_type = pr.pr_type;
+        Lf->unknown_file_type_number = pr.pr_type;
         break;
     }
     /*
