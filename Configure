@@ -4391,6 +4391,21 @@ LOCKF4
       LSOF_CFGF="$LSOF_CFGF -DHASCACHEFS"
     fi	# }
 
+
+    # Test for <sys/rgm.h>.
+
+    if test -r ${LSOF_INCLUDE}/sys/rgm.h {
+    then
+      LSOF_CFGF="$LSOF_CFGF -DHAS_SYS_RGM_H"
+    fi  # }
+
+    # Test for <rpc/rpc_tags.h>.
+
+    if test -r ${LSOF_INCLUDE}/rpc/rpc_tags.h {
+    then
+      LSOF_CFGF="$LSOF_CFGF -DHAS_RPC_RPC_TAGS_H"
+    fi  # }
+
     # Test for <utmpx.h>
 
     if test -r ${LSOF_INCLUDE}/utmpx.h	# {

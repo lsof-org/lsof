@@ -120,6 +120,8 @@
 #            define vprintf __kernel_vprintf
 #            define vsprintf __kernel_vsprintf
 #            define vsnprintf __kernel_vsnprintf
+#            define fls __kernel_fls
+#            define exit __kernel_exit
 #        endif /* solaris>=110000 */
 #        include <inet/ipclassifier.h>
 #        undef ffs
@@ -136,6 +138,8 @@
 #            undef vprintf
 #            undef vsprintf
 #            undef vsnprintf
+#            undef fls
+#            undef exit
 #        endif /* solaris>=110000 */
 #    endif     /* defined(HAS_IPCLASSIFIER_H) */
 
@@ -201,6 +205,16 @@
 
 #    if solaris >= 20500
 #        include <sys/tiuser.h>
+#        if solaris >= 110000
+#            define _KERNEL
+#            if defined(HAS_SYS_RGM_H)
+#                include <sys/rgm.h>
+#            endif /* defined(HAS_SYS_RGM_H) */
+#            if defined(HAS_RPC_RPC_TAGS_H)
+#                include <rpc/rpc_tags.h>
+#            endif /* defined(HAS_RPC_RPC_TAGS_H) */
+#            undef _KERNEL
+#        endif /* solaris>=110000 */
 #        include <rpc/auth.h>
 #        include <rpc/clnt.h>
 

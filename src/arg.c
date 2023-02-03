@@ -31,6 +31,7 @@
 #include "common.h"
 #include "cli.h"
 #include "lsof.h"
+#include <limits.h>
 
 /*
  * Local definitions

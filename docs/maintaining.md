@@ -31,6 +31,10 @@ OpenBSD
 
 	@jiegec
 
+Solaris/OpenIndiana
+
+	@jiegec
+
 
 @masatake is going to step down. See https://github.com/lsof-org/lsof/issues/192 .
 
