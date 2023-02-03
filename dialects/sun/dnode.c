@@ -83,7 +83,7 @@ static int Sockfs_ctfs = 0; /* CTF initialization status for
                              * sockfs */
 
 #    if defined(_LP64)
-#        define SOCKFS_MOD_FORMAT "/kernel/fs/%s/sockfs"
+#        define SOCKFS_MOD_FORMAT "/kernel/%s/genunix"
 #    else /* !defined(_LP64) */
 #        define SOCKFS_MOD_FORMAT "/kernel/fs/sockfs"
 #    endif /* defined(_LP64) */
