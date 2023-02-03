@@ -99,7 +99,7 @@ void build_Nl(struct lsof_context *ctx,
     if (n < 1) {
         (void)fprintf(stderr, "%s: can't calculate kernel name list length\n",
                       Pn);
-        Error();
+        Error(ctx);
     }
     if (!(Nl = (struct NLIST_TYPE *)calloc((n + 1),
                                            sizeof(struct NLIST_TYPE)))) {
@@ -107,7 +107,7 @@ void build_Nl(struct lsof_context *ctx,
             stderr,
             "%s: can't allocate %d bytes to kernel name list structure\n", Pn,
             (int)((n + 1) * sizeof(struct NLIST_TYPE)));
-        Error();
+        Error(ctx);
     }
     for (dp = d, i = 0; i < n; dp++, i++) {
         Nl[i].NL_NAME = dp->knm;
@@ -234,7 +234,7 @@ int doinchild(struct lsof_context *ctx, int (*fn)(), /* function to perform */
         (void)fprintf(stderr,
                       "%s: doinchild error; response buffer too large: %d\n",
                       Pn, rbln);
-        Error();
+        Error(ctx);
     }
     /*
      * Set up to handle an alarm signal; handle an alarm signal; build
@@ -261,7 +261,7 @@ int doinchild(struct lsof_context *ctx, int (*fn)(), /* function to perform */
             if (pipe(Pipes) < 0 || pipe(&Pipes[2]) < 0) {
                 (void)fprintf(stderr, "%s: can't open pipes: %s\n", Pn,
                               strerror(errno));
-                Error();
+                Error(ctx);
             }
             /*
              * Fork a child to execute functions.
@@ -296,7 +296,7 @@ int doinchild(struct lsof_context *ctx, int (*fn)(), /* function to perform */
                     (void)fprintf(stderr,
                                   "%s: can't dup Pipes[0] to fd 0: %s\n", Pn,
                                   strerror(errno));
-                    Error();
+                    Error(ctx);
                 }
                 Pipes[0] = 0;
                 rc = dup2(Pipes[3], 1);
@@ -304,7 +304,7 @@ int doinchild(struct lsof_context *ctx, int (*fn)(), /* function to perform */
                     (void)fprintf(stderr,
                                   "%s: can't dup Pipes.[3] to fd 1: %s\n", Pn,
                                   strerror(errno));
-                    Error();
+                    Error(ctx);
                 }
                 Pipes[3] = 1;
                 (void)closefrom(2);
@@ -365,7 +365,7 @@ int doinchild(struct lsof_context *ctx, int (*fn)(), /* function to perform */
             if (Cpid < 0) {
                 (void)fprintf(stderr, "%s: can't fork: %s\n", Pn,
                               strerror(errno));
-                Error();
+                Error(ctx);
             }
             (void)close(Pipes[0]);
             (void)close(Pipes[3]);
@@ -462,7 +462,7 @@ void enter_dev_ch(struct lsof_context *ctx, char *m) {
         (void)fprintf(stderr, "%s: no more dev_ch space at PID %d: \n", Pn,
                       Lp->pid);
         safestrprt(m, stderr, 1);
-        Error();
+        Error(ctx);
     }
     if (Lf->dev_ch)
         (void)free((FREE_P *)Lf->dev_ch);
@@ -490,7 +490,7 @@ void enter_IPstate(struct lsof_context *ctx, char *ty, /* type -- TCP or UDP */
      */
     if (!ty) {
         (void)fprintf(stderr, "%s: no type specified to enter_IPstate()\n", Pn);
-        Error();
+        Error(ctx);
     }
     if (!strcmp(ty, "TCP"))
         tx = 0;
@@ -499,7 +499,7 @@ void enter_IPstate(struct lsof_context *ctx, char *ty, /* type -- TCP or UDP */
     else {
         (void)fprintf(stderr, "%s: unknown type for enter_IPstate: %s\n", Pn,
                       ty);
-        Error();
+        Error(ctx);
     }
     /*
      * If the name argument is NULL, reduce the allocated table to its minimum
@@ -516,7 +516,7 @@ void enter_IPstate(struct lsof_context *ctx, char *ty, /* type -- TCP or UDP */
                     len = (MALLOC_S)(UdpNstates * sizeof(char *));
                     if (!(UdpSt = (char **)realloc((MALLOC_P *)UdpSt, len))) {
                         (void)fprintf(stderr, "%s: can't reduce UdpSt[]\n", Pn);
-                        Error();
+                        Error(ctx);
                     }
                 }
                 UdpStAlloc = UdpNstates;
@@ -531,7 +531,7 @@ void enter_IPstate(struct lsof_context *ctx, char *ty, /* type -- TCP or UDP */
                     len = (MALLOC_S)(TcpNstates * sizeof(char *));
                     if (!(TcpSt = (char **)realloc((MALLOC_P *)TcpSt, len))) {
                         (void)fprintf(stderr, "%s: can't reduce TcpSt[]\n", Pn);
-                        Error();
+                        Error(ctx);
                     }
                 }
                 TcpStAlloc = TcpNstates;
@@ -545,7 +545,7 @@ void enter_IPstate(struct lsof_context *ctx, char *ty, /* type -- TCP or UDP */
     if (strlen(nm) < 1) {
         (void)fprintf(stderr, "%s: bad %s name (\"%s\"), number=%d\n", Pn, ty,
                       nm, nr);
-        Error();
+        Error(ctx);
     }
     /*
      * Make a copy of the name.
@@ -553,7 +553,7 @@ void enter_IPstate(struct lsof_context *ctx, char *ty, /* type -- TCP or UDP */
     if (!(cp = mkstrcpy(nm, (MALLOC_S *)NULL))) {
         (void)fprintf(stderr, "%s: enter_IPstate(): no %s space for %s\n", Pn,
                       ty, nm);
-        Error();
+        Error(ctx);
     }
     /*
      * Set the necessary offset for using nr as an index.  If it is
@@ -630,7 +630,7 @@ void enter_IPstate(struct lsof_context *ctx, char *ty, /* type -- TCP or UDP */
             no_IP_space:
 
                 (void)fprintf(stderr, "%s: no %s state space\n", Pn, ty);
-                Error();
+                Error(ctx);
             }
             UdpNstates = nn;
             UdpStAlloc = al;
@@ -668,7 +668,7 @@ void enter_IPstate(struct lsof_context *ctx, char *ty, /* type -- TCP or UDP */
             (void)fprintf(
                 stderr, "%s: duplicate %s state %d (already %s): %s\n", Pn, ty,
                 nr, tx ? UdpSt[nr + UdpStOff] : TcpSt[nr + TcpStOff], nm);
-            Error();
+            Error(ctx);
         }
         UdpSt[nr + UdpStOff] = cp;
     } else {
@@ -692,7 +692,7 @@ void enter_nm(struct lsof_context *ctx, char *m) {
         (void)fprintf(stderr, "%s: no more nm space at PID %d for: ", Pn,
                       Lp->pid);
         safestrprt(m, stderr, 1);
-        Error();
+        Error(ctx);
     }
     if (Lf->nm)
         (void)free((FREE_P *)Lf->nm);
@@ -1432,7 +1432,7 @@ void stkdir(struct lsof_context *ctx, char *p) /* directory path */
         if (!Dstk) {
             (void)fprintf(stderr, "%s: no space for directory stack at: ", Pn);
             safestrprt(p, stderr, 1);
-            Error();
+            Error(ctx);
         }
     }
     /*
@@ -1520,7 +1520,7 @@ void dropgid(struct lsof_context *ctx) {
         if (setgid(Mygid) < 0) {
             (void)fprintf(stderr, "%s: can't setgid(%d): %s\n", Pn, (int)Mygid,
                           strerror(errno));
-            Error();
+            Error(ctx);
         }
         Setgid = 0;
     }

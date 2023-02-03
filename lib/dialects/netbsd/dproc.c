@@ -101,7 +101,7 @@ void ckkv(struct lsof_context *ctx, char *d, /* dialect */
     if (sysctl(m, 2, v, &l, NULL, 0) < 0) {
         (void)fprintf(stderr, "%s: CTL_KERN, KERN_OSRELEASE: %s\n", Pn,
                       strerror(errno));
-        Error();
+        Error(ctx);
     }
     /*
      * Warn if the actual and expected releases don't match.
@@ -149,7 +149,7 @@ static void enter_vn_text(struct lsof_context *ctx, KA_T va, /* vnode address */
         if (!Vp) {
             (void)fprintf(stderr, "%s: no txt ptr space, PID %d\n", Pn,
                           Lp->pid);
-            Error();
+            Error(ctx);
         }
     }
     /*
@@ -211,7 +211,7 @@ void gather_proc_info(struct lsof_context *ctx) {
     if (!P) {
         (void)fprintf(stderr, "%s: can't read process table: %s\n", Pn,
                       kvm_geterr(Kd));
-        Error();
+        Error(ctx);
     }
     /*
      * Examine proc structures and their associated information.
@@ -298,7 +298,7 @@ void gather_proc_info(struct lsof_context *ctx) {
             if (!ofb) {
                 (void)fprintf(stderr, "%s: PID %d, no file * space\n", Pn,
                               p->P_PID);
-                Error();
+                Error(ctx);
             }
             ofbb = nb;
         }
@@ -315,7 +315,7 @@ void gather_proc_info(struct lsof_context *ctx) {
             if (!pof) {
                 (void)fprintf(stderr, "%s: PID %d, no file flag space\n", Pn,
                               p->P_PID);
-                Error();
+                Error(ctx);
             }
             pofb = nb;
         }
@@ -383,7 +383,7 @@ static void get_kernel_access(struct lsof_context *ctx) {
     {
         if (!(Nmlst = get_nlist_path(ctx, 1))) {
             (void)fprintf(stderr, "%s: can't get kernel name list path\n", Pn);
-            Error();
+            Error(ctx);
         }
     }
 #endif /* defined(N_UNIX) */
@@ -401,7 +401,7 @@ static void get_kernel_access(struct lsof_context *ctx) {
      */
     if ((Memory && !is_readable(ctx, Memory, 1)) ||
         (Nmlst && !is_readable(ctx, Nmlst, 1)))
-        Error();
+        Error(ctx);
 #endif /* defined(WILLDROPGID) */
 
     /*
@@ -420,12 +420,12 @@ static void get_kernel_access(struct lsof_context *ctx) {
 #endif /* defined(_PATH_MEM) */
 
                       strerror(errno));
-        Error();
+        Error(ctx);
     }
     (void)build_Nl(ctx, Drive_Nl);
     if (kvm_nlist(Kd, Nl) < 0) {
         (void)fprintf(stderr, "%s: can't read namelist from %s\n", Pn, Nmlst);
-        Error();
+        Error(ctx);
     }
 
 #if defined(WILLDROPGID)
@@ -469,7 +469,7 @@ char *get_nlist_path(struct lsof_context *ctx,
             (void)fprintf(
                 stderr, "%s: can't allocate %d bytes for boot file path: %s\n",
                 Pn, bfl, bf);
-            Error();
+            Error(ctx);
         }
         (void)snpf(bfc, bfl, "%s", bf);
         return (bfc);

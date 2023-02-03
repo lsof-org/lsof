@@ -138,14 +138,14 @@ char *arg; /* format's single string argument */
     } else {
         if (!(eml = (MALLOC_S)strlen(em))) {
             (void)fprintf(stderr, "%s: add2em: previous message empty\n", Pn);
-            Error();
+            Error(ctx);
         }
         al = eml + nl + 3;
         em = (char *)realloc((MALLOC_P *)em, al);
     }
     if (!em) {
         (void)fprintf(stderr, "%s: no VxFS error message space\n", Pn);
-        Error();
+        Error(ctx);
     }
     (void)snpf(em + eml, al - eml, "%s%s%s", eml ? "" : EMSGPFX,
                eml ? "; " : "", msg);
@@ -220,7 +220,7 @@ int *szl;   /* sizeof(*sz) */
         return (add2em((char *)NULL, "zero length %s", "vx_inode"));
     if (!(tv = (char *)malloc((MALLOC_S)tvl))) {
         (void)fprintf(stderr, "%s: no vx_inode space\n", Pn);
-        Error();
+        Error(ctx);
     }
     *vx = tv;
     *vxl = tvl;
@@ -291,7 +291,7 @@ struct lfile *lf; /* file whose name is to be printed */
             if (!rm) {
                 (void)fprintf(stderr, "%s: no RNL mount point cache space\n",
                               Pn);
-                Error();
+                Error(ctx);
             }
         }
         i = rmu;

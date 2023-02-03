@@ -161,7 +161,7 @@ int accept_deleted_file; /* if non-zero, don't report an error even
                 if (!(ap = (char *)malloc((MALLOC_S)(k + 1)))) {
                     (void)fprintf(stderr, "%s: no space for copy of %s\n", Pn,
                                   path);
-                    Error();
+                    Error(ctx);
                 }
                 (void)strncpy(ap, path, k);
                 ap[k] = '\0';
@@ -209,7 +209,7 @@ int accept_deleted_file; /* if non-zero, don't report an error even
                 if (!mmp) {
                     (void)fprintf(stderr, "%s: no space for mount pointers\n",
                                   Pn);
-                    Error();
+                    Error(ctx);
                 }
             }
             mmp[nm++] = mp;
@@ -234,7 +234,7 @@ int accept_deleted_file; /* if non-zero, don't report an error even
              */
             if (!(sfp = (struct sfile *)malloc(sizeof(struct sfile)))) {
                 (void)fprintf(stderr, "%s: no space for files\n", Pn);
-                Error();
+                Error(ctx);
             }
             sfp->next = Sfile;
             Sfile = sfp;
@@ -336,7 +336,7 @@ int accept_deleted_file; /* if non-zero, don't report an error even
                 if (!(sfp->name = mkstrcpy(fnm, (MALLOC_S *)NULL))) {
                     (void)fprintf(stderr, "%s: no space for file name: ", Pn);
                     safestrprt(fnm, stderr, 1);
-                    Error();
+                    Error(ctx);
                 }
 
 #if defined(HASPROCFS)
@@ -355,7 +355,7 @@ int accept_deleted_file; /* if non-zero, don't report an error even
                     (void)fprintf(stderr,
                                   "%s: no space for file system name: ", Pn);
                     safestrprt(fsnm, stderr, 1);
-                    Error();
+                    Error(ctx);
                 }
 
 #if defined(HASPROCFS)
@@ -366,7 +366,7 @@ int accept_deleted_file; /* if non-zero, don't report an error even
                 (void)fprintf(stderr,
                               "%s: no space for argument file name: ", Pn);
                 safestrprt(av[i], stderr, 1);
-                Error();
+                Error(ctx);
             }
 
 #if defined(HASPROCFS)
@@ -417,7 +417,7 @@ int accept_deleted_file; /* if non-zero, don't report an error even
                 (void)fprintf(stderr, "%s: no space for %s ID: ", Pn,
                               Mtprocfs->dir);
                 safestrprt(path, stderr, 1);
-                Error();
+                Error(ctx);
             }
             pfi->pid = pid;
             pfi->f = 0;
@@ -539,7 +539,7 @@ char *c; /* control string */
         if (!(DCpathArg = mkstrcpy(c, (MALLOC_S *)NULL))) {
             (void)fprintf(stderr, "%s: no space for -D path: ", Pn);
             safestrprt(c, stderr, 1);
-            Error();
+            Error(ctx);
         }
     }
     return (0);
@@ -566,7 +566,7 @@ char *f; /* file descriptor list pointer */
     if (!(fc = mkstrcpy(f, (MALLOC_S *)NULL))) {
         (void)fprintf(stderr, "%s: no space for fd string: ", Pn);
         safestrprt(f, stderr, 1);
-        Error();
+        Error(ctx);
     }
     /*
      * Isolate each file descriptor in the comma-separated list, then enter it
@@ -668,7 +668,7 @@ int excl; /* exclusion on match */
             } else {
                 (void)fprintf(stderr,
                               "%s: invalid fd type given in -d option\n", Pn);
-                Error();
+                Error(ctx);
             }
         } else {
             fd_type = LSOF_FD_NUMERIC;
@@ -801,7 +801,7 @@ int enter_dir(char *d,     /* directory path name pointer */
                     stderr,
                     "%s: no space for path to entries in directory: %s\n", Pn,
                     dn);
-                Error();
+                Error(ctx);
             }
         }
         (void)snpf(fp, (size_t)fpl, "%s%s", dn, sl ? "/" : "");
@@ -846,7 +846,7 @@ int enter_dir(char *d,     /* directory path name pointer */
                     safestrprt(dn, stderr, 0);
                     putc('/', stderr);
                     safestrprtn(dp->d_name, dnamlen, stderr, 1);
-                    Error();
+                    Error(ctx);
                 }
             }
             (void)strncpy(fp + dnl + sl, dp->d_name, dnamlen);
@@ -1462,7 +1462,7 @@ struct hostent *he; /* pointer to hostent struct from which
             (void)fprintf(stderr, "%s: no space for Internet argument: -i ",
                           Pn);
             safestrprt(s, stderr, 1);
-            Error();
+            Error(ctx);
         }
     } else
         n->arg = (char *)NULL;
@@ -1601,7 +1601,7 @@ char *ss; /* state specification string */
     if (!(ssc = mkstrcpy(cp, (MALLOC_S *)NULL))) {
         (void)fprintf(stderr, "%s: no temporary state argument space for: %s\n",
                       Pn, ss);
-        Error();
+        Error(ctx);
     }
     cp = ssc;
     err = 0;
@@ -1759,11 +1759,11 @@ char *us; /* User IDentifier string pointer */
 
         if (nn) {
             if (lsof_select_login(ctx, lnm, excl)) {
-                Error();
+                Error(ctx);
             }
         } else {
             if (lsof_select_uid(ctx, uid, excl)) {
-                Error();
+                Error(ctx);
             }
         }
     }

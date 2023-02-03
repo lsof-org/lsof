@@ -234,7 +234,7 @@ struct l_ino *i; /* local inode information */
                 (void)fprintf(stderr,
                               "%s: can't allocate %d bytes for DOS name\n", nml,
                               Pn);
-                Error();
+                Error(ctx);
             }
         }
         /*

@@ -87,6 +87,7 @@ void hashSfile(struct lsof_context *ctx) {
                 "%s: can't allocate space for %d (dev,ino) hash buckets\n", Pn,
                 SFDIHASH);
         }
+        Error(ctx);
         return;
     }
     if (!(HbyFrd = (struct hsfile *)calloc((MALLOC_S)SFRDHASH,
@@ -96,6 +97,7 @@ void hashSfile(struct lsof_context *ctx) {
                           "%s: can't allocate space for %d rdev hash buckets\n",
                           Pn, SFRDHASH);
         }
+        Error(ctx);
         return;
     }
     if (!(HbyFsd = (struct hsfile *)calloc((MALLOC_S)SFFSHASH,
@@ -106,6 +108,7 @@ void hashSfile(struct lsof_context *ctx) {
                 "%s: can't allocate space for %d file sys hash buckets\n", Pn,
                 SFFSHASH);
         }
+        Error(ctx);
         return;
     }
     if (!(HbyNm = (struct hsfile *)calloc((MALLOC_S)SFNMHASH,
@@ -115,6 +118,7 @@ void hashSfile(struct lsof_context *ctx) {
                           "%s: can't allocate space for %d name hash buckets\n",
                           Pn, SFNMHASH);
         }
+        Error(ctx);
         return;
     }
 
@@ -168,12 +172,12 @@ void hashSfile(struct lsof_context *ctx) {
                 if (!(sn = (struct hsfile *)malloc(
                           (MALLOC_S)sizeof(struct hsfile)))) {
                     if (ctx->err) {
-
                         (void)fprintf(
-                            stderr,
+                            ctx->err,
                             "%s: can't allocate hsfile bucket for: %s\n", Pn,
                             s->aname);
                     }
+                    Error(ctx);
                     return;
                 }
                 sn->s = s;

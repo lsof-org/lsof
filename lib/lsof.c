@@ -1048,3 +1048,11 @@ enum lsof_error lsof_avoid_forking(struct lsof_context *ctx, int avoid) {
     Fovhd = avoid;
     return LSOF_SUCCESS;
 }
+
+enum lsof_error lsof_exit_on_fatal(struct lsof_context *ctx, int exit) {
+    if (!ctx || ctx->frozen) {
+        return LSOF_ERROR_INVALID_ARGUMENT;
+    }
+    ctx->exit_on_fatal = exit;
+    return LSOF_SUCCESS;
+}

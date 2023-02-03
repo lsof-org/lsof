@@ -84,7 +84,7 @@ char *ea;                                /* expected architecture */
     if (__scoinfo(&s, sizeof(s)) < 0) {
         (void)fprintf(stderr, "%s: can't get __scoinfo: %s\n", Pn,
                       strerror(errno));
-        Error();
+        Error(ctx);
     }
     /*
      * Warn if the actual and expected releases don't match.
@@ -126,7 +126,7 @@ void gather_proc_info() {
             (void)fprintf(stderr,
                           "%s: no space for %d byte user structure buffer\n",
                           Pn, ual);
-            Error();
+            Error(ctx);
         }
         u = (struct user *)ua;
     }
@@ -137,7 +137,7 @@ void gather_proc_info() {
         if (!(pb = (char *)malloc(sizeof(struct proc) * PROCBFRD))) {
             (void)fprintf(stderr, "%s: no space for %d proc structures\n", Pn,
                           PROCBFRD);
-            Error();
+            Error(ctx);
         }
     }
     /*
@@ -238,7 +238,7 @@ void gather_proc_info() {
                     pofb = (char *)realloc((MALLOC_P *)pofb, (MALLOC_S)nf);
                 if (!pofb) {
                     (void)fprintf(stderr, "%s: no pofile space\n", Pn);
-                    Error();
+                    Error(ctx);
                 }
                 npofb = nf;
             }
@@ -297,7 +297,7 @@ void get_cdevsw() {
     if (!(Cdevsw = (char **)malloc(Cdevcnt * sizeof(char *)))) {
         (void)fprintf(stderr, "%s: no space for %d cdevsw[] names\n", Pn,
                       Cdevcnt);
-        Error();
+        Error(ctx);
     }
     /*
      * Allocate temporary space for a copy of cdevsw[] and read it.
@@ -306,7 +306,7 @@ void get_cdevsw() {
     if (!(tmp = (struct cdevsw *)malloc(i))) {
         (void)fprintf(stderr, "%s: no space for %d cdevsw[] entries\n", Pn,
                       Cdevcnt);
-        Error();
+        Error(ctx);
     }
     if (kread((KA_T)v[0], (char *)tmp, i)) {
         (void)free((FREE_P *)Cdevsw);
@@ -337,7 +337,7 @@ void get_cdevsw() {
         if (!(Cdevsw[i] = (char *)malloc(len))) {
             (void)fprintf(stderr, "%s: no space for cdevsw[%d] name: %s\n", Pn,
                           i, buf);
-            Error();
+            Error(ctx);
         }
         (void)snpf(Cdevsw[i], len, "%s", buf);
         if (!HaveCloneMajor && strcmp(buf, "clone") == 0) {
@@ -371,7 +371,7 @@ static void get_kernel_access() {
      * See if the name list file is readable.
      */
     if (Nmlst && !is_readable(ctx, Nmlst, 1))
-        Error();
+        Error(ctx);
         /*
          * Access kernel symbols.
          */
@@ -385,7 +385,7 @@ static void get_kernel_access() {
 
     {
         (void)fprintf(stderr, "%s: can't read kernel name list.\n", Pn);
-        Error();
+        Error(ctx);
     }
     /*
      * Open access to kernel memory.
@@ -404,7 +404,7 @@ static void get_kernel_access() {
      */
     if (get_Nl_value("proc", Drive_Nl, &Kp) < 0 || !Kp) {
         (void)fprintf(stderr, "%s: no proc table pointer\n", Pn);
-        Error();
+        Error(ctx);
     }
 
 #if OSRV < 500
@@ -416,13 +416,13 @@ static void get_kernel_access() {
         kread(v, (char *)&Npp, sizeof(Npp)) || Npp < 1) {
         (void)fprintf(stderr, "%s: can't read pregion count (%d) from %s\n", Pn,
                       Npp, print_kptr(v, (char *)NULL, 0));
-        Error();
+        Error(ctx);
     }
     Prsz = (MALLOC_S)(Npp * sizeof(struct pregion));
     if (!(Pr = (struct pregion *)malloc(Prsz))) {
         (void)fprintf(stderr, "%s: can't allocate space for %d pregions\n", Pn,
                       Npp);
-        Error();
+        Error(ctx);
     }
 #endif /* OSRV< 500 */
 
@@ -432,7 +432,7 @@ static void get_kernel_access() {
     if (get_Nl_value("var", Drive_Nl, &v) < 0 || !v ||
         kread((KA_T)v, (char *)&Var, sizeof(Var))) {
         (void)fprintf(stderr, "%s: can't read system configuration info\n", Pn);
-        Error();
+        Error(ctx);
     }
     /*
      * Read system clock values -- Hz and lightning bolt timer.
@@ -484,20 +484,20 @@ static void get_kernel_access() {
         (void)fprintf(stderr,
                       "%s: bad extended device table size (%d) at %s.\n", Pn,
                       nxdevmaps, print_kptr(v, (char *)NULL, 0));
-        Error();
+        Error(ctx);
     }
     len = (MALLOC_S)((nxdevmaps + 1) * sizeof(struct XDEVMAP));
     if (!(Xdevmap = (struct XDEVMAP *)malloc(len))) {
         (void)fprintf(stderr, "%s: no space for %d byte xdevmap table\n", Pn,
                       len);
-        Error();
+        Error(ctx);
     }
     v = (KA_T)0;
     if (get_Nl_value("xdm", Drive_Nl, &v) < 0 || !v ||
         kread((KA_T)v, (char *)Xdevmap, len)) {
         (void)fprintf(stderr, "%s: can't read %d byte xdevmap table at #x\n",
                       Pn, len, v);
-        Error();
+        Error(ctx);
     }
 #endif /* OSRV>=40 */
 
@@ -601,7 +601,7 @@ int ap; /* on success, return an allocated path
                     (void)fprintf(stderr,
                                   "%s: can't allocate %d bytes for: %s\n", Pn,
                                   len, pp);
-                    Error();
+                    Error(ctx);
                 }
                 (void)snpf(tp, len, "%s", pp);
                 return (tp);
@@ -697,7 +697,7 @@ READLEN_T len; /* length to read */
  */
 
 static int open_kmem(nx)
-int nx; /* no Error() if 1 */
+int nx; /* no Error(ctx) if 1 */
 {
     if (Kd >= 0)
         return (0);
@@ -707,7 +707,7 @@ int nx; /* no Error() if 1 */
     if (Memory && !is_readable(ctx, Memory, 1)) {
         if (nx)
             return (1);
-        Error();
+        Error(ctx);
     }
     /*
      * Open kernel memory access.
@@ -717,7 +717,7 @@ int nx; /* no Error() if 1 */
             return (1);
         (void)fprintf(stderr, "%s: can't open %s: %s\n", Pn,
                       Memory ? Memory : KMEM, strerror(errno));
-        Error();
+        Error(ctx);
     }
     return (0);
 }
@@ -791,7 +791,7 @@ static void process_text(prp) KA_T prp; /* process region pointer */
             if (!(Nc = (KA_T *)malloc((MALLOC_S)(sizeof(KA_T) * 10)))) {
                 (void)fprintf(stderr, "%s: no txt ptr space, PID %d\n", Pn,
                               Lp->pid);
-                Error();
+                Error(ctx);
             }
             Nn = 10;
         } else if (j >= Nn) {
@@ -800,7 +800,7 @@ static void process_text(prp) KA_T prp; /* process region pointer */
                                        (MALLOC_S)(Nn * sizeof(KA_T))))) {
                 (void)fprintf(stderr, "%s: no more txt ptr space, PID %d\n", Pn,
                               Lp->pid);
-                Error();
+                Error(ctx);
             }
         }
         Nc[j++] = na;
@@ -849,26 +849,26 @@ static void readfsinfo() {
     if ((Fsinfomax = sysfs(GETNFSTYP)) == -1) {
         (void)fprintf(stderr, "%s: sysfs(GETNFSTYP) error: %s\n", Pn,
                       strerror(errno));
-        Error();
+        Error(ctx);
     }
     if (Fsinfomax == 0)
         return;
     if (!(Fsinfo = (char **)malloc((MALLOC_S)(Fsinfomax * sizeof(char *))))) {
         (void)fprintf(stderr, "%s: no space for sysfs info\n", Pn);
-        Error();
+        Error(ctx);
     }
     for (i = 1; i <= Fsinfomax; i++) {
         if (sysfs(GETFSTYP, i, buf) == -1) {
             (void)fprintf(stderr, "%s: sysfs(GETFSTYP) error: %s\n", Pn,
                           strerror(errno));
-            Error();
+            Error(ctx);
         }
         buf[FSTYPSZ] = '\0';
         len = strlen(buf) + 1;
         if (!(Fsinfo[i - 1] = (char *)malloc((MALLOC_S)len))) {
             (void)fprintf(stderr, "%s: no space for file system entry %s\n", Pn,
                           buf);
-            Error();
+            Error(ctx);
         }
         (void)snpf(Fsinfo[i - 1], len, "%s", buf);
     }
@@ -1094,7 +1094,7 @@ static void DNLC_load() {
                           "%s: can't allocate %d bytes for DNLC chunk\n", Pn,
                           chl);
             cha = 0;
-            Error();
+            Error(ctx);
         }
     }
     /*
@@ -1187,7 +1187,7 @@ static void DTFS_load() {
             (void)fprintf(stderr,
                           "%s: can't allocate %d bytes for DTFS name cache\n",
                           Pn, kcl);
-            Error();
+            Error(ctx);
         }
     }
     /*
@@ -1264,7 +1264,7 @@ static void HTFS_load() {
             (void)fprintf(stderr,
                           "%s: can't allocate %d bytes for HTFS name cache\n",
                           Pn, kcl);
-            Error();
+            Error(ctx);
         }
     }
     /*
@@ -1324,7 +1324,7 @@ char *fs;        /* file system name */
             (void)fprintf(
                 stderr, "%s: no more space for %d byte local name cache: %s\n",
                 Pn, len, fs);
-            Error();
+            Error(ctx);
         }
     }
     lc = &LNC_nc[LNC_csz];
@@ -1373,7 +1373,7 @@ static void LNC_nosp(len) int len; /* attempted length */
     if (!Fwarn)
         (void)fprintf(stderr, "%s: no space for %d byte local name cache\n", Pn,
                       len);
-    Error();
+    Error(ctx);
 }
 
 /*
@@ -1452,7 +1452,7 @@ void ncache_load() {
                 stderr,
                 "%s: can't allocate %d bytes for name cache hash table\n", Pn,
                 LNCHHLEN * sizeof(struct lnch_hh));
-            Error();
+            Error(ctx);
         }
     } else
         (void)zeromem((void *)LNC_hh, (LNCHHLEN * sizeof(struct lnch_hh)));
@@ -1711,7 +1711,7 @@ static void NFS_load() {
             (void)fprintf(stderr,
                           "%s: can't allocate %d bytes for NFS name cache\n",
                           Pn, kcl);
-            Error();
+            Error(ctx);
         }
     }
     /*
@@ -1810,7 +1810,7 @@ KA_T r; /* node's rnode address */
         }
         if (!rc) {
             (void)fprintf(stderr, "%s: no space for root rnode table\n", Pn);
-            Error();
+            Error(ctx);
         }
     }
     rc[rnc++] = r;
@@ -1865,7 +1865,7 @@ static void SYSV_load() {
             (void)fprintf(stderr,
                           "%s: can't allocate %d bytes for SYSV name cache\n",
                           Pn, kcl);
-            Error();
+            Error(ctx);
         }
     }
     /*

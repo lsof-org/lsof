@@ -411,7 +411,7 @@ void process_socket(struct lsof_context *ctx, int pid, /* PID */
             pid, fd);
         (void)fprintf(stderr, "      too few bytes; expected %ld, got %d\n",
                       sizeof(si), nb);
-        Error();
+        Error(ctx);
     }
 
     process_socket_common(ctx, &si);
@@ -438,7 +438,7 @@ void process_fileport_socket(struct lsof_context *ctx, int pid, /* PID */
                       Pn, pid, fp);
         (void)fprintf(stderr, "      too few bytes; expected %ld, got %d\n",
                       sizeof(si), nb);
-        Error();
+        Error(ctx);
     }
 
     process_socket_common(ctx, &si);

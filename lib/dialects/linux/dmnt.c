@@ -79,6 +79,7 @@ static char *convert_octal_escaped(struct lsof_context *ctx,
                           "%s: can't allocate %d bytes for octal-escaping.\n",
                           Pn, orig_len + 1);
         }
+        Error(ctx);
         return ((char *)NULL);
     }
     /*

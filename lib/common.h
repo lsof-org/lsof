@@ -1239,6 +1239,9 @@ struct lsof_context {
     struct mounts *local_mount_info;
     int local_mount_info_valid;
 
+    /* control Error(ctx) behavior */
+    int exit_on_fatal;
+
     /** Output */
     /** Pointer to current process */
     struct lproc *cur_proc;

@@ -176,7 +176,7 @@ void readdev(struct lsof_context *ctx,
                   mkstrcat(Dstk[Dstkx], -1, "/", 1, (char *)NULL, -1, &pl))) {
             (void)fprintf(stderr, "%s: no space for: ", Pn);
             safestrprt(Dstk[Dstkx], stderr, 1);
-            Error();
+            Error(ctx);
         }
         (void)free((FREE_P *)Dstk[Dstkx]);
         Dstk[Dstkx] = (char *)NULL;
@@ -205,7 +205,7 @@ void readdev(struct lsof_context *ctx,
                 (void)fprintf(stderr, "%s: no space for: ", Pn);
                 safestrprt(path, stderr, 0);
                 safestrprtn(dp->d_name, dnamlen, stderr, 1);
-                Error();
+                Error(ctx);
             }
             if (RDEV_STATFN(fp, &sb) != 0) {
                 if (errno == ENOENT) /* a sym link to nowhere? */
@@ -248,7 +248,7 @@ void readdev(struct lsof_context *ctx,
                     if (!Devtp) {
                         (void)fprintf(
                             stderr, "%s: no space for character device\n", Pn);
-                        Error();
+                        Error(ctx);
                     }
                 }
                 Devtp[i].rdev = RDEV_EXPDEV(sb.st_rdev);
@@ -256,7 +256,7 @@ void readdev(struct lsof_context *ctx,
                 if (!(Devtp[i].name = mkstrcpy(fp, (MALLOC_S *)NULL))) {
                     (void)fprintf(stderr, "%s: no space for device name: ", Pn);
                     safestrprt(fp, stderr, 1);
-                    Error();
+                    Error(ctx);
                 }
                 Devtp[i].v = 0;
 
@@ -270,7 +270,7 @@ void readdev(struct lsof_context *ctx,
                         (void)fprintf(stderr,
                                       "%s: no space for clone device: ", Pn);
                         safestrprt(fp, stderr, 1);
-                        Error();
+                        Error(ctx);
                     }
                     c->dx = i;
                     c->next = Clone;
@@ -299,7 +299,7 @@ void readdev(struct lsof_context *ctx,
                     if (!BDevtp) {
                         (void)fprintf(stderr, "%s: no space for block device\n",
                                       Pn);
-                        Error();
+                        Error(ctx);
                     }
                 }
                 BDevtp[j].name = fp;
@@ -341,7 +341,7 @@ void readdev(struct lsof_context *ctx,
                   (MALLOC_S)(sizeof(struct l_dev *) * BNdev)))) {
             (void)fprintf(stderr,
                           "%s: no space for block device sort pointers\n", Pn);
-            Error();
+            Error(ctx);
         }
         for (j = 0; j < BNdev; j++) {
             BSdev[j] = &BDevtp[j];
@@ -370,7 +370,7 @@ void readdev(struct lsof_context *ctx,
             (void)fprintf(stderr,
                           "%s: no space for character device sort pointers\n",
                           Pn);
-            Error();
+            Error(ctx);
         }
         for (i = 0; i < Ndev; i++) {
             Sdev[i] = &Devtp[i];
@@ -380,7 +380,7 @@ void readdev(struct lsof_context *ctx,
         Ndev = rmdupdev(ctx, &Sdev, Ndev, "char");
     } else {
         (void)fprintf(stderr, "%s: no character devices found\n", Pn);
-        Error();
+        Error(ctx);
     }
 
 #    if defined(HASDCACHE)
@@ -458,7 +458,7 @@ static int rmdupdev(struct lsof_context *ctx,
     if (!(*dp = (struct l_dev **)realloc(
               (MALLOC_P *)*dp, (MALLOC_S)(j * sizeof(struct l_dev *))))) {
         (void)fprintf(stderr, "%s: can't realloc %s device pointers\n", Pn, nm);
-        Error();
+        Error(ctx);
     }
     return (j);
 }

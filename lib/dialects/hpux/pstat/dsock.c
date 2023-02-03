@@ -1399,7 +1399,7 @@ int ckscko; /* socket file only checking
         if (!s) {
             (void)fprintf(stderr, "%s: no space for %ld pst_stream bytes\n", Pn,
                           (long)nb);
-            Error();
+            Error(ctx);
         }
         nsa = nsn;
     }

@@ -120,7 +120,7 @@ dev_t *dev;                                  /* device */
         if (!(vfs->dir = mkstrcpy(v->vfs_name, (MALLOC_S *)NULL))) {
             (void)fprintf(stderr, "%s: no space for vfs name: ", Pn);
             safestrprt(v->vfs_name, stderr, 1);
-            Error();
+            Error(ctx);
         }
         if (statsafely(v->vfs_name, &sb) == 0)
             vfs->dev = sb.st_dev;
@@ -156,7 +156,7 @@ struct vnode *lv; /* local vnode */
     }
     if ((vp = (struct l_vfs *)malloc(sizeof(struct l_vfs))) == NULL) {
         (void)fprintf(stderr, "%s: PID %d, no space for vfs\n", Pn, Lp->pid);
-        Error();
+        Error(ctx);
     }
     vp->dev = 0;
     vp->dir = (char *)NULL;

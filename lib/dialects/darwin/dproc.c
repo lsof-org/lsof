@@ -149,7 +149,7 @@ static void enter_vn_text(struct lsof_context *ctx,
         if (!Vips) {
             (void)fprintf(stderr, "%s: PID %d: no text recording space\n", Pn,
                           Lp->pid);
-            Error();
+            Error(ctx);
         }
     }
     /*
@@ -236,7 +236,7 @@ void gather_proc_info(struct lsof_context *ctx) {
     if ((nb = proc_listpids(PROC_ALL_PIDS, 0, NULL, 0)) <= 0) {
         (void)fprintf(stderr, "%s: can't get PID byte count: %s\n", Pn,
                       strerror(errno));
-        Error();
+        Error(ctx);
     }
     if (nb > NbPids) {
         while (nb > NbPids) {
@@ -249,7 +249,7 @@ void gather_proc_info(struct lsof_context *ctx) {
         if (!Pids) {
             (void)fprintf(stderr, "%s: can't allocate space for %d PIDs\n", Pn,
                           (int)(NbPids / sizeof(int *)));
-            Error();
+            Error(ctx);
         }
     }
     /*
@@ -259,7 +259,7 @@ void gather_proc_info(struct lsof_context *ctx) {
         if ((nb = proc_listpids(PROC_ALL_PIDS, 0, Pids, NbPids)) <= 0) {
             (void)fprintf(stderr, "%s: can't get list of PIDs: %s\n", Pn,
                           strerror(errno));
-            Error();
+            Error(ctx);
         }
 
         if ((nb + sizeof(int)) < NbPids) {
@@ -279,7 +279,7 @@ void gather_proc_info(struct lsof_context *ctx) {
             if (!Pids) {
                 (void)fprintf(stderr, "%s: can't allocate space for %d PIDs\n",
                               Pn, (int)(NbPids / sizeof(int *)));
-                Error();
+                Error(ctx);
             }
         }
     }
@@ -304,7 +304,7 @@ void gather_proc_info(struct lsof_context *ctx) {
                           Pn, pid);
             (void)fprintf(stderr, "      too few bytes; expected %ld, got %d\n",
                           sizeof(tai), nb);
-            Error();
+            Error(ctx);
         }
         /*
          * Check for process or command exclusion.
@@ -346,7 +346,7 @@ void gather_proc_info(struct lsof_context *ctx) {
                 (void)fprintf(stderr,
                               "      too few bytes; expected %ld, got %d\n",
                               sizeof(vpi), nb);
-                Error();
+                Error(ctx);
             } else
                 cres = 0;
         }
@@ -479,7 +479,7 @@ static void process_fds(struct lsof_context *ctx, int pid, /* PID of interest */
     if (!Fds) {
         (void)fprintf(stderr, "%s: PID %d: can't allocate space for %d FDs\n",
                       Pn, pid, (int)(NbFds / sizeof(struct proc_fdinfo)));
-        Error();
+        Error(ctx);
     }
     /*
      * Get FD information for the process.
@@ -614,7 +614,7 @@ static void process_fileports(struct lsof_context *ctx,
                                            0)) <= 0)) {
                 (void)fprintf(stderr, "%s: can't get fileport byte count: %s\n",
                               Pn, strerror(errno));
-                Error();
+                Error(ctx);
             }
 
             /*
@@ -716,7 +716,7 @@ static void process_text(struct lsof_context *ctx, int pid) /* PID */
                           Pn, pid);
             (void)fprintf(stderr, "      too few bytes; expected %ld, got %d\n",
                           sizeof(rwpi), nb);
-            Error();
+            Error(ctx);
         }
         if (rwpi.prp_vip.vip_path[0])
             enter_vn_text(ctx, &rwpi.prp_vip, &n);
@@ -753,7 +753,7 @@ static void process_threads(struct lsof_context *ctx, int pid, /* PID */
         if (!Threads) {
             (void)fprintf(stderr, "%s: can't allocate space for %d Threads\n",
                           Pn, (int)(NbThreads / sizeof(int *)));
-            Error();
+            Error(ctx);
         }
     }
     /*
@@ -807,7 +807,7 @@ static void process_threads(struct lsof_context *ctx, int pid, /* PID */
                           Pn, pid);
             (void)fprintf(stderr, "      too few bytes; expected %ld, got %d\n",
                           sizeof(tpi), nb);
-            Error();
+            Error(ctx);
         }
         if (tpi.pvip.vip_path[0]) {
             alloc_lfile(ctx, LSOF_FD_TASK_CWD, -1);

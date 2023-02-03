@@ -300,7 +300,7 @@ void gather_proc_info(struct lsof_context *ctx) {
     if (!ps) {
         if (!(ps = opendir(PROCFS))) {
             (void)fprintf(stderr, "%s: can't open %s\n", Pn, PROCFS);
-            Error();
+            Error(ctx);
         }
     } else
         (void)rewinddir(ps);
@@ -629,7 +629,7 @@ void initialize(struct lsof_context *ctx) {
      */
     if (Fxopt && (Fnet || Nwad)) {
         (void)fprintf(stderr, "%s: -i is useless when -X is specified.\n", Pn);
-        Error();
+        Error(ctx);
     }
     /*
      * Open LSTAT_TEST_FILE and seek to byte LSTAT_TEST_SEEK, then lstat the
@@ -966,7 +966,7 @@ static int process_id(struct lsof_context *ctx,
                           "%s: PID %d, TID %d, no space for task name: ", Pn,
                           pid, tid);
             safestrprt(tcmd, stderr, 1);
-            Error();
+            Error(ctx);
         }
     }
 #endif /* defined(HASTASKS) */
@@ -1146,7 +1146,7 @@ static int process_id(struct lsof_context *ctx,
             if (!(Lp->cntx = strdup(nmabuf))) {
                 (void)fprintf(stderr, "%s: no context error space: PID %ld", Pn,
                               (long)Lp->pid);
-                Error();
+                Error(ctx);
             }
         }
     } else if (CntxArg) {
@@ -1492,7 +1492,7 @@ process_proc_map(struct lsof_context *ctx,
                     stderr,
                     "%s: can't allocate %d bytes for saved maps, PID %d\n", Pn,
                     (int)len, Lp->pid);
-                Error();
+                Error(ctx);
             }
         }
         sm[ns].dev = dev;
@@ -1817,7 +1817,7 @@ static int statEx(struct lsof_context *ctx, char *p, /* file path */
         if (!cb) {
             (void)fprintf(stderr, "%s: PID %ld: no statEx path space: %s\n", Pn,
                           (long)Lp->pid, p);
-            Error();
+            Error(ctx);
         }
         ca = sz + 1;
     }

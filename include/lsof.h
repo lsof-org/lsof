@@ -203,14 +203,14 @@ enum lsof_file_type {
     LSOF_FILE_UNKNOWN_FD,        /**< Linux unknown fd */
     LSOF_FILE_UNKNOWN_CWD,       /**< Linux unknown cwd */
     LSOF_FILE_UNKNOWN_ROOT_DIR,  /**< Linux unknown root dir */
-    LSOF_FILE_UNKNOWN_PROGRAM_TEXT,  /**< Linux unknown program text */
-    LSOF_FILE_PIPE,              /**< pipes */
-    LSOF_FILE_PORT,              /**< Solarise SYSV named pipe */
-    LSOF_FILE_POSIX_MQ,          /**< Linux POSIX message queue file */
-    LSOF_FILE_POSIX_SEMA,        /**< Darwin POSIX semaphore file */
-    LSOF_FILE_POSIX_SHM,         /**< Darwin POSIX shared memory file */
-    LSOF_FILE_SHM,               /**< shared memory file */
-    LSOF_FILE_PTS,               /**< FreeBSD /dev/pts file */
+    LSOF_FILE_UNKNOWN_PROGRAM_TEXT, /**< Linux unknown program text */
+    LSOF_FILE_PIPE,                 /**< pipes */
+    LSOF_FILE_PORT,                 /**< Solarise SYSV named pipe */
+    LSOF_FILE_POSIX_MQ,             /**< Linux POSIX message queue file */
+    LSOF_FILE_POSIX_SEMA,           /**< Darwin POSIX semaphore file */
+    LSOF_FILE_POSIX_SHM,            /**< Darwin POSIX shared memory file */
+    LSOF_FILE_SHM,                  /**< shared memory file */
+    LSOF_FILE_PTS,                  /**< FreeBSD /dev/pts file */
     LSOF_FILE_SHARED_MEM_TRANSPORT, /**< AIX Shared memory transport file */
     LSOF_FILE_STREAM,               /**< HP-UX streams */
     LSOF_FILE_STREAM_SOCKET,        /**< HP-UX stream socket */
@@ -404,6 +404,15 @@ struct lsof_context *lsof_new();
  */
 enum lsof_error lsof_output_stream(struct lsof_context *ctx, FILE *fp,
                                    char *program_name, int warn);
+
+/** Exit program upon fatal error
+ *
+ * Call this function to exit the program upon fatal error. It is useful in lsof
+ * cli to simplify error handling.
+ *
+ * \since API version 1
+ */
+enum lsof_error lsof_exit_on_fatal(struct lsof_context *ctx, int exit);
 
 /** Let lsof avoid using blocking functions
  *

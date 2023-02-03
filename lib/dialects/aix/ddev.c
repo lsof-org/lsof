@@ -136,7 +136,7 @@ int nty;     /* node type: N_BLK or N_CHR */
         if (!(cp = (char *)malloc((MALLOC_S)(len + 1)))) {
             (void)fprintf(stderr, "%s: no nma space for: (%s %s)\n", Pn, ttl,
                           dp->name);
-            Error();
+            Error(ctx);
         }
         (void)snpf(cp, len + 1, "(%s %s)", ttl, dp->name);
         (void)add_nma(cp, len);
@@ -229,7 +229,7 @@ void readdev(skip) int skip; /* skip device cache read if 1 */
                   mkstrcat(Dstk[Dstkx], -1, "/", 1, (char *)NULL, -1, &pl))) {
             (void)fprintf(stderr, "%s: no space for: ", Pn);
             safestrprt(Dstk[Dstkx], stderr, 1);
-            Error();
+            Error(ctx);
         }
         (void)free((FREE_P *)Dstk[Dstkx]);
         Dstk[Dstkx] = (char *)NULL;
@@ -251,7 +251,7 @@ void readdev(skip) int skip; /* skip device cache read if 1 */
                 (void)fprintf(stderr, "%s: no space for: ", Pn);
                 safestrprt(path, stderr, 0);
                 safestrprt(dp->d_name, stderr, 1);
-                Error();
+                Error(ctx);
             }
 
 #if defined(USE_STAT)
@@ -300,7 +300,7 @@ void readdev(skip) int skip; /* skip device cache read if 1 */
                     if (!Devtp) {
                         (void)fprintf(
                             stderr, "%s: no space for character device\n", Pn);
-                        Error();
+                        Error(ctx);
                     }
                 }
                 Devtp[i].rdev = sb.st_rdev;
@@ -308,7 +308,7 @@ void readdev(skip) int skip; /* skip device cache read if 1 */
                 if (!(Devtp[i].name = mkstrcpy(fp, (MALLOC_S *)NULL))) {
                     (void)fprintf(stderr, "%s: no space for: ", Pn);
                     safestrprt(fp, stderr, 1);
-                    Error();
+                    Error(ctx);
                 }
                 Devtp[i].v = 0;
                 i++;
@@ -323,13 +323,13 @@ void readdev(skip) int skip; /* skip device cache read if 1 */
                         (void)fprintf(stderr,
                                       "%s: no space for clone device: ", Pn);
                         safestrprt(fp, stderr, 1);
-                        Error();
+                        Error(ctx);
                     }
                     if (!(c->cd.name = mkstrcpy(fp, (MALLOC_S)NULL))) {
                         (void)fprintf(stderr,
                                       "%s: no space for clone name: ", Pn);
                         safestrprt(fp, stderr, 1);
-                        Error();
+                        Error(ctx);
                     }
                     c->cd.inode = (INODETYPE)sb.st_ino;
                     c->cd.rdev = sb.st_rdev;
@@ -360,7 +360,7 @@ void readdev(skip) int skip; /* skip device cache read if 1 */
                     if (!BDevtp) {
                         (void)fprintf(stderr, "%s: no space for block device\n",
                                       Pn);
-                        Error();
+                        Error(ctx);
                     }
                 }
                 BDevtp[j].rdev = sb.st_rdev;
@@ -403,7 +403,7 @@ void readdev(skip) int skip; /* skip device cache read if 1 */
                   (MALLOC_S)(sizeof(struct l_dev *) * BNdev)))) {
             (void)fprintf(stderr,
                           "%s: no space for block device sort pointers\n", Pn);
-            Error();
+            Error(ctx);
         }
         for (j = 0; j < BNdev; j++) {
             BSdev[j] = &BDevtp[j];
@@ -428,7 +428,7 @@ void readdev(skip) int skip; /* skip device cache read if 1 */
             (void)fprintf(stderr,
                           "%s: no space for character device sort pointers\n",
                           Pn);
-            Error();
+            Error(ctx);
         }
         for (i = 0; i < Ndev; i++) {
             Sdev[i] = &Devtp[i];
@@ -438,7 +438,7 @@ void readdev(skip) int skip; /* skip device cache read if 1 */
         Ndev = rmdupdev(&Sdev, Ndev, "char");
     } else {
         (void)fprintf(stderr, "%s: no character devices found\n", Pn);
-        Error();
+        Error(ctx);
     }
 
 #if defined(HASDCACHE)
@@ -519,7 +519,7 @@ char *nm;           /* device table name for error message */
     if (!(*dp = (struct l_dev **)realloc(
               (MALLOC_P *)*dp, (MALLOC_S)(j * sizeof(struct l_dev *))))) {
         (void)fprintf(stderr, "%s: can't realloc %s device pointers\n", Pn, nm);
-        Error();
+        Error(ctx);
     }
     return (j);
 }
@@ -578,7 +578,7 @@ int m; /* mode: 1 = read; 2 = write */
             if (!(c = (struct clone *)calloc(1, sizeof(struct clone)))) {
                 (void)fprintf(stderr, "%s: no space for cached clone: ", Pn);
                 safestrprt(buf, stderr, 1);
-                Error();
+                Error(ctx);
             }
             /*
              * Enter the clone device number.
@@ -616,7 +616,7 @@ int m; /* mode: 1 = read; 2 = write */
                 (void)fprintf(stderr,
                               "%s: no space for cached clone path: ", Pn);
                 safestrprt(buf, stderr, 1);
-                Error();
+                Error(ctx);
             }
             c->cd.v = 0;
             c->next = Clone;
@@ -650,7 +650,7 @@ int m; /* mode: 1 = read; 2 = write */
      * A shouldn't-happen case: mode neither 1 nor 2.
      */
     (void)fprintf(stderr, "%s: internal rw_clone_sect error: %d\n", Pn, m);
-    Error();
+    Error(ctx);
 }
 #endif /* defined(HASDCACHE) && AIXV>=4140 */
 

@@ -839,7 +839,7 @@ void process_socket(sa) KA_T sa; /* socket address in kernel */
                             stderr,
                             "%s: no space (%d) for UNIX socket address\n", Pn,
                             dbl);
-                        Error();
+                        Error(ctx);
                     }
                 }
                 if (kread((KA_T)db.db_base, dbf, db.db_size) == 0) {

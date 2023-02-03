@@ -110,8 +110,9 @@ _PROTOTYPE(extern void ent_inaddr,
            (struct lsof_context * ctx, unsigned char *la, int lp,
             unsigned char *fa, int fp, int af));
 _PROTOTYPE(extern int examine_lproc, (struct lsof_context * ctx));
-_PROTOTYPE(extern void Exit, (enum ExitStatus xv)) exiting;
-_PROTOTYPE(extern void Error, ()) exiting;
+_PROTOTYPE(extern void Exit, (struct lsof_context * ctx, enum ExitStatus xv))
+exiting;
+_PROTOTYPE(extern void Error, (struct lsof_context * ctx));
 _PROTOTYPE(extern void find_ch_ino, (struct lsof_context * ctx));
 
 #    if defined(HASEPTOPTS)

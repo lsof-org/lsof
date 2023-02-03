@@ -391,7 +391,7 @@ void udp_tm(tm) time_t tm; /* time when packet was sent */
     if (!(cp = (char *)malloc(len))) {
         (void)fprintf(stderr, "%s: no space for %d character UDP time\n", Pn,
                       len);
-        Error();
+        Error(ctx);
     }
     (void)snpf(cp, len, "%s", buf);
     Lf->nma = cp;

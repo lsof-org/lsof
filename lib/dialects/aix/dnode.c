@@ -289,7 +289,7 @@ void process_node(va) KA_T va; /* vnode kernel space address */
 #endif /* defined(HAS_AFS) */
 
             );
-            Error();
+            Error(ctx);
         }
     }
     /*

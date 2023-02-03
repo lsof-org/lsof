@@ -105,6 +105,7 @@ char *argv[];
 
     /* Initialize lsof context */
     ctx = lsof_new();
+    lsof_exit_on_fatal(ctx, 1);
 
     /*
      * Save program name and set output stream
@@ -145,7 +146,7 @@ closed:
     while (((i = open("/dev/null", O_RDWR, 0)) >= 0) && (i < 2))
         ;
     if (i < 0)
-        Error();
+        Error(ctx);
     if (i > 2)
         (void)close(i);
     (void)umask(0);
@@ -806,7 +807,7 @@ closed:
                     (void)fprintf(
                         stderr, "%s: no space (%d) for <fmt> result: \"%s\"\n",
                         Pn, (int)fmtl, cp);
-                    Error();
+                    Error(ctx);
                 }
                 if (util_strftime(fmtr, fmtl - 1, fmt) < 1) {
                     (void)fprintf(stderr, "%s: illegal <fmt>: \"%s\"\n", Pn,
@@ -1133,7 +1134,7 @@ closed:
                 (void)fprintf(stderr, "%s: can't stat(/dev): %s\n", Pn,
                               strerror(se2));
             }
-            Error();
+            Error(ctx);
         }
     }
     DevDev = sb.st_dev;
@@ -1144,7 +1145,7 @@ closed:
     if (GOx1 < argc) {
         if (ck_file_arg(GOx1, argc, argv, Ffilesys, 0, (struct stat *)NULL,
                         FsearchErr == 0))
-            Error();
+            Error(ctx);
     }
     /* Freeze context as all args are handled */
     lsof_freeze(ctx);
@@ -1185,7 +1186,7 @@ closed:
      */
     if (MntSup == 1) {
         (void)readmnt(ctx);
-        Exit(LSOF_EXIT_SUCCESS);
+        Exit(ctx, LSOF_EXIT_SUCCESS);
     }
 #endif /* defined(HASMNTSUP) */
 
@@ -1214,7 +1215,7 @@ closed:
                 if (!slp) {
                     (void)fprintf(stderr, "%s: no space for %zu sort pointers\n",
                                   Pn, Nlproc);
-                    Error();
+                    Error(ctx);
                 }
             }
             for (i = 0; i < Nlproc; i++) {
@@ -1717,7 +1718,7 @@ closed:
         rv = ev;
     if (!rv && ErrStat)
         rv = LSOF_EXIT_ERROR;
-    Exit(rv);
+    Exit(ctx, rv);
     return (rv); /* to make code analyzers happy */
 }
 
@@ -1860,7 +1861,7 @@ char *f; /* format string */
     if (!(cp = (char *)malloc(l))) {
         (void)fprintf(stderr, "%s: can't allocate %d bytes for format: %s\n",
                       Pn, (int)l, f);
-        Error();
+        Error(ctx);
     }
     (void)snpf(cp, l, "%s", f);
     return (cp);

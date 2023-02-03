@@ -452,7 +452,7 @@ int version;                 /* ``-v'' status */
         (void)fprintf(stderr,
                       "Use the ``-h'' option to get more help information.\n");
         if (!fh)
-            Exit(err ? LSOF_EXIT_ERROR : LSOF_EXIT_SUCCESS);
+            Exit(ctx, err ? LSOF_EXIT_ERROR : LSOF_EXIT_SUCCESS);
     }
     if (Fhelp) {
         (void)fprintf(
@@ -995,5 +995,5 @@ int version;                 /* ``-v'' status */
 
         (void)report_HASDCACHE(1, "    ", "\t");
     }
-    Exit(err ? LSOF_EXIT_ERROR : LSOF_EXIT_SUCCESS);
+    Exit(ctx, err ? LSOF_EXIT_ERROR : LSOF_EXIT_SUCCESS);
 }

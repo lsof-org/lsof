@@ -194,7 +194,7 @@ static void ncache_alloc() {
         (void)fprintf(stderr,
                       "%s: can't allocate %d local name cache entries\n", Pn,
                       Nceh);
-        Error();
+        Error(ctx);
     }
     if (Ncfsid)
         return;
@@ -202,7 +202,7 @@ static void ncache_alloc() {
         (void)fprintf(stderr,
                       "%s: can't allocate %d local file system cache entries\n",
                       Pn, NFSIDH);
-        Error();
+        Error(ctx);
     }
 }
 
@@ -305,7 +305,7 @@ struct l_fic **fh;   /* Ncfsid hash bucket */
      */
     if (!(f = (struct l_fic *)malloc(sizeof(struct l_fic)))) {
         (void)fprintf(stderr, "%s: no fsid structure space\n", Pn);
-        Error();
+        Error(ctx);
     }
     f->fsid = *fsid;
     f->nc = 0;
@@ -330,13 +330,13 @@ struct l_fic **fh;   /* Ncfsid hash bucket */
             if (!(cp = (char *)malloc((MALLOC_S)(nl + 1)))) {
                 (void)fprintf(stderr, "%s: no name entry space (%d) for:%s\n",
                               Pn, nl + 1, mp[i].psr_name);
-                Error();
+                Error(ctx);
             }
             if (!(nn = (struct l_nc *)malloc(sizeof(struct l_nc)))) {
                 (void)fprintf(stderr,
                               "%s: no name cache entry space (%d) for: %s\n",
                               Pn, (int)sizeof(struct l_nc), mp[i].psr_name);
-                Error();
+                Error(ctx);
             }
             /*
              * Fill in name cache entry, complete with name and name length.
@@ -568,7 +568,7 @@ static void ncache_size() {
 
     if (pstat_getdynamic(&pd, sizeof(pd), 1, 0) != 1) {
         (void)fprintf(stderr, "%s: can't get dynamic status\n", Pn);
-        Error();
+        Error(ctx);
     }
     Ndnlc = (int)pd.psd_dnlc_size;
     for (Nceh = 1; Nceh < (Ndnlc + Ndnlc); Nceh <<= 1)

@@ -402,7 +402,7 @@ void gather_proc_info(struct lsof_context *ctx) {
     if (P == NULL) {
         (void)fprintf(stderr, "%s: can't read process table: %s\n", Pn,
                       strerror(errno));
-        Error();
+        Error(ctx);
     }
     Np = len / sizeof(struct kinfo_proc);
     if (read_xfiles(&xfiles, &n_xfiles) && !Fwarn)
@@ -524,7 +524,7 @@ static void get_kernel_access(struct lsof_context *ctx) {
     {
         if (!(Nmlst = get_nlist_path(ctx, 1))) {
             (void)fprintf(stderr, "%s: can't get kernel name list path\n", Pn);
-            Error();
+            Error(ctx);
         }
     }
 #endif /* defined(N_UNIX) */
@@ -542,7 +542,7 @@ static void get_kernel_access(struct lsof_context *ctx) {
      */
     if ((Memory && !is_readable(ctx, Memory, 1)) ||
         (Nmlst && !is_readable(ctx, Nmlst, 1)))
-        Error();
+        Error(ctx);
 #endif /* defined(WILLDROPGID) */
 
     /*
@@ -572,7 +572,7 @@ static void get_kernel_access(struct lsof_context *ctx) {
     (void)build_Nl(ctx, Drive_Nl);
     if (kvm_nlist(Kd, Nl) < 0) {
         (void)fprintf(stderr, "%s: can't read namelist from %s\n", Pn, Nmlst);
-        Error();
+        Error(ctx);
     }
 
 #if defined(X_BADFILEOPS)
@@ -620,7 +620,7 @@ char *get_nlist_path(struct lsof_context *ctx,
             (void)fprintf(
                 stderr, "%s: can't allocate %d bytes for boot file path: %s\n",
                 Pn, (int)bfl, bf);
-            Error();
+            Error(ctx);
         }
         (void)snpf(bfc, bfl, "%s", bf);
         return (bfc);

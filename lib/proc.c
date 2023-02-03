@@ -110,7 +110,7 @@ void alloc_lfile(struct lsof_context *ctx,
     } else if (!(Lf = (struct lfile *)malloc(sizeof(struct lfile)))) {
         (void)fprintf(stderr, "%s: no local file space at PID %d\n", Pn,
                       Lp->pid);
-        Error();
+        Error(ctx);
     }
     /*
      * Initialize the structure.
@@ -242,7 +242,7 @@ void alloc_lproc(struct lsof_context *ctx, int pid, /* Process ID */
             (void)fprintf(stderr,
                           "%s: no malloc space for %d local proc structures\n",
                           Pn, LPROCINCR);
-            Error();
+            Error(ctx);
         }
         sz = LPROCINCR;
     } else if ((Nlproc + 1) > sz) {
@@ -252,7 +252,7 @@ void alloc_lproc(struct lsof_context *ctx, int pid, /* Process ID */
             (void)fprintf(stderr,
                           "%s: no realloc space for %d local proc structures\n",
                           Pn, sz);
-            Error();
+            Error(ctx);
         }
     }
     Lp = &Lproc[Nlproc++];
@@ -280,7 +280,7 @@ void alloc_lproc(struct lsof_context *ctx, int pid, /* Process ID */
         (void)fprintf(stderr, "%s: PID %d, no space for command name: ", Pn,
                       pid);
         safestrprt(cmd, stderr, 1);
-        Error();
+        Error(ctx);
     }
 
 #if defined(HASZONES)
@@ -1301,7 +1301,8 @@ static void prt_ptyinfo(struct lsof_context *ctx, pxinfo_t *pp, /* peer info */
     print_fd(ef->fd_type, ef->fd_num, fd);
     if (prt_edev) {
         (void)snpf(nma, sizeof(nma) - 1, "->/dev/pts/%d %d,%.*s,%s%c",
-                   Lf->tty_index, ep->pid, CmdLim, ep->cmd, fd, print_access(ef->access));
+                   Lf->tty_index, ep->pid, CmdLim, ep->cmd, fd,
+                   print_access(ef->access));
     } else {
         (void)snpf(nma, sizeof(nma) - 1, "%d,%.*s,%s%c", ep->pid, CmdLim,
                    ep->cmd, fd, print_access(ef->access));
@@ -1329,13 +1330,29 @@ void clean_lfile(struct lsof_context *ctx, struct lfile *lf) {
     memset(lf, 0, sizeof(struct lfile));
 }
 
-#ifdef AUTOTOOLS
 /*
- * Error() - exit with an error status
+ * Error(ctx) - exit with an error status when ctx->exit_on_fatal = 1;
  */
-__attribute__((weak))
-void Error() { exit(1); }
-#endif
+void Error(struct lsof_context *ctx) {
+    if (ctx->exit_on_fatal)
+        Exit(ctx, LSOF_EXIT_ERROR);
+}
+
+/*
+ * Exit() - do a clean exit()
+ */
+void Exit(struct lsof_context *ctx, enum ExitStatus xv) /* exit() value */
+{
+    (void)childx(ctx);
+
+#if defined(HASDCACHE)
+    if (DCrebuilt && !Fwarn)
+        (void)fprintf(stderr, "%s: WARNING: %s was updated.\n", Pn,
+                      DCpath[DCpathX]);
+#endif /* defined(HASDCACHE) */
+
+    exit(xv);
+}
 
 /* Print lsof_fd_type and fd_num, sizeof(buf) should >= FDLEN */
 void print_fd(enum lsof_fd_type fd_type, int fd_num, char *buf) {

@@ -56,7 +56,7 @@ void ckkv(struct lsof_context *ctx, char *d, /* dialect */
      */
     if (uname(&u) < 0) {
         (void)fprintf(stderr, "%s: uname error: %s\n", Pn, strerror(errno));
-        Error();
+        Error(ctx);
     }
     if (er && strcmp(er, u.release)) {
         (void)fprintf(stderr,

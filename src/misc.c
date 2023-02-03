@@ -42,26 +42,3 @@
 /*
  * Local variables
  */
-
-/* liblsof should never exit, so leave the functions in src */
-
-/*
- * Exit() - do a clean exit()
- */
-void Exit(enum ExitStatus xv) /* exit() value */
-{
-    (void)childx(ctx);
-
-#if defined(HASDCACHE)
-    if (DCrebuilt && !Fwarn)
-        (void)fprintf(stderr, "%s: WARNING: %s was updated.\n", Pn,
-                      DCpath[DCpathX]);
-#endif /* defined(HASDCACHE) */
-
-    exit(xv);
-}
-
-/*
- * Error() - exit with an error status
- */
-void Error() { Exit(LSOF_EXIT_ERROR); }

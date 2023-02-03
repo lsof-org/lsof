@@ -62,7 +62,7 @@ struct mounts *readmnt() {
      */
     if ((fd = open(MNTTAB, O_RDONLY, 0)) < 0) {
         (void)fprintf(stderr, "%s: can't open %s\n", Pn, MNTTAB);
-        Error();
+        Error(ctx);
     }
     /*
      * Read the first mount table entry.
@@ -151,7 +151,7 @@ struct mounts *readmnt() {
                 (void)fprintf(stderr, " (");
                 safestrprt(dvnm, stderr, 0);
                 (void)fprintf(stderr, ")\n");
-                Error();
+                Error(ctx);
             }
         }
         /*

@@ -295,7 +295,7 @@ void process_kqueue(struct lsof_context *ctx, int pid, /* PID */
             pid, fd);
         (void)fprintf(stderr, "      too few bytes; expected %ld, got %d\n",
                       sizeof(kq), nb);
-        Error();
+        Error(ctx);
     }
     /*
      * Enter the kernel queue file information.
@@ -370,7 +370,7 @@ void process_pipe(struct lsof_context *ctx, int pid, /* PID */
             Pn, pid, fd);
         (void)fprintf(stderr, "      too few bytes; expected %ld, got %d\n",
                       sizeof(pi), nb);
-        Error();
+        Error(ctx);
     }
 
     process_pipe_common(ctx, &pi);
@@ -397,7 +397,7 @@ void process_fileport_pipe(struct lsof_context *ctx, int pid, /* PID */
                       Pn, pid, fp);
         (void)fprintf(stderr, "      too few bytes; expected %ld, got %d\n",
                       sizeof(pi), nb);
-        Error();
+        Error(ctx);
     }
 
     process_pipe_common(ctx, &pi);
@@ -427,7 +427,7 @@ void process_psem(struct lsof_context *ctx, int pid, /* PID */
             Pn, pid, fd);
         (void)fprintf(stderr, "      too few bytes; expected %ld, got %d\n",
                       sizeof(ps), nb);
-        Error();
+        Error(ctx);
     }
     /*
      * Enter the semaphore file information.
@@ -499,7 +499,7 @@ void process_pshm(struct lsof_context *ctx, int pid, /* PID */
             Pn, pid, fd);
         (void)fprintf(stderr, "      too few bytes; expected %ld, got %d\n",
                       sizeof(ps), nb);
-        Error();
+        Error(ctx);
     }
 
     process_pshm_common(ctx, &ps);
@@ -526,7 +526,7 @@ void process_fileport_pshm(struct lsof_context *ctx, int pid, /* PID */
                       Pn, pid, fp);
         (void)fprintf(stderr, "      too few bytes; expected %ld, got %d\n",
                       sizeof(ps), nb);
-        Error();
+        Error(ctx);
     }
 
     process_pshm_common(ctx, &ps);
@@ -573,7 +573,7 @@ void process_vnode(struct lsof_context *ctx, int pid, /* PID */
             pid, fd);
         (void)fprintf(stderr, "      too few bytes; expected %ld, got %d\n",
                       sizeof(vi), nb);
-        Error();
+        Error(ctx);
     }
 
     process_vnode_common(ctx, &vi);
@@ -608,7 +608,7 @@ void process_fileport_vnode(struct lsof_context *ctx, int pid, /* PID */
                       Pn, pid, fp);
         (void)fprintf(stderr, "      too few bytes; expected %ld, got %d\n",
                       sizeof(vi), nb);
-        Error();
+        Error(ctx);
     }
 
     process_vnode_common(ctx, &vi);

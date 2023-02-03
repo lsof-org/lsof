@@ -81,7 +81,7 @@ struct mounts *readmnt(struct lsof_context *ctx) {
             (void)fprintf(stderr, " (");
             safestrprt(mb->f_mntfromname, stderr, 0);
             (void)fprintf(stderr, ")\n");
-            Error();
+            Error(ctx);
         }
         if ((ln = Readlink(ctx, dn)) == NULL) {
             if (!Fwarn) {
