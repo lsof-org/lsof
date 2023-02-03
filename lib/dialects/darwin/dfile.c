@@ -289,12 +289,15 @@ void process_kqueue(struct lsof_context *ctx, int pid, /* PID */
         (void)err2nm(ctx, "kqueue");
         return;
     } else if (nb < sizeof(kq)) {
-        (void)fprintf(
-            stderr,
-            "%s: PID %d, FD %d; proc_pidfdinfo(PROC_PIDFDKQUEUEINFO);\n", Pn,
-            pid, fd);
-        (void)fprintf(stderr, "      too few bytes; expected %ld, got %d\n",
-                      sizeof(kq), nb);
+        if (ctx->err) {
+            (void)fprintf(
+                ctx->err,
+                "%s: PID %d, FD %d; proc_pidfdinfo(PROC_PIDFDKQUEUEINFO);\n",
+                Pn, pid, fd);
+            (void)fprintf(ctx->err,
+                          "      too few bytes; expected %ld, got %d\n",
+                          sizeof(kq), nb);
+        }
         Error(ctx);
     }
     /*
@@ -365,11 +368,15 @@ void process_pipe(struct lsof_context *ctx, int pid, /* PID */
         (void)err2nm(ctx, "pipe");
         return;
     } else if (nb < sizeof(pi)) {
-        (void)fprintf(
-            stderr, "%s: PID %d, FD %d; proc_pidfdinfo(PROC_PIDFDPIPEINFO);\n",
-            Pn, pid, fd);
-        (void)fprintf(stderr, "      too few bytes; expected %ld, got %d\n",
-                      sizeof(pi), nb);
+        if (ctx->err) {
+            (void)fprintf(
+                ctx->err,
+                "%s: PID %d, FD %d; proc_pidfdinfo(PROC_PIDFDPIPEINFO);\n", Pn,
+                pid, fd);
+            (void)fprintf(ctx->err,
+                          "      too few bytes; expected %ld, got %d\n",
+                          sizeof(pi), nb);
+        }
         Error(ctx);
     }
 
@@ -391,12 +398,15 @@ void process_fileport_pipe(struct lsof_context *ctx, int pid, /* PID */
         (void)err2nm(ctx, "pipe");
         return;
     } else if (nb < sizeof(pi)) {
-        (void)fprintf(stderr,
-                      "%s: PID %d, FILEPORT %u; "
-                      "proc_pidfileportinfo(PROC_PIDFILEPORTPIPEINFO);\n",
-                      Pn, pid, fp);
-        (void)fprintf(stderr, "      too few bytes; expected %ld, got %d\n",
-                      sizeof(pi), nb);
+        if (ctx->err) {
+            (void)fprintf(ctx->err,
+                          "%s: PID %d, FILEPORT %u; "
+                          "proc_pidfileportinfo(PROC_PIDFILEPORTPIPEINFO);\n",
+                          Pn, pid, fp);
+            (void)fprintf(ctx->err,
+                          "      too few bytes; expected %ld, got %d\n",
+                          sizeof(pi), nb);
+        }
         Error(ctx);
     }
 
@@ -422,11 +432,15 @@ void process_psem(struct lsof_context *ctx, int pid, /* PID */
         (void)err2nm(ctx, "semaphore");
         return;
     } else if (nb < sizeof(ps)) {
-        (void)fprintf(
-            stderr, "%s: PID %d, FD %d; proc_pidfdinfo(PROC_PIDFDPSEMINFO);\n",
-            Pn, pid, fd);
-        (void)fprintf(stderr, "      too few bytes; expected %ld, got %d\n",
-                      sizeof(ps), nb);
+        if (ctx->err) {
+            (void)fprintf(
+                ctx->err,
+                "%s: PID %d, FD %d; proc_pidfdinfo(PROC_PIDFDPSEMINFO);\n", Pn,
+                pid, fd);
+            (void)fprintf(ctx->err,
+                          "      too few bytes; expected %ld, got %d\n",
+                          sizeof(ps), nb);
+        }
         Error(ctx);
     }
     /*
@@ -494,11 +508,15 @@ void process_pshm(struct lsof_context *ctx, int pid, /* PID */
         (void)err2nm(ctx, "POSIX shared memory");
         return;
     } else if (nb < sizeof(ps)) {
-        (void)fprintf(
-            stderr, "%s: PID %d, FD %d; proc_pidfdinfo(PROC_PIDFDPSHMINFO);\n",
-            Pn, pid, fd);
-        (void)fprintf(stderr, "      too few bytes; expected %ld, got %d\n",
-                      sizeof(ps), nb);
+        if (ctx->err) {
+            (void)fprintf(
+                ctx->err,
+                "%s: PID %d, FD %d; proc_pidfdinfo(PROC_PIDFDPSHMINFO);\n", Pn,
+                pid, fd);
+            (void)fprintf(ctx->err,
+                          "      too few bytes; expected %ld, got %d\n",
+                          sizeof(ps), nb);
+        }
         Error(ctx);
     }
 
@@ -520,12 +538,15 @@ void process_fileport_pshm(struct lsof_context *ctx, int pid, /* PID */
         (void)err2nm(ctx, "POSIX shared memory");
         return;
     } else if (nb < sizeof(ps)) {
-        (void)fprintf(stderr,
-                      "%s: PID %d, FILEPORT %u; "
-                      "proc_pidfileportinfo(PROC_PIDFILEPORTPSHMINFO);\n",
-                      Pn, pid, fp);
-        (void)fprintf(stderr, "      too few bytes; expected %ld, got %d\n",
-                      sizeof(ps), nb);
+        if (ctx->err) {
+            (void)fprintf(ctx->err,
+                          "%s: PID %d, FILEPORT %u; "
+                          "proc_pidfileportinfo(PROC_PIDFILEPORTPSHMINFO);\n",
+                          Pn, pid, fp);
+            (void)fprintf(ctx->err,
+                          "      too few bytes; expected %ld, got %d\n",
+                          sizeof(ps), nb);
+        }
         Error(ctx);
     }
 
@@ -567,12 +588,15 @@ void process_vnode(struct lsof_context *ctx, int pid, /* PID */
             (void)err2nm(ctx, "vnode");
         return;
     } else if (nb < sizeof(vi)) {
-        (void)fprintf(
-            stderr,
-            "%s: PID %d, FD %d: proc_pidfdinfo(PROC_PIDFDVNODEPATHINFO);\n", Pn,
-            pid, fd);
-        (void)fprintf(stderr, "      too few bytes; expected %ld, got %d\n",
-                      sizeof(vi), nb);
+        if (ctx->err) {
+            (void)fprintf(
+                ctx->err,
+                "%s: PID %d, FD %d: proc_pidfdinfo(PROC_PIDFDVNODEPATHINFO);\n",
+                Pn, pid, fd);
+            (void)fprintf(ctx->err,
+                          "      too few bytes; expected %ld, got %d\n",
+                          sizeof(vi), nb);
+        }
         Error(ctx);
     }
 
@@ -602,12 +626,15 @@ void process_fileport_vnode(struct lsof_context *ctx, int pid, /* PID */
             (void)err2nm(ctx, "vnode");
         return;
     } else if (nb < sizeof(vi)) {
-        (void)fprintf(stderr,
-                      "%s: PID %d, FILEPORT %u: "
-                      "proc_pidfdinfo(PROC_PIDFDVNODEPATHINFO);\n",
-                      Pn, pid, fp);
-        (void)fprintf(stderr, "      too few bytes; expected %ld, got %d\n",
-                      sizeof(vi), nb);
+        if (ctx->err) {
+            (void)fprintf(ctx->err,
+                          "%s: PID %d, FILEPORT %u: "
+                          "proc_pidfdinfo(PROC_PIDFDVNODEPATHINFO);\n",
+                          Pn, pid, fp);
+            (void)fprintf(ctx->err,
+                          "      too few bytes; expected %ld, got %d\n",
+                          sizeof(vi), nb);
+        }
         Error(ctx);
     }
 

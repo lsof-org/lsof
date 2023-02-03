@@ -434,9 +434,10 @@ enum lsof_error lsof_select_process_regex(struct lsof_context *ctx, char *x) {
     xl = (MALLOC_S)(xe - xb);
     if (!(xp = (char *)malloc(xl + 1))) {
         if (ctx->err) {
-            (void)fprintf(stderr, "%s: no regexp space for: ", Pn);
-            safestrprt(x, stderr, 1);
+            (void)fprintf(ctx->err, "%s: no regexp space for: ", Pn);
+            safestrprt(x, ctx->err, 1);
         }
+        Error(ctx);
         return LSOF_ERROR_NO_MEMORY;
     }
     (void)strncpy(xp, xb, xl);
@@ -456,9 +457,10 @@ enum lsof_error lsof_select_process_regex(struct lsof_context *ctx, char *x) {
             CmdRx = (lsof_rx_t *)malloc(xl);
         if (!CmdRx) {
             if (ctx->err) {
-                (void)fprintf(stderr, "%s: no space for regexp: ", Pn);
-                safestrprt(x, stderr, 1);
+                (void)fprintf(ctx->err, "%s: no space for regexp: ", Pn);
+                safestrprt(x, ctx->err, 1);
             }
+            Error(ctx);
             return LSOF_ERROR_NO_MEMORY;
         }
     }
@@ -469,10 +471,10 @@ enum lsof_error lsof_select_process_regex(struct lsof_context *ctx, char *x) {
      */
     if ((re = regcomp(&CmdRx[i].cx, xp, co))) {
         if (ctx->err) {
-            (void)fprintf(stderr, "%s: regexp error: ", Pn);
-            safestrprt(x, stderr, 0);
+            (void)fprintf(ctx->err, "%s: regexp error: ", Pn);
+            safestrprt(x, ctx->err, 0);
             (void)regerror(re, &CmdRx[i].cx, &reb[0], sizeof(reb));
-            (void)fprintf(stderr, ": %s\n", reb);
+            (void)fprintf(ctx->err, ": %s\n", reb);
         }
         if (xp) {
             (void)free((FREE_P *)xp);
@@ -536,17 +538,19 @@ enum lsof_error lsof_select_uid_login(struct lsof_context *ctx, uint32_t uid,
             Suid = (struct seluid *)realloc((MALLOC_P *)Suid, len);
         if (!Suid) {
             if (ctx->err) {
-                (void)fprintf(stderr, "%s: no space for UIDs", Pn);
+                (void)fprintf(ctx->err, "%s: no space for UIDs", Pn);
             }
+            Error(ctx);
             return LSOF_ERROR_NO_MEMORY;
         }
     }
     if (login) {
         if (!(lp = mkstrcpy(login, (MALLOC_S *)NULL))) {
             if (ctx->err) {
-                (void)fprintf(stderr, "%s: no space for login: ", Pn);
-                safestrprt(login, stderr, 1);
+                (void)fprintf(ctx->err, "%s: no space for login: ", Pn);
+                safestrprt(login, ctx->err, 1);
             }
+            Error(ctx);
             return LSOF_ERROR_NO_MEMORY;
         }
         Suid[Nuid].lnm = lp;
@@ -581,8 +585,8 @@ enum lsof_error lsof_select_login(struct lsof_context *ctx, char *login,
     /* Convert login to uid, then call lsof_select_uid_login */
     if ((pw = getpwnam(login)) == NULL) {
         if (ctx->err) {
-            (void)fprintf(stderr, "%s: can't get UID for ", Pn);
-            safestrprt(login, stderr, 1);
+            (void)fprintf(ctx->err, "%s: can't get UID for ", Pn);
+            safestrprt(login, ctx->err, 1);
         }
         return LSOF_ERROR_INVALID_ARGUMENT;
     }
@@ -654,7 +658,9 @@ enum lsof_error lsof_select_fd(struct lsof_context *ctx,
      * Allocate an fd_lst entry.
      */
     if (!(f = (struct fd_lst *)malloc((MALLOC_S)sizeof(struct fd_lst)))) {
-        (void)fprintf(stderr, "%s: no space for FD list entry\n", Pn);
+        if (ctx->err)
+            (void)fprintf(ctx->err, "%s: no space for FD list entry\n", Pn);
+        Error(ctx);
         return LSOF_ERROR_NO_MEMORY;
     }
 
@@ -731,6 +737,7 @@ enum lsof_error lsof_select_pid_pgid(struct lsof_context *ctx, int32_t id,
                 (void)fprintf(ctx->err, "%s: no space for %d process%s IDs", Pn,
                               *cap, is_pid ? "" : " group");
             }
+            Error(ctx);
             return LSOF_ERROR_NO_MEMORY;
         }
     }
@@ -875,10 +882,11 @@ enum lsof_error lsof_select_proto_state(struct lsof_context *ctx, int tcp,
             if (!(*state_incl = (unsigned char *)calloc(
                       (MALLOC_S)num_states, sizeof(unsigned char)))) {
                 if (ctx->err) {
-                    (void)fprintf(stderr,
+                    (void)fprintf(ctx->err,
                                   "%s: no %s state inclusion table space\n", Pn,
                                   ty);
                 }
+                Error(ctx);
                 return LSOF_ERROR_NO_MEMORY;
             }
         }
@@ -886,16 +894,17 @@ enum lsof_error lsof_select_proto_state(struct lsof_context *ctx, int tcp,
             if (!(*state_excl = (unsigned char *)calloc(
                       (MALLOC_S)num_states, sizeof(unsigned char)))) {
                 if (ctx->err) {
-                    (void)fprintf(stderr,
+                    (void)fprintf(ctx->err,
                                   "%s: no %s state exclusion table space\n", Pn,
                                   ty);
                 }
+                Error(ctx);
                 return LSOF_ERROR_NO_MEMORY;
             }
         }
     } else {
         if (ctx->err) {
-            (void)fprintf(stderr, "%s: no %s state names available: %s\n", Pn,
+            (void)fprintf(ctx->err, "%s: no %s state names available: %s\n", Pn,
                           ty, state);
         }
         return LSOF_ERROR_INVALID_ARGUMENT;
@@ -914,7 +923,7 @@ enum lsof_error lsof_select_proto_state(struct lsof_context *ctx, int tcp,
 
     if (!found) {
         if (ctx->err) {
-            (void)fprintf(stderr, "%s: unknown %s state name: %s\n", Pn, ty,
+            (void)fprintf(ctx->err, "%s: unknown %s state name: %s\n", Pn, ty,
                           state);
         }
         return LSOF_ERROR_INVALID_ARGUMENT;
@@ -999,6 +1008,7 @@ enum lsof_error lsof_exempt_fs(struct lsof_context *ctx, char *orig_path,
             (void)fprintf(ctx->err, "%s: no space for -e string: ", Pn);
             safestrprt(orig_path, ctx->err, 1);
         }
+        Error(ctx);
         return LSOF_ERROR_NO_MEMORY;
     }
     if (avoid_readlink)
@@ -1029,6 +1039,7 @@ enum lsof_error lsof_exempt_fs(struct lsof_context *ctx, char *orig_path,
             (void)fprintf(ctx->err, "%s: no space for \"-e %s\" entry\n", Pn,
                           orig_path);
         }
+        Error(ctx);
         return LSOF_ERROR_NO_MEMORY;
     }
     ep->path = path;
