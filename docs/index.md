@@ -23,10 +23,10 @@ Actively maintained and supported:
 - Darwin(macOS)
 - NetBSD
 - OpenBSD
+- Solaris/OpenIndiana
 
 Not maintained for lack of maintainers but pull requests are welcome:
 
-- Solaris
 - IBM AIX
 - HP-UX
 - SCO OpenServer
@@ -44,6 +44,14 @@ lsof is tested in ci on the following platforms:
 - NixOS
 - openSUSE Leap 15
 - Ubuntu 18.04/20.04/22.04
+
+Additionally, lsof is tested by maintainers manually on the following platforms:
+
+- FreeBSD 12/13
+- NetBSD 9
+- OpenBSD 7
+- Solaris 11
+- OpenIndiana 5
 
 lsof is provided by package manager in the following repositories:
 
