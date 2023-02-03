@@ -207,8 +207,12 @@
 #        include <sys/tiuser.h>
 #        if solaris >= 110000
 #            define _KERNEL
-#            include <sys/rgm.h>
-#            include <rpc/rpc_tags.h>
+#            if defined(HAS_SYS_RGM_H)
+#                include <sys/rgm.h>
+#            endif /* defined(HAS_SYS_RGM_H) */
+#            if defined(HAS_RPC_RPC_TAGS_H)
+#                include <rpc/rpc_tags.h>
+#            endif /* defined(HAS_RPC_RPC_TAGS_H) */
 #            undef _KERNEL
 #        endif /* solaris>=110000 */
 #        include <rpc/auth.h>
