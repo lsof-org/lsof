@@ -242,8 +242,49 @@ enum lsof_file_type {
 /** Network protocol */
 enum lsof_protocol {
     LSOF_PROTOCOL_NONE, /**< No network protocol */
-    LSOF_PROTOCOL_TCP,  /**< TCP */
-    LSOF_PROTOCOL_UDP,  /**< UDP */
+    LSOF_PROTOCOL_IP,   /**< IP */
+    /* Follow ip protocol numbers order */
+    LSOF_PROTOCOL_HOPOPTS,  /**< IPv6 hop-by-hop(0)  */
+    LSOF_PROTOCOL_ICMP,     /**< ICMP(1) */
+    LSOF_PROTOCOL_IGMP,     /**< IGMP(2) */
+    LSOF_PROTOCOL_GGP,      /**< GGP(3) */
+    LSOF_PROTOCOL_IPIP,     /**< IPIP(4) */
+    LSOF_PROTOCOL_TCP,      /**< TCP(6) */
+    LSOF_PROTOCOL_EGP,      /**< EGP(8) */
+    LSOF_PROTOCOL_IGP,      /**< IGP(9) */
+    LSOF_PROTOCOL_RCCMON,   /**< RCC Monitor(10) */
+    LSOF_PROTOCOL_NVPII,    /**< NPV-II(11) */
+    LSOF_PROTOCOL_PUP,      /**< PUP(12) */
+    LSOF_PROTOCOL_ARGUS,    /**< ARGUS(13) */
+    LSOF_PROTOCOL_EMCON,    /**< EMCON(14) */
+    LSOF_PROTOCOL_XNET,     /**< XNET(15) */
+    LSOF_PROTOCOL_CHAOS,    /**< CHAOS(16) */
+    LSOF_PROTOCOL_UDP,      /**< UDP(17) */
+    LSOF_PROTOCOL_TP,       /**< TP(29) */
+    LSOF_PROTOCOL_DCCP,     /**< DCCP(33) */
+    LSOF_PROTOCOL_IPV6,     /**< IPv6(41) */
+    LSOF_PROTOCOL_ROUTING,  /**< IPv6-Route(43) */
+    LSOF_PROTOCOL_FRAGMENT, /**< IPv6-Frag(44) */
+    LSOF_PROTOCOL_RSVP,     /**< RSVP(46) */
+    LSOF_PROTOCOL_GRE,      /**< GRE(47) */
+    LSOF_PROTOCOL_ESP,      /**< ESP(50) */
+    LSOF_PROTOCOL_AH,       /**< AH(51) */
+    LSOF_PROTOCOL_ICMPV6,   /**< ICMPv6(58) */
+    LSOF_PROTOCOL_NONE,     /**< IPv6-NoNxt(59) */
+    LSOF_PROTOCOL_DSTOPTS,  /**< IPv6-Opts(60) */
+    LSOF_PROTOCOL_MTP,      /**< MTP(92) */
+    LSOF_PROTOCOL_AX25,     /**< AX.25(93) */
+    LSOF_PROTOCOL_BEETPH,   /**< BEETPH(94) */
+    LSOF_PROTOCOL_ENCAP,    /**< ENCAP(98) */
+    LSOF_PROTOCOL_PIM,      /**< PIM(103) */
+    LSOF_PROTOCOL_COMP,     /**< COMP(108) */
+    LSOF_PROTOCOL_SCTP,     /**< SCTP(132) */
+    LSOF_PROTOCOL_MH,       /**< Mobility Header(135) */
+    LSOF_PROTOCOL_UDPLITE,  /**< UDPLITE(136) */
+    LSOF_PROTOCOL_MPLS,     /**< MPLS(137) */
+    LSOF_PROTOCOL_ETHERNET, /**< Ethernet(143) */
+    LSOF_PROTOCOL_RAW,      /**< Raw(255) */
+    LSOF_PROTOCOL_MPTCP,    /**< MPTCP(262) */
 };
 
 /** Display hint of NODE column for lsof cli */
