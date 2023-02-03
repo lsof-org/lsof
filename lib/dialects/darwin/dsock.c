@@ -405,13 +405,17 @@ void process_socket(struct lsof_context *ctx, int pid, /* PID */
         (void)err2nm(ctx, "socket");
         return;
     } else if (nb < sizeof(si)) {
-        (void)fprintf(
-            stderr,
-            "%s: PID %d, FD %d: proc_pidfdinfo(PROC_PIDFDSOCKETINFO);\n", Pn,
-            pid, fd);
-        (void)fprintf(stderr, "      too few bytes; expected %ld, got %d\n",
-                      sizeof(si), nb);
+        if (ctx->err) {
+            (void)fprintf(
+                ctx->err,
+                "%s: PID %d, FD %d: proc_pidfdinfo(PROC_PIDFDSOCKETINFO);\n",
+                Pn, pid, fd);
+            (void)fprintf(ctx->err,
+                          "      too few bytes; expected %ld, got %d\n",
+                          sizeof(si), nb);
+        }
         Error(ctx);
+        return;
     }
 
     process_socket_common(ctx, &si);
@@ -432,13 +436,17 @@ void process_fileport_socket(struct lsof_context *ctx, int pid, /* PID */
         (void)err2nm(ctx, "socket");
         return;
     } else if (nb < sizeof(si)) {
-        (void)fprintf(stderr,
-                      "%s: PID %d, FILEPORT %u: "
-                      "proc_pidfileportinfo(PROC_PIDFILEPORTSOCKETINFO);\n",
-                      Pn, pid, fp);
-        (void)fprintf(stderr, "      too few bytes; expected %ld, got %d\n",
-                      sizeof(si), nb);
+        if (ctx->err) {
+            (void)fprintf(ctx->err,
+                          "%s: PID %d, FILEPORT %u: "
+                          "proc_pidfileportinfo(PROC_PIDFILEPORTSOCKETINFO);\n",
+                          Pn, pid, fp);
+            (void)fprintf(ctx->err,
+                          "      too few bytes; expected %ld, got %d\n",
+                          sizeof(si), nb);
+        }
         Error(ctx);
+        return;
     }
 
     process_socket_common(ctx, &si);

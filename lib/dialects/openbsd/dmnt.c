@@ -57,7 +57,8 @@ struct mounts *readmnt(struct lsof_context *ctx) {
      * Access mount information.
      */
     if ((n = getmntinfo(&mb, MNT_NOWAIT)) <= 0) {
-        (void)fprintf(stderr, "%s: no mount information\n", Pn);
+        if (ctx->err)
+            (void)fprintf(ctx->err, "%s: no mount information\n", Pn);
         return (0);
     }
     /*
@@ -76,16 +77,19 @@ struct mounts *readmnt(struct lsof_context *ctx) {
 
         no_space_for_mount:
 
-            (void)fprintf(stderr, "%s: no space for mount at ", Pn);
-            safestrprt(mb->f_mntonname, stderr, 0);
-            (void)fprintf(stderr, " (");
-            safestrprt(mb->f_mntfromname, stderr, 0);
-            (void)fprintf(stderr, ")\n");
+            if (ctx->err) {
+                (void)fprintf(ctx->err, "%s: no space for mount at ", Pn);
+                safestrprt(mb->f_mntonname, ctx->err, 0);
+                (void)fprintf(ctx->err, " (");
+                safestrprt(mb->f_mntfromname, ctx->err, 0);
+                (void)fprintf(ctx->err, ")\n");
+            }
             Error(ctx);
+            return NULL;
         }
         if ((ln = Readlink(ctx, dn)) == NULL) {
-            if (!Fwarn) {
-                (void)fprintf(stderr,
+            if (ctx->err && !Fwarn) {
+                (void)fprintf(ctx->err,
                               "      Output information may be incomplete.\n");
             }
             continue;
@@ -100,12 +104,12 @@ struct mounts *readmnt(struct lsof_context *ctx) {
          * Stat() the directory.
          */
         if (statsafely(ctx, dn, &sb)) {
-            if (!Fwarn) {
-                (void)fprintf(stderr, "%s: WARNING: can't stat() ", Pn);
-                safestrprt(mb->f_fstypename, stderr, 0);
-                (void)fprintf(stderr, " file system ");
-                safestrprt(mb->f_mntonname, stderr, 1);
-                (void)fprintf(stderr,
+            if (ctx->err && !Fwarn) {
+                (void)fprintf(ctx->err, "%s: WARNING: can't stat() ", Pn);
+                safestrprt(mb->f_fstypename, ctx->err, 0);
+                (void)fprintf(ctx->err, " file system ");
+                safestrprt(mb->f_mntonname, ctx->err, 1);
+                (void)fprintf(ctx->err,
                               "      Output information may be incomplete.\n");
             }
             (void)bzero((char *)&sb, sizeof(sb));
@@ -113,8 +117,8 @@ struct mounts *readmnt(struct lsof_context *ctx) {
             sb.st_dev = (dev_t)mb->f_fsid.val[0];
 
             sb.st_mode = S_IFDIR | 0777;
-            if (!Fwarn) {
-                (void)fprintf(stderr,
+            if (ctx->err && !Fwarn) {
+                (void)fprintf(ctx->err,
                               "      assuming \"dev=%x\" from mount table\n",
                               sb.st_dev);
             }

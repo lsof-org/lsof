@@ -86,9 +86,11 @@ void gather_proc_info(struct lsof_context *ctx) {
 
         /* Probe number of entries */
         if (sysctl(mib, 6, NULL, &size, NULL, 0) < 0) {
-            (void)fprintf(stderr, "%s: can't read process table: %d\n", Pn,
-                          errno);
+            if (ctx->err)
+                (void)fprintf(ctx->err, "%s: can't read process table: %d\n",
+                              Pn, errno);
             Error(ctx);
+            return;
         }
 
         /* Alloc more to handle new processes in the meantime */
@@ -101,8 +103,10 @@ void gather_proc_info(struct lsof_context *ctx) {
             procs = (struct kinfo_proc *)realloc(procs, size);
         }
         if (!procs) {
-            (void)fprintf(stderr, "%s: no kinfo_proc * space\n", Pn);
+            if (ctx->err)
+                (void)fprintf(ctx->err, "%s: no kinfo_proc * space\n", Pn);
             Error(ctx);
+            return;
         }
 
         mib[5] = size / sizeof(struct kinfo_proc); /* elem_count */
@@ -111,9 +115,11 @@ void gather_proc_info(struct lsof_context *ctx) {
             num_procs = size / sizeof(struct kinfo_proc);
             break;
         } else if (res < 0 && errno != ENOMEM) {
-            (void)fprintf(stderr, "%s: can't read process table: %d\n", Pn,
-                          errno);
+            if (ctx->err)
+                (void)fprintf(ctx->err, "%s: can't read process table: %d\n",
+                              Pn, errno);
             Error(ctx);
+            return;
         }
     };
 
@@ -166,9 +172,11 @@ void gather_proc_info(struct lsof_context *ctx) {
 
             /* Probe number of entries */
             if (sysctl(mib, 6, NULL, &size, NULL, 0) < 0) {
-                (void)fprintf(stderr, "%s: can't read file table: %d\n", Pn,
-                              errno);
+                if (ctx->err)
+                    (void)fprintf(ctx->err, "%s: can't read file table: %d\n",
+                                  Pn, errno);
                 Error(ctx);
+                return;
             }
 
             /* Alloc more to handle new processes in the meantime */
@@ -181,8 +189,10 @@ void gather_proc_info(struct lsof_context *ctx) {
                 files = (struct kinfo_file *)realloc(files, size);
             }
             if (!files) {
-                (void)fprintf(stderr, "%s: no kinfo_file * space\n", Pn);
+                if (ctx->err)
+                    (void)fprintf(ctx->err, "%s: no kinfo_file * space\n", Pn);
                 Error(ctx);
+                return;
             }
 
             mib[5] = size / sizeof(struct kinfo_file); /* elem_count */
@@ -191,9 +201,11 @@ void gather_proc_info(struct lsof_context *ctx) {
                 num_files = size / sizeof(struct kinfo_file);
                 break;
             } else if (res < 0 && errno != ENOMEM) {
-                (void)fprintf(stderr, "%s: can't read file table: %d\n", Pn,
-                              errno);
+                if (ctx->err)
+                    (void)fprintf(ctx->err, "%s: can't read file table: %d\n",
+                                  Pn, errno);
                 Error(ctx);
+                return;
             }
         };
 

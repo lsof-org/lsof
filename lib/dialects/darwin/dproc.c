@@ -90,7 +90,8 @@ static int NVips = 0;               /* entries allocated to Vips */
 /*
  * Local function prototypes
  */
-_PROTOTYPE(static void enter_vn_text, (struct lsof_context *ctx,struct vnode_info_path * vip, int *n));
+_PROTOTYPE(static void enter_vn_text,
+           (struct lsof_context * ctx, struct vnode_info_path *vip, int *n));
 _PROTOTYPE(static void process_fds,
            (struct lsof_context * ctx, int pid, uint32_t n, int ckscko));
 _PROTOTYPE(static void process_text, (struct lsof_context * ctx, int pid));
@@ -147,9 +148,11 @@ static void enter_vn_text(struct lsof_context *ctx,
             Vips =
                 (struct vips_info *)realloc((MALLOC_P *)Vips, (MALLOC_S)NbVips);
         if (!Vips) {
-            (void)fprintf(stderr, "%s: PID %d: no text recording space\n", Pn,
-                          Lp->pid);
+            if (ctx->err)
+                (void)fprintf(ctx->Err, "%s: PID %d: no text recording space\n",
+                              Pn, Lp->pid);
             Error(ctx);
+            return;
         }
     }
     /*
@@ -234,9 +237,11 @@ void gather_proc_info(struct lsof_context *ctx) {
      * extra); then read the list of PIDs.
      */
     if ((nb = proc_listpids(PROC_ALL_PIDS, 0, NULL, 0)) <= 0) {
-        (void)fprintf(stderr, "%s: can't get PID byte count: %s\n", Pn,
-                      strerror(errno));
+        if (ctx->err)
+            (void)fprintf(ctx->err, "%s: can't get PID byte count: %s\n", Pn,
+                          strerror(errno));
         Error(ctx);
+        return;
     }
     if (nb > NbPids) {
         while (nb > NbPids) {
@@ -247,9 +252,12 @@ void gather_proc_info(struct lsof_context *ctx) {
         else
             Pids = (int *)realloc((MALLOC_P *)Pids, (MALLOC_S)NbPids);
         if (!Pids) {
-            (void)fprintf(stderr, "%s: can't allocate space for %d PIDs\n", Pn,
-                          (int)(NbPids / sizeof(int *)));
+            if (ctx->err)
+                (void)fprintf(ctx->err,
+                              "%s: can't allocate space for %d PIDs\n", Pn,
+                              (int)(NbPids / sizeof(int *)));
             Error(ctx);
+            return;
         }
     }
     /*
@@ -257,9 +265,11 @@ void gather_proc_info(struct lsof_context *ctx) {
      */
     for (ef = 0; !ef;) {
         if ((nb = proc_listpids(PROC_ALL_PIDS, 0, Pids, NbPids)) <= 0) {
-            (void)fprintf(stderr, "%s: can't get list of PIDs: %s\n", Pn,
-                          strerror(errno));
+            if (ctx->err)
+                (void)fprintf(ctx->err, "%s: can't get list of PIDs: %s\n", Pn,
+                              strerror(errno));
             Error(ctx);
+            return;
         }
 
         if ((nb + sizeof(int)) < NbPids) {
@@ -277,9 +287,12 @@ void gather_proc_info(struct lsof_context *ctx) {
             NbPids += PIDS_INCR;
             Pids = (int *)realloc((MALLOC_P *)Pids, (MALLOC_S)NbPids);
             if (!Pids) {
-                (void)fprintf(stderr, "%s: can't allocate space for %d PIDs\n",
-                              Pn, (int)(NbPids / sizeof(int *)));
+                if (ctx->err)
+                    (void)fprintf(ctx->err,
+                                  "%s: can't allocate space for %d PIDs\n", Pn,
+                                  (int)(NbPids / sizeof(int *)));
                 Error(ctx);
+                return;
             }
         }
     }
@@ -293,18 +306,23 @@ void gather_proc_info(struct lsof_context *ctx) {
         if (nb <= 0) {
             if ((errno == EPERM) || (errno == ESRCH))
                 continue;
-            if (!Fwarn) {
-                (void)fprintf(stderr, "%s: PID %d information error: %s\n", Pn,
-                              pid, strerror(errno));
+            if (ctx->err && !Fwarn) {
+                (void)fprintf(ctx->err, "%s: PID %d information error: %s\n",
+                              Pn, pid, strerror(errno));
             }
             continue;
         } else if (nb < sizeof(tai)) {
-            (void)fprintf(stderr,
-                          "%s: PID %d: proc_pidinfo(PROC_PIDTASKALLINFO);\n",
-                          Pn, pid);
-            (void)fprintf(stderr, "      too few bytes; expected %ld, got %d\n",
-                          sizeof(tai), nb);
+            if (ctx->err) {
+                (void)fprintf(
+                    ctx->err,
+                    "%s: PID %d: proc_pidinfo(PROC_PIDTASKALLINFO);\n", Pn,
+                    pid);
+                (void)fprintf(ctx->err,
+                              "      too few bytes; expected %ld, got %d\n",
+                              sizeof(tai), nb);
+            }
             Error(ctx);
+            return;
         }
         /*
          * Check for process or command exclusion.
@@ -339,14 +357,17 @@ void gather_proc_info(struct lsof_context *ctx) {
                 cre = errno;
                 cres = 1;
             } else if (nb < sizeof(vpi)) {
-                (void)fprintf(
-                    stderr,
-                    "%s: PID %d: proc_pidinfo(PROC_PIDVNODEPATHINFO);\n", Pn,
-                    pid);
-                (void)fprintf(stderr,
-                              "      too few bytes; expected %ld, got %d\n",
-                              sizeof(vpi), nb);
+                if (ctx->err) {
+                    (void)fprintf(
+                        ctx->err,
+                        "%s: PID %d: proc_pidinfo(PROC_PIDVNODEPATHINFO);\n",
+                        Pn, pid);
+                    (void)fprintf(ctx->err,
+                                  "      too few bytes; expected %ld, got %d\n",
+                                  sizeof(vpi), nb);
+                }
                 Error(ctx);
+                return;
             } else
                 cres = 0;
         }
@@ -477,9 +498,12 @@ static void process_fds(struct lsof_context *ctx, int pid, /* PID of interest */
         Fds = (struct proc_fdinfo *)realloc((MALLOC_P *)Fds, (MALLOC_S)NbFds);
     }
     if (!Fds) {
-        (void)fprintf(stderr, "%s: PID %d: can't allocate space for %d FDs\n",
-                      Pn, pid, (int)(NbFds / sizeof(struct proc_fdinfo)));
+        if (ctx->err)
+            (void)fprintf(ctx->err,
+                          "%s: PID %d: can't allocate space for %d FDs\n", Pn,
+                          pid, (int)(NbFds / sizeof(struct proc_fdinfo)));
         Error(ctx);
+        return;
     }
     /*
      * Get FD information for the process.
@@ -612,9 +636,12 @@ static void process_fileports(struct lsof_context *ctx,
         } else {
             if (Fps && ((nb = proc_pidinfo(pid, PROC_PIDLISTFILEPORTS, 0, NULL,
                                            0)) <= 0)) {
-                (void)fprintf(stderr, "%s: can't get fileport byte count: %s\n",
-                              Pn, strerror(errno));
+                if (ctx->err)
+                    (void)fprintf(ctx->err,
+                                  "%s: can't get fileport byte count: %s\n", Pn,
+                                  strerror(errno));
                 Error(ctx);
+                return;
             }
 
             /*
@@ -711,12 +738,17 @@ static void process_text(struct lsof_context *ctx, int pid) /* PID */
                 link_lfile(ctx);
             return;
         } else if (nb < sizeof(rwpi)) {
-            (void)fprintf(stderr,
-                          "%s: PID %d: proc_pidinfo(PROC_PIDREGIONPATHINFO);\n",
-                          Pn, pid);
-            (void)fprintf(stderr, "      too few bytes; expected %ld, got %d\n",
-                          sizeof(rwpi), nb);
+            if (ctx->err) {
+                (void)fprintf(
+                    ctx->err,
+                    "%s: PID %d: proc_pidinfo(PROC_PIDREGIONPATHINFO);\n", Pn,
+                    pid);
+                (void)fprintf(ctx->err,
+                              "      too few bytes; expected %ld, got %d\n",
+                              sizeof(rwpi), nb);
+            }
             Error(ctx);
+            return;
         }
         if (rwpi.prp_vip.vip_path[0])
             enter_vn_text(ctx, &rwpi.prp_vip, &n);
@@ -751,9 +783,12 @@ static void process_threads(struct lsof_context *ctx, int pid, /* PID */
             Threads =
                 (uint64_t *)realloc((MALLOC_P *)Threads, (MALLOC_S)NbThreads);
         if (!Threads) {
-            (void)fprintf(stderr, "%s: can't allocate space for %d Threads\n",
-                          Pn, (int)(NbThreads / sizeof(int *)));
+            if (ctx->err)
+                (void)fprintf(ctx->err,
+                              "%s: can't allocate space for %d Threads\n", Pn,
+                              (int)(NbThreads / sizeof(int *)));
             Error(ctx);
+            return;
         }
     }
     /*
@@ -802,12 +837,16 @@ static void process_threads(struct lsof_context *ctx, int pid, /* PID */
                 link_lfile(ctx);
             return;
         } else if (nb < sizeof(tpi)) {
-            (void)fprintf(stderr,
-                          "%s: PID %d: proc_pidinfo(PROC_PIDTHREADPATHINFO);\n",
-                          Pn, pid);
-            (void)fprintf(stderr, "      too few bytes; expected %ld, got %d\n",
+            if (ctx->err)
+                (void)fprintf(
+                    ctx->err,
+                    "%s: PID %d: proc_pidinfo(PROC_PIDTHREADPATHINFO);\n", Pn,
+                    pid);
+            (void)fprintf(ctx->err,
+                          "      too few bytes; expected %ld, got %d\n",
                           sizeof(tpi), nb);
             Error(ctx);
+            return;
         }
         if (tpi.pvip.vip_path[0]) {
             alloc_lfile(ctx, LSOF_FD_TASK_CWD, -1);
