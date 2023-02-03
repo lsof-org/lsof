@@ -53,7 +53,7 @@ void find_bl_ino(struct lsof_context *ctx) {
     dev_t ldev, tdev;
     int low, hi, mid;
 
-    readdev(ctx,0);
+    readdev(ctx, 0);
 
 #    if defined(HASDCACHE)
 find_bl_ino_again:
@@ -79,8 +79,7 @@ find_bl_ino_again:
 #    endif /* defined(HASDCACHE) */
 
             Lf->inode = BSdev[mid]->inode;
-            if (Lf->inp_ty == 0)
-                Lf->inp_ty = 1;
+            Lf->inode_def = 1;
             return;
         }
     }
@@ -96,7 +95,7 @@ void find_ch_ino(struct lsof_context *ctx) {
     dev_t ldev, tdev;
     int low, hi, mid;
 
-    readdev(ctx,0);
+    readdev(ctx, 0);
 
 #    if defined(HASDCACHE)
 find_ch_ino_again:
@@ -122,8 +121,6 @@ find_ch_ino_again:
 #    endif /* defined(HASDCACHE) */
 
             Lf->inode = Sdev[mid]->inode;
-            if (Lf->inp_ty == 0)
-                Lf->inp_ty = 1;
             return;
         }
     }

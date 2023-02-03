@@ -761,7 +761,6 @@ struct sonode *so; /* pointer to socket's sonode */
              */
             (void)snpf(Lf->iproto, IPROTOL - 1, "%s", "TCP");
             Lf->iproto[IPROTOL - 1] = '\0';
-            Lf->inp_ty = 2;
             /*
              * Check for TCP state inclusion or exclusion.
              */
@@ -869,7 +868,6 @@ struct sonode *so; /* pointer to socket's sonode */
              */
             (void)snpf(Lf->iproto, IPROTOL - 1, "%s", "UDP");
             Lf->iproto[IPROTOL - 1] = '\0';
-            Lf->inp_ty = 2;
             /*
              * Check for UDP state inclusion or exclusion.
              */
@@ -972,7 +970,6 @@ struct sonode *so; /* pointer to socket's sonode */
                 ty = "ICMP6";
             (void)snpf(Lf->iproto, IPROTOL - 1, "%s", ty);
             Lf->iproto[IPROTOL - 1] = '\0';
-            Lf->inp_ty = 2;
             /*
              * Read the ICMP control structure.
              */
@@ -1054,7 +1051,6 @@ struct sonode *so; /* pointer to socket's sonode */
          */
         (void)strncpy(Lf->iproto, "ROUTE", IPROTOL - 1);
         Lf->iproto[IPROTOL - 1] = '\0';
-        Lf->inp_ty = 2;
 
         /*
          * Read routing control structure.
@@ -1103,7 +1099,6 @@ struct sonode *so; /* pointer to socket's sonode */
                    so->so_family);
         Namech[Namechl - 1] = '\0';
         enter_nm(Namech);
-        Lf->inp_ty = 2;
     }
     return (1);
 }
@@ -1277,7 +1272,6 @@ char *ty;                            /* socket type name */
                 Lf->sf |= SELNET;
         }
     }
-    Lf->inp_ty = 2;
     /*
      * Convert type to upper case protocol name.
      */

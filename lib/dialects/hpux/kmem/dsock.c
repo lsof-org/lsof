@@ -414,7 +414,6 @@ void process_lla(la) KA_T la; /* link level CB address in kernel */
     size_t sz;
 
     Lf->type = LSOF_FILE_LINK_LEVEL_ACCESS;
-    Lf->inp_ty = 2;
     enter_dev_ch(print_kptr(la, (char *)NULL, 0));
     /*
      * Read link level access control block.
@@ -501,7 +500,6 @@ void process_socket(sa) KA_T sa; /* socket address in kernel */
 #endif     /* HPUXV>=800 */
 
     Lf->type = LSOF_FILE_SOCKET;
-    Lf->inp_ty = 2;
     /*
      * Read socket structure.
      */
@@ -819,7 +817,7 @@ void process_socket(sa) KA_T sa; /* socket address in kernel */
          */
         if (unp.unp_ino) {
             Lf->inode = (INODETYPE)unp.unp_ino;
-            Lf->inp_ty = 1;
+            Lf->inode_def = 1;
         }
         ua = (struct sockaddr_un *)NULL;
         mbl = 0;
@@ -926,8 +924,7 @@ enum vtype vt;                                     /* vnode type */
     Lf->type = LSOF_FILE_INET;
     if (pn) {
         (void)snpf(Lf->iproto, sizeof(Lf->iproto), pn);
-        Lf->inp_ty = 2;
-    } else if (Sfile && (vt != VNON) && Lf->dev_def && (Lf->inp_ty == 1)) {
+    } else if (Sfile && (vt != VNON) && Lf->dev_def && Lf->inode_def) {
 
         /*
          * If the protocol name isn't known and this stream socket's vnode type

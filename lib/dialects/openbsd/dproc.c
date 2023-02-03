@@ -280,7 +280,7 @@ static void process_tty(struct lsof_context *ctx, struct kinfo_proc *proc) {
         /* stat() to get inode */
         if (stat(Namech, &st) == 0 && st.st_rdev == Lf->rdev) {
             Lf->inode = st.st_ino;
-            Lf->inp_ty = 1;
+            Lf->inode_def = 1;
 
             Lf->dev = st.st_dev;
             Lf->dev_def = 1;

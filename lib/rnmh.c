@@ -251,7 +251,7 @@ static int ncache_isroot(struct lsof_context *ctx,
         /*
          * The vnode tests failed.  Try the inode tests.
          */
-        if (Lf->inp_ty != 1 || !Lf->inode || !Lf->fsdir ||
+        if (!Lf->inode_def || !Lf->inode || !Lf->fsdir ||
             (len = strlen(Lf->fsdir)) < 1)
             return (0);
         if ((len + 1 + strlen(cp) + 1) > sizeof(buf))
@@ -638,7 +638,7 @@ char *ncache_lookup(struct lsof_context *ctx,
      * file system mount point, return an empty path reply.  That tells the
      * caller to print the file system mount point name only.
      */
-    if ((Lf->inp_ty == 1) && Lf->fs_ino && (Lf->inode == Lf->fs_ino))
+    if (Lf->inode_def && Lf->fs_ino && (Lf->inode == Lf->fs_ino))
         return (cp);
 #    endif /* defined(HASFSINO) */
 
@@ -658,7 +658,7 @@ char *ncache_lookup(struct lsof_context *ctx,
          * If the node has no cache entry, see if it's the mount
          * point of a known file system.
          */
-        if (!Lf->fsdir || !Lf->dev_def || Lf->inp_ty != 1)
+        if (!Lf->fsdir || !Lf->dev_def || !Lf->inode_def)
             return ((char *)NULL);
         for (mtp = readmnt(ctx); mtp; mtp = mtp->next) {
             if (!mtp->dir || !mtp->inode)

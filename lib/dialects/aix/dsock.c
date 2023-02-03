@@ -74,7 +74,6 @@ void process_socket(sa) KA_T sa; /* socket address in kernel */
      * Set socket file variables.
      */
     Lf->type = LSOF_FILE_VNODE_SOCK;
-    Lf->inp_ty = 2;
     /*
      * Read socket and protocol switch structures.
      */
@@ -395,7 +394,7 @@ void process_socket(sa) KA_T sa; /* socket address in kernel */
                 Lf->dev_ch = (char *)NULL;
             }
             Lf->inode = (INODETYPE)i.number;
-            Lf->inp_ty = i.number_def;
+            Lf->inode_def = i.number_def;
         }
         if (ua->sun_path[0]) {
             if (mb.m_len > sizeof(struct sockaddr_un))

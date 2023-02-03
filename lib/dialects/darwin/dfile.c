@@ -153,7 +153,7 @@ void enter_vnode_info(
      * Save node number.
      */
     Lf->inode = (INODETYPE)vip->vip_vi.vi_stat.vst_ino;
-    Lf->inp_ty = 1;
+    Lf->inode_def = 1;
     /*
      * Save link count, as requested.
      */

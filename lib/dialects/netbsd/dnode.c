@@ -693,8 +693,9 @@ process_overlaid_node:
             if (f_tty_s == 1) {
                 dev = DevDev;
                 rdev = f_tty_dev;
+                devs = rdevs = 1;
                 Lf->inode = f_tty_ino;
-                devs = Lf->inp_ty = rdevs = 1;
+                Lf->inode_def = 1;
             }
         }
         break;
@@ -840,7 +841,7 @@ process_overlaid_node:
                 nn += (INODETYPE)(d.de_diroffset / sizeof(struct direntry));
             }
             Lf->inode = nn;
-            Lf->inp_ty = 1;
+            Lf->inode_def = 1;
         }
         break;
 #endif /* defined(HASMSDOSFS) */
@@ -851,14 +852,14 @@ process_overlaid_node:
 
     case INODE:
         Lf->inode = (INODETYPE)i.i_number;
-        Lf->inp_ty = 1;
+        Lf->inode_def = 1;
         break;
 
 #if defined(HASKERNFS)
     case KERNFSNODE:
         if (ksbs) {
             Lf->inode = (INODETYPE)ksb.st_ino;
-            Lf->inp_ty = 1;
+            Lf->inode_def = 1;
         }
         break;
 #endif /* defined(HASKERNFS) */
@@ -867,20 +868,20 @@ process_overlaid_node:
     case CDFSNODE:
         if (iso_stat) {
             Lf->inode = iso_ino;
-            Lf->inp_ty = 1;
+            Lf->inode_def = 1;
         }
         break;
 #endif /* defined(HAS9660FS) */
 
     case NFSNODE:
         Lf->inode = (INODETYPE)NVATTR.va_fileid;
-        Lf->inp_ty = 1;
+        Lf->inode_def = 1;
         break;
 
 #if defined(HASPROCFS)
     case PFSNODE:
         Lf->inode = (INODETYPE)p.pfs_fileno;
-        Lf->inp_ty = 1;
+        Lf->inode_def = 1;
         break;
 #endif /* defined(HASPROCFS) */
 
@@ -893,14 +894,14 @@ process_overlaid_node:
                 Lf->inode = (INODETYPE)(pt.ptyfs_fileno - 1);
         } else
             Lf->inode = (INODETYPE)pt.ptyfs_fileno;
-        Lf->inp_ty = 1;
+        Lf->inode_def = 1;
         break;
 #endif /* defined(HASPTYFS) */
 
 #if defined(HASTMPFS)
     case TMPFSNODE:
         Lf->inode = (INODETYPE)tmp.tn_id;
-        Lf->inp_ty = 1;
+        Lf->inode_def = 1;
         break;
 #endif /* defined(HASTMPFS) */
     }
@@ -1337,7 +1338,7 @@ process_overlaid_node:
      * If this is a VBLK file and it's missing an inode number, try to
      * supply one.
      */
-    if ((Lf->inp_ty == 0) && (type == VBLK))
+    if (!Lf->inode_def && (type == VBLK))
         find_bl_ino(ctx);
 #endif /* defined(HASBLKDEV) */
 
@@ -1345,7 +1346,7 @@ process_overlaid_node:
      * If this is a VCHR file and it's missing an inode number, try to
      * supply one.
      */
-    if ((Lf->inp_ty == 0) && (type == VCHR))
+    if (!Lf->inode_def && (type == VCHR))
         find_ch_ino(ctx);
         /*
          * Test for specified file.
@@ -1361,7 +1362,7 @@ process_overlaid_node:
                 if ((pfi->pid && pfi->pid == p.pfs_pid)
 
 #    if defined(HASPINODEN)
-                    || ((Lf->inp_ty == 1) && (pfi->inode == Lf->inode))
+                    || (Lf->inode_def && (pfi->inode == Lf->inode))
 #    endif /* defined(HASPINODEN) */
 
                 ) {

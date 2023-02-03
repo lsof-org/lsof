@@ -117,7 +117,7 @@ void alloc_lfile(struct lsof_context *ctx,
      */
     Lf->access = LSOF_FILE_ACCESS_NONE;
     Lf->lock = LSOF_LOCK_NONE;
-    Lf->dev_def = Lf->inp_ty = Lf->is_com = Lf->is_nfs = Lf->is_stream =
+    Lf->dev_def = Lf->inode_def = Lf->is_com = Lf->is_nfs = Lf->is_stream =
         Lf->lmi_srch = Lf->nlink_def = Lf->off_def = Lf->sz_def = Lf->rdev_def =
             (unsigned char)0;
     Lf->li[0].af = Lf->li[1].af = 0;
@@ -920,7 +920,7 @@ void process_pinfo(struct lsof_context *ctx,
     if (!FeptE)
         return;
     for (Lf = Lp->file; Lf; Lf = Lf->next) {
-        if ((Ntype != N_FIFO) || (Lf->inp_ty != 1))
+        if ((Ntype != N_FIFO) || !Lf->inode_def)
             continue;
         pp = (pxinfo_t *)NULL;
         switch (f) {

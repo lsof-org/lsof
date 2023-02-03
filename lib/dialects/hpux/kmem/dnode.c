@@ -669,14 +669,14 @@ void process_node(va) KA_T va; /* vnode kernel space address */
     case N_AFS:
         if (an.ino_st) {
             Lf->inode = (INODETYPE)an.inode;
-            Lf->inp_ty = 1;
+            Lf->inode_def = 1;
         }
         break;
 #endif /* defined(HAS_AFS) */
 
     case N_MVFS:
         Lf->inode = (INODETYPE)m.m_ino;
-        Lf->inp_ty = 1;
+        Lf->inode_def = 1;
         break;
     case N_NFS:
 
@@ -686,22 +686,22 @@ void process_node(va) KA_T va; /* vnode kernel space address */
         Lf->inode = (INODETYPE)r.r_attr.va_nodeid;
 #endif /* HPUXV<1030 */
 
-        Lf->inp_ty = 1;
+        Lf->inode_def = 1;
         break;
 
 #if HPUXV >= 1000
     case N_CDFS:
         Lf->inode = (INODETYPE)c.cd_num;
-        Lf->inp_ty = 1;
+        Lf->inode_def = 1;
         break;
     case N_FIFO:
     case N_PIPE:
         if (vats) {
             Lf->inode = (INODETYPE)vat.va_nodeid;
-            Lf->inp_ty = 1;
+            Lf->inode_def = 1;
         } else {
             Lf->inode = (INODETYPE)v->v_nodeid;
-            Lf->inp_ty = 1;
+            Lf->inode_def = 1;
         }
         break;
 #endif /* HPUXV>=1000 */
@@ -718,7 +718,7 @@ void process_node(va) KA_T va; /* vnode kernel space address */
 #    if HPUXV >= 900
         if (rns) {
             Lf->inode = (INODETYPE)r.r_nfsattr.na_nodeid;
-            Lf->inp_ty = 1;
+            Lf->inode_def = 1;
             break;
         }
 #    endif /* HPUXV>=900 */
@@ -731,7 +731,7 @@ void process_node(va) KA_T va; /* vnode kernel space address */
     case N_SPEC:
         if (ins) {
             Lf->inode = (INODETYPE)i.i_number;
-            Lf->inp_ty = 1;
+            Lf->inode_def = 1;
         }
     }
 
@@ -997,7 +997,7 @@ void process_node(va) KA_T va; /* vnode kernel space address */
      * If this is a VBLK file and it's missing an inode number, try to
      * supply one.
      */
-    if ((Lf->inp_ty == 0) && (type == VBLK))
+    if (!Lf->inode_def && (type == VBLK))
         find_bl_ino();
 #endif /* defined(HASBLKDEV) */
 
@@ -1005,7 +1005,7 @@ void process_node(va) KA_T va; /* vnode kernel space address */
      * If this is a VCHR file and it's missing an inode number, try to
      * supply one.
      */
-    if ((Lf->inp_ty == 0) && (type == VCHR))
+    if (!Lf->inode_def && (type == VCHR))
         find_ch_ino();
     /*
      * Test for specified file.

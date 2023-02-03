@@ -764,7 +764,6 @@ struct queue *q;                     /* queue at end of stream */
     /*
      * Process protocol specification.
      */
-    Lf->inp_ty = 2;
     (void)snpf(Lf->iproto, sizeof(Lf->iproto), "%s", pr);
     Lf->is_stream = 0;
     if (strcasecmp(pr, "TCP") == 0) {

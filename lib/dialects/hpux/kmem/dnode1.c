@@ -126,7 +126,7 @@ int *rdevs;        /* raw device status receiver */
      * Record inode number.
      */
     Lf->inode = (INODETYPE)i.i_number;
-    Lf->inp_ty = 1;
+    Lf->inode_def = 1;
     /*
      * Record size.
      */

@@ -382,7 +382,6 @@ void process_socket(struct lsof_context *ctx, struct kinfo_file *kf,
     int unl;
 
     Lf->type = LSOF_FILE_SOCKET;
-    Lf->inp_ty = 2;
     /*
      * Read the socket, protocol, and domain structures.
      */

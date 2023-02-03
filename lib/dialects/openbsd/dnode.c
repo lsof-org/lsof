@@ -107,7 +107,7 @@ void process_vnode(struct lsof_context *ctx, struct kinfo_file *file) {
 
     /* Fill inode */
     Lf->inode = file->va_fileid;
-    Lf->inp_ty = 1;
+    Lf->inode_def = 1;
 
     /* Fill dev && rdef */
     Lf->dev = file->va_fsid;

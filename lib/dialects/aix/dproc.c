@@ -1305,7 +1305,7 @@ static void process_text(pid) pid_t pid; /* process PID */
     if (la->exec && !kread((KA_T)la->exec, (char *)&le, sizeof(le)) && le.fp) {
         alloc_lfile(LSOF_FD_PROGRAM_TEXT, -1);
         process_file((KA_T)le.fp);
-        if (Lf->dev_def && (Lf->inp_ty == 1)) {
+        if (Lf->dev_def && Lf->inode_def) {
             xdev = Lf->dev;
             xnode = Lf->inode;
             xs = 1;
@@ -1362,7 +1362,7 @@ static void process_text(pid) pid_t pid; /* process PID */
          */
         (void)snpf(fd, sizeof(fd), "L%02d", i++);
         alloc_lfile(fd, -1);
-        Lf->dev_def = Lf->inp_ty = Lf->nlink_def = Lf->sz_def = 1;
+        Lf->dev_def = Lf->inode_def = Lf->nlink_def = Lf->sz_def = 1;
         Lf->dev = sb.st_dev;
         Lf->inode = (INODETYPE)sb.st_ino;
         Lf->type = LSOF_FILE_VNODE_VREG;

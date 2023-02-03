@@ -453,8 +453,6 @@ void process_node(na) KA_T na; /* inode kernel space address */
                     if (udptm && !Lf->nma)
                         (void)udp_tm(udp.ud_ftime);
                 }
-                if (!i.i_number)
-                    Lf->inp_ty = 2;
             }
         } else {
             if (ity) {
@@ -504,7 +502,7 @@ void process_node(na) KA_T na; /* inode kernel space address */
         if ((Lf->inode = (unsigned long)i.i_number))
 #endif /* OSRV<500 */
 
-            Lf->inp_ty = 1;
+            Lf->inode_def = 1;
         break;
 
 #if defined(HAS_NFS)
@@ -513,17 +511,17 @@ void process_node(na) KA_T na; /* inode kernel space address */
 #    if OSRV < 500
         n = (unsigned short *)&r.r_fh.fh_pad[14];
         if ((Lf->inode = (unsigned long)ntohs(*n)))
-            Lf->inp_ty = 1;
+            Lf->inode_def = 1;
         else if ((Lf->inode = (unsigned long)r.r_fh.fh_u.fh_fgen_u))
 #    else  /* OSRV>=500 */
         n = (unsigned short *)&r.r_fh.fh_u.fh_fid_u[4];
         n1 = (unsigned short *)&r.r_fh.fh_u.fh_fid_u[2];
         if ((Lf->inode = (unsigned long)*n))
-            Lf->inp_ty = 1;
+            Lf->inode_def = 1;
         else if ((Lf->inode = (unsigned long)*n1))
 #    endif /* OSRV<500 */
 
-            Lf->inp_ty = 1;
+            Lf->inode_def = 1;
         break;
 #endif /* defined(HAS_NFS) */
 
@@ -547,7 +545,7 @@ void process_node(na) KA_T na; /* inode kernel space address */
 
         if (i.i_number) {
             Lf->inode = (unsigned long)i.i_number;
-            Lf->inp_ty = 1;
+            Lf->inode_def = 1;
         }
         break;
     }
@@ -675,7 +673,7 @@ void process_node(na) KA_T na; /* inode kernel space address */
      * If this is a IFBLK file and it's missing an inode number, try to
      * supply one.
      */
-    if ((Lf->inp_ty == 0) && (type == IFBLK))
+    if (!Lf->inode_def && (type == IFBLK))
         find_bl_ino();
 #endif /* defined(HASBLKDEV) */
 
@@ -683,7 +681,7 @@ void process_node(na) KA_T na; /* inode kernel space address */
      * If this is a IFCHR file and it's missing an inode number, try to
      * supply one.
      */
-    if ((Lf->inp_ty == 0) && (type == IFCHR))
+    if (!Lf->inode_def && (type == IFCHR))
         find_ch_ino();
     /*
      * Test for specified file.

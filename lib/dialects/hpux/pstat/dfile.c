@@ -258,7 +258,7 @@ struct psfileid *ps; /* psfileid */
         return (1);
 
 #    if defined(HASFSINO)
-    if (!Lf->fs_ino || (Lf->inp_ty != 1) || !Lf->dev_def)
+    if (!Lf->fs_ino || !Lf->inode_def || !Lf->dev_def)
         return (0);
     if ((Lf->dev == (dev_t)ps->psf_fsid.psfs_id) &&
         (Lf->fs_ino == (unsigned long)ps->psf_fileid))
@@ -414,7 +414,7 @@ int *fp;   /* full path reply */
      * file system mount point, return an empty path reply.  That tells the
      * caller that the already-printed system mount point name is sufficient.
      */
-    if (Lf->inp_ty == 1 && Lf->fs_ino && Lf->inode == Lf->fs_ino)
+    if (Lf->inode_def && Lf->fs_ino && Lf->inode == Lf->fs_ino)
         return (cp);
 #    endif /* defined(HASFSINO) */
 
@@ -444,7 +444,7 @@ int *fp;   /* full path reply */
          */
 
 #    if defined(HASFSINO)
-        if (Lf->fs_ino && (Lf->inp_ty == 1) && (Lf->fs_ino == Lf->inode))
+        if (Lf->fs_ino && Lf->inode_def && (Lf->fs_ino == Lf->inode))
             return (cp);
 #    endif /* defined(HASFSINO) */
 
@@ -684,7 +684,7 @@ KA_T na;                /* node address */
      * Save node number.
      */
     Lf->inode = (INODETYPE)pd->psfd_ino;
-    Lf->inp_ty = 1;
+    Lf->inode_def = 1;
     /*
      * Save link count.
      */

@@ -191,7 +191,7 @@ enum lsof_error lsof_gather(struct lsof_context *ctx,
 
             /* NODE column */
             f->inode = lf->inode;
-            f->inode_valid = lf->inp_ty == 1 || lf->inp_ty == 3;
+            f->inode_valid = lf->inode_def;
 
             /* NAME column */
             f->name = lf->nm;

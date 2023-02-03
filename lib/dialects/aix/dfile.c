@@ -260,7 +260,7 @@ int ic;        /* is clone file (4.1.4 and above) */
      */
     if (ic && HbyFdiCt && CloneMaj >= 0 &&
         (Lf->dev_def && (maj = dmaj) && (min == dmin)) && Lf->rdev_def &&
-        (Lf->inp_ty == 1 || Lf->inp_ty == 3)) {
+        Lf->inode_def) {
         for (sh = &HbyFdi[SFHASHDEVINO(CloneMaj, rmaj, Lf->inode, SFDIHASH)];
              sh; sh = sh->next) {
             if ((s = sh->s) && (GET_MAJ_DEV(s->rdev) == CloneMaj) &&
@@ -301,7 +301,7 @@ int ic;        /* is clone file (4.1.4 and above) */
     /*
      * Check for a regular file.
      */
-    if (!f && HbyFdiCt && Lf->dev_def && (Lf->inp_ty == 1 || Lf->inp_ty == 3)) {
+    if (!f && HbyFdiCt && Lf->dev_def && Lf->inode_def) {
         for (sh = &HbyFdi[SFHASHDEVINO(maj, min, Lf->inode, SFDIHASH)]; sh;
              sh = sh->next) {
             if ((s = sh->s) && (maj == GET_MAJ_DEV(s->dev)) &&
@@ -329,7 +329,7 @@ int ic;        /* is clone file (4.1.4 and above) */
      */
     if (!f && HbyFrdCt && ((ty == VCHR) || (ty == VBLK)) &&
         (Lf->dev_def && (maj == dmaj) && (min == dmin)) && Lf->rdev_def &&
-        (Lf->inp_ty == 1 || Lf->inp_ty == 3)) {
+        Lf->inode_def) {
         for (sh = &HbyFrd[SFHASHRDEVI(maj, min, rmaj, rmin, Lf->inode,
                                       SFRDHASH)];
              sh; sh = sh->next) {

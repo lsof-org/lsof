@@ -908,7 +908,7 @@ get_lock_state:
                  */
                 if ((dp = findstrdev(&DevDev, (dev_t *)&v.v_rdev))) {
                     Lf->inode = dp->inode;
-                    Lf->inp_ty = 1;
+                    Lf->inode_def = 1;
                     Namech[j++] = ':';
                     k = strlen(dp->name);
                     if ((j + k) <= (Namechl - 1)) {
@@ -1114,13 +1114,13 @@ get_lock_state:
 
     case N_NFS:
         Lf->inode = (INODETYPE)r.r_attr.va_nodeid;
-        Lf->inp_ty = 1;
+        Lf->inode_def = 1;
         break;
 
 #if defined(HASPROCFS)
     case N_PROC:
         Lf->inode = i.number;
-        Lf->inp_ty = 1;
+        Lf->inode_def = 1;
         break;
 #endif /* defined(HASPROCFS) */
 
@@ -1128,7 +1128,7 @@ get_lock_state:
         if (!f.fn_realvp) {
             enter_dev_ch(print_kptr((KA_T)v.v_data, (char *)NULL, 0));
             Lf->inode = (INODETYPE)f.fn_ino;
-            Lf->inp_ty = 1;
+            Lf->inode_def = 1;
             if (f.fn_flag & ISPIPE)
                 (void)snpf(Namech, Namechl, "PIPE");
             if (f.fn_mate) {
@@ -1143,13 +1143,13 @@ get_lock_state:
     case N_REGLR:
         if (!ni) {
             Lf->inode = i.number;
-            Lf->inp_ty = (Ntype == N_CFS) ? i.number_def : 1;
+            Lf->inode_def = (Ntype == N_CFS) ? i.number_def : 1;
         }
         break;
     case N_STREAM:
         if (sqp && so.lux_dev.size >= 8) {
             Lf->inode = (INODETYPE)so.lux_dev.addr.tu_addr.ino;
-            Lf->inp_ty = 1;
+            Lf->inode_def = 1;
         }
     }
     /*
@@ -1292,13 +1292,13 @@ get_lock_state:
      * If this is a VBLK file and it's missing an inode number, try to
      * supply one.
      */
-    if ((Lf->inp_ty == 0) && (Ntype == N_BLK))
+    if (!Lf->inode_def && (Ntype == N_BLK))
         find_bl_ino();
     /*
      * If this is a VCHR file and it's missing an inode number, try to
      * supply one.
      */
-    if ((Lf->inp_ty == 0) && (type == VCHR))
+    if (!Lf->inode_def && (type == VCHR))
         find_ch_ino();
     /*
      * If this is a stream with a "sockmod" module whose q_ptr leads to an
@@ -1317,7 +1317,7 @@ get_lock_state:
                 Lf->sf = SELNM;
             if (so.lux_dev.size >= 8) {
                 Lf->inode = (INODETYPE)so.lux_dev.addr.tu_addr.ino;
-                Lf->inp_ty = 1;
+                Lf->inode_def = 1;
             }
         }
         if (so.so_conn) {
@@ -1342,7 +1342,7 @@ get_lock_state:
                 if ((pfi->pid && pid && pfi->pid == (pid_t)pid)
 
 #    if defined(HASPINODEN)
-                    || ((Lf->inp_ty == 1) && (Lf->inode == pfi->inode))
+                    || (Lf->inode_def && (Lf->inode == pfi->inode))
 #    endif /* defined(HASPINODEN) */
 
                 ) {

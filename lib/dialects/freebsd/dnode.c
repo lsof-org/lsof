@@ -202,7 +202,7 @@ void process_shm(struct lsof_context *ctx, struct kinfo_file *kf) {
     Lf->off_def = 0;
     if (kf->kf_un.kf_file.kf_file_fileid != VNOVAL) {
         Lf->inode = kf->kf_un.kf_file.kf_file_fileid;
-        Lf->inp_ty = 1;
+        Lf->inode_def = 1;
     }
     if (kf->kf_path[0]) {
         snpf(Namech, Namechl, "%s", kf->kf_path);
@@ -466,7 +466,7 @@ process_overlaid_node:
      */
     if (kf->kf_un.kf_file.kf_file_fileid != VNOVAL) {
         Lf->inode = kf->kf_un.kf_file.kf_file_fileid;
-        Lf->inp_ty = 1;
+        Lf->inode_def = 1;
     }
 
     /*
@@ -596,7 +596,7 @@ process_overlaid_node:
      * If this is a VBLK file and it's missing an inode number, try to
      * supply one.
      */
-    if ((Lf->inp_ty == 0) && (kf_vtype == KF_VTYPE_VBLK))
+    if (!Lf->inode_def && (kf_vtype == KF_VTYPE_VBLK))
         find_bl_ino();
 #endif /* defined(HASBLKDEV) */
 
@@ -604,7 +604,7 @@ process_overlaid_node:
      * If this is a VCHR file and it's missing an inode number, try to
      * supply one.
      */
-    if ((Lf->inp_ty == 0) && (kf_vtype == KF_VTYPE_VCHR))
+    if (!Lf->inode_def && (kf_vtype == KF_VTYPE_VCHR))
         find_ch_ino(ctx);
     /*
      * Test for specified file.
@@ -619,7 +619,7 @@ process_overlaid_node:
                 if ((pfi->pid && proc_pid && pfi->pid == proc_pid)
 
 #if defined(HASPINODEN)
-                    || (Lf->inp_ty == 1 && Lf->inode == pfi->inode)
+                    || (Lf->inode_def && Lf->inode == pfi->inode)
 #else  /* !defined(HASPINODEN) */
                         if (pfi->pid == p->pfs_pid)
 #endif /* defined(HASPINODEN) */
@@ -747,7 +747,7 @@ void process_pts(struct lsof_context *ctx, struct kinfo_file *kf) {
      */
     Lf->dev = DevDev;
     Lf->inode = (INODETYPE)kf->kf_un.kf_pts.kf_pts_dev;
-    Lf->inp_ty = Lf->dev_def = Lf->rdev_def = 1;
+    Lf->inode_def = Lf->dev_def = Lf->rdev_def = 1;
     Ntype = N_CHR;
     Lf->off_def = 1;
     Lf->rdev = kf->kf_un.kf_pts.kf_pts_dev;

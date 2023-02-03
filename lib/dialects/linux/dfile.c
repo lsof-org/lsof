@@ -233,8 +233,7 @@ int is_file_named(struct lsof_context *ctx,
     /*
      * Check for a regular file by device and inode number.
      */
-    if (!f && (search_type < 2) && HbyFdiCt && Lf->dev_def &&
-        (Lf->inp_ty == 1 || Lf->inp_ty == 3)) {
+    if (!f && (search_type < 2) && HbyFdiCt && Lf->dev_def && Lf->inode_def) {
         for (sh = &HbyFdi[SFHASHDEVINO(GET_MAJ_DEV(Lf->dev),
                                        GET_MIN_DEV(Lf->dev), Lf->inode,
                                        SFDIHASH)];
@@ -289,8 +288,7 @@ int is_file_named(struct lsof_context *ctx,
      * Check for a character or block device match.
      */
     if (!f && !search_type && HbyFrdCt && cd && Lf->dev_def &&
-        (Lf->dev == DevDev) && Lf->rdev_def &&
-        (Lf->inp_ty == 1 || Lf->inp_ty == 3)) {
+        (Lf->dev == DevDev) && Lf->rdev_def && Lf->inode_def) {
         for (sh = &HbyFrd[SFHASHRDEVI(
                  GET_MAJ_DEV(Lf->dev), GET_MIN_DEV(Lf->dev),
                  GET_MAJ_DEV(Lf->rdev), GET_MIN_DEV(Lf->rdev), Lf->inode,

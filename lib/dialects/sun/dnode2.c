@@ -263,7 +263,7 @@ struct lfile *lf; /* file whose name is to be printed */
      * This must be a VxFS file, it must have an inode and its mount point must
      * be known.
      */
-    if (!lf->is_vxfs || (lf->inp_ty != 1) || !lf->fsdir)
+    if (!lf->is_vxfs || !lf->inode_def || !lf->fsdir)
         return (0);
     /*
      * Locate or create an RNL mount point cache entry.

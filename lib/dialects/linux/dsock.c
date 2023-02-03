@@ -3589,7 +3589,7 @@ void process_proc_sock(struct lsof_context *ctx,
         if (ap->dev_ch)
             (void)enter_dev_ch(ctx, ap->dev_ch);
         Lf->inode = ap->inode;
-        Lf->inp_ty = 1;
+        Lf->inode_def = 1;
         print_ax25info(ctx, ap);
         return;
     }
@@ -3608,7 +3608,7 @@ void process_proc_sock(struct lsof_context *ctx,
          */
         Lf->type = LSOF_FILE_IPX;
         Lf->inode = (INODETYPE)s->st_ino;
-        Lf->inp_ty = 1;
+        Lf->inode_def = 1;
 
         if (ss & SB_DEV) {
             Lf->dev = s->st_dev;
@@ -3666,7 +3666,7 @@ void process_proc_sock(struct lsof_context *ctx,
          */
         Lf->type = LSOF_FILE_RAW;
         Lf->inode = (INODETYPE)s->st_ino;
-        Lf->inp_ty = 1;
+        Lf->inode_def = 1;
 
         cp = Namech;
         nl = Namechl - 2;
@@ -3733,7 +3733,7 @@ void process_proc_sock(struct lsof_context *ctx,
             (void)snpf(Namech, Namechl, "unknown protocol: %d", np->pr);
 
         Lf->inode = (INODETYPE)s->st_ino;
-        Lf->inp_ty = 1;
+        Lf->inode_def = 1;
         if (Namech[0])
             enter_nm(ctx, Namech);
         return;
@@ -3763,7 +3763,6 @@ void process_proc_sock(struct lsof_context *ctx,
             cp = tbuf;
         }
         (void)snpf(Lf->iproto, sizeof(Lf->iproto), "%.*s", IPROTOL - 1, cp);
-        Lf->inp_ty = 2;
         if (ss & SB_INO) {
             (void)snpf(tbuf, sizeof(tbuf), "%" INODEPSPEC "d",
                        (INODETYPE)s->st_ino);
@@ -3794,7 +3793,7 @@ void process_proc_sock(struct lsof_context *ctx,
         if (up->pcb)
             enter_dev_ch(ctx, up->pcb);
         Lf->inode = (INODETYPE)s->st_ino;
-        Lf->inp_ty = 1;
+        Lf->inode_def = 1;
 
         Lf->lts.type = up->ty;
 #if defined(HASSOOPT)
@@ -3834,20 +3833,20 @@ void process_proc_sock(struct lsof_context *ctx,
                  * Note: that requires the saving, temporary modification and
                  *	 restoration of some *Lf values.
                  */
-                unsigned char sv_dev_def;  /* saved dev_def */
-                unsigned char sv_inp_ty;   /* saved inp_ty */
-                unsigned char sv_rdev_def; /* saved rdev_def */
-                dev_t sv_dev;              /* saved dev */
-                INODETYPE sv_inode;        /* saved inode */
-                dev_t sv_rdev;             /* saved rdev */
+                unsigned char sv_dev_def;   /* saved dev_def */
+                unsigned char sv_inode_def; /* saved inode_def */
+                unsigned char sv_rdev_def;  /* saved rdev_def */
+                dev_t sv_dev;               /* saved dev */
+                INODETYPE sv_inode;         /* saved inode */
+                dev_t sv_rdev;              /* saved rdev */
 
                 sv_dev_def = Lf->dev_def;
                 sv_dev = Lf->dev;
                 sv_inode = Lf->inode;
-                sv_inp_ty = Lf->inp_ty;
+                sv_inode_def = Lf->inode_def;
                 sv_rdev_def = Lf->rdev_def;
                 sv_rdev = Lf->rdev;
-                Lf->dev_def = Lf->inp_ty = Lf->rdev_def = 1;
+                Lf->dev_def = Lf->inode_def = Lf->rdev_def = 1;
                 Lf->dev = up->sb_dev;
                 Lf->inode = up->sb_ino;
                 Lf->rdev = up->sb_rdev;
@@ -3858,7 +3857,7 @@ void process_proc_sock(struct lsof_context *ctx,
                 Lf->dev_def = sv_dev_def;
                 Lf->dev = sv_dev;
                 Lf->inode = sv_inode;
-                Lf->inp_ty = sv_inp_ty;
+                Lf->inode_def = sv_inode_def;
                 Lf->rdev_def = sv_rdev_def;
                 Lf->rdev = sv_rdev;
             }
@@ -3898,7 +3897,7 @@ void process_proc_sock(struct lsof_context *ctx,
         Lf->type = LSOF_FILE_RAW6;
         if (ss & SB_INO) {
             Lf->inode = (INODETYPE)s->st_ino;
-            Lf->inp_ty = 1;
+            Lf->inode_def = 1;
         }
         cp = Namech;
         nl = MAXPATHLEN - 2;
@@ -4007,7 +4006,6 @@ void process_proc_sock(struct lsof_context *ctx,
             Lf->sf |= SELNET;
         Lf->type = LSOF_FILE_IPV6;
         (void)snpf(Lf->iproto, sizeof(Lf->iproto), "%.*s", IPROTOL - 1, pr);
-        Lf->inp_ty = 2;
         if (ss & SB_INO) {
             (void)snpf(tbuf, sizeof(tbuf), "%" INODEPSPEC "d",
                        (INODETYPE)s->st_ino);
@@ -4121,7 +4119,6 @@ void process_proc_sock(struct lsof_context *ctx,
 #endif /* defined(HASIPv6) */
 
         (void)snpf(Lf->iproto, sizeof(Lf->iproto), "%.*s", IPROTOL - 1, pr);
-        Lf->inp_ty = 2;
         if (ss & SB_INO) {
             (void)snpf(tbuf, sizeof(tbuf), "%" INODEPSPEC "d",
                        (INODETYPE)s->st_ino);
@@ -4177,7 +4174,6 @@ void process_proc_sock(struct lsof_context *ctx,
          */
         Lf->type = LSOF_FILE_SOCKET;
         (void)snpf(Lf->iproto, sizeof(Lf->iproto), "%.*s", IPROTOL - 1, "SCTP");
-        Lf->inp_ty = 2;
         (void)snpf(tbuf, sizeof(tbuf), "%" INODEPSPEC "d",
                    (INODETYPE)s->st_ino);
         tbuf[sizeof(tbuf) - 1] = '\0';
@@ -4230,7 +4226,7 @@ void process_proc_sock(struct lsof_context *ctx,
          */
         Lf->type = LSOF_FILE_ICMP;
         Lf->inode = (INODETYPE)s->st_ino;
-        Lf->inp_ty = 1;
+        Lf->inode_def = 1;
         cp = Namech;
         nl = Namechl - 2;
         *cp = '\0';
@@ -4269,7 +4265,7 @@ void process_proc_sock(struct lsof_context *ctx,
     Lf->type = LSOF_FILE_SOCKET;
     if (ss & SB_INO) {
         Lf->inode = (INODETYPE)s->st_ino;
-        Lf->inp_ty = 1;
+        Lf->inode_def = 1;
     }
     if (ss & SB_DEV) {
         Lf->dev = s->st_dev;

@@ -428,7 +428,7 @@ void process_node(va) KA_T va; /* vnode kernel space address */
                          */
                         ic = 1;
                         Lf->inode = cl->cd.inode;
-                        Lf->inp_ty = 1;
+                        Lf->inode_def = 1;
                         if (ClonePtc >= 0 &&
                             GET_MAJ_DEV(g.gn_rdev) == ClonePtc) {
                             if (Selinet) {
@@ -493,7 +493,7 @@ void process_node(va) KA_T va; /* vnode kernel space address */
                                  * pointer.  Process the stream as a socket.
                                  */
                                 Namech[0] = '\0';
-                                Lf->inp_ty = 0;
+                                Lf->inode_def = 0;
                                 (void)process_socket(ka);
                                 return;
                             }
@@ -836,7 +836,7 @@ void process_node(va) KA_T va; /* vnode kernel space address */
     case N_AFS:
         if (an.ino_st) {
             Lf->inode = (INODETYPE)an.inode;
-            Lf->inp_ty = 1;
+            Lf->inode_def = 1;
         }
         break;
 #endif /* defined(HAS_AFS) */
@@ -845,7 +845,7 @@ void process_node(va) KA_T va; /* vnode kernel space address */
     case N_NFS:
         if (nfss) {
             Lf->inode = (INODETYPE)nfs_attr.va_serialno;
-            Lf->inp_ty = 1;
+            Lf->inode_def = 1;
         }
         break;
 #endif /* defined(HAS_NFS) */
@@ -859,7 +859,7 @@ void process_node(va) KA_T va; /* vnode kernel space address */
              * IBM makes the SANFS header files available in /usr/include.
              */
             /* Lf->inode = ???	DEBUG */
-            Lf->inp_ty = 1;
+            Lf->inode_def = 1;
         }
         break;
 #endif /* defined(HAS_SANFS) */
@@ -874,7 +874,7 @@ void process_node(va) KA_T va; /* vnode kernel space address */
     case N_REGLR:
         if (ins) {
             Lf->inode = (INODETYPE)i.number;
-            Lf->inp_ty = i.number_def;
+            Lf->inode_def = i.number_def;
         }
     }
     /*
@@ -1091,7 +1091,7 @@ void process_node(va) KA_T va; /* vnode kernel space address */
         Lf->ch = g.gn_chan;
 
 #if AIXV < 3200
-        Lf->inp_ty = 0;
+        Lf->inode_def = 0;
 #endif /* AIXV<3200 */
 
         Ntype = N_CHR;
@@ -1111,7 +1111,7 @@ void process_node(va) KA_T va; /* vnode kernel space address */
      * If this is a VBLK file and it's missing an inode number, try to
      * supply one.
      */
-    if ((Lf->inp_ty == 0) && (type == VBLK))
+    if (!Lf->inode_def && (type == VBLK))
         find_bl_ino();
 #endif /* defined(HASBLKDEV) */
 
@@ -1119,7 +1119,7 @@ void process_node(va) KA_T va; /* vnode kernel space address */
      * If this is a VCHR file and it's missing an inode number, try to
      * supply one.
      */
-    if ((Lf->inp_ty == 0) && (type == VCHR))
+    if (!Lf->inode_def && (type == VCHR))
         find_ch_ino();
     /*
      * Test for specified file.

@@ -1056,28 +1056,16 @@ void print_file() {
     /*
      * Size or print the inode information.
      */
-    switch (Lf->inp_ty) {
-    case 1:
-
+    if (Lf->iproto[0]) {
+        cp = Lf->iproto;
+    } else if (Lf->inode_def) {
 #if defined(HASPRINTINO)
         cp = HASPRINTINO(Lf);
 #else  /* !defined(HASPRINTINO) */
         (void)snpf(buf, sizeof(buf), "%" INODEPSPEC "d", Lf->inode);
         cp = buf;
 #endif /* defined(HASPRINTINO) */
-
-        break;
-    case 2:
-        if (Lf->iproto[0])
-            cp = Lf->iproto;
-        else
-            cp = "";
-        break;
-    case 3:
-        (void)snpf(buf, sizeof(buf), ctx->inode_fmt_x, Lf->inode);
-        cp = buf;
-        break;
-    default:
+    } else {
         cp = "";
     }
     if (!PrPass) {
@@ -2019,7 +2007,7 @@ int print_proc() {
             putchar(Terminator);
             lc++;
         }
-        if (FieldSel[LSOF_FIX_INODE].st && Lf->inp_ty == 1) {
+        if (FieldSel[LSOF_FIX_INODE].st && Lf->inode_def) {
             putchar(LSOF_FID_INODE);
             (void)printf("%" INODEPSPEC "d", Lf->inode);
             putchar(Terminator);
@@ -2029,7 +2017,7 @@ int print_proc() {
             (void)printf("%c%ld%c", LSOF_FID_NLINK, Lf->nlink, Terminator);
             lc++;
         }
-        if (FieldSel[LSOF_FIX_PROTO].st && Lf->inp_ty == 2) {
+        if (FieldSel[LSOF_FIX_PROTO].st && Lf->iproto[0]) {
             for (cp = Lf->iproto; *cp == ' '; cp++)
                 ;
             if (*cp) {

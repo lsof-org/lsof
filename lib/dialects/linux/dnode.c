@@ -802,7 +802,7 @@ void process_proc_node(struct lsof_context *ctx,
      */
     if (ss & SB_INO) {
         Lf->inode = (INODETYPE)s->st_ino;
-        Lf->inp_ty = 1;
+        Lf->inode_def = 1;
 
 #if defined(HASEPTOPTS)
         if ((Ntype == N_FIFO) && FeptE) {
@@ -817,7 +817,7 @@ void process_proc_node(struct lsof_context *ctx,
     /*
      * Check for a lock.
      */
-    if (Lf->dev_def && (Lf->inp_ty == 1))
+    if (Lf->dev_def && Lf->inode_def)
         (void)check_lock(ctx);
     /*
      * Save the file size.

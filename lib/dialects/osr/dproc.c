@@ -1560,7 +1560,7 @@ int *fp;   /* full path reply */
      * file system mount point, return an empty path reply.  That tells the
      * caller to print the file system mount point name only.
      */
-    if (Lf->inp_ty == 1 && Lf->fs_ino && Lf->inode == Lf->fs_ino)
+    if (Lf->inode_def && Lf->fs_ino && Lf->inode == Lf->fs_ino)
         return (cp);
     if (!LNC_nc)
         return ((char *)NULL);
@@ -1611,8 +1611,8 @@ int *fp;   /* full path reply */
     /*
      * Look up the device-inode name cache entry.
      */
-    if (Lf->dev_def && Lf->inp_ty == 1 &&
-        (lc = DIN_addr(&Lf->dev, Lf->inode)) && !lc->dup) {
+    if (Lf->dev_def && Lf->inode_def && (lc = DIN_addr(&Lf->dev, Lf->inode)) &&
+        !lc->dup) {
         if ((nl = (int)lc->nl) > (blen - 1))
             return (*cp ? cp : (char *)NULL);
         cp = buf + blen - nl - 1;

@@ -107,7 +107,6 @@ void process_socket(i) struct inode *i; /* inode pointer */
             Lf->sf |= SELNET;
         Lf->type = LSOF_TYPE_INET;
         printiproto((int)s.so_proto.pr_protocol);
-        Lf->inp_ty = 2;
         /*
          * Get protocol control block address from stream head queue structure.
          */
@@ -292,7 +291,7 @@ void process_socket(i) struct inode *i; /* inode pointer */
                 enter_dev_ch(print_kptr((KA_T)ud.so_rq, (char *)NULL, 0));
             if (ud.local_addr.sun_family == AF_UNIX) {
                 Lf->inode = (unsigned long)ud.bnd_param.user_addr.inode_no;
-                Lf->inp_ty = 1;
+                Lf->inode_def = 1;
                 ud.local_addr.sun_path[sizeof(ud.local_addr.sun_path) - 1] =
                     '\0';
                 if (Sfile && is_file_named(ud.local_addr.sun_path, 0))
@@ -301,7 +300,7 @@ void process_socket(i) struct inode *i; /* inode pointer */
                     (void)snpf(Namech, Namechl, "%s", ud.local_addr.sun_path);
             } else if (ud.for_addr.sun_family == AF_UNIX) {
                 Lf->inode = (unsigned long)ud.bnd_param.user_addr.inode_no;
-                Lf->inp_ty = 1;
+                Lf->inode_def = 1;
                 ud.for_addr.sun_path[sizeof(ud.for_addr.sun_path) - 1] = '\0';
                 if (Sfile && is_file_named(ud.for_addr.sun_path, 0))
                     Lf->sf |= SELNM;

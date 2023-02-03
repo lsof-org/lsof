@@ -278,7 +278,7 @@ int ps;        /* print status: 0 = don't copy name
     /*
      * Check for a regular file.
      */
-    if (!f && HbyFdiCt && Lf->dev_def && (Lf->inp_ty == 1 || Lf->inp_ty == 3)) {
+    if (!f && HbyFdiCt && Lf->dev_def && Lf->inode_def) {
         for (sh = &HbyFdi[SFHASHDEVINO(GET_MAJ_DEV(Lf->dev),
                                        GET_MIN_DEV(Lf->dev), Lf->inode,
                                        SFDIHASH)];
@@ -306,8 +306,7 @@ int ps;        /* print status: 0 = don't copy name
      * Check for a character or block device match.
      */
     if (!f && HbyFrdCt && ((vt = VCHR) || (vt = VBLK)) && Lf->dev_def &&
-        (Lf->dev == DevDev) && Lf->rdev_def &&
-        (Lf->inp_ty == 1 || Lf->inp_ty == 3)) {
+        (Lf->dev == DevDev) && Lf->rdev_def && Lf->inode_def) {
         for (sh = &HbyFrd[SFHASHRDEVI(
                  GET_MAJ_DEV(Lf->dev), GET_MIN_DEV(Lf->dev),
                  GET_MAJ_DEV(Lf->rdev), GET_MIN_DEV(Lf->rdev), Lf->inode,
@@ -404,7 +403,7 @@ struct lfile *lf; /* local file structure */
 #    endif /* defined(HASMNTSTAT) */
 
 #    if defined(HASVXFS) && defined(HASVXFSRNL)
-    if (lf->is_vxfs && (lf->inp_ty == 1) && lf->fsdir) {
+    if (lf->is_vxfs && Lf->inode_def && lf->fsdir) {
         if (print_vxfs_rnl_path(lf))
             return (1);
     }
@@ -414,7 +413,7 @@ struct lfile *lf; /* local file structure */
     if (buf[0]) {
 
 #    if defined(HASMNTSTAT)
-        if (!lf->mnt_stat && lf->dev_def && (lf->inp_ty == 1)) {
+        if (!lf->mnt_stat && lf->dev_def && lf->inode_def) {
 
             /*
              * No problem was detected in applying stat(2) to this mount point.

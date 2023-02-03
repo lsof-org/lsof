@@ -748,12 +748,6 @@ struct lfile {
     enum lsof_file_access_mode access;
     enum lsof_lock_mode lock;
     unsigned char dev_def;   /* device number definition status */
-    unsigned char inp_ty;    /* inode/iproto type
-                              *	0: neither inode nor iproto
-                              *	1: print inode in decimal
-                              *	2: iproto contains string
-                              * 3: print inode in hex
-                              */
     unsigned char is_com;    /* common stream status */
     unsigned char is_nfs;    /* NFS file status */
     unsigned char is_stream; /* stream device status */
@@ -808,6 +802,7 @@ struct lfile {
     dev_t dev;
     dev_t rdev;
     INODETYPE inode;
+    unsigned char inode_def; /* inode definition status */
     long nlink; /* link count */
     char *dev_ch;
     char *fsdir; /* file system directory */

@@ -270,7 +270,7 @@ enum lsof_protocol {
     LSOF_PROTOCOL_ESP,      /**< ESP(50) */
     LSOF_PROTOCOL_AH,       /**< AH(51) */
     LSOF_PROTOCOL_ICMPV6,   /**< ICMPv6(58) */
-    LSOF_PROTOCOL_NONE,     /**< IPv6-NoNxt(59) */
+    LSOF_PROTOCOL_NONXT,    /**< IPv6-NoNxt(59) */
     LSOF_PROTOCOL_DSTOPTS,  /**< IPv6-Opts(60) */
     LSOF_PROTOCOL_MTP,      /**< MTP(92) */
     LSOF_PROTOCOL_AX25,     /**< AX.25(93) */
@@ -285,14 +285,6 @@ enum lsof_protocol {
     LSOF_PROTOCOL_ETHERNET, /**< Ethernet(143) */
     LSOF_PROTOCOL_RAW,      /**< Raw(255) */
     LSOF_PROTOCOL_MPTCP,    /**< MPTCP(262) */
-};
-
-/** Display hint of NODE column for lsof cli */
-enum lsof_display_node_hint {
-    LSOF_DISPLAY_NODE_NONE,          /**< Neither inode nor protocol is shown */
-    LSOF_DISPLAY_NODE_INODE_DECIMAL, /**< Display inode in decimal */
-    LSOF_DISPLAY_NODE_INODE_HEX,     /**< Display inode in hex */
-    LSOF_DISPLAY_NODE_PROTOCOL,      /**< Display protocol */
 };
 
 /** @struct lsof_context
@@ -362,9 +354,6 @@ struct lsof_file {
 
     /** Whether \ref protocol field is valid */
     uint8_t protocol_valid;
-
-    /** Display hint of NODE column */
-    enum lsof_display_node_hint display_node_hint;
 
     /* NAME column */
     /** File name or description */

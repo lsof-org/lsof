@@ -62,13 +62,14 @@ struct l_dev *lkupbdev(struct lsof_context *ctx,
     int low, hi, mid;
     struct l_dev *dp;
     int ty = 0;
+    int inode_def = 0;
 
     if (*dev != DevDev)
         return ((struct l_dev *)NULL);
     readdev(ctx,0);
     if (i) {
         inode = Lf->inode;
-        ty = Lf->inp_ty;
+        inode_def = Lf->inode_def;
     }
     /*
      * Search block device table for match.
@@ -90,7 +91,7 @@ lkupbdev_again:
         else if (*rdev > dp->rdev)
             low = mid + 1;
         else {
-            if ((i == 0) || (ty != 1) || (inode == dp->inode)) {
+            if ((i == 0) || !inode_def || (inode == dp->inode)) {
 
 #    if defined(HASDCACHE)
                 if (DCunsafe && !dp->v && !vfy_dev(ctx, dp))
@@ -135,13 +136,14 @@ struct l_dev *lkupdev(struct lsof_context *ctx,
     int low, hi, mid;
     struct l_dev *dp;
     int ty = 0;
+    int inode_def = 0;
 
     if (*dev != DevDev)
         return ((struct l_dev *)NULL);
     readdev(ctx,0);
     if (i) {
         inode = Lf->inode;
-        ty = Lf->inp_ty;
+        inode_def = Lf->inode_def;
     }
     /*
      * Search device table for match.
@@ -163,7 +165,7 @@ lkupdev_again:
         else if (*rdev > dp->rdev)
             low = mid + 1;
         else {
-            if ((i == 0) || (ty != 1) || (inode == dp->inode)) {
+            if ((i == 0) || !inode_def || (inode == dp->inode)) {
 
 #    if defined(HASDCACHE)
                 if (DCunsafe && !dp->v && !vfy_dev(ctx, dp))

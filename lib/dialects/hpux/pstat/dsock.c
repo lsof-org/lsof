@@ -1048,7 +1048,6 @@ struct pst_socket *s; /* optional socket information
      * Set default type.
      */
     Lf->type = LSOF_FILE_SOCKET;
-    Lf->inp_ty = 2;
     /*
      * Generate and save node ID.
      */
@@ -1528,12 +1527,12 @@ int ckscko; /* socket file only checking
         (void)snpf(Namech, Namechl, "%s", dp->name);
         ncx = strlen(Namech);
         Lf->inode = (INODETYPE)dp->inode;
-        Lf->inp_ty = 1;
+        Lf->inode_def = 1;
     } else {
         ncx = (size_t)0;
         if (f->psf_id.psf_fileid > 0) {
             Lf->inode = (INODETYPE)f->psf_id.psf_fileid;
-            Lf->inp_ty = 1;
+            Lf->inode_def = 1;
         }
     }
     /*

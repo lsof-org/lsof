@@ -1645,8 +1645,9 @@ process_proc_map(struct lsof_context *ctx,
              * the NAME column.
              */
             Lf->dev = sb.st_dev;
+            Lf->dev_def = 1;
             Lf->inode = (ino_t)sb.st_ino;
-            Lf->dev_def = Lf->inp_ty = 1;
+            Lf->inode_def = 1;
             (void)enter_nm(ctx, fp[6]);
             Lf->type =
                 (ds ? LSOF_FILE_UNKNOWN_DELETED : LSOF_FILE_UNKNOWN_MEMORY);

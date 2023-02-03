@@ -90,7 +90,6 @@ void process_socket(struct lsof_context *ctx, struct kinfo_file *file) {
     }
     if (proto) {
         (void)snpf(Lf->iproto, sizeof(Lf->iproto), "%s", proto);
-        Lf->inp_ty = 2;
     }
 
     /* Fill offset, always zero */

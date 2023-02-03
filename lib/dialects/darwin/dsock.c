@@ -60,7 +60,6 @@ static void process_socket_common(struct lsof_context *ctx,
      * Enter basic socket values.
      */
     Lf->type = LSOF_FILE_SOCKET;
-    Lf->inp_ty = 2;
     /*
      * Enter basic file information.
      */

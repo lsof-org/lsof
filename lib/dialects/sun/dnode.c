@@ -1719,11 +1719,11 @@ void process_node(va) KA_T va; /* vnode kernel space address */
             if (Lf->inode >= (unsigned long)0xbaddcafe)
 #    endif /* defined(_LP64) */
 
-                Lf->inp_ty = 0;
+                Lf->inode_def = 0;
             else
 #endif /* solaris>=80000 Solaris 8 and above hack! */
 
-                Lf->inp_ty = 1;
+                Lf->inode_def = 1;
             enter_dev_ch(print_kptr((KA_T)v->v_data, (char *)NULL, 0));
             if (f.fn_flag & ISPIPE) {
                 (void)snpf(tbuf, sizeof(tbuf), "PIPE");
@@ -2333,7 +2333,7 @@ void process_node(va) KA_T va; /* vnode kernel space address */
                 trdev = sdp->rdev;
                 devs = rdevs = trdevs = 1;
                 Lf->inode = (INODETYPE)sdp->inode;
-                Lf->inp_ty = 1;
+                Lf->inode_def = 1;
                 (void)snpf(nm, nmrl, "%s", sdp->name);
                 tl = strlen(nm);
                 nm += tl;
@@ -2482,7 +2482,7 @@ void process_node(va) KA_T va; /* vnode kernel space address */
                 trdev = sdp->rdev;
                 devs = rdevs = trdevs = 1;
                 Lf->inode = (INODETYPE)sdp->inode;
-                Lf->inp_ty = 1;
+                Lf->inode_def = 1;
                 (void)snpf(Namech, Namechl - 1, "%s", sdp->name);
                 Namech[Namechl - 1] = '\0';
             } else
@@ -2610,7 +2610,7 @@ void process_node(va) KA_T va; /* vnode kernel space address */
                     rdev = sdp->rdev;
                     rdevs = 1;
                     Lf->inode = (INODETYPE)sdp->inode;
-                    Lf->inp_ty = 1;
+                    Lf->inode_def = 1;
                     (void)snpf(ubuf, sizeof(ubuf), "(%s%s%s)",
                                print_kptr(so_ad[0], (char *)NULL, 0),
                                so_ad[1] ? "->" : "",
@@ -2755,7 +2755,7 @@ void process_node(va) KA_T va; /* vnode kernel space address */
     case N_AFS:
         if (an.ino_st) {
             Lf->inode = (INODETYPE)an.inode;
-            Lf->inp_ty = 1;
+            Lf->inode_def = 1;
         }
         break;
 #endif /* defined(HAS_AFS) */
@@ -2769,26 +2769,26 @@ void process_node(va) KA_T va; /* vnode kernel space address */
         Lf->inode = (INODETYPE)fnn.fn_nodeid;
 #    endif /* solaris<20600 */
 
-        Lf->inp_ty = 1;
+        Lf->inode_def = 1;
         break;
 
 #    if solaris >= 100000
     case N_DEV:
         if (dvs) {
             Lf->inode = (INODETYPE)dv.dv_ino;
-            Lf->inp_ty = 1;
+            Lf->inode_def = 1;
         }
         break;
 #    endif /* solaris>=100000 */
 
     case N_DOOR:
         if (nns && (Lf->inode = (INODETYPE)nn.nm_vattr.va_nodeid)) {
-            Lf->inp_ty = 1;
+            Lf->inode_def = 1;
             break;
         }
         if (dns) {
             if ((Lf->inode = (INODETYPE)dn.door_index))
-                Lf->inp_ty = 1;
+                Lf->inode_def = 1;
         }
         break;
 #endif /* solaris>=20500 */
@@ -2796,7 +2796,7 @@ void process_node(va) KA_T va; /* vnode kernel space address */
 #if defined(HASCACHEFS)
     case N_CACHE:
         Lf->inode = (INODETYPE)cn.c_fileno;
-        Lf->inp_ty = 1;
+        Lf->inode_def = 1;
         break;
 #endif /* defined(HASCACHEFS) */
 
@@ -2821,11 +2821,11 @@ void process_node(va) KA_T va; /* vnode kernel space address */
             Lf->inode = (INODETYPE)2;
         else
             Lf->inode = (INODETYPE)(GET_MIN_DEV(v->v_rdev) * 100);
-        Lf->inp_ty = 1;
+        Lf->inode_def = 1;
         break;
     case N_HSFS:
         Lf->inode = (INODETYPE)h.hs_nodeid;
-        Lf->inp_ty = 1;
+        Lf->inode_def = 1;
         break;
 
     case N_MNT:
@@ -2833,30 +2833,30 @@ void process_node(va) KA_T va; /* vnode kernel space address */
 #if defined(HASFSINO)
         if (vfs) {
             Lf->inode = vfs->fs_ino;
-            Lf->inp_ty = 1;
+            Lf->inode_def = 1;
         }
 #endif /* defined(HASFSINO) */
 
         break;
     case N_MVFS:
         Lf->inode = (INODETYPE)m.m_ino;
-        Lf->inp_ty = 1;
+        Lf->inode_def = 1;
         break;
     case N_NFS:
         Lf->inode = (INODETYPE)r.r_attr.va_nodeid;
-        Lf->inp_ty = 1;
+        Lf->inode_def = 1;
         break;
 
 #if solaris >= 100000
     case N_NFS4:
         Lf->inode = (INODETYPE)r4.r_attr.va_nodeid;
-        Lf->inp_ty = 1;
+        Lf->inode_def = 1;
         break;
 #endif /* solaris>=100000 */
 
     case N_NM:
         Lf->inode = (INODETYPE)nn.nm_vattr.va_nodeid;
-        Lf->inp_ty = 1;
+        Lf->inode_def = 1;
         break;
 
 #if defined(HASPROCFS)
@@ -2896,17 +2896,17 @@ void process_node(va) KA_T va; /* vnode kernel space address */
                                                  &pc.pc_entry, pcfs.pcfs_entps);
 #endif     /* solaris>=70000 */
 
-            Lf->inp_ty = 1;
+            Lf->inode_def = 1;
         }
         break;
 
     case N_REGLR:
         if (nns) {
             if ((Lf->inode = (INODETYPE)nn.nm_vattr.va_nodeid))
-                Lf->inp_ty = 1;
+                Lf->inode_def = 1;
         } else if (ins) {
             if ((Lf->inode = (INODETYPE)i.i_number))
-                Lf->inp_ty = 1;
+                Lf->inode_def = 1;
         }
         break;
     case N_SAMFS:
@@ -2916,20 +2916,19 @@ void process_node(va) KA_T va; /* vnode kernel space address */
     case N_SDEV:
         if (sdns) {
             Lf->inode = (INODETYPE)sdva.va_nodeid;
-            Lf->inp_ty = 1;
+            Lf->inode_def = 1;
         }
         break;
 #endif /* solaris>=110000 */
 
     case N_SHARED:
         (void)snpf(Lf->iproto, sizeof(Lf->iproto), "SHARED");
-        Lf->inp_ty = 2;
         break;
     case N_STREAM:
 
 #if solaris < 100000
         if (so_st && soso.lux_dev.addr.tu_addr.ino) {
-            if (Lf->inp_ty) {
+            if (Lf->inode_def) {
                 nl = Lf->nma ? (int)strlen(Lf->nma) : 0;
                 (void)snpf(ubuf, sizeof(ubuf), "%s(Inode=%lu)", nl ? " " : "",
                            (unsigned long)soso.lux_dev.addr.tu_addr.ino);
@@ -2942,7 +2941,7 @@ void process_node(va) KA_T va; /* vnode kernel space address */
                     (void)snpf(&Lf->nma[nl], len - nl, "%s", ubuf);
             } else {
                 Lf->inode = (INODETYPE)soso.lux_dev.addr.tu_addr.ino;
-                Lf->inp_ty = 1;
+                Lf->inode_def = 1;
             }
         }
 #endif /* solaris<100000 */
@@ -2950,14 +2949,14 @@ void process_node(va) KA_T va; /* vnode kernel space address */
         break;
     case N_TMP:
         Lf->inode = (INODETYPE)t.tn_attr.va_nodeid;
-        Lf->inp_ty = 1;
+        Lf->inode_def = 1;
         break;
 
 #if defined(HASVXFS)
     case N_VXFS:
         if (vx.ino_def) {
             Lf->inode = (INODETYPE)vx.ino;
-            Lf->inp_ty = 1;
+            Lf->inode_def = 1;
         } else if (type == VCHR)
             pnl = 1;
         break;
@@ -2967,7 +2966,7 @@ void process_node(va) KA_T va; /* vnode kernel space address */
     case N_ZFS:
         if (zns) {
             Lf->inode = (INODETYPE)zn.z_id;
-            Lf->inp_ty = 1;
+            Lf->inode_def = 1;
         }
         break;
 #endif /* defined(HAS_ZFS) */
@@ -3389,7 +3388,7 @@ void process_node(va) KA_T va; /* vnode kernel space address */
      * If there's a namenode and its device and node number match this one,
      * use the nm_mountpt's address for name cache lookups.
      */
-    if (nns && devs && (dev == nn.nm_vattr.va_fsid) && (Lf->inp_ty == 1) &&
+    if (nns && devs && (dev == nn.nm_vattr.va_fsid) && Lf->inode_def &&
         (Lf->inode == (INODETYPE)nn.nm_vattr.va_nodeid))
         Lf->na = (KA_T)nn.nm_mountpt;
 #    endif /* defined(HASNCACHE) */
@@ -3593,7 +3592,7 @@ void process_node(va) KA_T va; /* vnode kernel space address */
      * If this a Solaris common vnode/snode void some information.
      */
     if (Lf->is_com)
-        Lf->sz_def = Lf->inp_ty = 0;
+        Lf->sz_def = Lf->inode_def = 0;
     /*
      * If a file attach description remains, put it in the NAME column addition.
      */
@@ -3605,7 +3604,7 @@ void process_node(va) KA_T va; /* vnode kernel space address */
      * If this is a VBLK file and it's missing an inode number, try to
      * supply one.
      */
-    if ((Lf->inp_ty == 0) && (type == VBLK))
+    if (!Lf->inode_def && (type == VBLK))
         find_bl_ino();
 #endif /* defined(HASBLKDEV) */
 
@@ -3613,7 +3612,7 @@ void process_node(va) KA_T va; /* vnode kernel space address */
      * If this is a VCHR file and it's missing an inode number, try to
      * supply one.
      */
-    if ((Lf->inp_ty == 0) && (type == VCHR)) {
+    if (!Lf->inode_def && (type == VCHR)) {
         find_ch_ino();
         /*
          * If the VCHR inode number still isn't known and this is a COMMON
@@ -3624,7 +3623,7 @@ void process_node(va) KA_T va; /* vnode kernel space address */
          * If it can, save the pseudo or clone device for temporary
          * use when searching for a match with a named file argument.
          */
-        if ((Lf->inp_ty == 0) && (Lf->is_com || Lf->is_stream || pnl) &&
+        if (!Lf->inode_def && (Lf->is_com || Lf->is_stream || pnl) &&
             (Clone || Pseudo)) {
             if (!sdp) {
                 if (rdevs || devs) {
@@ -3670,7 +3669,7 @@ void process_node(va) KA_T va; /* vnode kernel space address */
                  */
                 trdev = sdp->rdev;
                 Lf->inode = sdp->inode;
-                Lf->inp_ty = trdevs = 1;
+                Lf->inode_def = trdevs = 1;
                 if (!Namech[0] || Lf->is_com) {
                     (void)snpf(Namech, Namechl - 1, "%s", sdp->name);
                     Namech[Namechl - 1] = '\0';
@@ -3692,11 +3691,10 @@ void process_node(va) KA_T va; /* vnode kernel space address */
     /*
      * Record stream status.
      */
-    if (Lf->inp_ty == 0 && Lf->is_stream && strcmp(Lf->iproto, "STR") == 0)
-        Lf->inp_ty = 2;
-        /*
-         * Test for specified file.
-         */
+    if (Lf->is_stream && strcmp(Lf->iproto, "STR") == 0)
+    /*
+     * Test for specified file.
+     */
 
 #if defined(HASPROCFS)
     if (Ntype == N_PROC) {
@@ -3708,7 +3706,7 @@ void process_node(va) KA_T va; /* vnode kernel space address */
                 if ((pfi->pid && pfi->pid == pids.pid_id)
 
 #    if defined(HASPINODEN)
-                    || (Lf->inp_ty == 1 && Lf->inode == pfi->inode)
+                    || (Lf->inode_def && Lf->inode == pfi->inode)
 #    endif /* defined(HASPINODEN) */
 
                 ) {
@@ -4259,12 +4257,12 @@ struct pid *pids; /* pid structure receiver */
             Namech[Namechl - 1] = '\0';
             enter_nm(Namech);
             Lf->inode = (INODETYPE)PR_ROOTINO;
-            Lf->inp_ty = 1;
+            Lf->inode_def = 1;
         } else {
             (void)snpf(Namech, Namechl - 1, "/%s/", HASPROCFS);
             Namech[Namechl - 1] = '\0';
             enter_nm(Namech);
-            Lf->inp_ty = 0;
+            Lf->inode_def = 0;
         }
         return (0);
     }
@@ -4291,13 +4289,13 @@ struct pid *pids; /* pid structure receiver */
     (void)snpf(Namech, Namechl, "/%s/%d", HASPROCFS, (int)pids->pid_id);
     Namech[Namechl - 1] = '\0';
     Lf->inode = (INODETYPE)ptoi(pids->pid_id);
-    Lf->inp_ty = 1;
+    Lf->inode_def = 1;
 #    else /* solaris>=20600 */
     /*
      * Enter the >= Solaris 2.6 inode number.
      */
     Lf->inode = (INODETYPE)pr.pr_ino;
-    Lf->inp_ty = 1;
+    Lf->inode_def = 1;
     /*
      * Read the >= Solaris 2.6 prnode common structures.
      *
@@ -4529,7 +4527,7 @@ struct pid *pids; /* pid structure receiver */
      * Record the Solaris 2.6 /proc file system inode number.
      */
     Lf->inode = (INODETYPE)pr.pr_ino;
-    Lf->inp_ty = 1;
+    Lf->inode_def = 1;
 #    endif     /* solaris<20600 */
 
     Namech[Namechl - 1] = '\0';
