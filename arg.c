@@ -29,6 +29,7 @@
  */
 
 #include "lsof.h"
+#include <limits.h>
 
 /*
  * Local definitions
