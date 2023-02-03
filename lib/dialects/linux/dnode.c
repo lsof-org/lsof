@@ -127,6 +127,7 @@ static void endpoint_enter(struct lsof_context *ctx, pxinfo_t **pinfo_hash,
             (void)fprintf(ctx->err,
                           "%s: no space for pipeinfo for %s, PID %d, FD %d\n",
                           table_name, Pn, Lp->pid, Lf->fd_num);
+        Error(ctx);
         return;
     }
     np->ino = id;
@@ -202,6 +203,7 @@ static void enter_pinfo(struct lsof_context *ctx) {
                               "%s: no space for %d pipe info buckets\n", Pn,
                               PINFOBUCKS);
             }
+            Error(ctx);
             return;
         }
     }
@@ -249,6 +251,7 @@ void enter_ptmxi(struct lsof_context *ctx, int mn) /* minor number of device */
                               "%s: no space for %d pty info buckets\n", Pn,
                               PINFOBUCKS);
             }
+            Error(ctx);
             return;
         }
     }
@@ -357,10 +360,11 @@ void enter_psxmqinfo(struct lsof_context *ctx) {
         if (!(PSXMQinfo =
                   (pxinfo_t **)calloc(PINFOBUCKS, sizeof(pxinfo_t *)))) {
             if (ctx->err) {
-                (void)fprintf(stderr,
+                (void)fprintf(ctx->err,
                               "%s: no space for %d posix mq info buckets\n ",
                               Pn, PINFOBUCKS);
             }
+            Error(ctx);
             return;
         }
     }
@@ -408,6 +412,7 @@ void enter_evtfdinfo(struct lsof_context *ctx, int id) {
                               "%s: no space for %d envet fd info buckets\n", Pn,
                               PINFOBUCKS);
             }
+            Error(ctx);
             return;
         }
     }
@@ -526,6 +531,7 @@ int get_fields(struct lsof_context *ctx, char *ln, /* input line */
                         "%s: can't allocate %d bytes for field pointers.\n", Pn,
                         (int)len);
                 }
+                Error(ctx);
                 return (0);
             }
         }
@@ -575,6 +581,7 @@ void get_locks(struct lsof_context *ctx, char *p) /* /proc lock path */
                 (void)fprintf(ctx->err,
                               "%s: can't allocate %d lock hash bytes\n", Pn,
                               (int)(sizeof(struct llock *) * PIDBUCKS));
+            Error(ctx);
             return;
         }
     }
@@ -667,6 +674,7 @@ void get_locks(struct lsof_context *ctx, char *p) /* /proc lock path */
                     "%s: can't allocate llock: PID %d; dev %x; inode %s\n", Pn,
                     pid, (int)dev, buf);
             }
+            Error(ctx);
             return;
         }
         lp->pid = pid;

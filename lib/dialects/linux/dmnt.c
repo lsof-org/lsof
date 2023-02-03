@@ -132,10 +132,11 @@ static char *convert_octal_escaped(struct lsof_context *ctx,
             if (!(cvt_str = (char *)realloc(cvt_str, cvt_len + 1))) {
                 if (ctx->err) {
                     (void)fprintf(
-                        stderr,
+                        ctx->err,
                         "%s: can't realloc %d bytes for octal-escaping.\n", Pn,
                         cvt_len + 1);
                 }
+                Error(ctx);
                 return NULL;
             }
         }
@@ -156,10 +157,11 @@ static char *convert_octal_escaped(struct lsof_context *ctx,
 #if defined(HASMNTSUP)
 /*
  * getmntdev() - get mount device from mount supplement
+ *
+ * returns 1 if found
  */
 static int
-getmntdev(
-          struct lsof_context *ctx,
+getmntdev(struct lsof_context *ctx,
 	  char *dir_name,		/* mounted directory name */
 	  size_t dir_name_len,		/* strlen(dir_name) */
 	  struct stat *s,		/* stat(2) buffer receptor */
@@ -278,6 +280,7 @@ getmntdev(
                             "%s: no space for mount supplement hash buckets\n",
                             Pn);
                     }
+                    Error(ctx);
                     return (0);
                 }
             }
@@ -295,9 +298,11 @@ getmntdev(
                  * a warning.
                  */
                 if (mp->dev != dev) {
-                    (void)fprintf(
-                        stderr, "%s: %s line %d path duplicate of %d: \"%s\"\n",
-                        Pn, MntSupP, ln, mp->ln, buf);
+                    if (ctx->err)
+                        (void)fprintf(
+                            ctx->err,
+                            "%s: %s line %d path duplicate of %d: \"%s\"\n", Pn,
+                            MntSupP, ln, mp->ln, buf);
                     ctxd.mount_sup_error = 1;
                 }
                 continue;
@@ -312,6 +317,7 @@ getmntdev(
                         "%s: no space for mount supplement entry: %d \"%s\"\n",
                         Pn, ln, buf);
                 }
+                Error(ctx);
                 return (0);
             }
             if (!(mpn->dir_name = (char *)malloc(sz + 1))) {
@@ -321,6 +327,7 @@ getmntdev(
                         "%s: no space for mount supplement path: %d \"%s\"\n",
                         Pn, ln, buf);
                 }
+                Error(ctx);
                 return (0);
             }
             (void)strcpy(mpn->dir_name, path);
@@ -556,7 +563,7 @@ struct mounts *readmnt(struct lsof_context *ctx) {
                     (void)fprintf(ctx->err, " file system ");
                     safestrprt(dn, ctx->err, 1);
                     (void)fprintf(
-                        stderr,
+                        ctx->err,
                         "      Output information may be incomplete.\n");
                 }
             } else
@@ -578,7 +585,6 @@ struct mounts *readmnt(struct lsof_context *ctx) {
                                       "%s: assuming dev=%#lx for %s from %s\n",
                                       Pn, (long)sb.st_dev, dn, MntSupP);
                     }
-                    return NULL;
                 }
             } else {
                 if (!ignstat)
@@ -620,6 +626,7 @@ struct mounts *readmnt(struct lsof_context *ctx) {
                                   "%s: can't allocate mounts struct for: ", Pn);
                     safestrprt(dn, ctx->err, 1);
                 }
+                Error(ctx);
                 return NULL;
             }
         }
@@ -676,6 +683,7 @@ struct mounts *readmnt(struct lsof_context *ctx) {
                                   "%s: can't allocate space for: ", Pn);
                     safestrprt(dn, ctx->err, 1);
                 }
+                Error(ctx);
                 return NULL;
             }
             ignstat = 1;

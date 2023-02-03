@@ -165,8 +165,9 @@ int enter_cntx_arg(struct lsof_context *ctx, char *cntx) /* context */
      */
     if (!(cntxp = (cntxlist_t *)malloc((MALLOC_S)sizeof(cntxlist_t)))) {
         if (ctx->err) {
-            (void)fprintf(stderr, "%s: no space for context: %s\n", Pn, cntx);
+            (void)fprintf(ctx->err, "%s: no space for context: %s\n", Pn, cntx);
         }
+        Error(ctx);
         return (1);
     }
     cntxp->f = 0;
@@ -195,6 +196,7 @@ static MALLOC_S alloc_cbf(struct lsof_context *ctx,
             (void)fprintf(ctx->err, "%s: can't allocate command %d bytes\n", Pn,
                           (int)len);
         }
+        Error(ctx);
         return 0;
     }
     return (len);
@@ -236,6 +238,7 @@ void gather_proc_info(struct lsof_context *ctx) {
                               "%s: can't allocate %d bytes for \"%s/\"<pid>\n",
                               Pn, (int)pidpathl, PROCFS);
             }
+            Error(ctx);
             return;
         }
         (void)snpf(pidpath, pidpathl, "%s/", PROCFS);
@@ -299,8 +302,10 @@ void gather_proc_info(struct lsof_context *ctx) {
      */
     if (!ps) {
         if (!(ps = opendir(PROCFS))) {
-            (void)fprintf(stderr, "%s: can't open %s\n", Pn, PROCFS);
+            if (ctx->err)
+                (void)fprintf(ctx->err, "%s: can't open %s\n", Pn, PROCFS);
             Error(ctx);
+            return;
         }
     } else
         (void)rewinddir(ps);
@@ -319,6 +324,7 @@ void gather_proc_info(struct lsof_context *ctx) {
                         "%s: can't allocate %d bytes for \"%s/%s/\"\n", Pn,
                         (int)pidpathl, PROCFS, dp->d_name);
                 }
+                Error(ctx);
                 return;
             }
         }
@@ -392,7 +398,6 @@ void gather_proc_info(struct lsof_context *ctx) {
                             tidpath = (char *)malloc((MALLOC_S)tidpathl);
                         if (!tidpath) {
                             if (ctx->err) {
-
                                 (void)fprintf(
                                     ctx->err,
                                     "%s: can't allocate %d task bytes", Pn,
@@ -400,6 +405,7 @@ void gather_proc_info(struct lsof_context *ctx) {
                                 (void)fprintf(ctx->err, " for \"%s/%s/stat\"\n",
                                               taskpath, dp->d_name);
                             }
+                            Error(ctx);
                             return;
                         }
                     }
@@ -628,7 +634,9 @@ void initialize(struct lsof_context *ctx) {
      * Test for -i and -X option conflict.
      */
     if (Fxopt && (Fnet || Nwad)) {
-        (void)fprintf(stderr, "%s: -i is useless when -X is specified.\n", Pn);
+        if (ctx->err)
+            (void)fprintf(ctx->err, "%s: -i is useless when -X is specified.\n",
+                          Pn);
         Error(ctx);
     }
     /*
@@ -711,9 +719,11 @@ int make_proc_path(struct lsof_context *ctx,
             cp = (char *)malloc(rl);
         if (!cp) {
             if (ctx->err) {
-                (void)fprintf(stderr, "%s: can't allocate %d bytes for %s%s\n",
-                              Pn, (int)rl, pp, sf);
+                (void)fprintf(ctx->err,
+                              "%s: can't allocate %d bytes for %s%s\n", Pn,
+                              (int)rl, pp, sf);
             }
+            Error(ctx);
             return (0);
         }
         *nl = rl;
@@ -870,6 +880,7 @@ FILE *open_proc_stream(struct lsof_context *ctx,
                     "%s: can't allocate %d bytes for %s stream buffer\n", Pn,
                     (int)tsz, p);
             }
+            Error(ctx);
             return NULL;
         }
         *sz = tsz;
@@ -882,6 +893,7 @@ FILE *open_proc_stream(struct lsof_context *ctx,
             (void)fprintf(ctx->err, "%s: setvbuf(%s)=%d failure: %s\n", Pn, p,
                           (int)tsz, strerror(errno));
         }
+        Error(ctx);
         return NULL;
     }
     return (fs);
@@ -962,10 +974,12 @@ static int process_id(struct lsof_context *ctx,
     Lp->tid = tid;
     if (tid && tcmd) {
         if (!(Lp->tcmd = mkstrcpy(tcmd, (MALLOC_S *)NULL))) {
-            (void)fprintf(stderr,
-                          "%s: PID %d, TID %d, no space for task name: ", Pn,
-                          pid, tid);
-            safestrprt(tcmd, stderr, 1);
+            if (ctx->err) {
+                (void)fprintf(ctx->err,
+                              "%s: PID %d, TID %d, no space for task name: ",
+                              Pn, pid, tid);
+                safestrprt(tcmd, ctx->err, 1);
+            }
             Error(ctx);
         }
     }
@@ -1144,9 +1158,12 @@ static int process_id(struct lsof_context *ctx,
             (void)snpf(nmabuf, sizeof(nmabuf), "(getpidcon: %s)",
                        strerror(errno));
             if (!(Lp->cntx = strdup(nmabuf))) {
-                (void)fprintf(stderr, "%s: no context error space: PID %ld", Pn,
-                              (long)Lp->pid);
+                if (ctx->err)
+                    (void)fprintf(ctx->err,
+                                  "%s: no context error space: PID %ld", Pn,
+                                  (long)Lp->pid);
                 Error(ctx);
+                return 0;
             }
         }
     } else if (CntxArg) {
@@ -1488,11 +1505,13 @@ process_proc_map(struct lsof_context *ctx,
             else
                 sm = (struct saved_map *)malloc(len);
             if (!sm) {
-                (void)fprintf(
-                    stderr,
-                    "%s: can't allocate %d bytes for saved maps, PID %d\n", Pn,
-                    (int)len, Lp->pid);
+                if (ctx->err)
+                    (void)fprintf(
+                        ctx->err,
+                        "%s: can't allocate %d bytes for saved maps, PID %d\n",
+                        Pn, (int)len, Lp->pid);
                 Error(ctx);
+                return;
             }
         }
         sm[ns].dev = dev;
@@ -1815,9 +1834,12 @@ static int statEx(struct lsof_context *ctx, char *p, /* file path */
         else
             cb = (char *)malloc(sz + 1);
         if (!cb) {
-            (void)fprintf(stderr, "%s: PID %ld: no statEx path space: %s\n", Pn,
-                          (long)Lp->pid, p);
+            if (ctx->err)
+                (void)fprintf(ctx->err,
+                              "%s: PID %ld: no statEx path space: %s\n", Pn,
+                              (long)Lp->pid, p);
             Error(ctx);
+            return (1);
         }
         ca = sz + 1;
     }

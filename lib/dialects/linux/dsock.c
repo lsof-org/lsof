@@ -702,10 +702,12 @@ static void get_ax25(struct lsof_context *ctx,
     } else {
         AX25sin = (struct ax25sin **)calloc(INOBUCKS, sizeof(struct ax25sin *));
         if (!AX25sin) {
-            (void)fprintf(stderr,
-                          "%s: can't allocate %d AX25 hash pointer bytes\n", Pn,
-                          (int)(INOBUCKS * sizeof(struct ax25sin *)));
+            if (ctx->err)
+                (void)fprintf(ctx->err,
+                              "%s: can't allocate %d AX25 hash pointer bytes\n",
+                              Pn, (int)(INOBUCKS * sizeof(struct ax25sin *)));
             Error(ctx);
+            return;
         }
     }
     /*
@@ -767,11 +769,13 @@ static void get_ax25(struct lsof_context *ctx,
             da = (char *)NULL;
         else if ((len = strlen(fp[3]))) {
             if (!(da = (char *)malloc(len + 1))) {
-                (void)fprintf(
-                    stderr,
-                    "%s: can't allocate %d destination AX25 addr bytes: %s\n",
-                    Pn, (int)(len + 1), fp[3]);
+                if (ctx->err)
+                    (void)fprintf(ctx->err,
+                                  "%s: can't allocate %d destination AX25 addr "
+                                  "bytes: %s\n",
+                                  Pn, (int)(len + 1), fp[3]);
                 Error(ctx);
+                return;
             }
             (void)snpf(da, len + 1, "%s", fp[3]);
         } else
@@ -783,11 +787,13 @@ static void get_ax25(struct lsof_context *ctx,
             sa = (char *)NULL;
         else if ((len = strlen(fp[2]))) {
             if (!(sa = (char *)malloc(len + 1))) {
-                (void)fprintf(
-                    stderr,
-                    "%s: can't allocate %d source AX25 address bytes: %s\n", Pn,
-                    (int)(len + 1), fp[2]);
+                if (ctx->err)
+                    (void)fprintf(
+                        ctx->err,
+                        "%s: can't allocate %d source AX25 address bytes: %s\n",
+                        Pn, (int)(len + 1), fp[2]);
                 Error(ctx);
+                return;
             }
             (void)snpf(sa, len + 1, "%s", fp[2]);
         } else
@@ -799,11 +805,13 @@ static void get_ax25(struct lsof_context *ctx,
             dev_ch = (char *)NULL;
         else if ((len = strlen(fp[1]))) {
             if (!(dev_ch = (char *)malloc(len + 1))) {
-                (void)fprintf(
-                    stderr,
-                    "%s: can't allocate %d destination AX25 dev bytes: %s\n",
-                    Pn, (int)(len + 1), fp[1]);
+                if (ctx->err)
+                    (void)fprintf(ctx->err,
+                                  "%s: can't allocate %d destination AX25 dev "
+                                  "bytes: %s\n",
+                                  Pn, (int)(len + 1), fp[1]);
                 Error(ctx);
+                return;
             }
             (void)snpf(dev_ch, len + 1, "%s", fp[1]);
         } else
@@ -813,10 +821,12 @@ static void get_ax25(struct lsof_context *ctx,
          * hash bucket.
          */
         if (!(ap = (struct ax25sin *)malloc(sizeof(struct ax25sin)))) {
-            (void)fprintf(stderr,
-                          "%s: can't allocate %d byte ax25sin structure\n", Pn,
-                          (int)sizeof(struct ax25sin));
+            if (ctx->err)
+                (void)fprintf(ctx->err,
+                              "%s: can't allocate %d byte ax25sin structure\n",
+                              Pn, (int)sizeof(struct ax25sin));
             Error(ctx);
+            return;
         }
         ap->da = da;
         ap->dev_ch = dev_ch;
@@ -854,9 +864,12 @@ static void enter_uxsinfo(struct lsof_context *ctx, uxsin_t *up) {
         }
     }
     if (!(np = (pxinfo_t *)malloc(sizeof(pxinfo_t)))) {
-        (void)fprintf(stderr, "%s: no space for pipeinfo in uxsinfo, PID %d\n",
-                      Pn, Lp->pid);
+        if (ctx->err)
+            (void)fprintf(ctx->err,
+                          "%s: no space for pipeinfo in uxsinfo, PID %d\n", Pn,
+                          Lp->pid);
         Error(ctx);
+        return;
     }
     np->ino = Lf->inode;
     np->lf = Lf;
@@ -969,6 +982,7 @@ static void get_uxpeeri(struct lsof_context *ctx) {
         if (ctx->err)
             (void)fprintf(ctx->err, "%s: netlink socket error: %s\n", Pn,
                           strerror(errno));
+        return;
         return;
     }
     /*
@@ -1211,9 +1225,12 @@ static void enter_netsinfo_common(struct lsof_context *ctx, void *tp,
         }
     }
     if (!(np = (pxinfo_t *)malloc(sizeof(pxinfo_t)))) {
-        (void)fprintf(stderr, "%s: no space for pipeinfo in netsinfo, PID %d\n",
-                      Pn, Lp->pid);
+        if (ctx->err)
+            (void)fprintf(ctx->err,
+                          "%s: no space for pipeinfo in netsinfo, PID %d\n", Pn,
+                          Lp->pid);
         Error(ctx);
+        return;
     }
     np->ino = Lf->inode;
     np->lf = Lf;
@@ -1539,10 +1556,12 @@ static void get_icmp(struct lsof_context *ctx,
     } else {
         Icmpin = (struct icmpin **)calloc(INOBUCKS, sizeof(struct icmpin *));
         if (!Icmpin) {
-            (void)fprintf(stderr,
-                          "%s: can't allocate %d icmp hash pointer bytes\n", Pn,
-                          (int)(INOBUCKS * sizeof(struct icmpin *)));
+            if (ctx->err)
+                (void)fprintf(ctx->err,
+                              "%s: can't allocate %d icmp hash pointer bytes\n",
+                              Pn, (int)(INOBUCKS * sizeof(struct icmpin *)));
             Error(ctx);
+            return;
         }
     }
     /*
@@ -1570,9 +1589,10 @@ static void get_icmp(struct lsof_context *ctx,
             if (!fp[1] || strcmp(fp[1], "local_address") || !fp[2] ||
                 strcmp(fp[2], "rem_address") || !fp[11] ||
                 strcmp(fp[11], "inode")) {
-                if (!Fwarn) {
-                    (void)fprintf(
-                        stderr, "%s: WARNING: unsupported format: %s\n", Pn, p);
+                if (ctx->err && !Fwarn) {
+                    (void)fprintf(ctx->err,
+                                  "%s: WARNING: unsupported format: %s\n", Pn,
+                                  p);
                 }
                 break;
             }
@@ -1598,11 +1618,13 @@ static void get_icmp(struct lsof_context *ctx,
             lal = (MALLOC_S)0;
         } else {
             if (!(la = (char *)malloc(lal + 1))) {
-                (void)fprintf(
-                    stderr,
-                    "%s: can't allocate %d local icmp address bytes: %s\n", Pn,
-                    (int)(lal + 1), fp[1]);
+                if (ctx->err)
+                    (void)fprintf(
+                        ctx->err,
+                        "%s: can't allocate %d local icmp address bytes: %s\n",
+                        Pn, (int)(lal + 1), fp[1]);
                 Error(ctx);
+                return;
             }
             (void)snpf(la, lal + 1, "%s", fp[1]);
         }
@@ -1611,11 +1633,13 @@ static void get_icmp(struct lsof_context *ctx,
             ral = (MALLOC_S)0;
         } else {
             if (!(ra = (char *)malloc(ral + 1))) {
-                (void)fprintf(
-                    stderr,
-                    "%s: can't allocate %d remote icmp address bytes: %s\n", Pn,
-                    (int)(ral + 1), fp[2]);
+                if (ctx->err)
+                    (void)fprintf(
+                        ctx->err,
+                        "%s: can't allocate %d remote icmp address bytes: %s\n",
+                        Pn, (int)(ral + 1), fp[2]);
                 Error(ctx);
+                return;
             }
             (void)snpf(ra, ral + 1, "%s", fp[2]);
         }
@@ -1624,9 +1648,12 @@ static void get_icmp(struct lsof_context *ctx,
          * hash bucket.
          */
         if (!(icmpp = (struct icmpin *)malloc(sizeof(struct icmpin)))) {
-            (void)fprintf(stderr, "%s: can't allocate %d byte icmp structure\n",
-                          Pn, (int)sizeof(struct icmpin));
+            if (ctx->err)
+                (void)fprintf(ctx->err,
+                              "%s: can't allocate %d byte icmp structure\n", Pn,
+                              (int)sizeof(struct icmpin));
             Error(ctx);
+            return;
         }
         icmpp->inode = inode;
         icmpp->la = la;
@@ -1671,10 +1698,12 @@ static void get_ipx(struct lsof_context *ctx, char *p) /* /proc/net/ipx path */
     } else {
         Ipxsin = (struct ipxsin **)calloc(INOBUCKS, sizeof(struct ipxsin *));
         if (!Ipxsin) {
-            (void)fprintf(stderr,
-                          "%s: can't allocate %d IPX hash pointer bytes\n", Pn,
-                          (int)(INOBUCKS * sizeof(struct ipxsin *)));
+            if (ctx->err)
+                (void)fprintf(ctx->err,
+                              "%s: can't allocate %d IPX hash pointer bytes\n",
+                              Pn, (int)(INOBUCKS * sizeof(struct ipxsin *)));
             Error(ctx);
+            return;
         }
     }
     /*
@@ -1697,9 +1726,10 @@ static void get_ipx(struct lsof_context *ctx, char *p) /* /proc/net/ipx path */
                 strcmp(fp[3], "Rx_Queue") || !fp[4] || strcmp(fp[4], "State") ||
                 !fp[5] || strcmp(fp[5], "Uid") || !fp[6] ||
                 strcmp(fp[6], "Inode")) {
-                if (!Fwarn) {
-                    (void)fprintf(
-                        stderr, "%s: WARNING: unsupported format: %s\n", Pn, p);
+                if (ctx->err && !Fwarn) {
+                    (void)fprintf(ctx->err,
+                                  "%s: WARNING: unsupported format: %s\n", Pn,
+                                  p);
                 }
                 break;
             }
@@ -1739,11 +1769,13 @@ static void get_ipx(struct lsof_context *ctx, char *p) /* /proc/net/ipx path */
             la = (char *)NULL;
         else if ((len = strlen(fp[0]))) {
             if (!(la = (char *)malloc(len + 1))) {
-                (void)fprintf(
-                    stderr,
-                    "%s: can't allocate %d local IPX address bytes: %s\n", Pn,
-                    (int)(len + 1), fp[0]);
+                if (ctx->err)
+                    (void)fprintf(
+                        ctx->err,
+                        "%s: can't allocate %d local IPX address bytes: %s\n",
+                        Pn, (int)(len + 1), fp[0]);
                 Error(ctx);
+                return;
             }
             (void)snpf(la, len + 1, "%s", fp[0]);
         } else
@@ -1755,11 +1787,13 @@ static void get_ipx(struct lsof_context *ctx, char *p) /* /proc/net/ipx path */
             ra = (char *)NULL;
         else if ((len = strlen(fp[1]))) {
             if (!(ra = (char *)malloc(len + 1))) {
-                (void)fprintf(
-                    stderr,
-                    "%s: can't allocate %d remote IPX address bytes: %s\n", Pn,
-                    (int)(len + 1), fp[1]);
+                if (ctx->err)
+                    (void)fprintf(
+                        ctx->err,
+                        "%s: can't allocate %d remote IPX address bytes: %s\n",
+                        Pn, (int)(len + 1), fp[1]);
                 Error(ctx);
+                return;
             }
             (void)snpf(ra, len + 1, "%s", fp[1]);
         } else
@@ -1769,10 +1803,12 @@ static void get_ipx(struct lsof_context *ctx, char *p) /* /proc/net/ipx path */
          * hash bucket.
          */
         if (!(ip = (struct ipxsin *)malloc(sizeof(struct ipxsin)))) {
-            (void)fprintf(stderr,
-                          "%s: can't allocate %d byte ipxsin structure\n", Pn,
-                          (int)sizeof(struct ipxsin));
+            if (ctx->err)
+                (void)fprintf(ctx->err,
+                              "%s: can't allocate %d byte ipxsin structure\n",
+                              Pn, (int)sizeof(struct ipxsin));
             Error(ctx);
+            return;
         }
         ip->inode = inode;
         ip->la = la;
@@ -1813,10 +1849,13 @@ static void get_netlink(struct lsof_context *ctx,
     } else {
         Nlksin = (struct nlksin **)calloc(INOBUCKS, sizeof(struct nlksin *));
         if (!Nlksin) {
-            (void)fprintf(stderr,
-                          "%s: can't allocate %d netlink hash pointer bytes\n",
-                          Pn, (int)(INOBUCKS * sizeof(struct nlksin *)));
+            if (ctx->err)
+                (void)fprintf(
+                    ctx->err,
+                    "%s: can't allocate %d netlink hash pointer bytes\n", Pn,
+                    (int)(INOBUCKS * sizeof(struct nlksin *)));
             Error(ctx);
+            return;
         }
     }
     /*
@@ -1835,9 +1874,10 @@ static void get_netlink(struct lsof_context *ctx,
              */
             if (!fp[1] || strcmp(fp[1], "Eth") || !fp[9] ||
                 strcmp(fp[9], "Inode")) {
-                if (!Fwarn) {
-                    (void)fprintf(
-                        stderr, "%s: WARNING: unsupported format: %s\n", Pn, p);
+                if (ctx->err && !Fwarn) {
+                    (void)fprintf(ctx->err,
+                                  "%s: WARNING: unsupported format: %s\n", Pn,
+                                  p);
                 }
                 break;
             }
@@ -1866,10 +1906,12 @@ static void get_netlink(struct lsof_context *ctx,
          * hash bucket.
          */
         if (!(lp = (struct nlksin *)malloc(sizeof(struct nlksin)))) {
-            (void)fprintf(stderr,
-                          "%s: can't allocate %d byte Netlink structure\n", Pn,
-                          (int)sizeof(struct nlksin));
+            if (ctx->err)
+                (void)fprintf(ctx->err,
+                              "%s: can't allocate %d byte Netlink structure\n",
+                              Pn, (int)sizeof(struct nlksin));
             Error(ctx);
+            return;
         }
         lp->inode = inode;
         lp->pr = pr;
@@ -1906,10 +1948,13 @@ static void get_pack(struct lsof_context *ctx, char *p) /* /proc/net/raw path */
     } else {
         Packin = (struct packin **)calloc(INOBUCKS, sizeof(struct packin *));
         if (!Packin) {
-            (void)fprintf(stderr,
-                          "%s: can't allocate %d packet hash pointer bytes\n",
-                          Pn, (int)(INOBUCKS * sizeof(struct packin *)));
+            if (ctx->err)
+                (void)fprintf(
+                    ctx->err,
+                    "%s: can't allocate %d packet hash pointer bytes\n", Pn,
+                    (int)(INOBUCKS * sizeof(struct packin *)));
             Error(ctx);
+            return;
         }
     }
     /*
@@ -1928,9 +1973,10 @@ static void get_pack(struct lsof_context *ctx, char *p) /* /proc/net/raw path */
              */
             if (!fp[2] || strcmp(fp[2], "Type") || !fp[3] ||
                 strcmp(fp[3], "Proto") || !fp[8] || strcmp(fp[8], "Inode")) {
-                if (!Fwarn) {
-                    (void)fprintf(
-                        stderr, "%s: WARNING: unsupported format: %s\n", Pn, p);
+                if (ctx->err && !Fwarn) {
+                    (void)fprintf(ctx->err,
+                                  "%s: WARNING: unsupported format: %s\n", Pn,
+                                  p);
                 }
                 break;
             }
@@ -1963,10 +2009,12 @@ static void get_pack(struct lsof_context *ctx, char *p) /* /proc/net/raw path */
          * hash bucket.
          */
         if (!(pp = (struct packin *)malloc(sizeof(struct packin)))) {
-            (void)fprintf(stderr,
-                          "%s: can't allocate %d byte packet structure\n", Pn,
-                          (int)sizeof(struct packin));
+            if (ctx->err)
+                (void)fprintf(ctx->err,
+                              "%s: can't allocate %d byte packet structure\n",
+                              Pn, (int)sizeof(struct packin));
             Error(ctx);
+            return;
         }
         pp->inode = inode;
         pp->pr = (int)pr;
@@ -2008,10 +2056,12 @@ static void get_raw(struct lsof_context *ctx, char *p) /* /proc/net/raw path */
     } else {
         Rawsin = (struct rawsin **)calloc(INOBUCKS, sizeof(struct rawsin *));
         if (!Rawsin) {
-            (void)fprintf(stderr,
-                          "%s: can't allocate %d raw hash pointer bytes\n", Pn,
-                          (int)(INOBUCKS * sizeof(struct rawsin *)));
+            if (ctx->err)
+                (void)fprintf(ctx->err,
+                              "%s: can't allocate %d raw hash pointer bytes\n",
+                              Pn, (int)(INOBUCKS * sizeof(struct rawsin *)));
             Error(ctx);
+            return;
         }
     }
     /*
@@ -2031,9 +2081,10 @@ static void get_raw(struct lsof_context *ctx, char *p) /* /proc/net/raw path */
             if (!fp[1] || strcmp(fp[1], "local_address") || !fp[2] ||
                 strcmp(fp[2], "rem_address") || !fp[3] || strcmp(fp[3], "st") ||
                 !fp[11] || strcmp(fp[11], "inode")) {
-                if (!Fwarn) {
-                    (void)fprintf(
-                        stderr, "%s: WARNING: unsupported format: %s\n", Pn, p);
+                if (ctx->err && !Fwarn) {
+                    (void)fprintf(ctx->err,
+                                  "%s: WARNING: unsupported format: %s\n", Pn,
+                                  p);
                 }
                 break;
             }
@@ -2059,11 +2110,13 @@ static void get_raw(struct lsof_context *ctx, char *p) /* /proc/net/raw path */
             lal = (MALLOC_S)0;
         } else {
             if (!(la = (char *)malloc(lal + 1))) {
-                (void)fprintf(
-                    stderr,
-                    "%s: can't allocate %d local raw address bytes: %s\n", Pn,
-                    (int)(lal + 1), fp[1]);
+                if (ctx->err)
+                    (void)fprintf(
+                        ctx->err,
+                        "%s: can't allocate %d local raw address bytes: %s\n",
+                        Pn, (int)(lal + 1), fp[1]);
                 Error(ctx);
+                return;
             }
             (void)snpf(la, lal + 1, "%s", fp[1]);
         }
@@ -2072,11 +2125,13 @@ static void get_raw(struct lsof_context *ctx, char *p) /* /proc/net/raw path */
             ral = (MALLOC_S)0;
         } else {
             if (!(ra = (char *)malloc(ral + 1))) {
-                (void)fprintf(
-                    stderr,
-                    "%s: can't allocate %d remote raw address bytes: %s\n", Pn,
-                    (int)(ral + 1), fp[2]);
+                if (ctx->err)
+                    (void)fprintf(
+                        ctx->err,
+                        "%s: can't allocate %d remote raw address bytes: %s\n",
+                        Pn, (int)(ral + 1), fp[2]);
                 Error(ctx);
+                return;
             }
             (void)snpf(ra, ral + 1, "%s", fp[2]);
         }
@@ -2085,11 +2140,13 @@ static void get_raw(struct lsof_context *ctx, char *p) /* /proc/net/raw path */
             spl = (MALLOC_S)0;
         } else {
             if (!(sp = (char *)malloc(spl + 1))) {
-                (void)fprintf(
-                    stderr,
-                    "%s: can't allocate %d remote raw state bytes: %s\n", Pn,
-                    (int)(spl + 1), fp[2]);
+                if (ctx->err)
+                    (void)fprintf(
+                        ctx->err,
+                        "%s: can't allocate %d remote raw state bytes: %s\n",
+                        Pn, (int)(spl + 1), fp[2]);
                 Error(ctx);
+                return;
             }
             (void)snpf(sp, spl + 1, "%s", fp[3]);
         }
@@ -2098,10 +2155,12 @@ static void get_raw(struct lsof_context *ctx, char *p) /* /proc/net/raw path */
          * hash bucket.
          */
         if (!(rp = (struct rawsin *)malloc(sizeof(struct rawsin)))) {
-            (void)fprintf(stderr,
-                          "%s: can't allocate %d byte rawsin structure\n", Pn,
-                          (int)sizeof(struct rawsin));
+            if (ctx->err)
+                (void)fprintf(ctx->err,
+                              "%s: can't allocate %d byte rawsin structure\n",
+                              Pn, (int)sizeof(struct rawsin));
             Error(ctx);
+            return;
         }
         rp->inode = inode;
         rp->la = la;
@@ -2153,10 +2212,12 @@ static void get_sctp(struct lsof_context *ctx) {
     } else {
         SCTPsin = (struct sctpsin **)calloc(INOBUCKS, sizeof(struct sctpsin *));
         if (!SCTPsin) {
-            (void)fprintf(stderr,
-                          "%s: can't allocate %d SCTP hash pointer bytes\n", Pn,
-                          (int)(INOBUCKS * sizeof(struct sctpsin *)));
+            if (ctx->err)
+                (void)fprintf(ctx->err,
+                              "%s: can't allocate %d SCTP hash pointer bytes\n",
+                              Pn, (int)(INOBUCKS * sizeof(struct sctpsin *)));
             Error(ctx);
+            return;
         }
     }
     /*
@@ -2200,8 +2261,8 @@ static void get_sctp(struct lsof_context *ctx) {
                     }
                 }
                 if (err) {
-                    if (!Fwarn)
-                        (void)fprintf(stderr,
+                    if (ctx->err && !Fwarn)
+                        (void)fprintf(ctx->err,
                                       "%s: WARNING: unsupported format: %s\n",
                                       Pn, SCTPPath[i]);
                     break;
@@ -2247,10 +2308,13 @@ static void get_sctp(struct lsof_context *ctx) {
                     d = 0;
                 }
                 if (!a) {
-                    (void)fprintf(
-                        stderr, "%s: can't allocate %d SCTP ASSOC bytes: %s\n",
-                        Pn, (int)(len + 1), fp[0]);
+                    if (ctx->err)
+                        (void)fprintf(
+                            ctx->err,
+                            "%s: can't allocate %d SCTP ASSOC bytes: %s\n", Pn,
+                            (int)(len + 1), fp[0]);
                     Error(ctx);
+                    return;
                 }
                 if (!d) {
                     if (plen)
@@ -2277,11 +2341,13 @@ static void get_sctp(struct lsof_context *ctx) {
                     d = 0;
                 }
                 if (!id) {
-                    (void)fprintf(
-                        stderr,
-                        "%s: can't allocate %d SCTP ASSOC-ID bytes: %s\n", Pn,
-                        (int)(len + 1), fp[6]);
+                    if (ctx->err)
+                        (void)fprintf(
+                            ctx->err,
+                            "%s: can't allocate %d SCTP ASSOC-ID bytes: %s\n",
+                            Pn, (int)(len + 1), fp[6]);
                     Error(ctx);
+                    return;
                 }
                 if (!d) {
                     if (plen)
@@ -2309,10 +2375,13 @@ static void get_sctp(struct lsof_context *ctx) {
                     d = 0;
                 }
                 if (!lp) {
-                    (void)fprintf(
-                        stderr, "%s: can't allocate %d SCTP LPORT bytes: %s\n",
-                        Pn, (int)(len + 1), fp[j]);
+                    if (ctx->err)
+                        (void)fprintf(
+                            ctx->err,
+                            "%s: can't allocate %d SCTP LPORT bytes: %s\n", Pn,
+                            (int)(len + 1), fp[j]);
                     Error(ctx);
+                    return;
                 }
                 if (!d) {
                     if (plen)
@@ -2339,10 +2408,13 @@ static void get_sctp(struct lsof_context *ctx) {
                     d = 0;
                 }
                 if (!rp) {
-                    (void)fprintf(
-                        stderr, "%s: can't allocate %d SCTP RPORT bytes: %s\n",
-                        Pn, (int)(len + 1), fp[12]);
+                    if (ctx->err)
+                        (void)fprintf(
+                            ctx->err,
+                            "%s: can't allocate %d SCTP RPORT bytes: %s\n", Pn,
+                            (int)(len + 1), fp[12]);
                     Error(ctx);
+                    return;
                 }
                 if (!d) {
                     if (plen)
@@ -2360,10 +2432,13 @@ static void get_sctp(struct lsof_context *ctx) {
             x = 0;
             if (fp[j] && *fp[j] && (len = strlen(fp[j]))) {
                 if (!(ta = get_sctpaddrs(fp, j, nf, &x))) {
-                    (void)fprintf(stderr,
-                                  "%s: can't allocate %d SCTP LADDRS bytes\n",
-                                  Pn, (int)len);
+                    if (ctx->err)
+                        (void)fprintf(
+                            ctx->err,
+                            "%s: can't allocate %d SCTP LADDRS bytes\n", Pn,
+                            (int)len);
                     Error(ctx);
+                    return;
                 }
                 if (la) {
                     if (isainb(ta, la)) {
@@ -2371,11 +2446,13 @@ static void get_sctp(struct lsof_context *ctx) {
                         plen = strlen(la);
                         if (!(la = (char *)realloc((MALLOC_P *)la,
                                                    plen + len + 2))) {
-                            (void)fprintf(
-                                stderr,
-                                "%s: can't reallocate %d SCTP LADDRS bytes\n",
-                                Pn, (int)len);
+                            if (ctx->err)
+                                (void)fprintf(ctx->err,
+                                              "%s: can't reallocate %d SCTP "
+                                              "LADDRS bytes\n",
+                                              Pn, (int)len);
                             Error(ctx);
+                            return;
                         }
                         (void)snpf(la + plen, len + 2, ",%s", ta);
                         (void)free((FREE_P *)ta);
@@ -2391,10 +2468,13 @@ static void get_sctp(struct lsof_context *ctx) {
             if (!i && x && fp[x + 1] && *fp[x + 1] &&
                 (len = strlen(fp[x + 1]))) {
                 if (!(ta = get_sctpaddrs(fp, x + 1, nf, &x))) {
-                    (void)fprintf(stderr,
-                                  "%s: can't allocate %d SCTP RADDRS bytes\n",
-                                  Pn, (int)len);
+                    if (ctx->err)
+                        (void)fprintf(
+                            ctx->err,
+                            "%s: can't allocate %d SCTP RADDRS bytes\n", Pn,
+                            (int)len);
                     Error(ctx);
+                    return;
                 }
                 if (ra) {
                     if (isainb(ta, ra)) {
@@ -2402,11 +2482,13 @@ static void get_sctp(struct lsof_context *ctx) {
                         plen = strlen(ra);
                         if (!(ra = (char *)realloc((MALLOC_P *)ra,
                                                    plen + len + 2))) {
-                            (void)fprintf(
-                                stderr,
-                                "%s: can't reallocate %d SCTP RADDRS bytes\n",
-                                Pn, (int)len);
+                            if (ctx->err)
+                                (void)fprintf(ctx->err,
+                                              "%s: can't reallocate %d SCTP "
+                                              "RADDRS bytes\n",
+                                              Pn, (int)len);
                             Error(ctx);
+                            return;
                         }
                         (void)snpf(ra + plen, len + 2, ",%s", ta);
                         (void)free((FREE_P *)ta);
@@ -2421,11 +2503,13 @@ static void get_sctp(struct lsof_context *ctx) {
              */
             if (!sp) {
                 if (!(sp = (struct sctpsin *)malloc(sizeof(struct sctpsin)))) {
-                    (void)fprintf(
-                        stderr,
-                        "%s: can't allocate %d byte sctpsin structure\n", Pn,
-                        (int)sizeof(struct sctpsin));
+                    if (ctx->err)
+                        (void)fprintf(
+                            ctx->err,
+                            "%s: can't allocate %d byte sctpsin structure\n",
+                            Pn, (int)sizeof(struct sctpsin));
                     Error(ctx);
+                    return;
                 }
                 sp->inode = inode;
                 HASH_INSERT_ELEMENT(SCTPsin, INOHASH, sp, inode);
@@ -2552,20 +2636,25 @@ static void get_tcpudp(struct lsof_context *ctx,
         }
         if (!(TcpUdp = (struct tcp_udp **)calloc(TcpUdp_bucks,
                                                  sizeof(struct tcp_udp *)))) {
-            (void)fprintf(
-                stderr,
-                "%s: can't allocate %d bytes for TCP&UDP hash buckets\n", Pn,
-                (int)(TcpUdp_bucks * sizeof(struct tcp_udp *)));
+            if (ctx->err)
+                (void)fprintf(
+                    ctx->err,
+                    "%s: can't allocate %d bytes for TCP&UDP hash buckets\n",
+                    Pn, (int)(TcpUdp_bucks * sizeof(struct tcp_udp *)));
             Error(ctx);
+            return;
         }
 #if defined(HASEPTOPTS)
         if (FeptE && (!(TcpUdpIPC = (struct tcp_udp **)calloc(
                             IPCBUCKS, sizeof(struct tcp_udp *))))) {
-            (void)fprintf(stderr,
-                          "%s: can't allocate %d bytes for TCP&UDP local IPC "
-                          "hash buckets\n",
-                          Pn, (int)(IPCBUCKS * sizeof(struct tcp_udp *)));
+            if (ctx->err)
+                (void)fprintf(
+                    ctx->err,
+                    "%s: can't allocate %d bytes for TCP&UDP local IPC "
+                    "hash buckets\n",
+                    Pn, (int)(IPCBUCKS * sizeof(struct tcp_udp *)));
             Error(ctx);
+            return;
         }
 #endif /* defined(HASEPTOPTS) */
     }
@@ -2586,9 +2675,10 @@ static void get_tcpudp(struct lsof_context *ctx,
                 !fp[4] || strcmp(fp[4], "tx_queue") || !fp[5] ||
                 strcmp(fp[5], "rx_queue") || !fp[11] ||
                 strcmp(fp[11], "inode")) {
-                if (!Fwarn) {
-                    (void)fprintf(
-                        stderr, "%s: WARNING: unsupported format: %s\n", Pn, p);
+                if (ctx->err && !Fwarn) {
+                    (void)fprintf(ctx->err,
+                                  "%s: WARNING: unsupported format: %s\n", Pn,
+                                  p);
                 }
                 break;
             }
@@ -2642,10 +2732,13 @@ static void get_tcpudp(struct lsof_context *ctx,
          * Create a new entry and link it to its hash bucket.
          */
         if (!(tp = (struct tcp_udp *)malloc(sizeof(struct tcp_udp)))) {
-            (void)fprintf(stderr,
-                          "%s: can't allocate %d bytes for tcp_udp struct\n",
-                          Pn, (int)sizeof(struct tcp_udp));
+            if (ctx->err)
+                (void)fprintf(
+                    ctx->err,
+                    "%s: can't allocate %d bytes for tcp_udp struct\n", Pn,
+                    (int)sizeof(struct tcp_udp));
             Error(ctx);
+            return;
         }
         tp->inode = inode;
         tp->faddr = faddr;
@@ -2716,10 +2809,12 @@ static void get_raw6(struct lsof_context *ctx, char *p) /* /proc/net/raw path */
     } else {
         Rawsin6 = (struct rawsin **)calloc(INOBUCKS, sizeof(struct rawsin *));
         if (!Rawsin6) {
-            (void)fprintf(stderr,
-                          "%s: can't allocate %d raw6 hash pointer bytes\n", Pn,
-                          (int)(INOBUCKS * sizeof(struct rawsin *)));
+            if (ctx->err)
+                (void)fprintf(ctx->err,
+                              "%s: can't allocate %d raw6 hash pointer bytes\n",
+                              Pn, (int)(INOBUCKS * sizeof(struct rawsin *)));
             Error(ctx);
+            return;
         }
     }
     /*
@@ -2739,9 +2834,10 @@ static void get_raw6(struct lsof_context *ctx, char *p) /* /proc/net/raw path */
             if (!fp[1] || strcmp(fp[1], "local_address") || !fp[2] ||
                 strcmp(fp[2], "remote_address") || !fp[3] ||
                 strcmp(fp[3], "st") || !fp[11] || strcmp(fp[11], "inode")) {
-                if (!Fwarn) {
-                    (void)fprintf(
-                        stderr, "%s: WARNING: unsupported format: %s\n", Pn, p);
+                if (ctx->err && !Fwarn) {
+                    (void)fprintf(ctx->err,
+                                  "%s: WARNING: unsupported format: %s\n", Pn,
+                                  p);
                 }
                 break;
             }
@@ -2767,11 +2863,13 @@ static void get_raw6(struct lsof_context *ctx, char *p) /* /proc/net/raw path */
             lal = (MALLOC_S)0;
         } else {
             if (!(la = (char *)malloc(lal + 1))) {
-                (void)fprintf(
-                    stderr,
-                    "%s: can't allocate %d local raw6 address bytes: %s\n", Pn,
-                    (int)(lal + 1), fp[1]);
+                if (ctx->err)
+                    (void)fprintf(
+                        ctx->err,
+                        "%s: can't allocate %d local raw6 address bytes: %s\n",
+                        Pn, (int)(lal + 1), fp[1]);
                 Error(ctx);
+                return;
             }
             (void)snpf(la, lal + 1, "%s", fp[1]);
         }
@@ -2780,11 +2878,13 @@ static void get_raw6(struct lsof_context *ctx, char *p) /* /proc/net/raw path */
             ral = (MALLOC_S)0;
         } else {
             if (!(ra = (char *)malloc(ral + 1))) {
-                (void)fprintf(
-                    stderr,
-                    "%s: can't allocate %d remote raw6 address bytes: %s\n", Pn,
-                    (int)(ral + 1), fp[2]);
+                if (ctx->err)
+                    (void)fprintf(
+                        ctx->err,
+                        "%s: can't allocate %d remote raw6 address bytes: %s\n",
+                        Pn, (int)(ral + 1), fp[2]);
                 Error(ctx);
+                return;
             }
             (void)snpf(ra, ral + 1, "%s", fp[2]);
         }
@@ -2793,11 +2893,13 @@ static void get_raw6(struct lsof_context *ctx, char *p) /* /proc/net/raw path */
             spl = (MALLOC_S)0;
         } else {
             if (!(sp = (char *)malloc(spl + 1))) {
-                (void)fprintf(
-                    stderr,
-                    "%s: can't allocate %d remote raw6 state bytes: %s\n", Pn,
-                    (int)(spl + 1), fp[2]);
+                if (ctx->err)
+                    (void)fprintf(
+                        ctx->err,
+                        "%s: can't allocate %d remote raw6 state bytes: %s\n",
+                        Pn, (int)(spl + 1), fp[2]);
                 Error(ctx);
+                return;
             }
             (void)snpf(sp, spl + 1, "%s", fp[3]);
         }
@@ -2806,11 +2908,13 @@ static void get_raw6(struct lsof_context *ctx, char *p) /* /proc/net/raw path */
          * hash bucket.
          */
         if (!(rp = (struct rawsin *)malloc(sizeof(struct rawsin)))) {
-            (void)fprintf(
-                stderr,
-                "%s: can't allocate %d byte rawsin structure for IPv6\n", Pn,
-                (int)sizeof(struct rawsin));
+            if (ctx->err)
+                (void)fprintf(
+                    ctx->err,
+                    "%s: can't allocate %d byte rawsin structure for IPv6\n",
+                    Pn, (int)sizeof(struct rawsin));
             Error(ctx);
+            return;
         }
         rp->inode = inode;
         rp->la = la;
@@ -2910,20 +3014,25 @@ static void get_tcpudp6(struct lsof_context *ctx,
         }
         if (!(TcpUdp6 = (struct tcp_udp6 **)calloc(
                   TcpUdp6_bucks, sizeof(struct tcp_udp6 *)))) {
-            (void)fprintf(
-                stderr,
-                "%s: can't allocate %d bytes for TCP6&UDP6 hash buckets\n", Pn,
-                (int)(TcpUdp6_bucks * sizeof(struct tcp_udp6 *)));
+            if (ctx->err)
+                (void)fprintf(
+                    ctx->err,
+                    "%s: can't allocate %d bytes for TCP6&UDP6 hash buckets\n",
+                    Pn, (int)(TcpUdp6_bucks * sizeof(struct tcp_udp6 *)));
             Error(ctx);
+            return;
         }
 #    if defined(HASEPTOPTS)
         if (FeptE && (!(TcpUdp6IPC = (struct tcp_udp6 **)calloc(
                             IPCBUCKS, sizeof(struct tcp_udp6 *))))) {
-            (void)fprintf(stderr,
-                          "%s: can't allocate %d bytes for TCP6&UDP6 local IPC "
-                          "hash buckets\n",
-                          Pn, (int)(IPCBUCKS * sizeof(struct tcp_udp6 *)));
+            if (ctx->err)
+                (void)fprintf(
+                    ctx->err,
+                    "%s: can't allocate %d bytes for TCP6&UDP6 local IPC "
+                    "hash buckets\n",
+                    Pn, (int)(IPCBUCKS * sizeof(struct tcp_udp6 *)));
             Error(ctx);
+            return;
         }
 #    endif /* defined(HASEPTOPTS) */
     }
@@ -2944,9 +3053,10 @@ static void get_tcpudp6(struct lsof_context *ctx,
                 strcmp(fp[3], "st") || !fp[4] || strcmp(fp[4], "tx_queue") ||
                 !fp[5] || strcmp(fp[5], "rx_queue") || !fp[11] ||
                 strcmp(fp[11], "inode")) {
-                if (!Fwarn) {
-                    (void)fprintf(
-                        stderr, "%s: WARNING: unsupported format: %s\n", Pn, p);
+                if (ctx->err && !Fwarn) {
+                    (void)fprintf(ctx->err,
+                                  "%s: WARNING: unsupported format: %s\n", Pn,
+                                  p);
                 }
                 break;
             }
@@ -2997,10 +3107,13 @@ static void get_tcpudp6(struct lsof_context *ctx,
          * Create a new entry and link it to its hash bucket.
          */
         if (!(tp6 = (struct tcp_udp6 *)malloc(sizeof(struct tcp_udp6)))) {
-            (void)fprintf(stderr,
-                          "%s: can't allocate %d bytes for tcp_udp6 struct\n",
-                          Pn, (int)sizeof(struct tcp_udp6));
+            if (ctx->err)
+                (void)fprintf(
+                    ctx->err,
+                    "%s: can't allocate %d bytes for tcp_udp6 struct\n", Pn,
+                    (int)sizeof(struct tcp_udp6));
             Error(ctx);
+            return;
         }
         tp6->inode = inode;
         tp6->faddr = faddr;
@@ -3083,10 +3196,13 @@ static void get_unix(struct lsof_context *ctx,
     } else {
         Uxsin = (uxsin_t **)calloc(INOBUCKS, sizeof(uxsin_t *));
         if (!Uxsin) {
-            (void)fprintf(stderr,
-                          "%s: can't allocate %d bytes for Unix socket info\n",
-                          Pn, (int)(INOBUCKS * sizeof(uxsin_t *)));
+            if (ctx->err)
+                (void)fprintf(
+                    ctx->err,
+                    "%s: can't allocate %d bytes for Unix socket info\n", Pn,
+                    (int)(INOBUCKS * sizeof(uxsin_t *)));
             Error(ctx);
+            return;
         }
     }
     /*
@@ -3109,9 +3225,10 @@ static void get_unix(struct lsof_context *ctx,
                 !fp[4] || strcmp(fp[4], "Type") || !fp[5] ||
                 strcmp(fp[5], "St") || !fp[6] || strcmp(fp[6], "Inode") ||
                 nf < 8 || !fp[7] || strcmp(fp[7], "Path")) {
-                if (!Fwarn) {
-                    (void)fprintf(
-                        stderr, "%s: WARNING: unsupported format: %s\n", Pn, p);
+                if (ctx->err && !Fwarn) {
+                    (void)fprintf(ctx->err,
+                                  "%s: WARNING: unsupported format: %s\n", Pn,
+                                  p);
                 }
                 break;
             }
@@ -3134,20 +3251,25 @@ static void get_unix(struct lsof_context *ctx,
         else {
             len = strlen(fp[0]) + 2;
             if (!(pcb = (char *)malloc(len + 1))) {
-                (void)fprintf(stderr,
-                              "%s: can't allocate %d bytes for UNIX PCB: %s\n",
-                              Pn, (int)(len + 1), fp[0]);
+                if (ctx->err)
+                    (void)fprintf(
+                        ctx->err,
+                        "%s: can't allocate %d bytes for UNIX PCB: %s\n", Pn,
+                        (int)(len + 1), fp[0]);
                 Error(ctx);
+                return;
             }
             (void)snpf(pcb, len + 1, "0x%s", fp[0]);
         }
         if (nf >= 8 && fp[7] && *fp[7] && (len = strlen(fp[7]))) {
             if (!(path = (char *)malloc(len + 1))) {
-                (void)fprintf(
-                    stderr,
-                    "%s: can't allocate %d bytes for UNIX path \"%s\"\n", Pn,
-                    (int)(len + 1), fp[7]);
+                if (ctx->err)
+                    (void)fprintf(
+                        ctx->err,
+                        "%s: can't allocate %d bytes for UNIX path \"%s\"\n",
+                        Pn, (int)(len + 1), fp[7]);
                 Error(ctx);
+                return;
             }
             (void)snpf(path, len + 1, "%s", fp[7]);
         } else
@@ -3181,10 +3303,12 @@ static void get_unix(struct lsof_context *ctx,
          * hash bucket.
          */
         if (!(up = (uxsin_t *)malloc(sizeof(uxsin_t)))) {
-            (void)fprintf(stderr,
-                          "%s: can't allocate %d bytes for uxsin struct\n", Pn,
-                          (int)sizeof(uxsin_t));
+            if (ctx->err)
+                (void)fprintf(ctx->err,
+                              "%s: can't allocate %d bytes for uxsin struct\n",
+                              Pn, (int)sizeof(uxsin_t));
             Error(ctx);
+            return;
         }
         up->inode = inode;
         up->next = (uxsin_t *)NULL;
@@ -3363,11 +3487,13 @@ static void print_ax25info(struct lsof_context *ctx,
                cp ? cp : "");
     pl = strlen(pbuf);
     if (!(cp = (char *)malloc(pl + 1))) {
-        (void)fprintf(
-            stderr,
-            "%s: can't allocate %d bytes for AX25 sock state, PID: %d\n", Pn,
-            (int)(pl + 1), Lp->pid);
+        if (ctx->err)
+            (void)fprintf(
+                ctx->err,
+                "%s: can't allocate %d bytes for AX25 sock state, PID: %d\n",
+                Pn, (int)(pl + 1), Lp->pid);
         Error(ctx);
+        return;
     }
     (void)snpf(cp, pl + 1, "%s", pbuf);
     Lf->nma = cp;
@@ -3388,10 +3514,13 @@ static void print_ipxinfo(struct lsof_context *ctx,
                ip->rxq, ip->state);
     pl = strlen(pbuf);
     if (!(cp = (char *)malloc(pl + 1))) {
-        (void)fprintf(
-            stderr, "%s: can't allocate %d bytes for IPX sock state, PID: %d\n",
-            Pn, (int)(pl + 1), Lp->pid);
+        if (ctx->err)
+            (void)fprintf(
+                ctx->err,
+                "%s: can't allocate %d bytes for IPX sock state, PID: %d\n", Pn,
+                (int)(pl + 1), Lp->pid);
         Error(ctx);
+        return;
     }
     (void)snpf(cp, pl + 1, "%s", pbuf);
     Lf->nma = cp;
