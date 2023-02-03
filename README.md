@@ -47,11 +47,17 @@ current status of maintenance is as follows:
 
 <dl>
 <dt>FreeBSD</dt>
-<dd>partially maintained and tested on Cirrus CI</dd>
+<dd>fully maintained and tested on Cirrus CI</dd>
 <dt>Linux</dt>
 <dd>fully maintained, and tested on Circle CI</dd>
 <dt>Darwin</dt>
 <dd>fully maintained, and tested on Circle CI</dd>
+<dt>NetBSD</dt>
+<dd>fully maintained</dd>
+<dt>OpenBSD</dt>
+<dd>fully maintained</dd>
+<dt>Solaris/OpenIndiana</dt>
+<dd>fully maintained</dd>
 </dl>
 
 If you are interested in maintaining a dialect, let us know via the issue
