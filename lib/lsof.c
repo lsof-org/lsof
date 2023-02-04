@@ -798,7 +798,7 @@ enum lsof_error lsof_select_pid_pgid(struct lsof_context *ctx, int32_t id,
 }
 
 API_EXPORT
-enum lsof_error lsof_select_pid(struct lsof_context *ctx, int32_t pid,
+enum lsof_error lsof_select_pid(struct lsof_context *ctx, uint32_t pid,
                                 int exclude) {
     enum lsof_error res = lsof_select_pid_pgid(ctx, pid, &Spid, &Mxpid, &Npid,
                                                &Npidi, &Npidx, exclude, 1);
@@ -808,7 +808,7 @@ enum lsof_error lsof_select_pid(struct lsof_context *ctx, int32_t pid,
 }
 
 API_EXPORT
-enum lsof_error lsof_select_pgid(struct lsof_context *ctx, int32_t pgid,
+enum lsof_error lsof_select_pgid(struct lsof_context *ctx, uint32_t pgid,
                                  int exclude) {
     return lsof_select_pid_pgid(ctx, pgid, &Spgid, &Mxpgid, &Npgid, &Npgidi,
                                 &Npgidx, exclude, 0);
