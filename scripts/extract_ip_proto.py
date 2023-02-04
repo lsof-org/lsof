@@ -8,10 +8,16 @@ if os.path.exists('ip_proto.json'):
 # Extract ip protos from header
 with open('/usr/include/netinet/in.h', 'r') as f:
     for line in f:
-        m = re.search('\s+IPPROTO_([A-Z0-9_]+) = ([0-9]+)', line)
+        m = re.search('IPPROTO_([A-Z0-9_]+) = ([0-9]+)', line)
         if m:
             name = m[1]
             value = int(m[2])
             protos[name] = value
+        else:
+            m = re.search('#define\s+IPPROTO_([A-Z0-9_]+)\s+([0-9]+)', line)
+            if m:
+                name = m[1]
+                value = int(m[2])
+                protos[name] = value
 
 json.dump(protos, open('ip_proto.json', 'w'))
