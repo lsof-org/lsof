@@ -12,32 +12,125 @@ void print_iproto() {
     case LSOF_PROTOCOL_IGMP:
         (void)snpf(buf, buf_len, "IGMP");
         break;
+    case LSOF_PROTOCOL_GGP:
+        (void)snpf(buf, buf_len, "GGP");
+        break;
     case LSOF_PROTOCOL_IPIP:
         (void)snpf(buf, buf_len, "IPIP");
+        break;
+    case LSOF_PROTOCOL_IPV4:
+        (void)snpf(buf, buf_len, "IPV4");
         break;
     case LSOF_PROTOCOL_TCP:
         (void)snpf(buf, buf_len, "TCP");
         break;
+    case LSOF_PROTOCOL_ST:
+        (void)snpf(buf, buf_len, "ST");
+        break;
     case LSOF_PROTOCOL_EGP:
         (void)snpf(buf, buf_len, "EGP");
+        break;
+    case LSOF_PROTOCOL_PIGP:
+        (void)snpf(buf, buf_len, "PIGP");
+        break;
+    case LSOF_PROTOCOL_RCCMON:
+        (void)snpf(buf, buf_len, "RCCMON");
+        break;
+    case LSOF_PROTOCOL_NVPII:
+        (void)snpf(buf, buf_len, "NVPII");
         break;
     case LSOF_PROTOCOL_PUP:
         (void)snpf(buf, buf_len, "PUP");
         break;
+    case LSOF_PROTOCOL_ARGUS:
+        (void)snpf(buf, buf_len, "ARGUS");
+        break;
+    case LSOF_PROTOCOL_EMCON:
+        (void)snpf(buf, buf_len, "EMCON");
+        break;
+    case LSOF_PROTOCOL_XNET:
+        (void)snpf(buf, buf_len, "XNET");
+        break;
+    case LSOF_PROTOCOL_CHAOS:
+        (void)snpf(buf, buf_len, "CHAOS");
+        break;
     case LSOF_PROTOCOL_UDP:
         (void)snpf(buf, buf_len, "UDP");
+        break;
+    case LSOF_PROTOCOL_MUX:
+        (void)snpf(buf, buf_len, "MUX");
+        break;
+    case LSOF_PROTOCOL_MEAS:
+        (void)snpf(buf, buf_len, "MEAS");
+        break;
+    case LSOF_PROTOCOL_HMP:
+        (void)snpf(buf, buf_len, "HMP");
+        break;
+    case LSOF_PROTOCOL_PRM:
+        (void)snpf(buf, buf_len, "PRM");
         break;
     case LSOF_PROTOCOL_IDP:
         (void)snpf(buf, buf_len, "IDP");
         break;
+    case LSOF_PROTOCOL_TRUNK1:
+        (void)snpf(buf, buf_len, "TRUNK1");
+        break;
+    case LSOF_PROTOCOL_TRUNK2:
+        (void)snpf(buf, buf_len, "TRUNK2");
+        break;
+    case LSOF_PROTOCOL_LEAF1:
+        (void)snpf(buf, buf_len, "LEAF1");
+        break;
+    case LSOF_PROTOCOL_LEAF2:
+        (void)snpf(buf, buf_len, "LEAF2");
+        break;
+    case LSOF_PROTOCOL_RDP:
+        (void)snpf(buf, buf_len, "RDP");
+        break;
+    case LSOF_PROTOCOL_IRTP:
+        (void)snpf(buf, buf_len, "IRTP");
+        break;
     case LSOF_PROTOCOL_TP:
         (void)snpf(buf, buf_len, "TP");
+        break;
+    case LSOF_PROTOCOL_BLT:
+        (void)snpf(buf, buf_len, "BLT");
+        break;
+    case LSOF_PROTOCOL_NSP:
+        (void)snpf(buf, buf_len, "NSP");
+        break;
+    case LSOF_PROTOCOL_INP:
+        (void)snpf(buf, buf_len, "INP");
         break;
     case LSOF_PROTOCOL_DCCP:
         (void)snpf(buf, buf_len, "DCCP");
         break;
+    case LSOF_PROTOCOL_3PC:
+        (void)snpf(buf, buf_len, "3PC");
+        break;
+    case LSOF_PROTOCOL_IDPR:
+        (void)snpf(buf, buf_len, "IDPR");
+        break;
+    case LSOF_PROTOCOL_XTP:
+        (void)snpf(buf, buf_len, "XTP");
+        break;
+    case LSOF_PROTOCOL_DDP:
+        (void)snpf(buf, buf_len, "DDP");
+        break;
+    case LSOF_PROTOCOL_CMTP:
+        (void)snpf(buf, buf_len, "CMTP");
+        break;
+    case LSOF_PROTOCOL_TPXX:
+        (void)snpf(buf, buf_len, "TPXX");
+        break;
+    case LSOF_PROTOCOL_IL:
+        (void)snpf(buf, buf_len, "IL");
+        break;
     case LSOF_PROTOCOL_IPV6:
         (void)snpf(buf, buf_len, "IPV6");
+        break;
+    case LSOF_PROTOCOL_SDRP:
+        (void)snpf(buf, buf_len, "SDRP");
         break;
     case LSOF_PROTOCOL_ROUTING:
         (void)snpf(buf, buf_len, "ROUTING");
@@ -45,17 +138,44 @@ void print_iproto() {
     case LSOF_PROTOCOL_FRAGMENT:
         (void)snpf(buf, buf_len, "FRAGMNT");
         break;
+    case LSOF_PROTOCOL_IDRP:
+        (void)snpf(buf, buf_len, "IDRP");
+        break;
     case LSOF_PROTOCOL_RSVP:
         (void)snpf(buf, buf_len, "RSVP");
         break;
     case LSOF_PROTOCOL_GRE:
         (void)snpf(buf, buf_len, "GRE");
         break;
+    case LSOF_PROTOCOL_MHRP:
+        (void)snpf(buf, buf_len, "MHRP");
+        break;
+    case LSOF_PROTOCOL_BHA:
+        (void)snpf(buf, buf_len, "BHA");
+        break;
     case LSOF_PROTOCOL_ESP:
         (void)snpf(buf, buf_len, "ESP");
         break;
     case LSOF_PROTOCOL_AH:
         (void)snpf(buf, buf_len, "AH");
+        break;
+    case LSOF_PROTOCOL_INLSP:
+        (void)snpf(buf, buf_len, "INLSP");
+        break;
+    case LSOF_PROTOCOL_SWIPE:
+        (void)snpf(buf, buf_len, "SWIPE");
+        break;
+    case LSOF_PROTOCOL_NHRP:
+        (void)snpf(buf, buf_len, "NHRP");
+        break;
+    case LSOF_PROTOCOL_MOBILE:
+        (void)snpf(buf, buf_len, "MOBILE");
+        break;
+    case LSOF_PROTOCOL_TLSP:
+        (void)snpf(buf, buf_len, "TLSP");
+        break;
+    case LSOF_PROTOCOL_SKIP:
+        (void)snpf(buf, buf_len, "SKIP");
         break;
     case LSOF_PROTOCOL_ICMPV6:
         (void)snpf(buf, buf_len, "ICMPV6");
@@ -66,20 +186,143 @@ void print_iproto() {
     case LSOF_PROTOCOL_DSTOPTS:
         (void)snpf(buf, buf_len, "DSTOPTS");
         break;
+    case LSOF_PROTOCOL_AHIP:
+        (void)snpf(buf, buf_len, "AHIP");
+        break;
+    case LSOF_PROTOCOL_CFTP:
+        (void)snpf(buf, buf_len, "CFTP");
+        break;
+    case LSOF_PROTOCOL_HELLO:
+        (void)snpf(buf, buf_len, "HELLO");
+        break;
+    case LSOF_PROTOCOL_SATEXPAK:
+        (void)snpf(buf, buf_len, "STEXPAK");
+        break;
+    case LSOF_PROTOCOL_KRYPTOLAN:
+        (void)snpf(buf, buf_len, "KRYPTLN");
+        break;
+    case LSOF_PROTOCOL_RVD:
+        (void)snpf(buf, buf_len, "RVD");
+        break;
+    case LSOF_PROTOCOL_IPPC:
+        (void)snpf(buf, buf_len, "IPPC");
+        break;
+    case LSOF_PROTOCOL_ADFS:
+        (void)snpf(buf, buf_len, "ADFS");
+        break;
+    case LSOF_PROTOCOL_SATMON:
+        (void)snpf(buf, buf_len, "SATMON");
+        break;
+    case LSOF_PROTOCOL_VISA:
+        (void)snpf(buf, buf_len, "VISA");
+        break;
+    case LSOF_PROTOCOL_IPCV:
+        (void)snpf(buf, buf_len, "IPCV");
+        break;
+    case LSOF_PROTOCOL_CPNX:
+        (void)snpf(buf, buf_len, "CPNX");
+        break;
+    case LSOF_PROTOCOL_CPHB:
+        (void)snpf(buf, buf_len, "CPHB");
+        break;
+    case LSOF_PROTOCOL_WSN:
+        (void)snpf(buf, buf_len, "WSN");
+        break;
+    case LSOF_PROTOCOL_PVP:
+        (void)snpf(buf, buf_len, "PVP");
+        break;
+    case LSOF_PROTOCOL_BRSATMON:
+        (void)snpf(buf, buf_len, "BRSTMON");
+        break;
+    case LSOF_PROTOCOL_ND:
+        (void)snpf(buf, buf_len, "ND");
+        break;
+    case LSOF_PROTOCOL_WBMON:
+        (void)snpf(buf, buf_len, "WBMON");
+        break;
+    case LSOF_PROTOCOL_WBEXPAK:
+        (void)snpf(buf, buf_len, "WBEXPAK");
+        break;
+    case LSOF_PROTOCOL_EON:
+        (void)snpf(buf, buf_len, "EON");
+        break;
+    case LSOF_PROTOCOL_VMTP:
+        (void)snpf(buf, buf_len, "VMTP");
+        break;
+    case LSOF_PROTOCOL_SVMTP:
+        (void)snpf(buf, buf_len, "SVMTP");
+        break;
+    case LSOF_PROTOCOL_VINES:
+        (void)snpf(buf, buf_len, "VINES");
+        break;
+    case LSOF_PROTOCOL_TTP:
+        (void)snpf(buf, buf_len, "TTP");
+        break;
+    case LSOF_PROTOCOL_IGP:
+        (void)snpf(buf, buf_len, "IGP");
+        break;
+    case LSOF_PROTOCOL_DGP:
+        (void)snpf(buf, buf_len, "DGP");
+        break;
+    case LSOF_PROTOCOL_TCF:
+        (void)snpf(buf, buf_len, "TCF");
+        break;
+    case LSOF_PROTOCOL_IGRP:
+        (void)snpf(buf, buf_len, "IGRP");
+        break;
+    case LSOF_PROTOCOL_OSPFIGP:
+        (void)snpf(buf, buf_len, "OSPFIGP");
+        break;
+    case LSOF_PROTOCOL_SRPC:
+        (void)snpf(buf, buf_len, "SRPC");
+        break;
+    case LSOF_PROTOCOL_LARP:
+        (void)snpf(buf, buf_len, "LARP");
+        break;
     case LSOF_PROTOCOL_MTP:
         (void)snpf(buf, buf_len, "MTP");
+        break;
+    case LSOF_PROTOCOL_AX25:
+        (void)snpf(buf, buf_len, "AX25");
         break;
     case LSOF_PROTOCOL_BEETPH:
         (void)snpf(buf, buf_len, "BEETPH");
         break;
+    case LSOF_PROTOCOL_IPEIP:
+        (void)snpf(buf, buf_len, "IPEIP");
+        break;
+    case LSOF_PROTOCOL_MICP:
+        (void)snpf(buf, buf_len, "MICP");
+        break;
+    case LSOF_PROTOCOL_SCCSP:
+        (void)snpf(buf, buf_len, "SCCSP");
+        break;
+    case LSOF_PROTOCOL_ETHERIP:
+        (void)snpf(buf, buf_len, "ETHERIP");
+        break;
     case LSOF_PROTOCOL_ENCAP:
         (void)snpf(buf, buf_len, "ENCAP");
+        break;
+    case LSOF_PROTOCOL_APES:
+        (void)snpf(buf, buf_len, "APES");
+        break;
+    case LSOF_PROTOCOL_GMTP:
+        (void)snpf(buf, buf_len, "GMTP");
         break;
     case LSOF_PROTOCOL_PIM:
         (void)snpf(buf, buf_len, "PIM");
         break;
     case LSOF_PROTOCOL_COMP:
         (void)snpf(buf, buf_len, "COMP");
+        break;
+    case LSOF_PROTOCOL_IPCOMP:
+        (void)snpf(buf, buf_len, "IPCOMP");
+        break;
+    case LSOF_PROTOCOL_CARP:
+        (void)snpf(buf, buf_len, "CARP");
+        break;
+    case LSOF_PROTOCOL_PGM:
+        (void)snpf(buf, buf_len, "PGM");
         break;
     case LSOF_PROTOCOL_SCTP:
         (void)snpf(buf, buf_len, "SCTP");
@@ -93,20 +336,50 @@ void print_iproto() {
     case LSOF_PROTOCOL_MPLS:
         (void)snpf(buf, buf_len, "MPLS");
         break;
+    case LSOF_PROTOCOL_HIP:
+        (void)snpf(buf, buf_len, "HIP");
+        break;
+    case LSOF_PROTOCOL_SHIM6:
+        (void)snpf(buf, buf_len, "SHIM6");
+        break;
     case LSOF_PROTOCOL_ETHERNET:
         (void)snpf(buf, buf_len, "ETHER");
+        break;
+    case LSOF_PROTOCOL_PFSYNC:
+        (void)snpf(buf, buf_len, "PFSYNC");
+        break;
+    case LSOF_PROTOCOL_RESERVED_253:
+        (void)snpf(buf, buf_len, "RSVD253");
+        break;
+    case LSOF_PROTOCOL_RESERVED_254:
+        (void)snpf(buf, buf_len, "RSVD254");
+        break;
+    case LSOF_PROTOCOL_OLD_DIVERT:
+        (void)snpf(buf, buf_len, "ODIVERT");
         break;
     case LSOF_PROTOCOL_RAW:
         (void)snpf(buf, buf_len, "RAW");
         break;
+    case LSOF_PROTOCOL_MAX:
+        (void)snpf(buf, buf_len, "MAX");
+        break;
+    case LSOF_PROTOCOL_DONE:
+        (void)snpf(buf, buf_len, "DONE");
+        break;
+    case LSOF_PROTOCOL_DIVERT:
+        (void)snpf(buf, buf_len, "DIVERT");
+        break;
+    case LSOF_PROTOCOL_SEND:
+        (void)snpf(buf, buf_len, "SEND");
+        break;
     case LSOF_PROTOCOL_MPTCP:
         (void)snpf(buf, buf_len, "MPTCP");
         break;
+    case LSOF_PROTOCOL_SPACER:
+        (void)snpf(buf, buf_len, "SPACER");
+        break;
     case LSOF_PROTOCOL_802_3:
         (void)snpf(buf, buf_len, "802_3");
-        break;
-    case LSOF_PROTOCOL_AX25:
-        (void)snpf(buf, buf_len, "AX25");
         break;
     case LSOF_PROTOCOL_ALL:
         (void)snpf(buf, buf_len, "ALL");

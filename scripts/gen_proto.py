@@ -36,6 +36,12 @@ rename = {
     "LOOPBACK": "LOOPBAK",
     "DSA_8021Q": "DSAD1Q",
     "DSA_A5PSW": "DSA5PSW",
+    "SATEXPAK": "STEXPAK",
+    "KRYPTOLAN": "KRYPTLN",
+    "BRSATMON": "BRSTMON",
+    "RESERVED_253": "RSVD253",
+    "RESERVED_254": "RSVD254",
+    "OLD_DIVERT": "ODIVERT",
 }
 
 with open('lsof_proto.c', 'w') as f:
