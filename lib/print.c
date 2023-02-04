@@ -689,12 +689,6 @@ void enter_ip_proto(struct lsof_context *ctx, int p) /* protocol number */
         break;
 #endif /* defined(IPPROTO_GMTP) */
 
-#if defined(IPPROTO_DIVERT)
-    case IPPROTO_DIVERT:
-        Lf->iproto = LSOF_PROTOCOL_DIVERT;
-        break;
-#endif /* defined(IPPROTO_DIVERT) */
-
     default:
         Lf->iproto = LSOF_PROTOCOL_UNKNOWN;
         Lf->unknown_proto_number = p;
@@ -1836,9 +1830,6 @@ void print_iproto(enum lsof_protocol proto, uint32_t unknown_proto_number,
         break;
     case LSOF_PROTOCOL_DONE:
         (void)snpf(buf, buf_len, "DONE");
-        break;
-    case LSOF_PROTOCOL_DIVERT:
-        (void)snpf(buf, buf_len, "DIVERT");
         break;
     case LSOF_PROTOCOL_SEND:
         (void)snpf(buf, buf_len, "SEND");

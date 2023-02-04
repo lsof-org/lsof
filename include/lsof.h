@@ -280,6 +280,7 @@ enum lsof_protocol {
     LSOF_PROTOCOL_NSP,          /**< NSP(31) */
     LSOF_PROTOCOL_INP,          /**< INP(32) */
     LSOF_PROTOCOL_DCCP,         /**< DCCP(33) */
+    LSOF_PROTOCOL_SEP,          /**< SEP(33) */
     LSOF_PROTOCOL_3PC,          /**< 3PC(34) */
     LSOF_PROTOCOL_IDPR,         /**< IDPR(35) */
     LSOF_PROTOCOL_XTP,          /**< XTP(36) */
@@ -367,7 +368,6 @@ enum lsof_protocol {
     LSOF_PROTOCOL_RAW,          /**< Raw(255) */
     LSOF_PROTOCOL_MAX,          /**< MAX(256) */
     LSOF_PROTOCOL_DONE,         /**< DONE(257) */
-    LSOF_PROTOCOL_DIVERT,       /**< DIVERT(258) */
     LSOF_PROTOCOL_SEND,         /**< SEND(259) */
     LSOF_PROTOCOL_MPTCP,        /**< MPTCP(262) */
     LSOF_PROTOCOL_SPACER,       /**< SPACER(32767) */

@@ -105,6 +105,9 @@ void print_iproto() {
     case LSOF_PROTOCOL_DCCP:
         (void)snpf(buf, buf_len, "DCCP");
         break;
+    case LSOF_PROTOCOL_SEP:
+        (void)snpf(buf, buf_len, "SEP");
+        break;
     case LSOF_PROTOCOL_3PC:
         (void)snpf(buf, buf_len, "3PC");
         break;
@@ -365,9 +368,6 @@ void print_iproto() {
         break;
     case LSOF_PROTOCOL_DONE:
         (void)snpf(buf, buf_len, "DONE");
-        break;
-    case LSOF_PROTOCOL_DIVERT:
-        (void)snpf(buf, buf_len, "DIVERT");
         break;
     case LSOF_PROTOCOL_SEND:
         (void)snpf(buf, buf_len, "SEND");
