@@ -1053,15 +1053,6 @@ possibilities
 
 			void HASPRINTNM(struct lfile *)
 
-    HASPRINTOFF         this value names a private function for
-			printing the dialect's file offset.  Used
-			by print.c/print_file().  Takes two arguments:
-
-			char *HASPRINTOFF(struct lfile *, int ty)
-
-			Where ty == 0 if the offset is to be printed
-			in 0t<decimal> format; 1, 0x<hexadecimal>.
-
     HASPRIVFILETYPE     enables processing of the private file
 			type, whose number (from f_type of the file
 			struct) is defined by PRIVFILETYPE.
