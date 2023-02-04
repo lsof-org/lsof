@@ -499,8 +499,10 @@ struct lsof_file {
     enum lsof_lock_mode lock;
 
     /* TYPE column */
+    /** File type */
     enum lsof_file_type file_type;
-    /* store raw file type number when file_type == LSOF_FILE_UNKNOWN */
+    /** Store raw file type number when \ref file_type == \ref LSOF_FILE_UNKNOWN
+     */
     uint32_t unknown_file_type_number;
 
     /* DEVICE column */
@@ -541,8 +543,8 @@ struct lsof_file {
     /** Network protocol */
     enum lsof_protocol protocol;
 
-    /** Whether \ref protocol field is valid */
-    uint8_t protocol_valid;
+    /** Store proto number when \ref protocol == \ref LSOF_PROTOCOL_UNKNOWN */
+    uint32_t unknown_proto_number;
 
     /* NAME column */
     /** File name or description */
@@ -557,17 +559,17 @@ struct lsof_process {
     /* COMMAND column */
     char *command; /**< command name */
     /* PID column */
-    int32_t pid; /**< process ID */
+    uint32_t pid; /**< process ID */
 
     /* TID column */
-    int32_t tid; /**< task ID */
+    uint32_t tid; /**< task ID */
     /* TASKCMD column */
     char *task_cmd; /**< task command name */
 
     /* PGID column */
-    int32_t pgid; /**< process group ID */
+    uint32_t pgid; /**< process group ID */
     /* PPID column */
-    int32_t ppid; /**< parent process ID */
+    uint32_t ppid; /**< parent process ID */
     /* USER column */
     uint32_t uid; /**< user ID */
 

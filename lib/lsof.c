@@ -192,6 +192,8 @@ enum lsof_error lsof_gather(struct lsof_context *ctx,
             /* NODE column */
             f->inode = lf->inode;
             f->inode_valid = lf->inode_def;
+            f->protocol = lf->iproto;
+            f->unknown_proto_number = lf->unknown_proto_number;
 
             /* NAME column */
             f->name = lf->nm;
