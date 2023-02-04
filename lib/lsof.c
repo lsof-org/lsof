@@ -181,6 +181,10 @@ enum lsof_error lsof_gather(struct lsof_context *ctx,
             if (lf->dev_def) {
                 f->flags |= LSOF_FLAG_DEV_VALID;
             }
+            f->rdev = lf->rdev;
+            if (lf->rdev_def) {
+                f->flags |= LSOF_FLAG_RDEV_VALID;
+            }
 
             /* SIZE, SIZE/OFF, OFFSET column */
             f->size = lf->sz;

@@ -486,18 +486,19 @@ enum lsof_file_flag {
     LSOF_FLAG_NONE,
     /** \ref struct lsof_file.dev field is valid */
     LSOF_FLAG_DEV_VALID = 0x00000001,
+    /** \ref struct lsof_file.rdev field is valid */
+    LSOF_FLAG_RDEV_VALID = 0x00000002,
     /** \ref struct lsof_file.size field is valid */
-    LSOF_FLAG_SIZE_VALID = 0x00000002,
+    LSOF_FLAG_SIZE_VALID = 0x00000004,
     /** \ref struct lsof_file.offset field is valid */
-    LSOF_FLAG_OFFSET_VALID = 0x00000004,
+    LSOF_FLAG_OFFSET_VALID = 0x00000008,
     /** \ref struct lsof_file.num_links field is valid */
-    LSOF_FLAG_NUM_LINKS_VALID = 0x00000008,
+    LSOF_FLAG_NUM_LINKS_VALID = 0x00000010,
     /** \ref struct lsof_file.inode field is valid */
-    LSOF_FLAG_INODE_VALID = 0x00000010,
+    LSOF_FLAG_INODE_VALID = 0x00000020,
 };
 
 /** An open file
- *
  */
 struct lsof_file {
     /** Flags, see \ref lsof_file_flag */
@@ -525,9 +526,12 @@ struct lsof_file {
 
     /* DEVICE column */
     /** Device ID of device containing file, use major() and minor() to extract
-     * major and minor components. Valid if \ref flags & \ref
-     * LSOF_FLAG_DEV_VALID */
+     * components. Valid if \ref flags & \ref LSOF_FLAG_DEV_VALID */
     uint64_t dev;
+    /** Device ID of special character/block file, use major() and minor() to
+     * extract components. Valid if \ref flags & \ref
+     * LSOF_FLAG_RDEV_VALID */
+    uint64_t rdev;
 
     /* SIZE, SIZE/OFF, OFFSET column */
     /** File size, valid if \ref flags & \ref LSOF_FLAG_SIZE_VALID */
@@ -577,8 +581,8 @@ struct lsof_process {
     /* USER column */
     uint32_t uid; /**< user ID */
 
-    struct lsof_file *files; /**< array of open files */
     uint32_t num_files;      /**< length of files array */
+    struct lsof_file *files; /**< array of open files */
 };
 
 struct lsof_result {
@@ -641,7 +645,7 @@ enum lsof_error lsof_output_stream(struct lsof_context *ctx, FILE *fp,
  */
 enum lsof_error lsof_exit_on_fatal(struct lsof_context *ctx, int exit);
 
-/** Let lsof avoid using blocking functions
+/** Ask lsof to avoid using blocking functions
  *
  * lsof may block when calling lstat(), readlink() or stat(). Call this function
  * to let lsof avoid calling these functions.
@@ -650,7 +654,7 @@ enum lsof_error lsof_exit_on_fatal(struct lsof_context *ctx, int exit);
  */
 enum lsof_error lsof_avoid_blocking(struct lsof_context *ctx);
 
-/** Let lsof avoid forking
+/** Ask lsof to avoid forking
  *
  * To avoid being blocked by some kernel operations, liblsof does them in forked
  * child processes. Call this function to change this behavior.
@@ -659,7 +663,7 @@ enum lsof_error lsof_avoid_blocking(struct lsof_context *ctx);
  */
 enum lsof_error lsof_avoid_forking(struct lsof_context *ctx, int avoid);
 
-/** Let lsof AND the selections
+/** Ask lsof to AND the selections
  *
  * By default, lsof OR the selections, for example, if you call
  * lsof_select_unix_socket() and lsof_select_login(), it will report unix
@@ -711,7 +715,7 @@ enum lsof_error lsof_select_process_regex(struct lsof_context *ctx,
  *
  * \since API version 1
  */
-enum lsof_error lsof_select_pid(struct lsof_context *ctx, int32_t pid,
+enum lsof_error lsof_select_pid(struct lsof_context *ctx, uint32_t pid,
                                 int exclude);
 
 /** Ask lsof to select process by pgid (process group id)
@@ -723,7 +727,7 @@ enum lsof_error lsof_select_pid(struct lsof_context *ctx, int32_t pid,
  *
  * \since API version 1
  */
-enum lsof_error lsof_select_pgid(struct lsof_context *ctx, int32_t pgid,
+enum lsof_error lsof_select_pgid(struct lsof_context *ctx, uint32_t pgid,
                                  int exclude);
 
 /** Ask lsof to select process by uid
