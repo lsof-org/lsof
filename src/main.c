@@ -1213,8 +1213,9 @@ closed:
                 else
                     slp = (struct lproc **)realloc((MALLOC_P *)slp, len);
                 if (!slp) {
-                    (void)fprintf(stderr, "%s: no space for %zu sort pointers\n",
-                                  Pn, Nlproc);
+                    (void)fprintf(stderr,
+                                  "%s: no space for %zu sort pointers\n", Pn,
+                                  Nlproc);
                     Error(ctx);
                 }
             }
@@ -1232,133 +1233,6 @@ closed:
              */
             NcacheReload = 1;
 #endif /* defined(HASNCACHE) */
-
-#if defined(HASEPTOPTS)
-            /*
-             * If endpoint info has been requested, make sure it is coded for
-             * printing.
-             *
-             * Lf contents must be preserved, since they may point to a
-             * malloc()'d area, and since Lf is used throughout the printing
-             * of the selected processes.
-             */
-            if (FeptE) {
-                lf = Lf;
-                /*
-                 * Scan all selected processes.
-                 */
-                for (i = 0; i < Nlproc; i++) {
-                    Lp = (Nlproc > 1) ? slp[i] : &Lproc[i];
-
-                    /*
-                     * For processes that have been selected for printing
-                     * and have files that are the end point(s) of pipe(s),
-                     * process the file endpoints.
-                     */
-                    if (Lp->pss && (Lp->ept & EPT_PIPE))
-                        (void)process_pinfo(ctx, 0);
-                    /*
-                     * Process POSIX MQ endpoints.
-                     */
-                    if (Lp->ept & EPT_PSXMQ)
-                        (void)process_psxmqinfo(ctx, 0);
-
-#    if defined(HASUXSOCKEPT)
-                    /*
-                     * For processes that have been selected for printing
-                     * and have files that are the end point(s) of UNIX
-                     * socket(s), process the file endpoints.
-                     */
-                    if (Lp->pss && (Lp->ept & EPT_UXS))
-                        (void)process_uxsinfo(ctx, 0);
-#    endif /* defined(HASUXSOCKEPT) */
-
-#    if defined(HASPTYEPT)
-                    /*
-                     * For processes that have been selected for printing
-                     * and have files that are the end point(s) of pseudo-
-                     * terminal files(s), process the file endpoints.
-                     */
-                    if (Lp->pss && (Lp->ept & EPT_PTY))
-                        (void)process_ptyinfo(ctx, 0);
-#    endif /* defined(HASPTYEPT) */
-
-                    /*
-                     * Process INET socket endpoints.
-                     */
-                    if (Lp->ept & EPT_NETS)
-                        (void)process_netsinfo(ctx, 0);
-
-#    if defined(HASIPv6)
-                    /*
-                     * Process INET6 socket endpoints.
-                     */
-                    if (Lp->ept & EPT_NETS6)
-                        (void)process_nets6info(ctx, 0);
-#    endif /* defined(HASIPv6) */
-                    /*
-                     * Process eventfd endpoints.
-                     */
-                    if (Lp->ept & EPT_EVTFD)
-                        (void)process_evtfdinfo(ctx, 0);
-                }
-                /*
-                 * In a second pass, look for unselected endpoint files,
-                 * possibly selecting them for printing.
-                 */
-                for (i = 0; i < Nlproc; i++) {
-                    Lp = (Nlproc > 1) ? slp[i] : &Lproc[i];
-
-                    /*
-                     * Process pipe endpoints.
-                     */
-                    if (Lp->ept & EPT_PIPE_END)
-                        (void)process_pinfo(ctx, 1);
-                    /*
-                     * Process POSIX MQ endpoints.
-                     */
-                    if (Lp->ept & EPT_PSXMQ_END)
-                        (void)process_psxmqinfo(ctx, 1);
-
-#    if defined(HASUXSOCKEPT)
-                    /*
-                     * Process UNIX socket endpoints.
-                     */
-                    if (Lp->ept & EPT_UXS_END)
-                        (void)process_uxsinfo(ctx, 1);
-#    endif /* defined(HASUXSOCKEPT) */
-
-#    if defined(HASPTYEPT)
-                    /*
-                     * Process pseudo-terminal endpoints.
-                     */
-                    if (Lp->ept & EPT_PTY_END)
-                        (void)process_ptyinfo(ctx, 1);
-#    endif /* defined(HASPTYEPT) */
-
-                    /*
-                     * Process INET socket endpoints.
-                     */
-                    if (Lp->ept & EPT_NETS_END)
-                        (void)process_netsinfo(ctx, 1);
-
-#    if defined(HASIPv6)
-                    /*
-                     * Process INET6 socket endpoints.
-                     */
-                    if (Lp->ept & EPT_NETS6_END)
-                        (void)process_nets6info(ctx, 1);
-#    endif /* defined(HASIPv6) */
-
-                    /*
-                     * Process envetfd endpoints.
-                     */
-                    if (Lp->ept & EPT_EVTFD_END)
-                        (void)process_evtfdinfo(ctx, 1);
-                }
-                Lf = lf;
-            }
-#endif /* defined(HASEPTOPTS) */
 
             /*
              * Print the selected processes and count them.
@@ -1386,29 +1260,6 @@ closed:
          * If conditional repeat mode is in effect, see if it's time to exit.
          */
         if (RptTm) {
-
-#if defined(HASEPTOPTS)
-            (void)clear_pinfo(ctx);
-
-            (void)clear_psxmqinfo(ctx);
-
-#    if defined(HASUXSOCKEPT)
-            (void)clear_uxsinfo();
-#    endif /* defined(HASUXSOCKEPT) */
-
-#    if defined(HASPTYEPT)
-            (void)clear_ptyinfo(ctx);
-#    endif /* defined(HASPTYEPT) */
-
-            (void)clear_netsinfo();
-
-#    if defined(HASIPv6)
-            (void)clear_nets6info();
-#    endif /* defined(HASIPv6) */
-
-            (void)clear_evtfdinfo(ctx);
-#endif /* defined(HASEPTOPTS) */
-
             if (rc) {
                 if (!n)
                     break;
@@ -1631,8 +1482,7 @@ closed:
             continue;
         rv = LSOF_SEARCH_FAILURE;
         if (Fverbose)
-            (void)printf("%s: process ID not located: %d\n", Pn,
-                         Spid[i].i);
+            (void)printf("%s: process ID not located: %d\n", Pn, Spid[i].i);
     }
 
 #if defined(HASTASKS)
