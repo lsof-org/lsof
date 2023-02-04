@@ -164,6 +164,7 @@ enum lsof_error lsof_gather(struct lsof_context *ctx,
         for (fi = 0, lf = lp->file; fi < num_files; fi++, lf = lf_next) {
             /* Copy fields from lfile */
             f = &p->files[fi];
+            f->flags = 0;
 
             /* FD column */
             f->fd_type = lf->fd_type;
@@ -177,21 +178,31 @@ enum lsof_error lsof_gather(struct lsof_context *ctx,
 
             /* DEVICE column */
             f->dev = lf->dev;
-            f->dev_valid = lf->dev_def;
+            if (lf->dev_def) {
+                f->flags |= LSOF_FLAG_DEV_VALID;
+            }
 
             /* SIZE, SIZE/OFF, OFFSET column */
             f->size = lf->sz;
-            f->size_valid = lf->sz_def;
+            if (lf->sz_def) {
+                f->flags |= LSOF_FLAG_SIZE_VALID;
+            }
             f->offset = lf->off;
-            f->offset_valid = lf->off_def;
+            if (lf->off_def) {
+                f->flags |= LSOF_FLAG_OFFSET_VALID;
+            }
 
             /* NLINK column */
             f->num_links = lf->nlink;
-            f->num_links_valid = lf->nlink_def;
+            if (lf->nlink_def) {
+                f->flags |= LSOF_FLAG_NUM_LINKS_VALID;
+            }
 
             /* NODE column */
             f->inode = lf->inode;
-            f->inode_valid = lf->inode_def;
+            if (lf->inode_def) {
+                f->flags |= LSOF_FLAG_INODE_VALID;
+            }
             f->protocol = lf->iproto;
             f->unknown_proto_number = lf->unknown_proto_number;
 

@@ -103,10 +103,12 @@ int main(int argc, char **argv) {
                 /* check if fd, size and offset matches */
                 if (f->fd_num == fd) {
                     fd_found = 1;
-                    if (f->size_valid && f->size == TSTFSZ) {
+                    if ((f->flags & LSOF_FLAG_SIZE_VALID) &&
+                        f->size == TSTFSZ) {
                         sz_correct = 1;
                     }
-                    if (f->offset_valid && f->offset == TSTFSZ) {
+                    if ((f->flags & LSOF_FLAG_OFFSET_VALID) &&
+                        f->offset == TSTFSZ) {
                         off_correct = 1;
                     }
                 }

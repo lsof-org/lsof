@@ -481,10 +481,28 @@ enum lsof_protocol {
  */
 struct lsof_context;
 
+/** @enum struct lsof_file flags */
+enum lsof_file_flag {
+    LSOF_FLAG_NONE,
+    /** \ref struct lsof_file.dev field is valid */
+    LSOF_FLAG_DEV_VALID = 0x00000001,
+    /** \ref struct lsof_file.size field is valid */
+    LSOF_FLAG_SIZE_VALID = 0x00000002,
+    /** \ref struct lsof_file.offset field is valid */
+    LSOF_FLAG_OFFSET_VALID = 0x00000004,
+    /** \ref struct lsof_file.num_links field is valid */
+    LSOF_FLAG_NUM_LINKS_VALID = 0x00000008,
+    /** \ref struct lsof_file.inode field is valid */
+    LSOF_FLAG_INODE_VALID = 0x00000010,
+};
+
 /** An open file
  *
  */
 struct lsof_file {
+    /** Flags, see \ref lsof_file_flag */
+    uint64_t flags;
+
     /* FD column */
     /** File desciptor type */
     enum lsof_fd_type fd_type;
@@ -507,38 +525,24 @@ struct lsof_file {
 
     /* DEVICE column */
     /** Device ID of device containing file, use major() and minor() to extract
-     * major and minor components */
+     * major and minor components. Valid if \ref flags & \ref
+     * LSOF_FLAG_DEV_VALID */
     uint64_t dev;
 
-    /** Whether \ref dev field is valid */
-    uint8_t dev_valid;
-
     /* SIZE, SIZE/OFF, OFFSET column */
-    /** File size */
+    /** File size, valid if \ref flags & \ref LSOF_FLAG_SIZE_VALID */
     uint64_t size;
 
-    /** Whether \ref size field is valid */
-    uint8_t size_valid;
-
-    /** File offset */
+    /** File offset, valid if \ref flags & \ref LSOF_FLAG_OFFSET_VALID */
     uint64_t offset;
 
-    /** Whether \ref offset field is valid */
-    uint8_t offset_valid;
-
     /* NLINK column */
-    /** Link count */
+    /** Link count, valid if \ref flags & \ref LSOF_FLAG_NUM_LINKS_VALID */
     uint64_t num_links;
 
-    /** Whether \ref num_links field is valid */
-    uint8_t num_links_valid;
-
     /* NODE column */
-    /** File inode */
+    /** File inode, valid if \ref flags & \ref LSOF_FLAG_INODE_VALID */
     uint64_t inode;
-
-    /** Whether \ref inode field is valid */
-    uint8_t inode_valid;
 
     /** Network protocol */
     enum lsof_protocol protocol;

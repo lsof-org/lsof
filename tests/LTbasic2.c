@@ -69,14 +69,17 @@ int main(int argc, char **argv) {
             f = &p->files[fi];
             if (f->fd_type == LSOF_FD_PROGRAM_TEXT) {
                 /* check if device and inode matches */
-                if (f->dev_valid && f->dev == exec_stat.st_dev &&
-                    f->inode_valid && f->inode == exec_stat.st_ino) {
+                if ((f->flags &
+                     (LSOF_FLAG_DEV_VALID | LSOF_FLAG_INODE_VALID)) &&
+                    f->dev == exec_stat.st_dev &&
+                    f->inode == exec_stat.st_ino) {
                     exec_found = 1;
                 }
             } else if (f->fd_type == LSOF_FD_CWD) {
                 /* check if device and inode matches */
-                if (f->dev_valid && f->dev == cwd_stat.st_dev &&
-                    f->inode_valid && f->inode == cwd_stat.st_ino) {
+                if ((f->flags &
+                     (LSOF_FLAG_DEV_VALID | LSOF_FLAG_INODE_VALID)) &&
+                    f->dev == cwd_stat.st_dev && f->inode == cwd_stat.st_ino) {
                     cwd_found = 1;
                 }
             }
