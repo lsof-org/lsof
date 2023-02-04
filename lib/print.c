@@ -65,658 +65,642 @@ size_t bufl; /* size of buf[] */
     return (buf ? buf : dbuf);
 }
 
-#if !defined(HASPRIVPRIPP)
 /*
- * printiproto() - print Internet protocol name
+ * enter_ip_proto() - set iproto from IP protocol
  */
 
-void printiproto(struct lsof_context *ctx, int p) /* protocol number */
+void enter_ip_proto(struct lsof_context *ctx, int p) /* protocol number */
 {
-    int i;
-    static int m = -1;
-    char *s;
-
     switch (p) {
 
-#    if defined(IPPROTO_TCP)
+#if defined(IPPROTO_TCP)
     case IPPROTO_TCP:
-        s = "TCP";
+        Lf->iproto = LSOF_PROTOCOL_TCP;
         break;
-#    endif /* defined(IPPROTO_TCP) */
+#endif /* defined(IPPROTO_TCP) */
 
-#    if defined(IPPROTO_UDP)
+#if defined(IPPROTO_UDP)
     case IPPROTO_UDP:
-        s = "UDP";
+        Lf->iproto = LSOF_PROTOCOL_UDP;
         break;
-#    endif /* defined(IPPROTO_UDP) */
+#endif /* defined(IPPROTO_UDP) */
 
-#    if defined(IPPROTO_IP)
-#        if !defined(IPPROTO_HOPOPTS) || IPPROTO_IP != IPPROTO_HOPOPTS
+#if defined(IPPROTO_IP)
+#    if !defined(IPPROTO_HOPOPTS) || IPPROTO_IP != IPPROTO_HOPOPTS
     case IPPROTO_IP:
-        s = "IP";
+        Lf->iproto = LSOF_PROTOCOL_IP;
         break;
-#        endif /* !defined(IPPROTO_HOPOPTS) || IPPROTO_IP!=IPPROTO_HOPOPTS */
-#    endif     /* defined(IPPROTO_IP) */
+#    endif /* !defined(IPPROTO_HOPOPTS) || IPPROTO_IP!=IPPROTO_HOPOPTS */
+#endif     /* defined(IPPROTO_IP) */
 
-#    if defined(IPPROTO_ICMP)
+#if defined(IPPROTO_ICMP)
     case IPPROTO_ICMP:
-        s = "ICMP";
+        Lf->iproto = LSOF_PROTOCOL_ICMP;
         break;
-#    endif /* defined(IPPROTO_ICMP) */
+#endif /* defined(IPPROTO_ICMP) */
 
-#    if defined(IPPROTO_ICMPV6)
+#if defined(IPPROTO_ICMPV6)
     case IPPROTO_ICMPV6:
-        s = "ICMPV6";
+        Lf->iproto = LSOF_PROTOCOL_ICMPV6;
         break;
-#    endif /* defined(IPPROTO_ICMPV6) */
+#endif /* defined(IPPROTO_ICMPV6) */
 
-#    if defined(IPPROTO_IGMP)
+#if defined(IPPROTO_IGMP)
     case IPPROTO_IGMP:
-        s = "IGMP";
+        Lf->iproto = LSOF_PROTOCOL_IGMP;
         break;
-#    endif /* defined(IPPROTO_IGMP) */
+#endif /* defined(IPPROTO_IGMP) */
 
-#    if defined(IPPROTO_GGP)
+#if defined(IPPROTO_GGP)
     case IPPROTO_GGP:
-        s = "GGP";
+        Lf->iproto = LSOF_PROTOCOL_GGP;
         break;
-#    endif /* defined(IPPROTO_GGP) */
+#endif /* defined(IPPROTO_GGP) */
 
-#    if defined(IPPROTO_EGP)
+#if defined(IPPROTO_EGP)
     case IPPROTO_EGP:
-        s = "EGP";
+        Lf->iproto = LSOF_PROTOCOL_EGP;
         break;
-#    endif /* defined(IPPROTO_EGP) */
+#endif /* defined(IPPROTO_EGP) */
 
-#    if defined(IPPROTO_PUP)
+#if defined(IPPROTO_PUP)
     case IPPROTO_PUP:
-        s = "PUP";
+        Lf->iproto = LSOF_PROTOCOL_PUP;
         break;
-#    endif /* defined(IPPROTO_PUP) */
+#endif /* defined(IPPROTO_PUP) */
 
-#    if defined(IPPROTO_IDP)
+#if defined(IPPROTO_IDP)
     case IPPROTO_IDP:
-        s = "IDP";
+        Lf->iproto = LSOF_PROTOCOL_IDP;
         break;
-#    endif /* defined(IPPROTO_IDP) */
+#endif /* defined(IPPROTO_IDP) */
 
-#    if defined(IPPROTO_ND)
+#if defined(IPPROTO_ND)
     case IPPROTO_ND:
-        s = "ND";
+        Lf->iproto = LSOF_PROTOCOL_ND;
         break;
-#    endif /* defined(IPPROTO_ND) */
+#endif /* defined(IPPROTO_ND) */
 
-#    if defined(IPPROTO_RAW)
+#if defined(IPPROTO_RAW)
     case IPPROTO_RAW:
-        s = "RAW";
+        Lf->iproto = LSOF_PROTOCOL_RAW;
         break;
-#    endif /* defined(IPPROTO_RAW) */
+#endif /* defined(IPPROTO_RAW) */
 
-#    if defined(IPPROTO_HELLO)
+#if defined(IPPROTO_HELLO)
     case IPPROTO_HELLO:
-        s = "HELLO";
+        Lf->iproto = LSOF_PROTOCOL_HELLO;
         break;
-#    endif /* defined(IPPROTO_HELLO) */
+#endif /* defined(IPPROTO_HELLO) */
 
-#    if defined(IPPROTO_PXP)
+#if defined(IPPROTO_PXP)
     case IPPROTO_PXP:
-        s = "PXP";
+        Lf->iproto = LSOF_PROTOCOL_PXP;
         break;
-#    endif /* defined(IPPROTO_PXP) */
+#endif /* defined(IPPROTO_PXP) */
 
-#    if defined(IPPROTO_RAWIP)
+#if defined(IPPROTO_RAWIP)
     case IPPROTO_RAWIP:
-        s = "RAWIP";
+        Lf->iproto = LSOF_PROTOCOL_RAWIP;
         break;
-#    endif /* defined(IPPROTO_RAWIP) */
+#endif /* defined(IPPROTO_RAWIP) */
 
-#    if defined(IPPROTO_RAWIF)
+#if defined(IPPROTO_RAWIF)
     case IPPROTO_RAWIF:
-        s = "RAWIF";
+        Lf->iproto = LSOF_PROTOCOL_RAWIF;
         break;
-#    endif /* defined(IPPROTO_RAWIF) */
+#endif /* defined(IPPROTO_RAWIF) */
 
-#    if defined(IPPROTO_HOPOPTS)
+#if defined(IPPROTO_HOPOPTS)
     case IPPROTO_HOPOPTS:
-        s = "HOPOPTS";
+        Lf->iproto = LSOF_PROTOCOL_HOPOPTS;
         break;
-#    endif /* defined(IPPROTO_HOPOPTS) */
+#endif /* defined(IPPROTO_HOPOPTS) */
 
-#    if defined(IPPROTO_IPIP)
+#if defined(IPPROTO_IPIP)
     case IPPROTO_IPIP:
-        s = "IPIP";
+        Lf->iproto = LSOF_PROTOCOL_IPIP;
         break;
-#    endif /* defined(IPPROTO_IPIP) */
+#endif /* defined(IPPROTO_IPIP) */
 
-#    if defined(IPPROTO_ST)
+#if defined(IPPROTO_ST)
     case IPPROTO_ST:
-        s = "ST";
+        Lf->iproto = LSOF_PROTOCOL_ST;
         break;
-#    endif /* defined(IPPROTO_ST) */
+#endif /* defined(IPPROTO_ST) */
 
-#    if defined(IPPROTO_PIGP)
+#if defined(IPPROTO_PIGP)
     case IPPROTO_PIGP:
-        s = "PIGP";
+        Lf->iproto = LSOF_PROTOCOL_PIGP;
         break;
-#    endif /* defined(IPPROTO_PIGP) */
+#endif /* defined(IPPROTO_PIGP) */
 
-#    if defined(IPPROTO_RCCMON)
+#if defined(IPPROTO_RCCMON)
     case IPPROTO_RCCMON:
-        s = "RCCMON";
+        Lf->iproto = LSOF_PROTOCOL_RCCMON;
         break;
-#    endif /* defined(IPPROTO_RCCMON) */
+#endif /* defined(IPPROTO_RCCMON) */
 
-#    if defined(IPPROTO_NVPII)
+#if defined(IPPROTO_NVPII)
     case IPPROTO_NVPII:
-        s = "NVPII";
+        Lf->iproto = LSOF_PROTOCOL_NVPII;
         break;
-#    endif /* defined(IPPROTO_NVPII) */
+#endif /* defined(IPPROTO_NVPII) */
 
-#    if defined(IPPROTO_ARGUS)
+#if defined(IPPROTO_ARGUS)
     case IPPROTO_ARGUS:
-        s = "ARGUS";
+        Lf->iproto = LSOF_PROTOCOL_ARGUS;
         break;
-#    endif /* defined(IPPROTO_ARGUS) */
+#endif /* defined(IPPROTO_ARGUS) */
 
-#    if defined(IPPROTO_EMCON)
+#if defined(IPPROTO_EMCON)
     case IPPROTO_EMCON:
-        s = "EMCON";
+        Lf->iproto = LSOF_PROTOCOL_EMCON;
         break;
-#    endif /* defined(IPPROTO_EMCON) */
+#endif /* defined(IPPROTO_EMCON) */
 
-#    if defined(IPPROTO_XNET)
+#if defined(IPPROTO_XNET)
     case IPPROTO_XNET:
-        s = "XNET";
+        Lf->iproto = LSOF_PROTOCOL_XNET;
         break;
-#    endif /* defined(IPPROTO_XNET) */
+#endif /* defined(IPPROTO_XNET) */
 
-#    if defined(IPPROTO_CHAOS)
+#if defined(IPPROTO_CHAOS)
     case IPPROTO_CHAOS:
-        s = "CHAOS";
+        Lf->iproto = LSOF_PROTOCOL_CHAOS;
         break;
-#    endif /* defined(IPPROTO_CHAOS) */
+#endif /* defined(IPPROTO_CHAOS) */
 
-#    if defined(IPPROTO_MUX)
+#if defined(IPPROTO_MUX)
     case IPPROTO_MUX:
-        s = "MUX";
+        Lf->iproto = LSOF_PROTOCOL_MUX;
         break;
-#    endif /* defined(IPPROTO_MUX) */
+#endif /* defined(IPPROTO_MUX) */
 
-#    if defined(IPPROTO_MEAS)
+#if defined(IPPROTO_MEAS)
     case IPPROTO_MEAS:
-        s = "MEAS";
+        Lf->iproto = LSOF_PROTOCOL_MEAS;
         break;
-#    endif /* defined(IPPROTO_MEAS) */
+#endif /* defined(IPPROTO_MEAS) */
 
-#    if defined(IPPROTO_HMP)
+#if defined(IPPROTO_HMP)
     case IPPROTO_HMP:
-        s = "HMP";
+        Lf->iproto = LSOF_PROTOCOL_HMP;
         break;
-#    endif /* defined(IPPROTO_HMP) */
+#endif /* defined(IPPROTO_HMP) */
 
-#    if defined(IPPROTO_PRM)
+#if defined(IPPROTO_PRM)
     case IPPROTO_PRM:
-        s = "PRM";
+        Lf->iproto = LSOF_PROTOCOL_PRM;
         break;
-#    endif /* defined(IPPROTO_PRM) */
+#endif /* defined(IPPROTO_PRM) */
 
-#    if defined(IPPROTO_TRUNK1)
+#if defined(IPPROTO_TRUNK1)
     case IPPROTO_TRUNK1:
-        s = "TRUNK1";
+        Lf->iproto = LSOF_PROTOCOL_TRUNK1;
         break;
-#    endif /* defined(IPPROTO_TRUNK1) */
+#endif /* defined(IPPROTO_TRUNK1) */
 
-#    if defined(IPPROTO_TRUNK2)
+#if defined(IPPROTO_TRUNK2)
     case IPPROTO_TRUNK2:
-        s = "TRUNK2";
+        Lf->iproto = LSOF_PROTOCOL_TRUNK2;
         break;
-#    endif /* defined(IPPROTO_TRUNK2) */
+#endif /* defined(IPPROTO_TRUNK2) */
 
-#    if defined(IPPROTO_LEAF1)
+#if defined(IPPROTO_LEAF1)
     case IPPROTO_LEAF1:
-        s = "LEAF1";
+        Lf->iproto = LSOF_PROTOCOL_LEAF1;
         break;
-#    endif /* defined(IPPROTO_LEAF1) */
+#endif /* defined(IPPROTO_LEAF1) */
 
-#    if defined(IPPROTO_LEAF2)
+#if defined(IPPROTO_LEAF2)
     case IPPROTO_LEAF2:
-        s = "LEAF2";
+        Lf->iproto = LSOF_PROTOCOL_LEAF2;
         break;
-#    endif /* defined(IPPROTO_LEAF2) */
+#endif /* defined(IPPROTO_LEAF2) */
 
-#    if defined(IPPROTO_RDP)
+#if defined(IPPROTO_RDP)
     case IPPROTO_RDP:
-        s = "RDP";
+        Lf->iproto = LSOF_PROTOCOL_RDP;
         break;
-#    endif /* defined(IPPROTO_RDP) */
+#endif /* defined(IPPROTO_RDP) */
 
-#    if defined(IPPROTO_IRTP)
+#if defined(IPPROTO_IRTP)
     case IPPROTO_IRTP:
-        s = "IRTP";
+        Lf->iproto = LSOF_PROTOCOL_IRTP;
         break;
-#    endif /* defined(IPPROTO_IRTP) */
+#endif /* defined(IPPROTO_IRTP) */
 
-#    if defined(IPPROTO_TP)
+#if defined(IPPROTO_TP)
     case IPPROTO_TP:
-        s = "TP";
+        Lf->iproto = LSOF_PROTOCOL_TP;
         break;
-#    endif /* defined(IPPROTO_TP) */
+#endif /* defined(IPPROTO_TP) */
 
-#    if defined(IPPROTO_BLT)
+#if defined(IPPROTO_BLT)
     case IPPROTO_BLT:
-        s = "BLT";
+        Lf->iproto = LSOF_PROTOCOL_BLT;
         break;
-#    endif /* defined(IPPROTO_BLT) */
+#endif /* defined(IPPROTO_BLT) */
 
-#    if defined(IPPROTO_NSP)
+#if defined(IPPROTO_NSP)
     case IPPROTO_NSP:
-        s = "NSP";
+        Lf->iproto = LSOF_PROTOCOL_NSP;
         break;
-#    endif /* defined(IPPROTO_NSP) */
+#endif /* defined(IPPROTO_NSP) */
 
-#    if defined(IPPROTO_INP)
+#if defined(IPPROTO_INP)
     case IPPROTO_INP:
-        s = "INP";
+        Lf->iproto = LSOF_PROTOCOL_INP;
         break;
-#    endif /* defined(IPPROTO_INP) */
+#endif /* defined(IPPROTO_INP) */
 
-#    if defined(IPPROTO_SEP)
+#if defined(IPPROTO_SEP)
     case IPPROTO_SEP:
-        s = "SEP";
+        Lf->iproto = LSOF_PROTOCOL_SEP;
         break;
-#    endif /* defined(IPPROTO_SEP) */
+#endif /* defined(IPPROTO_SEP) */
 
-#    if defined(IPPROTO_3PC)
+#if defined(IPPROTO_3PC)
     case IPPROTO_3PC:
-        s = "3PC";
+        Lf->iproto = LSOF_PROTOCOL_3PC;
         break;
-#    endif /* defined(IPPROTO_3PC) */
+#endif /* defined(IPPROTO_3PC) */
 
-#    if defined(IPPROTO_IDPR)
+#if defined(IPPROTO_IDPR)
     case IPPROTO_IDPR:
-        s = "IDPR";
+        Lf->iproto = LSOF_PROTOCOL_IDPR;
         break;
-#    endif /* defined(IPPROTO_IDPR) */
+#endif /* defined(IPPROTO_IDPR) */
 
-#    if defined(IPPROTO_XTP)
+#if defined(IPPROTO_XTP)
     case IPPROTO_XTP:
-        s = "XTP";
+        Lf->iproto = LSOF_PROTOCOL_XTP;
         break;
-#    endif /* defined(IPPROTO_XTP) */
+#endif /* defined(IPPROTO_XTP) */
 
-#    if defined(IPPROTO_DDP)
+#if defined(IPPROTO_DDP)
     case IPPROTO_DDP:
-        s = "DDP";
+        Lf->iproto = LSOF_PROTOCOL_DDP;
         break;
-#    endif /* defined(IPPROTO_DDP) */
+#endif /* defined(IPPROTO_DDP) */
 
-#    if defined(IPPROTO_CMTP)
+#if defined(IPPROTO_CMTP)
     case IPPROTO_CMTP:
-        s = "CMTP";
+        Lf->iproto = LSOF_PROTOCOL_CMTP;
         break;
-#    endif /* defined(IPPROTO_CMTP) */
+#endif /* defined(IPPROTO_CMTP) */
 
-#    if defined(IPPROTO_TPXX)
+#if defined(IPPROTO_TPXX)
     case IPPROTO_TPXX:
-        s = "TPXX";
+        Lf->iproto = LSOF_PROTOCOL_TPXX;
         break;
-#    endif /* defined(IPPROTO_TPXX) */
+#endif /* defined(IPPROTO_TPXX) */
 
-#    if defined(IPPROTO_IL)
+#if defined(IPPROTO_IL)
     case IPPROTO_IL:
-        s = "IL";
+        Lf->iproto = LSOF_PROTOCOL_IL;
         break;
-#    endif /* defined(IPPROTO_IL) */
+#endif /* defined(IPPROTO_IL) */
 
-#    if defined(IPPROTO_IPV6)
+#if defined(IPPROTO_IPV6)
     case IPPROTO_IPV6:
-        s = "IPV6";
+        Lf->iproto = LSOF_PROTOCOL_IPV6;
         break;
-#    endif /* defined(IPPROTO_IPV6) */
+#endif /* defined(IPPROTO_IPV6) */
 
-#    if defined(IPPROTO_SDRP)
+#if defined(IPPROTO_SDRP)
     case IPPROTO_SDRP:
-        s = "SDRP";
+        Lf->iproto = LSOF_PROTOCOL_SDRP;
         break;
-#    endif /* defined(IPPROTO_SDRP) */
+#endif /* defined(IPPROTO_SDRP) */
 
-#    if defined(IPPROTO_ROUTING)
+#if defined(IPPROTO_ROUTING)
     case IPPROTO_ROUTING:
-        s = "ROUTING";
+        Lf->iproto = LSOF_PROTOCOL_ROUTING;
         break;
-#    endif /* defined(IPPROTO_ROUTING) */
+#endif /* defined(IPPROTO_ROUTING) */
 
-#    if defined(IPPROTO_FRAGMENT)
+#if defined(IPPROTO_FRAGMENT)
     case IPPROTO_FRAGMENT:
-        s = "FRAGMNT";
+        Lf->iproto = LSOF_PROTOCOL_FRAGMENT;
         break;
-#    endif /* defined(IPPROTO_FRAGMENT) */
+#endif /* defined(IPPROTO_FRAGMENT) */
 
-#    if defined(IPPROTO_IDRP)
+#if defined(IPPROTO_IDRP)
     case IPPROTO_IDRP:
-        s = "IDRP";
+        Lf->iproto = LSOF_PROTOCOL_IDRP;
         break;
-#    endif /* defined(IPPROTO_IDRP) */
+#endif /* defined(IPPROTO_IDRP) */
 
-#    if defined(IPPROTO_RSVP)
+#if defined(IPPROTO_RSVP)
     case IPPROTO_RSVP:
-        s = "RSVP";
+        Lf->iproto = LSOF_PROTOCOL_RSVP;
         break;
-#    endif /* defined(IPPROTO_RSVP) */
+#endif /* defined(IPPROTO_RSVP) */
 
-#    if defined(IPPROTO_GRE)
+#if defined(IPPROTO_GRE)
     case IPPROTO_GRE:
-        s = "GRE";
+        Lf->iproto = LSOF_PROTOCOL_GRE;
         break;
-#    endif /* defined(IPPROTO_GRE) */
+#endif /* defined(IPPROTO_GRE) */
 
-#    if defined(IPPROTO_MHRP)
+#if defined(IPPROTO_MHRP)
     case IPPROTO_MHRP:
-        s = "MHRP";
+        Lf->iproto = LSOF_PROTOCOL_MHRP;
         break;
-#    endif /* defined(IPPROTO_MHRP) */
+#endif /* defined(IPPROTO_MHRP) */
 
-#    if defined(IPPROTO_BHA)
+#if defined(IPPROTO_BHA)
     case IPPROTO_BHA:
-        s = "BHA";
+        Lf->iproto = LSOF_PROTOCOL_BHA;
         break;
-#    endif /* defined(IPPROTO_BHA) */
+#endif /* defined(IPPROTO_BHA) */
 
-#    if defined(IPPROTO_ESP)
+#if defined(IPPROTO_ESP)
     case IPPROTO_ESP:
-        s = "ESP";
+        Lf->iproto = LSOF_PROTOCOL_ESP;
         break;
-#    endif /* defined(IPPROTO_ESP) */
+#endif /* defined(IPPROTO_ESP) */
 
-#    if defined(IPPROTO_AH)
+#if defined(IPPROTO_AH)
     case IPPROTO_AH:
-        s = "AH";
+        Lf->iproto = LSOF_PROTOCOL_AH;
         break;
-#    endif /* defined(IPPROTO_AH) */
+#endif /* defined(IPPROTO_AH) */
 
-#    if defined(IPPROTO_INLSP)
+#if defined(IPPROTO_INLSP)
     case IPPROTO_INLSP:
-        s = "INLSP";
+        Lf->iproto = LSOF_PROTOCOL_INLSP;
         break;
-#    endif /* defined(IPPROTO_INLSP) */
+#endif /* defined(IPPROTO_INLSP) */
 
-#    if defined(IPPROTO_SWIPE)
+#if defined(IPPROTO_SWIPE)
     case IPPROTO_SWIPE:
-        s = "SWIPE";
+        Lf->iproto = LSOF_PROTOCOL_SWIPE;
         break;
-#    endif /* defined(IPPROTO_SWIPE) */
+#endif /* defined(IPPROTO_SWIPE) */
 
-#    if defined(IPPROTO_NHRP)
+#if defined(IPPROTO_NHRP)
     case IPPROTO_NHRP:
-        s = "NHRP";
+        Lf->iproto = LSOF_PROTOCOL_NHRP;
         break;
-#    endif /* defined(IPPROTO_NHRP) */
+#endif /* defined(IPPROTO_NHRP) */
 
-#    if defined(IPPROTO_NONE)
+#if defined(IPPROTO_NONE)
     case IPPROTO_NONE:
-        s = "NONE";
+        Lf->iproto = LSOF_PROTOCOL_NONE;
         break;
-#    endif /* defined(IPPROTO_NONE) */
+#endif /* defined(IPPROTO_NONE) */
 
-#    if defined(IPPROTO_DSTOPTS)
+#if defined(IPPROTO_DSTOPTS)
     case IPPROTO_DSTOPTS:
-        s = "DSTOPTS";
+        Lf->iproto = LSOF_PROTOCOL_DSTOPTS;
         break;
-#    endif /* defined(IPPROTO_DSTOPTS) */
+#endif /* defined(IPPROTO_DSTOPTS) */
 
-#    if defined(IPPROTO_AHIP)
+#if defined(IPPROTO_AHIP)
     case IPPROTO_AHIP:
-        s = "AHIP";
+        Lf->iproto = LSOF_PROTOCOL_AHIP;
         break;
-#    endif /* defined(IPPROTO_AHIP) */
+#endif /* defined(IPPROTO_AHIP) */
 
-#    if defined(IPPROTO_CFTP)
+#if defined(IPPROTO_CFTP)
     case IPPROTO_CFTP:
-        s = "CFTP";
+        Lf->iproto = LSOF_PROTOCOL_CFTP;
         break;
-#    endif /* defined(IPPROTO_CFTP) */
+#endif /* defined(IPPROTO_CFTP) */
 
-#    if defined(IPPROTO_SATEXPAK)
+#if defined(IPPROTO_SATEXPAK)
     case IPPROTO_SATEXPAK:
-        s = "SATEXPK";
+        Lf->iproto = LSOF_PROTOCOL_SATEXPAK;
         break;
-#    endif /* defined(IPPROTO_SATEXPAK) */
+#endif /* defined(IPPROTO_SATEXPAK) */
 
-#    if defined(IPPROTO_KRYPTOLAN)
+#if defined(IPPROTO_KRYPTOLAN)
     case IPPROTO_KRYPTOLAN:
-        s = "KRYPTOL";
+        Lf->iproto = LSOF_PROTOCOL_KRYPTOLAN;
         break;
-#    endif /* defined(IPPROTO_KRYPTOLAN) */
+#endif /* defined(IPPROTO_KRYPTOLAN) */
 
-#    if defined(IPPROTO_RVD)
+#if defined(IPPROTO_RVD)
     case IPPROTO_RVD:
-        s = "RVD";
+        Lf->iproto = LSOF_PROTOCOL_RVD;
         break;
-#    endif /* defined(IPPROTO_RVD) */
+#endif /* defined(IPPROTO_RVD) */
 
-#    if defined(IPPROTO_IPPC)
+#if defined(IPPROTO_IPPC)
     case IPPROTO_IPPC:
-        s = "IPPC";
+        Lf->iproto = LSOF_PROTOCOL_IPPC;
         break;
-#    endif /* defined(IPPROTO_IPPC) */
+#endif /* defined(IPPROTO_IPPC) */
 
-#    if defined(IPPROTO_ADFS)
+#if defined(IPPROTO_ADFS)
     case IPPROTO_ADFS:
-        s = "ADFS";
+        Lf->iproto = LSOF_PROTOCOL_ADFS;
         break;
-#    endif /* defined(IPPROTO_ADFS) */
+#endif /* defined(IPPROTO_ADFS) */
 
-#    if defined(IPPROTO_SATMON)
+#if defined(IPPROTO_SATMON)
     case IPPROTO_SATMON:
-        s = "SATMON";
+        Lf->iproto = LSOF_PROTOCOL_SATMON;
         break;
-#    endif /* defined(IPPROTO_SATMON) */
+#endif /* defined(IPPROTO_SATMON) */
 
-#    if defined(IPPROTO_VISA)
+#if defined(IPPROTO_VISA)
     case IPPROTO_VISA:
-        s = "VISA";
+        Lf->iproto = LSOF_PROTOCOL_VISA;
         break;
-#    endif /* defined(IPPROTO_VISA) */
+#endif /* defined(IPPROTO_VISA) */
 
-#    if defined(IPPROTO_IPCV)
+#if defined(IPPROTO_IPCV)
     case IPPROTO_IPCV:
-        s = "IPCV";
+        Lf->iproto = LSOF_PROTOCOL_IPCV;
         break;
-#    endif /* defined(IPPROTO_IPCV) */
+#endif /* defined(IPPROTO_IPCV) */
 
-#    if defined(IPPROTO_CPNX)
+#if defined(IPPROTO_CPNX)
     case IPPROTO_CPNX:
-        s = "CPNX";
+        Lf->iproto = LSOF_PROTOCOL_CPNX;
         break;
-#    endif /* defined(IPPROTO_CPNX) */
+#endif /* defined(IPPROTO_CPNX) */
 
-#    if defined(IPPROTO_CPHB)
+#if defined(IPPROTO_CPHB)
     case IPPROTO_CPHB:
-        s = "CPHB";
+        Lf->iproto = LSOF_PROTOCOL_CPHB;
         break;
-#    endif /* defined(IPPROTO_CPHB) */
+#endif /* defined(IPPROTO_CPHB) */
 
-#    if defined(IPPROTO_WSN)
+#if defined(IPPROTO_WSN)
     case IPPROTO_WSN:
-        s = "WSN";
+        Lf->iproto = LSOF_PROTOCOL_WSN;
         break;
-#    endif /* defined(IPPROTO_WSN) */
+#endif /* defined(IPPROTO_WSN) */
 
-#    if defined(IPPROTO_PVP)
+#if defined(IPPROTO_PVP)
     case IPPROTO_PVP:
-        s = "PVP";
+        Lf->iproto = LSOF_PROTOCOL_PVP;
         break;
-#    endif /* defined(IPPROTO_PVP) */
+#endif /* defined(IPPROTO_PVP) */
 
-#    if defined(IPPROTO_BRSATMON)
+#if defined(IPPROTO_BRSATMON)
     case IPPROTO_BRSATMON:
-        s = "BRSATMN";
+        Lf->iproto = LSOF_PROTOCOL_BRSATMON;
         break;
-#    endif /* defined(IPPROTO_BRSATMON) */
+#endif /* defined(IPPROTO_BRSATMON) */
 
-#    if defined(IPPROTO_WBMON)
+#if defined(IPPROTO_WBMON)
     case IPPROTO_WBMON:
-        s = "WBMON";
+        Lf->iproto = LSOF_PROTOCOL_WBMON;
         break;
-#    endif /* defined(IPPROTO_WBMON) */
+#endif /* defined(IPPROTO_WBMON) */
 
-#    if defined(IPPROTO_WBEXPAK)
+#if defined(IPPROTO_WBEXPAK)
     case IPPROTO_WBEXPAK:
-        s = "WBEXPAK";
+        Lf->iproto = LSOF_PROTOCOL_WBEXPAK;
         break;
-#    endif /* defined(IPPROTO_WBEXPAK) */
+#endif /* defined(IPPROTO_WBEXPAK) */
 
-#    if defined(IPPROTO_EON)
+#if defined(IPPROTO_EON)
     case IPPROTO_EON:
-        s = "EON";
+        Lf->iproto = LSOF_PROTOCOL_EON;
         break;
-#    endif /* defined(IPPROTO_EON) */
+#endif /* defined(IPPROTO_EON) */
 
-#    if defined(IPPROTO_VMTP)
+#if defined(IPPROTO_VMTP)
     case IPPROTO_VMTP:
-        s = "VMTP";
+        Lf->iproto = LSOF_PROTOCOL_VMTP;
         break;
-#    endif /* defined(IPPROTO_VMTP) */
+#endif /* defined(IPPROTO_VMTP) */
 
-#    if defined(IPPROTO_SVMTP)
+#if defined(IPPROTO_SVMTP)
     case IPPROTO_SVMTP:
-        s = "SVMTP";
+        Lf->iproto = LSOF_PROTOCOL_SVMTP;
         break;
-#    endif /* defined(IPPROTO_SVMTP) */
+#endif /* defined(IPPROTO_SVMTP) */
 
-#    if defined(IPPROTO_VINES)
+#if defined(IPPROTO_VINES)
     case IPPROTO_VINES:
-        s = "VINES";
+        Lf->iproto = LSOF_PROTOCOL_VINES;
         break;
-#    endif /* defined(IPPROTO_VINES) */
+#endif /* defined(IPPROTO_VINES) */
 
-#    if defined(IPPROTO_TTP)
+#if defined(IPPROTO_TTP)
     case IPPROTO_TTP:
-        s = "TTP";
+        Lf->iproto = LSOF_PROTOCOL_TTP;
         break;
-#    endif /* defined(IPPROTO_TTP) */
+#endif /* defined(IPPROTO_TTP) */
 
-#    if defined(IPPROTO_IGP)
+#if defined(IPPROTO_IGP)
     case IPPROTO_IGP:
-        s = "IGP";
+        Lf->iproto = LSOF_PROTOCOL_IGP;
         break;
-#    endif /* defined(IPPROTO_IGP) */
+#endif /* defined(IPPROTO_IGP) */
 
-#    if defined(IPPROTO_DGP)
+#if defined(IPPROTO_DGP)
     case IPPROTO_DGP:
-        s = "DGP";
+        Lf->iproto = LSOF_PROTOCOL_DGP;
         break;
-#    endif /* defined(IPPROTO_DGP) */
+#endif /* defined(IPPROTO_DGP) */
 
-#    if defined(IPPROTO_TCF)
+#if defined(IPPROTO_TCF)
     case IPPROTO_TCF:
-        s = "TCF";
+        Lf->iproto = LSOF_PROTOCOL_TCF;
         break;
-#    endif /* defined(IPPROTO_TCF) */
+#endif /* defined(IPPROTO_TCF) */
 
-#    if defined(IPPROTO_IGRP)
+#if defined(IPPROTO_IGRP)
     case IPPROTO_IGRP:
-        s = "IGRP";
+        Lf->iproto = LSOF_PROTOCOL_IGRP;
         break;
-#    endif /* defined(IPPROTO_IGRP) */
+#endif /* defined(IPPROTO_IGRP) */
 
-#    if defined(IPPROTO_OSPFIGP)
+#if defined(IPPROTO_OSPFIGP)
     case IPPROTO_OSPFIGP:
-        s = "OSPFIGP";
+        Lf->iproto = LSOF_PROTOCOL_OSPFIGP;
         break;
-#    endif /* defined(IPPROTO_OSPFIGP) */
+#endif /* defined(IPPROTO_OSPFIGP) */
 
-#    if defined(IPPROTO_SRPC)
+#if defined(IPPROTO_SRPC)
     case IPPROTO_SRPC:
-        s = "SRPC";
+        Lf->iproto = LSOF_PROTOCOL_SRPC;
         break;
-#    endif /* defined(IPPROTO_SRPC) */
+#endif /* defined(IPPROTO_SRPC) */
 
-#    if defined(IPPROTO_LARP)
+#if defined(IPPROTO_LARP)
     case IPPROTO_LARP:
-        s = "LARP";
+        Lf->iproto = LSOF_PROTOCOL_LARP;
         break;
-#    endif /* defined(IPPROTO_LARP) */
+#endif /* defined(IPPROTO_LARP) */
 
-#    if defined(IPPROTO_MTP)
+#if defined(IPPROTO_MTP)
     case IPPROTO_MTP:
-        s = "MTP";
+        Lf->iproto = LSOF_PROTOCOL_MTP;
         break;
-#    endif /* defined(IPPROTO_MTP) */
+#endif /* defined(IPPROTO_MTP) */
 
-#    if defined(IPPROTO_AX25)
+#if defined(IPPROTO_AX25)
     case IPPROTO_AX25:
-        s = "AX25";
+        Lf->iproto = LSOF_PROTOCOL_AX25;
         break;
-#    endif /* defined(IPPROTO_AX25) */
+#endif /* defined(IPPROTO_AX25) */
 
-#    if defined(IPPROTO_IPEIP)
+#if defined(IPPROTO_IPEIP)
     case IPPROTO_IPEIP:
-        s = "IPEIP";
+        Lf->iproto = LSOF_PROTOCOL_IPEIP;
         break;
-#    endif /* defined(IPPROTO_IPEIP) */
+#endif /* defined(IPPROTO_IPEIP) */
 
-#    if defined(IPPROTO_MICP)
+#if defined(IPPROTO_MICP)
     case IPPROTO_MICP:
-        s = "MICP";
+        Lf->iproto = LSOF_PROTOCOL_MICP;
         break;
-#    endif /* defined(IPPROTO_MICP) */
+#endif /* defined(IPPROTO_MICP) */
 
-#    if defined(IPPROTO_SCCSP)
+#if defined(IPPROTO_SCCSP)
     case IPPROTO_SCCSP:
-        s = "SCCSP";
+        Lf->iproto = LSOF_PROTOCOL_SCCSP;
         break;
-#    endif /* defined(IPPROTO_SCCSP) */
+#endif /* defined(IPPROTO_SCCSP) */
 
-#    if defined(IPPROTO_ETHERIP)
+#if defined(IPPROTO_ETHERIP)
     case IPPROTO_ETHERIP:
-        s = "ETHERIP";
+        Lf->iproto = LSOF_PROTOCOL_ETHERIP;
         break;
-#    endif /* defined(IPPROTO_ETHERIP) */
+#endif /* defined(IPPROTO_ETHERIP) */
 
-#    if defined(IPPROTO_ENCAP)
-#        if !defined(IPPROTO_IPIP) || IPPROTO_IPIP != IPPROTO_ENCAP
+#if defined(IPPROTO_ENCAP)
+#    if !defined(IPPROTO_IPIP) || IPPROTO_IPIP != IPPROTO_ENCAP
     case IPPROTO_ENCAP:
-        s = "ENCAP";
+        Lf->iproto = LSOF_PROTOCOL_ENCAP;
         break;
-#        endif /* !defined(IPPROTO_IPIP) || IPPROTO_IPIP!=IPPROTO_ENCAP */
-#    endif     /* defined(IPPROTO_ENCAP) */
+#    endif /* !defined(IPPROTO_IPIP) || IPPROTO_IPIP!=IPPROTO_ENCAP */
+#endif     /* defined(IPPROTO_ENCAP) */
 
-#    if defined(IPPROTO_APES)
+#if defined(IPPROTO_APES)
     case IPPROTO_APES:
-        s = "APES";
+        Lf->iproto = LSOF_PROTOCOL_APES;
         break;
-#    endif /* defined(IPPROTO_APES) */
+#endif /* defined(IPPROTO_APES) */
 
-#    if defined(IPPROTO_GMTP)
+#if defined(IPPROTO_GMTP)
     case IPPROTO_GMTP:
-        s = "GMTP";
+        Lf->iproto = LSOF_PROTOCOL_GMTP;
         break;
-#    endif /* defined(IPPROTO_GMTP) */
+#endif /* defined(IPPROTO_GMTP) */
 
-#    if defined(IPPROTO_DIVERT)
+#if defined(IPPROTO_DIVERT)
     case IPPROTO_DIVERT:
-        s = "DIVERT";
+        Lf->iproto = LSOF_PROTOCOL_DIVERT;
         break;
-#    endif /* defined(IPPROTO_DIVERT) */
+#endif /* defined(IPPROTO_DIVERT) */
 
     default:
-        s = (char *)NULL;
-    }
-    if (s)
-        (void)snpf(Lf->iproto, sizeof(Lf->iproto), "%.*s", IPROTOL - 1, s);
-    else {
-        if (m < 0) {
-            for (i = 0, m = 1; i < IPROTOL - 2; i++)
-                m *= 10;
-        }
-        if (m > p)
-            (void)snpf(Lf->iproto, sizeof(Lf->iproto), "%d?", p);
-        else
-            (void)snpf(Lf->iproto, sizeof(Lf->iproto), "*%d?", p % (m / 10));
+        Lf->iproto = LSOF_PROTOCOL_UNKNOWN;
+        Lf->unknown_proto_number = p;
+        break;
     }
 }
-#endif /* !defined(HASPRIVPRIPP) */
 
 /*
  * printunkaf() - print unknown address family
@@ -1462,6 +1446,437 @@ void print_file_type(enum lsof_file_type type,
         break;
     case LSOF_FILE_VNODE_VUNNAMED:
         (void)snpf(buf, buf_len, "VUNNM");
+        break;
+    }
+}
+
+/*
+ * print_file_type() - print enum lsof_protocol
+ */
+void print_iproto(enum lsof_protocol proto, uint32_t unknown_proto_number,
+                  char *buf, size_t buf_len) {
+    int i, m;
+    switch (proto) {
+    default:
+    case LSOF_PROTOCOL_UNKNOWN:
+        for (i = 0, m = 1; i < IPROTOL - 2; i++)
+            m *= 10;
+        if (m > unknown_proto_number)
+            (void)snpf(buf, buf_len, "%d?", unknown_proto_number);
+        else
+            (void)snpf(buf, buf_len, "*%d?", unknown_proto_number % (m / 10));
+        break;
+    case LSOF_PROTOCOL_INVALID:
+        (void)snpf(buf, buf_len, "");
+        break;
+
+    /* Copied from scripts/lsof_proto.c */
+    case LSOF_PROTOCOL_IP:
+        (void)snpf(buf, buf_len, "IP");
+        break;
+    case LSOF_PROTOCOL_HOPOPTS:
+        (void)snpf(buf, buf_len, "HOPOPTS");
+        break;
+    case LSOF_PROTOCOL_ICMP:
+        (void)snpf(buf, buf_len, "ICMP");
+        break;
+    case LSOF_PROTOCOL_IGMP:
+        (void)snpf(buf, buf_len, "IGMP");
+        break;
+    case LSOF_PROTOCOL_IPIP:
+        (void)snpf(buf, buf_len, "IPIP");
+        break;
+    case LSOF_PROTOCOL_TCP:
+        (void)snpf(buf, buf_len, "TCP");
+        break;
+    case LSOF_PROTOCOL_EGP:
+        (void)snpf(buf, buf_len, "EGP");
+        break;
+    case LSOF_PROTOCOL_PUP:
+        (void)snpf(buf, buf_len, "PUP");
+        break;
+    case LSOF_PROTOCOL_UDP:
+        (void)snpf(buf, buf_len, "UDP");
+        break;
+    case LSOF_PROTOCOL_IDP:
+        (void)snpf(buf, buf_len, "IDP");
+        break;
+    case LSOF_PROTOCOL_TP:
+        (void)snpf(buf, buf_len, "TP");
+        break;
+    case LSOF_PROTOCOL_DCCP:
+        (void)snpf(buf, buf_len, "DCCP");
+        break;
+    case LSOF_PROTOCOL_ROUTING:
+        (void)snpf(buf, buf_len, "ROUTING");
+        break;
+    case LSOF_PROTOCOL_FRAGMENT:
+        (void)snpf(buf, buf_len, "FRAGMNT");
+        break;
+    case LSOF_PROTOCOL_RSVP:
+        (void)snpf(buf, buf_len, "RSVP");
+        break;
+    case LSOF_PROTOCOL_GRE:
+        (void)snpf(buf, buf_len, "GRE");
+        break;
+    case LSOF_PROTOCOL_ESP:
+        (void)snpf(buf, buf_len, "ESP");
+        break;
+    case LSOF_PROTOCOL_AH:
+        (void)snpf(buf, buf_len, "AH");
+        break;
+    case LSOF_PROTOCOL_NONE:
+        (void)snpf(buf, buf_len, "NONE");
+        break;
+    case LSOF_PROTOCOL_DSTOPTS:
+        (void)snpf(buf, buf_len, "DSTOPTS");
+        break;
+    case LSOF_PROTOCOL_MTP:
+        (void)snpf(buf, buf_len, "MTP");
+        break;
+    case LSOF_PROTOCOL_BEETPH:
+        (void)snpf(buf, buf_len, "BEETPH");
+        break;
+    case LSOF_PROTOCOL_ENCAP:
+        (void)snpf(buf, buf_len, "ENCAP");
+        break;
+    case LSOF_PROTOCOL_PIM:
+        (void)snpf(buf, buf_len, "PIM");
+        break;
+    case LSOF_PROTOCOL_COMP:
+        (void)snpf(buf, buf_len, "COMP");
+        break;
+    case LSOF_PROTOCOL_SCTP:
+        (void)snpf(buf, buf_len, "SCTP");
+        break;
+    case LSOF_PROTOCOL_MH:
+        (void)snpf(buf, buf_len, "MH");
+        break;
+    case LSOF_PROTOCOL_UDPLITE:
+        (void)snpf(buf, buf_len, "UDPLITE");
+        break;
+    case LSOF_PROTOCOL_MPLS:
+        (void)snpf(buf, buf_len, "MPLS");
+        break;
+    case LSOF_PROTOCOL_ETHERNET:
+        (void)snpf(buf, buf_len, "ETHER");
+        break;
+    case LSOF_PROTOCOL_RAW:
+        (void)snpf(buf, buf_len, "RAW");
+        break;
+    case LSOF_PROTOCOL_MPTCP:
+        (void)snpf(buf, buf_len, "MPTCP");
+        break;
+    case LSOF_PROTOCOL_802_3:
+        (void)snpf(buf, buf_len, "802_3");
+        break;
+    case LSOF_PROTOCOL_AX25:
+        (void)snpf(buf, buf_len, "AX25");
+        break;
+    case LSOF_PROTOCOL_ALL:
+        (void)snpf(buf, buf_len, "ALL");
+        break;
+    case LSOF_PROTOCOL_802_2:
+        (void)snpf(buf, buf_len, "802_2");
+        break;
+    case LSOF_PROTOCOL_SNAP:
+        (void)snpf(buf, buf_len, "SNAP");
+        break;
+    case LSOF_PROTOCOL_DDCMP:
+        (void)snpf(buf, buf_len, "DDCMP");
+        break;
+    case LSOF_PROTOCOL_WAN_PPP:
+        (void)snpf(buf, buf_len, "WAN_PPP");
+        break;
+    case LSOF_PROTOCOL_PPP_MP:
+        (void)snpf(buf, buf_len, "PPP_MP");
+        break;
+    case LSOF_PROTOCOL_LOCALTALK:
+        (void)snpf(buf, buf_len, "LCLTALK");
+        break;
+    case LSOF_PROTOCOL_CAN:
+        (void)snpf(buf, buf_len, "CAN");
+        break;
+    case LSOF_PROTOCOL_CANFD:
+        (void)snpf(buf, buf_len, "CANFD");
+        break;
+    case LSOF_PROTOCOL_CANXL:
+        (void)snpf(buf, buf_len, "CANXL");
+        break;
+    case LSOF_PROTOCOL_PPPTALK:
+        (void)snpf(buf, buf_len, "PPPTALK");
+        break;
+    case LSOF_PROTOCOL_TR_802_2:
+        (void)snpf(buf, buf_len, "802.2");
+        break;
+    case LSOF_PROTOCOL_MOBITEX:
+        (void)snpf(buf, buf_len, "MOBITEX");
+        break;
+    case LSOF_PROTOCOL_CONTROL:
+        (void)snpf(buf, buf_len, "CONTROL");
+        break;
+    case LSOF_PROTOCOL_IRDA:
+        (void)snpf(buf, buf_len, "IRDA");
+        break;
+    case LSOF_PROTOCOL_ECONET:
+        (void)snpf(buf, buf_len, "ECONET");
+        break;
+    case LSOF_PROTOCOL_HDLC:
+        (void)snpf(buf, buf_len, "HDLC");
+        break;
+    case LSOF_PROTOCOL_ARCNET:
+        (void)snpf(buf, buf_len, "ARCNET");
+        break;
+    case LSOF_PROTOCOL_DSA:
+        (void)snpf(buf, buf_len, "DSA");
+        break;
+    case LSOF_PROTOCOL_TRAILER:
+        (void)snpf(buf, buf_len, "TRAILER");
+        break;
+    case LSOF_PROTOCOL_LOOP:
+        (void)snpf(buf, buf_len, "LOOP");
+        break;
+    case LSOF_PROTOCOL_PHONET:
+        (void)snpf(buf, buf_len, "PHONET");
+        break;
+    case LSOF_PROTOCOL_IEEE802154:
+        (void)snpf(buf, buf_len, "802154");
+        break;
+    case LSOF_PROTOCOL_CAIF:
+        (void)snpf(buf, buf_len, "CAIF");
+        break;
+    case LSOF_PROTOCOL_XDSA:
+        (void)snpf(buf, buf_len, "XDSA");
+        break;
+    case LSOF_PROTOCOL_MAP:
+        (void)snpf(buf, buf_len, "MAP");
+        break;
+    case LSOF_PROTOCOL_MCTP:
+        (void)snpf(buf, buf_len, "MCTP");
+        break;
+    case LSOF_PROTOCOL_PUPAT:
+        (void)snpf(buf, buf_len, "PUPAT");
+        break;
+    case LSOF_PROTOCOL_802_3_MIN:
+        (void)snpf(buf, buf_len, "802.3");
+        break;
+    case LSOF_PROTOCOL_X25:
+        (void)snpf(buf, buf_len, "X25");
+        break;
+    case LSOF_PROTOCOL_ARP:
+        (void)snpf(buf, buf_len, "ARP");
+        break;
+    case LSOF_PROTOCOL_BPQ:
+        (void)snpf(buf, buf_len, "BPQ");
+        break;
+    case LSOF_PROTOCOL_IEEEPUP:
+        (void)snpf(buf, buf_len, "IEEEPUP");
+        break;
+    case LSOF_PROTOCOL_IEEEPUPAT:
+        (void)snpf(buf, buf_len, "I3EPUPAT");
+        break;
+    case LSOF_PROTOCOL_ERSPAN2:
+        (void)snpf(buf, buf_len, "ERSPAN2");
+        break;
+    case LSOF_PROTOCOL_TSN:
+        (void)snpf(buf, buf_len, "TSN");
+        break;
+    case LSOF_PROTOCOL_BATMAN:
+        (void)snpf(buf, buf_len, "BATMAN");
+        break;
+    case LSOF_PROTOCOL_DEC:
+        (void)snpf(buf, buf_len, "DEC");
+        break;
+    case LSOF_PROTOCOL_DNA_DL:
+        (void)snpf(buf, buf_len, "DNA_DL");
+        break;
+    case LSOF_PROTOCOL_DNA_RC:
+        (void)snpf(buf, buf_len, "DNA_RC");
+        break;
+    case LSOF_PROTOCOL_DNA_RT:
+        (void)snpf(buf, buf_len, "DNA_RT");
+        break;
+    case LSOF_PROTOCOL_LAT:
+        (void)snpf(buf, buf_len, "LAT");
+        break;
+    case LSOF_PROTOCOL_DIAG:
+        (void)snpf(buf, buf_len, "DIAG");
+        break;
+    case LSOF_PROTOCOL_CUST:
+        (void)snpf(buf, buf_len, "CUST");
+        break;
+    case LSOF_PROTOCOL_SCA:
+        (void)snpf(buf, buf_len, "SCA");
+        break;
+    case LSOF_PROTOCOL_TEB:
+        (void)snpf(buf, buf_len, "TEB");
+        break;
+    case LSOF_PROTOCOL_RARP:
+        (void)snpf(buf, buf_len, "RARP");
+        break;
+    case LSOF_PROTOCOL_ATALK:
+        (void)snpf(buf, buf_len, "ATALK");
+        break;
+    case LSOF_PROTOCOL_AARP:
+        (void)snpf(buf, buf_len, "AARP");
+        break;
+    case LSOF_PROTOCOL_8021Q:
+        (void)snpf(buf, buf_len, "8021Q");
+        break;
+    case LSOF_PROTOCOL_IPX:
+        (void)snpf(buf, buf_len, "IPX");
+        break;
+    case LSOF_PROTOCOL_IPV6:
+        (void)snpf(buf, buf_len, "IPV6");
+        break;
+    case LSOF_PROTOCOL_PAUSE:
+        (void)snpf(buf, buf_len, "PAUSE");
+        break;
+    case LSOF_PROTOCOL_SLOW:
+        (void)snpf(buf, buf_len, "SLOW");
+        break;
+    case LSOF_PROTOCOL_WCCP:
+        (void)snpf(buf, buf_len, "WCCP");
+        break;
+    case LSOF_PROTOCOL_MPLS_UC:
+        (void)snpf(buf, buf_len, "MPLS_UC");
+        break;
+    case LSOF_PROTOCOL_MPLS_MC:
+        (void)snpf(buf, buf_len, "MPLS_MC");
+        break;
+    case LSOF_PROTOCOL_ATMMPOA:
+        (void)snpf(buf, buf_len, "ATMMPOA");
+        break;
+    case LSOF_PROTOCOL_PPP_DISC:
+        (void)snpf(buf, buf_len, "PPPDISC");
+        break;
+    case LSOF_PROTOCOL_PPP_SES:
+        (void)snpf(buf, buf_len, "PPP_SES");
+        break;
+    case LSOF_PROTOCOL_LINK_CTL:
+        (void)snpf(buf, buf_len, "LINKCTL");
+        break;
+    case LSOF_PROTOCOL_ATMFATE:
+        (void)snpf(buf, buf_len, "ATMFATE");
+        break;
+    case LSOF_PROTOCOL_PAE:
+        (void)snpf(buf, buf_len, "PAE");
+        break;
+    case LSOF_PROTOCOL_PROFINET:
+        (void)snpf(buf, buf_len, "PROFINT");
+        break;
+    case LSOF_PROTOCOL_REALTEK:
+        (void)snpf(buf, buf_len, "REALTEK");
+        break;
+    case LSOF_PROTOCOL_AOE:
+        (void)snpf(buf, buf_len, "AOE");
+        break;
+    case LSOF_PROTOCOL_ETHERCAT:
+        (void)snpf(buf, buf_len, "ETHCAT");
+        break;
+    case LSOF_PROTOCOL_8021AD:
+        (void)snpf(buf, buf_len, "8021AD");
+        break;
+    case LSOF_PROTOCOL_802_EX1:
+        (void)snpf(buf, buf_len, "802_EX1");
+        break;
+    case LSOF_PROTOCOL_ERSPAN:
+        (void)snpf(buf, buf_len, "ERSPAN");
+        break;
+    case LSOF_PROTOCOL_PREAUTH:
+        (void)snpf(buf, buf_len, "PREAUTH");
+        break;
+    case LSOF_PROTOCOL_TIPC:
+        (void)snpf(buf, buf_len, "TIPC");
+        break;
+    case LSOF_PROTOCOL_LLDP:
+        (void)snpf(buf, buf_len, "LLDP");
+        break;
+    case LSOF_PROTOCOL_MRP:
+        (void)snpf(buf, buf_len, "MRP");
+        break;
+    case LSOF_PROTOCOL_MACSEC:
+        (void)snpf(buf, buf_len, "MACSEC");
+        break;
+    case LSOF_PROTOCOL_8021AH:
+        (void)snpf(buf, buf_len, "8021AH");
+        break;
+    case LSOF_PROTOCOL_MVRP:
+        (void)snpf(buf, buf_len, "MVRP");
+        break;
+    case LSOF_PROTOCOL_1588:
+        (void)snpf(buf, buf_len, "1588");
+        break;
+    case LSOF_PROTOCOL_NCSI:
+        (void)snpf(buf, buf_len, "NCSI");
+        break;
+    case LSOF_PROTOCOL_PRP:
+        (void)snpf(buf, buf_len, "PRP");
+        break;
+    case LSOF_PROTOCOL_CFM:
+        (void)snpf(buf, buf_len, "CFM");
+        break;
+    case LSOF_PROTOCOL_FCOE:
+        (void)snpf(buf, buf_len, "FCOE");
+        break;
+    case LSOF_PROTOCOL_TDLS:
+        (void)snpf(buf, buf_len, "TDLS");
+        break;
+    case LSOF_PROTOCOL_FIP:
+        (void)snpf(buf, buf_len, "FIP");
+        break;
+    case LSOF_PROTOCOL_IBOE:
+        (void)snpf(buf, buf_len, "IBOE");
+        break;
+    case LSOF_PROTOCOL_80221:
+        (void)snpf(buf, buf_len, "80221");
+        break;
+    case LSOF_PROTOCOL_HSR:
+        (void)snpf(buf, buf_len, "HSR");
+        break;
+    case LSOF_PROTOCOL_NSH:
+        (void)snpf(buf, buf_len, "NSH");
+        break;
+    case LSOF_PROTOCOL_LOOPBACK:
+        (void)snpf(buf, buf_len, "LOOPBAK");
+        break;
+    case LSOF_PROTOCOL_QINQ1:
+        (void)snpf(buf, buf_len, "QINQ1");
+        break;
+    case LSOF_PROTOCOL_QINQ2:
+        (void)snpf(buf, buf_len, "QINQ2");
+        break;
+    case LSOF_PROTOCOL_QINQ3:
+        (void)snpf(buf, buf_len, "QINQ3");
+        break;
+    case LSOF_PROTOCOL_EDSA:
+        (void)snpf(buf, buf_len, "EDSA");
+        break;
+    case LSOF_PROTOCOL_DSA_8021Q:
+        (void)snpf(buf, buf_len, "DSAD1Q");
+        break;
+    case LSOF_PROTOCOL_DSA_A5PSW:
+        (void)snpf(buf, buf_len, "DSA5PSW");
+        break;
+    case LSOF_PROTOCOL_IFE:
+        (void)snpf(buf, buf_len, "IFE");
+        break;
+    case LSOF_PROTOCOL_AF_IUCV:
+        (void)snpf(buf, buf_len, "AF_IUCV");
+        break;
+
+    /* Others */
+    case LSOF_PROTOCOL_8025:
+        (void)snpf(buf, buf_len, "802.5");
+        break;
+    case LSOF_PROTOCOL_CCITT:
+        (void)snpf(buf, buf_len, "CCITT");
+        break;
+    case LSOF_PROTOCOL_STR:
+        (void)snpf(buf, buf_len, "STR");
+        break;
+    case LSOF_PROTOCOL_SHARED:
+        (void)snpf(buf, buf_len, "SHARED");
         break;
     }
 }

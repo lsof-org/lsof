@@ -355,12 +355,10 @@ void process_node(na) KA_T na; /* inode kernel space address */
                              */
                             if (strcasecmp(cp, "tcp") == 0) {
                                 pt = 0;
-                                (void)snpf(Lf->iproto, sizeof(Lf->iproto),
-                                           "TCP");
+                                Lf->iproto = LSOF_PROTOCOL_TCP;
                             } else if (strcasecmp(cp, "udp") == 0) {
                                 pt = 1;
-                                (void)snpf(Lf->iproto, sizeof(Lf->iproto),
-                                           "UDP");
+                                Lf->iproto = LSOF_PROTOCOL_UDP;
                             }
                             if (pt >= 0)
                                 p = (KA_T)q.q_ptr;

@@ -219,6 +219,9 @@ _PROTOTYPE(extern char print_lock, (enum lsof_lock_mode lock));
 _PROTOTYPE(extern void print_file_type,
            (enum lsof_file_type type, uint32_t unknown_file_type_number,
             char *buf, size_t buf_len));
+_PROTOTYPE(extern void print_iproto,
+           (enum lsof_protocol proto, uint32_t unknown_proto_number, char *buf,
+            size_t buf_len));
 _PROTOTYPE(extern char *printsockty, (int ty));
 _PROTOTYPE(extern void process_file, (struct lsof_context * ctx, KA_T fp));
 _PROTOTYPE(extern void process_node, (struct lsof_context * ctx, KA_T f));
@@ -327,9 +330,7 @@ _PROTOTYPE(extern char *HASPRINTOFF, (struct lfile * lf, int ty));
 _PROTOTYPE(extern int HASPRIVNMCACHE, (struct lfile * lf));
 #    endif /* defined(HASPRIVNMCACHE) */
 
-#    if !defined(HASPRIVPRIPP)
-_PROTOTYPE(extern void printiproto, (struct lsof_context * ctx, int p));
-#    endif /* !defined(HASPRIVPRIPP) */
+_PROTOTYPE(extern void enter_ip_proto, (struct lsof_context * ctx, int p));
 
 #    if defined(HASRNODE)
 _PROTOTYPE(extern int readrnode, (KA_T ra, struct rnode *r));

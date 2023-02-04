@@ -79,14 +79,16 @@ _PROTOTYPE(static int readlino, (int fx, struct vnode *v, struct l_ino *i));
  */
 
 static struct protos {
-    char *module; /* stream module name */
-    char *proto;  /* TCP/IP protocol name */
+    char *module;             /* stream module name */
+    enum lsof_protocol proto; /* TCP/IP protocol name */
 } Protos[] = {
-    {"tcpu", "TCP"},  {"udpu", "UDP"}, {"tcpl", "TCP"}, {"tcp", "TCP"},
-    {"udpl", "UDP"},  {"udp", "UDP"},
+    {"tcpu", LSOF_PROTOCOL_TCP},  {"udpu", LSOF_PROTOCOL_UDP},
+    {"tcpl", LSOF_PROTOCOL_TCP},  {"tcp", LSOF_PROTOCOL_TCP},
+    {"udpl", LSOF_PROTOCOL_UDP},  {"udp", LSOF_PROTOCOL_UDP},
 
 #if UNIXWAREV < 70103
-    {"icmp", "ICMP"}, {"ipu", "IP"},   {"ipl", "IP"},   {"ip", "IP"},
+    {"icmp", LSOF_PROTOCOL_ICMP}, {"ipu", LSOF_PROTOCOL_IP},
+    {"ipl", LSOF_PROTOCOL_IP},    {"ip", LSOF_PROTOCOL_IP},
 #endif /* UNIXWAREV<70103 */
 
 };

@@ -353,7 +353,8 @@ _PROTOTYPE(static struct nlksin *check_netlink, (INODETYPE i));
 _PROTOTYPE(static struct packin *check_pack, (INODETYPE i));
 _PROTOTYPE(static struct rawsin *check_raw, (INODETYPE i));
 _PROTOTYPE(static struct sctpsin *check_sctp, (INODETYPE i));
-_PROTOTYPE(static struct tcp_udp *check_tcpudp, (INODETYPE i, char **p));
+_PROTOTYPE(static struct tcp_udp *check_tcpudp,
+           (INODETYPE i, enum lsof_protocol *p));
 _PROTOTYPE(static uxsin_t *check_unix, (INODETYPE i));
 _PROTOTYPE(static void get_ax25, (struct lsof_context * ctx, char *p));
 _PROTOTYPE(static void get_icmp, (struct lsof_context * ctx, char *p));
@@ -373,11 +374,12 @@ _PROTOTYPE(static void print_ipxinfo,
            (struct lsof_context * ctx, struct ipxsin *ip));
 _PROTOTYPE(static char *socket_type_to_str, (uint32_t ty, int *rf));
 _PROTOTYPE(static char *netlink_proto_to_str, (unsigned int pr));
-_PROTOTYPE(static char *ethernet_proto_to_str, (unsigned int pr));
+_PROTOTYPE(static enum lsof_protocol ethernet_proto_convert, (unsigned int pr));
 
 #if defined(HASIPv6)
 _PROTOTYPE(static struct rawsin *check_raw6, (INODETYPE i));
-_PROTOTYPE(static struct tcp_udp6 *check_tcpudp6, (INODETYPE i, char **p));
+_PROTOTYPE(static struct tcp_udp6 *check_tcpudp6,
+           (INODETYPE i, enum lsof_protocol *p));
 _PROTOTYPE(static void get_raw6, (struct lsof_context * ctx, char *p));
 _PROTOTYPE(static void get_tcpudp6,
            (struct lsof_context * ctx, char *p, int pr, int clr));
@@ -467,8 +469,8 @@ static struct sctpsin *check_sctp(INODETYPE i) /* socket file's inode number */
  * check_tcpudp() - check for IPv4 TCP or UDP socket file
  */
 static struct tcp_udp *
-check_tcpudp(INODETYPE i, /* socket file's inode number */
-             char **p)    /* protocol return */
+check_tcpudp(INODETYPE i,           /* socket file's inode number */
+             enum lsof_protocol *p) /* protocol return */
 {
     struct tcp_udp *tp;
     tp = HASH_FIND_ELEMENT(TcpUdp, TCPUDPHASH, struct tcp_udp, inode, i);
@@ -476,16 +478,16 @@ check_tcpudp(INODETYPE i, /* socket file's inode number */
     if (tp) {
         switch (tp->proto) {
         case 0:
-            *p = "TCP";
+            *p = LSOF_PROTOCOL_TCP;
             break;
         case 1:
-            *p = "UDP";
+            *p = LSOF_PROTOCOL_UDP;
             break;
         case 2:
-            *p = "UDPLITE";
+            *p = LSOF_PROTOCOL_UDPLITE;
             break;
         default:
-            *p = "unknown";
+            *p = LSOF_PROTOCOL_UNKNOWN;
         }
     }
     return tp;
@@ -549,8 +551,8 @@ static struct rawsin *check_raw6(INODETYPE i) /* socket file's inode number */
  * check_tcpudp6() - check for IPv6 TCP or UDP socket file
  */
 static struct tcp_udp6 *
-check_tcpudp6(INODETYPE i, /* socket file's inode number */
-              char **p)    /* protocol return */
+check_tcpudp6(INODETYPE i,           /* socket file's inode number */
+              enum lsof_protocol *p) /* protocol return */
 {
     struct tcp_udp6 *tp6;
     tp6 = HASH_FIND_ELEMENT(TcpUdp6, TCPUDP6HASH, struct tcp_udp6, inode, i);
@@ -558,16 +560,16 @@ check_tcpudp6(INODETYPE i, /* socket file's inode number */
     if (tp6) {
         switch (tp6->proto) {
         case 0:
-            *p = "TCP";
+            *p = LSOF_PROTOCOL_TCP;
             break;
         case 1:
-            *p = "UDP";
+            *p = LSOF_PROTOCOL_UDP;
             break;
         case 2:
-            *p = "UDPLITE";
+            *p = LSOF_PROTOCOL_UDPLITE;
             break;
         default:
-            *p = "unknown";
+            *p = LSOF_PROTOCOL_UNKNOWN;
         }
     }
     return tp6;
@@ -3540,6 +3542,7 @@ void process_proc_sock(struct lsof_context *ctx,
 {
     struct ax25sin *ap;
     char *cp, *path = (char *)NULL, tbuf[64];
+    enum lsof_protocol proto;
     unsigned char *fa, *la;
     struct in_addr fs, ls;
     struct icmpin *icmpp;
@@ -3755,14 +3758,11 @@ void process_proc_sock(struct lsof_context *ctx,
         Lf->type = LSOF_FILE_PACKET;
         cp = socket_type_to_str(pp->ty, &rf);
         (void)snpf(Namech, Namechl, "type=%s%s", rf ? "" : "SOCK_", cp);
-        cp = ethernet_proto_to_str(pp->pr);
-        if (!cp) {
-            /* Unknown ethernet proto */
-            (void)snpf(tbuf, sizeof(tbuf) - 1, "%d", pp->pr);
-            tbuf[sizeof(tbuf) - 1] = '\0';
-            cp = tbuf;
+        proto = ethernet_proto_convert(pp->pr);
+        Lf->iproto = proto;
+        if (Lf->iproto == LSOF_PROTOCOL_UNKNOWN) {
+            Lf->unknown_proto_number = pp->pr;
         }
-        (void)snpf(Lf->iproto, sizeof(Lf->iproto), "%.*s", IPROTOL - 1, cp);
         if (ss & SB_INO) {
             (void)snpf(tbuf, sizeof(tbuf), "%" INODEPSPEC "d",
                        (INODETYPE)s->st_ino);
@@ -3965,7 +3965,7 @@ void process_proc_sock(struct lsof_context *ctx,
     }
 
     if (!Fxopt && (ss & SB_INO) &&
-        (tp6 = check_tcpudp6((INODETYPE)s->st_ino, &pr))) {
+        (tp6 = check_tcpudp6((INODETYPE)s->st_ino, &proto))) {
 
         /*
          * The inode is connected to an IPv6 TCP or UDP /proc record.
@@ -4005,7 +4005,7 @@ void process_proc_sock(struct lsof_context *ctx,
         if (Fnet && (FnetTy != 4))
             Lf->sf |= SELNET;
         Lf->type = LSOF_FILE_IPV6;
-        (void)snpf(Lf->iproto, sizeof(Lf->iproto), "%.*s", IPROTOL - 1, pr);
+        Lf->iproto = proto;
         if (ss & SB_INO) {
             (void)snpf(tbuf, sizeof(tbuf), "%" INODEPSPEC "d",
                        (INODETYPE)s->st_ino);
@@ -4072,7 +4072,7 @@ void process_proc_sock(struct lsof_context *ctx,
     }
 
     if (!Fxopt && (ss & SB_INO) &&
-        (tp = check_tcpudp((INODETYPE)s->st_ino, &pr))) {
+        (tp = check_tcpudp((INODETYPE)s->st_ino, &proto))) {
 
         /*
          * The inode is connected to an IPv4 TCP or UDP /proc record.
@@ -4118,7 +4118,7 @@ void process_proc_sock(struct lsof_context *ctx,
         Lf->type = LSOF_FILE_INET;
 #endif /* defined(HASIPv6) */
 
-        (void)snpf(Lf->iproto, sizeof(Lf->iproto), "%.*s", IPROTOL - 1, pr);
+        Lf->iproto = proto;
         if (ss & SB_INO) {
             (void)snpf(tbuf, sizeof(tbuf), "%" INODEPSPEC "d",
                        (INODETYPE)s->st_ino);
@@ -4173,7 +4173,7 @@ void process_proc_sock(struct lsof_context *ctx,
          * with ASSOC, ASSOC-ID, ENDPT, LADDRS, LPORT, RADDRS and RPORT.
          */
         Lf->type = LSOF_FILE_SOCKET;
-        (void)snpf(Lf->iproto, sizeof(Lf->iproto), "%.*s", IPROTOL - 1, "SCTP");
+        Lf->iproto = LSOF_PROTOCOL_SCTP;
         (void)snpf(tbuf, sizeof(tbuf), "%" INODEPSPEC "d",
                    (INODETYPE)s->st_ino);
         tbuf[sizeof(tbuf) - 1] = '\0';
@@ -4546,575 +4546,572 @@ static char *netlink_proto_to_str(unsigned int pr) {
 }
 
 /*
- * ethernet_proto_to_str() -- convert ethernet protocol number to a string
- *
- * The string should not exceed 7 characters.
- *
- * return NULL if the number is unknown.
+ * ethernet_proto_convert() -- convert ethernet protocol number to enum
+ * lsof_protocol
  */
-static char *ethernet_proto_to_str(unsigned int pr) {
-    char *cp = NULL;
+static enum lsof_protocol ethernet_proto_convert(unsigned int pr) {
+    enum lsof_protocol cp = LSOF_PROTOCOL_UNKNOWN;
     switch (pr) {
 #if defined(ETH_P_LOOP)
     case ETH_P_LOOP:
-        cp = "LOOP";
+        cp = LSOF_PROTOCOL_LOOP;
         break;
 #endif /* defined(ETH_P_LOOP) */
 
 #if defined(ETH_P_PUP)
     case ETH_P_PUP:
-        cp = "PUP";
+        cp = LSOF_PROTOCOL_PUP;
         break;
 #endif /* defined(ETH_P_PUP) */
 
 #if defined(ETH_P_PUPAT)
     case ETH_P_PUPAT:
-        cp = "PUPAT";
+        cp = LSOF_PROTOCOL_PUPAT;
         break;
 #endif /* defined(ETH_P_PUPAT) */
 
 #if defined(ETH_P_TSN)
     case ETH_P_TSN:
-        cp = "TSN";
+        cp = LSOF_PROTOCOL_TSN;
         break;
 #endif /* defined(ETH_P_TSN) */
 
 #if defined(ETH_P_ERSPAN2)
     case ETH_P_ERSPAN2:
-        cp = "ERSPAN2";
+        cp = LSOF_PROTOCOL_ERSPAN2;
         break;
 #endif /* defined(ETH_P_ERSPAN2) */
 
 #if defined(ETH_P_IP)
     case ETH_P_IP:
-        cp = "IP";
+        cp = LSOF_PROTOCOL_IP;
         break;
 #endif /* defined(ETH_P_IP) */
 
 #if defined(ETH_P_X25)
     case ETH_P_X25:
-        cp = "X25";
+        cp = LSOF_PROTOCOL_X25;
         break;
 #endif /* defined(ETH_P_X25) */
 
 #if defined(ETH_P_ARP)
     case ETH_P_ARP:
-        cp = "ARP";
+        cp = LSOF_PROTOCOL_ARP;
         break;
 #endif /* defined(ETH_P_ARP) */
 
 #if defined(ETH_P_BPQ)
     case ETH_P_BPQ:
-        cp = "BPQ";
+        cp = LSOF_PROTOCOL_BPQ;
         break;
 #endif /* defined(ETH_P_BPQ) */
 
 #if defined(ETH_P_IEEEPUP)
     case ETH_P_IEEEPUP:
-        cp = "I3EPUP";
+        cp = LSOF_PROTOCOL_IEEEPUP;
         break;
 #endif /* defined(ETH_P_IEEEPUP) */
 
 #if defined(ETH_P_IEEEPUPAT)
     case ETH_P_IEEEPUPAT:
-        cp = "I3EPUPA";
+        cp = LSOF_PROTOCOL_IEEEPUPAT;
         break;
 #endif /* defined(ETH_P_IEEEPUPAT) */
 
 #if defined(ETH_P_BATMAN)
     case ETH_P_BATMAN:
-        cp = "BATMAN";
+        cp = LSOF_PROTOCOL_BATMAN;
         break;
 #endif /* defined(ETH_P_BATMAN) */
 
 #if defined(ETH_P_DEC)
     case ETH_P_DEC:
-        cp = "DEC";
+        cp = LSOF_PROTOCOL_DEC;
         break;
 #endif /* defined(ETH_P_DEC) */
 
 #if defined(ETH_P_DNA_DL)
     case ETH_P_DNA_DL:
-        cp = "DNA_DL";
+        cp = LSOF_PROTOCOL_DNA_DL;
         break;
 #endif /* defined(ETH_P_DNA_DL) */
 
 #if defined(ETH_P_DNA_RC)
     case ETH_P_DNA_RC:
-        cp = "DNA_RC";
+        cp = LSOF_PROTOCOL_DNA_RC;
         break;
 #endif /* defined(ETH_P_DNA_RC) */
 
 #if defined(ETH_P_DNA_RT)
     case ETH_P_DNA_RT:
-        cp = "DNA_RT";
+        cp = LSOF_PROTOCOL_DNA_RT;
         break;
 #endif /* defined(ETH_P_DNA_RT) */
 
 #if defined(ETH_P_LAT)
     case ETH_P_LAT:
-        cp = "LAT";
+        cp = LSOF_PROTOCOL_LAT;
         break;
 #endif /* defined(ETH_P_LAT) */
 
 #if defined(ETH_P_DIAG)
     case ETH_P_DIAG:
-        cp = "DIAG";
+        cp = LSOF_PROTOCOL_DIAG;
         break;
 #endif /* defined(ETH_P_DIAG) */
 
 #if defined(ETH_P_CUST)
     case ETH_P_CUST:
-        cp = "CUST";
+        cp = LSOF_PROTOCOL_CUST;
         break;
 #endif /* defined(ETH_P_CUST) */
 
 #if defined(ETH_P_SCA)
     case ETH_P_SCA:
-        cp = "SCA";
+        cp = LSOF_PROTOCOL_SCA;
         break;
 #endif /* defined(ETH_P_SCA) */
 
 #if defined(ETH_P_TEB)
     case ETH_P_TEB:
-        cp = "TEB";
+        cp = LSOF_PROTOCOL_TEB;
         break;
 #endif /* defined(ETH_P_TEB) */
 
 #if defined(ETH_P_RARP)
     case ETH_P_RARP:
-        cp = "RARP";
+        cp = LSOF_PROTOCOL_RARP;
         break;
 #endif /* defined(ETH_P_RARP) */
 
 #if defined(ETH_P_ATALK)
     case ETH_P_ATALK:
-        cp = "ATALK";
+        cp = LSOF_PROTOCOL_ATALK;
         break;
 #endif /* defined(ETH_P_ATALK) */
 
 #if defined(ETH_P_AARP)
     case ETH_P_AARP:
-        cp = "AARP";
+        cp = LSOF_PROTOCOL_AARP;
         break;
 #endif /* defined(ETH_P_AARP) */
 
 #if defined(ETH_P_8021Q)
     case ETH_P_8021Q:
-        cp = "8021Q";
+        cp = LSOF_PROTOCOL_8021Q;
         break;
 #endif /* defined(ETH_P_8021Q) */
 
 #if defined(ETH_P_ERSPAN)
     case ETH_P_ERSPAN:
-        cp = "ERSPAN";
+        cp = LSOF_PROTOCOL_ERSPAN;
         break;
 #endif /* defined(ETH_P_ERSPAN) */
 
 #if defined(ETH_P_IPX)
     case ETH_P_IPX:
-        cp = "IPX";
+        cp = LSOF_PROTOCOL_IPX;
         break;
 #endif /* defined(ETH_P_IPX) */
 
 #if defined(ETH_P_IPV6)
     case ETH_P_IPV6:
-        cp = "IPV6";
+        cp = LSOF_PROTOCOL_IPV6;
         break;
 #endif /* defined(ETH_P_IPV6) */
 
 #if defined(ETH_P_PAUSE)
     case ETH_P_PAUSE:
-        cp = "PAUSE";
+        cp = LSOF_PROTOCOL_PAUSE;
         break;
 #endif /* defined(ETH_P_PAUSE) */
 
 #if defined(ETH_P_SLOW)
     case ETH_P_SLOW:
-        cp = "SLOW";
+        cp = LSOF_PROTOCOL_SLOW;
         break;
 #endif /* defined(ETH_P_SLOW) */
 
 #if defined(ETH_P_WCCP)
     case ETH_P_WCCP:
-        cp = "WCCP";
+        cp = LSOF_PROTOCOL_WCCP;
         break;
 #endif /* defined(ETH_P_WCCP) */
 
 #if defined(ETH_P_MPLS_UC)
     case ETH_P_MPLS_UC:
-        cp = "MPLS_UC";
+        cp = LSOF_PROTOCOL_MPLS_UC;
         break;
 #endif /* defined(ETH_P_MPLS_UC) */
 
 #if defined(ETH_P_MPLS_MC)
     case ETH_P_MPLS_MC:
-        cp = "MPLS_MC";
+        cp = LSOF_PROTOCOL_MPLS_MC;
         break;
 #endif /* defined(ETH_P_MPLS_MC) */
 
 #if defined(ETH_P_ATMMPOA)
     case ETH_P_ATMMPOA:
-        cp = "ATMMPOA";
+        cp = LSOF_PROTOCOL_ATMMPOA;
         break;
 #endif /* defined(ETH_P_ATMMPOA) */
 
 #if defined(ETH_P_PPP_DISC)
     case ETH_P_PPP_DISC:
-        cp = "PPP_DIS";
+        cp = LSOF_PROTOCOL_PPP_DISC;
         break;
 #endif /* defined(ETH_P_PPP_DISC) */
 
 #if defined(ETH_P_PPP_SES)
     case ETH_P_PPP_SES:
-        cp = "PPP_SES";
+        cp = LSOF_PROTOCOL_PPP_SES;
         break;
 #endif /* defined(ETH_P_PPP_SES) */
 
 #if defined(ETH_P_LINK_CTL)
     case ETH_P_LINK_CTL:
-        cp = "LINKCTL";
+        cp = LSOF_PROTOCOL_LINK_CTL;
         break;
 #endif /* defined(ETH_P_LINK_CTL) */
 
 #if defined(ETH_P_ATMFATE)
     case ETH_P_ATMFATE:
-        cp = "ATMFATE";
+        cp = LSOF_PROTOCOL_ATMFATE;
         break;
 #endif /* defined(ETH_P_ATMFATE) */
 
 #if defined(ETH_P_PAE)
     case ETH_P_PAE:
-        cp = "PAE";
+        cp = LSOF_PROTOCOL_PAE;
         break;
 #endif /* defined(ETH_P_PAE) */
 
 #if defined(ETH_P_AOE)
     case ETH_P_AOE:
-        cp = "AOE";
+        cp = LSOF_PROTOCOL_AOE;
         break;
 #endif /* defined(ETH_P_AOE) */
 
 #if defined(ETH_P_8021AD)
     case ETH_P_8021AD:
-        cp = "8021AD";
+        cp = LSOF_PROTOCOL_8021AD;
         break;
 #endif /* defined(ETH_P_8021AD) */
 
 #if defined(ETH_P_802_EX1)
     case ETH_P_802_EX1:
-        cp = "802_EX1";
+        cp = LSOF_PROTOCOL_802_EX1;
         break;
 #endif /* defined(ETH_P_802_EX1) */
 
 #if defined(ETH_P_PREAUTH)
     case ETH_P_PREAUTH:
-        cp = "PREAUTH";
+        cp = LSOF_PROTOCOL_PREAUTH;
         break;
 #endif /* defined(ETH_P_PREAUTH) */
 
 #if defined(ETH_P_TIPC)
     case ETH_P_TIPC:
-        cp = "TIPC";
+        cp = LSOF_PROTOCOL_TIPC;
         break;
 #endif /* defined(ETH_P_TIPC) */
 
 #if defined(ETH_P_LLDP)
     case ETH_P_LLDP:
-        cp = "LLDP";
+        cp = LSOF_PROTOCOL_LLDP;
         break;
 #endif /* defined(ETH_P_LLDP) */
 
 #if defined(ETH_P_MRP)
     case ETH_P_MRP:
-        cp = "MRP";
+        cp = LSOF_PROTOCOL_MRP;
         break;
 #endif /* defined(ETH_P_MRP) */
 
 #if defined(ETH_P_MACSEC)
     case ETH_P_MACSEC:
-        cp = "MACSEC";
+        cp = LSOF_PROTOCOL_MACSEC;
         break;
 #endif /* defined(ETH_P_MACSEC) */
 
 #if defined(ETH_P_8021AH)
     case ETH_P_8021AH:
-        cp = "8021AH";
+        cp = LSOF_PROTOCOL_8021AH;
         break;
 #endif /* defined(ETH_P_8021AH) */
 
 #if defined(ETH_P_MVRP)
     case ETH_P_MVRP:
-        cp = "MVRP";
+        cp = LSOF_PROTOCOL_MVRP;
         break;
 #endif /* defined(ETH_P_MVRP) */
 
 #if defined(ETH_P_1588)
     case ETH_P_1588:
-        cp = "1588";
+        cp = LSOF_PROTOCOL_1588;
         break;
 #endif /* defined(ETH_P_1588) */
 
 #if defined(ETH_P_NCSI)
     case ETH_P_NCSI:
-        cp = "NCSI";
+        cp = LSOF_PROTOCOL_NCSI;
         break;
 #endif /* defined(ETH_P_NCSI) */
 
 #if defined(ETH_P_PRP)
     case ETH_P_PRP:
-        cp = "PRP";
+        cp = LSOF_PROTOCOL_PRP;
         break;
 #endif /* defined(ETH_P_PRP) */
 
 #if defined(ETH_P_FCOE)
     case ETH_P_FCOE:
-        cp = "FCOE";
+        cp = LSOF_PROTOCOL_FCOE;
         break;
 #endif /* defined(ETH_P_FCOE) */
 
 #if defined(ETH_P_IBOE)
     case ETH_P_IBOE:
-        cp = "IBOE";
+        cp = LSOF_PROTOCOL_IBOE;
         break;
 #endif /* defined(ETH_P_IBOE) */
 
 #if defined(ETH_P_TDLS)
     case ETH_P_TDLS:
-        cp = "TDLS";
+        cp = LSOF_PROTOCOL_TDLS;
         break;
 #endif /* defined(ETH_P_TDLS) */
 
 #if defined(ETH_P_FIP)
     case ETH_P_FIP:
-        cp = "FIP";
+        cp = LSOF_PROTOCOL_FIP;
         break;
 #endif /* defined(ETH_P_FIP) */
 
 #if defined(ETH_P_80221)
     case ETH_P_80221:
-        cp = "802.21";
+        cp = LSOF_PROTOCOL_80221;
         break;
 #endif /* defined(ETH_P_80221) */
 
 #if defined(ETH_P_HSR)
     case ETH_P_HSR:
-        cp = "HSR";
+        cp = LSOF_PROTOCOL_HSR;
         break;
 #endif /* defined(ETH_P_HSR) */
 
 #if defined(ETH_P_NSH)
     case ETH_P_NSH:
-        cp = "NSH";
+        cp = LSOF_PROTOCOL_NSH;
         break;
 #endif /* defined(ETH_P_NSH) */
 
 #if defined(ETH_P_LOOPBACK)
     case ETH_P_LOOPBACK:
-        cp = "LOOPBACK";
+        cp = LSOF_PROTOCOL_LOOPBACK;
         break;
 #endif /* defined(ETH_P_LOOPBACK) */
 
 #if defined(ETH_P_QINQ1)
     case ETH_P_QINQ1:
-        cp = "QINQ1";
+        cp = LSOF_PROTOCOL_QINQ1;
         break;
 #endif /* defined(ETH_P_QINQ1) */
 
 #if defined(ETH_P_QINQ2)
     case ETH_P_QINQ2:
-        cp = "QINQ2";
+        cp = LSOF_PROTOCOL_QINQ2;
         break;
 #endif /* defined(ETH_P_QINQ2) */
 
 #if defined(ETH_P_QINQ3)
     case ETH_P_QINQ3:
-        cp = "QINQ3";
+        cp = LSOF_PROTOCOL_QINQ3;
         break;
 #endif /* defined(ETH_P_QINQ3) */
 
 #if defined(ETH_P_EDSA)
     case ETH_P_EDSA:
-        cp = "EDSA";
+        cp = LSOF_PROTOCOL_EDSA;
         break;
 #endif /* defined(ETH_P_EDSA) */
 
 #if defined(ETH_P_DSA_8021Q)
     case ETH_P_DSA_8021Q:
-        cp = "DSAD1Q";
+        cp = LSOF_PROTOCOL_DSA_8021Q;
         break;
 #endif /* defined(ETH_P_DSA_8021Q) */
 
 #if defined(ETH_P_IFE)
     case ETH_P_IFE:
-        cp = "IFE";
+        cp = LSOF_PROTOCOL_IFE;
         break;
 #endif /* defined(ETH_P_IFE) */
 
 #if defined(ETH_P_AF_IUCV)
     case ETH_P_AF_IUCV:
-        cp = "AF_IUCV";
+        cp = LSOF_PROTOCOL_AF_IUCV;
         break;
 #endif /* defined(ETH_P_AF_IUCV) */
 
 #if defined(ETH_P_802_3)
     case ETH_P_802_3:
-        cp = "802.3";
+        cp = LSOF_PROTOCOL_802_3;
         break;
 #endif /* defined(ETH_P_802_3) */
 
 #if defined(ETH_P_AX25)
     case ETH_P_AX25:
-        cp = "AX25";
+        cp = LSOF_PROTOCOL_AX25;
         break;
 #endif /* defined(ETH_P_AX25) */
 
 #if defined(ETH_P_ALL)
     case ETH_P_ALL:
-        cp = "ALL";
+        cp = LSOF_PROTOCOL_ALL;
         break;
 #endif /* defined(ETH_P_ALL) */
 
 #if defined(ETH_P_802_2)
     case ETH_P_802_2:
-        cp = "802.2";
+        cp = LSOF_PROTOCOL_802_2;
         break;
 #endif /* defined(ETH_P_802_2) */
 
 #if defined(ETH_P_SNAP)
     case ETH_P_SNAP:
-        cp = "SNAP";
+        cp = LSOF_PROTOCOL_SNAP;
         break;
 #endif /* defined(ETH_P_SNAP) */
 
 #if defined(ETH_P_DDCMP)
     case ETH_P_DDCMP:
-        cp = "DDCMP";
+        cp = LSOF_PROTOCOL_DDCMP;
         break;
 #endif /* defined(ETH_P_DDCMP) */
 
 #if defined(ETH_P_WAN_PPP)
     case ETH_P_WAN_PPP:
-        cp = "WAN_PPP";
+        cp = LSOF_PROTOCOL_WAN_PPP;
         break;
 #endif /* defined(ETH_P_WAN_PPP) */
 
 #if defined(ETH_P_PPP_MP)
     case ETH_P_PPP_MP:
-        cp = "PPP MP";
+        cp = LSOF_PROTOCOL_PPP_MP;
         break;
 #endif /* defined(ETH_P_PPP_MP) */
 
 #if defined(ETH_P_LOCALTALK)
     case ETH_P_LOCALTALK:
-        cp = "LCLTALK";
+        cp = LSOF_PROTOCOL_LOCALTALK;
         break;
 #endif /* defined(ETH_P_LOCALTALK) */
 
 #if defined(ETH_P_CAN)
     case ETH_P_CAN:
-        cp = "CAN";
+        cp = LSOF_PROTOCOL_CAN;
         break;
 #endif /* defined(ETH_P_CAN) */
 
 #if defined(ETH_P_CANFD)
     case ETH_P_CANFD:
-        cp = "CANFD";
+        cp = LSOF_PROTOCOL_CANFD;
         break;
 #endif /* defined(ETH_P_CANFD) */
 
 #if defined(ETH_P_PPPTALK)
     case ETH_P_PPPTALK:
-        cp = "PPPTALK";
+        cp = LSOF_PROTOCOL_PPPTALK;
         break;
 #endif /* defined(ETH_P_PPPTALK) */
 
 #if defined(ETH_P_TR_802_2)
     case ETH_P_TR_802_2:
-        cp = "802.2";
+        cp = LSOF_PROTOCOL_TR_802_2;
         break;
 #endif /* defined(ETH_P_TR_802_2) */
 
 #if defined(ETH_P_MOBITEX)
     case ETH_P_MOBITEX:
-        cp = "MOBITEX";
+        cp = LSOF_PROTOCOL_MOBITEX;
         break;
 #endif /* defined(ETH_P_MOBITEX) */
 
 #if defined(ETH_P_CONTROL)
     case ETH_P_CONTROL:
-        cp = "CONTROL";
+        cp = LSOF_PROTOCOL_CONTROL;
         break;
 #endif /* defined(ETH_P_CONTROL) */
 
 #if defined(ETH_P_IRDA)
     case ETH_P_IRDA:
-        cp = "IRDA";
+        cp = LSOF_PROTOCOL_IRDA;
         break;
 #endif /* defined(ETH_P_IRDA) */
 
 #if defined(ETH_P_ECONET)
     case ETH_P_ECONET:
-        cp = "ECONET";
+        cp = LSOF_PROTOCOL_ECONET;
         break;
 #endif /* defined(ETH_P_ECONET) */
 
 #if defined(ETH_P_HDLC)
     case ETH_P_HDLC:
-        cp = "HDLC";
+        cp = LSOF_PROTOCOL_HDLC;
         break;
 #endif /* defined(ETH_P_HDLC) */
 
 #if defined(ETH_P_ARCNET)
     case ETH_P_ARCNET:
-        cp = "ARCNET";
+        cp = LSOF_PROTOCOL_ARCNET;
         break;
 #endif /* defined(ETH_P_ARCNET) */
 
 #if defined(ETH_P_DSA)
     case ETH_P_DSA:
-        cp = "DSA";
+        cp = LSOF_PROTOCOL_DSA;
         break;
 #endif /* defined(ETH_P_DSA) */
 
 #if defined(ETH_P_TRAILER)
     case ETH_P_TRAILER:
-        cp = "TRAILER";
+        cp = LSOF_PROTOCOL_TRAILER;
         break;
 #endif /* defined(ETH_P_TRAILER) */
 
 #if defined(ETH_P_PHONET)
     case ETH_P_PHONET:
-        cp = "PHONET";
+        cp = LSOF_PROTOCOL_PHONET;
         break;
 #endif /* defined(ETH_P_PHONET) */
 
 #if defined(ETH_P_IEEE802154)
     case ETH_P_IEEE802154:
-        cp = "802154";
+        cp = LSOF_PROTOCOL_IEEE802154;
         break;
 #endif /* defined(ETH_P_IEEE802154) */
 
 #if defined(ETH_P_CAIF)
     case ETH_P_CAIF:
-        cp = "CAIF";
+        cp = LSOF_PROTOCOL_CAIF;
         break;
 #endif /* defined(ETH_P_CAIF) */
 
 #if defined(ETH_P_XDSA)
     case ETH_P_XDSA:
-        cp = "XDSA";
+        cp = LSOF_PROTOCOL_XDSA;
         break;
 #endif /* defined(ETH_P_XDSA) */
 
 #if defined(ETH_P_MAP)
     case ETH_P_MAP:
-        cp = "MAP";
+        cp = LSOF_PROTOCOL_MAP;
         break;
 #endif /* defined(ETH_P_MAP) */
 
     default:
-        cp = NULL;
+        cp = LSOF_PROTOCOL_UNKNOWN;
         break;
     }
     return cp;

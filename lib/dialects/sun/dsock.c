@@ -759,8 +759,7 @@ struct sonode *so; /* pointer to socket's sonode */
             /*
              * Set TCP protcol name in Lf->iproto[].
              */
-            (void)snpf(Lf->iproto, IPROTOL - 1, "%s", "TCP");
-            Lf->iproto[IPROTOL - 1] = '\0';
+            Lf->iproto = LSOF_PROTOCOL_TCP;
             /*
              * Check for TCP state inclusion or exclusion.
              */
@@ -787,8 +786,7 @@ struct sonode *so; /* pointer to socket's sonode */
              * Set network file selection status.
              */
             if (Fnet) {
-                if (!FnetTy ||
-                    ((FnetTy == 4) && (af == AF_INET)) ||
+                if (!FnetTy || ((FnetTy == 4) && (af == AF_INET)) ||
                     ((FnetTy == 6) && (af == AF_INET6))) {
                     Lf->sf |= SELNET;
                 }
@@ -866,8 +864,7 @@ struct sonode *so; /* pointer to socket's sonode */
             /*
              * Set UDP protcol name in Lf->iproto[].
              */
-            (void)snpf(Lf->iproto, IPROTOL - 1, "%s", "UDP");
-            Lf->iproto[IPROTOL - 1] = '\0';
+            Lf->iproto = LSOF_PROTOCOL_UDP;
             /*
              * Check for UDP state inclusion or exclusion.
              */
@@ -894,8 +891,7 @@ struct sonode *so; /* pointer to socket's sonode */
              * Set network file selection status.
              */
             if (Fnet) {
-                if (!FnetTy ||
-                    ((FnetTy == 4) && (af == AF_INET)) ||
+                if (!FnetTy || ((FnetTy == 4) && (af == AF_INET)) ||
                     ((FnetTy == 6) && (af == AF_INET6))) {
                     Lf->sf |= SELNET;
                 }
@@ -965,11 +961,9 @@ struct sonode *so; /* pointer to socket's sonode */
              * Set protocol name.
              */
             if (cs.conn_ulp == IPPROTO_ICMP)
-                ty = "ICMP";
+                Lf->iproto = LSOF_PROTOCOL_ICMP;
             else
-                ty = "ICMP6";
-            (void)snpf(Lf->iproto, IPROTOL - 1, "%s", ty);
-            Lf->iproto[IPROTOL - 1] = '\0';
+                Lf->iproto = LSOF_PROTOCOL_ICMPV6;
             /*
              * Read the ICMP control structure.
              */
@@ -985,8 +979,7 @@ struct sonode *so; /* pointer to socket's sonode */
              * Set network file selection status.
              */
             if (Fnet) {
-                if (!FnetTy ||
-                    ((FnetTy == 4) && (af == AF_INET)) ||
+                if (!FnetTy || ((FnetTy == 4) && (af == AF_INET)) ||
                     ((FnetTy == 6) && (af == AF_INET6))) {
                     Lf->sf |= SELNET;
                 }
@@ -1049,8 +1042,7 @@ struct sonode *so; /* pointer to socket's sonode */
         /*
          * Set protocol name.
          */
-        (void)strncpy(Lf->iproto, "ROUTE", IPROTOL - 1);
-        Lf->iproto[IPROTOL - 1] = '\0';
+        Lf->iproto = LSOF_PROTOCOL_ROUTING;
 
         /*
          * Read routing control structure.
@@ -1094,7 +1086,7 @@ struct sonode *so; /* pointer to socket's sonode */
 
         break;
     default:
-        (void)printiproto((int)cs.conn_ulp);
+        (void)enter_ip_proto((int)cs.conn_ulp);
         (void)snpf(Namech, Namechl - 1, "unsupported socket family: %u",
                    so->so_family);
         Namech[Namechl - 1] = '\0';
@@ -1275,16 +1267,13 @@ char *ty;                            /* socket type name */
     /*
      * Convert type to upper case protocol name.
      */
-    if (ty) {
-        for (i = 0; (ty[i] != '\0') && (i < IPROTOL) && (i < 3); i++) {
-            if (islower((unsigned char)ty[i]))
-                Lf->iproto[i] = toupper((unsigned char)ty[i]);
-            else
-                Lf->iproto[i] = ty[i];
-        }
-    } else
-        i = 0;
-    Lf->iproto[i] = '\0';
+    if (strcasecmp(ty, "TCP") == 0) {
+        Lf->iproto = LSOF_PROTOCOL_TCP;
+    } else if (strcasecmp(ty, "UDP") == 0) {
+        Lf->iproto = LSOF_PROTOCOL_UDP;
+    } else {
+        Lf->iproto = LSOF_PROTOCOL_UNKNOWN;
+    }
     /*
      * Read stream queue entries to obtain private IP, TCP, and UDP structures.
      */
@@ -1379,8 +1368,7 @@ char *ty;                            /* socket type name */
             }
             if (!(Lf->sf & SELNET) && !TcpStIn && UdpStIn) {
                 if (Fnet) {
-                    if (!FnetTy ||
-                        (FnetTy == 4) && (af == AF_INET)
+                    if (!FnetTy || (FnetTy == 4) && (af == AF_INET)
 
 #if defined(HASIPv6)
                         || (FnetTy == 6) && (af == AF_INET6)
@@ -1436,8 +1424,7 @@ char *ty;                            /* socket type name */
             }
             if (!(Lf->sf & SELNET) && TcpStIn && !UdpStIn) {
                 if (Fnet) {
-                    if (!FnetTy ||
-                        (FnetTy == 4) && (af == AF_INET)
+                    if (!FnetTy || (FnetTy == 4) && (af == AF_INET)
 
 #if defined(HASIPv6)
                         || (FnetTy == 6) && (af == AF_INET6)
@@ -1458,7 +1445,7 @@ char *ty;                            /* socket type name */
          */
         if (pcb)
             enter_dev_ch(print_kptr(pcb, (char *)NULL, 0));
-        if (strncmp(Lf->iproto, "UDP", 3) == 0) {
+        if (Lf->iproto == LSOF_PROTOCOL_UDP) {
 
             /*
              * Save UDP address and TPI state.
@@ -1519,7 +1506,7 @@ char *ty;                            /* socket type name */
                 Lf->lts.type = 1;
                 Lf->lts.state.ui = (unsigned int)uc.udp_state;
             }
-        } else if (strncmp(Lf->iproto, "TCP", 3) == 0) {
+        } else if (Lf->iproto == LSOF_PROTOCOL_TCP) {
             if (ics) {
 
                 /*

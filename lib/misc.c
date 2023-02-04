@@ -778,7 +778,7 @@ int is_nw_addr(struct lsof_context *ctx,
         return (0);
     for (; n; n = n->next) {
         if (n->proto) {
-            if (strcasecmp(n->proto, Lf->iproto) != 0)
+            if (n->proto != Lf->iproto)
                 continue;
         }
         if (af && n->af && af != n->af)

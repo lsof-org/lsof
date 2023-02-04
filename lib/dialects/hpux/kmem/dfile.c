@@ -164,11 +164,10 @@ void process_file(fp) KA_T fp; /* kernel file structure address */
  *	 block at the beginning of this file.
  */
 
-int read_mi(sh, ip, pcb, pn)
-KA_T sh;   /* stream head address */
-KA_T *ip;  /* returned IP q_ptr */
-KA_T *pcb; /* returned TCP or UDP q_ptr */
-char **pn; /* returned protocol name */
+int read_mi(KA_T sh,                /* stream head address */
+            KA_T *ip,               /* returned IP q_ptr */
+            KA_T *pcb,              /* returned TCP or UDP q_ptr */
+            enum lsof_protocol *pn) /* returned protocol name */
 {
     struct l_dev *dp;
     char *ep = Namech;
@@ -234,12 +233,12 @@ char **pn; /* returned protocol name */
         }
         if (!*pcb && !strcmp(mn, "tcpm")) {
             *pcb = (KA_T)q.q_ptr;
-            *pn = "TCP";
+            *pn = LSOF_PROTOCOL_TCP;
             continue;
         }
         if (!*pcb && !strcmp(mn, "udpm")) {
             *pcb = (KA_T)q.q_ptr;
-            *pn = "UDP";
+            *pn = LSOF_PROTOCOL_UDP;
         }
     }
     return (0);

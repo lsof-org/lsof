@@ -437,9 +437,9 @@ void process_lla(la) KA_T la; /* link level CB address in kernel */
      * Determine the open mode, if possible.
      */
     if (lcb.lla_flags & LLA_IS_ETHER)
-        (void)snpf(Lf->iproto, sizeof(Lf->iproto), "Ether");
+        Lf->iproto = LSOF_PROTOCOL_ETHERNET;
     else if (lcb.lla_flags & (LLA_IS_8025 | LLA_IS_SNAP8025 | LLA_IS_FA8025)) {
-        (void)snpf(Lf->iproto, sizeof(Lf->iproto), "802.5");
+        Lf->iproto = LSOF_PROTOCOL_8025;
         if (lcb.lla_flags & LLA_IS_SNAP8025)
             (void)snpf(Namech, Namechl, "SNAP");
         else if (lcb.lla_flags & LLA_IS_FA8025)
@@ -576,7 +576,7 @@ void process_socket(sa) KA_T sa; /* socket address in kernel */
         if (Fnet)
             Lf->sf |= SELNET;
         Lf->type = LSOF_FILE_X25;
-        (void)snpf(Lf->iproto, sizeof(Lf->iproto), "%.*s", IPROTOL, "CCITT");
+        Lf->iproto = LSOF_PROTOCOL_CCITT;
         /*
          * Get the X25 PCB and its extension.
          */
@@ -641,7 +641,7 @@ void process_socket(sa) KA_T sa; /* socket address in kernel */
         if (Fnet)
             Lf->sf |= SELNET;
         Lf->type = LSOF_FILE_INET;
-        printiproto(p.pr_protocol);
+        enter_ip_proto(p.pr_protocol);
 
 #if HPUXV >= 1030
         /*
@@ -650,7 +650,7 @@ void process_socket(sa) KA_T sa; /* socket address in kernel */
         if (s.so_sth) {
 
             KA_T ip, pcb;
-            char *pn = (char *)NULL;
+            enum lsof_protocol pn = LSOF_PROTOCOL_INVALID;
             /*
              * Read module information.
              */
@@ -900,10 +900,10 @@ void process_socket(sa) KA_T sa; /* socket address in kernel */
  * process_stream_sock() - process stream socket
  */
 
-void process_stream_sock(ip, pcb, pn, vt) KA_T ip; /* IP module's q_ptr */
-KA_T pcb;                                          /* protocol's q_ptr */
-char *pn;                                          /* protocol name */
-enum vtype vt;                                     /* vnode type */
+void process_stream_sock(KA_T ip,               /* IP module's q_ptr */
+                         KA_T pcb,              /* protocol's q_ptr */
+                         enum lsof_protocol pn, /* protocol name */
+                         enum vtype vt)         /* vnode type */
 {
     unsigned char *fa = (unsigned char *)NULL;
     char *ep;
@@ -922,8 +922,8 @@ enum vtype vt;                                     /* vnode type */
     if (Fnet)
         Lf->sf |= SELNET;
     Lf->type = LSOF_FILE_INET;
-    if (pn) {
-        (void)snpf(Lf->iproto, sizeof(Lf->iproto), pn);
+    if (pn != LSOF_PROTOCOL_INVALID) {
+        Lf->iproto = pn;
     } else if (Sfile && (vt != VNON) && Lf->dev_def && Lf->inode_def) {
 
         /*

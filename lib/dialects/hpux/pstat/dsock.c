@@ -446,82 +446,70 @@ struct pst_socket *s; /* constructed socket */
 
 static void printpsproto(p) uint32_t p; /* protocol number */
 {
-    int i;
-    static int m = -1;
-    char *s;
-
     switch (p) {
     case PS_PROTO_IP:
-        s = "IP";
+        Lf->iproto = LSOF_PROTOCOL_IP;
         break;
     case PS_PROTO_ICMP:
-        s = "ICMP";
+        Lf->iproto = LSOF_PROTOCOL_ICMP;
         break;
     case PS_PROTO_IGMP:
-        s = "IGMP";
+        Lf->iproto = LSOF_PROTOCOL_IGMP;
         break;
     case PS_PROTO_GGP:
-        s = "GGP";
+        Lf->iproto = LSOF_PROTOCOL_GGP;
         break;
     case PS_PROTO_IPIP:
-        s = "IPIP";
+        Lf->iproto = LSOF_PROTOCOL_IPIP;
         break;
     case PS_PROTO_TCP:
-        s = "TCP";
+        Lf->iproto = LSOF_PROTOCOL_TCP;
         break;
     case PS_PROTO_EGP:
-        s = "EGP";
+        Lf->iproto = LSOF_PROTOCOL_EGP;
         break;
     case PS_PROTO_IGP:
-        s = "IGP";
+        Lf->iproto = LSOF_PROTOCOL_IGP;
         break;
     case PS_PROTO_PUP:
-        s = "PUP";
+        Lf->iproto = LSOF_PROTOCOL_PUP;
         break;
     case PS_PROTO_UDP:
-        s = "UDP";
+        Lf->iproto = LSOF_PROTOCOL_UDP;
         break;
     case PS_PROTO_IDP:
         s = "IDP";
+        Lf->iproto = LSOF_PROTOCOL_IDP;
         break;
     case PS_PROTO_XTP:
         s = "XTP";
+        Lf->iproto = LSOF_PROTOCOL_XTP;
         break;
     case PS_PROTO_ESP:
-        s = "ESP";
+        Lf->iproto = LSOF_PROTOCOL_ESP;
         break;
     case PS_PROTO_AH:
-        s = "AH";
+        Lf->iproto = LSOF_PROTOCOL_AH;
         break;
     case PS_PROTO_OSPF:
-        s = "OSPF";
+        Lf->iproto = LSOF_PROTOCOL_OSPF;
         break;
     case PS_PROTO_IPENCAP:
-        s = "IPENCAP";
+        Lf->iproto = LSOF_PROTOCOL_IPENCAP;
         break;
     case PS_PROTO_ENCAP:
-        s = "ENCAP";
+        Lf->iproto = LSOF_PROTOCOL_ENCAP;
         break;
     case PS_PROTO_PXP:
-        s = "PXP";
+        Lf->iproto = LSOF_PROTOCOL_PXP;
         break;
     case PS_PROTO_RAW:
-        s = "RAW";
+        Lf->iproto = LSOF_PROTOCOL_RAW;
         break;
     default:
-        s = (char *)NULL;
-    }
-    if (s)
-        (void)snpf(Lf->iproto, sizeof(Lf->iproto), "%.*s", IPROTOL - 1, s);
-    else {
-        if (m < 0) {
-            for (i = 0, m = 1; i < IPROTOL - 2; i++)
-                m *= 10;
-        }
-        if (m > p)
-            (void)snpf(Lf->iproto, sizeof(Lf->iproto), "%d?", p);
-        else
-            (void)snpf(Lf->iproto, sizeof(Lf->iproto), "*%d?", p % (m / 10));
+        Lf->iproto = LSOF_PROTOCOL_UNKNOWN;
+        Lf->unknown_proto_number = p;
+        break;
     }
 }
 

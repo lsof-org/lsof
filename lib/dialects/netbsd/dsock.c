@@ -179,7 +179,7 @@ void process_socket(struct lsof_context *ctx,
 
                 Lf->sf |= SELNET;
         }
-        printiproto(ctx, p.pr_protocol);
+        enter_ip_proto(ctx, p.pr_protocol);
 
 #if defined(HASIPv6)
         Lf->type = (fam == AF_INET) ? LSOF_FILE_IPV4 : LSOF_FILE_IPV6;

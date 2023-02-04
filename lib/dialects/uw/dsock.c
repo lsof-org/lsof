@@ -749,8 +749,8 @@ void print_tcptpi(nl) int nl; /* 1 == '\n' required */
  * process_socket() - process socket
  */
 
-void process_socket(pr, q) char *pr; /* protocol name */
-struct queue *q;                     /* queue at end of stream */
+void process_socket(enum lsof_protocol pr, /* protocol name */
+                    struct queue *q)       /* queue at end of stream */
 {
     unsigned char *fa = (unsigned char *)NULL;
     int fp, ipv, lp;
@@ -764,27 +764,15 @@ struct queue *q;                     /* queue at end of stream */
     /*
      * Process protocol specification.
      */
-    (void)snpf(Lf->iproto, sizeof(Lf->iproto), "%s", pr);
+    Lf->iproto = pr;
     Lf->is_stream = 0;
-    if (strcasecmp(pr, "TCP") == 0) {
+    if (pr == LSOF_PROTOCOL_TCP) {
         ipv = 4;
         tcp = 1;
-    } else if (strcasecmp(pr, "UDP") == 0) {
+    } else if (pr == LSOF_PROTOCOL_UDP) {
         ipv = 4;
         udp = 1;
     }
-
-#if defined(HASIPv6)
-    else if (strcasecmp(pr, "TCP6") == 0) {
-        ipv = 6;
-        tcp = 1;
-        Lf->iproto[3] = '\0';
-    } else if (strcasecmp(pr, "UDP6") == 0) {
-        ipv = 6;
-        udp = 1;
-        Lf->iproto[3] = '\0';
-    }
-#endif /* defined(HASIPv6) */
 
     if (Fnet && (tcp || udp)) {
         if (!FnetTy || (FnetTy == ipv))

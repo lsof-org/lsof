@@ -1079,11 +1079,6 @@ possibilities
 			pointer to the file, and returns non-zero
 			if it prints a cached name to stdout.
 
-    HASPRIVPRIPP        is defined for dialects that have a private
-			function for printing the IP protocol name.
-			When this is not defined, the function to
-			do that defaults to printiproto().
-
     HASPROCFS		defines the name (if any) of the process file
 			system -- e.g., /proc.
 

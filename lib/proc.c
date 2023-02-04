@@ -176,7 +176,7 @@ void alloc_lfile(struct lsof_context *ctx,
         Lf->sf = Lp->sf;
     else
         Lf->sf = 0;
-    Lf->iproto[0] = '\0';
+    Lf->iproto = LSOF_PROTOCOL_INVALID;
     Lf->type = LSOF_FILE_UNKNOWN;
     Lf->unknown_file_type_number = 0;
     Lf->fd_type = fd_type;

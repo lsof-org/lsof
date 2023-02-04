@@ -39,7 +39,6 @@ static char copyright[] =
  * process_socket() - process socket
  */
 void process_socket(struct lsof_context *ctx, struct kinfo_file *file) {
-    char *proto = NULL;
     char *type = NULL;
     char buf[64];
     int flag;
@@ -79,17 +78,14 @@ void process_socket(struct lsof_context *ctx, struct kinfo_file *file) {
     /* Fill iproto */
     switch (file->so_type) {
     case SOCK_STREAM:
-        proto = "TCP";
+        Lf->iproto = LSOF_PROTOCOL_TCP;
         break;
     case SOCK_DGRAM:
-        proto = "UDP";
+        Lf->iproto = LSOF_PROTOCOL_UDP;
         break;
     case SOCK_RAW:
-        proto = "RAW";
+        Lf->iproto = LSOF_PROTOCOL_RAW;
         break;
-    }
-    if (proto) {
-        (void)snpf(Lf->iproto, sizeof(Lf->iproto), "%s", proto);
     }
 
     /* Fill offset, always zero */

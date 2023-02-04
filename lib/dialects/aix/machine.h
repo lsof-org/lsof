@@ -366,14 +366,6 @@ typedef long long aligned_offset_t __attribute__((aligned(8)));
 /* #define	HASPRIVNMCACHE	<function name>	*/
 
 /*
- * HASPRIVPRIPP is defined for dialects that have a private function for
- * printing IP protocol names.  When HASPRIVPRIPP isn't defined, the
- * IP protocol name printing function defaults to printiprto().
- */
-
-/* #define	HASPRIVPRIPP	1	*/
-
-/*
  * HASPROCFS is defined for those dialects that have a proc file system --
  * usually /proc and usually in SYSV4 derivatives.
  *

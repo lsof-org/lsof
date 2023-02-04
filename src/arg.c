@@ -1047,6 +1047,7 @@ char *na; /* Internet address string pointer */
     char *sn = (char *)NULL;
     int sp = -1;
     MALLOC_S snl = 0;
+    char *proto;
 
 #if defined(HASIPv6)
     char *cp;
@@ -1109,13 +1110,13 @@ char *na; /* Internet address string pointer */
         for (p = wa; *wa && *wa != '@' && *wa != ':'; wa++)
             ;
         if ((l = wa - p)) {
-            if (!(n.proto = mkstrcat(p, l, (char *)NULL, -1, (char *)NULL, -1,
-                                     (MALLOC_S *)NULL))) {
+            if (!(proto = mkstrcat(p, l, (char *)NULL, -1, (char *)NULL, -1,
+                                   (MALLOC_S *)NULL))) {
                 (void)fprintf(stderr,
                               "%s: no space for protocol name from: -i ", Pn);
                 safestrprt(na, stderr, 1);
             nwad_exit:
-                CLEAN(n.proto);
+                CLEAN(proto);
                 CLEAN(hn);
                 CLEAN(sn);
                 return (1);
@@ -1123,18 +1124,22 @@ char *na; /* Internet address string pointer */
             /*
              * The protocol name should be "tcp", "udp" or "udplite".
              */
-            if ((strcasecmp(n.proto, "tcp") != 0) &&
-                (strcasecmp(n.proto, "udp") != 0) &&
-                (strcasecmp(n.proto, "udplite") != 0)) {
+            if (strcasecmp(proto, "tcp") == 0) {
+                n.proto = LSOF_PROTOCOL_TCP;
+            } else if (strcasecmp(proto, "udp") == 0) {
+                n.proto = LSOF_PROTOCOL_UDP;
+            } else if (strcasecmp(proto, "udplite") == 0) {
+                n.proto = LSOF_PROTOCOL_UDPLITE;
+            } else {
                 (void)fprintf(stderr, "%s: unknown protocol name (%s) in: -i ",
-                              Pn, n.proto);
+                              Pn, proto);
                 safestrprt(na, stderr, 1);
                 goto nwad_exit;
             }
             /*
              * Convert protocol name to lower case.
              */
-            for (p = n.proto; *p; p++) {
+            for (p = proto; *p; p++) {
                 if (*p >= 'A' && *p <= 'Z')
                     *p = *p - 'A' + 'a';
             }
@@ -1320,16 +1325,15 @@ char *na; /* Internet address string pointer */
                 }
                 (void)strncpy(sn, p, l);
                 *(sn + l) = '\0';
-                if (n.proto) {
-
+                if (n.proto != LSOF_PROTOCOL_INVALID) {
                     /*
                      * If the protocol has been specified, look up the port
                      * number for the service name for the specified protocol.
                      */
-                    if (!(se = getservbyname(sn, n.proto))) {
+                    if (!(se = getservbyname(sn, proto))) {
                         (void)fprintf(stderr,
                                       "%s: unknown service %s for %s in: -i ",
-                                      Pn, sn, n.proto);
+                                      Pn, sn, proto);
                         safestrprt(na, stderr, 1);
                         goto nwad_exit;
                     }

@@ -1056,8 +1056,9 @@ void print_file() {
     /*
      * Size or print the inode information.
      */
-    if (Lf->iproto[0]) {
-        cp = Lf->iproto;
+    if (Lf->iproto != LSOF_PROTOCOL_INVALID) {
+        print_iproto(Lf->iproto, Lf->unknown_proto_number, buf, sizeof(buf));
+        cp = buf;
     } else if (Lf->inode_def) {
 #if defined(HASPRINTINO)
         cp = HASPRINTINO(Lf);
@@ -1198,9 +1199,9 @@ static int printinaddr() {
                 src = 1;
 #endif /* !defined(HASNORPC_H) */
 
-                if (strcasecmp(Lf->iproto, "TCP") == 0)
+                if (Lf->iproto == LSOF_PROTOCOL_TCP)
                     port = lkup_port(Lf->li[i].p, 0, src);
-                else if (strcasecmp(Lf->iproto, "UDP") == 0)
+                else if (Lf->iproto == LSOF_PROTOCOL_UDP)
                     port = lkup_port(Lf->li[i].p, 1, src);
             }
             if (!port) {
@@ -2017,17 +2018,16 @@ int print_proc() {
             (void)printf("%c%ld%c", LSOF_FID_NLINK, Lf->nlink, Terminator);
             lc++;
         }
-        if (FieldSel[LSOF_FIX_PROTO].st && Lf->iproto[0]) {
-            for (cp = Lf->iproto; *cp == ' '; cp++)
-                ;
-            if (*cp) {
-                (void)printf("%c%s%c", LSOF_FID_PROTO, cp, Terminator);
-                lc++;
-            }
+        if (FieldSel[LSOF_FIX_PROTO].st &&
+            Lf->iproto != LSOF_PROTOCOL_INVALID) {
+            print_iproto(Lf->iproto, Lf->unknown_proto_number, buf,
+                         sizeof(buf));
+            (void)printf("%c%s%c", LSOF_FID_PROTO, buf, Terminator);
+            lc++;
         }
         if (FieldSel[LSOF_FIX_STREAM].st && Lf->nm && Lf->is_stream) {
             if (strncmp(Lf->nm, "STR:", 4) == 0 ||
-                strcmp(Lf->iproto, "STR") == 0) {
+                Lf->iproto == LSOF_PROTOCOL_STR) {
                 putchar(LSOF_FID_STREAM);
                 printname(0);
                 putchar(Terminator);

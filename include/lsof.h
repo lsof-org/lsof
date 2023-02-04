@@ -241,8 +241,10 @@ enum lsof_file_type {
 
 /** Network protocol */
 enum lsof_protocol {
-    LSOF_PROTOCOL_NONE, /**< No network protocol */
-    LSOF_PROTOCOL_IP,   /**< IP */
+    LSOF_PROTOCOL_INVALID, /**< No network protocol */
+    LSOF_PROTOCOL_UNKNOWN, /**< Unknown network protocol, only raw numbers
+                              provided */
+    LSOF_PROTOCOL_IP,      /**< IP */
     /* Follow ip protocol numbers order */
     LSOF_PROTOCOL_HOPOPTS,  /**< IPv6 hop-by-hop(0)  */
     LSOF_PROTOCOL_ICMP,     /**< ICMP(1) */
@@ -260,6 +262,7 @@ enum lsof_protocol {
     LSOF_PROTOCOL_XNET,     /**< XNET(15) */
     LSOF_PROTOCOL_CHAOS,    /**< CHAOS(16) */
     LSOF_PROTOCOL_UDP,      /**< UDP(17) */
+    LSOF_PROTOCOL_IDP,      /**< IDP(22) */
     LSOF_PROTOCOL_TP,       /**< TP(29) */
     LSOF_PROTOCOL_DCCP,     /**< DCCP(33) */
     LSOF_PROTOCOL_IPV6,     /**< IPv6(41) */
@@ -270,7 +273,7 @@ enum lsof_protocol {
     LSOF_PROTOCOL_ESP,      /**< ESP(50) */
     LSOF_PROTOCOL_AH,       /**< AH(51) */
     LSOF_PROTOCOL_ICMPV6,   /**< ICMPv6(58) */
-    LSOF_PROTOCOL_NONXT,    /**< IPv6-NoNxt(59) */
+    LSOF_PROTOCOL_NONE,     /**< IPv6-NoNxt(59) */
     LSOF_PROTOCOL_DSTOPTS,  /**< IPv6-Opts(60) */
     LSOF_PROTOCOL_MTP,      /**< MTP(92) */
     LSOF_PROTOCOL_AX25,     /**< AX.25(93) */
@@ -285,6 +288,109 @@ enum lsof_protocol {
     LSOF_PROTOCOL_ETHERNET, /**< Ethernet(143) */
     LSOF_PROTOCOL_RAW,      /**< Raw(255) */
     LSOF_PROTOCOL_MPTCP,    /**< MPTCP(262) */
+    /* Follow ethernet type order */
+    LSOF_PROTOCOL_802_3,      /**< 802.3(0x0001) */
+    LSOF_PROTOCOL_ALL,        /**< All(0x0003) */
+    LSOF_PROTOCOL_802_2,      /**< 802.2(0x0004) */
+    LSOF_PROTOCOL_SNAP,       /**< SNAP(0x0005) */
+    LSOF_PROTOCOL_DDCMP,      /**< DDCMP(0x0006) */
+    LSOF_PROTOCOL_WAN_PPP,    /**< WAN PPP(0x0007) */
+    LSOF_PROTOCOL_PPP_MP,     /**< PPP MP(0x0008) */
+    LSOF_PROTOCOL_LOCALTALK,  /**< LOCALTALK(0x0009) */
+    LSOF_PROTOCOL_CAN,        /**< CAN(0x000C) */
+    LSOF_PROTOCOL_CANFD,      /**< CANFD(0x000D) */
+    LSOF_PROTOCOL_CANXL,      /**< CANXL(0x000E) */
+    LSOF_PROTOCOL_PPPTALK,    /**< ATALK over PPP(0x0010) */
+    LSOF_PROTOCOL_TR_802_2,   /**< 802.2(0x0011) */
+    LSOF_PROTOCOL_MOBITEX,    /**< MOBITEX(0x0015) */
+    LSOF_PROTOCOL_CONTROL,    /**< CONTROL(0x0016) */
+    LSOF_PROTOCOL_IRDA,       /**< IRDA(0x0017) */
+    LSOF_PROTOCOL_ECONET,     /**< ECONET(0x0018) */
+    LSOF_PROTOCOL_HDLC,       /**< HDLC(0x0019) */
+    LSOF_PROTOCOL_ARCNET,     /**< ARCNET(0x001A) */
+    LSOF_PROTOCOL_DSA,        /**< DSA(0x001B) */
+    LSOF_PROTOCOL_TRAILER,    /**< TRAILER(0x001C) */
+    LSOF_PROTOCOL_LOOP,       /**< LOOP(0x0060) */
+    LSOF_PROTOCOL_PHONET,     /**< PHONET(0x00F5) */
+    LSOF_PROTOCOL_IEEE802154, /**< IEEE 802.15.4(0x00F6) */
+    LSOF_PROTOCOL_CAIF,       /**< CAIF(0x00F7) */
+    LSOF_PROTOCOL_XDSA,       /**< XDSA(0x00F8) */
+    LSOF_PROTOCOL_MAP,        /**< MAP(0x00F9) */
+    LSOF_PROTOCOL_MCTP,       /**< MCTP(0x00FA) */
+    LSOF_PROTOCOL_PUPAT,      /**< PUPAT(0x0201) */
+    LSOF_PROTOCOL_802_3_MIN,  /**< 802_3_MIN(0x0600) */
+    LSOF_PROTOCOL_X25,        /**< X25(0x0805) */
+    LSOF_PROTOCOL_ARP,        /**< ARP(0x0806) */
+    LSOF_PROTOCOL_BPQ,        /**< BPQ(0x08FF) */
+    LSOF_PROTOCOL_IEEEPUP,    /**< IEEEPUP(0x0A00) */
+    LSOF_PROTOCOL_IEEEPUPAT,  /**< IEEEPUPAT(0x0A01) */
+    LSOF_PROTOCOL_ERSPAN2,    /**< ERSPAN2(0x22EB) */
+    LSOF_PROTOCOL_TSN,        /**< TSN(0x22F0) */
+    LSOF_PROTOCOL_BATMAN,     /**< BATMAN(0x4305) */
+    LSOF_PROTOCOL_DEC,        /**< DEC(0x6000) */
+    LSOF_PROTOCOL_DNA_DL,     /**< DNA_DL(0x6001) */
+    LSOF_PROTOCOL_DNA_RC,     /**< DNA_RC(0x6002) */
+    LSOF_PROTOCOL_DNA_RT,     /**< DNA_RT(0x6003) */
+    LSOF_PROTOCOL_LAT,        /**< LAT(0x6004) */
+    LSOF_PROTOCOL_DIAG,       /**< DIAG(0x6005) */
+    LSOF_PROTOCOL_CUST,       /**< CUST(0x6006) */
+    LSOF_PROTOCOL_SCA,        /**< SCA(0x6007) */
+    LSOF_PROTOCOL_TEB,        /**< TEB(0x6558) */
+    LSOF_PROTOCOL_RARP,       /**< RARP(0x8035) */
+    LSOF_PROTOCOL_ATALK,      /**< ATALK(0x809B) */
+    LSOF_PROTOCOL_AARP,       /**< AARP(0x80F3) */
+    LSOF_PROTOCOL_8021Q,      /**< 8021Q(0x8100) */
+    LSOF_PROTOCOL_IPX,        /**< IPX(0x8137) */
+    LSOF_PROTOCOL_PAUSE,      /**< PAUSE(0x8808) */
+    LSOF_PROTOCOL_SLOW,       /**< SLOW(0x8809) */
+    LSOF_PROTOCOL_WCCP,       /**< WCCP(0x883E) */
+    LSOF_PROTOCOL_MPLS_UC,    /**< MPLS_UC(0x8847) */
+    LSOF_PROTOCOL_MPLS_MC,    /**< MPLS_MC(0x8848) */
+    LSOF_PROTOCOL_ATMMPOA,    /**< ATMMPOA(0x884C) */
+    LSOF_PROTOCOL_PPP_DISC,   /**< PPP_DISC(0x8863) */
+    LSOF_PROTOCOL_PPP_SES,    /**< PPP_SES(0x8864) */
+    LSOF_PROTOCOL_LINK_CTL,   /**< LINK_CTL(0x886C) */
+    LSOF_PROTOCOL_ATMFATE,    /**< ATMFATE(0x8884) */
+    LSOF_PROTOCOL_PAE,        /**< PAE(0x888E) */
+    LSOF_PROTOCOL_PROFINET,   /**< PROFINET(0x8892) */
+    LSOF_PROTOCOL_REALTEK,    /**< REALTEK(0x8899) */
+    LSOF_PROTOCOL_AOE,        /**< AOE(0x88A2) */
+    LSOF_PROTOCOL_ETHERCAT,   /**< ETHERCAT(0x88A4) */
+    LSOF_PROTOCOL_8021AD,     /**< 8021AD(0x88A8) */
+    LSOF_PROTOCOL_802_EX1,    /**< 802_EX1(0x88B5) */
+    LSOF_PROTOCOL_ERSPAN,     /**< ERSPAN(0x88BE) */
+    LSOF_PROTOCOL_PREAUTH,    /**< PREAUTH(0x88C7) */
+    LSOF_PROTOCOL_TIPC,       /**< TIPC(0x88CA) */
+    LSOF_PROTOCOL_LLDP,       /**< LLDP(0x88CC) */
+    LSOF_PROTOCOL_MRP,        /**< MRP(0x88E3) */
+    LSOF_PROTOCOL_MACSEC,     /**< MACSEC(0x88E5) */
+    LSOF_PROTOCOL_8021AH,     /**< 8021AH(0x88E7) */
+    LSOF_PROTOCOL_MVRP,       /**< MVRP(0x88F5) */
+    LSOF_PROTOCOL_1588,       /**< 1588(0x88F7) */
+    LSOF_PROTOCOL_NCSI,       /**< NCSI(0x88F8) */
+    LSOF_PROTOCOL_PRP,        /**< PRP(0x88FB) */
+    LSOF_PROTOCOL_CFM,        /**< CFM(0x8902) */
+    LSOF_PROTOCOL_FCOE,       /**< FCOE(0x8906) */
+    LSOF_PROTOCOL_TDLS,       /**< TDLS(0x890D) */
+    LSOF_PROTOCOL_FIP,        /**< FIP(0x8914) */
+    LSOF_PROTOCOL_IBOE,       /**< IBOE(0x8915) */
+    LSOF_PROTOCOL_80221,      /**< 802.21(0x8917) */
+    LSOF_PROTOCOL_HSR,        /**< HSR(0x892F) */
+    LSOF_PROTOCOL_NSH,        /**< NSH(0x894F) */
+    LSOF_PROTOCOL_LOOPBACK,   /**< LOOPBACK(0x9000) */
+    LSOF_PROTOCOL_QINQ1,      /**< QINQ1(0x9100) */
+    LSOF_PROTOCOL_QINQ2,      /**< QINQ2(0x9200) */
+    LSOF_PROTOCOL_QINQ3,      /**< QINQ3(0x9300) */
+    LSOF_PROTOCOL_EDSA,       /**< EDSA(0xDADA) */
+    LSOF_PROTOCOL_DSA_8021Q,  /**< DSA 802.1Q(0xDADB) */
+    LSOF_PROTOCOL_DSA_A5PSW,  /**< DSA_A5PSW(0xE001) */
+    LSOF_PROTOCOL_IFE,        /**< IFE(0xED3E) */
+    LSOF_PROTOCOL_AF_IUCV,    /**< AF_IUCV(0xFBFB) */
+    /* others */
+    LSOF_PROTOCOL_8025,   /**< 802.5 */
+    LSOF_PROTOCOL_CCITT,  /**< CCITT */
+    LSOF_PROTOCOL_STR,    /**< stream */
+    LSOF_PROTOCOL_SHARED, /**< shared */
 };
 
 /** @struct lsof_context

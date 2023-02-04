@@ -106,7 +106,7 @@ void process_socket(i) struct inode *i; /* inode pointer */
         if (Fnet)
             Lf->sf |= SELNET;
         Lf->type = LSOF_TYPE_INET;
-        printiproto((int)s.so_proto.pr_protocol);
+        enter_ip_proto((int)s.so_proto.pr_protocol);
         /*
          * Get protocol control block address from stream head queue structure.
          */
@@ -122,7 +122,7 @@ void process_socket(i) struct inode *i; /* inode pointer */
          * Print local and remote addresses.
          */
         if (pcbs) {
-            if (pcb.inp_ppcb && strcasecmp(Lf->iproto, "udp") == 0) {
+            if (pcb.inp_ppcb && Lf->iproto == LSOF_PROTOCOL_UDP) {
 
                 /*
                  * If this is a UDP socket file, get the udpdev structure
@@ -182,7 +182,7 @@ void process_socket(i) struct inode *i; /* inode pointer */
                 if (udptm && !Lf->nma)
                     (void)udp_tm(udp.ud_ftime);
             }
-            if (pcb.inp_ppcb && strcasecmp(Lf->iproto, "tcp") == 0 &&
+            if (pcb.inp_ppcb && Lf->iproto == LSOF_PROTOCOL_TCP &&
                 kread((KA_T)pcb.inp_ppcb, (char *)&t, sizeof(t)) == 0) {
                 ts = 1;
                 /*

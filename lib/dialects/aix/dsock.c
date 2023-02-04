@@ -212,7 +212,7 @@ void process_socket(sa) KA_T sa; /* socket address in kernel */
 
                 Lf->sf |= SELNET;
         }
-        printiproto(p.pr_protocol);
+        enter_ip_proto(p.pr_protocol);
 
 #if defined(HASIPv6)
         Lf->type = fam == AF_INET ? LSOF_FILE_IPV4 : LSOF_FILE_IPV6;

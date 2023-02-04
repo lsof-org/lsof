@@ -352,14 +352,6 @@ typedef _Bool bool;
 /* #define	HASPRIVNMCACHE	<function name>	*/
 
 /*
- * HASPRIVPRIPP is defined for dialects that have a private function for
- * printing IP protocol names.  When HASPRIVPRIPP isn't defined, the
- * IP protocol name printing function defaults to printiprto().
- */
-
-/* #define	HASPRIVPRIPP	1	*/
-
-/*
  * HASPROCFS is defined for those dialects that have a proc file system --
  * usually /proc and usually in SYSV4 derivatives.  For FreeBSD 2.0 and
  * above the Configure script defines HASPROCFS when it can find

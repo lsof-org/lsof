@@ -2922,7 +2922,7 @@ void process_node(va) KA_T va; /* vnode kernel space address */
 #endif /* solaris>=110000 */
 
     case N_SHARED:
-        (void)snpf(Lf->iproto, sizeof(Lf->iproto), "SHARED");
+        Lf->iproto = LSOF_PROTOCOL_SHARED;
         break;
     case N_STREAM:
 
@@ -3691,54 +3691,54 @@ void process_node(va) KA_T va; /* vnode kernel space address */
     /*
      * Record stream status.
      */
-    if (Lf->is_stream && strcmp(Lf->iproto, "STR") == 0)
+    if (Lf->is_stream && LF->iproto == LSOF_PROTOCOL_STR)
     /*
      * Test for specified file.
      */
 
 #if defined(HASPROCFS)
-    if (Ntype == N_PROC) {
-        if (Procsrch) {
-            Procfind = 1;
-            Lf->sf |= SELNM;
-        } else {
-            for (pfi = Procfsid; pfi; pfi = pfi->next) {
-                if ((pfi->pid && pfi->pid == pids.pid_id)
+        if (Ntype == N_PROC) {
+            if (Procsrch) {
+                Procfind = 1;
+                Lf->sf |= SELNM;
+            } else {
+                for (pfi = Procfsid; pfi; pfi = pfi->next) {
+                    if ((pfi->pid && pfi->pid == pids.pid_id)
 
 #    if defined(HASPINODEN)
-                    || (Lf->inode_def && Lf->inode == pfi->inode)
+                        || (Lf->inode_def && Lf->inode == pfi->inode)
 #    endif /* defined(HASPINODEN) */
 
-                ) {
-                    pfi->f = 1;
-                    if (!Namech[0]) {
-                        (void)snpf(Namech, Namechl - 1, "%s", pfi->nm);
-                        Namech[Namechl - 1] = '\0';
+                    ) {
+                        pfi->f = 1;
+                        if (!Namech[0]) {
+                            (void)snpf(Namech, Namechl - 1, "%s", pfi->nm);
+                            Namech[Namechl - 1] = '\0';
+                        }
+                        Lf->sf |= SELNM;
+                        break;
                     }
+                }
+            }
+        } else
+#endif /* defined(HASPROCFS) */
+
+        {
+            if (Sfile) {
+                if (trdevs) {
+                    rdev = Lf->rdev;
+                    Lf->rdev = trdev;
+                    tdef = Lf->rdev_def;
+                    Lf->rdev_def = 1;
+                }
+                if (is_file_named(NULL, Ntype, type, 1))
                     Lf->sf |= SELNM;
-                    break;
+                if (trdevs) {
+                    Lf->rdev = rdev;
+                    Lf->rdev_def = tdef;
                 }
             }
         }
-    } else
-#endif /* defined(HASPROCFS) */
-
-    {
-        if (Sfile) {
-            if (trdevs) {
-                rdev = Lf->rdev;
-                Lf->rdev = trdev;
-                tdef = Lf->rdev_def;
-                Lf->rdev_def = 1;
-            }
-            if (is_file_named(NULL, Ntype, type, 1))
-                Lf->sf |= SELNM;
-            if (trdevs) {
-                Lf->rdev = rdev;
-                Lf->rdev_def = tdef;
-            }
-        }
-    }
     /*
      * Enter name characters.
      */
@@ -3878,7 +3878,7 @@ struct l_dev **sdp;              /* returned device pointer */
         k = (int)strlen(Namech);
         *sdp = dp;
     } else
-        (void)snpf(Lf->iproto, sizeof(Lf->iproto), "STR");
+        Lf->iproto = LSOF_PROTOCOL_STR;
     nl = sizeof(mn) - 1;
     mn[nl] = '\0';
     qp = (KA_T)sd.sd_wrq;

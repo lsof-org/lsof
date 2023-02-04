@@ -789,7 +789,9 @@ struct lfile {
     int fd_num; /* stores fd number when fd_type == LSOF_FD_NUMERIC, otherwise
                    -1 */
 
-    char iproto[IPROTOL];
+    enum lsof_protocol iproto;
+    uint32_t unknown_proto_number; /* store proto number when iproto ==
+                                           LSOF_PROTOCOL_UNKNOWN */
     enum lsof_file_type type;
     uint32_t unknown_file_type_number; /* store file type when type ==
                                           LSOF_FILE_UNKNOWN */
@@ -803,7 +805,7 @@ struct lfile {
     dev_t rdev;
     INODETYPE inode;
     unsigned char inode_def; /* inode definition status */
-    long nlink; /* link count */
+    long nlink;              /* link count */
     char *dev_ch;
     char *fsdir; /* file system directory */
     char *fsdev; /* file system device */
@@ -949,7 +951,7 @@ struct lproc {
 
 struct nwad {
     char *arg;                    /* argument */
-    char *proto;                  /* protocol */
+    enum lsof_protocol proto;     /* protocol */
     int af;                       /* address family -- e.g.,
                                    * AF_INET, AF_INET6 */
     unsigned char a[MAX_AF_ADDR]; /* address */
