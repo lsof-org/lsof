@@ -222,8 +222,6 @@ enum lsof_error lsof_gather(struct lsof_context *ctx,
             lf_next = lf->next;
             CLEAN(lf->nma);
             CLEAN(lf->dev_ch);
-            CLEAN(lf->fsdir);
-            CLEAN(lf->fsdev);
             free(lf);
         }
         lp->file = NULL;

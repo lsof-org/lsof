@@ -807,8 +807,10 @@ struct lfile {
     unsigned char inode_def; /* inode definition status */
     long nlink;              /* link count */
     char *dev_ch;
-    char *fsdir; /* file system directory */
-    char *fsdev; /* file system device */
+
+    /* fsdir and fsdev are borrowed from struct mounts/l_vfs, do not free() */
+    char *fsdir; /* file system directory, */
+    char *fsdev; /* file system device, do not free() */
 
 #    if defined(HASFSINO)
     INODETYPE fs_ino; /* file system inode number */
