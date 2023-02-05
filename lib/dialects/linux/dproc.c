@@ -212,17 +212,23 @@ void gather_proc_info(struct lsof_context *ctx) {
     struct dirent *dp;
     unsigned char ht, pidts;
     int i, n, nl, pgid, pid, ppid, prv, rv, tid, tpgid, tppid, tx;
-    static char *path = (char *)NULL;
-    static int pathl = 0;
-    static char *pidpath = (char *)NULL;
-    static MALLOC_S pidpathl = 0;
-    static MALLOC_S pidx = 0;
-    static DIR *ps = (DIR *)NULL;
+
+    char *path = (char *)NULL;
+    int pathl = 0;
+
+    char *pidpath = (char *)NULL;
+    MALLOC_S pidpathl = 0;
+
+    MALLOC_S pidx = 0;
+    DIR *ps = (DIR *)NULL;
     struct stat sb;
-    static char *taskpath = (char *)NULL;
-    static int taskpathl = 0;
-    static char *tidpath = (char *)NULL;
-    static int tidpathl = 0;
+
+    char *taskpath = (char *)NULL;
+    int taskpathl = 0;
+
+    char *tidpath = (char *)NULL;
+    int tidpathl = 0;
+
     DIR *ts;
     UID_ARG uid;
 
@@ -230,34 +236,33 @@ void gather_proc_info(struct lsof_context *ctx) {
     (void)clear_pinfo(ctx);
     (void)clear_psxmqinfo(ctx);
 #if defined(HASUXSOCKEPT)
-    (void)clear_uxsinfo();
+    (void)clear_uxsinfo(ctx);
 #endif /* defined(HASUXSOCKEPT) */
 #if defined(HASPTYEPT)
     (void)clear_ptyinfo(ctx);
 #endif /* defined(HASPTYEPT) */
-    (void)clear_netsinfo();
+    (void)clear_netsinfo(ctx);
 #if defined(HASIPv6)
-    (void)clear_nets6info();
+    (void)clear_nets6info(ctx);
 #endif /* defined(HASIPv6) */
     (void)clear_evtfdinfo(ctx);
 
     /*
      * Do one-time setup.
      */
-    if (!pidpath) {
-        pidx = strlen(PROCFS) + 1;
-        pidpathl = pidx + 64 + 1; /* 64 is growth room */
-        if (!(pidpath = (char *)malloc(pidpathl))) {
-            if (ctx->err) {
-                (void)fprintf(ctx->err,
-                              "%s: can't allocate %d bytes for \"%s/\"<pid>\n",
-                              Pn, (int)pidpathl, PROCFS);
-            }
-            Error(ctx);
-            return;
+    pidx = strlen(PROCFS) + 1;
+    pidpathl = pidx + 64 + 1; /* 64 is growth room */
+    if (!(pidpath = (char *)malloc(pidpathl))) {
+        if (ctx->err) {
+            (void)fprintf(ctx->err,
+                          "%s: can't allocate %d bytes for \"%s/\"<pid>\n", Pn,
+                          (int)pidpathl, PROCFS);
         }
-        (void)snpf(pidpath, pidpathl, "%s/", PROCFS);
+        Error(ctx);
+        goto cleanup;
     }
+    (void)snpf(pidpath, pidpathl, "%s/", PROCFS);
+
     /*
      * Get lock and net information.
      */
@@ -315,15 +320,13 @@ void gather_proc_info(struct lsof_context *ctx) {
      * Read /proc, looking for PID directories.  Open each one and
      * gather its process and file information.
      */
-    if (!ps) {
-        if (!(ps = opendir(PROCFS))) {
-            if (ctx->err)
-                (void)fprintf(ctx->err, "%s: can't open %s\n", Pn, PROCFS);
-            Error(ctx);
-            return;
-        }
-    } else
-        (void)rewinddir(ps);
+    if (!(ps = opendir(PROCFS))) {
+        if (ctx->err)
+            (void)fprintf(ctx->err, "%s: can't open %s\n", Pn, PROCFS);
+        Error(ctx);
+        goto cleanup;
+    }
+
     while ((dp = readdir(ps))) {
         if (nm2id(dp->d_name, &pid, &n))
             continue;
@@ -340,7 +343,7 @@ void gather_proc_info(struct lsof_context *ctx) {
                         (int)pidpathl, PROCFS, dp->d_name);
                 }
                 Error(ctx);
-                return;
+                goto cleanup;
             }
         }
         (void)snpf(pidpath + pidx, pidpathl - pidx, "%s/", dp->d_name);
@@ -358,7 +361,6 @@ void gather_proc_info(struct lsof_context *ctx) {
         (void)make_proc_path(ctx, pidpath, n, &path, &pathl, "stat");
         if ((prv = read_id_stat(ctx, path, pid, &cmd, &ppid, &pgid)) < 0)
             cmd = NULL; /* NULL means failure to get command name */
-
 #if defined(HASTASKS)
         /*
          * Task reporting has been selected, so save the process' command
@@ -369,16 +371,6 @@ void gather_proc_info(struct lsof_context *ctx) {
          * options work properly.
          */
         else if (!IgnTasks && (Selflags & SELTASK)) {
-            /*
-             * Copy cmd before next call to read_id_stat due to static
-             * variables
-             */
-            if (cmd) {
-                strncpy(cmdbuf, cmd, sizeof(cmdbuf) - 1);
-                cmdbuf[sizeof(cmdbuf) - 1] = '\0';
-                cmd = cmdbuf;
-            }
-
             (void)make_proc_path(ctx, pidpath, n, &taskpath, &taskpathl,
                                  "task");
             tx = n + 4;
@@ -421,7 +413,7 @@ void gather_proc_info(struct lsof_context *ctx) {
                                               taskpath, dp->d_name);
                             }
                             Error(ctx);
-                            return;
+                            goto cleanup;
                         }
                     }
                     (void)snpf(tidpath, tidpathl, "%s/%s/stat", taskpath,
@@ -461,6 +453,8 @@ void gather_proc_info(struct lsof_context *ctx) {
                 Lp->tid = 0;
             }
         }
+
+        CLEAN(cmd);
     }
 
     /*
@@ -585,6 +579,18 @@ void gather_proc_info(struct lsof_context *ctx) {
                 (void)process_evtfdinfo(ctx, 1);
         }
     }
+
+cleanup:
+    CLEAN(pidpath);
+    CLEAN(path);
+    CLEAN(taskpath);
+    CLEAN(tidpath);
+    if (ps) {
+        closedir(ps);
+        ps = NULL;
+    }
+
+    return;
 }
 
 /*
@@ -1056,23 +1062,23 @@ static int process_id(struct lsof_context *ctx,
                       char *tcmd)  /* task command, if non-NULL) */
 {
     int av = 0;
-    static char *dpath = (char *)NULL;
-    static int dpathl = 0;
+    char *dpath = (char *)NULL;
+    int dpathl = 0;
     short efs, enls, enss, lnk, oty, pn, pss, sf;
     int fd, i, ls = 0, n, ss, sv;
     struct l_fdinfo fi;
     DIR *fdp;
     struct dirent *fp;
-    static char *ipath = (char *)NULL;
-    static int ipathl = 0;
+    char *ipath = (char *)NULL;
+    int ipathl = 0;
     int j = 0;
     struct lfile *lfr;
     struct stat lsb, sb;
     char nmabuf[MAXPATHLEN + 1], pbuf[MAXPATHLEN + 1];
-    static char *path = (char *)NULL;
-    static int pathl = 0;
-    static char *pathi = (char *)NULL;
-    static int pathil = 0;
+    char *path = (char *)NULL;
+    int pathl = 0;
+    char *pathi = (char *)NULL;
+    int pathil = 0;
     char *rest;
     int txts = 0;
 
@@ -1561,11 +1567,11 @@ process_proc_map(struct lsof_context *ctx,
         dev_t dev;
         INODETYPE inode;
     };
-    static struct saved_map *sm = (struct saved_map *)NULL;
+    struct saved_map *sm = (struct saved_map *)NULL;
     efsys_list_t *rep;
-    static int sma = 0;
-    static char *vbuf = (char *)NULL;
-    static size_t vsz = (size_t)0;
+    int sma = 0;
+    char *vbuf = (char *)NULL;
+    size_t vsz = (size_t)0;
     int diff_mntns = 0;
     /*
      * Open the /proc/<pid>/maps file, assign a page size buffer to its stream,
@@ -1806,35 +1812,39 @@ process_proc_map(struct lsof_context *ctx,
  * return: -1 == ID is unavailable
  *          0 == ID OK
  *          1 == ID is a zombie
- *	    2 == ID is a thread
+ *          2 == ID is a thread
  */
 static int read_id_stat(struct lsof_context *ctx,
                         char *p,    /* path to status file */
                         int id,     /* ID: PID or LWP */
-                        char **cmd, /* malloc'd command name */
+                        char **cmd, /* malloc'd command name, NULL if failure */
                         int *ppid,  /* returned parent PID for PID type */
                         int *pgid)  /* returned process group ID for PID
                                      * type */
 {
+    int ret = 0;
     char buf[MAXPATHLEN], *cp, *cp1, **fp;
     int ch, cx, es, pc;
-    static char *cbf = (char *)NULL;
-    static MALLOC_S cbfa = 0;
+    char *cbf = (char *)NULL;
+    MALLOC_S cbfa = 0;
     FILE *fs;
-    static char *vbuf = (char *)NULL;
-    static size_t vsz = (size_t)0;
+    char *vbuf = (char *)NULL;
+    size_t vsz = (size_t)0;
+
+    /* NULL means failure to get command name */
+    *cmd = NULL;
+
     /*
      * Open the stat file path, assign a page size buffer to its stream,
      * and read the file's first line.
      */
-    if (!(fs = open_proc_stream(ctx, p, "r", &vbuf, &vsz)))
-        return (-1);
+    if (!(fs = open_proc_stream(ctx, p, "r", &vbuf, &vsz))) {
+        ret = -1;
+        goto cleanup;
+    }
     if (!(cp = fgets(buf, sizeof(buf), fs))) {
-
-    read_id_stat_exit:
-
-        (void)fclose(fs);
-        return (-1);
+        ret = -1;
+        goto cleanup;
     }
     /*
      * Skip to the first field, and make sure it is a matching ID.
@@ -1844,8 +1854,10 @@ static int read_id_stat(struct lsof_context *ctx,
         cp++;
     if (*cp)
         *cp = '\0';
-    if (atoi(cp1) != id)
-        goto read_id_stat_exit;
+    if (atoi(cp1) != id) {
+        ret = -1;
+        goto cleanup;
+    }
     /*
      * The second field should contain the command, enclosed in parentheses.
      * If it also has embedded '\n' characters, replace them with '?'
@@ -1855,17 +1867,12 @@ static int read_id_stat(struct lsof_context *ctx,
      */
     for (++cp; *cp && (*cp == ' '); cp++)
         ;
-    if (!cp || (*cp != '('))
-        goto read_id_stat_exit;
+    if (!cp || (*cp != '(')) {
+        ret = -1;
+        goto cleanup;
+    }
     cp++;
     pc = 1; /* start the parenthesis balance count at 1 */
-
-    /* empty process name to avoid leaking previous process name,
-     * see issue #246
-     */
-    if (cbf) {
-        cbf[0] = '\0';
-    }
 
     /*
      * Enter the command characters safely.  Supply them from the initial read
@@ -1879,8 +1886,10 @@ static int read_id_stat(struct lsof_context *ctx,
         if (!es)
             ch = *cp++;
         else {
-            if ((ch = fgetc(fs)) == EOF)
-                goto read_id_stat_exit;
+            if ((ch = fgetc(fs)) == EOF) {
+                ret = -1;
+                goto cleanup;
+            }
         }
         if (ch == '(') /* a '(' advances the balance count */
             pc++;
@@ -1902,7 +1911,6 @@ static int read_id_stat(struct lsof_context *ctx,
         if (!es && !*cp)
             es = 1; /* Switch to fgetc() when a '\0' appears. */
     }
-    *cmd = cbf;
     /*
      * Read the remainder of the stat line if it was necessary to read command
      * characters individually from the stat file.
@@ -1911,31 +1919,53 @@ static int read_id_stat(struct lsof_context *ctx,
      */
     if (es)
         cp = fgets(buf, sizeof(buf), fs);
-    (void)fclose(fs);
-    if (!cp || !*cp)
-        return (-1);
-    if (get_fields(ctx, cp, (char *)NULL, &fp, (int *)NULL, 0) < 3)
-        return (-1);
+    if (!cp || !*cp) {
+        ret = -1;
+        goto cleanup;
+    }
+    if (get_fields(ctx, cp, (char *)NULL, &fp, (int *)NULL, 0) < 3) {
+        ret = -1;
+        goto cleanup;
+    }
     /*
      * Convert and return parent process (fourth field) and process group (fifth
      * field) IDs.
      */
     if (fp[1] && *fp[1])
         *ppid = atoi(fp[1]);
-    else
-        return (-1);
+    else {
+        ret = -1;
+        goto cleanup;
+    }
     if (fp[2] && *fp[2])
         *pgid = atoi(fp[2]);
-    else
-        return (-1);
+    else {
+        ret = -1;
+        goto cleanup;
+    }
+
+    /* Pass command name to caller */
+    *cmd = cbf;
+    cbf = NULL;
+
     /*
      * Check the state in the third field.  If it is 'Z', return that
      * indication.
      */
-    if (fp[0] && !strcmp(fp[0], "Z"))
-        return (1);
-    else if (fp[0] && !strcmp(fp[0], "T"))
-        return (2);
+    if (fp[0] && !strcmp(fp[0], "Z")) {
+        ret = 1;
+        goto cleanup;
+    } else if (fp[0] && !strcmp(fp[0], "T")) {
+        ret = 2;
+        goto cleanup;
+    }
+cleanup:
+    if (fs) {
+        (void)fclose(fs);
+        fs = NULL;
+    }
+    CLEAN(vbuf);
+    CLEAN(cbf);
     return (0);
 }
 
@@ -1956,8 +1986,8 @@ static int statEx(struct lsof_context *ctx, char *p, /* file path */
                                    * wanted */
                   int *ss)        /* stat() status --  SB_* values */
 {
-    static size_t ca = 0;
-    static char *cb = NULL;
+    size_t ca = 0;
+    char *cb = NULL;
     char *cp;
     int ensv = ENOENT;
     struct stat sb;

@@ -217,6 +217,139 @@ struct llock {
     struct llock *next;
 };
 
+/* AX25 socket information */
+struct ax25sin {
+    char *da;     /* destination address */
+    char *dev_ch; /* device characters */
+    char *sa;     /* source address */
+    INODETYPE inode;
+    unsigned long sq, rq;   /* send and receive queue values */
+    unsigned char sqs, rqs; /* send and receive queue states */
+    int state;
+    struct ax25sin *next;
+};
+
+struct icmpin {
+    INODETYPE inode; /* node number */
+    char *la;        /* local address */
+    char *ra;        /* remote address */
+    MALLOC_S lal;    /* strlen(la) */
+    MALLOC_S ral;    /* strlen(ra) */
+    struct icmpin *next;
+};
+
+/* IPX socket information */
+struct ipxsin {
+    INODETYPE inode;
+    char *la; /* local address */
+    char *ra; /* remote address */
+    int state;
+    unsigned long txq, rxq; /* transmit and receive queue values */
+    struct ipxsin *next;
+};
+
+/* Netlink socket information */
+struct nlksin {
+    INODETYPE inode; /* node number */
+    unsigned int pr; /* protocol */
+    struct nlksin *next;
+};
+
+/* packet information */
+struct packin {
+    INODETYPE inode;
+    int ty; /* socket type */
+    int pr; /* protocol */
+    struct packin *next;
+};
+
+/* raw socket information */
+struct rawsin {
+    INODETYPE inode;
+    char *la;     /* local address */
+    char *ra;     /* remote address */
+    char *sp;     /* state characters */
+    MALLOC_S lal; /* strlen(la) */
+    MALLOC_S ral; /* strlen(ra) */
+    MALLOC_S spl; /* strlen(sp) */
+    struct rawsin *next;
+};
+
+/* SCTP socket information */
+struct sctpsin {
+    INODETYPE inode;
+    int type;      /* type: 0 = assoc
+                    *	 1 = eps
+                    *	 2  assoc and eps */
+    char *addr;    /* association or endpoint address */
+    char *assocID; /* association ID */
+    char *lport;   /* local port */
+    char *rport;   /* remote port */
+    char *laddrs;  /* local address */
+    char *raddrs;  /* remote address */
+    struct sctpsin *next;
+};
+
+/* IPv4 TCP and UDP socket
+ * information */
+struct tcp_udp {
+    INODETYPE inode;
+    unsigned long faddr, laddr; /* foreign & local IPv4 addresses */
+    int fport, lport;           /* foreign & local ports */
+    unsigned long txq, rxq;     /* transmit & receive queue values */
+    int proto;                  /* 0 = TCP, 1 = UDP, 2 = UDPLITE */
+    int state;                  /* protocol state */
+    struct tcp_udp *next;       /* in TcpUdp inode hash table */
+#    if defined(HASEPTOPTS)
+    pxinfo_t *pxinfo;         /* inode information */
+    struct tcp_udp *ipc_next; /* in TcpUdp local ipc hash table */
+    struct tcp_udp *ipc_peer; /* locally connected peer(s) info */
+#    endif                    /* defined(HASEPTOPTS) */
+};
+
+#    if defined(HASIPv6)
+/* IPv6 TCP and UDP socket
+ * information */
+struct tcp_udp6 {
+    INODETYPE inode;
+    struct in6_addr faddr, laddr; /* foreign & local IPv6 addresses */
+    int fport, lport;             /* foreign & local ports */
+    unsigned long txq, rxq;       /* transmit & receive queue values */
+    int proto;                    /* 0 = TCP, 1 = UDP, 2 = UDPLITE */
+    int state;                    /* protocol state */
+    struct tcp_udp6 *next;
+#        if defined(HASEPTOPTS)
+    pxinfo_t *pxinfo;          /* inode information */
+    struct tcp_udp6 *ipc_next; /* in TcpUdp6 local ipc hash table */
+    struct tcp_udp6 *ipc_peer; /* locally connected peer(s) info */
+#        endif                 /* defined(HASEPTOPTS) */
+};
+#    endif /* defined(HASIPv6) */
+
+/* UNIX socket information */
+typedef struct uxsin {
+    INODETYPE inode;      /* node number */
+    char *pcb;            /* protocol control block */
+    char *path;           /* file path */
+    unsigned char sb_def; /* stat(2) buffer definitions */
+    dev_t sb_dev;         /* stat(2) buffer device */
+    INODETYPE sb_ino;     /* stat(2) buffer node number */
+    dev_t sb_rdev;        /* stat(2) raw device number */
+    uint32_t ty;          /* socket type */
+    unsigned int opt;     /* socket options */
+    unsigned int ss;      /* socket state */
+
+#    if defined(HASEPTOPTS) && defined(HASUXSOCKEPT)
+    struct uxsin *icons; /* incoming socket conections */
+    unsigned int icstat; /* incoming connection status
+                          * 0 == none */
+    pxinfo_t *pxinfo;    /* inode information */
+    struct uxsin *peer;  /* connected peer(s) info */
+#    endif               /* defined(HASEPTOPTS) && defined(HASUXSOCKEPT) */
+
+    struct uxsin *next;
+} uxsin_t;
+
 struct lsof_context_dialect {
     /* pipe endpoint hash buckets */
     pxinfo_t **pipe_endpoint_buckets;
@@ -289,6 +422,76 @@ struct lsof_context_dialect {
      *     2 == from /proc/<PID>/fdinfo
      */
     int offset_type;
+
+    /* AX25 socket info, hashed by inode */
+    struct ax25sin **ax25_sin;
+    int ax25_valid;
+
+    /* ICMP socket info, hashed by inode */
+    struct icmpin **icmp_sin;
+    int icmp_valid;
+
+    /* IPX socket info, hashed by inode */
+    struct ipxsin **ipx_sin;
+    int ipx_valid;
+
+    /* Netlink socket info, hashed by
+     * inode */
+    struct nlksin **netlink_sin;
+    int netlink_valid;
+
+    /* packet info, hashed by inode */
+    struct packin **packet_sin;
+    int packet_valid;
+
+    /* raw socket info, hashed by inode */
+    struct rawsin **raw_sin;
+    int raw_valid;
+
+    /* SCTP info, hashed by inode */
+    struct sctpsin **sctp_sin;
+    int sctp_valid;
+
+    /* IPv4 TCP & UDP info, hashed by
+     * inode */
+    struct tcp_udp **tcp_udp;
+    /* dynamically sized hash bucket
+     * count for TCP and UDP -- will
+     * be a power of two */
+    int tcp_udp_buckets;
+    int tcp_valid;
+    int udp_valid;
+    int udplite_valid;
+    /* IPv4 TCP & UDP info for socket used
+       for IPC, hashed by (addr, port paris
+       and protocol */
+    struct tcp_udp **tcp_udp_ipc;
+
+#    if defined(HASIPv6)
+    /* IPv6 raw socket info, hashed by
+     * inode */
+    struct rawsin **raw6_sin;
+    int raw6_valid;
+
+    /* IPv6 TCP & UDP info, hashed by
+     * inode */
+    struct tcp_udp6 **tcp_udp6;
+    /* dynamically sized hash bucket
+     * count for IPv6 TCP and UDP -- will
+     * be a power of two */
+    int tcp_udp6_buckets;
+    int tcp6_valid;
+    int udp6_valid;
+    int udplite6_valid;
+    /* IPv6 TCP & UDP info for socket used
+       for IPC, hashed by (addr, port paris
+       and protocol */
+    struct tcp_udp6 **tcp_udp6_ipc;
+#    endif /* defined(HASIPv6) */
+
+    /* UNIX socket info, hashed by inode */
+    uxsin_t **unix_sin;
+    int unix_valid;
 };
 /* Convenience macros*/
 /* hash buckets in hashSfile() */
@@ -318,5 +521,21 @@ struct lsof_context_dialect {
 /* check regular file or socket only */
 #    define Cckreg (ctxd.check_regular)
 #    define Ckscko (ctxd.check_only_socket)
+/* socket info */
+#    define AX25sin (ctxd.ax25_sin)
+#    define Icmpin (ctxd.icmp_sin)
+#    define Ipxsin (ctxd.ipx_sin)
+#    define Nlksin (ctxd.netlink_sin)
+#    define Packin (ctxd.packet_sin)
+#    define Rawsin (ctxd.raw_sin)
+#    define SCTPsin (ctxd.sctp_sin)
+#    define TcpUdp (ctxd.tcp_udp)
+#    define TcpUdp_bucks (ctxd.tcp_udp_buckets)
+#    define TcpUdpIPC (ctxd.tcp_udp_ipc)
+#    define Rawsin6 (ctxd.raw6_sin)
+#    define TcpUdp6 (ctxd.tcp_udp6)
+#    define TcpUdp6_bucks (ctxd.tcp_udp6_buckets)
+#    define TcpUdp6IPC (ctxd.tcp_udp6_ipc)
+#    define Uxsin (ctxd.unix_sin)
 
 #endif /* LINUX_LSOF_H	*/

@@ -125,7 +125,7 @@ _PROTOTYPE(extern pxinfo_t *find_psxmqinfo, (struct lsof_context * ctx, int pid,
                                              struct lfile *lf, pxinfo_t *pp));
 _PROTOTYPE(extern void process_psxmqinfo, (struct lsof_context * ctx, int f));
 #        if defined(HASUXSOCKEPT)
-_PROTOTYPE(extern void clear_uxsinfo, (void));
+_PROTOTYPE(extern void clear_uxsinfo, (struct lsof_context * ctx));
 _PROTOTYPE(extern struct uxsin *find_uxsepti,
            (struct lsof_context * ctx, struct lfile *lf));
 _PROTOTYPE(extern void process_uxsinfo, (struct lsof_context * ctx, int f));
@@ -145,10 +145,10 @@ _PROTOTYPE(extern void enter_evtfdinfo, (struct lsof_context * ctx, int id));
 _PROTOTYPE(extern pxinfo_t *find_evtfdinfo, (struct lsof_context * ctx, int pid,
                                              struct lfile *lf, pxinfo_t *pp));
 _PROTOTYPE(extern void process_evtfdinfo, (struct lsof_context * ctx, int f));
-_PROTOTYPE(extern void clear_netsinfo, (void));
+_PROTOTYPE(extern void clear_netsinfo, (struct lsof_context * ctx));
 _PROTOTYPE(extern void process_netsinfo, (struct lsof_context * ctx, int f));
 #        if defined(HASIPv6)
-_PROTOTYPE(extern void clear_nets6info, (void));
+_PROTOTYPE(extern void clear_nets6info, (struct lsof_context * ctx));
 _PROTOTYPE(extern void process_nets6info, (struct lsof_context * ctx, int f));
 #        endif /* defined(HASIPv6) */
 #    endif     /* defined(HASEPTOPTS) */

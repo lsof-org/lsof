@@ -96,137 +96,10 @@
  * Local structures
  */
 
-struct ax25sin {  /* AX25 socket information */
-    char *da;     /* destination address */
-    char *dev_ch; /* device characters */
-    char *sa;     /* source address */
-    INODETYPE inode;
-    unsigned long sq, rq;   /* send and receive queue values */
-    unsigned char sqs, rqs; /* send and receive queue states */
-    int state;
-    struct ax25sin *next;
-};
-
-struct icmpin {
-    INODETYPE inode; /* node number */
-    char *la;        /* local address */
-    char *ra;        /* remote address */
-    MALLOC_S lal;    /* strlen(la) */
-    MALLOC_S ral;    /* strlen(ra) */
-    struct icmpin *next;
-};
-
-struct ipxsin { /* IPX socket information */
-    INODETYPE inode;
-    char *la; /* local address */
-    char *ra; /* remote address */
-    int state;
-    unsigned long txq, rxq; /* transmit and receive queue values */
-    struct ipxsin *next;
-};
-
-struct nlksin {      /* Netlink socket information */
-    INODETYPE inode; /* node number */
-    unsigned int pr; /* protocol */
-    struct nlksin *next;
-};
-
-struct packin { /* packet information */
-    INODETYPE inode;
-    int ty; /* socket type */
-    int pr; /* protocol */
-    struct packin *next;
-};
-
-struct rawsin { /* raw socket information */
-    INODETYPE inode;
-    char *la;     /* local address */
-    char *ra;     /* remote address */
-    char *sp;     /* state characters */
-    MALLOC_S lal; /* strlen(la) */
-    MALLOC_S ral; /* strlen(ra) */
-    MALLOC_S spl; /* strlen(sp) */
-    struct rawsin *next;
-};
-
-struct sctpsin { /* SCTP socket information */
-    INODETYPE inode;
-    int type;      /* type: 0 = assoc
-                    *	 1 = eps
-                    *	 2  assoc and eps */
-    char *addr;    /* association or endpoint address */
-    char *assocID; /* association ID */
-    char *lport;   /* local port */
-    char *rport;   /* remote port */
-    char *laddrs;  /* local address */
-    char *raddrs;  /* remote address */
-    struct sctpsin *next;
-};
-
-struct tcp_udp { /* IPv4 TCP and UDP socket
-                  * information */
-    INODETYPE inode;
-    unsigned long faddr, laddr; /* foreign & local IPv4 addresses */
-    int fport, lport;           /* foreign & local ports */
-    unsigned long txq, rxq;     /* transmit & receive queue values */
-    int proto;                  /* 0 = TCP, 1 = UDP, 2 = UDPLITE */
-    int state;                  /* protocol state */
-    struct tcp_udp *next;       /* in TcpUdp inode hash table */
-#if defined(HASEPTOPTS)
-    pxinfo_t *pxinfo;         /* inode information */
-    struct tcp_udp *ipc_next; /* in TcpUdp local ipc hash table */
-    struct tcp_udp *ipc_peer; /* locally connected peer(s) info */
-#endif                        /* defined(HASEPTOPTS) */
-};
-
-#if defined(HASIPv6)
-struct tcp_udp6 { /* IPv6 TCP and UDP socket
-                   * information */
-    INODETYPE inode;
-    struct in6_addr faddr, laddr; /* foreign & local IPv6 addresses */
-    int fport, lport;             /* foreign & local ports */
-    unsigned long txq, rxq;       /* transmit & receive queue values */
-    int proto;                    /* 0 = TCP, 1 = UDP, 2 = UDPLITE */
-    int state;                    /* protocol state */
-    struct tcp_udp6 *next;
-#    if defined(HASEPTOPTS)
-    pxinfo_t *pxinfo;          /* inode information */
-    struct tcp_udp6 *ipc_next; /* in TcpUdp6 local ipc hash table */
-    struct tcp_udp6 *ipc_peer; /* locally connected peer(s) info */
-#    endif                     /* defined(HASEPTOPTS) */
-};
-#endif /* defined(HASIPv6) */
-
-typedef struct uxsin {    /* UNIX socket information */
-    INODETYPE inode;      /* node number */
-    char *pcb;            /* protocol control block */
-    char *path;           /* file path */
-    unsigned char sb_def; /* stat(2) buffer definitions */
-    dev_t sb_dev;         /* stat(2) buffer device */
-    INODETYPE sb_ino;     /* stat(2) buffer node number */
-    dev_t sb_rdev;        /* stat(2) raw device number */
-    uint32_t ty;          /* socket type */
-    unsigned int opt;     /* socket options */
-    unsigned int ss;      /* socket state */
-
-#if defined(HASEPTOPTS) && defined(HASUXSOCKEPT)
-    struct uxsin *icons; /* incoming socket conections */
-    unsigned int icstat; /* incoming connection status
-                          * 0 == none */
-    pxinfo_t *pxinfo;    /* inode information */
-    struct uxsin *peer;  /* connected peer(s) info */
-#endif                   /* defined(HASEPTOPTS) && defined(HASUXSOCKEPT) */
-
-    struct uxsin *next;
-} uxsin_t;
-
 /*
  * Local static values
  */
 
-static char *AX25path = (char *)NULL; /* path to AX25 /proc information */
-/* AX25 socket info, hashed by inode */
-static struct ax25sin **AX25sin = (struct ax25sin **)NULL;
 static char *ax25st[] = {
     "LISTENING",   /* 0 */
     "SABM SENT",   /* 1 */
@@ -235,96 +108,34 @@ static char *ax25st[] = {
     "RECOVERY"     /* 4 */
 };
 #define NAX25ST (sizeof(ax25st) / sizeof(char *))
-static char *ICMPpath = (char *)NULL; /* path to ICMP /proc information */
-/* ICMP socket info, hashed by inode */
-static struct icmpin **Icmpin = (struct icmpin **)NULL;
-static char *Ipxpath = (char *)NULL; /* path to IPX /proc information */
-/* IPX socket info, hashed by inode */
-static struct ipxsin **Ipxsin = (struct ipxsin **)NULL;
-static char *Nlkpath = (char *)NULL; /* path to Netlink /proc information */
-/* Netlink socket info, hashed by
- * inode */
-static struct nlksin **Nlksin = (struct nlksin **)NULL;
-/* packet info, hashed by inode */
-static struct packin **Packin = (struct packin **)NULL;
-static char *Packpath = (char *)NULL; /* path to packet /proc information */
-static char *Rawpath = (char *)NULL;  /* path to raw socket /proc
-                                       * information */
-/* raw socket info, hashed by inode */
-static struct rawsin **Rawsin = (struct rawsin **)NULL;
 static char *SCTPPath[] = {
     /* paths to /proc/net STCP info */
-    (char *)NULL, /* 0 = /proc/net/sctp/assocs */
-    (char *)NULL  /* 1 = /proc/net/sctp/eps */
+    PROCFS "/net/sctp/assocs", /* 0 = /proc/net/sctp/assocs */
+    PROCFS "/net/sctp/eps"     /* 1 = /proc/net/sctp/eps */
 };
 #define NSCTPPATHS sizeof(SCTPPath) / sizeof(char *)
-static char *SCTPSfx[] = {
-    /* /proc/net suffixes */
-    "sctp/assocs", /* 0 = /proc/net/sctp/assocs */
-    "sctp/eps"     /* 1 = /proc/net/sctp/eps */
-};
-/* SCTP info, hashed by inode */
-static struct sctpsin **SCTPsin = (struct sctpsin **)NULL;
 /* path to /proc/net socket status */
-static char *SockStatPath = (char *)NULL;
-static char *TCPpath = (char *)NULL; /* path to TCP /proc information */
-/* IPv4 TCP & UDP info, hashed by
- * inode */
-static struct tcp_udp **TcpUdp = (struct tcp_udp **)NULL;
-static int TcpUdp_bucks = 0; /* dynamically sized hash bucket
-                              * count for TCP and UDP -- will
-                              * be a power of two */
-#if defined(HASEPTOPTS)
-/* IPv4 TCP & UDP info for socket used
-   for IPC, hashed by (addr, port paris
-   and protocol */
-static struct tcp_udp **TcpUdpIPC = (struct tcp_udp **)NULL;
-#endif /* defined(HASEPTOPTS) */
+static char *SockStatPath = PROCFS "/net/sockstat";
 
 #if defined(HASIPv6)
-static char *Raw6path = (char *)NULL; /* path to raw IPv6 /proc information */
-/* IPv6 raw socket info, hashed by
- * inode */
-static struct rawsin **Rawsin6 = (struct rawsin **)NULL;
 /* path to /proc/net IPv6 socket
  * status */
-static char *SockStatPath6 = (char *)NULL;
-static char *TCP6path = (char *)NULL; /* path to IPv6 TCP /proc information */
-/* IPv6 TCP & UDP info, hashed by
- * inode */
-static struct tcp_udp6 **TcpUdp6 = (struct tcp_udp6 **)NULL;
-static int TcpUdp6_bucks = 0;         /* dynamically sized hash bucket
-                                       * count for IPv6 TCP and UDP -- will
-                                       * be a power of two */
-static char *UDP6path = (char *)NULL; /* path to IPv6 UDP /proc information */
-/* path to IPv6 UDPLITE /proc
- * information */
-static char *UDPLITE6path = (char *)NULL;
-#    if defined(HASEPTOPTS)
-/* IPv4 TCP & UDP info for socket used
-   for IPC, hashed by (addr, port paris
-   and protocol */
-static struct tcp_udp6 **TcpUdp6IPC = (struct tcp_udp6 **)NULL;
-#    endif /* defined(HASEPTOPTS) */
-#endif     /* defined(HASIPv6) */
-
-static char *UDPpath = (char *)NULL; /* path to UDP /proc information */
-/* path to UDPLITE /proc information */
-static char *UDPLITEpath = (char *)NULL;
-static char *UNIXpath = (char *)NULL; /* path to UNIX /proc information */
-/* UNIX socket info, hashed by inode */
-static uxsin_t **Uxsin = (uxsin_t **)NULL;
+static char *SockStatPath6 = PROCFS "/net/sockstat6";
+#endif /* defined(HASIPv6) */
 
 /*
  * Local function prototypes
  */
 
-_PROTOTYPE(static struct ax25sin *check_ax25, (INODETYPE i));
+_PROTOTYPE(static struct ax25sin *check_ax25,
+           (struct lsof_context * ctx, INODETYPE i));
 
 #if defined(HASEPTOPTS) && defined(HASUXSOCKEPT)
 _PROTOTYPE(static void enter_uxsinfo, (struct lsof_context * ctx, uxsin_t *up));
-_PROTOTYPE(static void fill_uxicino, (INODETYPE si, INODETYPE sc));
-_PROTOTYPE(static void fill_uxpino, (INODETYPE si, INODETYPE pi));
+_PROTOTYPE(static void fill_uxicino,
+           (struct lsof_context * ctx, INODETYPE si, INODETYPE sc));
+_PROTOTYPE(static void fill_uxpino,
+           (struct lsof_context * ctx, INODETYPE si, INODETYPE pi));
 _PROTOTYPE(static int get_diagmsg, (int sockfd));
 _PROTOTYPE(static void get_uxpeeri, (struct lsof_context * ctx));
 _PROTOTYPE(static void parse_diag,
@@ -336,26 +147,33 @@ _PROTOTYPE(static void prt_uxs,
 #if defined(HASEPTOPTS)
 _PROTOTYPE(static void enter_netsinfo,
            (struct lsof_context * ctx, struct tcp_udp *tp));
-_PROTOTYPE(static void get_netpeeri, (void));
+_PROTOTYPE(static void get_netpeeri, (struct lsof_context * ctx));
 #endif /* defined(HASEPTOPTS) */
 
 #if defined(HASIPv6)
 #    if defined(HASEPTOPTS)
 _PROTOTYPE(static void enter_nets6info,
            (struct lsof_context * ctx, struct tcp_udp6 *tp));
-_PROTOTYPE(static void get_net6peeri, (void));
+_PROTOTYPE(static void get_net6peeri, (struct lsof_context * ctx));
 #    endif /* defined(HASEPTOPTS) */
 #endif     /* defined(HASIPv6) */
 
-_PROTOTYPE(static struct icmpin *check_icmp, (INODETYPE i));
-_PROTOTYPE(static struct ipxsin *check_ipx, (INODETYPE i));
-_PROTOTYPE(static struct nlksin *check_netlink, (INODETYPE i));
-_PROTOTYPE(static struct packin *check_pack, (INODETYPE i));
-_PROTOTYPE(static struct rawsin *check_raw, (INODETYPE i));
-_PROTOTYPE(static struct sctpsin *check_sctp, (INODETYPE i));
+_PROTOTYPE(static struct icmpin *check_icmp,
+           (struct lsof_context * ctx, INODETYPE i));
+_PROTOTYPE(static struct ipxsin *check_ipx,
+           (struct lsof_context * ctx, INODETYPE i));
+_PROTOTYPE(static struct nlksin *check_netlink,
+           (struct lsof_context * ctx, INODETYPE i));
+_PROTOTYPE(static struct packin *check_pack,
+           (struct lsof_context * ctx, INODETYPE i));
+_PROTOTYPE(static struct rawsin *check_raw,
+           (struct lsof_context * ctx, INODETYPE i));
+_PROTOTYPE(static struct sctpsin *check_sctp,
+           (struct lsof_context * ctx, INODETYPE i));
 _PROTOTYPE(static struct tcp_udp *check_tcpudp,
-           (INODETYPE i, enum lsof_protocol *p));
-_PROTOTYPE(static uxsin_t *check_unix, (INODETYPE i));
+           (struct lsof_context * ctx, INODETYPE i, enum lsof_protocol *p));
+_PROTOTYPE(static uxsin_t *check_unix,
+           (struct lsof_context * ctx, INODETYPE i));
 _PROTOTYPE(static void get_ax25, (struct lsof_context * ctx, char *p));
 _PROTOTYPE(static void get_icmp, (struct lsof_context * ctx, char *p));
 _PROTOTYPE(static void get_ipx, (struct lsof_context * ctx, char *p));
@@ -377,9 +195,10 @@ _PROTOTYPE(static char *netlink_proto_to_str, (unsigned int pr));
 _PROTOTYPE(static enum lsof_protocol ethernet_proto_convert, (unsigned int pr));
 
 #if defined(HASIPv6)
-_PROTOTYPE(static struct rawsin *check_raw6, (INODETYPE i));
+_PROTOTYPE(static struct rawsin *check_raw6,
+           (struct lsof_context * ctx, INODETYPE i));
 _PROTOTYPE(static struct tcp_udp6 *check_tcpudp6,
-           (INODETYPE i, enum lsof_protocol *p));
+           (struct lsof_context * ctx, INODETYPE i, enum lsof_protocol *p));
 _PROTOTYPE(static void get_raw6, (struct lsof_context * ctx, char *p));
 _PROTOTYPE(static void get_tcpudp6,
            (struct lsof_context * ctx, char *p, int pr, int clr));
@@ -410,7 +229,8 @@ void build_IPstates(struct lsof_context *ctx) {
 /*
  * check_ax25() - check for AX25 socket file
  */
-static struct ax25sin *check_ax25(INODETYPE i) /* socket file's inode number */
+static struct ax25sin *check_ax25(struct lsof_context *ctx,
+                                  INODETYPE i) /* socket file's inode number */
 {
     return HASH_FIND_ELEMENT(AX25sin, INOHASH, struct ax25sin, inode, i);
 }
@@ -418,7 +238,8 @@ static struct ax25sin *check_ax25(INODETYPE i) /* socket file's inode number */
 /*
  * check_icmp() - check for ICMP socket
  */
-static struct icmpin *check_icmp(INODETYPE i) /* socket file's inode number */
+static struct icmpin *check_icmp(struct lsof_context *ctx,
+                                 INODETYPE i) /* socket file's inode number */
 {
     return HASH_FIND_ELEMENT(Icmpin, INOHASH, struct icmpin, inode, i);
 }
@@ -426,7 +247,8 @@ static struct icmpin *check_icmp(INODETYPE i) /* socket file's inode number */
 /*
  * check_ipx() - check for IPX socket file
  */
-static struct ipxsin *check_ipx(INODETYPE i) /* socket file's inode number */
+static struct ipxsin *check_ipx(struct lsof_context *ctx,
+                                INODETYPE i) /* socket file's inode number */
 {
     return HASH_FIND_ELEMENT(Ipxsin, INOHASH, struct ipxsin, inode, i);
 }
@@ -435,7 +257,8 @@ static struct ipxsin *check_ipx(INODETYPE i) /* socket file's inode number */
  * check_netlink() - check for Netlink socket file
  */
 static struct nlksin *
-check_netlink(INODETYPE i) /* socket file's inode number */
+check_netlink(struct lsof_context *ctx,
+              INODETYPE i) /* socket file's inode number */
 {
     return HASH_FIND_ELEMENT(Nlksin, INOHASH, struct nlksin, inode, i);
 }
@@ -443,7 +266,8 @@ check_netlink(INODETYPE i) /* socket file's inode number */
 /*
  * check_pack() - check for packet file
  */
-static struct packin *check_pack(INODETYPE i) /* packet file's inode number */
+static struct packin *check_pack(struct lsof_context *ctx,
+                                 INODETYPE i) /* packet file's inode number */
 {
     return HASH_FIND_ELEMENT(Packin, INOHASH, struct packin, inode, i);
 }
@@ -452,7 +276,8 @@ static struct packin *check_pack(INODETYPE i) /* packet file's inode number */
  * check_raw() - check for raw socket file
  */
 
-static struct rawsin *check_raw(INODETYPE i) /* socket file's inode number */
+static struct rawsin *check_raw(struct lsof_context *ctx,
+                                INODETYPE i) /* socket file's inode number */
 {
     return HASH_FIND_ELEMENT(Rawsin, INOHASH, struct rawsin, inode, i);
 }
@@ -460,7 +285,8 @@ static struct rawsin *check_raw(INODETYPE i) /* socket file's inode number */
 /*
  * check_sctp() - check for SCTP socket file
  */
-static struct sctpsin *check_sctp(INODETYPE i) /* socket file's inode number */
+static struct sctpsin *check_sctp(struct lsof_context *ctx,
+                                  INODETYPE i) /* socket file's inode number */
 {
     return HASH_FIND_ELEMENT(SCTPsin, INOHASH, struct sctpsin, inode, i);
 }
@@ -469,7 +295,8 @@ static struct sctpsin *check_sctp(INODETYPE i) /* socket file's inode number */
  * check_tcpudp() - check for IPv4 TCP or UDP socket file
  */
 static struct tcp_udp *
-check_tcpudp(INODETYPE i,           /* socket file's inode number */
+check_tcpudp(struct lsof_context *ctx,
+             INODETYPE i,           /* socket file's inode number */
              enum lsof_protocol *p) /* protocol return */
 {
     struct tcp_udp *tp;
@@ -496,7 +323,8 @@ check_tcpudp(INODETYPE i,           /* socket file's inode number */
 /*
  * check_inet() - check for locally used INET domain socket
  */
-static struct tcp_udp *check_inet(INODETYPE i) /* socket file's inode number */
+static struct tcp_udp *check_inet(struct lsof_context *ctx,
+                                  INODETYPE i) /* socket file's inode number */
 {
     return HASH_FIND_ELEMENT(TcpUdp, TCPUDPHASH, struct tcp_udp, inode, i);
 }
@@ -504,7 +332,7 @@ static struct tcp_udp *check_inet(INODETYPE i) /* socket file's inode number */
 /*
  * clear_netsinfo -- clear allocated INET socket info
  */
-void clear_netsinfo() {
+void clear_netsinfo(struct lsof_context *ctx) {
     int h;                   /* hash index */
     struct tcp_udp *ti, *tp; /* temporary pointers */
 
@@ -542,7 +370,8 @@ void clear_netsinfo() {
 /*
  * check_raw6() - check for raw IPv6 socket file
  */
-static struct rawsin *check_raw6(INODETYPE i) /* socket file's inode number */
+static struct rawsin *check_raw6(struct lsof_context *ctx,
+                                 INODETYPE i) /* socket file's inode number */
 {
     return HASH_FIND_ELEMENT(Rawsin6, INOHASH, struct rawsin, inode, i);
 }
@@ -551,7 +380,8 @@ static struct rawsin *check_raw6(INODETYPE i) /* socket file's inode number */
  * check_tcpudp6() - check for IPv6 TCP or UDP socket file
  */
 static struct tcp_udp6 *
-check_tcpudp6(INODETYPE i,           /* socket file's inode number */
+check_tcpudp6(struct lsof_context *ctx,
+              INODETYPE i,           /* socket file's inode number */
               enum lsof_protocol *p) /* protocol return */
 {
     struct tcp_udp6 *tp6;
@@ -579,7 +409,8 @@ check_tcpudp6(INODETYPE i,           /* socket file's inode number */
  * check_inet6() - check for locally used INET6 domain socket
  */
 static struct tcp_udp6 *
-check_inet6(INODETYPE i) /* socket file's inode number */
+check_inet6(struct lsof_context *ctx,
+            INODETYPE i) /* socket file's inode number */
 {
     return HASH_FIND_ELEMENT(TcpUdp6, TCPUDP6HASH, struct tcp_udp6, inode, i);
 }
@@ -587,7 +418,7 @@ check_inet6(INODETYPE i) /* socket file's inode number */
 /*
  * clear_nets6info -- clear allocated INET6 socket info
  */
-void clear_nets6info() {
+void clear_nets6info(struct lsof_context *ctx) {
     int h;                    /* hash index */
     struct tcp_udp6 *ti, *tp; /* temporary pointers */
 
@@ -626,7 +457,8 @@ void clear_nets6info() {
 /*
  * check_unix() - check for UNIX domain socket
  */
-static uxsin_t *check_unix(INODETYPE i) /* socket file's inode number */
+static uxsin_t *check_unix(struct lsof_context *ctx,
+                           INODETYPE i) /* socket file's inode number */
 {
     return HASH_FIND_ELEMENT(Uxsin, INOHASH, uxsin_t, inode, i);
 }
@@ -634,7 +466,7 @@ static uxsin_t *check_unix(INODETYPE i) /* socket file's inode number */
 /*
  * clear_uxsinfo -- clear allocated UNIX socket info
  */
-void clear_uxsinfo() {
+void clear_uxsinfo(struct lsof_context *ctx) {
     int h;            /* hash index */
     uxsin_t *ui, *up; /* remporary pointers */
 
@@ -883,7 +715,8 @@ static void enter_uxsinfo(struct lsof_context *ctx, uxsin_t *up) {
 /*
  * fill_uxicino() -- fill incoming connection inode number
  */
-static void fill_uxicino(INODETYPE si, /* UNIX socket inode number */
+static void fill_uxicino(struct lsof_context *ctx,
+                         INODETYPE si, /* UNIX socket inode number */
                          INODETYPE ic) /* incoming UNIX socket connection
                                         * inode number */
 {
@@ -891,10 +724,10 @@ static void fill_uxicino(INODETYPE si, /* UNIX socket inode number */
     uxsin_t *pic; /* pointer to incoming connection's
                    * information */
 
-    if ((psi = check_unix(si))) {
+    if ((psi = check_unix(ctx, si))) {
         if (psi->icstat || psi->icons)
             return;
-        if ((pic = check_unix(ic))) {
+        if ((pic = check_unix(ctx, ic))) {
             psi->icstat = 1;
             psi->icons = pic;
         }
@@ -904,14 +737,15 @@ static void fill_uxicino(INODETYPE si, /* UNIX socket inode number */
 /*
  * fill_uxpino() -- fill in UNIX socket's peer inode number
  */
-static void fill_uxpino(INODETYPE si, /* UNIX socket inode number */
+static void fill_uxpino(struct lsof_context *ctx,
+                        INODETYPE si, /* UNIX socket inode number */
                         INODETYPE pi) /* UNIX socket peer's inode number */
 {
     uxsin_t *pp, *up;
 
-    if ((up = check_unix(si))) {
+    if ((up = check_unix(ctx, si))) {
         if (!up->peer) {
-            if ((pp = check_unix(pi)))
+            if ((pp = check_unix(ctx, pi)))
                 up->peer = pp;
         }
     }
@@ -920,11 +754,12 @@ static void fill_uxpino(INODETYPE si, /* UNIX socket inode number */
 /*
  * find_uxepti(lf) -- find UNIX socket endpoint info
  */
-uxsin_t *find_uxepti(struct lfile *lf) /* pipe's lfile */
+uxsin_t *find_uxepti(struct lsof_context *ctx,
+                     struct lfile *lf) /* pipe's lfile */
 {
     uxsin_t *up;
 
-    up = check_unix(lf->inode);
+    up = check_unix(ctx, lf->inode);
     return (up ? up->peer : (uxsin_t *)NULL);
 }
 
@@ -1057,15 +892,15 @@ static void parse_diag(struct lsof_context *ctx,
                 return;
             }
             if ((inoc = *(uint32_t *)RTA_DATA(rp))) {
-                fill_uxpino((INODETYPE)inop, (INODETYPE)inoc);
-                fill_uxpino((INODETYPE)inoc, (INODETYPE)inop);
+                fill_uxpino(ctx, (INODETYPE)inop, (INODETYPE)inoc);
+                fill_uxpino(ctx, (INODETYPE)inoc, (INODETYPE)inop);
             }
             break;
         case UNIX_DIAG_ICONS:
             icct = RTA_PAYLOAD(rp), icp = (uint32_t *)RTA_DATA(rp);
 
             for (i = 0; i < icct; i += sizeof(uint32_t), icp++) {
-                fill_uxicino((INODETYPE)inop, (INODETYPE)*icp);
+                fill_uxicino(ctx, (INODETYPE)inop, (INODETYPE)*icp);
             }
         }
         rp = RTA_NEXT(rp, len);
@@ -1145,10 +980,10 @@ void process_uxsinfo(struct lsof_context *ctx,
                  * This file has been selected by some criterion other than its
                  * being a socket.  Look up the socket's endpoints.
                  */
-                p = find_uxepti(Lf);
+                p = find_uxepti(ctx, Lf);
                 if (p && p->inode)
                     prt_uxs(ctx, p, 1);
-                if ((tp = check_unix(Lf->inode))) {
+                if ((tp = check_unix(ctx, Lf->inode))) {
                     if (tp->icons) {
                         if (tp->icstat) {
                             p = tp->icons;
@@ -1177,10 +1012,10 @@ void process_uxsinfo(struct lsof_context *ctx,
                  */
                 Lf->sf = Selflags;
                 Lp->pss |= PS_SEC;
-                p = find_uxepti(Lf);
+                p = find_uxepti(ctx, Lf);
                 if (p && p->inode)
                     prt_uxs(ctx, p, 0);
-                else if ((tp = check_unix(Lf->inode))) {
+                else if ((tp = check_unix(ctx, Lf->inode))) {
                     if (tp->icons) {
                         if (tp->icstat) {
                             p = tp->icons;
@@ -1301,18 +1136,19 @@ static void enter_netsinfo(struct lsof_context *ctx, struct tcp_udp *tp) {
 /*
  * find_netsepti(lf) -- find locally used INET socket endpoint info
  */
-static struct tcp_udp *find_netsepti(struct lfile *lf) /* socket's lfile */
+static struct tcp_udp *find_netsepti(struct lsof_context *ctx,
+                                     struct lfile *lf) /* socket's lfile */
 {
     struct tcp_udp *tp;
 
-    tp = check_inet(lf->inode);
+    tp = check_inet(ctx, lf->inode);
     return (tp ? tp->ipc_peer : (struct tcp_udp *)NULL);
 }
 
 /*
  * get_netpeeri() - get INET socket peer inode information
  */
-static void get_netpeeri() {
+static void get_netpeeri(struct lsof_context *ctx) {
     int h;
     struct tcp_udp *np, *tp;
 
@@ -1380,7 +1216,7 @@ void process_netsinfo(struct lsof_context *ctx,
                  * This file has been selected by some criterion other than its
                  * being a socket.  Look up the socket's endpoints.
                  */
-                p = find_netsepti(Lf);
+                p = find_netsepti(ctx, Lf);
                 if (p && p->inode)
                     prt_nets(ctx, p, 1);
             }
@@ -1395,7 +1231,7 @@ void process_netsinfo(struct lsof_context *ctx,
                  */
                 Lf->sf = Selflags;
                 Lp->pss |= PS_SEC;
-                p = find_netsepti(Lf);
+                p = find_netsepti(ctx, Lf);
                 if (p && p->inode)
                     prt_nets(ctx, p, 0);
             }
@@ -1428,18 +1264,19 @@ static void enter_nets6info(struct lsof_context *ctx, struct tcp_udp6 *tp) {
 /*
  * find_nets6epti(lf) -- find locally used INET6 socket endpoint info
  */
-static struct tcp_udp6 *find_nets6epti(struct lfile *lf) /* socket's lfile */
+static struct tcp_udp6 *find_nets6epti(struct lsof_context *ctx,
+                                       struct lfile *lf) /* socket's lfile */
 {
     struct tcp_udp6 *tp;
 
-    tp = check_inet6(lf->inode);
+    tp = check_inet6(ctx, lf->inode);
     return (tp ? tp->ipc_peer : (struct tcp_udp6 *)NULL);
 }
 
 /*
  * get_net6peeri() - get INET6 socket peer inode information
  */
-static void get_net6peeri() {
+static void get_net6peeri(struct lsof_context *ctx) {
     int h;
     struct tcp_udp6 *np, *tp;
 
@@ -1503,7 +1340,7 @@ void process_nets6info(struct lsof_context *ctx,
                  * This file has been selected by some criterion other than its
                  * being a socket.  Look up the socket's endpoints.
                  */
-                p = find_nets6epti(Lf);
+                p = find_nets6epti(ctx, Lf);
                 if (p && p->inode)
                     prt_nets6(ctx, p, 1);
             }
@@ -1518,7 +1355,7 @@ void process_nets6info(struct lsof_context *ctx,
                  */
                 Lf->sf = Selflags;
                 Lp->pss |= PS_SEC;
-                p = find_nets6epti(Lf);
+                p = find_nets6epti(ctx, Lf);
                 if (p && p->inode)
                     prt_nets6(ctx, p, 0);
             }
@@ -2770,7 +2607,7 @@ static void get_tcpudp(struct lsof_context *ctx,
      * If endpoint info has been requested, link INET socket peer info.
      */
     if (FeptE)
-        get_netpeeri();
+        get_netpeeri(ctx);
 #endif /* defined(HASEPTOPTS) */
 
     (void)fclose(fs);
@@ -3144,7 +2981,7 @@ static void get_tcpudp6(struct lsof_context *ctx,
      * If endpoint info has been requested, link INET6 socket peer info.
      */
     if (FeptE)
-        get_net6peeri();
+        get_net6peeri(ctx);
 #    endif /* defined(HASEPTOPTS) */
 
     (void)fclose(fs);
@@ -3574,12 +3411,11 @@ void process_proc_sock(struct lsof_context *ctx,
     /*
      * Check for socket's inode presence in the protocol info caches.
      */
-    if (AX25path) {
-        (void)get_ax25(ctx, AX25path);
-        (void)free((FREE_P *)AX25path);
-        AX25path = (char *)NULL;
+    if (!ctxd.ax25_valid) {
+        (void)get_ax25(ctx, PROCFS "/net/ax25");
+        ctxd.ax25_valid = 1;
     }
-    if ((ss & SB_INO) && (ap = check_ax25((INODETYPE)s->st_ino))) {
+    if ((ss & SB_INO) && (ap = check_ax25(ctx, (INODETYPE)s->st_ino))) {
 
         /*
          * The inode is connected to an AX25 /proc record.
@@ -3597,12 +3433,11 @@ void process_proc_sock(struct lsof_context *ctx,
         return;
     }
 
-    if (Ipxpath) {
-        (void)get_ipx(ctx, Ipxpath);
-        (void)free((FREE_P *)Ipxpath);
-        Ipxpath = (char *)NULL;
+    if (!ctxd.ipx_valid) {
+        (void)get_ipx(ctx, PROCFS "/net/ipx");
+        ctxd.ipx_valid = 1;
     }
-    if ((ss & SB_INO) && (ip = check_ipx((INODETYPE)s->st_ino))) {
+    if ((ss & SB_INO) && (ip = check_ipx(ctx, (INODETYPE)s->st_ino))) {
         /*
          * The inode is connected to an IPX /proc record.
          *
@@ -3655,12 +3490,11 @@ void process_proc_sock(struct lsof_context *ctx,
         return;
     }
 
-    if (Rawpath) {
-        (void)get_raw(ctx, Rawpath);
-        (void)free((FREE_P *)Rawpath);
-        Rawpath = (char *)NULL;
+    if (!ctxd.raw_valid) {
+        (void)get_raw(ctx, PROCFS "/net/raw");
+        ctxd.raw_valid = 1;
     }
-    if ((ss & SB_INO) && (rp = check_raw((INODETYPE)s->st_ino))) {
+    if ((ss & SB_INO) && (rp = check_raw(ctx, (INODETYPE)s->st_ino))) {
         /*
          * The inode is connected to a raw /proc record.
          *
@@ -3715,12 +3549,11 @@ void process_proc_sock(struct lsof_context *ctx,
         return;
     }
 
-    if (Nlkpath) {
-        (void)get_netlink(ctx, Nlkpath);
-        (void)free((FREE_P *)Nlkpath);
-        Nlkpath = (char *)NULL;
+    if (!ctxd.netlink_valid) {
+        (void)get_netlink(ctx, PROCFS "/net/netlink");
+        ctxd.netlink_valid = 1;
     }
-    if ((ss & SB_INO) && (np = check_netlink((INODETYPE)s->st_ino))) {
+    if ((ss & SB_INO) && (np = check_netlink(ctx, (INODETYPE)s->st_ino))) {
         /*
          * The inode is connected to a Netlink /proc record.
          *
@@ -3742,12 +3575,11 @@ void process_proc_sock(struct lsof_context *ctx,
         return;
     }
 
-    if (Packpath) {
-        (void)get_pack(ctx, Packpath);
-        (void)free((FREE_P *)Packpath);
-        Packpath = (char *)NULL;
+    if (!ctxd.packet_valid) {
+        (void)get_pack(ctx, PROCFS "/net/packet");
+        ctxd.packet_valid = 1;
     }
-    if ((ss & SB_INO) && (pp = check_pack((INODETYPE)s->st_ino))) {
+    if ((ss & SB_INO) && (pp = check_pack(ctx, (INODETYPE)s->st_ino))) {
         /*
          * The inode is connected to a packet /proc record.
          *
@@ -3774,12 +3606,11 @@ void process_proc_sock(struct lsof_context *ctx,
         return;
     }
 
-    if (UNIXpath) {
-        (void)get_unix(ctx, UNIXpath);
-        (void)free((FREE_P *)UNIXpath);
-        UNIXpath = (char *)NULL;
+    if (!ctxd.unix_valid) {
+        (void)get_unix(ctx, PROCFS "/net/unix");
+        ctxd.unix_valid = 1;
     }
-    if ((ss & SB_INO) && (up = check_unix((INODETYPE)s->st_ino))) {
+    if ((ss & SB_INO) && (up = check_unix(ctx, (INODETYPE)s->st_ino))) {
 
         /*
          * The inode is connected to a UNIX /proc record.
@@ -3880,13 +3711,13 @@ void process_proc_sock(struct lsof_context *ctx,
     }
 
 #if defined(HASIPv6)
-    if (Raw6path) {
+    if (!ctxd.raw6_valid) {
         if (!Fxopt)
-            (void)get_raw6(ctx, Raw6path);
-        (void)free((FREE_P *)Raw6path);
-        Raw6path = (char *)NULL;
+            (void)get_raw6(ctx, PROCFS "/net/raw6");
+        ctxd.raw6_valid = 1;
     }
-    if (!Fxopt && (ss & SB_INO) && (rp = check_raw6((INODETYPE)s->st_ino))) {
+    if (!Fxopt && (ss & SB_INO) &&
+        (rp = check_raw6(ctx, (INODETYPE)s->st_ino))) {
 
         /*
          * The inode is connected to a raw IPv6 /proc record.
@@ -3943,29 +3774,26 @@ void process_proc_sock(struct lsof_context *ctx,
         return;
     }
 
-    if (TCP6path) {
+    if (!ctxd.tcp6_valid) {
         if (!Fxopt)
-            (void)get_tcpudp6(ctx, TCP6path, 0, 1);
-        (void)free((FREE_P *)TCP6path);
-        TCP6path = (char *)NULL;
+            (void)get_tcpudp6(ctx, PROCFS "/net/tcp6", 0, 1);
+        ctxd.tcp6_valid = 1;
     }
 
-    if (UDP6path) {
+    if (!ctxd.udp6_valid) {
         if (!Fxopt)
-            (void)get_tcpudp6(ctx, UDP6path, 1, 0);
-        (void)free((FREE_P *)UDP6path);
-        UDP6path = (char *)NULL;
+            (void)get_tcpudp6(ctx, PROCFS "/net/udp6", 1, 0);
+        ctxd.udp6_valid = 1;
     }
 
-    if (UDPLITE6path) {
+    if (!ctxd.udplite6_valid) {
         if (!Fxopt)
-            (void)get_tcpudp6(ctx, UDPLITE6path, 2, 0);
-        (void)free((FREE_P *)UDPLITE6path);
-        UDPLITE6path = (char *)NULL;
+            (void)get_tcpudp6(ctx, PROCFS "/net/udplite6", 2, 0);
+        ctxd.udplite6_valid = 1;
     }
 
     if (!Fxopt && (ss & SB_INO) &&
-        (tp6 = check_tcpudp6((INODETYPE)s->st_ino, &proto))) {
+        (tp6 = check_tcpudp6(ctx, (INODETYPE)s->st_ino, &proto))) {
 
         /*
          * The inode is connected to an IPv6 TCP or UDP /proc record.
@@ -4050,29 +3878,26 @@ void process_proc_sock(struct lsof_context *ctx,
     }
 #endif /* defined(HASIPv6) */
 
-    if (TCPpath) {
+    if (!ctxd.tcp_valid) {
         if (!Fxopt)
-            (void)get_tcpudp(ctx, TCPpath, 0, 1);
-        (void)free((FREE_P *)TCPpath);
-        TCPpath = (char *)NULL;
+            (void)get_tcpudp(ctx, PROCFS "/net/tcp", 0, 1);
+        ctxd.tcp_valid = 1;
     }
 
-    if (UDPpath) {
+    if (!ctxd.udp_valid) {
         if (!Fxopt)
-            (void)get_tcpudp(ctx, UDPpath, 1, 0);
-        (void)free((FREE_P *)UDPpath);
-        UDPpath = (char *)NULL;
+            (void)get_tcpudp(ctx, PROCFS "/net/udp", 1, 0);
+        ctxd.udp_valid = 1;
     }
 
-    if (UDPLITEpath) {
+    if (!ctxd.udplite_valid) {
         if (!Fxopt)
-            (void)get_tcpudp(ctx, UDPLITEpath, 2, 0);
-        (void)free((FREE_P *)UDPLITEpath);
-        UDPLITEpath = (char *)NULL;
+            (void)get_tcpudp(ctx, PROCFS "/net/udplite", 2, 0);
+        ctxd.udplite_valid = 1;
     }
 
     if (!Fxopt && (ss & SB_INO) &&
-        (tp = check_tcpudp((INODETYPE)s->st_ino, &proto))) {
+        (tp = check_tcpudp(ctx, (INODETYPE)s->st_ino, &proto))) {
 
         /*
          * The inode is connected to an IPv4 TCP or UDP /proc record.
@@ -4156,14 +3981,11 @@ void process_proc_sock(struct lsof_context *ctx,
         return;
     }
 
-    if (SCTPPath[0]) {
+    if (!ctxd.sctp_valid) {
         (void)get_sctp(ctx);
-        for (i = 0; i < NSCTPPATHS; i++) {
-            (void)free((FREE_P *)SCTPPath[i]);
-            SCTPPath[i] = (char *)NULL;
-        }
+        ctxd.sctp_valid = 1;
     }
-    if ((ss & SB_INO) && (sp = check_sctp((INODETYPE)s->st_ino))) {
+    if ((ss & SB_INO) && (sp = check_sctp(ctx, (INODETYPE)s->st_ino))) {
 
         /*
          * The inode is connected to an SCTP /proc record.
@@ -4211,12 +4033,11 @@ void process_proc_sock(struct lsof_context *ctx,
         return;
     }
 
-    if (ICMPpath) {
-        (void)get_icmp(ctx, ICMPpath);
-        (void)free((FREE_P *)ICMPpath);
-        ICMPpath = (char *)NULL;
+    if (!ctxd.icmp_valid) {
+        (void)get_icmp(ctx, PROCFS "/net/icmp");
+        ctxd.icmp_valid = 1;
     }
-    if ((ss & SB_INO) && (icmpp = check_icmp((INODETYPE)s->st_ino))) {
+    if ((ss & SB_INO) && (icmpp = check_icmp(ctx, (INODETYPE)s->st_ino))) {
 
         /*
          * The inode is connected to an ICMP /proc record.
@@ -4296,46 +4117,26 @@ void set_net_paths(struct lsof_context *ctx, char *p, /* path to /proc/net/ */
     int i;
     int pathl;
 
-    pathl = 0;
-    (void)make_proc_path(ctx, p, pl, &AX25path, &pathl, "ax25");
-    pathl = 0;
-    (void)make_proc_path(ctx, p, pl, &ICMPpath, &pathl, "icmp");
-    pathl = 0;
-    (void)make_proc_path(ctx, p, pl, &Ipxpath, &pathl, "ipx");
-    pathl = 0;
-    (void)make_proc_path(ctx, p, pl, &Nlkpath, &pathl, "netlink");
-    pathl = 0;
-    (void)make_proc_path(ctx, p, pl, &Packpath, &pathl, "packet");
-    pathl = 0;
-    (void)make_proc_path(ctx, p, pl, &Rawpath, &pathl, "raw");
-    for (i = 0; i < NSCTPPATHS; i++) {
-        pathl = 0;
-        (void)make_proc_path(ctx, p, pl, &SCTPPath[i], &pathl, SCTPSfx[i]);
-    }
-    pathl = 0;
-    (void)make_proc_path(ctx, p, pl, &SockStatPath, &pathl, "sockstat");
-    pathl = 0;
-    (void)make_proc_path(ctx, p, pl, &TCPpath, &pathl, "tcp");
-    pathl = 0;
-    (void)make_proc_path(ctx, p, pl, &UDPpath, &pathl, "udp");
-    pathl = 0;
-    (void)make_proc_path(ctx, p, pl, &UDPLITEpath, &pathl, "udplite");
+    /* Refresh socket info */
+    ctxd.ax25_valid = 0;
+    ctxd.icmp_valid = 0;
+    ctxd.ipx_valid = 0;
+    ctxd.netlink_valid = 0;
+    ctxd.packet_valid = 0;
+    ctxd.raw_valid = 0;
+    ctxd.sctp_valid = 0;
+    ctxd.tcp_valid = 0;
+    ctxd.udp_valid = 0;
+    ctxd.udplite_valid = 0;
 
 #if defined(HASIPv6)
-    pathl = 0;
-    (void)make_proc_path(ctx, p, pl, &Raw6path, &pathl, "raw6");
-    pathl = 0;
-    (void)make_proc_path(ctx, p, pl, &SockStatPath6, &pathl, "sockstat6");
-    pathl = 0;
-    (void)make_proc_path(ctx, p, pl, &TCP6path, &pathl, "tcp6");
-    pathl = 0;
-    (void)make_proc_path(ctx, p, pl, &UDP6path, &pathl, "udp6");
-    pathl = 0;
-    (void)make_proc_path(ctx, p, pl, &UDPLITE6path, &pathl, "udplite6");
+    ctxd.raw6_valid = 0;
+    ctxd.tcp6_valid = 0;
+    ctxd.udp6_valid = 0;
+    ctxd.udplite6_valid = 0;
 #endif /* defined(HASIPv6) */
 
-    pathl = 0;
-    (void)make_proc_path(ctx, p, pl, &UNIXpath, &pathl, "unix");
+    ctxd.unix_valid = 0;
 }
 
 /*

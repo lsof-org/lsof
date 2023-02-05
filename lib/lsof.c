@@ -253,6 +253,7 @@ enum lsof_error lsof_output_stream(struct lsof_context *ctx, FILE *fp,
 API_EXPORT
 void lsof_destroy(struct lsof_context *ctx) {
     struct str_lst *lst, *lst_next;
+    struct mounts *mnt, *mnt_next;
     if (!ctx) {
         return;
     }
@@ -266,9 +267,23 @@ void lsof_destroy(struct lsof_context *ctx) {
     /* Free temporary */
     CLEAN(Namech);
 
+    /* Free local mount info */
+    if (Lmi) {
+        for (mnt = Lmi; mnt; mnt = mnt_next) {
+            mnt_next = mnt->next;
+            CLEAN(mnt->dir);
+            CLEAN(mnt->fsname);
+            CLEAN(mnt->fsnmres);
+#if defined(HASFSTYPE)
+            CLEAN(mnt->fstype);
+#endif
+            CLEAN(mnt);
+        }
+    }
+
     /* dialect specific free */
     deinitialize(ctx);
-    free(ctx);
+    CLEAN(ctx);
 }
 
 API_EXPORT
