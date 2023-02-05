@@ -96,7 +96,8 @@ int main(int argc, char **argv) {
     for (pi = 0; pi < result->num_processes; pi++) {
         p = &result->processes[pi];
         if (p->pid != my_pid) {
-            (void)fprintf(stderr, "ERROR!!!  can't open %s\n", path);
+            (void)fprintf(stderr, "ERROR!!!  found not selected pid %d\n",
+                          p->pid);
             res = 1;
             goto cleanup;
         }

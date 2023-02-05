@@ -1186,6 +1186,9 @@ void print_file_type(enum lsof_file_type type,
         (void)snpf(buf, buf_len, "raw");
         break;
     case LSOF_FILE_RAW6:
+        (void)snpf(buf, buf_len, "raw6");
+        break;
+    case LSOF_FILE_NETLINK:
         (void)snpf(buf, buf_len, "netlink");
         break;
     case LSOF_FILE_PACKET:
@@ -1248,6 +1251,9 @@ void print_file_type(enum lsof_file_type type,
         break;
     case LSOF_FILE_PROC_LSTATUS:
         (void)snpf(buf, buf_len, "PLST");
+        break;
+    case LSOF_FILE_PROC_LUSAGE:
+        (void)snpf(buf, buf_len, "PLU");
         break;
     case LSOF_FILE_PROC_LWP_GWINDOWS:
         (void)snpf(buf, buf_len, "PLWG");
@@ -1325,6 +1331,7 @@ void print_file_type(enum lsof_file_type type,
         (void)snpf(buf, buf_len, "PXMP");
         break;
 
+    /* Others */
     case LSOF_FILE_ANON_INODE:
         (void)snpf(buf, buf_len, "a_inode");
         break;
@@ -1339,6 +1346,9 @@ void print_file_type(enum lsof_file_type type,
         break;
     case LSOF_FILE_FSEVENTS:
         (void)snpf(buf, buf_len, "FSEVENTS");
+        break;
+    case LSOF_FILE_EVENTFD:
+        (void)snpf(buf, buf_len, "EVENTFD");
         break;
     case LSOF_FILE_PROCDESC:
         (void)snpf(buf, buf_len, "PROCDSC");
@@ -1384,6 +1394,9 @@ void print_file_type(enum lsof_file_type type,
         break;
     case LSOF_FILE_SHM:
         (void)snpf(buf, buf_len, "SHM");
+        break;
+    case LSOF_FILE_PTS:
+        (void)snpf(buf, buf_len, "PTS");
         break;
     case LSOF_FILE_SHARED_MEM_TRANSPORT:
         (void)snpf(buf, buf_len, "SMT");
