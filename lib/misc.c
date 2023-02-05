@@ -85,8 +85,8 @@ static int CtSigs[] = {0, SIGINT, SIGKILL};
  * build-Nl() - build kernel name list table
  */
 
-static struct drive_Nl *Build_Nl = (struct drive_Nl *)NULL;
 /* the default Drive_Nl address */
+static struct drive_Nl *Build_Nl = (struct drive_Nl *)NULL;
 
 void build_Nl(struct lsof_context *ctx,
               struct drive_Nl *d) /* data to drive the construction */

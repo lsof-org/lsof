@@ -457,10 +457,6 @@ typedef u_long KA_T;
  * Global storage definitions (including their structure definitions)
  */
 
-extern struct file *Cfp;
-extern kvm_t *Kd;
-extern KA_T Kpa;
-
 struct l_vfs {
     KA_T addr;   /* kernel address */
     fsid_t fsid; /* file system ID */
@@ -475,7 +471,6 @@ struct l_vfs {
     char *fsname;       /* file system name */
     struct l_vfs *next; /* forward link */
 };
-extern struct l_vfs *Lvfs;
 
 struct mounts {
     char *dir;           /* directory (mounted on) */
@@ -494,14 +489,6 @@ struct mounts {
 #    define X_NCACHE "ncache"
 #    define X_NCSIZE "ncsize"
 #    define NL_NAME n_name
-
-extern int Np; /* number of kernel processes */
-
-#    if defined(HASKVMGETPROC2)
-struct kinfo_proc2 *P; /* local process table copy */
-#    else              /* ! defined(HASKVMGETPROC2) */
-struct kinfo_proc *P;      /* local process table copy */
-#    endif             /* defined(HASKVMGETPROC2) */
 
 extern int pgshift; /* kernel's page shift */
 
@@ -568,6 +555,32 @@ struct sfile {
 #        define NCACHE_VROOT VROOT
 #    endif /* VV_ROOT */
 
-struct lsof_context_dialect {};
+struct lsof_context_dialect {
+    /* local vfs structure table */
+    struct l_vfs *local_vfs;
+    /* kvm descriptor */
+    kvm_t *kvm;
+    /* current file's file struct pointer */
+    struct file *cur_file;
+
+    /* number of kernel processes */
+    int num_procs;
+#    if defined(HASKVMGETPROC2)
+    /* local process table copy */
+    struct kinfo_proc2 *procs;
+#    else  /* !defined(HASKVMGETPROC2) */
+    /* local process table copy */
+    struct kinfo_proc *procs;
+#    endif /* defined(HASKVMGETPROC2) */
+
+    /* kernel proc struct address */
+    KA_T kernel_proc_addr;
+};
+#    define Lvfs (ctxd.local_vfs)
+#    define Kd (ctxd.kvm)
+#    define Cfp (ctxd.cur_file)
+#    define P (ctxd.procs)
+#    define Np (ctxd.num_procs)
+#    define Kpa (ctxd.kernel_proc_addr)
 
 #endif /* NETBSD_LSOF_H */

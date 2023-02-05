@@ -80,7 +80,7 @@ SZOFFTYPE *sz;   /* returned size */
 {
     struct iso_node i;
 
-    if (!v->v_data || kread((KA_T)v->v_data, (char *)&i, sizeof(i)))
+    if (!v->v_data || kread(ctx, (KA_T)v->v_data, (char *)&i, sizeof(i)))
         return (1);
     *d = i.i_dev;
     *ino = (INODETYPE)i.i_number;

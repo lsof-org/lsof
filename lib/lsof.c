@@ -275,6 +275,8 @@ void lsof_destroy(struct lsof_context *ctx) {
 
     /* Free temporary */
     CLEAN(Namech);
+    CLEAN(Nl);
+    Nll = 0;
 
     /* Free local mount info */
     if (Lmist) {

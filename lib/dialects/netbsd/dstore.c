@@ -35,8 +35,6 @@ static char copyright[] =
 
 #include "common.h"
 
-struct file *Cfp; /* current file's file struct pointer */
-
 /*
  * Drive_Nl -- table to drive the building of Nl[] via build_Nl()
  *             (See common.h and misc.c.)
@@ -72,24 +70,10 @@ struct drive_Nl Drive_Nl[] = {
     {"", ""},
     {NULL, NULL}};
 
-kvm_t *Kd; /* kvm descriptor */
-KA_T Kpa;  /* kernel proc struct address */
-
-struct l_vfs *Lvfs = NULL; /* local vfs structure table */
-
-int Np = 0; /* number of kernel processes */
-
-#if defined(HASKVMGETPROC2)
-struct kinfo_proc2 *P = NULL; /* local process table copy */
-#else                         /* !defined(HASKVMGETPROC2) */
-struct kinfo_proc *P = NULL; /* local process table copy */
-#endif                        /* defined(HASKVMGETPROC2) */
-
 #if defined(HASFSTRUCT)
 /*
  * Pff_tab[] - table for printing file flags
  */
-
 struct pff_tab Pff_tab[] = {{(long)FREAD, FF_READ},
                             {(long)FWRITE, FF_WRITE},
                             {(long)FNONBLOCK, FF_NBLOCK},
