@@ -1007,6 +1007,11 @@ typedef struct znhash {
 extern znhash_t **ZoneArg;
 #    endif /* defined(HASZONES) */
 
+struct hsfile {
+    struct sfile *s;     /* the Sfile table address */
+    struct hsfile *next; /* the next hash bucket entry */
+};
+
 struct lsof_context {
     /** Parameters */
     /** Linked list of files to search */
@@ -1238,6 +1243,20 @@ struct lsof_context {
     struct mounts *local_mount_info;
     int local_mount_info_valid;
 
+    /** hashSfile() buckets */
+    /* hash by file (dev,ino) buckets */
+    struct hsfile *sfile_hash_file_dev_inode;
+    int sfile_hash_file_dev_inode_count;
+    /* hash by file raw device buckets */
+    struct hsfile *sfile_hash_file_raw_device;
+    int sfile_hash_file_raw_device_count;
+    /* hash by file system buckets */
+    struct hsfile *sfile_hash_file_system;
+    int sfile_hash_file_system_count;
+    /* hash by name buckets */
+    struct hsfile *sfile_hash_name;
+    int sfile_hash_name_count;
+
     /* control Error(ctx) behavior */
     int exit_on_fatal;
 
@@ -1426,6 +1445,15 @@ struct lsof_context {
 /* local mount info */
 #    define Lmi (ctx->local_mount_info)
 #    define Lmist (ctx->local_mount_info_valid)
+/* hash buckets in hashSfile() */
+#    define HbyFdi (ctx->sfile_hash_file_dev_inode)
+#    define HbyFdiCt (ctx->sfile_hash_file_dev_inode_count)
+#    define HbyFrd (ctx->sfile_hash_file_raw_device)
+#    define HbyFrdCt (ctx->sfile_hash_file_raw_device_count)
+#    define HbyFsd (ctx->sfile_hash_file_system)
+#    define HbyFsdCt (ctx->sfile_hash_file_system_count)
+#    define HbyNm (ctx->sfile_hash_name)
+#    define HbyNmCt (ctx->sfile_hash_name_count)
 
 /* Utility macro to free if non-null and set the pointer to null */
 #    define CLEAN(ptr)                                                         \

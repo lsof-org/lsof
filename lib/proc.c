@@ -234,8 +234,6 @@ void alloc_lproc(struct lsof_context *ctx, int pid, /* Process ID */
                  int pss,                           /* process select state */
                  int sf)                            /* process select flags */
 {
-    static int sz = 0;
-
     if (!Lproc) {
         if (!(Lproc = (struct lproc *)malloc(
                   (MALLOC_S)(LPROCINCR * sizeof(struct lproc))))) {
@@ -243,16 +241,19 @@ void alloc_lproc(struct lsof_context *ctx, int pid, /* Process ID */
                           "%s: no malloc space for %d local proc structures\n",
                           Pn, LPROCINCR);
             Error(ctx);
+            return;
         }
-        sz = LPROCINCR;
-    } else if ((Nlproc + 1) > sz) {
-        sz += LPROCINCR;
+        ctx->procs_cap = LPROCINCR;
+    } else if ((Nlproc + 1) > ctx->procs_cap) {
+        ctx->procs_cap += LPROCINCR;
         if (!(Lproc = (struct lproc *)realloc(
-                  (MALLOC_P *)Lproc, (MALLOC_S)(sz * sizeof(struct lproc))))) {
+                  (MALLOC_P *)Lproc,
+                  (MALLOC_S)(ctx->procs_cap * sizeof(struct lproc))))) {
             (void)fprintf(stderr,
                           "%s: no realloc space for %d local proc structures\n",
-                          Pn, sz);
+                          Pn, ctx->procs_cap);
             Error(ctx);
+            return;
         }
     }
     Lp = &Lproc[Nlproc++];
@@ -281,6 +282,7 @@ void alloc_lproc(struct lsof_context *ctx, int pid, /* Process ID */
                       pid);
         safestrprt(cmd, stderr, 1);
         Error(ctx);
+        return;
     }
 
 #if defined(HASZONES)

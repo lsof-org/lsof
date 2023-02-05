@@ -39,30 +39,13 @@ static char copyright[] =
  * Local structures
  */
 
-struct hsfile {
-    struct sfile *s;     /* the Sfile table address */
-    struct hsfile *next; /* the next hash bucket entry */
-};
-
 /*
  * Local static variables
  */
 
 static struct hsfile *HbyCd = /* hash by clone buckets */
     (struct hsfile *)NULL;
-static int HbyCdCt = 0;        /* HbyCd entry count */
-static struct hsfile *HbyFdi = /* hash by file buckets */
-    (struct hsfile *)NULL;
-static int HbyFdiCt = 0;       /* HbyFdi entry count */
-static struct hsfile *HbyFrd = /* hash by file raw device buckets */
-    (struct hsfile *)NULL;
-static int HbyFrdCt = 0;       /* HbyFrd entry count */
-static struct hsfile *HbyFsd = /* hash by file system buckets */
-    (struct hsfile *)NULL;
-static int HbyFsdCt = 0;      /* HbyFsd entry count */
-static struct hsfile *HbyNm = /* hash by name buckets */
-    (struct hsfile *)NULL;
-static int HbyNmCt = 0; /* HbyNm entry count */
+static int HbyCdCt = 0; /* HbyCd entry count */
 
 /*
  * Local definitions

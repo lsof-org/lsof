@@ -194,12 +194,6 @@ typedef struct pxinfo {  /* hashed pipe, UNIX socket or pseudo-
 #    define OFFSET_LSTAT 1
 #    define OFFSET_FDINFO 2
 
-/** linked list of sfile */
-struct hsfile {
-    struct sfile *s;     /* the Sfile table address */
-    struct hsfile *next; /* the next hash bucket entry */
-};
-
 typedef struct mntsup {
     char *dir_name;      /* mounted directory name */
     size_t dir_name_len; /* strlen(dir_name) */
@@ -370,23 +364,8 @@ struct lsof_context_dialect {
      */
     int nfs_status;
 
-    /* validity of the following hash buckets */
+    /* validity of the hashSfile() hash buckets */
     uint8_t sfile_valid;
-    /* hash by file (dev,ino) buckets */
-    struct hsfile *sfile_hash_file_dev_inode;
-    int sfile_hash_file_dev_inode_count;
-
-    /* hash by file raw device buckets */
-    struct hsfile *sfile_hash_file_raw_device;
-    int sfile_hash_file_raw_device_count;
-
-    /* hash by file system buckets */
-    struct hsfile *sfile_hash_file_system;
-    int sfile_hash_file_system_count;
-
-    /* hash by name buckets */
-    struct hsfile *sfile_hash_name;
-    int sfile_hash_name_count;
 
     /* mount supplement
      * hash buckets */
@@ -493,16 +472,7 @@ struct lsof_context_dialect {
     uxsin_t **unix_sin;
     int unix_valid;
 };
-/* Convenience macros*/
-/* hash buckets in hashSfile() */
-#    define HbyFdi (ctxd.sfile_hash_file_dev_inode)
-#    define HbyFdiCt (ctxd.sfile_hash_file_dev_inode_count)
-#    define HbyFrd (ctxd.sfile_hash_file_raw_device)
-#    define HbyFrdCt (ctxd.sfile_hash_file_raw_device_count)
-#    define HbyFsd (ctxd.sfile_hash_file_system)
-#    define HbyFsdCt (ctxd.sfile_hash_file_system_count)
-#    define HbyNm (ctxd.sfile_hash_name)
-#    define HbyNmCt (ctxd.sfile_hash_name_count)
+/* Convenience macros */
 /* mount supplement */
 #    define MSHash (ctxd.mount_sup_hash)
 /* endpoint buckets */

@@ -222,6 +222,9 @@ enum lsof_error lsof_gather(struct lsof_context *ctx,
             lf_next = lf->next;
             CLEAN(lf->nma);
             CLEAN(lf->dev_ch);
+#if defined(CLRLFILEADD)
+            CLRLFILEADD(lf)
+#endif /* defined(CLRLFILEADD) */
             free(lf);
         }
         lp->file = NULL;
@@ -275,8 +278,10 @@ void lsof_destroy(struct lsof_context *ctx) {
 
     /* Free temporary */
     CLEAN(Namech);
+#if defined(HASNLIST)
     CLEAN(Nl);
     Nll = 0;
+#endif /* defined(HASNLIST) */
 
     /* Free local mount info */
     if (Lmist) {
@@ -317,6 +322,7 @@ void lsof_free_result(struct lsof_result *result) {
 
         /* Free process fields */
         CLEAN(p->command);
+        CLEAN(p->task_cmd);
     }
     CLEAN(result->processes);
     CLEAN(result);
