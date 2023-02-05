@@ -57,8 +57,6 @@ struct drive_Nl Drive_Nl[] = {
 KA_T Kpa; /* kernel proc struct address */
 #endif    /* defined(P_ADDR) */
 
-int Np = 0; /* number of kernel processes */
-
 #if defined(HASFSTRUCT)
 /*
  * Pff_tab[] - table for printing file flags

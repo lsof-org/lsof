@@ -422,8 +422,6 @@ extern KA_T X_bfopsa;
 #    define X_NCSIZE "ncsize"
 #    define NL_NAME n_name
 
-extern int Np; /* number of kernel processes */
-
 struct sfile {
     char *aname;        /* argument file name */
     char *name;         /* file name (after readlink()) */

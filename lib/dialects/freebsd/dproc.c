@@ -324,6 +324,7 @@ void gather_proc_info(struct lsof_context *ctx) {
     struct pcb_lists *pcbs;
     struct lock_list locks;
     struct kinfo_proc *procs = NULL; /* local process table copy */
+    int num_procs = 0;               /* number of kernel processes */
 
 #if defined(HASFSTRUCT) && !defined(HAS_FILEDESCENT)
     static char *pof = (char *)NULL;
@@ -404,7 +405,7 @@ void gather_proc_info(struct lsof_context *ctx) {
                       strerror(errno));
         Error(ctx);
     }
-    Np = len / sizeof(struct kinfo_proc);
+    num_procs = len / sizeof(struct kinfo_proc);
     if (read_xfiles(&xfiles, &n_xfiles) && !Fwarn)
         fprintf(stderr, "%s: WARNING -- reading xfile list failed: %s\n", Pn,
                 strerror(errno));
@@ -424,7 +425,7 @@ void gather_proc_info(struct lsof_context *ctx) {
      * Examine proc structures and their associated information.
      */
 
-    for (p = procs, px = 0; px < Np; p++, px++) {
+    for (p = procs, px = 0; px < num_procs; p++, px++) {
 
         if (p->P_STAT == 0 || p->P_STAT == SZOMB)
             continue;
