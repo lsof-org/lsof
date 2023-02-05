@@ -271,6 +271,7 @@ void lsof_destroy(struct lsof_context *ctx) {
     }
     CLEAN(Spid);
     CLEAN(Spgid);
+    CLEAN(Nmlst);
 
     /* Free temporary */
     CLEAN(Namech);

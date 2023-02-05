@@ -84,15 +84,16 @@ static void get_lock_state_kvm(struct lsof_context *ctx,
     KA_T lef, lep;         /* lock_entry pointers */
     struct lock_owner lo;  /* lock owner structure */
 
-    if (!f || kread(f, (char *)&lf, sizeof(lf)))
+    if (!f || kread(ctx, f, (char *)&lf, sizeof(lf)))
         return;
     if (!(lef = (KA_T)lf.ls_active.lh_first))
         return;
     lep = lef;
     do {
-        if (kread(lep, (char *)&le, sizeof(le)))
+        if (kread(ctx, lep, (char *)&le, sizeof(le)))
             return;
-        if (!le.lf_owner || kread((KA_T)le.lf_owner, (char *)&lo, sizeof(lo)))
+        if (!le.lf_owner ||
+            kread(ctx, (KA_T)le.lf_owner, (char *)&lo, sizeof(lo)))
             continue;
         if (lo.lo_pid == (pid_t)Lp->pid) {
             if (le.lf_start == (off_t)0 && le.lf_end == 0x7fffffffffffffffLL)
@@ -117,7 +118,7 @@ static void get_lock_state_kvm(struct lsof_context *ctx,
          * Determine the lock state.
          */
         do {
-            if (kread(lfp, (char *)&lf, sizeof(lf)))
+            if (kread(ctx, lfp, (char *)&lf, sizeof(lf)))
                 break;
             l = 0;
             switch (lf.lf_flags & (F_FLOCK | F_POSIX)) {
@@ -172,7 +173,7 @@ void process_kf_kqueue(struct lsof_context *ctx, struct kinfo_file *kf,
                kf->kf_un.kf_kqueue.kf_kqueue_count,
                kf->kf_un.kf_kqueue.kf_kqueue_state);
 #    else  /* __FreeBSD_version < 1400062 */
-    if (!ka || kread(ka, (char *)&kq, sizeof(kq)))
+    if (!ka || kread(ctx, ka, (char *)&kq, sizeof(kq)))
         return;
     (void)snpf(Namech, Namechl, "count=%d, state=%#x", kq.kq_count,
                kq.kq_state);
@@ -330,7 +331,7 @@ process_overlaid_node:
     v = NULL;
     if (va) {
         v = &vb;
-        if (kread((KA_T)va, (char *)v, sizeof(struct vnode)))
+        if (kread(ctx, (KA_T)va, (char *)v, sizeof(struct vnode)))
             v = NULL;
     }
 
@@ -668,7 +669,7 @@ void process_pipe(struct lsof_context *ctx, struct kinfo_file *kf, KA_T pa) {
 
 #if __FreeBSD_version < 1400062
     struct pipe p;
-    int have_kpipe = (pa && kread(pa, (char *)&p, sizeof(p)) == 0);
+    int have_kpipe = (pa && kread(ctx, pa, (char *)&p, sizeof(p)) == 0);
 #endif
 
     Lf->type = LSOF_FILE_PIPE;

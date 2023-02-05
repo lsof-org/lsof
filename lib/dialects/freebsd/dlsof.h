@@ -384,8 +384,6 @@ typedef u_long KA_T;
 
 extern struct file *Cfp;
 
-extern kvm_t *Kd;
-
 #    if defined(P_ADDR)
 extern KA_T Kpa;
 #    endif /* defined(P_ADDR) */
@@ -403,7 +401,6 @@ struct l_vfs {
     char *fsname;       /* file system name */
     struct l_vfs *next; /* forward link */
 };
-extern struct l_vfs *Lvfs;
 
 struct mounts {
     char *dir;           /* directory (mounted on) */
@@ -426,8 +423,6 @@ extern KA_T X_bfopsa;
 #    define NL_NAME n_name
 
 extern int Np; /* number of kernel processes */
-
-extern struct kinfo_proc *P; /* local process table copy */
 
 struct sfile {
     char *aname;        /* argument file name */
@@ -539,6 +534,13 @@ struct namecache {
 
 #    include <libutil.h>
 
-struct lsof_context_dialect {};
+struct lsof_context_dialect {
+    /* local vfs structure table */
+    struct l_vfs *local_vfs;
+    /* kvm descriptor */
+    kvm_t *kvm;
+};
+#    define Lvfs (ctxd.local_vfs)
+#    define Kd (ctxd.kvm)
 
 #endif /* defined(FREEBSD_LSOF_H) */

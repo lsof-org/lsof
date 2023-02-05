@@ -253,7 +253,7 @@ char *cp; /* partial path */
      * matches the one we have for this file.  If it does, then the path is
      * complete.
      */
-    if (kread((KA_T)va, (char *)&v, sizeof(v)) || v.v_type != VDIR ||
+    if (kread(ctx, (KA_T)va, (char *)&v, sizeof(v)) || v.v_type != VDIR ||
         !(v.v_flag & VROOT)) {
 
         /*
@@ -338,7 +338,7 @@ void ncache_load() {
 #    if defined(X_NCSIZE)
         v = (KA_T)0;
         if (get_Nl_value(X_NCSIZE, (struct drive_Nl *)NULL, &v) < 0 || !v ||
-            kread((KA_T)v, (char *)&Nc, sizeof(Nc))) {
+            kread(ctx, (KA_T)v, (char *)&Nc, sizeof(Nc))) {
             if (!Fwarn)
                 (void)fprintf(stderr,
                               "%s: WARNING: can't read name cache size: %s\n",
@@ -390,7 +390,7 @@ void ncache_load() {
 #    else  /* !defined(ADDR_NCACHE) */
         v = (KA_T)0;
         if (get_Nl_value(X_NCACHE, (struct drive_Nl *)NULL, &v) < 0 || !v ||
-            kread((KA_T)v, (char *)&kp, sizeof(kp))) {
+            kread(ctx, (KA_T)v, (char *)&kp, sizeof(kp))) {
             if (!Fwarn)
                 (void)fprintf(stderr,
                               "%s: WARNING: can't read name cache ptr: %s\n",
@@ -464,7 +464,7 @@ void ncache_load() {
     /*
      * Read the kernel's name cache.
      */
-    if (kread(kp, (char *)kca, (Nc * sizeof(struct ncache)))) {
+    if (kread(ctx, kp, (char *)kca, (Nc * sizeof(struct ncache)))) {
         if (!Fwarn)
             (void)fprintf(stderr,
                           "%s: WARNING: can't read kernel's name cache: %s\n",
@@ -487,7 +487,7 @@ void ncache_load() {
     {
 
 #    if defined(NCACHE_NXT)
-        if (kread(kp, (char *)kc, sizeof(nc)))
+        if (kread(ctx, kp, (char *)kc, sizeof(nc)))
             break;
         if ((kp = (KA_T)kc->NCACHE_NXT) == kf)
             kp = (KA_T)NULL;
@@ -519,7 +519,7 @@ void ncache_load() {
                 Error(ctx);
             }
         }
-        if (!kc->NCACHE_NAME || kread((KA_T)kc->NCACHE_NAME, nb, len))
+        if (!kc->NCACHE_NAME || kread(ctx, (KA_T)kc->NCACHE_NAME, nb, len))
             continue;
         np = nb;
 #    else  /* !defined(HASDNLCPTR) */

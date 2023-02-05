@@ -160,8 +160,6 @@ int OffDecDig = OFFDECDIG; /* offset decimal form (0t...) digit limit */
 int OffColW;               /* OFFSET column width */
 int PgidColW;              /* PGID column width */
 int PidColW;               /* PID column width */
-#undef Pn
-char *Pn;     /* program name */
 int PpidColW; /* PPID column width */
 
 int PrPass = 0;      /* print pass: 0 = compute column widths

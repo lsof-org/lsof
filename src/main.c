@@ -34,10 +34,6 @@
 #include "common.h"
 #include "cli.h"
 
-/* FIXME */
-#undef Pn
-extern char *Pn;
-
 _PROTOTYPE(extern int enter_dir, (char *d, int descend));
 
 /*

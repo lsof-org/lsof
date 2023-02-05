@@ -323,6 +323,7 @@ void gather_proc_info(struct lsof_context *ctx) {
     size_t n_xfiles;
     struct pcb_lists *pcbs;
     struct lock_list locks;
+    struct kinfo_proc *procs = NULL; /* local process table copy */
 
 #if defined(HASFSTRUCT) && !defined(HAS_FILEDESCENT)
     static char *pof = (char *)NULL;
@@ -391,15 +392,14 @@ void gather_proc_info(struct lsof_context *ctx) {
     mib[2] = Ftask ? KERN_PROC_ALL : KERN_PROC_PROC;
     len = 0;
     if (sysctl(mib, 3, NULL, &len, NULL, 0) == 0) {
-        P = malloc(len);
-        if (P) {
-            if (sysctl(mib, 3, P, &len, NULL, 0) < 0) {
-                free(P);
-                P = NULL;
+        procs = malloc(len);
+        if (procs) {
+            if (sysctl(mib, 3, procs, &len, NULL, 0) < 0) {
+                CLEAN(procs);
             }
         }
     }
-    if (P == NULL) {
+    if (procs == NULL) {
         (void)fprintf(stderr, "%s: can't read process table: %s\n", Pn,
                       strerror(errno));
         Error(ctx);
@@ -424,9 +424,7 @@ void gather_proc_info(struct lsof_context *ctx) {
      * Examine proc structures and their associated information.
      */
 
-    for (p = P, px = 0; px < Np; p++, px++)
-
-    {
+    for (p = procs, px = 0; px < Np; p++, px++) {
 
         if (p->P_STAT == 0 || p->P_STAT == SZOMB)
             continue;
@@ -498,6 +496,7 @@ void gather_proc_info(struct lsof_context *ctx) {
 
     free(xfiles);
     free_pcb_lists(pcbs);
+    CLEAN(procs);
 #ifdef KERN_LOCKF
     free(locks.locks);
 #endif
@@ -607,7 +606,7 @@ char *get_nlist_path(struct lsof_context *ctx,
                               * return NULL if failure */
 {
     const char *bf;
-    static char *bfc;
+    char *bfc;
     MALLOC_S bfl;
     /*
      * Get bootfile name.
@@ -643,16 +642,33 @@ void initialize(struct lsof_context *ctx) {
  * deinitialize() - perform all cleanup
  */
 
-void deinitialize(struct lsof_context *ctx) {}
+void deinitialize(struct lsof_context *ctx) {
+    /* Free Lvfs */
+    struct l_vfs *vp, *vp_next;
+    for (vp = Lvfs; vp; vp = vp_next) {
+        vp_next = vp->next;
+#if !defined(MOUNT_NONE)
+        CLEAN(vp->typnm);
+#endif /* !defined(MOUNT_NONE) */
+        CLEAN(vp->dir);
+        CLEAN(vp->fsname);
+        CLEAN(vp);
+    }
+    Lvfs = NULL;
+
+    if (Kd) {
+        kvm_close(Kd);
+        Kd = NULL;
+    }
+}
 
 /*
  * kread() - read from kernel memory
  */
 
-int kread(addr, buf, len)
-KA_T addr;     /* kernel memory address */
-char *buf;     /* buffer to receive data */
-READLEN_T len; /* length to read */
+int kread(struct lsof_context *ctx, KA_T addr, /* kernel memory address */
+          char *buf,                           /* buffer to receive data */
+          READLEN_T len)                       /* length to read */
 {
     int br;
 

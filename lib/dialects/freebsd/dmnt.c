@@ -250,7 +250,7 @@ struct l_vfs *readvfs(struct lsof_context *ctx, uint64_t fsid,
                 Error(ctx);
             }
         } else
-            vp->typnm = "";
+            vp->typnm = mkstrcpy("", (MALLOC_S *)NULL);
     }
 #endif /* defined(MOUNT_NONE) */
 

@@ -65,7 +65,7 @@ void process_file(struct lsof_context *ctx,
     /*
      * Read file structure.
      */
-    if (kread((KA_T)fp, (char *)&f, sizeof(f))) {
+    if (kread(ctx, (KA_T)fp, (char *)&f, sizeof(f))) {
         (void)snpf(Namech, Namechl, "can't read file struct from %s",
                    print_kptr(fp, (char *)NULL, 0));
         enter_nm(ctx, Namech);

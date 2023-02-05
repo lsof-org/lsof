@@ -125,11 +125,11 @@ static void ncache_walk(KA_T ncp, const struct lnc *plnc) {
     KA_T vp;
     KA_T left, right;
 
-    if (kread(ncp, (char *)&nc, sizeof(nc))) {
+    if (kread(ctx, ncp, (char *)&nc, sizeof(nc))) {
         return;
     }
     vp = (KA_T)nc.nc_vp;
-    if (kread(vp, (char *)&vi, sizeof(vi))) {
+    if (kread(ctx, vp, (char *)&vi, sizeof(vi))) {
         vi.vi_vnode.v_type = VBAD;
     }
     left = (KA_T)nc.nc_tree.rb_nodes[0];
@@ -154,9 +154,9 @@ void ncache_load() {
     if (get_Nl_value("rootvnode", (struct drive_Nl *)NULL, &rootvnode_addr) <
             0 ||
         !rootvnode_addr ||
-        kread((KA_T)rootvnode_addr, (char *)&rootvnode_addr,
+        kread(ctx, (KA_T)rootvnode_addr, (char *)&rootvnode_addr,
               sizeof(rootvnode_addr)) ||
-        kread((KA_T)rootvnode_addr, (char *)&vi, sizeof(vi))) {
+        kread(ctx, (KA_T)rootvnode_addr, (char *)&vi, sizeof(vi))) {
         errx(1, "can't read rootvnode\n");
     }
 

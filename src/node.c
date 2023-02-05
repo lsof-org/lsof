@@ -110,7 +110,7 @@ struct hsnode *h; /* hsnode buffer */
 int readinode(struct lsof_context *ctx, KA_T ia, /* inode kernel address */
               struct inode *i)                   /* inode buffer */
 {
-    if (kread((KA_T)ia, (char *)i, sizeof(struct inode))) {
+    if (kread(ctx, (KA_T)ia, (char *)i, sizeof(struct inode))) {
         (void)snpf(Namech, Namechl, "can't read inode at %s",
                    print_kptr(ia, (char *)NULL, 0));
         return (1);

@@ -53,17 +53,11 @@ struct drive_Nl Drive_Nl[] = {
     {"", ""},
     {NULL, NULL}};
 
-kvm_t *Kd = NULL; /* kvm descriptor */
-
 #if defined(P_ADDR)
 KA_T Kpa; /* kernel proc struct address */
 #endif    /* defined(P_ADDR) */
 
-struct l_vfs *Lvfs = NULL; /* local vfs structure table */
-
 int Np = 0; /* number of kernel processes */
-
-struct kinfo_proc *P = NULL; /* local process table copy */
 
 #if defined(HASFSTRUCT)
 /*
