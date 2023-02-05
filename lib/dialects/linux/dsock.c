@@ -501,6 +501,27 @@ void clear_uxsinfo(struct lsof_context *ctx) {
 }
 
 /*
+ * clean_ax25() - cleanup /proc/net/ax25 info
+ */
+void clean_ax25(struct lsof_context *ctx) {
+    struct ax25sin *ap, *np;
+    int h;
+    if (AX25sin) {
+        for (h = 0; h < INOBUCKS; h++) {
+            for (ap = AX25sin[h]; ap; ap = np) {
+                np = ap->next;
+                CLEAN(ap->da);
+                CLEAN(ap->dev_ch);
+                CLEAN(ap->sa);
+                CLEAN(ap);
+            }
+            AX25sin[h] = (struct ax25sin *)NULL;
+        }
+        CLEAN(AX25sin);
+    }
+}
+
+/*
  * get_ax25() - get /proc/net/ax25 info
  */
 static void get_ax25(struct lsof_context *ctx,
@@ -514,35 +535,20 @@ static void get_ax25(struct lsof_context *ctx,
     unsigned long rq, sq, state;
     MALLOC_S len;
     unsigned char rqs, sqs;
-    static char *vbuf = (char *)NULL;
-    static size_t vsz = (size_t)0;
+    char *vbuf = (char *)NULL;
+    size_t vsz = (size_t)0;
     /*
      * Do second time cleanup or first time setup.
      */
-    if (AX25sin) {
-        for (h = 0; h < INOBUCKS; h++) {
-            for (ap = AX25sin[h]; ap; ap = np) {
-                np = ap->next;
-                if (ap->da)
-                    (void)free((FREE_P *)ap->da);
-                if (ap->dev_ch)
-                    (void)free((FREE_P *)ap->dev_ch);
-                if (ap->sa)
-                    (void)free((FREE_P *)ap->sa);
-                (void)free((FREE_P *)ap);
-            }
-            AX25sin[h] = (struct ax25sin *)NULL;
-        }
-    } else {
-        AX25sin = (struct ax25sin **)calloc(INOBUCKS, sizeof(struct ax25sin *));
-        if (!AX25sin) {
-            if (ctx->err)
-                (void)fprintf(ctx->err,
-                              "%s: can't allocate %d AX25 hash pointer bytes\n",
-                              Pn, (int)(INOBUCKS * sizeof(struct ax25sin *)));
-            Error(ctx);
-            return;
-        }
+    clean_ax25(ctx);
+    AX25sin = (struct ax25sin **)calloc(INOBUCKS, sizeof(struct ax25sin *));
+    if (!AX25sin) {
+        if (ctx->err)
+            (void)fprintf(ctx->err,
+                          "%s: can't allocate %d AX25 hash pointer bytes\n", Pn,
+                          (int)(INOBUCKS * sizeof(struct ax25sin *)));
+        Error(ctx);
+        return;
     }
     /*
      * Open the /proc/net/ax25 file, assign a page size buffer to the stream,
@@ -1367,6 +1373,26 @@ void process_nets6info(struct lsof_context *ctx,
 #endif     /* defined(HASIPv6) */
 
 /*
+ * clean_icmp() - cleanup ICMP net info
+ */
+void clean_icmp(struct lsof_context *ctx) {
+    struct icmpin *np, *icmpp;
+    int h;
+    if (Icmpin) {
+        for (h = 0; h < INOBUCKS; h++) {
+            for (icmpp = Icmpin[h]; icmpp; icmpp = np) {
+                np = icmpp->next;
+                CLEAN(icmpp->la);
+                CLEAN(icmpp->ra);
+                CLEAN(icmpp);
+            }
+            Icmpin[h] = (struct icmpin *)NULL;
+        }
+        CLEAN(Icmpin);
+    }
+}
+
+/*
  * get_icmp() - get ICMP net info
  */
 static void get_icmp(struct lsof_context *ctx,
@@ -1378,30 +1404,21 @@ static void get_icmp(struct lsof_context *ctx,
     INODETYPE inode;
     struct icmpin *np, *icmpp;
     MALLOC_S lal, ral;
-    static char *vbuf = (char *)NULL;
-    static size_t vsz = (size_t)0;
+    char *vbuf = (char *)NULL;
+    size_t vsz = (size_t)0;
     FILE *xs;
     /*
      * Do second time cleanup or first time setup.
      */
-    if (Icmpin) {
-        for (h = 0; h < INOBUCKS; h++) {
-            for (icmpp = Icmpin[h]; icmpp; icmpp = np) {
-                np = icmpp->next;
-                (void)free((FREE_P *)icmpp);
-            }
-            Icmpin[h] = (struct icmpin *)NULL;
-        }
-    } else {
-        Icmpin = (struct icmpin **)calloc(INOBUCKS, sizeof(struct icmpin *));
-        if (!Icmpin) {
-            if (ctx->err)
-                (void)fprintf(ctx->err,
-                              "%s: can't allocate %d icmp hash pointer bytes\n",
-                              Pn, (int)(INOBUCKS * sizeof(struct icmpin *)));
-            Error(ctx);
-            return;
-        }
+    clean_icmp(ctx);
+    Icmpin = (struct icmpin **)calloc(INOBUCKS, sizeof(struct icmpin *));
+    if (!Icmpin) {
+        if (ctx->err)
+            (void)fprintf(ctx->err,
+                          "%s: can't allocate %d icmp hash pointer bytes\n", Pn,
+                          (int)(INOBUCKS * sizeof(struct icmpin *)));
+        Error(ctx);
+        return;
     }
     /*
      * Open the /proc/net/icmp file, assign a page size buffer to its stream,
@@ -1502,6 +1519,27 @@ static void get_icmp(struct lsof_context *ctx,
         HASH_INSERT_ELEMENT(Icmpin, INOHASH, icmpp, inode);
     }
     (void)fclose(xs);
+    CLEAN(vbuf);
+}
+
+/*
+ * clean_ipx() - cleanup IPX net info
+ */
+void clean_ipx(struct lsof_context *ctx) {
+    struct ipxsin *ip, *np;
+    int h;
+    if (Ipxsin) {
+        for (h = 0; h < INOBUCKS; h++) {
+            for (ip = Ipxsin[h]; ip; ip = np) {
+                np = ip->next;
+                CLEAN(ip->la);
+                CLEAN(ip->ra);
+                CLEAN(ip);
+            }
+            Ipxsin[h] = (struct ipxsin *)NULL;
+        }
+        CLEAN(Ipxsin);
+    }
 }
 
 /*
@@ -1516,34 +1554,21 @@ static void get_ipx(struct lsof_context *ctx, char *p) /* /proc/net/ipx path */
     unsigned long rxq, state, txq;
     struct ipxsin *ip, *np;
     MALLOC_S len;
-    static char *vbuf = (char *)NULL;
-    static size_t vsz = (size_t)0;
+    char *vbuf = (char *)NULL;
+    size_t vsz = (size_t)0;
     FILE *xs;
     /*
      * Do second time cleanup or first time setup.
      */
-    if (Ipxsin) {
-        for (h = 0; h < INOBUCKS; h++) {
-            for (ip = Ipxsin[h]; ip; ip = np) {
-                np = ip->next;
-                if (ip->la)
-                    (void)free((FREE_P *)ip->la);
-                if (ip->ra)
-                    (void)free((FREE_P *)ip->ra);
-                (void)free((FREE_P *)ip);
-            }
-            Ipxsin[h] = (struct ipxsin *)NULL;
-        }
-    } else {
-        Ipxsin = (struct ipxsin **)calloc(INOBUCKS, sizeof(struct ipxsin *));
-        if (!Ipxsin) {
-            if (ctx->err)
-                (void)fprintf(ctx->err,
-                              "%s: can't allocate %d IPX hash pointer bytes\n",
-                              Pn, (int)(INOBUCKS * sizeof(struct ipxsin *)));
-            Error(ctx);
-            return;
-        }
+    clean_ipx(ctx);
+    Ipxsin = (struct ipxsin **)calloc(INOBUCKS, sizeof(struct ipxsin *));
+    if (!Ipxsin) {
+        if (ctx->err)
+            (void)fprintf(ctx->err,
+                          "%s: can't allocate %d IPX hash pointer bytes\n", Pn,
+                          (int)(INOBUCKS * sizeof(struct ipxsin *)));
+        Error(ctx);
+        return;
     }
     /*
      * Open the /proc/net/ipx file, assign a page size buffer to the stream,
@@ -1661,6 +1686,24 @@ static void get_ipx(struct lsof_context *ctx, char *p) /* /proc/net/ipx path */
 }
 
 /*
+ * clean_netlink() - cleanup netlink net info
+ */
+void clean_netlink(struct lsof_context *ctx) {
+    struct nlksin *np, *lp;
+    int h;
+    if (Nlksin) {
+        for (h = 0; h < INOBUCKS; h++) {
+            for (lp = Nlksin[h]; lp; lp = np) {
+                np = lp->next;
+                CLEAN(lp);
+            }
+            Nlksin[h] = (struct nlksin *)NULL;
+        }
+        CLEAN(Nlksin);
+    }
+}
+
+/*
  * get_netlink() - get /proc/net/netlink info
  */
 static void get_netlink(struct lsof_context *ctx,
@@ -1671,31 +1714,21 @@ static void get_netlink(struct lsof_context *ctx,
     int h, pr;
     INODETYPE inode;
     struct nlksin *np, *lp;
-    static char *vbuf = (char *)NULL;
-    static size_t vsz = (size_t)0;
+    char *vbuf = (char *)NULL;
+    size_t vsz = (size_t)0;
     FILE *xs;
     /*
      * Do second time cleanup or first time setup.
      */
-    if (Nlksin) {
-        for (h = 0; h < INOBUCKS; h++) {
-            for (lp = Nlksin[h]; lp; lp = np) {
-                np = lp->next;
-                (void)free((FREE_P *)lp);
-            }
-            Nlksin[h] = (struct nlksin *)NULL;
-        }
-    } else {
-        Nlksin = (struct nlksin **)calloc(INOBUCKS, sizeof(struct nlksin *));
-        if (!Nlksin) {
-            if (ctx->err)
-                (void)fprintf(
-                    ctx->err,
-                    "%s: can't allocate %d netlink hash pointer bytes\n", Pn,
-                    (int)(INOBUCKS * sizeof(struct nlksin *)));
-            Error(ctx);
-            return;
-        }
+    clean_netlink(ctx);
+    Nlksin = (struct nlksin **)calloc(INOBUCKS, sizeof(struct nlksin *));
+    if (!Nlksin) {
+        if (ctx->err)
+            (void)fprintf(ctx->err,
+                          "%s: can't allocate %d netlink hash pointer bytes\n",
+                          Pn, (int)(INOBUCKS * sizeof(struct nlksin *)));
+        Error(ctx);
+        return;
     }
     /*
      * Open the /proc/net/netlink file, assign a page size buffer to its stream,
@@ -1757,6 +1790,25 @@ static void get_netlink(struct lsof_context *ctx,
         HASH_INSERT_ELEMENT(Nlksin, INOHASH, lp, inode);
     }
     (void)fclose(xs);
+    CLEAN(vbuf);
+}
+
+/*
+ * clean_pack() - cleanup packet net info
+ */
+void clean_pack(struct lsof_context *ctx) {
+    struct packin *np, *pp;
+    int h;
+    if (Packin) {
+        for (h = 0; h < INOBUCKS; h++) {
+            for (pp = Packin[h]; pp; pp = np) {
+                np = pp->next;
+                (void)free((FREE_P *)pp);
+            }
+            Packin[h] = (struct packin *)NULL;
+        }
+        CLEAN(Packin);
+    }
 }
 
 /*
@@ -1770,31 +1822,21 @@ static void get_pack(struct lsof_context *ctx, char *p) /* /proc/net/raw path */
     INODETYPE inode;
     struct packin *np, *pp;
     unsigned long pr;
-    static char *vbuf = (char *)NULL;
-    static size_t vsz = (size_t)0;
+    char *vbuf = (char *)NULL;
+    size_t vsz = (size_t)0;
     FILE *xs;
     /*
      * Do second time cleanup or first time setup.
      */
-    if (Packin) {
-        for (h = 0; h < INOBUCKS; h++) {
-            for (pp = Packin[h]; pp; pp = np) {
-                np = pp->next;
-                (void)free((FREE_P *)pp);
-            }
-            Packin[h] = (struct packin *)NULL;
-        }
-    } else {
-        Packin = (struct packin **)calloc(INOBUCKS, sizeof(struct packin *));
-        if (!Packin) {
-            if (ctx->err)
-                (void)fprintf(
-                    ctx->err,
-                    "%s: can't allocate %d packet hash pointer bytes\n", Pn,
-                    (int)(INOBUCKS * sizeof(struct packin *)));
-            Error(ctx);
-            return;
-        }
+    clean_pack(ctx);
+    Packin = (struct packin **)calloc(INOBUCKS, sizeof(struct packin *));
+    if (!Packin) {
+        if (ctx->err)
+            (void)fprintf(ctx->err,
+                          "%s: can't allocate %d packet hash pointer bytes\n",
+                          Pn, (int)(INOBUCKS * sizeof(struct packin *)));
+        Error(ctx);
+        return;
     }
     /*
      * Open the /proc/net/packet file, assign a page size buffer to its stream,
@@ -1861,6 +1903,27 @@ static void get_pack(struct lsof_context *ctx, char *p) /* /proc/net/raw path */
         HASH_INSERT_ELEMENT(Packin, INOHASH, pp, inode);
     }
     (void)fclose(xs);
+    CLEAN(vbuf);
+}
+
+/*
+ * clean_raw() - cleanup raw net info
+ */
+void clean_raw(struct lsof_context *ctx) {
+    struct rawsin *np, *rp;
+    int h;
+    if (Rawsin) {
+        for (h = 0; h < INOBUCKS; h++) {
+            for (rp = Rawsin[h]; rp; rp = np) {
+                np = rp->next;
+                CLEAN(rp->la);
+                CLEAN(rp->ra);
+                (void)free((FREE_P *)rp);
+            }
+            Rawsin[h] = (struct rawsin *)NULL;
+        }
+        CLEAN(Rawsin);
+    }
 }
 
 /*
@@ -1874,8 +1937,8 @@ static void get_raw(struct lsof_context *ctx, char *p) /* /proc/net/raw path */
     int nf = 12;
     struct rawsin *np, *rp;
     MALLOC_S lal, ral, spl;
-    static char *vbuf = (char *)NULL;
-    static size_t vsz = (size_t)0;
+    char *vbuf = (char *)NULL;
+    size_t vsz = (size_t)0;
     FILE *xs;
     /*
      * Do second time cleanup or first time setup.
@@ -2011,6 +2074,31 @@ static void get_raw(struct lsof_context *ctx, char *p) /* /proc/net/raw path */
         HASH_INSERT_ELEMENT(Rawsin, INOHASH, rp, inode);
     }
     (void)fclose(xs);
+    CLEAN(vbuf);
+}
+
+/*
+ * clean_sctp() - cleanup sctp net info
+ */
+void clean_sctp(struct lsof_context *ctx) {
+    struct sctpsin *sp, *np;
+    int h;
+    if (SCTPsin) {
+        for (h = 0; h < INOBUCKS; h++) {
+            for (sp = SCTPsin[h]; sp; sp = np) {
+                np = sp->next;
+                CLEAN(sp->addr);
+                CLEAN(sp->assocID);
+                CLEAN(sp->lport);
+                CLEAN(sp->rport);
+                CLEAN(sp->laddrs);
+                CLEAN(sp->raddrs);
+                (void)free((FREE_P *)sp);
+            }
+            SCTPsin[h] = (struct sctpsin *)NULL;
+        }
+        CLEAN(SCTPsin);
+    }
 }
 
 /*
@@ -2023,41 +2111,20 @@ static void get_sctp(struct lsof_context *ctx) {
     MALLOC_S len, plen;
     struct sctpsin *sp, *np;
     FILE *ss;
-    static char *vbuf = (char *)NULL;
-    static size_t vsz = (size_t)0;
+    char *vbuf = (char *)NULL;
+    size_t vsz = (size_t)0;
     /*
      * Do second time cleanup or first time setup.
      */
-    if (SCTPsin) {
-        for (h = 0; h < INOBUCKS; h++) {
-            for (sp = SCTPsin[h]; sp; sp = np) {
-                np = sp->next;
-                if (sp->addr)
-                    (void)free((FREE_P *)sp->addr);
-                if (sp->assocID)
-                    (void)free((FREE_P *)sp->assocID);
-                if (sp->lport)
-                    (void)free((FREE_P *)sp->lport);
-                if (sp->rport)
-                    (void)free((FREE_P *)sp->rport);
-                if (sp->laddrs)
-                    (void)free((FREE_P *)sp->laddrs);
-                if (sp->raddrs)
-                    (void)free((FREE_P *)sp->raddrs);
-                (void)free((FREE_P *)sp);
-            }
-            SCTPsin[h] = (struct sctpsin *)NULL;
-        }
-    } else {
-        SCTPsin = (struct sctpsin **)calloc(INOBUCKS, sizeof(struct sctpsin *));
-        if (!SCTPsin) {
-            if (ctx->err)
-                (void)fprintf(ctx->err,
-                              "%s: can't allocate %d SCTP hash pointer bytes\n",
-                              Pn, (int)(INOBUCKS * sizeof(struct sctpsin *)));
-            Error(ctx);
-            return;
-        }
+    clean_sctp(ctx);
+    SCTPsin = (struct sctpsin **)calloc(INOBUCKS, sizeof(struct sctpsin *));
+    if (!SCTPsin) {
+        if (ctx->err)
+            (void)fprintf(ctx->err,
+                          "%s: can't allocate %d SCTP hash pointer bytes\n", Pn,
+                          (int)(INOBUCKS * sizeof(struct sctpsin *)));
+        Error(ctx);
+        return;
     }
     /*
      * Open the /proc/net/sctp files, assign a page size buffer to the streams,
@@ -2400,6 +2467,43 @@ static char *get_sctpaddrs(char **fp, /* field pointers */
 }
 
 /*
+ * clean_tcpudp() - cleanup tcpudp net info
+ */
+void clean_tcpudp(struct lsof_context *ctx, int free_array) {
+    int h;
+    struct tcp_udp *np, *tp;
+#if defined(HASEPTOPTS)
+    pxinfo_t *pp, *pnp;
+#endif /* defined(HASEPTOPTS) */
+    if (TcpUdp) {
+        for (h = 0; h < TcpUdp_bucks; h++) {
+            for (tp = TcpUdp[h]; tp; tp = np) {
+                np = tp->next;
+
+#if defined(HASEPTOPTS)
+                for (pp = tp->pxinfo; pp; pp = pnp) {
+                    pnp = pp->next;
+                    (void)free((FREE_P *)pp);
+                }
+#endif /* defined(HASEPTOPTS) */
+
+                (void)free((FREE_P *)tp);
+            }
+            TcpUdp[h] = (struct tcp_udp *)NULL;
+        }
+#if defined(HASEPTOPTS)
+        if (FeptE)
+            for (h = 0; h < IPCBUCKS; h++)
+                TcpUdpIPC[h] = (struct tcp_udp *)NULL;
+#endif /* defined(HASEPTOPTS) */
+        if (free_array) {
+            CLEAN(TcpUdp);
+            CLEAN(TcpUdpIPC);
+        }
+    }
+}
+
+/*
  * get_tcpudp() - get IPv4 TCP, UDP or UDPLITE net info
  */
 static void get_tcpudp(struct lsof_context *ctx,
@@ -2414,8 +2518,8 @@ static void get_tcpudp(struct lsof_context *ctx,
     int h, nf;
     INODETYPE inode;
     struct tcp_udp *np, *tp;
-    static char *vbuf = (char *)NULL;
-    static size_t vsz = (size_t)0;
+    char *vbuf = (char *)NULL;
+    size_t vsz = (size_t)0;
 
 #if defined(HASEPTOPTS)
     pxinfo_t *pp, *pnp;
@@ -2426,26 +2530,7 @@ static void get_tcpudp(struct lsof_context *ctx,
      */
     if (TcpUdp) {
         if (clr) {
-            for (h = 0; h < TcpUdp_bucks; h++) {
-                for (tp = TcpUdp[h]; tp; tp = np) {
-                    np = tp->next;
-
-#if defined(HASEPTOPTS)
-                    for (pp = tp->pxinfo; pp; pp = pnp) {
-                        pnp = pp->next;
-                        (void)free((FREE_P *)pp);
-                    }
-#endif /* defined(HASEPTOPTS) */
-
-                    (void)free((FREE_P *)tp);
-                }
-                TcpUdp[h] = (struct tcp_udp *)NULL;
-            }
-#if defined(HASEPTOPTS)
-            if (FeptE)
-                for (h = 0; h < IPCBUCKS; h++)
-                    TcpUdpIPC[h] = (struct tcp_udp *)NULL;
-#endif /* defined(HASEPTOPTS) */
+            clean_tcpudp(ctx, 0);
         }
         /*
          * If no hash buckets have been allocated, do so now.
@@ -2611,9 +2696,31 @@ static void get_tcpudp(struct lsof_context *ctx,
 #endif /* defined(HASEPTOPTS) */
 
     (void)fclose(fs);
+    CLEAN(vbuf);
 }
 
 #if defined(HASIPv6)
+/*
+ * clean_raw6() - cleanup raw6 net info
+ */
+void clean_raw6(struct lsof_context *ctx) {
+    struct rawsin *np, *rp;
+    int h;
+    if (Rawsin6) {
+        for (h = 0; h < INOBUCKS; h++) {
+            for (rp = Rawsin6[h]; rp; rp = np) {
+                np = rp->next;
+                CLEAN(rp->la);
+                CLEAN(rp->ra);
+                CLEAN(rp->sp);
+                (void)free((FREE_P *)rp);
+            }
+            Rawsin6[h] = (struct rawsin *)NULL;
+        }
+        CLEAN(Rawsin6);
+    }
+}
+
 /*
  * get_raw6() - get /proc/net/raw6 info
  */
@@ -2625,36 +2732,21 @@ static void get_raw6(struct lsof_context *ctx, char *p) /* /proc/net/raw path */
     int nf = 12;
     struct rawsin *np, *rp;
     MALLOC_S lal, ral, spl;
-    static char *vbuf = (char *)NULL;
-    static size_t vsz = (size_t)0;
+    char *vbuf = (char *)NULL;
+    size_t vsz = (size_t)0;
     FILE *xs;
     /*
      * Do second time cleanup or first time setup.
      */
-    if (Rawsin6) {
-        for (h = 0; h < INOBUCKS; h++) {
-            for (rp = Rawsin6[h]; rp; rp = np) {
-                np = rp->next;
-                if (rp->la)
-                    (void)free((FREE_P *)rp->la);
-                if (rp->ra)
-                    (void)free((FREE_P *)rp->ra);
-                if (rp->sp)
-                    (void)free((FREE_P *)rp->sp);
-                (void)free((FREE_P *)rp);
-            }
-            Rawsin6[h] = (struct rawsin *)NULL;
-        }
-    } else {
-        Rawsin6 = (struct rawsin **)calloc(INOBUCKS, sizeof(struct rawsin *));
-        if (!Rawsin6) {
-            if (ctx->err)
-                (void)fprintf(ctx->err,
-                              "%s: can't allocate %d raw6 hash pointer bytes\n",
-                              Pn, (int)(INOBUCKS * sizeof(struct rawsin *)));
-            Error(ctx);
-            return;
-        }
+    clean_raw6(ctx);
+    Rawsin6 = (struct rawsin **)calloc(INOBUCKS, sizeof(struct rawsin *));
+    if (!Rawsin6) {
+        if (ctx->err)
+            (void)fprintf(ctx->err,
+                          "%s: can't allocate %d raw6 hash pointer bytes\n", Pn,
+                          (int)(INOBUCKS * sizeof(struct rawsin *)));
+        Error(ctx);
+        return;
     }
     /*
      * Open the /proc/net/raw6 file, assign a page size buffer to the stream,
@@ -2765,6 +2857,45 @@ static void get_raw6(struct lsof_context *ctx, char *p) /* /proc/net/raw path */
         HASH_INSERT_ELEMENT(Rawsin6, INOHASH, rp, inode);
     }
     (void)fclose(xs);
+    CLEAN(vbuf);
+}
+
+/*
+ * clean_tcpudp6() - cleanup tcpudp6 net info
+ */
+void clean_tcpudp6(struct lsof_context *ctx, int free_array) {
+    struct tcp_udp6 *np6, *tp6;
+    int h;
+#    if defined(HASEPTOPTS)
+    pxinfo_t *pp, *pnp;
+#    endif /* defined(HASEPTOPTS) */
+    if (TcpUdp6) {
+        for (h = 0; h < TcpUdp6_bucks; h++) {
+            for (tp6 = TcpUdp6[h]; tp6; tp6 = np6) {
+                np6 = tp6->next;
+
+#    if defined(HASEPTOPTS)
+                for (pp = tp6->pxinfo; pp; pp = pnp) {
+                    pnp = pp->next;
+                    (void)free((FREE_P *)pp);
+                }
+#    endif /* defined(HASEPTOPTS) */
+
+                (void)free((FREE_P *)tp6);
+            }
+            TcpUdp6[h] = (struct tcp_udp6 *)NULL;
+        }
+#    if defined(HASEPTOPTS)
+        if (FeptE)
+            for (h = 0; h < IPCBUCKS; h++)
+                TcpUdp6IPC[h] = (struct tcp_udp6 *)NULL;
+#    endif /* defined(HASEPTOPTS) */
+
+        if (free_array) {
+            CLEAN(TcpUdp6);
+            CLEAN(TcpUdp6IPC);
+        }
+    }
 }
 
 /*
@@ -2782,8 +2913,8 @@ static void get_tcpudp6(struct lsof_context *ctx,
     int h, i, nf;
     INODETYPE inode;
     struct tcp_udp6 *np6, *tp6;
-    static char *vbuf = (char *)NULL;
-    static size_t vsz = (size_t)0;
+    char *vbuf = (char *)NULL;
+    size_t vsz = (size_t)0;
 
 #    if defined(HASEPTOPTS)
     pxinfo_t *pp, *pnp;
@@ -2794,26 +2925,7 @@ static void get_tcpudp6(struct lsof_context *ctx,
      */
     if (TcpUdp6) {
         if (clr) {
-            for (h = 0; h < TcpUdp6_bucks; h++) {
-                for (tp6 = TcpUdp6[h]; tp6; tp6 = np6) {
-                    np6 = tp6->next;
-
-#    if defined(HASEPTOPTS)
-                    for (pp = tp6->pxinfo; pp; pp = pnp) {
-                        pnp = pp->next;
-                        (void)free((FREE_P *)pp);
-                    }
-#    endif /* defined(HASEPTOPTS) */
-
-                    (void)free((FREE_P *)tp6);
-                }
-                TcpUdp6[h] = (struct tcp_udp6 *)NULL;
-            }
-#    if defined(HASEPTOPTS)
-            if (FeptE)
-                for (h = 0; h < IPCBUCKS; h++)
-                    TcpUdp6IPC[h] = (struct tcp_udp6 *)NULL;
-#    endif /* defined(HASEPTOPTS) */
+            clean_tcpudp6(ctx, 0);
         }
     } else {
 
@@ -2985,33 +3097,19 @@ static void get_tcpudp6(struct lsof_context *ctx,
 #    endif /* defined(HASEPTOPTS) */
 
     (void)fclose(fs);
+    CLEAN(vbuf);
 }
 #endif /* defined(HASIPv6) */
 
 /*
- * get_unix() - get UNIX net info
+ * clean_unix() - cleanup raw6 net info
  */
-static void get_unix(struct lsof_context *ctx,
-                     char *p) /* /proc/net/unix path */
-{
-    char buf[MAXPATHLEN], *ep, **fp, *path, *pcb;
-    int fl = 1; /* First line */
-    int h, nf;
-    INODETYPE inode;
-    MALLOC_S len;
+void clean_unix(struct lsof_context *ctx) {
+    int h;
     uxsin_t *np, *up;
-    FILE *us;
-    uint32_t ty;
-    static char *vbuf = (char *)NULL;
-    static size_t vsz = (size_t)0;
-
 #if defined(HASEPTOPTS) && defined(HASUXSOCKEPT)
     pxinfo_t *pp, *pnp;
 #endif /* defined(HASEPTOPTS) && defined(HASUXSOCKEPT) */
-
-    /*
-     * Do second time cleanup or first time setup.
-     */
     if (Uxsin) {
         for (h = 0; h < INOBUCKS; h++) {
             for (up = Uxsin[h]; up; up = np) {
@@ -3032,17 +3130,43 @@ static void get_unix(struct lsof_context *ctx,
             }
             Uxsin[h] = (uxsin_t *)NULL;
         }
-    } else {
-        Uxsin = (uxsin_t **)calloc(INOBUCKS, sizeof(uxsin_t *));
-        if (!Uxsin) {
-            if (ctx->err)
-                (void)fprintf(
-                    ctx->err,
-                    "%s: can't allocate %d bytes for Unix socket info\n", Pn,
-                    (int)(INOBUCKS * sizeof(uxsin_t *)));
-            Error(ctx);
-            return;
-        }
+        CLEAN(Uxsin);
+    }
+}
+
+/*
+ * get_unix() - get UNIX net info
+ */
+static void get_unix(struct lsof_context *ctx,
+                     char *p) /* /proc/net/unix path */
+{
+    char buf[MAXPATHLEN], *ep, **fp, *path, *pcb;
+    int fl = 1; /* First line */
+    int h, nf;
+    INODETYPE inode;
+    MALLOC_S len;
+    uxsin_t *np, *up;
+    FILE *us;
+    uint32_t ty;
+    char *vbuf = (char *)NULL;
+    size_t vsz = (size_t)0;
+
+#if defined(HASEPTOPTS) && defined(HASUXSOCKEPT)
+    pxinfo_t *pp, *pnp;
+#endif /* defined(HASEPTOPTS) && defined(HASUXSOCKEPT) */
+
+    /*
+     * Do second time cleanup or first time setup.
+     */
+    clean_unix(ctx);
+    Uxsin = (uxsin_t **)calloc(INOBUCKS, sizeof(uxsin_t *));
+    if (!Uxsin) {
+        if (ctx->err)
+            (void)fprintf(ctx->err,
+                          "%s: can't allocate %d bytes for Unix socket info\n",
+                          Pn, (int)(INOBUCKS * sizeof(uxsin_t *)));
+        Error(ctx);
+        return;
     }
     /*
      * Open the /proc/net/unix file, assign a page size buffer to the stream,
@@ -3199,6 +3323,7 @@ static void get_unix(struct lsof_context *ctx,
 #endif /* defined(HASEPTOPTS) && defined(HASUXSOCKEPT) */
 
     (void)fclose(us);
+    CLEAN(vbuf);
 }
 
 #if defined(HASIPv6)
@@ -3388,10 +3513,10 @@ void process_proc_sock(struct lsof_context *ctx,
     struct nlksin *np;
     struct packin *pp;
     char *pr;
-    static char *prp = (char *)NULL;
+    char *prp = (char *)NULL;
     struct rawsin *rp;
     struct sctpsin *sp;
-    static ssize_t sz;
+    ssize_t sz;
     struct tcp_udp *tp;
     uxsin_t *up;
 

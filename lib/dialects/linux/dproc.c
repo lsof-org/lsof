@@ -604,7 +604,7 @@ static int get_fdinfo(struct lsof_context *ctx,
                       struct l_fdinfo *fi) /* pointer to local fdinfo values
                                             * return structure */
 {
-    char buf[MAXPATHLEN + 1], *ep, **fp;
+    char buf[MAXPATHLEN + 1], *ep, **fp = NULL;
     FILE *fs;
     int rv = 0;
     unsigned long ul;
@@ -829,6 +829,20 @@ void deinitialize(struct lsof_context *ctx) {
     clean_locks(ctx);
     CLEAN(ctxd.get_fields_buffer);
     ctxd.get_fields_buffer_size = 0;
+
+    clean_ax25(ctx);
+    clean_icmp(ctx);
+    clean_ipx(ctx);
+    clean_netlink(ctx);
+    clean_pack(ctx);
+    clean_raw(ctx);
+    clean_sctp(ctx);
+    clean_unix(ctx);
+    clean_tcpudp(ctx, 1);
+#if defined(HASIPv6)
+    clean_raw6(ctx);
+    clean_tcpudp6(ctx, 1);
+#endif
 }
 
 /*
@@ -1346,7 +1360,7 @@ static int process_id(struct lsof_context *ctx,
             (void)add_nma(ctx, nmabuf, strlen(nmabuf));
             link_lfile(ctx);
         }
-        return (0);
+        goto cleanup;
     }
     dpath[i - 1] = '/';
     while ((fp = readdir(fdp))) {
@@ -1514,7 +1528,15 @@ static int process_id(struct lsof_context *ctx,
             }
         }
     }
-    (void)closedir(fdp);
+
+cleanup:
+    if (fdp) {
+        (void)closedir(fdp);
+    }
+    CLEAN(path);
+    CLEAN(pathi);
+    CLEAN(dpath);
+    CLEAN(ipath);
     return (0);
 }
 
@@ -1804,6 +1826,8 @@ process_proc_map(struct lsof_context *ctx,
             link_lfile(ctx);
     }
     (void)fclose(ms);
+    CLEAN(sm);
+    CLEAN(vbuf);
 }
 
 /*

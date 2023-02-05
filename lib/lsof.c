@@ -151,6 +151,10 @@ enum lsof_error lsof_gather(struct lsof_context *ctx,
         p->ppid = lp->ppid;
         p->uid = lp->uid;
 
+#if defined(HASSELINUX)
+        CLEAN(lp->cntx);
+#endif /* defined(HASSELINUX) */
+
         /* Compute number of files in the linked list */
         num_files = 0;
         for (lf = lp->file; lf; lf = lf->next) {
@@ -217,6 +221,9 @@ enum lsof_error lsof_gather(struct lsof_context *ctx,
             /* free lf */
             lf_next = lf->next;
             CLEAN(lf->nma);
+            CLEAN(lf->dev_ch);
+            CLEAN(lf->fsdir);
+            CLEAN(lf->fsdev);
             free(lf);
         }
         lp->file = NULL;
@@ -252,23 +259,26 @@ enum lsof_error lsof_output_stream(struct lsof_context *ctx, FILE *fp,
 
 API_EXPORT
 void lsof_destroy(struct lsof_context *ctx) {
-    struct str_lst *lst, *lst_next;
+    struct str_lst *str_lst, *str_lst_next;
+    struct int_lst *int_lst, *int_lst_next;
     struct mounts *mnt, *mnt_next;
     if (!ctx) {
         return;
     }
     /* Free parameters */
-    for (lst = Cmdl; lst; lst = lst_next) {
-        lst_next = lst->next;
-        CLEAN(lst->str);
-        CLEAN(lst);
+    for (str_lst = Cmdl; str_lst; str_lst = str_lst_next) {
+        str_lst_next = str_lst->next;
+        CLEAN(str_lst->str);
+        CLEAN(str_lst);
     }
+    CLEAN(Spid);
+    CLEAN(Spgid);
 
     /* Free temporary */
     CLEAN(Namech);
 
     /* Free local mount info */
-    if (Lmi) {
+    if (Lmist) {
         for (mnt = Lmi; mnt; mnt = mnt_next) {
             mnt_next = mnt->next;
             CLEAN(mnt->dir);
@@ -279,6 +289,8 @@ void lsof_destroy(struct lsof_context *ctx) {
 #endif
             CLEAN(mnt);
         }
+        Lmi = NULL;
+        Lmist = 0;
     }
 
     /* dialect specific free */

@@ -40,8 +40,8 @@
 #define TSTFSZ 32768 /* test file size */
 
 int main(int argc, char **argv) {
-    struct lsof_result *result;
-    struct lsof_context *ctx;
+    struct lsof_result *result = NULL;
+    struct lsof_context *ctx = NULL;
     struct lsof_process *p;
     struct lsof_file *f;
     int ti, pi, fi;
@@ -116,9 +116,6 @@ int main(int argc, char **argv) {
         }
     }
 
-    lsof_free_result(result);
-    lsof_destroy(ctx);
-
     if (!fd_found) {
         fprintf(stderr, "ERROR!!!  test file %s not found by lsof\n", path);
     }
@@ -130,6 +127,12 @@ int main(int argc, char **argv) {
     }
 
 cleanup:
+    if (result) {
+        lsof_free_result(result);
+    }
+    if (ctx) {
+        lsof_destroy(ctx);
+    }
     if (fd >= 0) {
         (void)close(fd);
         (void)unlink(path);

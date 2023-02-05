@@ -201,8 +201,8 @@ getmntdev(struct lsof_context *ctx,
              * The mount supplement file can't be opened for reading.
              */
             if (ctx->err && !Fwarn)
-                (void)fprintf(ctx->err, "%s: can't open(%s): %s\n", Pn,
-                              MntSupP, strerror(errno));
+                (void)fprintf(ctx->err, "%s: can't open(%s): %s\n", Pn, MntSupP,
+                              strerror(errno));
             ctxd.mount_sup_error = 1;
             return (0);
         }
@@ -221,9 +221,8 @@ getmntdev(struct lsof_context *ctx,
                  * path character '/'.
                  */
                 if (ctx->err && !Fwarn)
-                    (void)fprintf(ctx->err,
-                                  "%s: %s line %d: no path: \"%s\"\n", Pn,
-                                  MntSupP, ln, buf);
+                    (void)fprintf(ctx->err, "%s: %s line %d: no path: \"%s\"\n",
+                                  Pn, MntSupP, ln, buf);
                 ctxd.mount_sup_error = 1;
                 continue;
             }
@@ -339,8 +338,7 @@ getmntdev(struct lsof_context *ctx,
         }
         if (ferror(fs)) {
             if (ctx->err && !Fwarn)
-                (void)fprintf(ctx->err, "%s: error reading %s\n", Pn,
-                              MntSupP);
+                (void)fprintf(ctx->err, "%s: error reading %s\n", Pn, MntSupP);
             ctxd.mount_sup_error = 1;
         }
         (void)fclose(fs);
@@ -413,12 +411,13 @@ struct mounts *readmnt(struct lsof_context *ctx) {
     int fr, ignrdl, ignstat;
     char *ln;
     struct mounts *mp;
-    FILE *ms;
+    FILE *ms = NULL;
     int nfs;
     int mqueue;
     struct stat sb;
     char *vbuf = (char *)NULL;
     size_t vsz = (size_t)0;
+    struct mounts *ret = NULL;
 
     if (Lmi || Lmist)
         return (Lmi);
@@ -426,8 +425,11 @@ struct mounts *readmnt(struct lsof_context *ctx) {
      * Open access to /proc/mounts, assigning a page size buffer to its stream.
      */
     (void)snpf(buf, sizeof(buf), "%s/mounts", PROCFS);
-    if (!(ms = open_proc_stream(ctx, buf, "r", &vbuf, &vsz)))
-        return NULL;
+    if (!(ms = open_proc_stream(ctx, buf, "r", &vbuf, &vsz))) {
+        ret = NULL;
+        goto cleanup;
+    }
+
     /*
      * Read mount table entries.
      */
@@ -557,8 +559,7 @@ struct mounts *readmnt(struct lsof_context *ctx) {
         else {
             if ((fr = statsafely(ctx, dn, &sb))) {
                 if (ctx->err && !Fwarn) {
-                    (void)fprintf(ctx->err, "%s: WARNING: can't stat() ",
-                                  Pn);
+                    (void)fprintf(ctx->err, "%s: WARNING: can't stat() ", Pn);
                     safestrprt(fp[2], ctx->err, 0);
                     (void)fprintf(ctx->err, " file system ");
                     safestrprt(dn, ctx->err, 1);
@@ -627,7 +628,8 @@ struct mounts *readmnt(struct lsof_context *ctx) {
                     safestrprt(dn, ctx->err, 1);
                 }
                 Error(ctx);
-                return NULL;
+                ret = NULL;
+                goto cleanup;
             }
         }
         mp->dir = dn;
@@ -684,7 +686,8 @@ struct mounts *readmnt(struct lsof_context *ctx) {
                     safestrprt(dn, ctx->err, 1);
                 }
                 Error(ctx);
-                return NULL;
+                ret = NULL;
+                goto cleanup;
             }
             ignstat = 1;
         } else
@@ -706,17 +709,17 @@ struct mounts *readmnt(struct lsof_context *ctx) {
     /*
      * Clean up and return the local mount info table address.
      */
-    (void)fclose(ms);
-    if (vbuf)
-        (void)free((FREE_P *)vbuf);
-    if (dn)
-        (void)free((FREE_P *)dn);
-    if (fp0)
-        (void)free((FREE_P *)fp0);
-    if (fp1)
-        (void)free((FREE_P *)fp1);
     Lmist = 1;
-    return (Lmi);
+    ret = Lmi;
+
+cleanup:
+    if (ms)
+        (void)fclose(ms);
+    CLEAN(vbuf);
+    CLEAN(dn);
+    CLEAN(fp0);
+    CLEAN(fp1);
+    return ret;
 }
 
 void clean_mnt(struct lsof_context *ctx) {
