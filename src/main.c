@@ -1097,17 +1097,9 @@ closed:
 
     if (GOx1 < argc)
         Selflags |= SELNM;
-    if (Selflags == 0) {
-        if (Fand) {
-            (void)fprintf(stderr, "%s: no select options to AND via -a\n", Pn);
-            usage(1, 0, 0);
-        }
-        Selflags = SelAll;
-    } else {
-        if (GOx1 >= argc && (Selflags & (SELNA | SELNET)) != 0 &&
-            (Selflags & ~(SELNA | SELNET)) == 0)
-            Selinet = 1;
-        AllProc = 0;
+    if (Selflags == 0 && Fand) {
+        (void)fprintf(stderr, "%s: no select options to AND via -a\n", Pn);
+        usage(1, 0, 0);
     }
     /*
      * Get the device for DEVDEV_PATH.

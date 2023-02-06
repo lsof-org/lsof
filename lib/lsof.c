@@ -91,6 +91,15 @@ enum lsof_error lsof_freeze(struct lsof_context *ctx) {
     if (ctx->frozen) {
         ret = LSOF_ERROR_INVALID_ARGUMENT;
     } else {
+        if (Selflags == 0) {
+            Selflags = SelAll;
+        } else {
+            if ((Selflags & (SELNA | SELNET)) != 0 &&
+                (Selflags & ~(SELNA | SELNET)) == 0)
+                Selinet = 1;
+            AllProc = 0;
+        }
+
         initialize(ctx);
         hashSfile(ctx);
         ctx->frozen = 1;
@@ -102,7 +111,8 @@ API_EXPORT
 enum lsof_error lsof_gather(struct lsof_context *ctx,
                             struct lsof_result **result) {
     enum lsof_error ret = LSOF_SUCCESS;
-    int pi = 0; /* proc index */
+    int pi = 0;  /* proc index */
+    int upi = 0; /* user proc index */
     struct lsof_process *p;
     struct lproc *lp;
     int fi = 0; /* file index */
@@ -110,6 +120,7 @@ enum lsof_error lsof_gather(struct lsof_context *ctx,
     struct lsof_file *f;
     struct lfile *lf;
     struct lfile *lf_next;
+    size_t sel_procs = 0;
 
     if (!result) {
         ret = LSOF_ERROR_INVALID_ARGUMENT;
@@ -126,17 +137,27 @@ enum lsof_error lsof_gather(struct lsof_context *ctx,
         CLEAN(ctx->cur_file);
     }
 
+    /* Count selected procs */
+    for (pi = 0; pi < ctx->procs_size; pi++) {
+        lp = &ctx->procs[pi];
+        if (lp->pss) {
+            sel_procs++;
+        }
+    }
+
     /* Fill result */
     struct lsof_result *res =
         (struct lsof_result *)malloc(sizeof(struct lsof_result));
-    struct lsof_process *user_procs = (struct lsof_process *)malloc(
-        sizeof(struct lsof_process) * ctx->procs_size);
-    memset(user_procs, 0, sizeof(struct lsof_process) * ctx->procs_size);
+    struct lsof_process *user_procs =
+        (struct lsof_process *)malloc(sizeof(struct lsof_process) * sel_procs);
+    memset(user_procs, 0, sizeof(struct lsof_process) * sel_procs);
 
-    for (pi = 0; pi < ctx->procs_size; pi++) {
+    for (pi = 0, upi = 0; pi < ctx->procs_size; pi++) {
         /* Copy fields from lproc */
-        p = &user_procs[pi];
         lp = &ctx->procs[pi];
+        if (!lp->pss)
+            continue;
+        p = &user_procs[upi++];
 
         p->command = lp->cmd;
         lp->cmd = NULL;
@@ -235,7 +256,7 @@ enum lsof_error lsof_gather(struct lsof_context *ctx,
     ctx->cur_proc = NULL;
 
     res->processes = user_procs;
-    res->num_processes = ctx->procs_size;
+    res->num_processes = sel_procs;
 
     ctx->procs_size = ctx->procs_cap = 0;
     ctx->cur_file = ctx->prev_file = NULL;
