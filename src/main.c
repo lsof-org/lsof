@@ -1205,6 +1205,7 @@ closed:
                                   "%s: no space for %zu sort pointers\n", Pn,
                                   Nlproc);
                     Error(ctx);
+                    return 1;
                 }
             }
             for (i = 0; i < Nlproc; i++) {

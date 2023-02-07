@@ -69,5 +69,4 @@ _PROTOTYPE(extern void process_proc_node,
 _PROTOTYPE(extern void process_proc_sock,
            (struct lsof_context * ctx, char *p, char *pbr, struct stat *s,
             int ss, struct stat *l, int ls));
-_PROTOTYPE(extern void set_net_paths,
-           (struct lsof_context * ctx, char *p, int pl));
+_PROTOTYPE(extern void refresh_socket_info, (struct lsof_context * ctx));

@@ -134,7 +134,7 @@ _PROTOTYPE(static int human_readable_size, (SZOFFTYPE sz, int print, int col));
 
 static void fill_portmap() {
     static int already_run = 0;
-    char buf[128], *cp, *nm;
+    char buf[128], *cp, *nm = NULL;
     CLIENT *c;
     int h, port, pr;
     MALLOC_S nl;
@@ -237,7 +237,7 @@ static void fill_portmap() {
             Error(ctx);
         }
         if (!nl) {
-            (void)free((FREE_P *)nm);
+            CLEAN(nm);
             continue;
         }
         /*
@@ -249,6 +249,7 @@ static void fill_portmap() {
                           "%s: can't allocate porttab entry for portmap: ", Pn);
             safestrprt(nm, stderr, 1);
             Error(ctx);
+            goto cleanup;
         }
         pt->name = nm;
         pt->nl = nl;
@@ -258,6 +259,8 @@ static void fill_portmap() {
         Pth[pr][h] = pt;
     }
     clnt_destroy(c);
+cleanup:
+    CLEAN(nm);
 }
 #endif /* !defined(HASNORPC_H) */
 
@@ -269,7 +272,7 @@ static void fill_portmap() {
 static void fill_porttab() {
     int h, p, pr;
     MALLOC_S nl;
-    char *nm;
+    char *nm = NULL;
     struct porttab *pt;
     struct servent *se;
 
@@ -310,9 +313,10 @@ static void fill_porttab() {
                           "%s: can't allocate %d bytes for port %d name: %s\n",
                           Pn, (int)(nl + 1), p, se->s_name);
             Error(ctx);
+            goto cleanup;
         }
         if (!nl) {
-            (void)free((FREE_P *)nm);
+            CLEAN(nm);
             continue;
         }
         if (!(pt = (struct porttab *)malloc(sizeof(struct porttab)))) {
@@ -320,15 +324,19 @@ static void fill_porttab() {
                           "%s: can't allocate porttab entry for port %d: %s\n",
                           Pn, p, se->s_name);
             Error(ctx);
+            goto cleanup;
         }
         pt->name = nm;
+        nm = NULL;
         pt->nl = nl - 1;
         pt->port = p;
         pt->next = Pth[pr][h];
         pt->ss = 0;
         Pth[pr][h] = pt;
     }
+cleanup:
     (void)endservent();
+    CLEAN(nm);
 }
 
 /*
@@ -410,6 +418,7 @@ int af;            /* address family -- e.g., AF_INET
         (void)fprintf(stderr, "%s: no space for host name: ", Pn);
         safestrprt(hn, stderr, 1);
         Error(ctx);
+        return NULL;
     }
     /*
      * Add address/name entry to cache.  Allocate cache space in HCINC chunks.
@@ -424,6 +433,7 @@ int af;            /* address family -- e.g., AF_INET
         if (!hc) {
             (void)fprintf(stderr, "%s: no space for host cache\n", Pn);
             Error(ctx);
+            return NULL;
         }
     }
     hc[hcx].af = af;
@@ -469,6 +479,7 @@ int src; /* port source: 0 = local
                     (int)(2 * (PORTHASHBUCKETS * sizeof(struct porttab *))),
                     (h & 1) ? "UDP" : "TCP", (h > 1) ? "portmap" : "port");
                 Error(ctx);
+                return NULL;
             }
         }
     }
@@ -534,6 +545,7 @@ int src; /* port source: 0 = local
         (void)fprintf(stderr, "%s: can't allocate porttab entry for port %d\n",
                       Pn, p);
         Error(ctx);
+        return NULL;
     }
     /*
      * Allocate space for the name; copy it to the porttab entry; and link the
@@ -545,6 +557,8 @@ int src; /* port source: 0 = local
         (void)fprintf(stderr, "%s: can't allocate space for port name: ", Pn);
         safestrprt(pn, stderr, 1);
         Error(ctx);
+        CLEAN(pt);
+        return NULL;
     }
     pt->name = nm;
     pt->nl = nl;
@@ -1004,7 +1018,6 @@ void print_file() {
                 human_readable_size(Lf->sz, 1, SzOffColW);
             } else {
                 (void)snpf(buf, sizeof(buf), SzOffFmt_d, Lf->sz);
-                len = strlen(buf);
                 (void)printf(SzOffFmt_dv, SzOffColW, Lf->sz);
             }
         } else if (!Fsize && Lf->off_def) {
@@ -1614,6 +1627,7 @@ int *ty;     /* returned UID type pointer (NULL
                 (void)fprintf(stderr, "%s: can't stat(/etc/passwd): %s\n", Pn,
                               strerror(errno));
                 Error(ctx);
+                return NULL;
             }
         }
         /*
@@ -1626,6 +1640,7 @@ int *ty;     /* returned UID type pointer (NULL
                     stderr, "%s: no space for %d byte UID cache hash buckets\n",
                     Pn, (int)(UIDCACHEL * (sizeof(struct uidcache *))));
                 Error(ctx);
+                return NULL;
             }
             if (CkPasswd) {
                 sbs = sb;
@@ -1682,6 +1697,7 @@ int *ty;     /* returned UID type pointer (NULL
                     stderr, "%s: no space for UID cache entry for: %lu, %s)\n",
                     Pn, (unsigned long)uid, pw->pw_name);
                 Error(ctx);
+                return NULL;
             }
             (void)strncpy(upn->nm, pw->pw_name, LOGINML);
             upn->nm[LOGINML] = '\0';
@@ -1856,7 +1872,7 @@ int print_proc() {
             (void)printf("%c%d%c", LSOF_FID_UID, (int)Lp->uid, Terminator);
         if (FieldSel[LSOF_FIX_LOGIN].st) {
             cp = printuid((UID_ARG)Lp->uid, &ty);
-            if (ty == 0)
+            if (cp && ty == 0)
                 (void)printf("%c%s%c", LSOF_FID_LOGIN, cp, Terminator);
         }
         if (Terminator == '\0')

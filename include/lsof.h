@@ -859,6 +859,9 @@ enum lsof_error lsof_gather(struct lsof_context *ctx,
 
 /** Destroy a lsof context
  *
+ * You should call `lsof_free_result` to free all `struct lsof_result`
+ * before destorying the context.
+ *
  * You must not use the context anymore after this call.
  *
  * \since API version 1

@@ -529,7 +529,7 @@ static void get_ax25(struct lsof_context *ctx,
 {
     struct ax25sin *ap, *np;
     FILE *as;
-    char buf[MAXPATHLEN], *da, *dev_ch, *ep, **fp, *sa;
+    char buf[MAXPATHLEN], *da = NULL, *dev_ch = NULL, *ep, **fp, *sa = NULL;
     int h;
     INODETYPE inode;
     unsigned long rq, sq, state;
@@ -615,7 +615,7 @@ static void get_ax25(struct lsof_context *ctx,
                                   "bytes: %s\n",
                                   Pn, (int)(len + 1), fp[3]);
                 Error(ctx);
-                return;
+                goto cleanup;
             }
             (void)snpf(da, len + 1, "%s", fp[3]);
         } else
@@ -633,7 +633,7 @@ static void get_ax25(struct lsof_context *ctx,
                         "%s: can't allocate %d source AX25 address bytes: %s\n",
                         Pn, (int)(len + 1), fp[2]);
                 Error(ctx);
-                return;
+                goto cleanup;
             }
             (void)snpf(sa, len + 1, "%s", fp[2]);
         } else
@@ -651,7 +651,7 @@ static void get_ax25(struct lsof_context *ctx,
                                   "bytes: %s\n",
                                   Pn, (int)(len + 1), fp[1]);
                 Error(ctx);
-                return;
+                goto cleanup;
             }
             (void)snpf(dev_ch, len + 1, "%s", fp[1]);
         } else
@@ -666,20 +666,29 @@ static void get_ax25(struct lsof_context *ctx,
                               "%s: can't allocate %d byte ax25sin structure\n",
                               Pn, (int)sizeof(struct ax25sin));
             Error(ctx);
-            return;
+            goto cleanup;
         }
         ap->da = da;
+        da = NULL;
         ap->dev_ch = dev_ch;
+        dev_ch = NULL;
         ap->inode = inode;
         ap->rq = rq;
         ap->rqs = rqs;
         ap->sa = sa;
+        sa = NULL;
         ap->sq = sq;
         ap->sqs = sqs;
         ap->state = (int)state;
         HASH_INSERT_ELEMENT(AX25sin, INOHASH, ap, inode);
     }
-    (void)fclose(as);
+cleanup:
+    if (as)
+        (void)fclose(as);
+    CLEAN(vbuf);
+    CLEAN(da);
+    CLEAN(sa);
+    CLEAN(dev_ch);
 }
 
 #if defined(HASEPTOPTS) && defined(HASUXSOCKEPT)
@@ -1398,7 +1407,7 @@ void clean_icmp(struct lsof_context *ctx) {
 static void get_icmp(struct lsof_context *ctx,
                      char *p) /* /proc/net/icmp path */
 {
-    char buf[MAXPATHLEN], *ep, **fp, *la, *ra;
+    char buf[MAXPATHLEN], *ep, **fp, *la = NULL, *ra = NULL;
     int fl = 1;
     int h;
     INODETYPE inode;
@@ -1480,7 +1489,7 @@ static void get_icmp(struct lsof_context *ctx,
                         "%s: can't allocate %d local icmp address bytes: %s\n",
                         Pn, (int)(lal + 1), fp[1]);
                 Error(ctx);
-                return;
+                goto cleanup;
             }
             (void)snpf(la, lal + 1, "%s", fp[1]);
         }
@@ -1495,7 +1504,7 @@ static void get_icmp(struct lsof_context *ctx,
                         "%s: can't allocate %d remote icmp address bytes: %s\n",
                         Pn, (int)(ral + 1), fp[2]);
                 Error(ctx);
-                return;
+                goto cleanup;
             }
             (void)snpf(ra, ral + 1, "%s", fp[2]);
         }
@@ -1509,17 +1518,22 @@ static void get_icmp(struct lsof_context *ctx,
                               "%s: can't allocate %d byte icmp structure\n", Pn,
                               (int)sizeof(struct icmpin));
             Error(ctx);
-            return;
+            goto cleanup;
         }
         icmpp->inode = inode;
         icmpp->la = la;
+        la = NULL;
         icmpp->lal = lal;
         icmpp->ra = ra;
+        ra = NULL;
         icmpp->ral = ral;
         HASH_INSERT_ELEMENT(Icmpin, INOHASH, icmpp, inode);
     }
+cleanup:
     (void)fclose(xs);
     CLEAN(vbuf);
+    CLEAN(ra);
+    CLEAN(la);
 }
 
 /*
@@ -1547,7 +1561,7 @@ void clean_ipx(struct lsof_context *ctx) {
  */
 static void get_ipx(struct lsof_context *ctx, char *p) /* /proc/net/ipx path */
 {
-    char buf[MAXPATHLEN], *ep, **fp, *la, *ra;
+    char buf[MAXPATHLEN], *ep, **fp, *la = NULL, *ra = NULL;
     int fl = 1;
     int h;
     INODETYPE inode;
@@ -1639,7 +1653,7 @@ static void get_ipx(struct lsof_context *ctx, char *p) /* /proc/net/ipx path */
                         "%s: can't allocate %d local IPX address bytes: %s\n",
                         Pn, (int)(len + 1), fp[0]);
                 Error(ctx);
-                return;
+                goto cleanup;
             }
             (void)snpf(la, len + 1, "%s", fp[0]);
         } else
@@ -1657,7 +1671,7 @@ static void get_ipx(struct lsof_context *ctx, char *p) /* /proc/net/ipx path */
                         "%s: can't allocate %d remote IPX address bytes: %s\n",
                         Pn, (int)(len + 1), fp[1]);
                 Error(ctx);
-                return;
+                goto cleanup;
             }
             (void)snpf(ra, len + 1, "%s", fp[1]);
         } else
@@ -1672,17 +1686,23 @@ static void get_ipx(struct lsof_context *ctx, char *p) /* /proc/net/ipx path */
                               "%s: can't allocate %d byte ipxsin structure\n",
                               Pn, (int)sizeof(struct ipxsin));
             Error(ctx);
-            return;
+            goto cleanup;
         }
         ip->inode = inode;
         ip->la = la;
+        la = NULL;
         ip->ra = ra;
+        ra = NULL;
         ip->txq = txq;
         ip->rxq = rxq;
         ip->state = (int)state;
         HASH_INSERT_ELEMENT(Ipxsin, INOHASH, ip, inode);
     }
+cleanup:
     (void)fclose(xs);
+    CLEAN(vbuf);
+    CLEAN(la);
+    CLEAN(ra);
 }
 
 /*
@@ -1783,12 +1803,13 @@ static void get_netlink(struct lsof_context *ctx,
                               "%s: can't allocate %d byte Netlink structure\n",
                               Pn, (int)sizeof(struct nlksin));
             Error(ctx);
-            return;
+            goto cleanup;
         }
         lp->inode = inode;
         lp->pr = pr;
         HASH_INSERT_ELEMENT(Nlksin, INOHASH, lp, inode);
     }
+cleanup:
     (void)fclose(xs);
     CLEAN(vbuf);
 }
@@ -1895,13 +1916,14 @@ static void get_pack(struct lsof_context *ctx, char *p) /* /proc/net/raw path */
                               "%s: can't allocate %d byte packet structure\n",
                               Pn, (int)sizeof(struct packin));
             Error(ctx);
-            return;
+            goto cleanup;
         }
         pp->inode = inode;
         pp->pr = (int)pr;
         pp->ty = ty;
         HASH_INSERT_ELEMENT(Packin, INOHASH, pp, inode);
     }
+cleanup:
     (void)fclose(xs);
     CLEAN(vbuf);
 }
@@ -1931,7 +1953,7 @@ void clean_raw(struct lsof_context *ctx) {
  */
 static void get_raw(struct lsof_context *ctx, char *p) /* /proc/net/raw path */
 {
-    char buf[MAXPATHLEN], *ep, **fp, *la, *ra, *sp;
+    char buf[MAXPATHLEN], *ep, **fp, *la = NULL, *ra = NULL, *sp = NULL;
     int h;
     INODETYPE inode;
     int nf = 12;
@@ -1943,28 +1965,15 @@ static void get_raw(struct lsof_context *ctx, char *p) /* /proc/net/raw path */
     /*
      * Do second time cleanup or first time setup.
      */
-    if (Rawsin) {
-        for (h = 0; h < INOBUCKS; h++) {
-            for (rp = Rawsin[h]; rp; rp = np) {
-                np = rp->next;
-                if (rp->la)
-                    (void)free((FREE_P *)rp->la);
-                if (rp->ra)
-                    (void)free((FREE_P *)rp->ra);
-                (void)free((FREE_P *)rp);
-            }
-            Rawsin[h] = (struct rawsin *)NULL;
-        }
-    } else {
-        Rawsin = (struct rawsin **)calloc(INOBUCKS, sizeof(struct rawsin *));
-        if (!Rawsin) {
-            if (ctx->err)
-                (void)fprintf(ctx->err,
-                              "%s: can't allocate %d raw hash pointer bytes\n",
-                              Pn, (int)(INOBUCKS * sizeof(struct rawsin *)));
-            Error(ctx);
-            return;
-        }
+    clean_raw(ctx);
+    Rawsin = (struct rawsin **)calloc(INOBUCKS, sizeof(struct rawsin *));
+    if (!Rawsin) {
+        if (ctx->err)
+            (void)fprintf(ctx->err,
+                          "%s: can't allocate %d raw hash pointer bytes\n", Pn,
+                          (int)(INOBUCKS * sizeof(struct rawsin *)));
+        Error(ctx);
+        return;
     }
     /*
      * Open the /proc/net/raw file, assign a page size buffer to its stream,
@@ -2018,7 +2027,7 @@ static void get_raw(struct lsof_context *ctx, char *p) /* /proc/net/raw path */
                         "%s: can't allocate %d local raw address bytes: %s\n",
                         Pn, (int)(lal + 1), fp[1]);
                 Error(ctx);
-                return;
+                goto cleanup;
             }
             (void)snpf(la, lal + 1, "%s", fp[1]);
         }
@@ -2033,7 +2042,7 @@ static void get_raw(struct lsof_context *ctx, char *p) /* /proc/net/raw path */
                         "%s: can't allocate %d remote raw address bytes: %s\n",
                         Pn, (int)(ral + 1), fp[2]);
                 Error(ctx);
-                return;
+                goto cleanup;
             }
             (void)snpf(ra, ral + 1, "%s", fp[2]);
         }
@@ -2048,7 +2057,7 @@ static void get_raw(struct lsof_context *ctx, char *p) /* /proc/net/raw path */
                         "%s: can't allocate %d remote raw state bytes: %s\n",
                         Pn, (int)(spl + 1), fp[2]);
                 Error(ctx);
-                return;
+                goto cleanup;
             }
             (void)snpf(sp, spl + 1, "%s", fp[3]);
         }
@@ -2062,19 +2071,26 @@ static void get_raw(struct lsof_context *ctx, char *p) /* /proc/net/raw path */
                               "%s: can't allocate %d byte rawsin structure\n",
                               Pn, (int)sizeof(struct rawsin));
             Error(ctx);
-            return;
+            goto cleanup;
         }
         rp->inode = inode;
         rp->la = la;
+        la = NULL;
         rp->lal = lal;
         rp->ra = ra;
+        ra = NULL;
         rp->ral = ral;
         rp->sp = sp;
+        sp = NULL;
         rp->spl = spl;
         HASH_INSERT_ELEMENT(Rawsin, INOHASH, rp, inode);
     }
+cleanup:
     (void)fclose(xs);
     CLEAN(vbuf);
+    CLEAN(la);
+    CLEAN(ra);
+    CLEAN(sp);
 }
 
 /*
@@ -2105,7 +2121,8 @@ void clean_sctp(struct lsof_context *ctx) {
  * get_sctp() - get /proc/net/sctp/assocs info
  */
 static void get_sctp(struct lsof_context *ctx) {
-    char buf[MAXPATHLEN], *a, *ep, **fp, *id, *la, *lp, *ra, *rp, *ta;
+    char buf[MAXPATHLEN], *a = NULL, *ep, **fp, *id = NULL, *la = NULL,
+                          *lp = NULL, *ra = NULL, *rp = NULL, *ta = NULL;
     int d, err, fl, h, i, j, nf, ty, x;
     INODETYPE inode;
     MALLOC_S len, plen;
@@ -2199,12 +2216,12 @@ static void get_sctp(struct lsof_context *ctx) {
              *
              * The association or endpoint address is in the first field.
              */
-            a = sp ? sp->addr : (char *)NULL;
+            a = NULL;
             if (fp[0] && *fp[0] && (len = strlen(fp[0]))) {
-                if (a) {
-                    if (isainb(fp[0], a)) {
-                        plen = strlen(a);
-                        a = (char *)realloc((MALLOC_P *)a, plen + len + 2);
+                if (sp && sp->addr) {
+                    if (isainb(fp[0], sp->addr)) {
+                        plen = strlen(sp->addr);
+                        a = (char *)malloc(plen + len + 2);
                         d = 0;
                     } else
                         d = 1;
@@ -2213,18 +2230,18 @@ static void get_sctp(struct lsof_context *ctx) {
                     a = (char *)malloc(len + 1);
                     d = 0;
                 }
-                if (!a) {
-                    if (ctx->err)
-                        (void)fprintf(
-                            ctx->err,
-                            "%s: can't allocate %d SCTP ASSOC bytes: %s\n", Pn,
-                            (int)(len + 1), fp[0]);
-                    Error(ctx);
-                    return;
-                }
                 if (!d) {
+                    if (!a) {
+                        if (ctx->err)
+                            (void)fprintf(
+                                ctx->err,
+                                "%s: can't allocate %d SCTP ASSOC bytes: %s\n",
+                                Pn, (int)(len + 1), fp[0]);
+                        Error(ctx);
+                        goto cleanup;
+                    }
                     if (plen)
-                        (void)snpf((a + plen), len + 2, ",%s", fp[0]);
+                        (void)snpf(a, plen + len + 2, "%s,%s", sp->addr, fp[0]);
                     else
                         (void)snpf(a, len + 1, "%s", fp[0]);
                 }
@@ -2232,12 +2249,12 @@ static void get_sctp(struct lsof_context *ctx) {
             /*
              * The association ID is in the seventh field.
              */
-            id = sp ? sp->assocID : (char *)NULL;
+            id = NULL;
             if (!i && fp[6] && *fp[6] && (len = strlen(fp[6]))) {
-                if (id) {
-                    if (isainb(fp[6], id)) {
-                        plen = strlen(id);
-                        id = (char *)realloc((MALLOC_P *)id, plen + len + 2);
+                if (sp && sp->assocID) {
+                    if (isainb(fp[6], sp->assocID)) {
+                        plen = strlen(sp->assocID);
+                        id = (char *)malloc(plen + len + 2);
                         d = 0;
                     } else
                         d = 1;
@@ -2246,18 +2263,19 @@ static void get_sctp(struct lsof_context *ctx) {
                     id = (char *)malloc(len + 1);
                     d = 0;
                 }
-                if (!id) {
-                    if (ctx->err)
-                        (void)fprintf(
-                            ctx->err,
-                            "%s: can't allocate %d SCTP ASSOC-ID bytes: %s\n",
-                            Pn, (int)(len + 1), fp[6]);
-                    Error(ctx);
-                    return;
-                }
                 if (!d) {
+                    if (!id) {
+                        if (ctx->err)
+                            (void)fprintf(ctx->err,
+                                          "%s: can't allocate %d SCTP ASSOC-ID "
+                                          "bytes: %s\n",
+                                          Pn, (int)(len + 1), fp[6]);
+                        Error(ctx);
+                        goto cleanup;
+                    }
                     if (plen)
-                        (void)snpf((id + plen), len + 2, ",%s", fp[6]);
+                        (void)snpf(id, plen + len + 2, "%s,%s", sp->assocID,
+                                   fp[6]);
                     else
                         (void)snpf(id, len + 1, "%s", fp[6]);
                 }
@@ -2266,12 +2284,12 @@ static void get_sctp(struct lsof_context *ctx) {
              * The field number for the local port depends on the entry type.
              */
             j = i ? 5 : 11;
-            lp = sp ? sp->lport : (char *)NULL;
+            lp = NULL;
             if (fp[j] && *fp[j] && (len = strlen(fp[j]))) {
-                if (lp) {
-                    if (isainb(fp[j], lp)) {
-                        plen = strlen(lp);
-                        lp = (char *)realloc((MALLOC_P *)lp, plen + len + 2);
+                if (sp && sp->lport) {
+                    if (isainb(fp[j], sp->lport)) {
+                        plen = strlen(sp->lport);
+                        lp = (char *)malloc(plen + len + 2);
                         d = 0;
                     } else
                         d = 1;
@@ -2280,18 +2298,19 @@ static void get_sctp(struct lsof_context *ctx) {
                     lp = (char *)malloc(len + 1);
                     d = 0;
                 }
-                if (!lp) {
-                    if (ctx->err)
-                        (void)fprintf(
-                            ctx->err,
-                            "%s: can't allocate %d SCTP LPORT bytes: %s\n", Pn,
-                            (int)(len + 1), fp[j]);
-                    Error(ctx);
-                    return;
-                }
                 if (!d) {
+                    if (!lp) {
+                        if (ctx->err)
+                            (void)fprintf(
+                                ctx->err,
+                                "%s: can't allocate %d SCTP LPORT bytes: %s\n",
+                                Pn, (int)(len + 1), fp[j]);
+                        Error(ctx);
+                        goto cleanup;
+                    }
                     if (plen)
-                        (void)snpf((lp + plen), len + 2, ",%s", fp[j]);
+                        (void)snpf(lp, plen + len + 2, "%s,%s", sp->lport,
+                                   fp[j]);
                     else
                         (void)snpf(lp, len + 1, "%s", fp[j]);
                 }
@@ -2299,12 +2318,12 @@ static void get_sctp(struct lsof_context *ctx) {
             /*
              * The field number for the remote port depends on the entry type.
              */
-            rp = sp ? sp->rport : (char *)NULL;
+            rp = NULL;
             if (!i && fp[12] && *fp[12] && (len = strlen(fp[12]))) {
-                if (rp) {
-                    if (isainb(fp[12], rp)) {
-                        plen = strlen(rp);
-                        rp = (char *)realloc((MALLOC_P *)rp, plen + len + 2);
+                if (sp && sp->rport) {
+                    if (isainb(fp[12], sp->rport)) {
+                        plen = strlen(sp->rport);
+                        rp = (char *)malloc(plen + len + 2);
                         d = 0;
                     } else
                         d = 1;
@@ -2313,18 +2332,19 @@ static void get_sctp(struct lsof_context *ctx) {
                     rp = (char *)malloc(len + 1);
                     d = 0;
                 }
-                if (!rp) {
-                    if (ctx->err)
-                        (void)fprintf(
-                            ctx->err,
-                            "%s: can't allocate %d SCTP RPORT bytes: %s\n", Pn,
-                            (int)(len + 1), fp[12]);
-                    Error(ctx);
-                    return;
-                }
                 if (!d) {
+                    if (!rp) {
+                        if (ctx->err)
+                            (void)fprintf(
+                                ctx->err,
+                                "%s: can't allocate %d SCTP RPORT bytes: %s\n",
+                                Pn, (int)(len + 1), fp[12]);
+                        Error(ctx);
+                        goto cleanup;
+                    }
                     if (plen)
-                        (void)snpf((rp + plen), len + 2, ",%s", fp[12]);
+                        (void)snpf(rp, plen + len + 2, "%s,%s", sp->rport,
+                                   fp[12]);
                     else
                         (void)snpf(rp, len + 1, "%s", fp[12]);
                 }
@@ -2334,7 +2354,7 @@ static void get_sctp(struct lsof_context *ctx) {
              * the entry type.
              */
             j = i ? 8 : 13;
-            la = sp ? sp->laddrs : (char *)NULL;
+            la = NULL;
             x = 0;
             if (fp[j] && *fp[j] && (len = strlen(fp[j]))) {
                 if (!(ta = get_sctpaddrs(fp, j, nf, &x))) {
@@ -2344,33 +2364,34 @@ static void get_sctp(struct lsof_context *ctx) {
                             "%s: can't allocate %d SCTP LADDRS bytes\n", Pn,
                             (int)len);
                     Error(ctx);
-                    return;
+                    goto cleanup;
                 }
-                if (la) {
-                    if (isainb(ta, la)) {
+                if (sp && sp->laddrs) {
+                    if (isainb(ta, sp->laddrs)) {
                         len = strlen(ta);
-                        plen = strlen(la);
-                        if (!(la = (char *)realloc((MALLOC_P *)la,
-                                                   plen + len + 2))) {
+                        plen = strlen(sp->laddrs);
+                        if (!(la = (char *)malloc(plen + len + 2))) {
                             if (ctx->err)
                                 (void)fprintf(ctx->err,
                                               "%s: can't reallocate %d SCTP "
                                               "LADDRS bytes\n",
                                               Pn, (int)len);
                             Error(ctx);
-                            return;
+                            goto cleanup;
                         }
-                        (void)snpf(la + plen, len + 2, ",%s", ta);
-                        (void)free((FREE_P *)ta);
+                        (void)snpf(la, plen + len + 2, "%s,%s", sp->laddrs, ta);
                     }
-                } else
+                    CLEAN(ta);
+                } else {
                     la = ta;
+                    ta = NULL;
+                }
             }
             /*
              * The remote addresses begin after the local addresses, but only
              * for the ASSOC type.
              */
-            ra = sp ? sp->raddrs : (char *)NULL;
+            ra = NULL;
             if (!i && x && fp[x + 1] && *fp[x + 1] &&
                 (len = strlen(fp[x + 1]))) {
                 if (!(ta = get_sctpaddrs(fp, x + 1, nf, &x))) {
@@ -2380,27 +2401,28 @@ static void get_sctp(struct lsof_context *ctx) {
                             "%s: can't allocate %d SCTP RADDRS bytes\n", Pn,
                             (int)len);
                     Error(ctx);
-                    return;
+                    goto cleanup;
                 }
-                if (ra) {
-                    if (isainb(ta, ra)) {
+                if (sp && sp->raddrs) {
+                    if (isainb(ta, sp->raddrs)) {
                         len = strlen(ta);
-                        plen = strlen(ra);
-                        if (!(ra = (char *)realloc((MALLOC_P *)ra,
-                                                   plen + len + 2))) {
+                        plen = strlen(sp->raddrs);
+                        if (!(ra = (char *)malloc(plen + len + 2))) {
                             if (ctx->err)
                                 (void)fprintf(ctx->err,
                                               "%s: can't reallocate %d SCTP "
                                               "RADDRS bytes\n",
                                               Pn, (int)len);
                             Error(ctx);
-                            return;
+                            goto cleanup;
                         }
-                        (void)snpf(ra + plen, len + 2, ",%s", ta);
-                        (void)free((FREE_P *)ta);
+                        (void)snpf(ra, plen + len + 2, "%s,%s", sp->raddrs, ta);
                     }
-                } else
+                    CLEAN(ta);
+                } else {
                     ra = ta;
+                    ta = NULL;
+                }
             }
             /*
              * If no matching sctpsin entry was found for this inode, allocate
@@ -2415,21 +2437,56 @@ static void get_sctp(struct lsof_context *ctx) {
                             "%s: can't allocate %d byte sctpsin structure\n",
                             Pn, (int)sizeof(struct sctpsin));
                     Error(ctx);
-                    return;
+                    goto cleanup;
                 }
                 sp->inode = inode;
                 HASH_INSERT_ELEMENT(SCTPsin, INOHASH, sp, inode);
             }
-            sp->addr = a;
-            sp->assocID = id;
-            sp->lport = lp;
-            sp->rport = rp;
-            sp->laddrs = la;
-            sp->raddrs = ra;
+            if (a) {
+                CLEAN(sp->addr);
+                sp->addr = a;
+                a = NULL;
+            }
+            if (id) {
+                CLEAN(sp->assocID);
+                sp->assocID = id;
+                id = NULL;
+            }
+            if (lp) {
+                CLEAN(sp->lport);
+                sp->lport = lp;
+                lp = NULL;
+            }
+            if (rp) {
+                CLEAN(sp->rport);
+                sp->rport = rp;
+                rp = NULL;
+            }
+            if (la) {
+                CLEAN(sp->laddrs);
+                sp->laddrs = la;
+                la = NULL;
+            }
+            if (ra) {
+                CLEAN(sp->raddrs);
+                sp->raddrs = ra;
+                ra = NULL;
+            }
             sp->type = ty;
         }
         (void)fclose(ss);
+        ss = NULL;
     }
+cleanup:
+    if (ss)
+        (void)fclose(ss);
+    CLEAN(a);
+    CLEAN(id);
+    CLEAN(lp);
+    CLEAN(rp);
+    CLEAN(ta);
+    CLEAN(la);
+    CLEAN(ra);
 }
 
 static char *get_sctpaddrs(char **fp, /* field pointers */
@@ -2439,6 +2496,7 @@ static char *get_sctpaddrs(char **fp, /* field pointers */
 {
     MALLOC_S al = (MALLOC_S)0;
     char *cp = (char *)NULL;
+    char *temp;
     MALLOC_S tl;
 
     *x = 0;
@@ -2451,12 +2509,17 @@ static char *get_sctpaddrs(char **fp, /* field pointers */
         }
         if (!strchr(fp[i], (int)'.') && !strchr(fp[i], (int)':'))
             break;
+
         if (cp)
-            cp = (char *)realloc((MALLOC_P *)cp, al + tl + 1);
+            temp = (char *)realloc((MALLOC_P *)cp, al + tl + 1);
         else
-            cp = (char *)malloc(al + tl + 1);
-        if (!cp)
+            temp = (char *)malloc(al + tl + 1);
+        if (!temp) {
+            CLEAN(cp);
             break;
+        }
+        cp = temp;
+
         if (al)
             *(cp + al - 1) = ',';
         (void)strncpy(al ? (cp + al) : cp, fp[i], tl);
@@ -2557,6 +2620,7 @@ static void get_tcpudp(struct lsof_context *ctx,
                 break;
             }
             (void)fclose(fs);
+            fs = NULL;
         }
         if (!(TcpUdp = (struct tcp_udp **)calloc(TcpUdp_bucks,
                                                  sizeof(struct tcp_udp *)))) {
@@ -2566,7 +2630,7 @@ static void get_tcpudp(struct lsof_context *ctx,
                     "%s: can't allocate %d bytes for TCP&UDP hash buckets\n",
                     Pn, (int)(TcpUdp_bucks * sizeof(struct tcp_udp *)));
             Error(ctx);
-            return;
+            goto cleanup;
         }
 #if defined(HASEPTOPTS)
         if (FeptE && (!(TcpUdpIPC = (struct tcp_udp **)calloc(
@@ -2578,7 +2642,7 @@ static void get_tcpudp(struct lsof_context *ctx,
                     "hash buckets\n",
                     Pn, (int)(IPCBUCKS * sizeof(struct tcp_udp *)));
             Error(ctx);
-            return;
+            goto cleanup;
         }
 #endif /* defined(HASEPTOPTS) */
     }
@@ -2586,8 +2650,9 @@ static void get_tcpudp(struct lsof_context *ctx,
      * Open the /proc/net file, assign a page size buffer to the stream, and
      * read it.
      */
-    if (!(fs = open_proc_stream(ctx, p, "r", &vbuf, &vsz)))
-        return;
+    if (!(fs = open_proc_stream(ctx, p, "r", &vbuf, &vsz))) {
+        goto cleanup;
+    }
     nf = 12;
     while (fgets(buf, sizeof(buf) - 1, fs)) {
         if (get_fields(ctx, buf, (nf == 12) ? (char *)NULL : ":", &fp,
@@ -2662,7 +2727,7 @@ static void get_tcpudp(struct lsof_context *ctx,
                     "%s: can't allocate %d bytes for tcp_udp struct\n", Pn,
                     (int)sizeof(struct tcp_udp));
             Error(ctx);
-            return;
+            goto cleanup;
         }
         tp->inode = inode;
         tp->faddr = faddr;
@@ -2695,6 +2760,7 @@ static void get_tcpudp(struct lsof_context *ctx,
         get_netpeeri(ctx);
 #endif /* defined(HASEPTOPTS) */
 
+cleanup:
     (void)fclose(fs);
     CLEAN(vbuf);
 }
@@ -2726,7 +2792,7 @@ void clean_raw6(struct lsof_context *ctx) {
  */
 static void get_raw6(struct lsof_context *ctx, char *p) /* /proc/net/raw path */
 {
-    char buf[MAXPATHLEN], *ep, **fp, *la, *ra, *sp;
+    char buf[MAXPATHLEN], *ep, **fp, *la = NULL, *ra = NULL, *sp = NULL;
     int h;
     INODETYPE inode;
     int nf = 12;
@@ -2800,7 +2866,7 @@ static void get_raw6(struct lsof_context *ctx, char *p) /* /proc/net/raw path */
                         "%s: can't allocate %d local raw6 address bytes: %s\n",
                         Pn, (int)(lal + 1), fp[1]);
                 Error(ctx);
-                return;
+                goto cleanup;
             }
             (void)snpf(la, lal + 1, "%s", fp[1]);
         }
@@ -2815,7 +2881,7 @@ static void get_raw6(struct lsof_context *ctx, char *p) /* /proc/net/raw path */
                         "%s: can't allocate %d remote raw6 address bytes: %s\n",
                         Pn, (int)(ral + 1), fp[2]);
                 Error(ctx);
-                return;
+                goto cleanup;
             }
             (void)snpf(ra, ral + 1, "%s", fp[2]);
         }
@@ -2830,7 +2896,7 @@ static void get_raw6(struct lsof_context *ctx, char *p) /* /proc/net/raw path */
                         "%s: can't allocate %d remote raw6 state bytes: %s\n",
                         Pn, (int)(spl + 1), fp[2]);
                 Error(ctx);
-                return;
+                goto cleanup;
             }
             (void)snpf(sp, spl + 1, "%s", fp[3]);
         }
@@ -2845,19 +2911,26 @@ static void get_raw6(struct lsof_context *ctx, char *p) /* /proc/net/raw path */
                     "%s: can't allocate %d byte rawsin structure for IPv6\n",
                     Pn, (int)sizeof(struct rawsin));
             Error(ctx);
-            return;
+            goto cleanup;
         }
         rp->inode = inode;
         rp->la = la;
+        la = NULL;
         rp->lal = lal;
         rp->ra = ra;
+        ra = NULL;
         rp->ral = ral;
         rp->sp = sp;
+        sp = NULL;
         rp->spl = spl;
         HASH_INSERT_ELEMENT(Rawsin6, INOHASH, rp, inode);
     }
+cleanup:
     (void)fclose(xs);
     CLEAN(vbuf);
+    CLEAN(la);
+    CLEAN(ra);
+    CLEAN(sp);
 }
 
 /*
@@ -2962,6 +3035,7 @@ static void get_tcpudp6(struct lsof_context *ctx,
                 }
             }
             (void)fclose(fs);
+            fs = NULL;
         }
         if (!(TcpUdp6 = (struct tcp_udp6 **)calloc(
                   TcpUdp6_bucks, sizeof(struct tcp_udp6 *)))) {
@@ -2971,7 +3045,7 @@ static void get_tcpudp6(struct lsof_context *ctx,
                     "%s: can't allocate %d bytes for TCP6&UDP6 hash buckets\n",
                     Pn, (int)(TcpUdp6_bucks * sizeof(struct tcp_udp6 *)));
             Error(ctx);
-            return;
+            goto cleanup;
         }
 #    if defined(HASEPTOPTS)
         if (FeptE && (!(TcpUdp6IPC = (struct tcp_udp6 **)calloc(
@@ -2983,7 +3057,7 @@ static void get_tcpudp6(struct lsof_context *ctx,
                     "hash buckets\n",
                     Pn, (int)(IPCBUCKS * sizeof(struct tcp_udp6 *)));
             Error(ctx);
-            return;
+            goto cleanup;
         }
 #    endif /* defined(HASEPTOPTS) */
     }
@@ -2991,8 +3065,9 @@ static void get_tcpudp6(struct lsof_context *ctx,
      * Open the /proc/net file, assign a page size buffer to the stream,
      * and read it.
      */
-    if (!(fs = open_proc_stream(ctx, p, "r", &vbuf, &vsz)))
-        return;
+    if (!(fs = open_proc_stream(ctx, p, "r", &vbuf, &vsz))) {
+        goto cleanup;
+    }
     nf = 12;
     while (fgets(buf, sizeof(buf) - 1, fs)) {
         if (get_fields(ctx, buf, (nf == 12) ? (char *)NULL : ":", &fp,
@@ -3064,7 +3139,7 @@ static void get_tcpudp6(struct lsof_context *ctx,
                     "%s: can't allocate %d bytes for tcp_udp6 struct\n", Pn,
                     (int)sizeof(struct tcp_udp6));
             Error(ctx);
-            return;
+            goto cleanup;
         }
         tp6->inode = inode;
         tp6->faddr = faddr;
@@ -3096,7 +3171,9 @@ static void get_tcpudp6(struct lsof_context *ctx,
         get_net6peeri(ctx);
 #    endif /* defined(HASEPTOPTS) */
 
-    (void)fclose(fs);
+cleanup:
+    if (fs)
+        (void)fclose(fs);
     CLEAN(vbuf);
 }
 #endif /* defined(HASIPv6) */
@@ -3140,7 +3217,7 @@ void clean_unix(struct lsof_context *ctx) {
 static void get_unix(struct lsof_context *ctx,
                      char *p) /* /proc/net/unix path */
 {
-    char buf[MAXPATHLEN], *ep, **fp, *path, *pcb;
+    char buf[MAXPATHLEN], *ep, **fp, *path = NULL, *pcb = NULL;
     int fl = 1; /* First line */
     int h, nf;
     INODETYPE inode;
@@ -3172,8 +3249,9 @@ static void get_unix(struct lsof_context *ctx,
      * Open the /proc/net/unix file, assign a page size buffer to the stream,
      * read the file's contents, and add them to the Uxsin hash buckets.
      */
-    if (!(us = open_proc_stream(ctx, p, "r", &vbuf, &vsz)))
-        return;
+    if (!(us = open_proc_stream(ctx, p, "r", &vbuf, &vsz))) {
+        goto cleanup;
+    }
     while (fgets(buf, sizeof(buf) - 1, us)) {
         if ((nf = get_fields(ctx, buf, ":", &fp, (int *)NULL, 0)) < 7)
             continue;
@@ -3220,7 +3298,7 @@ static void get_unix(struct lsof_context *ctx,
                         "%s: can't allocate %d bytes for UNIX PCB: %s\n", Pn,
                         (int)(len + 1), fp[0]);
                 Error(ctx);
-                return;
+                goto cleanup;
             }
             (void)snpf(pcb, len + 1, "0x%s", fp[0]);
         }
@@ -3232,7 +3310,7 @@ static void get_unix(struct lsof_context *ctx,
                         "%s: can't allocate %d bytes for UNIX path \"%s\"\n",
                         Pn, (int)(len + 1), fp[7]);
                 Error(ctx);
-                return;
+                goto cleanup;
             }
             (void)snpf(path, len + 1, "%s", fp[7]);
         } else
@@ -3271,11 +3349,12 @@ static void get_unix(struct lsof_context *ctx,
                               "%s: can't allocate %d bytes for uxsin struct\n",
                               Pn, (int)sizeof(uxsin_t));
             Error(ctx);
-            return;
+            goto cleanup;
         }
         up->inode = inode;
         up->next = (uxsin_t *)NULL;
         up->pcb = pcb;
+        pcb = NULL;
         up->sb_def = 0;
         up->ty = ty;
         up->opt = (unsigned int)proc_flags;
@@ -3301,6 +3380,7 @@ static void get_unix(struct lsof_context *ctx,
                 up->sb_rdev = sb.st_rdev;
             }
         }
+        path = NULL;
 
 #if defined(HASEPTOPTS) && defined(HASUXSOCKEPT)
         /*
@@ -3322,8 +3402,12 @@ static void get_unix(struct lsof_context *ctx,
         get_uxpeeri(ctx);
 #endif /* defined(HASEPTOPTS) && defined(HASUXSOCKEPT) */
 
-    (void)fclose(us);
+cleanup:
+    if (us)
+        (void)fclose(us);
     CLEAN(vbuf);
+    CLEAN(pcb);
+    CLEAN(path);
 }
 
 #if defined(HASIPv6)
@@ -4234,14 +4318,9 @@ void process_proc_sock(struct lsof_context *ctx,
 }
 
 /*
- * set_net_paths() - set /proc/net paths
+ * refresh_socket_info() - refresh socket info
  */
-void set_net_paths(struct lsof_context *ctx, char *p, /* path to /proc/net/ */
-                   int pl)                            /* strlen(p) */
-{
-    int i;
-    int pathl;
-
+void refresh_socket_info(struct lsof_context *ctx) {
     /* Refresh socket info */
     ctxd.ax25_valid = 0;
     ctxd.icmp_valid = 0;

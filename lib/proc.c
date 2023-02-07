@@ -111,6 +111,7 @@ void alloc_lfile(struct lsof_context *ctx,
         (void)fprintf(stderr, "%s: no local file space at PID %d\n", Pn,
                       Lp->pid);
         Error(ctx);
+        return;
     }
     /*
      * Initialize the structure.

@@ -430,6 +430,7 @@ enum lsof_error lsof_select_process_regex(struct lsof_context *ctx, char *x) {
     char reb[256], *xb, *xe, *xm;
     MALLOC_S xl;
     char *xp = (char *)NULL;
+    enum lsof_error ret = LSOF_SUCCESS;
 
     if (!ctx || ctx->frozen) {
         return LSOF_ERROR_INVALID_ARGUMENT;
@@ -444,7 +445,8 @@ enum lsof_error lsof_select_process_regex(struct lsof_context *ctx, char *x) {
             if (x)
                 safestrprt(x, ctx->err, 1);
         }
-        return LSOF_ERROR_INVALID_ARGUMENT;
+        ret = LSOF_ERROR_INVALID_ARGUMENT;
+        goto cleanup;
     }
 
     /*
@@ -460,7 +462,8 @@ enum lsof_error lsof_select_process_regex(struct lsof_context *ctx, char *x) {
             (void)fprintf(ctx->err, "%s: regexp doesn't end with '/': ", Pn);
             safestrprt(x, ctx->err, 1);
         }
-        return LSOF_ERROR_INVALID_ARGUMENT;
+        ret = LSOF_ERROR_INVALID_ARGUMENT;
+        goto cleanup;
     }
 
     /*
@@ -525,7 +528,8 @@ enum lsof_error lsof_select_process_regex(struct lsof_context *ctx, char *x) {
         }
     }
     if (i) {
-        return LSOF_ERROR_INVALID_ARGUMENT;
+        ret = LSOF_ERROR_INVALID_ARGUMENT;
+        goto cleanup;
     }
 
     /*
@@ -538,7 +542,8 @@ enum lsof_error lsof_select_process_regex(struct lsof_context *ctx, char *x) {
             safestrprt(x, ctx->err, 1);
         }
         Error(ctx);
-        return LSOF_ERROR_NO_MEMORY;
+        ret = LSOF_ERROR_NO_MEMORY;
+        goto cleanup;
     }
     (void)strncpy(xp, xb, xl);
     xp[(int)xl] = '\0';
@@ -561,7 +566,8 @@ enum lsof_error lsof_select_process_regex(struct lsof_context *ctx, char *x) {
                 safestrprt(x, ctx->err, 1);
             }
             Error(ctx);
-            return LSOF_ERROR_NO_MEMORY;
+            ret = LSOF_ERROR_NO_MEMORY;
+            goto cleanup;
         }
     }
     i = NCmdRxU;
@@ -576,11 +582,8 @@ enum lsof_error lsof_select_process_regex(struct lsof_context *ctx, char *x) {
             (void)regerror(re, &CmdRx[i].cx, &reb[0], sizeof(reb));
             (void)fprintf(ctx->err, ": %s\n", reb);
         }
-        if (xp) {
-            (void)free((FREE_P *)xp);
-            xp = (char *)NULL;
-        }
-        return (1);
+        ret = LSOF_ERROR_INVALID_ARGUMENT;
+        goto cleanup;
     }
     /*
      * Complete the CmdRx[] table entry.
@@ -592,7 +595,10 @@ enum lsof_error lsof_select_process_regex(struct lsof_context *ctx, char *x) {
     /** Update selection flags for inclusion */
     if (CmdRx)
         Selflags |= SELCMD;
-    return LSOF_SUCCESS;
+    ret = LSOF_SUCCESS;
+cleanup:
+    CLEAN(xp);
+    return ret;
 }
 
 /* Internal helper for lsof_select_uid/lsof_select_login*/
@@ -609,7 +615,7 @@ enum lsof_error lsof_select_uid_login(struct lsof_context *ctx, uint32_t uid,
     /*
      * Avoid entering duplicates.
      */
-    for (i = j = 0; i < Nuid; i++) {
+    for (i = 0; i < Nuid; i++) {
         if (uid != Suid[i].uid)
             continue;
         /* Duplicate */
@@ -768,7 +774,7 @@ enum lsof_error lsof_select_fd(struct lsof_context *ctx,
      * Skip duplicates.
      */
     for (ft = Fdl; ft; ft = ft->next) {
-        if (ft->fd_type != f->fd_type)
+        if (ft->fd_type != fd_type)
             continue;
         if (ft->fd_type == LSOF_FD_NUMERIC) {
             if ((fd_num_lo != ft->lo) || (fd_num_hi != ft->hi))
@@ -806,7 +812,7 @@ enum lsof_error lsof_select_pid_pgid(struct lsof_context *ctx, int32_t id,
     /*
      * Avoid entering duplicates and conflicts.
      */
-    for (i = j = 0; i < *size; i++) {
+    for (i = 0; i < *size; i++) {
         if (id == (*sel)[i].i) {
             if (exclude == (*sel)[i].x) {
                 return LSOF_SUCCESS;

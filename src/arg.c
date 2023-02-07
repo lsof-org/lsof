@@ -162,6 +162,7 @@ int accept_deleted_file; /* if non-zero, don't report an error even
                     (void)fprintf(stderr, "%s: no space for copy of %s\n", Pn,
                                   path);
                     Error(ctx);
+                    return 1;
                 }
                 (void)strncpy(ap, path, k);
                 ap[k] = '\0';
@@ -210,6 +211,7 @@ int accept_deleted_file; /* if non-zero, don't report an error even
                     (void)fprintf(stderr, "%s: no space for mount pointers\n",
                                   Pn);
                     Error(ctx);
+                    return (1);
                 }
             }
             mmp[nm++] = mp;
@@ -235,6 +237,7 @@ int accept_deleted_file; /* if non-zero, don't report an error even
             if (!(sfp = (struct sfile *)malloc(sizeof(struct sfile)))) {
                 (void)fprintf(stderr, "%s: no space for files\n", Pn);
                 Error(ctx);
+                return (1);
             }
             sfp->next = Sfile;
             Sfile = sfp;
@@ -337,6 +340,7 @@ int accept_deleted_file; /* if non-zero, don't report an error even
                     (void)fprintf(stderr, "%s: no space for file name: ", Pn);
                     safestrprt(fnm, stderr, 1);
                     Error(ctx);
+                    return (1);
                 }
 
 #if defined(HASPROCFS)
@@ -356,6 +360,7 @@ int accept_deleted_file; /* if non-zero, don't report an error even
                                   "%s: no space for file system name: ", Pn);
                     safestrprt(fsnm, stderr, 1);
                     Error(ctx);
+                    return (1);
                 }
 
 #if defined(HASPROCFS)
@@ -367,6 +372,7 @@ int accept_deleted_file; /* if non-zero, don't report an error even
                               "%s: no space for argument file name: ", Pn);
                 safestrprt(av[i], stderr, 1);
                 Error(ctx);
+                return (1);
             }
 
 #if defined(HASPROCFS)
@@ -418,6 +424,7 @@ int accept_deleted_file; /* if non-zero, don't report an error even
                               Mtprocfs->dir);
                 safestrprt(path, stderr, 1);
                 Error(ctx);
+                return (1);
             }
             pfi->pid = pid;
             pfi->f = 0;
@@ -540,6 +547,7 @@ char *c; /* control string */
             (void)fprintf(stderr, "%s: no space for -D path: ", Pn);
             safestrprt(c, stderr, 1);
             Error(ctx);
+            return (1);
         }
     }
     return (0);
@@ -567,6 +575,7 @@ char *f; /* file descriptor list pointer */
         (void)fprintf(stderr, "%s: no space for fd string: ", Pn);
         safestrprt(f, stderr, 1);
         Error(ctx);
+        return (1);
     }
     /*
      * Isolate each file descriptor in the comma-separated list, then enter it
@@ -669,6 +678,7 @@ int excl; /* exclusion on match */
                 (void)fprintf(stderr,
                               "%s: invalid fd type given in -d option\n", Pn);
                 Error(ctx);
+                return (1);
             }
         } else {
             fd_type = LSOF_FD_NUMERIC;
@@ -703,6 +713,7 @@ int enter_dir(char *d,     /* directory path name pointer */
     int en, sl;
     int fct = 0;
     char *fp = (char *)NULL;
+    char *temp = (char *)NULL;
     MALLOC_S fpl = (MALLOC_S)0;
     MALLOC_S fpli = (MALLOC_S)0;
     struct stat sb;
@@ -793,16 +804,18 @@ int enter_dir(char *d,     /* directory path name pointer */
         if ((int)fpli > (int)fpl) {
             fpl = fpli;
             if (!fp)
-                fp = (char *)malloc(fpl);
+                temp = (char *)malloc(fpl);
             else
-                fp = (char *)realloc(fp, fpl);
-            if (!fp) {
+                temp = (char *)realloc(fp, fpl);
+            if (!temp) {
                 (void)fprintf(
                     stderr,
                     "%s: no space for path to entries in directory: %s\n", Pn,
                     dn);
                 Error(ctx);
+                return (1);
             }
+            fp = temp;
         }
         (void)snpf(fp, (size_t)fpl, "%s%s", dn, sl ? "/" : "");
         (void)free((FREE_P *)dn);
@@ -841,13 +854,15 @@ int enter_dir(char *d,     /* directory path name pointer */
             fpli = (MALLOC_S)(dnamlen - (fpl - dnl - sl - 1));
             if ((int)fpli > 0) {
                 fpl += fpli;
-                if (!(fp = (char *)realloc(fp, fpl))) {
+                if (!(temp = (char *)realloc(fp, fpl))) {
                     (void)fprintf(stderr, "%s: no space for: ", Pn);
                     safestrprt(dn, stderr, 0);
                     putc('/', stderr);
                     safestrprtn(dp->d_name, dnamlen, stderr, 1);
                     Error(ctx);
+                    return (1);
                 }
+                fp = temp;
             }
             (void)strncpy(fp + dnl + sl, dp->d_name, dnamlen);
             fp[dnl + sl + dnamlen] = '\0';
@@ -1047,7 +1062,7 @@ char *na; /* Internet address string pointer */
     char *sn = (char *)NULL;
     int sp = -1;
     MALLOC_S snl = 0;
-    char *proto;
+    char *proto = NULL;
 
 #if defined(HASIPv6)
     char *cp;
@@ -1467,6 +1482,7 @@ struct hostent *he; /* pointer to hostent struct from which
                           Pn);
             safestrprt(s, stderr, 1);
             Error(ctx);
+            return (1);
         }
     } else
         n->arg = (char *)NULL;
@@ -1606,6 +1622,7 @@ char *ss; /* state specification string */
         (void)fprintf(stderr, "%s: no temporary state argument space for: %s\n",
                       Pn, ss);
         Error(ctx);
+        return (1);
     }
     cp = ssc;
     err = 0;
@@ -1764,10 +1781,12 @@ char *us; /* User IDentifier string pointer */
         if (nn) {
             if (lsof_select_login(ctx, lnm, excl)) {
                 Error(ctx);
+                return (1);
             }
         } else {
             if (lsof_select_uid(ctx, uid, excl)) {
                 Error(ctx);
+                return (1);
             }
         }
     }

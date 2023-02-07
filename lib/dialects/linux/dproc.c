@@ -105,8 +105,6 @@ struct l_fdinfo {
  * Local function prototypes
  */
 
-_PROTOTYPE(static MALLOC_S alloc_cbf, (struct lsof_context * ctx, MALLOC_S len,
-                                       char **cbf, MALLOC_S cbfa));
 _PROTOTYPE(static int get_fdinfo,
            (struct lsof_context * ctx, char *p, int msk, struct l_fdinfo *fi));
 _PROTOTYPE(static int getlinksrc, (char *ln, char *src, int srcl, char **rest));
@@ -179,30 +177,6 @@ int enter_cntx_arg(struct lsof_context *ctx, char *cntx) /* context */
 #endif /* defined(HASSELINUX) */
 
 /*
- * alloc_cbf() -- allocate a command buffer
- */
-
-static MALLOC_S alloc_cbf(struct lsof_context *ctx,
-                          MALLOC_S len,  /* required length */
-                          char **cbf,    /* current buffer */
-                          MALLOC_S cbfa) /* current buffer allocation */
-{
-    if (*cbf)
-        *cbf = (char *)realloc((MALLOC_P *)*cbf, len);
-    else
-        *cbf = (char *)malloc(len);
-    if (!*cbf) {
-        if (ctx->err) {
-            (void)fprintf(ctx->err, "%s: can't allocate command %d bytes\n", Pn,
-                          (int)len);
-        }
-        Error(ctx);
-        return 0;
-    }
-    return (len);
-}
-
-/*
  * gather_proc_info() -- gather process information
  */
 
@@ -211,12 +185,14 @@ void gather_proc_info(struct lsof_context *ctx) {
     char cmdbuf[MAXPATHLEN];
     struct dirent *dp;
     unsigned char ht, pidts;
-    int i, n, nl, pgid, pid, ppid, prv, rv, tid, tpgid, tppid, tx;
+    int i, n, nl, pgid = 0, pid = 0, ppid = 0, prv, rv, tid = 0, tpgid = 0,
+                  tppid = 0, tx;
 
     char *path = (char *)NULL;
     int pathl = 0;
 
     char *pidpath = (char *)NULL;
+    char *temp = (char *)NULL;
     MALLOC_S pidpathl = 0;
 
     MALLOC_S pidx = 0;
@@ -268,8 +244,7 @@ void gather_proc_info(struct lsof_context *ctx) {
      */
     (void)make_proc_path(ctx, pidpath, pidx, &path, &pathl, "locks");
     (void)get_locks(ctx, path);
-    (void)make_proc_path(ctx, pidpath, pidx, &path, &pathl, "net/");
-    (void)set_net_paths(ctx, path, strlen(path));
+    (void)refresh_socket_info(ctx);
     /*
      * If only socket files have been selected, or socket files have been
      * selected ANDed with other selection options, enable the skipping of
@@ -335,7 +310,8 @@ void gather_proc_info(struct lsof_context *ctx) {
          */
         if ((pidx + n + 1 + 1) > pidpathl) {
             pidpathl = pidx + n + 1 + 1 + 64;
-            if (!(pidpath = (char *)realloc((MALLOC_P *)pidpath, pidpathl))) {
+            /* Beware: don't override pidpath before checking for NULL */
+            if (!(temp = (char *)realloc((MALLOC_P *)pidpath, pidpathl))) {
                 if (ctx->err) {
                     (void)fprintf(
                         ctx->err,
@@ -345,6 +321,7 @@ void gather_proc_info(struct lsof_context *ctx) {
                 Error(ctx);
                 goto cleanup;
             }
+            pidpath = temp;
         }
         (void)snpf(pidpath + pidx, pidpathl - pidx, "%s/", dp->d_name);
         n += (pidx + 1);
@@ -374,7 +351,7 @@ void gather_proc_info(struct lsof_context *ctx) {
             (void)make_proc_path(ctx, pidpath, n, &taskpath, &taskpathl,
                                  "task");
             tx = n + 4;
-            if ((ts = opendir(taskpath))) {
+            if (taskpath && (ts = opendir(taskpath))) {
 
                 /*
                  * Process the PID's tasks.  Record the open files of those
@@ -399,11 +376,11 @@ void gather_proc_info(struct lsof_context *ctx) {
                     if ((tx + 1 + nl + 1 + 4) > tidpathl) {
                         tidpathl = tx + 1 + n + 1 + 4 + 64;
                         if (tidpath)
-                            tidpath =
+                            temp =
                                 (char *)realloc((MALLOC_P *)tidpath, tidpathl);
                         else
-                            tidpath = (char *)malloc((MALLOC_S)tidpathl);
-                        if (!tidpath) {
+                            temp = (char *)malloc((MALLOC_S)tidpathl);
+                        if (!temp) {
                             if (ctx->err) {
                                 (void)fprintf(
                                     ctx->err,
@@ -415,6 +392,7 @@ void gather_proc_info(struct lsof_context *ctx) {
                             Error(ctx);
                             goto cleanup;
                         }
+                        tidpath = temp;
                     }
                     (void)snpf(tidpath, tidpathl, "%s/%s/stat", taskpath,
                                dp->d_name);
@@ -750,7 +728,7 @@ char **rest; /* pointer to what follows the ':' in
 
     if (rest)
         *rest = (char *)NULL;
-    if ((ll = readlink(ln, src, srcl - 1)) < 1 || ll >= srcl)
+    if (!ln || (ll = readlink(ln, src, srcl - 1)) < 1 || ll >= srcl)
         return (-1);
     src[ll] = '\0';
     if (*src == '/')
@@ -1047,6 +1025,7 @@ FILE *open_proc_stream(struct lsof_context *ctx,
      * Assign the buffer to the stream.
      */
     if (setvbuf(fs, *buf, _IOFBF, tsz)) {
+        CLEAN(*buf);
         if (ctx->err) {
             (void)fprintf(ctx->err, "%s: setvbuf(%s)=%d failure: %s\n", Pn, p,
                           (int)tsz, strerror(errno));
@@ -1149,47 +1128,49 @@ static int process_id(struct lsof_context *ctx,
     efs = 0;
     if (!Ckscko) {
         (void)make_proc_path(ctx, idp, idpl, &path, &pathl, "cwd");
-        alloc_lfile(ctx, LSOF_FD_CWD, -1);
-        if (getlinksrc(path, pbuf, sizeof(pbuf), (char **)NULL) < 1) {
-            if (!Fwarn) {
-                zeromem((char *)&sb, sizeof(sb));
-                lnk = ss = 0;
-                (void)snpf(nmabuf, sizeof(nmabuf), "(readlink: %s)",
-                           strerror(errno));
-                nmabuf[sizeof(nmabuf) - 1] = '\0';
-                (void)add_nma(ctx, nmabuf, strlen(nmabuf));
-                pn = 1;
-            } else
-                pn = 0;
-        } else {
-            lnk = pn = 1;
-            if (Efsysl &&
-                !isefsys(ctx, pbuf, LSOF_FILE_UNKNOWN_CWD, 1, NULL, &lfr)) {
-                efs = 1;
-                pn = 0;
-            } else {
-                ss = SB_ALL;
-                if (HasNFS) {
-                    if ((sv = statsafely(ctx, path, &sb)))
-                        sv = statEx(ctx, pbuf, &sb, &ss);
+        if (path) {
+            alloc_lfile(ctx, LSOF_FD_CWD, -1);
+            if (getlinksrc(path, pbuf, sizeof(pbuf), (char **)NULL) < 1) {
+                if (!Fwarn) {
+                    zeromem((char *)&sb, sizeof(sb));
+                    lnk = ss = 0;
+                    (void)snpf(nmabuf, sizeof(nmabuf), "(readlink: %s)",
+                               strerror(errno));
+                    nmabuf[sizeof(nmabuf) - 1] = '\0';
+                    (void)add_nma(ctx, nmabuf, strlen(nmabuf));
+                    pn = 1;
                 } else
-                    sv = stat(path, &sb);
-                if (sv) {
-                    ss = 0;
-                    if (!Fwarn) {
-                        (void)snpf(nmabuf, sizeof(nmabuf), "(stat: %s)",
-                                   strerror(errno));
-                        nmabuf[sizeof(nmabuf) - 1] = '\0';
-                        (void)add_nma(ctx, nmabuf, strlen(nmabuf));
+                    pn = 0;
+            } else {
+                lnk = pn = 1;
+                if (Efsysl &&
+                    !isefsys(ctx, pbuf, LSOF_FILE_UNKNOWN_CWD, 1, NULL, &lfr)) {
+                    efs = 1;
+                    pn = 0;
+                } else {
+                    ss = SB_ALL;
+                    if (HasNFS) {
+                        if ((sv = statsafely(ctx, path, &sb)))
+                            sv = statEx(ctx, pbuf, &sb, &ss);
+                    } else
+                        sv = stat(path, &sb);
+                    if (sv) {
+                        ss = 0;
+                        if (!Fwarn) {
+                            (void)snpf(nmabuf, sizeof(nmabuf), "(stat: %s)",
+                                       strerror(errno));
+                            nmabuf[sizeof(nmabuf) - 1] = '\0';
+                            (void)add_nma(ctx, nmabuf, strlen(nmabuf));
+                        }
                     }
                 }
             }
-        }
-        if (pn) {
-            (void)process_proc_node(ctx, lnk ? pbuf : path, path, &sb, ss,
-                                    (struct stat *)NULL, 0);
-            if (Lf->sf)
-                link_lfile(ctx);
+            if (pn) {
+                (void)process_proc_node(ctx, lnk ? pbuf : path, path, &sb, ss,
+                                        (struct stat *)NULL, 0);
+                if (Lf->sf)
+                    link_lfile(ctx);
+            }
         }
     }
     /*
@@ -1198,45 +1179,47 @@ static int process_id(struct lsof_context *ctx,
     lnk = ss = 0;
     if (!Ckscko) {
         (void)make_proc_path(ctx, idp, idpl, &path, &pathl, "root");
-        alloc_lfile(ctx, LSOF_FD_ROOT_DIR, -1);
-        if (getlinksrc(path, pbuf, sizeof(pbuf), (char **)NULL) < 1) {
-            if (!Fwarn) {
-                zeromem((char *)&sb, sizeof(sb));
-                (void)snpf(nmabuf, sizeof(nmabuf), "(readlink: %s)",
-                           strerror(errno));
-                nmabuf[sizeof(nmabuf) - 1] = '\0';
-                (void)add_nma(ctx, nmabuf, strlen(nmabuf));
-                pn = 1;
-            } else
-                pn = 0;
-        } else {
-            lnk = pn = 1;
-            if (Efsysl &&
-                !isefsys(ctx, pbuf, LSOF_FILE_UNKNOWN_ROOT_DIR, 1, NULL, NULL))
-                pn = 0;
-            else {
-                ss = SB_ALL;
-                if (HasNFS) {
-                    if ((sv = statsafely(ctx, path, &sb)))
-                        sv = statEx(ctx, pbuf, &sb, &ss);
+        if (path) {
+            alloc_lfile(ctx, LSOF_FD_ROOT_DIR, -1);
+            if (getlinksrc(path, pbuf, sizeof(pbuf), (char **)NULL) < 1) {
+                if (!Fwarn) {
+                    zeromem((char *)&sb, sizeof(sb));
+                    (void)snpf(nmabuf, sizeof(nmabuf), "(readlink: %s)",
+                               strerror(errno));
+                    nmabuf[sizeof(nmabuf) - 1] = '\0';
+                    (void)add_nma(ctx, nmabuf, strlen(nmabuf));
+                    pn = 1;
                 } else
-                    sv = stat(path, &sb);
-                if (sv) {
-                    ss = 0;
-                    if (!Fwarn) {
-                        (void)snpf(nmabuf, sizeof(nmabuf), "(stat: %s)",
-                                   strerror(errno));
-                        nmabuf[sizeof(nmabuf) - 1] = '\0';
-                        (void)add_nma(ctx, nmabuf, strlen(nmabuf));
+                    pn = 0;
+            } else {
+                lnk = pn = 1;
+                if (Efsysl && !isefsys(ctx, pbuf, LSOF_FILE_UNKNOWN_ROOT_DIR, 1,
+                                       NULL, NULL))
+                    pn = 0;
+                else {
+                    ss = SB_ALL;
+                    if (HasNFS) {
+                        if ((sv = statsafely(ctx, path, &sb)))
+                            sv = statEx(ctx, pbuf, &sb, &ss);
+                    } else
+                        sv = stat(path, &sb);
+                    if (sv) {
+                        ss = 0;
+                        if (!Fwarn) {
+                            (void)snpf(nmabuf, sizeof(nmabuf), "(stat: %s)",
+                                       strerror(errno));
+                            nmabuf[sizeof(nmabuf) - 1] = '\0';
+                            (void)add_nma(ctx, nmabuf, strlen(nmabuf));
+                        }
                     }
                 }
             }
-        }
-        if (pn) {
-            (void)process_proc_node(ctx, lnk ? pbuf : path, path, &sb, ss,
-                                    (struct stat *)NULL, 0);
-            if (Lf->sf)
-                link_lfile(ctx);
+            if (pn) {
+                (void)process_proc_node(ctx, lnk ? pbuf : path, path, &sb, ss,
+                                        (struct stat *)NULL, 0);
+                if (Lf->sf)
+                    link_lfile(ctx);
+            }
         }
     }
     /*
@@ -1245,51 +1228,54 @@ static int process_id(struct lsof_context *ctx,
     lnk = ss = txts = 0;
     if (!Ckscko) {
         (void)make_proc_path(ctx, idp, idpl, &path, &pathl, "exe");
-        alloc_lfile(ctx, LSOF_FD_PROGRAM_TEXT, -1);
-        if (getlinksrc(path, pbuf, sizeof(pbuf), (char **)NULL) < 1) {
-            zeromem((void *)&sb, sizeof(sb));
-            if (!Fwarn) {
-                if ((errno != ENOENT) || uid) {
-                    (void)snpf(nmabuf, sizeof(nmabuf), "(readlink: %s)",
-                               strerror(errno));
-                    nmabuf[sizeof(nmabuf) - 1] = '\0';
-                    (void)add_nma(ctx, nmabuf, strlen(nmabuf));
-                }
-                pn = 1;
-            } else
-                pn = 0;
-        } else {
-            lnk = pn = 1;
-            if (Efsysl && !isefsys(ctx, pbuf, LSOF_FILE_UNKNOWN_PROGRAM_TEXT, 1,
-                                   NULL, NULL))
-                pn = 0;
-            else {
-                ss = SB_ALL;
-                if (HasNFS) {
-                    if ((sv = statsafely(ctx, path, &sb))) {
-                        sv = statEx(ctx, pbuf, &sb, &ss);
-                        if (!sv && (ss & SB_DEV) && (ss & SB_INO))
-                            txts = 1;
-                    }
-                } else
-                    sv = stat(path, &sb);
-                if (sv) {
-                    ss = 0;
-                    if (!Fwarn) {
-                        (void)snpf(nmabuf, sizeof(nmabuf), "(stat: %s)",
+        if (path) {
+            alloc_lfile(ctx, LSOF_FD_PROGRAM_TEXT, -1);
+            if (getlinksrc(path, pbuf, sizeof(pbuf), (char **)NULL) < 1) {
+                zeromem((void *)&sb, sizeof(sb));
+                if (!Fwarn) {
+                    if ((errno != ENOENT) || uid) {
+                        (void)snpf(nmabuf, sizeof(nmabuf), "(readlink: %s)",
                                    strerror(errno));
                         nmabuf[sizeof(nmabuf) - 1] = '\0';
                         (void)add_nma(ctx, nmabuf, strlen(nmabuf));
                     }
+                    pn = 1;
                 } else
-                    txts = 1;
+                    pn = 0;
+            } else {
+                lnk = pn = 1;
+                if (Efsysl &&
+                    !isefsys(ctx, pbuf, LSOF_FILE_UNKNOWN_PROGRAM_TEXT, 1, NULL,
+                             NULL))
+                    pn = 0;
+                else {
+                    ss = SB_ALL;
+                    if (HasNFS) {
+                        if ((sv = statsafely(ctx, path, &sb))) {
+                            sv = statEx(ctx, pbuf, &sb, &ss);
+                            if (!sv && (ss & SB_DEV) && (ss & SB_INO))
+                                txts = 1;
+                        }
+                    } else
+                        sv = stat(path, &sb);
+                    if (sv) {
+                        ss = 0;
+                        if (!Fwarn) {
+                            (void)snpf(nmabuf, sizeof(nmabuf), "(stat: %s)",
+                                       strerror(errno));
+                            nmabuf[sizeof(nmabuf) - 1] = '\0';
+                            (void)add_nma(ctx, nmabuf, strlen(nmabuf));
+                        }
+                    } else
+                        txts = 1;
+                }
             }
-        }
-        if (pn) {
-            (void)process_proc_node(ctx, lnk ? pbuf : path, path, &sb, ss,
-                                    (struct stat *)NULL, 0);
-            if (Lf->sf)
-                link_lfile(ctx);
+            if (pn) {
+                (void)process_proc_node(ctx, lnk ? pbuf : path, path, &sb, ss,
+                                        (struct stat *)NULL, 0);
+                if (Lf->sf)
+                    link_lfile(ctx);
+            }
         }
     }
     /*
@@ -1297,8 +1283,9 @@ static int process_id(struct lsof_context *ctx,
      */
     if (!Ckscko) {
         (void)make_proc_path(ctx, idp, idpl, &path, &pathl, "maps");
-        (void)process_proc_map(ctx, path, txts ? &sb : (struct stat *)NULL,
-                               txts ? ss : 0);
+        if (path)
+            (void)process_proc_map(ctx, path, txts ? &sb : (struct stat *)NULL,
+                                   txts ? ss : 0);
     }
 
 #if defined(HASSELINUX)
@@ -1367,6 +1354,8 @@ static int process_id(struct lsof_context *ctx,
         if (nm2id(fp->d_name, &fd, &n))
             continue;
         (void)make_proc_path(ctx, dpath, i, &path, &pathl, fp->d_name);
+        if (!path)
+            continue;
         (void)alloc_lfile(ctx, LSOF_FD_NUMERIC, fd);
         if (getlinksrc(path, pbuf, sizeof(pbuf), &rest) < 1) {
             zeromem((char *)&sb, sizeof(sb));
@@ -1590,6 +1579,7 @@ process_proc_map(struct lsof_context *ctx,
         INODETYPE inode;
     };
     struct saved_map *sm = (struct saved_map *)NULL;
+    struct saved_map *temp_sm = (struct saved_map *)NULL;
     efsys_list_t *rep;
     int sma = 0;
     char *vbuf = (char *)NULL;
@@ -1667,18 +1657,19 @@ process_proc_map(struct lsof_context *ctx,
             sma += 10;
             len = (MALLOC_S)(sma * sizeof(struct saved_map));
             if (sm)
-                sm = (struct saved_map *)realloc(sm, len);
+                temp_sm = (struct saved_map *)realloc(sm, len);
             else
-                sm = (struct saved_map *)malloc(len);
-            if (!sm) {
+                temp_sm = (struct saved_map *)malloc(len);
+            if (!temp_sm) {
                 if (ctx->err)
                     (void)fprintf(
                         ctx->err,
                         "%s: can't allocate %d bytes for saved maps, PID %d\n",
                         Pn, (int)len, Lp->pid);
                 Error(ctx);
-                return;
+                goto cleanup;
             }
+            sm = temp_sm;
         }
         sm[ns].dev = dev;
         sm[ns++].inode = inode;
@@ -1825,6 +1816,7 @@ process_proc_map(struct lsof_context *ctx,
         if (Lf->sf)
             link_lfile(ctx);
     }
+cleanup:
     (void)fclose(ms);
     CLEAN(sm);
     CLEAN(vbuf);
@@ -1850,6 +1842,7 @@ static int read_id_stat(struct lsof_context *ctx,
     char buf[MAXPATHLEN], *cp, *cp1, **fp;
     int ch, cx, es, pc;
     char *cbf = (char *)NULL;
+    char *temp = (char *)NULL;
     MALLOC_S cbfa = 0;
     FILE *fs;
     char *vbuf = (char *)NULL;
@@ -1927,8 +1920,24 @@ static int read_id_stat(struct lsof_context *ctx,
             if (!pc)
                 break;
         }
-        if ((cx + 2) > cbfa)
-            cbfa = alloc_cbf(ctx, (cx + 2), &cbf, cbfa);
+        if ((cx + 2) > cbfa) {
+            cbfa = cx + 2;
+            if (cbf)
+                temp = (char *)realloc((MALLOC_P *)cbf, cbfa);
+            else
+                temp = (char *)malloc(cbfa);
+            if (!temp) {
+                if (ctx->err) {
+                    (void)fprintf(ctx->err,
+                                  "%s: can't allocate command %d bytes\n", Pn,
+                                  (int)cbfa);
+                }
+                Error(ctx);
+                ret = -1;
+                goto cleanup;
+            }
+            cbf = temp;
+        }
         cbf[cx] = ch;
         cx++;
         cbf[cx] = '\0';
@@ -2010,7 +2019,6 @@ static int statEx(struct lsof_context *ctx, char *p, /* file path */
                                    * wanted */
                   int *ss)        /* stat() status --  SB_* values */
 {
-    size_t ca = 0;
     char *cb = NULL;
     char *cp;
     int ensv = ENOENT;
@@ -2021,20 +2029,13 @@ static int statEx(struct lsof_context *ctx, char *p, /* file path */
      * Make a copy of the path.
      */
     sz = strlen(p);
-    if ((sz + 1) > ca) {
-        if (cb)
-            cb = (char *)realloc((MALLOC_P *)cb, sz + 1);
-        else
-            cb = (char *)malloc(sz + 1);
-        if (!cb) {
-            if (ctx->err)
-                (void)fprintf(ctx->err,
-                              "%s: PID %ld: no statEx path space: %s\n", Pn,
-                              (long)Lp->pid, p);
-            Error(ctx);
-            return (1);
-        }
-        ca = sz + 1;
+    cb = (char *)malloc(sz + 1);
+    if (!cb) {
+        if (ctx->err)
+            (void)fprintf(ctx->err, "%s: PID %ld: no statEx path space: %s\n",
+                          Pn, (long)Lp->pid, p);
+        Error(ctx);
+        return (1);
     }
     (void)strcpy(cb, p);
     /*
@@ -2058,6 +2059,7 @@ static int statEx(struct lsof_context *ctx, char *p, /* file path */
      * containing only the device and raw device numbers.
      */
     zeromem((char *)s, sizeof(struct stat));
+    CLEAN(cb);
     if (st) {
         errno = 0;
         s->st_dev = sb.st_dev;

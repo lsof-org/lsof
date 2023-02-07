@@ -169,9 +169,11 @@ getmntdev(struct lsof_context *ctx,
 					 * values */)
 {
     int h;
-    mntsup_t *mp, *mpn;
+    mntsup_t *mp, *mpn = NULL;
     char *vbuf = (char *)NULL;
     size_t vsz = (size_t)0;
+    int ret = 0;
+    FILE *fs = NULL;
 
     if (ctxd.mount_sup_error)
         return (0);
@@ -183,18 +185,20 @@ getmntdev(struct lsof_context *ctx,
          */
         char buf[(MAXPATHLEN * 2) + 1], *dp, path[(MAXPATHLEN * 2) + 1];
         dev_t dev;
-        FILE *fs;
         int ln = 0;
         size_t sz;
 
-        if ((MntSup != 2) || !MntSupP)
-            return (0);
+        if ((MntSup != 2) || !MntSupP) {
+            ret = 0;
+            goto cleanup;
+        }
         if (!is_readable(ctx, MntSupP, 1)) {
             /*
              * The mount supplement file isn't readable.
              */
             ctxd.mount_sup_error = 1;
-            return (0);
+            ret = 0;
+            goto cleanup;
         }
         if (!(fs = open_proc_stream(ctx, MntSupP, "r", &vbuf, &vsz))) {
             /*
@@ -204,7 +208,8 @@ getmntdev(struct lsof_context *ctx,
                 (void)fprintf(ctx->err, "%s: can't open(%s): %s\n", Pn, MntSupP,
                               strerror(errno));
             ctxd.mount_sup_error = 1;
-            return (0);
+            ret = 0;
+            goto cleanup;
         }
         buf[sizeof(buf) - 1] = '\0';
         /*
@@ -280,7 +285,8 @@ getmntdev(struct lsof_context *ctx,
                             Pn);
                     }
                     Error(ctx);
-                    return (0);
+                    ret = 0;
+                    goto cleanup;
                 }
             }
             h = hash_mnt(path);
@@ -317,7 +323,8 @@ getmntdev(struct lsof_context *ctx,
                         Pn, ln, buf);
                 }
                 Error(ctx);
-                return (0);
+                ret = 0;
+                goto cleanup;
             }
             if (!(mpn->dir_name = (char *)malloc(sz + 1))) {
                 if (ctx->err) {
@@ -327,7 +334,8 @@ getmntdev(struct lsof_context *ctx,
                         Pn, ln, buf);
                 }
                 Error(ctx);
-                return (0);
+                ret = 0;
+                goto cleanup;
             }
             (void)strcpy(mpn->dir_name, path);
             mpn->dir_name_len = sz;
@@ -335,6 +343,7 @@ getmntdev(struct lsof_context *ctx,
             mpn->ln = ln;
             mpn->next = MSHash[h];
             MSHash[h] = mpn;
+            mpn = NULL;
         }
         if (ferror(fs)) {
             if (ctx->err && !Fwarn)
@@ -342,8 +351,8 @@ getmntdev(struct lsof_context *ctx,
             ctxd.mount_sup_error = 1;
         }
         (void)fclose(fs);
-        if (vbuf)
-            free(vbuf);
+        fs = NULL;
+        CLEAN(vbuf);
         if (ctxd.mount_sup_error) {
             if (MSHash) {
                 for (h = 0; h < HASHMNT; h++) {
@@ -354,10 +363,11 @@ getmntdev(struct lsof_context *ctx,
                         (void)free((MALLOC_P *)mp);
                     }
                 }
-                (void)free((MALLOC_P *)MSHash);
-                MSHash = (mntsup_t **)NULL;
+                CLEAN(MSHash);
+                mpn = NULL;
             }
-            return (0);
+            ret = 0;
+            goto cleanup;
         }
     }
 
@@ -365,8 +375,10 @@ getmntdev(struct lsof_context *ctx,
      * If no errors have been detected reading the mount supplement file, search
      * its hash buckets for the supplied directory path.
      */
-    if (ctxd.mount_sup_error)
-        return (0);
+    if (ctxd.mount_sup_error) {
+        ret = 0;
+        goto cleanup;
+    }
     h = hash_mnt(dir_name);
     for (mp = MSHash[h]; mp; mp = mp->next) {
         if ((dir_name_len == mp->dir_name_len) &&
@@ -374,10 +386,18 @@ getmntdev(struct lsof_context *ctx,
             zeromem((char *)s, sizeof(struct stat));
             s->st_dev = mp->dev;
             *ss |= SB_DEV;
-            return (1);
+            ret = 1;
+            goto cleanup;
         }
     }
-    return (0);
+    ret = 0;
+
+cleanup:
+    if (fs)
+        fclose(fs);
+    CLEAN(vbuf);
+    CLEAN(mpn);
+    return ret;
 }
 
 /*
@@ -409,8 +429,8 @@ struct mounts *readmnt(struct lsof_context *ctx) {
     char *fp0 = (char *)NULL;
     char *fp1 = (char *)NULL;
     int fr, ignrdl, ignstat;
-    char *ln;
-    struct mounts *mp;
+    char *ln = NULL;
+    struct mounts *mp = NULL;
     FILE *ms = NULL;
     int nfs;
     int mqueue;
@@ -512,6 +532,7 @@ struct mounts *readmnt(struct lsof_context *ctx) {
             if (ln != dn) {
                 (void)free((FREE_P *)dn);
                 dn = ln;
+                ln = NULL;
             }
         }
         if (*dn != '/')
@@ -692,7 +713,7 @@ struct mounts *readmnt(struct lsof_context *ctx) {
             ignstat = 1;
         } else
             ln = Readlink(ctx, dn);
-        dn = (char *)NULL;
+        CLEAN(dn);
 
         /*
          * Stat() the file system (mounted-on) name and add file system
@@ -701,9 +722,12 @@ struct mounts *readmnt(struct lsof_context *ctx) {
         if (ignstat || !ln || statsafely(ctx, ln, &sb))
             sb.st_mode = 0;
         mp->fsnmres = ln;
+        ln = NULL;
         mp->fs_mode = sb.st_mode;
-        if (ne)
+        if (ne) {
             Lmi = mp;
+            mp = NULL;
+        }
     }
 
     /*
@@ -719,6 +743,8 @@ cleanup:
     CLEAN(dn);
     CLEAN(fp0);
     CLEAN(fp1);
+    CLEAN(ln);
+    CLEAN(mp);
     return ret;
 }
 

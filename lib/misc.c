@@ -483,7 +483,8 @@ void enter_IPstate(struct lsof_context *ctx, char *ty, /* type -- TCP or UDP */
 #else  /* !defined(USE_LIB_PRINT_TCPTPI) */
 
     int al, i, j, oc, nn, ns, off, tx;
-    char *cp;
+    char *cp = NULL;
+    char **temp;
     MALLOC_S len;
     /*
      * Check the type name and set the type index.
@@ -491,6 +492,7 @@ void enter_IPstate(struct lsof_context *ctx, char *ty, /* type -- TCP or UDP */
     if (!ty) {
         (void)fprintf(stderr, "%s: no type specified to enter_IPstate()\n", Pn);
         Error(ctx);
+        return;
     }
     if (!strcmp(ty, "TCP"))
         tx = 0;
@@ -500,6 +502,7 @@ void enter_IPstate(struct lsof_context *ctx, char *ty, /* type -- TCP or UDP */
         (void)fprintf(stderr, "%s: unknown type for enter_IPstate: %s\n", Pn,
                       ty);
         Error(ctx);
+        return;
     }
     /*
      * If the name argument is NULL, reduce the allocated table to its minimum
@@ -514,10 +517,12 @@ void enter_IPstate(struct lsof_context *ctx, char *ty, /* type -- TCP or UDP */
                 }
                 if (UdpNstates < UdpStAlloc) {
                     len = (MALLOC_S)(UdpNstates * sizeof(char *));
-                    if (!(UdpSt = (char **)realloc((MALLOC_P *)UdpSt, len))) {
+                    if (!(temp = (char **)realloc((MALLOC_P *)UdpSt, len))) {
                         (void)fprintf(stderr, "%s: can't reduce UdpSt[]\n", Pn);
                         Error(ctx);
+                        return;
                     }
+                    UdpSt = temp;
                 }
                 UdpStAlloc = UdpNstates;
             }
@@ -529,10 +534,12 @@ void enter_IPstate(struct lsof_context *ctx, char *ty, /* type -- TCP or UDP */
                 }
                 if (TcpNstates < TcpStAlloc) {
                     len = (MALLOC_S)(TcpNstates * sizeof(char *));
-                    if (!(TcpSt = (char **)realloc((MALLOC_P *)TcpSt, len))) {
+                    if (!(temp = (char **)realloc((MALLOC_P *)TcpSt, len))) {
                         (void)fprintf(stderr, "%s: can't reduce TcpSt[]\n", Pn);
                         Error(ctx);
+                        return;
                     }
+                    TcpSt = temp;
                 }
                 TcpStAlloc = TcpNstates;
             }
@@ -546,6 +553,7 @@ void enter_IPstate(struct lsof_context *ctx, char *ty, /* type -- TCP or UDP */
         (void)fprintf(stderr, "%s: bad %s name (\"%s\"), number=%d\n", Pn, ty,
                       nm, nr);
         Error(ctx);
+        return;
     }
     /*
      * Make a copy of the name.
@@ -554,6 +562,7 @@ void enter_IPstate(struct lsof_context *ctx, char *ty, /* type -- TCP or UDP */
         (void)fprintf(stderr, "%s: enter_IPstate(): no %s space for %s\n", Pn,
                       ty, nm);
         Error(ctx);
+        return;
     }
     /*
      * Set the necessary offset for using nr as an index.  If it is
@@ -576,12 +585,14 @@ void enter_IPstate(struct lsof_context *ctx, char *ty, /* type -- TCP or UDP */
                 }
                 len = (MALLOC_S)(al * sizeof(char *));
                 if (tx) {
-                    if (!(UdpSt = (char **)realloc((MALLOC_P *)UdpSt, len)))
+                    if (!(temp = (char **)realloc((MALLOC_P *)UdpSt, len)))
                         goto no_IP_space;
+                    UdpSt = temp;
                     UdpStAlloc = al;
                 } else {
-                    if (!(TcpSt = (char **)realloc((MALLOC_P *)TcpSt, len)))
+                    if (!(temp = (char **)realloc((MALLOC_P *)TcpSt, len)))
                         goto no_IP_space;
+                    TcpSt = temp;
                     TcpStAlloc = al;
                 }
                 for (i = 0, j = oc; i < oc; i++, j++) {
@@ -622,25 +633,28 @@ void enter_IPstate(struct lsof_context *ctx, char *ty, /* type -- TCP or UDP */
         len = (MALLOC_S)(al * sizeof(char *));
         if (tx) {
             if (UdpSt)
-                UdpSt = (char **)realloc((MALLOC_P *)UdpSt, len);
+                temp = (char **)realloc((MALLOC_P *)UdpSt, len);
             else
-                UdpSt = (char **)malloc(len);
-            if (!UdpSt) {
+                temp = (char **)malloc(len);
+            if (!temp) {
 
             no_IP_space:
 
                 (void)fprintf(stderr, "%s: no %s state space\n", Pn, ty);
                 Error(ctx);
+                goto cleanup;
             }
+            UdpSt = temp;
             UdpNstates = nn;
             UdpStAlloc = al;
         } else {
             if (TcpSt)
-                TcpSt = (char **)realloc((MALLOC_P *)TcpSt, len);
+                temp = (char **)realloc((MALLOC_P *)TcpSt, len);
             else
-                TcpSt = (char **)malloc(len);
-            if (!TcpSt)
+                temp = (char **)malloc(len);
+            if (!temp)
                 goto no_IP_space;
+            TcpSt = temp;
             TcpNstates = nn;
             TcpStAlloc = al;
         }
@@ -669,6 +683,7 @@ void enter_IPstate(struct lsof_context *ctx, char *ty, /* type -- TCP or UDP */
                 stderr, "%s: duplicate %s state %d (already %s): %s\n", Pn, ty,
                 nr, tx ? UdpSt[nr + UdpStOff] : TcpSt[nr + TcpStOff], nm);
             Error(ctx);
+            goto cleanup;
         }
         UdpSt[nr + UdpStOff] = cp;
     } else {
@@ -676,6 +691,8 @@ void enter_IPstate(struct lsof_context *ctx, char *ty, /* type -- TCP or UDP */
             goto dup_IP_state;
         TcpSt[nr + TcpStOff] = cp;
     }
+cleanup:
+    CLEAN(cp);
 #endif /* defined(USE_LIB_PRINT_TCPTPI) */
 }
 
@@ -956,6 +973,7 @@ char *readlink_inner(struct lsof_context *ctx,
     /*
      * Evaluate each component of the argument for a symbolic link.
      */
+    abuf[0] = '\0';
     for (alen = 0, ap = abuf, argp1 = argp2 = arg; *argp2; argp1 = argp2) {
         for (argp2 = argp1 + 1; *argp2 && *argp2 != '/'; argp2++)
             ;
