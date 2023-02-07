@@ -89,7 +89,10 @@ int main(int argc, char **argv) {
     }
 
     ctx = lsof_new();
+    /* filter by PID and FD */
     lsof_select_pid(ctx, my_pid, 0);
+    lsof_select_fd(ctx, LSOF_FD_NUMERIC, fd, fd, 0);
+    lsof_logic_and(ctx);
     lsof_freeze(ctx);
     lsof_gather(ctx, &result);
 
@@ -103,19 +106,21 @@ int main(int argc, char **argv) {
         }
         for (fi = 0; fi < p->num_files; fi++) {
             f = &p->files[fi];
-            if (f->fd_type == LSOF_FD_NUMERIC) {
+            if (f->fd_type == LSOF_FD_NUMERIC && f->fd_num == fd) {
                 /* check if fd, size and offset matches */
-                if (f->fd_num == fd) {
-                    fd_found = 1;
-                    if ((f->flags & LSOF_FLAG_SIZE_VALID) &&
-                        f->size == TSTFSZ) {
-                        sz_correct = 1;
-                    }
-                    if ((f->flags & LSOF_FLAG_OFFSET_VALID) &&
-                        f->offset == TSTFSZ) {
-                        off_correct = 1;
-                    }
+                fd_found = 1;
+                if ((f->flags & LSOF_FLAG_SIZE_VALID) && f->size == TSTFSZ) {
+                    sz_correct = 1;
                 }
+                if ((f->flags & LSOF_FLAG_OFFSET_VALID) &&
+                    f->offset == TSTFSZ) {
+                    off_correct = 1;
+                }
+            } else {
+                (void)fprintf(stderr, "ERROR!!!  found not selected fd %d\n",
+                              f->fd_num);
+                res = 1;
+                goto cleanup;
             }
         }
     }

@@ -179,6 +179,8 @@ enum lsof_error lsof_gather(struct lsof_context *ctx,
         /* Compute number of files in the linked list */
         num_files = 0;
         for (lf = lp->file; lf; lf = lf->next) {
+            if (!is_file_sel(ctx, lp, lf))
+                continue;
             num_files++;
         }
 
@@ -186,58 +188,60 @@ enum lsof_error lsof_gather(struct lsof_context *ctx,
             (struct lsof_file *)malloc(sizeof(struct lsof_file) * num_files);
         memset(p->files, 0, sizeof(struct lsof_file) * num_files);
         p->num_files = num_files;
-        for (fi = 0, lf = lp->file; fi < num_files; fi++, lf = lf_next) {
-            /* Copy fields from lfile */
-            f = &p->files[fi];
-            f->flags = 0;
+        for (fi = 0, lf = lp->file; lf; lf = lf_next) {
+            if (is_file_sel(ctx, lp, lf)) {
+                /* Copy fields from lfile */
+                f = &p->files[fi++];
+                f->flags = 0;
 
-            /* FD column */
-            f->fd_type = lf->fd_type;
-            f->fd_num = lf->fd_num;
-            f->access = lf->access;
-            f->lock = lf->lock;
+                /* FD column */
+                f->fd_type = lf->fd_type;
+                f->fd_num = lf->fd_num;
+                f->access = lf->access;
+                f->lock = lf->lock;
 
-            /* TYPE column */
-            f->file_type = lf->type;
-            f->unknown_file_type_number = lf->unknown_file_type_number;
+                /* TYPE column */
+                f->file_type = lf->type;
+                f->unknown_file_type_number = lf->unknown_file_type_number;
 
-            /* DEVICE column */
-            f->dev = lf->dev;
-            if (lf->dev_def) {
-                f->flags |= LSOF_FLAG_DEV_VALID;
+                /* DEVICE column */
+                f->dev = lf->dev;
+                if (lf->dev_def) {
+                    f->flags |= LSOF_FLAG_DEV_VALID;
+                }
+                f->rdev = lf->rdev;
+                if (lf->rdev_def) {
+                    f->flags |= LSOF_FLAG_RDEV_VALID;
+                }
+
+                /* SIZE, SIZE/OFF, OFFSET column */
+                f->size = lf->sz;
+                if (lf->sz_def) {
+                    f->flags |= LSOF_FLAG_SIZE_VALID;
+                }
+                f->offset = lf->off;
+                if (lf->off_def) {
+                    f->flags |= LSOF_FLAG_OFFSET_VALID;
+                }
+
+                /* NLINK column */
+                f->num_links = lf->nlink;
+                if (lf->nlink_def) {
+                    f->flags |= LSOF_FLAG_NUM_LINKS_VALID;
+                }
+
+                /* NODE column */
+                f->inode = lf->inode;
+                if (lf->inode_def) {
+                    f->flags |= LSOF_FLAG_INODE_VALID;
+                }
+                f->protocol = lf->iproto;
+                f->unknown_proto_number = lf->unknown_proto_number;
+
+                /* NAME column */
+                f->name = lf->nm;
+                lf->nm = NULL;
             }
-            f->rdev = lf->rdev;
-            if (lf->rdev_def) {
-                f->flags |= LSOF_FLAG_RDEV_VALID;
-            }
-
-            /* SIZE, SIZE/OFF, OFFSET column */
-            f->size = lf->sz;
-            if (lf->sz_def) {
-                f->flags |= LSOF_FLAG_SIZE_VALID;
-            }
-            f->offset = lf->off;
-            if (lf->off_def) {
-                f->flags |= LSOF_FLAG_OFFSET_VALID;
-            }
-
-            /* NLINK column */
-            f->num_links = lf->nlink;
-            if (lf->nlink_def) {
-                f->flags |= LSOF_FLAG_NUM_LINKS_VALID;
-            }
-
-            /* NODE column */
-            f->inode = lf->inode;
-            if (lf->inode_def) {
-                f->flags |= LSOF_FLAG_INODE_VALID;
-            }
-            f->protocol = lf->iproto;
-            f->unknown_proto_number = lf->unknown_proto_number;
-
-            /* NAME column */
-            f->name = lf->nm;
-            lf->nm = NULL;
 
             /* free lf */
             lf_next = lf->next;
@@ -858,7 +862,7 @@ enum lsof_error lsof_select_pid(struct lsof_context *ctx, uint32_t pid,
     enum lsof_error res = lsof_select_pid_pgid(ctx, pid, &Spid, &Mxpid, &Npid,
                                                &Npidi, &Npidx, exclude, 1);
     /* Record number of unselected PIDs for optimization */
-    ctx->num_unsel_pid = Npid;
+    Npuns = Npid;
     return res;
 }
 
