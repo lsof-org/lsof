@@ -713,7 +713,7 @@ struct mounts *readmnt(struct lsof_context *ctx) {
             ignstat = 1;
         } else
             ln = Readlink(ctx, dn);
-        CLEAN(dn);
+        dn = NULL;
 
         /*
          * Stat() the file system (mounted-on) name and add file system

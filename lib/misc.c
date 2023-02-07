@@ -686,10 +686,12 @@ void enter_IPstate(struct lsof_context *ctx, char *ty, /* type -- TCP or UDP */
             goto cleanup;
         }
         UdpSt[nr + UdpStOff] = cp;
+        cp = NULL;
     } else {
         if (TcpSt[nr + TcpStOff])
             goto dup_IP_state;
         TcpSt[nr + TcpStOff] = cp;
+        cp = NULL;
     }
 cleanup:
     CLEAN(cp);
