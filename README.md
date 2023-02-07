@@ -30,7 +30,7 @@ cat     18083 yamato    2u   CHR  136,3       0t0        6 /dev/pts/3
 
 Read the documentation at [lsof.readthedocs.io](https://lsof.readthedocs.io/)
 
-## lsof-org at GitHub
+# lsof-org at GitHub
 
 The lsof-org team at GitHub takes over the maintainership of lsof originally
 developed and maintained by Vic Abell. This repository is for maintaining the

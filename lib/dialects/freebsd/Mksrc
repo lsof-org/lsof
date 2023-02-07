@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 #
 # Mksrc - make FreeBSD source files
 #

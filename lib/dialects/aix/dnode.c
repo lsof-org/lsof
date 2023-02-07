@@ -155,13 +155,13 @@ struct gnode *ga; /* local gnode address */
         switch (f.set.l_type & (F_RDLCK | F_WRLCK)) {
 
         case F_RDLCK:
-            return ((l) ? LSOF_LOCK_READ_FULL : LSOF_LOCK_READ_PARTIAL);
+            return (l) ? LSOF_LOCK_READ_FULL : LSOF_LOCK_READ_PARTIAL;
         case F_WRLCK:
-            return ((l) ? LSOF_LOCK_WRITE_FULL : LSOF_LOCK_WRITE_PARTIAL);
+            return (l) ? LSOF_LOCK_WRITE_FULL : LSOF_LOCK_WRITE_PARTIAL;
         case (F_RDLCK + F_WRLCK):
-            return (LSOF_LOCK_READ_WRITE);
+            return LSOF_LOCK_READ_WRITE;
         }
-        return (LSOF_LOCK_NONE);
+        return LSOF_LOCK_NONE;
 
 #if AIXV >= 4140
     } while ((cfp = f.FL_NEXT) && cfp != ffp);
