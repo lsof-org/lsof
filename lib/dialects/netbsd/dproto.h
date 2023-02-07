@@ -47,7 +47,7 @@ _PROTOTYPE(extern void process_pipe, (struct lsof_context * ctx, KA_T pa));
 #endif /* defined(HAS_SYS_PIPEH) */
 
 #if defined(HAS9660FS)
-_PROTOTYPE(extern int read_iso_node, (struct vnode * v, dev_t *d,
+_PROTOTYPE(extern int read_iso_node, (struct lsof_context * ctx, struct vnode * v, dev_t *d,
                                       INODETYPE *ino, long *nl, SZOFFTYPE *sz));
 #endif /* defined(HAS9660FS) */
 
