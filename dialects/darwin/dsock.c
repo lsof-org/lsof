@@ -369,13 +369,22 @@ static void process_socket_common(si) struct socket_fdinfo *si;
          * Process a SYSTEM domain socket.
          */
         (void)snpf(Lf->type, sizeof(Lf->type), "systm");
-        if (si->psi.soi_kind != SOCKINFO_KERN_EVENT)
+        switch (si->psi.soi_kind) {
+        case SOCKINFO_KERN_EVENT:
+            enter_dev_ch(print_kptr((KA_T)si->psi.soi_pcb, (char *)NULL, 0));
+            (void)snpf(Namech, Namechl, "[event %x:%x:%x]",
+                       si->psi.soi_proto.pri_kern_event.kesi_vendor_code_filter,
+                       si->psi.soi_proto.pri_kern_event.kesi_class_filter,
+                       si->psi.soi_proto.pri_kern_event.kesi_subclass_filter);
             break;
-        enter_dev_ch(print_kptr((KA_T)si->psi.soi_pcb, (char *)NULL, 0));
-        (void)snpf(Namech, Namechl, "[%x:%x:%x]",
-                   si->psi.soi_proto.pri_kern_event.kesi_vendor_code_filter,
-                   si->psi.soi_proto.pri_kern_event.kesi_class_filter,
-                   si->psi.soi_proto.pri_kern_event.kesi_subclass_filter);
+        case SOCKINFO_KERN_CTL:
+            enter_dev_ch(print_kptr((KA_T)si->psi.soi_pcb, (char *)NULL, 0));
+            (void)snpf(Namech, Namechl, "[ctl %s id %d unit %d]",
+                       si->psi.soi_proto.pri_kern_ctl.kcsi_name,
+                       si->psi.soi_proto.pri_kern_ctl.kcsi_id,
+                       si->psi.soi_proto.pri_kern_ctl.kcsi_unit);
+            break;
+        }
         break;
     case AF_PPP:
 
