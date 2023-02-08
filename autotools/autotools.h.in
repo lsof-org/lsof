@@ -233,4 +233,16 @@
 #define HAS_VSOCK
 #endif
 
+#if HAVE_STRUCT_AIO_REQ
+#define HAS_AIO_REQ_STRUCT
+#endif
+
+#if HAVE_SYS_RGM_H
+#define HAS_SYS_RGM_H
+#endif
+
+#if HAVE_RPC_RPC_TAGS_H
+#define HAS_RPC_RPC_TAGS_H
+#endif
+
 #endif

@@ -28,11 +28,10 @@
  * 4. This notice may not be removed or altered.
  */
 
+#include "common.h"
 #include "machine.h"
 
 #if defined(USE_LIB_READDEV)
-
-#    include "common.h"
 
 _PROTOTYPE(static int rmdupdev,
            (struct lsof_context * ctx, struct l_dev ***dp, int n, char *nm));

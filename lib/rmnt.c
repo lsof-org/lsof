@@ -28,11 +28,10 @@
  * 4. This notice may not be removed or altered.
  */
 
+#include "common.h"
 #include "machine.h"
 
 #if defined(USE_LIB_READMNT)
-
-#    include "../common.h"
 
 /*
  * The caller may define:

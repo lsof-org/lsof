@@ -51,11 +51,10 @@
  *    d.  Accept clone searching by device number only.
  */
 
+#include "common.h"
 #include "machine.h"
 
 #if defined(USE_LIB_IS_FILE_NAMED)
-
-#    include "common.h"
 
 /*
  * Local structures

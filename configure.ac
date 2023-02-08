@@ -496,6 +496,16 @@ AC_CHECK_MEMBERS([struct vnode.v_path], [
 # Detect VSOCK for HAS_VSOCK
 AC_CHECK_DECLS([VSOCK], [], [], [#include <sys/vnode.h>])
 
+# Detect struct aio_req for HAS_AIO_REQ_STRUCT
+AC_CHECK_TYPES([struct aio_req], [], [], [#define _KERNEL
+	#include <sys/aio_req.h>])
+
+# Detect sys/rgm.h header for HAS_SYS_RGM_H
+AC_CHECK_HEADERS([sys/rgm.h])
+
+# Detect rpc/rpc_tags.h header for HAS_RPC_RPC_TAGS_H
+AC_CHECK_HEADERS([rpc/rpc_tags.h])
+
 # Generate Makefile from Makefile.in/am
 AC_CONFIG_FILES([Makefile])
 

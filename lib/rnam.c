@@ -28,11 +28,10 @@
  * 4. This notice may not be removed or altered.
  */
 
+#include "common.h"
 #include "machine.h"
 
 #if defined(HASNCACHE) && defined(USE_LIB_RNAM)
-
-#    include "../common.h"
 
 /*
  * rnam.c - read BSD format (struct namecache or nch) name cache
