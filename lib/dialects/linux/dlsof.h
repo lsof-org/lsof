@@ -136,6 +136,8 @@ typedef unsigned long KA_T;
 #    define XDR_PMAPLIST (xdrproc_t) xdr_pmaplist
 #    define XDR_VOID (xdrproc_t) xdr_void
 
+#    include "lsof.h"
+
 /*
  * Global storage definitions (including their structure definitions)
  */
