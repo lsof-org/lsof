@@ -240,9 +240,7 @@ void err2nm(struct lsof_context *ctx, char *pfx) /* Namech message prefix */
  * print_v_path() -- print vnode's path
  */
 
-int print_v_path(lf)
-struct lfile *lf;
-{
+int print_v_path(struct lsof_context *ctx, struct lfile *lf) {
     if (lf->V_path) {
         safestrprt(lf->V_path, stdout, 0);
         return (1);
