@@ -107,6 +107,24 @@ enum lsof_error lsof_freeze(struct lsof_context *ctx) {
     return ret;
 }
 
+static struct sockaddr_storage fill_sockaddr(struct linaddr li) {
+    struct sockaddr_storage ret;
+    struct sockaddr_in *in = (struct sockaddr_in *)&ret;
+    struct sockaddr_in6 *in6 = (struct sockaddr_in6 *)&ret;
+
+    memset(&ret, 0, sizeof(ret));
+    if (li.af == AF_INET6) {
+        in->sin_family = AF_INET6;
+        in->sin_port = li.p;
+        in->sin_addr = li.ia.a4;
+    } else if (li.af == AF_INET) {
+        in6->sin6_family = AF_INET6;
+        in6->sin6_port = li.p;
+        in6->sin6_addr = li.ia.a6;
+    }
+    return ret;
+}
+
 API_EXPORT
 enum lsof_error lsof_gather(struct lsof_context *ctx,
                             struct lsof_result **result) {
@@ -241,6 +259,10 @@ enum lsof_error lsof_gather(struct lsof_context *ctx,
                 /* NAME column */
                 f->name = lf->nm;
                 lf->nm = NULL;
+
+                /* network address */
+                f->net_local = fill_sockaddr(lf->li[0]);
+                f->net_foreign = fill_sockaddr(lf->li[1]);
             }
 
             /* free lf */

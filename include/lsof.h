@@ -38,6 +38,7 @@
 #    include <stddef.h>
 #    include <stdint.h>
 #    include <stdio.h>
+#    include <sys/socket.h>
 
 /** \mainpage
  * liblsof provides a cross platform mechanism to list open files. To use
@@ -557,6 +558,13 @@ struct lsof_file {
     /* NAME column */
     /** File name or description */
     char *name;
+
+    /* Additional information */
+    /** Local network address, valid if ss_family is non-zero */
+    struct sockaddr_storage net_local;
+
+    /** Foreign network address, valid if ss_family is non-zero */
+    struct sockaddr_storage net_foreign;
 };
 
 /** The result of lsof_gather(), grouped by process

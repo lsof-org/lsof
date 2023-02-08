@@ -743,6 +743,21 @@ extern int Hdr;
 enum IDType { PGID, PID };
 extern int LastPid;
 
+/* local Internet address information */
+struct linaddr {
+    int af; /* address family: 0 for none; AF_INET;
+             * or AF_INET6 */
+    int p;  /* port */
+    union {
+        struct in_addr a4; /* AF_INET Internet address */
+
+#    if defined(HASIPv6)
+        struct in6_addr a6; /* AF_INET6 Internet address */
+#    endif                  /* defined(HASIPv6) */
+
+    } ia;
+};
+
 /** lsof private file struct */
 struct lfile {
     enum lsof_file_access_mode access;
@@ -816,20 +831,11 @@ struct lfile {
     INODETYPE fs_ino; /* file system inode number */
 #    endif            /* defined HASFSINO) */
 
-    struct linaddr { /* local Internet address information */
-        int af;      /* address family: 0 for none; AF_INET;
-                      * or AF_INET6 */
-        int p;       /* port */
-        union {
-            struct in_addr a4; /* AF_INET Internet address */
+    /* local Internet address information */
+    /* li[0]: local
+     * li[1]: foreign */
+    struct linaddr li[2];
 
-#    if defined(HASIPv6)
-            struct in6_addr a6; /* AF_INET6 Internet address */
-#    endif                      /* defined(HASIPv6) */
-
-        } ia;
-    } li[2];         /* li[0]: local
-                      * li[1]: foreign */
     struct ltstate { /* local TCP/TPI state */
         int type;    /* state type:
                       *   -1 == none
