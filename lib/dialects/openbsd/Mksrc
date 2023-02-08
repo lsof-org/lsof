@@ -27,6 +27,6 @@ L="dfile.c dlsof.h dmnt.c dnode.c dproc.c dproto.h dsock.c dstore.c machine.h"
 mksrc
 
 D=src
-L="arg.c main.c misc.c node.c print.c ptti.c store.c usage.c util.c"
+L="arg.c main.c node.c print.c ptti.c store.c usage.c util.c"
 
 mksrc

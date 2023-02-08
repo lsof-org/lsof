@@ -24,11 +24,11 @@ GRP=
 HDR=    lib/common.h include/lsof_fields.h dlsof.h machine.h lib/proto.h dproto.h
 
 SRC=    dfile.c dmnt.c dnode.c dproc.c dsock.c dstore.c \
-	arg.c main.c misc.c node.c print.c ptti.c store.c usage.c \
+	arg.c main.c node.c print.c ptti.c store.c usage.c \
 	util.c
 
 OBJ=	dfile.o dmnt.o dnode.o dproc.o dsock.o dstore.o \
-	arg.o main.o misc.o node.o print.o ptti.o store.o usage.o \
+	arg.o main.o node.o print.o ptti.o store.o usage.o \
 	util.o
 
 MAN=	lsof.8

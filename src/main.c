@@ -47,7 +47,6 @@ static int GOx1 = 1;             /* first opt[][] index */
 static int GOx2 = 0;             /* second opt[][] index */
 
 _PROTOTYPE(static int GetOpt, (int ct, char *opt[], char *rules, int *err));
-_PROTOTYPE(static char *sv_fmt_str, (char *f));
 
 /*
  * main() - main function for lsof
@@ -1157,16 +1156,10 @@ closed:
     /*
      * Define the size and offset print formats.
      */
-    (void)snpf(options, sizeof(options), "%%#%sx", INODEPSPEC);
-    ctx->inode_fmt_x = sv_fmt_str(options);
-    (void)snpf(options, sizeof(options), "0t%%%su", SZOFFPSPEC);
-    SzOffFmt_0t = sv_fmt_str(options);
-    (void)snpf(options, sizeof(options), "%%%su", SZOFFPSPEC);
-    SzOffFmt_d = sv_fmt_str(options);
-    (void)snpf(options, sizeof(options), "%%*%su", SZOFFPSPEC);
-    SzOffFmt_dv = sv_fmt_str(options);
-    (void)snpf(options, sizeof(options), "%%#%sx", SZOFFPSPEC);
-    SzOffFmt_x = sv_fmt_str(options);
+    SzOffFmt_0t = "0t%" SZOFFPSPEC "u";
+    SzOffFmt_d = "%" SZOFFPSPEC "u";
+    SzOffFmt_dv = "%*" SZOFFPSPEC "u";
+    SzOffFmt_x = "%#" SZOFFPSPEC "x";
 
 #if defined(HASMNTSUP)
     /*
@@ -1684,24 +1677,4 @@ int *err;    /* error return */
      * Return the option character.
      */
     return (c);
-}
-
-/*
- * sv_fmt_str() - save format string
- */
-
-static char *sv_fmt_str(f)
-char *f; /* format string */
-{
-    char *cp;
-    MALLOC_S l;
-
-    l = (MALLOC_S)(strlen(f) + 1);
-    if (!(cp = (char *)malloc(l))) {
-        (void)fprintf(stderr, "%s: can't allocate %d bytes for format: %s\n",
-                      Pn, (int)l, f);
-        Error(ctx);
-    }
-    (void)snpf(cp, l, "%s", f);
-    return (cp);
 }

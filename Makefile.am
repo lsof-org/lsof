@@ -87,7 +87,7 @@ endif
 # Binary
 bin_PROGRAMS = lsof
 
-lsof_SOURCES = src/arg.c src/main.c src/misc.c src/print.c src/ptti.c src/store.c src/usage.c src/util.c
+lsof_SOURCES = src/arg.c src/main.c src/print.c src/ptti.c src/store.c src/usage.c src/util.c
 lsof_SOURCES += src/cli.h
 
 if LINUX

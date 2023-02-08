@@ -1131,8 +1131,6 @@ struct lsof_context {
     int max_fd; /* maximum file descriptors to close */
 
     int ign_tasks; /* ignore tasks when non-zero */
-    /* INODETYPE hexadecimal printf specification */
-    char *inode_fmt_x;
 
     int x_opt; /* -X option status */
 
