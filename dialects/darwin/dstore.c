@@ -46,20 +46,19 @@ struct file *Cfp; /* curent file's file struct pointer */
  * Pff_tab[] - table for printing file flags
  */
 
-struct pff_tab Pff_tab[] = {{(long)FREAD, FF_READ},
-                            {(long)FWRITE, FF_WRITE},
-                            {(long)FNONBLOCK, FF_NBLOCK},
-                            {(long)FNDELAY, FF_NDELAY},
-                            {(long)FAPPEND, FF_APPEND},
-                            {(long)FASYNC, FF_ASYNC},
-                            {(long)FFSYNC, FF_FSYNC},
+struct pff_tab Pff_tab[] = {{(long)FREAD, FF_READ},       /* 0x00000001 */
+                            {(long)FWRITE, FF_WRITE},     /* 0x00000002 */
+                            {(long)FNONBLOCK, FF_NBLOCK}, /* 0x00000004 */
+                            {(long)FAPPEND, FF_APPEND},   /* 0x00000008 */
+                            {(long)FASYNC, FF_ASYNC},     /* 0x00000040 */
+                            {(long)FFSYNC, FF_FSYNC},     /* 0x00000080 */
 
 #    if defined(FHASLOCK)
-                            {(long)FHASLOCK, FF_HASLOCK},
+                            {(long)FHASLOCK, FF_HASLOCK}, /* 0x00004000 */
 #    endif /* defined(FHASLOCK) */
 
-                            {(long)O_NOCTTY, FF_NOCTTY},
-                            {(long)O_EVTONLY, FF_EVTONLY},
+                            {(long)O_EVTONLY, FF_EVTONLY}, /* 0x00008000 */
+                            {(long)O_NOCTTY, FF_NOCTTY},   /* 0x00020000 */
                             {(long)0, NULL}};
 
 /*
@@ -80,17 +79,9 @@ struct pff_tab Pof_tab[] = {
     {(long)PROC_FP_GUARDED, "GRD"},
 #    endif /* defined(PROC_FP_GUARDED) */
 
-#    if defined(UF_CLOSING)
-    {(long)UF_CLOSING, POF_CLOSING},
-#    endif /* defined(UF_CLOSING) */
-
-#    if defined(UF_EXCLOSE)
-    {(long)UF_EXCLOSE, POF_CLOEXEC},
-#    endif /* defined(UF_EXCLOSE) */
-
-#    if defined(UF_RESERVED)
-    {(long)UF_RESERVED, POF_RESERVED},
-#    endif /* defined(UF_RESERVED) */
+#    if defined(PROC_FP_CLFORK)
+    {(long)PROC_FP_CLFORK, "CF"},
+#    endif /* defined(PROC_FP_CLFORK) */
 
     {(long)0, NULL}};
 #endif /* defined(HASFSTRUCT) */
