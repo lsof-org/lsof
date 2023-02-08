@@ -364,7 +364,7 @@ static void process_socket_common(struct lsof_context *ctx,
         /*
          * Process a SYSTEM domain socket.
          */
-        (void)snpf(Lf->type, sizeof(Lf->type), "systm");
+        Lf->type = LSOF_FILE_SYSTEM;
         switch (si->psi.soi_kind) {
         case SOCKINFO_KERN_EVENT:
             enter_dev_ch(ctx, print_kptr((KA_T)si->psi.soi_pcb, (char *)NULL, 0));
