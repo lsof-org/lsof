@@ -28,8 +28,8 @@
  * 4. This notice may not be removed or altered.
  */
 
-#include "lsof.h"
 #include "common.h"
+#include "lsof.h"
 
 /*
  * Local definitions, structures and function prototypes

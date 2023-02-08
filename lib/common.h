@@ -39,7 +39,6 @@
 #        include "autotools.h"
 #    endif
 #    include "machine.h"
-#    include "lsof.h"
 
 #    if !defined(FSV_DEFAULT)
 #        define FSV_DEFAULT 0
@@ -720,6 +719,8 @@ extern int Fverbose;
 
 extern int Fxover;
 extern int Fzone;
+
+#    include "lsof.h"
 
 struct fd_lst {
     enum lsof_fd_type fd_type; /* file descriptor type -- range if

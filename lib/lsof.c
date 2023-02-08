@@ -28,11 +28,11 @@
  * 4. This notice may not be removed or altered.
  */
 
-#include "lsof.h"
 #ifdef AUTOTOOLS
 #    include "config.h"
 #endif
 #include "common.h"
+#include "lsof.h"
 #include <unistd.h>
 
 #ifndef API_EXPORT

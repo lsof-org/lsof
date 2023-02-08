@@ -30,8 +30,8 @@
  * 4. This notice may not be removed or altered.
  */
 
-#include "lsof.h"
 #include "common.h"
+#include "lsof.h"
 #include "cli.h"
 
 _PROTOTYPE(extern int enter_dir, (char *d, int descend));
