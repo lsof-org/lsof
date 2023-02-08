@@ -144,29 +144,16 @@
 #    define major_S(dev) ((int)((dev >> L_BITSMINOR) & LT_MJX))
 #    define minor_S(dev) ((int)(dev & L_MAXMIN))
 
-#    if defined(LT_K64)
-
-/*
- * Solaris 64 bit kernel
- */
-
+#    if defined(LT_DEV64)
 #        undef X2DEV_T
 #        define X2DEV_T unsigned long long
 #        undef XDINDEV
 #        define XDINDEV 16
+#    endif /* defined(LT_DEV64) */
 
-#        define major_X(dp, em) ((int)((x2dev(dp, em) >> 32) & 0xffffffff))
-#        define minor_X(dp, em) ((int)(x2dev(dp, em) & 0xffffffff))
-#    else /* !defined(LT_K64) */
-
-/*
- * Solaris 32 bit kernel
- */
-
-#        define major_X(dp, em) ((int)((x2dev(dp, em) >> L_BITSMINOR) & LT_MJX))
-#        define minor_X(dp, em) ((int)(x2dev(dp, em) & L_MAXMIN))
-#    endif /* LT_K64 */
-#endif     /* defined(LT_DIAL_solaris) */
+#    define major_X(dp, em) (major_S(x2dev(dp, em)))
+#    define minor_X(dp, em) (minor_S(x2dev(dp, em)))
+#endif /* defined(LT_DIAL_solaris) */
 
 #if defined(LT_DIAL_uw)
 /*

@@ -28,11 +28,10 @@
  * 4. This notice may not be removed or altered.
  */
 
+#include "common.h"
 #include "machine.h"
 
 #if defined(HASDCACHE)
-
-#    include "common.h"
 
 /*
  * dvch.c - module that contains common device cache functions
@@ -1017,7 +1016,7 @@ int read_dcache(struct lsof_context *ctx) {
     /*
      * Read the clone section.
      */
-    if (DCACHE_CLONE(1))
+    if (DCACHE_CLONE(ctx, 1))
         goto read_close;
 #    endif /* defined(DCACHE_CLONE) */
 
@@ -1025,7 +1024,7 @@ int read_dcache(struct lsof_context *ctx) {
     /*
      * Read the pseudo section.
      */
-    if (DCACHE_PSEUDO(1))
+    if (DCACHE_PSEUDO(ctx, 1))
         goto read_close;
 #    endif /* defined(DCACHE_PSEUDO) */
 
@@ -1282,7 +1281,7 @@ void write_dcache(struct lsof_context *ctx) {
     /*
      * Write the clone section.
      */
-    if (DCACHE_CLONE(2))
+    if (DCACHE_CLONE(ctx, 2))
         return;
 #    endif /* defined(DCACHE_CLONE) */
 
@@ -1290,7 +1289,7 @@ void write_dcache(struct lsof_context *ctx) {
     /*
      * Write the pseudo section.
      */
-    if (DCACHE_PSEUDO(2))
+    if (DCACHE_PSEUDO(ctx, 2))
         return;
 #    endif /* defined(DCACHE_PSEUDO) */
 

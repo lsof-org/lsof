@@ -52,15 +52,18 @@ static int Devx = 0; /* current Devtp[] index */
  * Local function prototypes
  */
 
-_PROTOTYPE(static void make_devtp, (struct stat * s, char *p));
-_PROTOTYPE(static int rmdupdev, (struct l_dev * **dp, int n, int ty));
+_PROTOTYPE(static void make_devtp,
+           (struct lsof_context * ctx, struct stat *s, char *p));
+_PROTOTYPE(static int rmdupdev,
+           (struct lsof_context * ctx, struct l_dev ***dp, int n, int ty));
 
 /*
  * make_devtp() - make Devtp[] entry
  */
 
-static void make_devtp(s, p) struct stat *s; /* device lstat() buffer */
-char *p;                                     /* device path name */
+static void make_devtp(struct lsof_context *ctx,
+                       struct stat *s, /* device lstat() buffer */
+                       char *p)        /* device path name */
 {
 
     /*
@@ -97,17 +100,16 @@ char *p;                                     /* device path name */
  * printdevname() - print block or character device name
  */
 
-int printdevname(dev, rdev, f, nty)
-dev_t *dev;  /* device */
-dev_t *rdev; /* raw device */
-int f;       /* 1 = print trailing '\n' */
-int nty;     /* node type: N_BLK or N_CHR */
+int printdevname(struct lsof_context *ctx, dev_t *dev, /* device */
+                 dev_t *rdev,                          /* raw device */
+                 int f,   /* 1 = print trailing '\n' */
+                 int nty) /* node type: N_BLK or N_CHR */
 {
     struct clone *c;
     struct l_dev *dp;
     struct pseudo *p;
 
-    readdev(0);
+    readdev(ctx, 0);
     /*
      * Search device table for a full match.
      */
@@ -120,11 +122,11 @@ printchdevname_again:
 
 #if defined(HASBLKDEV)
     if (nty == N_BLK)
-        dp = lkupbdev(dev, rdev, 1, 0);
+        dp = lkupbdev(ctx, dev, rdev, 1, 0);
     else
 #endif /* defined(HASBLKDEV) */
 
-        dp = lkupdev(dev, rdev, 1, 0);
+        dp = lkupdev(ctx, dev, rdev, 1, 0);
     if (dp) {
         safestrprt(dp->name, stdout, f);
         return (1);
@@ -135,11 +137,11 @@ printchdevname_again:
 
 #if defined(HASBLKDEV)
     if (nty == N_BLK)
-        dp = lkupbdev(&DevDev, rdev, 0, 0);
+        dp = lkupbdev(ctx, &DevDev, rdev, 0, 0);
     else
 #endif /* defined(HASBLKDEV) */
 
-        dp = lkupdev(&DevDev, rdev, 0, 0);
+        dp = lkupdev(ctx, &DevDev, rdev, 0, 0);
     if (dp) {
 
         /*
@@ -156,7 +158,7 @@ printchdevname_again:
             Error(ctx);
         }
         (void)snpf(cp, len + 1, "(%s %s)", ttl, dp->name);
-        (void)add_nma(cp, len);
+        (void)add_nma(ctx, cp, len);
         (void)free((MALLOC_P *)cp);
         return (0);
     }
@@ -168,7 +170,7 @@ printchdevname_again:
             if (GET_MAJ_DEV(*rdev) == GET_MIN_DEV(c->cd.rdev)) {
 
 #if defined(HASDCACHE)
-                if (DCunsafe && !c->cd.v && !vfy_dev(&c->cd))
+                if (DCunsafe && !c->cd.v && !vfy_dev(ctx, &c->cd))
                     goto printchdevname_again;
 #endif /* defined(HASDCACHE) */
 
@@ -185,7 +187,7 @@ printchdevname_again:
             if (GET_MAJ_DEV(*rdev) == GET_MAJ_DEV(p->pd.rdev)) {
 
 #if defined(HASDCACHE)
-                if (DCunsafe && !p->pd.v && vfy_dev(&p->pd))
+                if (DCunsafe && !p->pd.v && vfy_dev(ctx, &p->pd))
                     goto printchdevname_again;
 #endif /* defined(HASDCACHE) */
 
@@ -201,7 +203,7 @@ printchdevname_again:
      * the device cache.
      */
     if (DCunsafe) {
-        (void)rereaddev();
+        (void)rereaddev(ctx);
         goto printchdevname_again;
     }
 #endif /* defined(HASDCACHE) */
@@ -213,7 +215,7 @@ printchdevname_again:
  * read_clone() - read Solaris clone device information
  */
 
-void read_clone() {
+void read_clone(struct lsof_context *ctx) {
     struct clone *c;
     char *cn;
     DIR *dfp;
@@ -294,7 +296,7 @@ void read_clone() {
         /*
          * Make Devtp[] entry.
          */
-        make_devtp(&sb, fp);
+        make_devtp(ctx, &sb, fp);
         /*
          * Create a clone structure entry for "clone*:" devices.
          *
@@ -378,7 +380,8 @@ void read_clone() {
  *	       or /device (Solaris)
  */
 
-void readdev(skip) int skip; /* skip device cache read if 1 */
+void readdev(struct lsof_context *ctx,
+             int skip) /* skip device cache read if 1 */
 {
 
 #if defined(HASDCACHE)
@@ -409,7 +412,7 @@ void readdev(skip) int skip; /* skip device cache read if 1 */
      */
     if (!skip) {
         if (DCstate == 2 || DCstate == 3) {
-            if ((dcrd = read_dcache()) == 0)
+            if ((dcrd = read_dcache(ctx)) == 0)
                 return;
         }
     } else
@@ -422,10 +425,10 @@ void readdev(skip) int skip; /* skip device cache read if 1 */
                       DVCH_DEVPATH);
         Error(ctx);
     }
-    read_clone();
+    read_clone(ctx);
     Dstk = (char **)NULL;
     Dstkn = Dstkx = 0;
-    (void)stkdir(DVCH_DEVPATH);
+    (void)stkdir(ctx, DVCH_DEVPATH);
     /*
      * Unstack the next directory.
      */
@@ -512,7 +515,7 @@ void readdev(skip) int skip; /* skip device cache read if 1 */
                  */
                 if (strcmp(fp, ppath) == 0)
                     continue;
-                (void)stkdir(fp);
+                (void)stkdir(ctx, fp);
                 continue;
             }
             if ((sb.st_mode & S_IFMT) == S_IFCHR) {
@@ -520,7 +523,7 @@ void readdev(skip) int skip; /* skip device cache read if 1 */
                 /*
                  * Make Devtp[] entry.
                  */
-                make_devtp(&sb, fp);
+                make_devtp(ctx, &sb, fp);
             }
 
 #if defined(HASBLKDEV)
@@ -593,7 +596,7 @@ void readdev(skip) int skip; /* skip device cache read if 1 */
         }
         (void)qsort((QSORT_P *)BSdev, (size_t)BNdev,
                     (size_t)sizeof(struct l_dev *), compdev);
-        BNdev = rmdupdev(&BSdev, BNdev, 0);
+        BNdev = rmdupdev(ctx, &BSdev, BNdev, 0);
     } else {
         if (!Fwarn)
             (void)fprintf(stderr, "%s: WARNING: no block devices found\n", Pn);
@@ -618,7 +621,7 @@ void readdev(skip) int skip; /* skip device cache read if 1 */
         }
         (void)qsort((QSORT_P *)Sdev, (size_t)Ndev,
                     (size_t)sizeof(struct l_dev *), compdev);
-        Ndev = rmdupdev(&Sdev, Ndev, 1);
+        Ndev = rmdupdev(ctx, &Sdev, Ndev, 1);
     } else {
         (void)fprintf(stderr, "%s: no character devices found\n", Pn);
         Error(ctx);
@@ -629,7 +632,7 @@ void readdev(skip) int skip; /* skip device cache read if 1 */
      * Write device cache file, as required.
      */
     if (DCstate == 1 || (DCstate == 3 && dcrd))
-        write_dcache();
+        write_dcache(ctx);
 #endif /* defined(HASDCACHE) */
 }
 
@@ -667,8 +670,8 @@ void clr_sect() {
  * rw_clone_sect() - read/write the device cache file clone section
  */
 
-int rw_clone_sect(m)
-int m; /* mode: 1 = read; 2 = write */
+int rw_clone_sect(struct lsof_context *ctx,
+                  int m) /* mode: 1 = read; 2 = write */
 {
     char buf[MAXPATHLEN * 2], *cp;
     struct clone *c;
@@ -792,7 +795,7 @@ int m; /* mode: 1 = read; 2 = write */
         for (c = Clone, n = 0; c; c = c->next, n++)
             ;
         (void)snpf(buf, sizeof(buf), "clone section: %d\n", n);
-        if (wr2DCfd(buf, &DCcksum))
+        if (wr2DCfd(ctx, buf, &DCcksum))
             return (1);
         /*
          * Write the clone section lines.
@@ -805,7 +808,7 @@ int m; /* mode: 1 = read; 2 = write */
         for (c = Clone; c; c = c->next) {
             (void)snpf(buf, sizeof(buf), " %lx %d %ld %s\n", (long)c->cd.rdev,
                        c->n, (long)c->cd.inode, c->cd.name);
-            if (wr2DCfd(buf, &DCcksum))
+            if (wr2DCfd(ctx, buf, &DCcksum))
                 return (1);
         }
         return (0);
@@ -822,8 +825,8 @@ int m; /* mode: 1 = read; 2 = write */
  * rereaddev() - reread device names, modes and types
  */
 
-void rereaddev() {
-    (void)clr_devtab();
+void rereaddev(struct lsof_context *ctx) {
+    (void)clr_devtab(ctx);
     (void)clr_sect();
     Devx = 0;
 
@@ -831,7 +834,7 @@ void rereaddev() {
     (void)DCACHE_CLR();
 #    endif /* defined(DCACHE_CLR) */
 
-    readdev(1);
+    readdev(ctx, 1);
     DCunsafe = 0;
 }
 
@@ -839,8 +842,8 @@ void rereaddev() {
  * rw_pseudo_sect() - read/write the device cache pseudo section
  */
 
-int rw_pseudo_sect(m)
-int m; /* mode: 1 = read; 2 = write */
+int rw_pseudo_sect(struct lsof_context *ctx,
+                   int m) /* mode: 1 = read; 2 = write */
 {
     char buf[MAXPATHLEN * 2], *cp;
     struct pseudo *p;
@@ -956,7 +959,7 @@ int m; /* mode: 1 = read; 2 = write */
         for (p = Pseudo, n = 0; p; p = p->next, n++)
             ;
         (void)snpf(buf, sizeof(buf), "pseudo section: %d\n", n);
-        if (wr2DCfd(buf, &DCcksum))
+        if (wr2DCfd(ctx, buf, &DCcksum))
             return (1);
         /*
          * Write the pseudo section lines.
@@ -969,7 +972,7 @@ int m; /* mode: 1 = read; 2 = write */
         for (p = Pseudo; p; p = p->next) {
             (void)snpf(buf, sizeof(buf), " %lx %ld %s\n", (long)p->pd.rdev,
                        (long)p->pd.inode, p->pd.name);
-            if (wr2DCfd(buf, &DCcksum))
+            if (wr2DCfd(ctx, buf, &DCcksum))
                 return (1);
         }
         return (0);
@@ -987,8 +990,8 @@ int m; /* mode: 1 = read; 2 = write */
  * Note: rereads entire device table when an entry can't be verified.
  */
 
-int vfy_dev(dp)
-struct l_dev *dp; /* device table pointer */
+int vfy_dev(struct lsof_context *ctx,
+            struct l_dev *dp) /* device table pointer */
 {
     struct stat sb;
 
@@ -1002,7 +1005,7 @@ struct l_dev *dp; /* device table pointer */
 #    endif /* defined(USE_STAT) */
 
         || dp->rdev != sb.st_rdev || dp->inode != (INODETYPE)sb.st_ino) {
-        (void)rereaddev();
+        (void)rereaddev(ctx);
         return (0);
     }
     dp->v = 1;
@@ -1014,10 +1017,10 @@ struct l_dev *dp; /* device table pointer */
  * rmdupdev() - remove duplicate (major/minor/inode) devices
  */
 
-static int rmdupdev(dp, n, ty)
-struct l_dev ***dp; /* device table pointers address */
-int n;              /* number of pointers */
-int ty;             /* type: 0 = block, 1 = char */
+static int rmdupdev(struct lsof_context *ctx,
+                    struct l_dev ***dp, /* device table pointers address */
+                    int n,              /* number of pointers */
+                    int ty)             /* type: 0 = block, 1 = char */
 {
     struct clone *c, *cp;
     struct l_dev **d;

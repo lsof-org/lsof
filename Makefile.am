@@ -2,7 +2,7 @@
 lib_LTLIBRARIES = liblsof.la
 
 # Dialect neutral sources
-liblsof_la_SOURCES = lib/ckkv.c lib/dvch.c lib/fino.c lib/isfn.c lib/lkud.c lib/lsof.c lib/misc.c lib/pdvn.c lib/prfp.c lib/print.c lib/proc.c lib/ptti.c lib/rdev.c lib/rnmt.c lib/rmnt.c lib/rnam.c lib/rnch.c lib/rnmh.c
+liblsof_la_SOURCES = lib/ckkv.c lib/cvfs.c lib/dvch.c lib/fino.c lib/isfn.c lib/lkud.c lib/lsof.c lib/misc.c lib/node.c lib/pdvn.c lib/prfp.c lib/print.c lib/proc.c lib/ptti.c lib/rdev.c lib/rnmt.c lib/rmnt.c lib/rnam.c lib/rnch.c lib/rnmh.c
 liblsof_la_SOURCES += lib/common.h lib/regex.h lib/proto.h lib/hash.h
 include_HEADERS = include/lsof.h include/lsof_fields.h
 
@@ -71,10 +71,23 @@ liblsof_la_SOURCES += lib/dialects/openbsd/dfile.c \
 		lib/dialects/openbsd/machine.h
 endif
 
+if SOLARIS
+liblsof_la_SOURCES += lib/dialects/sun/ddev.c \
+		lib/dialects/sun/dfile.c \
+		lib/dialects/sun/dmnt.c \
+		lib/dialects/sun/dnode.c \
+		lib/dialects/sun/dproc.c \
+		lib/dialects/sun/dsock.c \
+		lib/dialects/sun/dstore.c \
+		lib/dialects/sun/dlsof.h \
+		lib/dialects/sun/dproto.h \
+		lib/dialects/sun/machine.h
+endif
+
 # Binary
 bin_PROGRAMS = lsof
 
-lsof_SOURCES = src/arg.c src/main.c src/misc.c src/node.c src/print.c src/ptti.c src/store.c src/usage.c src/util.c
+lsof_SOURCES = src/arg.c src/main.c src/misc.c src/print.c src/ptti.c src/store.c src/usage.c src/util.c
 lsof_SOURCES += src/cli.h
 
 if LINUX
@@ -82,6 +95,9 @@ lsof_SOURCES += src/dialects/linux/dprint.c
 endif
 if DARWIN
 lsof_SOURCES += src/dialects/darwin/dprint.c
+endif
+if SOLARIS
+lsof_SOURCES += src/dialects/sun/dprint.c
 endif
 # TODO: link to dynamic library instead after internal functions are no longer used
 lsof_SOURCES += $(liblsof_la_SOURCES)

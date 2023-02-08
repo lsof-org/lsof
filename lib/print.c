@@ -2160,3 +2160,51 @@ void print_iproto(enum lsof_protocol proto, uint32_t unknown_proto_number,
         break;
     }
 }
+
+/*
+ * printsockty() - print socket type
+ */
+char *printsockty(int ty) /* socket type -- e.g., from so_type */
+{
+    static char buf[64];
+    char *cp;
+
+    switch (ty) {
+
+#if defined(SOCK_STREAM)
+    case SOCK_STREAM:
+        cp = "STREAM";
+        break;
+#endif /* defined(SOCK_STREAM) */
+
+#if defined(SOCK_STREAM)
+    case SOCK_DGRAM:
+        cp = "DGRAM";
+        break;
+#endif /* defined(SOCK_DGRAM) */
+
+#if defined(SOCK_RAW)
+    case SOCK_RAW:
+        cp = "RAW";
+        break;
+#endif /* defined(SOCK_RAW) */
+
+#if defined(SOCK_RDM)
+    case SOCK_RDM:
+        cp = "RDM";
+        break;
+#endif /* defined(SOCK_RDM) */
+
+#if defined(SOCK_SEQPACKET)
+    case SOCK_SEQPACKET:
+        cp = "SEQPACKET";
+        break;
+#endif /* defined(SOCK_SEQPACKET) */
+
+    default:
+        (void)snpf(buf, sizeof(buf), "SOCK_%#x", ty);
+        return (buf);
+    }
+    (void)snpf(buf, sizeof(buf), "SOCK_%s", cp);
+    return (buf);
+}

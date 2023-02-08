@@ -36,11 +36,9 @@
  *	HASBLKDEV	to activate block device lookup
  */
 
+#include "common.h"
 #include "machine.h"
-
 #if defined(HASBLKDEV) || defined(USE_LIB_LKUPDEV)
-
-#    include "common.h"
 
 #endif /* defined(HASBLKDEV) || defined(USE_LIB_LKUPDEV) */
 
@@ -66,7 +64,7 @@ struct l_dev *lkupbdev(struct lsof_context *ctx,
 
     if (*dev != DevDev)
         return ((struct l_dev *)NULL);
-    readdev(ctx,0);
+    readdev(ctx, 0);
     if (i) {
         inode = Lf->inode;
         inode_def = Lf->inode_def;
@@ -140,7 +138,7 @@ struct l_dev *lkupdev(struct lsof_context *ctx,
 
     if (*dev != DevDev)
         return ((struct l_dev *)NULL);
-    readdev(ctx,0);
+    readdev(ctx, 0);
     if (i) {
         inode = Lf->inode;
         inode_def = Lf->inode_def;

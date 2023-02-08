@@ -75,6 +75,7 @@ lockf.h
 lsof.man
 /site
 lib/dialects/netbsd/include
+/solaris11
 
 #
 # Symbolic links to lsof cli

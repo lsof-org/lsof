@@ -998,19 +998,16 @@ extern int TaskCmdLim;
 extern int TaskPrtCmd;
 extern int TaskPrtTid;
 
-#    if defined(HASZONES)
+struct hsfile {
+    struct sfile *s;     /* the Sfile table address */
+    struct hsfile *next; /* the next hash bucket entry */
+};
+
 typedef struct znhash {
     char *zn;            /* zone name */
     int f;               /* "find" flag (used only in ZoneArg) */
     struct znhash *next; /* next zone hash entry */
 } znhash_t;
-extern znhash_t **ZoneArg;
-#    endif /* defined(HASZONES) */
-
-struct hsfile {
-    struct sfile *s;     /* the Sfile table address */
-    struct hsfile *next; /* the next hash bucket entry */
-};
 
 struct lsof_context {
     /** Parameters */
@@ -1174,6 +1171,11 @@ struct lsof_context {
      * file */
     int procfs_search;
 #    endif /* defined(HASPROCFS) */
+
+#    if defined(HASZONES)
+    /* zone arguments supplied with -z */
+    znhash_t **sel_zone;
+#    endif /* defined(HASZONES) */
 
     /** When frozen, paramters must not be changed */
     uint8_t frozen;
@@ -1454,6 +1456,8 @@ struct lsof_context {
 #    define HbyFsdCt (ctx->sfile_hash_file_system_count)
 #    define HbyNm (ctx->sfile_hash_name)
 #    define HbyNmCt (ctx->sfile_hash_name_count)
+/* solaris zone */
+#    define ZoneArg (ctx->sel_zone)
 
 /* Utility macro to free if non-null and set the pointer to null */
 #    define CLEAN(ptr)                                                         \

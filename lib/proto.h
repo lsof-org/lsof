@@ -269,7 +269,8 @@ _PROTOTYPE(extern void write_dcache, (struct lsof_context * ctx));
 #    endif /* defined(HASDCACHE) */
 
 #    if defined(HASFIFONODE)
-_PROTOTYPE(extern int readfifonode, (KA_T fa, struct fifonode *f));
+_PROTOTYPE(extern int readfifonode,
+           (struct lsof_context * ctx, KA_T fa, struct fifonode *f));
 #    endif /* defined(HASFIFONODE) */
 
 #    if defined(HASFSTRUCT)
@@ -286,7 +287,8 @@ _PROTOTYPE(extern void process_kqueue, (struct lsof_context * ctx, KA_T ka));
 #    endif /* defined(HASKQUEUE) */
 
 #    if defined(HASHSNODE)
-_PROTOTYPE(extern int readhsnode, (KA_T ha, struct hsnode *h));
+_PROTOTYPE(extern int readhsnode,
+           (struct lsof_context * ctx, KA_T ha, struct hsnode *h));
 #    endif /* defined(HASHSNODE) */
 
 #    if defined(HASINODE)
@@ -324,13 +326,15 @@ _PROTOTYPE(extern void HASPRINTNM, (struct lfile * lf));
 #    endif /* defined(HASPRINTNM) */
 
 #    if defined(HASPRIVNMCACHE)
-_PROTOTYPE(extern int HASPRIVNMCACHE, (struct lfile * lf));
+_PROTOTYPE(extern int HASPRIVNMCACHE,
+           (struct lsof_context * ctx, struct lfile *lf));
 #    endif /* defined(HASPRIVNMCACHE) */
 
 _PROTOTYPE(extern void enter_ip_proto, (struct lsof_context * ctx, int p));
 
 #    if defined(HASRNODE)
-_PROTOTYPE(extern int readrnode, (KA_T ra, struct rnode *r));
+_PROTOTYPE(extern int readrnode,
+           (struct lsof_context * ctx, KA_T ra, struct rnode *r));
 #    endif /* defined(HASRNODE) */
 
 #    if defined(HASSPECDEVD)
@@ -339,19 +343,26 @@ _PROTOTYPE(extern void HASSPECDEVD,
 #    endif /* defined(HASSPECDEVD) */
 
 #    if defined(HASSNODE)
-_PROTOTYPE(extern int readsnode, (KA_T sa, struct snode *s));
+_PROTOTYPE(extern int readsnode,
+           (struct lsof_context * ctx, KA_T sa, struct snode *s));
 #    endif /* defined(HASSNODE) */
 
 #    if defined(HASSTREAMS)
-_PROTOTYPE(extern int readstdata, (KA_T addr, struct stdata *buf));
-_PROTOTYPE(extern int readsthead, (KA_T addr, struct queue *buf));
-_PROTOTYPE(extern int readstidnm, (KA_T addr, char *buf, READLEN_T len));
-_PROTOTYPE(extern int readstmin, (KA_T addr, struct module_info *buf));
-_PROTOTYPE(extern int readstqinit, (KA_T addr, struct qinit *buf));
+_PROTOTYPE(extern int readstdata,
+           (struct lsof_context * ctx, KA_T addr, struct stdata *buf));
+_PROTOTYPE(extern int readsthead,
+           (struct lsof_context * ctx, KA_T addr, struct queue *buf));
+_PROTOTYPE(extern int readstidnm,
+           (struct lsof_context * ctx, KA_T addr, char *buf, READLEN_T len));
+_PROTOTYPE(extern int readstmin,
+           (struct lsof_context * ctx, KA_T addr, struct module_info *buf));
+_PROTOTYPE(extern int readstqinit,
+           (struct lsof_context * ctx, KA_T addr, struct qinit *buf));
 #    endif /* defined(HASSTREAMS) */
 
 #    if defined(HASTMPNODE)
-_PROTOTYPE(extern int readtnode, (KA_T ta, struct tmpnode *t));
+_PROTOTYPE(extern int readtnode,
+           (struct lsof_context * ctx, KA_T ta, struct tmpnode *t));
 #    endif /* defined(HASTMPNODE) */
 
 #    if defined(HASVNODE)

@@ -183,11 +183,6 @@ int TaskTidColW = 0;              /* task TID column width */
 int TypeColW;                     /* TYPE column width */
 int UserColW;                     /* USER column width */
 
-#if defined(HASZONES)
-znhash_t **ZoneArg = (znhash_t **)NULL;
-/* zone arguments supplied with -z */
-#endif /* defined(HASZONES) */
-
 int ZoneColW; /* ZONE column width */
 
 /** liblsof context */

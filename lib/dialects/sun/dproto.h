@@ -38,20 +38,25 @@
 _PROTOTYPE(extern int access_vxfs_ioffsets, (void));
 #endif /* defined(HASVXFSUTIL) */
 
-_PROTOTYPE(extern void completevfs, (struct l_vfs * vfs, dev_t *dev));
+_PROTOTYPE(extern void completevfs,
+           (struct lsof_context * ctx, struct l_vfs *vfs, dev_t *dev));
 
 #if defined(HAS_LIBCTF)
-_PROTOTYPE(extern int CTF_getmem, (ctf_file_t * f, const char *mod,
-                                   const char *ty, CTF_member_t *mem));
-_PROTOTYPE(extern void CTF_init, (int *i, char *t, CTF_request_t *r));
+_PROTOTYPE(extern int CTF_getmem,
+           (struct lsof_context * ctx, ctf_file_t *f, const char *mod,
+            const char *ty, CTF_member_t *mem));
+_PROTOTYPE(extern void CTF_init,
+           (struct lsof_context * ctx, int *i, char *t, CTF_request_t *r));
 _PROTOTYPE(extern int CTF_memCB,
            (const char *name, ctf_id_t id, ulong_t offset, void *arg));
 #endif /* defined(HAS_LIBCTF) */
 
-_PROTOTYPE(extern int is_file_named, (char *p, int nt, enum vtype vt, int ps));
-_PROTOTYPE(extern struct l_vfs *readvfs,
-           (KA_T ka, struct vfs *la, struct vnode *lv));
-_PROTOTYPE(extern int vop2ty, (struct vnode * vp, int fx));
+_PROTOTYPE(extern int is_file_named,
+           (struct lsof_context * ctx, char *p, int nt, enum vtype vt, int ps));
+_PROTOTYPE(extern struct l_vfs *readvfs, (struct lsof_context * ctx, KA_T ka,
+                                          struct vfs *la, struct vnode *lv));
+_PROTOTYPE(extern int vop2ty,
+           (struct lsof_context * ctx, struct vnode *vp, int fx));
 
 #if defined(HAS_AFS)
 _PROTOTYPE(extern struct vnode *alloc_vcache, (void));
@@ -62,9 +67,9 @@ _PROTOTYPE(extern int readafsnode,
 #endif /* defined(HAS_AFS) */
 
 #if defined(HASDCACHE)
-_PROTOTYPE(extern int rw_clone_sect, (int m));
+_PROTOTYPE(extern int rw_clone_sect, (struct lsof_context * ctx, int m));
 _PROTOTYPE(extern void clr_sect, (void));
-_PROTOTYPE(extern int rw_pseudo_sect, (int m));
+_PROTOTYPE(extern int rw_pseudo_sect, (struct lsof_context * ctx, int m));
 #endif /* defined(HASDCACHE) */
 
 #if defined(HASIPv6)
@@ -72,8 +77,10 @@ _PROTOTYPE(extern struct hostent *gethostbyname2, (const char *nm, int proto));
 #endif /* defined(HASIPv6) */
 
 #if defined(HAS_V_PATH)
-_PROTOTYPE(extern int print_v_path, (struct lfile * lf));
-_PROTOTYPE(extern void read_v_path, (KA_T ka, char *rb, size_t rbl));
+_PROTOTYPE(extern int print_v_path,
+           (struct lsof_context * ctx, struct lfile *lf));
+_PROTOTYPE(extern void read_v_path,
+           (struct lsof_context * ctx, KA_T ka, char *rb, size_t rbl));
 #endif /* defined(HAS_V_PATH) */
 
 #if defined(HASVXFS)
@@ -85,24 +92,25 @@ _PROTOTYPE(extern int print_vxfs_rnl_path, (struct lfile * lf));
 #endif     /* defined(HASVXFS) */
 
 #if defined(HASZONES)
-_PROTOTYPE(extern int enter_zone_arg, (char *zn));
+_PROTOTYPE(extern int enter_zone_arg, (struct lsof_context * ctx, char *zn));
 #endif /* defined(HASZONES) */
 
-_PROTOTYPE(extern void close_kvm, (void));
-_PROTOTYPE(extern void open_kvm, (void));
-_PROTOTYPE(extern void process_socket, (KA_T sa, char *ty));
+_PROTOTYPE(extern void close_kvm, (struct lsof_context * ctx));
+_PROTOTYPE(extern void open_kvm, (struct lsof_context * ctx));
+_PROTOTYPE(extern void process_socket,
+           (struct lsof_context * ctx, KA_T sa, char *ty));
 
 #if solaris >= 110000
-_PROTOTYPE(extern int process_VSOCK,
-           (KA_T va, struct vnode *v, struct sonode *so));
+_PROTOTYPE(extern int process_VSOCK, (struct lsof_context * ctx, KA_T va,
+                                      struct vnode *v, struct sonode *so));
 #endif /* solaris>=11000 */
 
-_PROTOTYPE(extern void read_clone, (void));
+_PROTOTYPE(extern void read_clone, (struct lsof_context * ctx));
 
 #if solaris < 20500
 _PROTOTYPE(extern int get_max_fd, (void));
 #endif /* solaris<20500 */
 
 #if defined(WILLDROPGID)
-_PROTOTYPE(extern void restoregid, (void));
+_PROTOTYPE(extern void restoregid, (struct lsof_context * ctx));
 #endif /* defined(WILLDROPGID) */

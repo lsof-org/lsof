@@ -13,7 +13,7 @@ kernel, but not all bad addresses.  For example, the virtual address
 0x657a682e passes this test on a sun4u machine, but on at least
 one sun4u that virtual address translates to the physical address
 0x1cf08c30000, which is the address of a register of a qfe interface
-on the machine.  There is some evidence that a kvm_kread() call for
+on the machine.  There is some evidence that a kvm_kread(ctx, ) call for
 the 0x657a682e address may crash that sun4u.
 
 Lsof 4.71 and above use no filter if they detect that /dev/allkmem
@@ -122,7 +122,7 @@ Caching
 
 To recover the performance lost by kvm_physaddr() on Solaris 2.5.1,
 I added virtual-to-physical address caching to lsof's kernel read
-function, kread().  This improves Solaris 2.6, 7, and 8 performance,
+function, kread(ctx, ).  This improves Solaris 2.6, 7, and 8 performance,
 too, but by a smaller amount.
 
 It turns out that a typical lsof run may require reading from 16,000
@@ -145,7 +145,7 @@ depend on the machine architecture type.
 Once lsof has kernel physical addresses, on Solaris 2.5.1 and 2.6
 it seeks to those addresses with llseek() and reads from them via
 the /dev/mem device.  This contrasts with lsof's pre-4.50 behavior
-where it fed kernel virtual addresses to kvm_kread(), letting it
+where it fed kernel virtual addresses to kvm_kread(ctx, ), letting it
 and the kernel do the virtual to physical translations -- and
 letting that combined process crash that one unlucky sun4u via its
 qfe interface.
@@ -161,7 +161,7 @@ so it opens one of its own.
 
 On Solaris 2.6 for one test system, a 4 CPU E4000 sun4u, doing
 physical kernel address reads from /dev/mem turned out to be faster
-than using kvm_kread().  It was marginally faster on a sun4d, and
+than using kvm_kread(ctx, ).  It was marginally faster on a sun4d, and
 marginally slower on two sun4m's.
 
 kvm_pread()
@@ -179,11 +179,11 @@ it, and using read(2) to obtain physical address contents.  The
 bonus of kvm_pread() is two-fold: 1) it does positioning as well
 as reading, so there's one less function call; and 2) its combined
 operation appears to be faster than llseek() plus read() -- or even
-kvm_kread().
+kvm_kread(ctx, ).
 
 Combined with the virtual-to-physical address caching, the performance
 boost of kvm_pread() makes lsof faster on Solaris 7 and 8 than
-previous revisions, using only kernelbase filtering and kvm_kread().
+previous revisions, using only kernelbase filtering and kvm_kread(ctx, ).
 
 Remaining Risks
 ===============
@@ -203,7 +203,7 @@ possible failure scenarios:
 
 	*  Because lsof must read the kernel address map from
 	   kernel virtual memory to pass it to the Solaris 2.5.1
-	   and 2.6 kvm_physaddr() functions, lsof must use kvm_kread()
+	   and 2.6 kvm_physaddr() functions, lsof must use kvm_kread(ctx, )
 	   to read the map.
 
 	   There's also the chance that lsof could pass a stale

@@ -348,7 +348,7 @@ typedef struct pad_mutex {
 #        define HASNCACHE 1
 #    endif /* solaris>=10000 && defined(HAS_V_PATH) */
 
-#    define NCACHELDPFX open_kvm(); /* do before calling ncache_load() */
+#    define NCACHELDPFX open_kvm(ctx); /* do before calling ncache_load() */
 
 /* #define	NCACHELDSFX	??? */
 
