@@ -139,6 +139,9 @@ enum lsof_error lsof_gather(struct lsof_context *ctx,
     struct lfile *lf;
     struct lfile *lf_next;
     size_t sel_procs = 0;
+    char *cp;
+    char buf[64];
+    int s;
 
     if (!result) {
         ret = LSOF_ERROR_INVALID_ARGUMENT;
@@ -225,33 +228,33 @@ enum lsof_error lsof_gather(struct lsof_context *ctx,
                 /* DEVICE column */
                 f->dev = lf->dev;
                 if (lf->dev_def) {
-                    f->flags |= LSOF_FLAG_DEV_VALID;
+                    f->flags |= LSOF_FILE_FLAG_DEV_VALID;
                 }
                 f->rdev = lf->rdev;
                 if (lf->rdev_def) {
-                    f->flags |= LSOF_FLAG_RDEV_VALID;
+                    f->flags |= LSOF_FILE_FLAG_RDEV_VALID;
                 }
 
                 /* SIZE, SIZE/OFF, OFFSET column */
                 f->size = lf->sz;
                 if (lf->sz_def) {
-                    f->flags |= LSOF_FLAG_SIZE_VALID;
+                    f->flags |= LSOF_FILE_FLAG_SIZE_VALID;
                 }
                 f->offset = lf->off;
                 if (lf->off_def) {
-                    f->flags |= LSOF_FLAG_OFFSET_VALID;
+                    f->flags |= LSOF_FILE_FLAG_OFFSET_VALID;
                 }
 
                 /* NLINK column */
                 f->num_links = lf->nlink;
                 if (lf->nlink_def) {
-                    f->flags |= LSOF_FLAG_NUM_LINKS_VALID;
+                    f->flags |= LSOF_FILE_FLAG_NUM_LINKS_VALID;
                 }
 
                 /* NODE column */
                 f->inode = lf->inode;
                 if (lf->inode_def) {
-                    f->flags |= LSOF_FLAG_INODE_VALID;
+                    f->flags |= LSOF_FILE_FLAG_INODE_VALID;
                 }
                 f->protocol = lf->iproto;
                 f->unknown_proto_number = lf->unknown_proto_number;
@@ -263,6 +266,48 @@ enum lsof_error lsof_gather(struct lsof_context *ctx,
                 /* network address */
                 f->net_local = fill_sockaddr(lf->li[0]);
                 f->net_foreign = fill_sockaddr(lf->li[1]);
+
+                /* tcp/tpi state */
+                if (lf->lts.type != -1) {
+                    f->flags |= LSOF_FILE_FLAG_TCP_TPI_VALID;
+                    if (lf->lts.type == 0) {
+                        /* TCP */
+                        if (!TcpSt)
+                            (void)build_IPstates(ctx);
+                        if ((s = lf->lts.state.i + TcpStOff) < 0 ||
+                            s >= TcpNstates) {
+                            (void)snpf(buf, sizeof(buf), "UNKNOWN_TCP_STATE_%d",
+                                       lf->lts.state.i);
+                            cp = buf;
+                        } else
+                            cp = TcpSt[s];
+                    } else {
+                        /* TPI */
+                        if (!UdpSt)
+                            (void)build_IPstates(ctx);
+                        if ((s = lf->lts.state.i + UdpStOff) < 0 ||
+                            s >= UdpNstates) {
+                            (void)snpf(buf, sizeof(buf), "UNKNOWN_TPI_STATE_%d",
+                                       lf->lts.state.i);
+                            cp = buf;
+                        } else
+                            cp = UdpSt[s];
+                    }
+                    f->tcp_tpi.state = mkstrcpy(cp, NULL);
+
+#if defined(HASTCPTPIQ)
+                    if (lf->lts.rqs) {
+                        f->tcp_tpi.recv_queue_len = lf->lts.rq;
+                        f->tcp_tpi.flags |=
+                            LSOF_TCP_TPI_FLAG_RECV_QUEUE_LEN_VALID;
+                    }
+                    if (lf->lts.sqs) {
+                        f->tcp_tpi.send_queue_len = lf->lts.sq;
+                        f->tcp_tpi.flags |=
+                            LSOF_TCP_TPI_FLAG_SEND_QUEUE_LEN_VALID;
+                    }
+#endif /* defined(HASTCPTPIQ) */
+                }
             }
 
             /* free lf */

@@ -224,6 +224,11 @@ void build_IPstates(struct lsof_context *ctx) {
         (void)enter_IPstate(ctx, "TCP", "CLOSED", 0);
         (void)enter_IPstate(ctx, "TCP", (char *)NULL, 0);
     }
+    /* Linux kernel reuses tcp state for udp sockets */
+    if (!UdpSt) {
+        (void)enter_IPstate(ctx, "UDP", "CLOSE", TCP_CLOSE);
+        (void)enter_IPstate(ctx, "UDP", (char *)NULL, 0);
+    }
 }
 
 /*

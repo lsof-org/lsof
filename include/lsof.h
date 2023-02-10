@@ -484,19 +484,48 @@ struct lsof_context;
 
 /** @enum struct lsof_file flags */
 enum lsof_file_flag {
-    LSOF_FLAG_NONE,
+    LSOF_FILE_FLAG_NONE,
     /** \ref struct lsof_file.dev field is valid */
-    LSOF_FLAG_DEV_VALID = 0x00000001,
+    LSOF_FILE_FLAG_DEV_VALID = 0x00000001,
     /** \ref struct lsof_file.rdev field is valid */
-    LSOF_FLAG_RDEV_VALID = 0x00000002,
+    LSOF_FILE_FLAG_RDEV_VALID = 0x00000002,
     /** \ref struct lsof_file.size field is valid */
-    LSOF_FLAG_SIZE_VALID = 0x00000004,
+    LSOF_FILE_FLAG_SIZE_VALID = 0x00000004,
     /** \ref struct lsof_file.offset field is valid */
-    LSOF_FLAG_OFFSET_VALID = 0x00000008,
+    LSOF_FILE_FLAG_OFFSET_VALID = 0x00000008,
     /** \ref struct lsof_file.num_links field is valid */
-    LSOF_FLAG_NUM_LINKS_VALID = 0x00000010,
+    LSOF_FILE_FLAG_NUM_LINKS_VALID = 0x00000010,
     /** \ref struct lsof_file.inode field is valid */
-    LSOF_FLAG_INODE_VALID = 0x00000020,
+    LSOF_FILE_FLAG_INODE_VALID = 0x00000020,
+    /** \ref struct lsof_file.tcp_tpi field is valid */
+    LSOF_FILE_FLAG_TCP_TPI_VALID = 0x00000040,
+};
+
+/** @enum struct lsof_tcp_tpi flags */
+enum lsof_tcp_tpi_flag {
+    LSOF_TCP_TPI_FLAG_NONE,
+    /** \ref struct lsof_tcp_tpi.send_queue_len field is valid */
+    LSOF_TCP_TPI_FLAG_SEND_QUEUE_LEN_VALID = 0x00000001,
+    /** \ref struct lsof_tcp_tpi.recv_queue_len field is valid */
+    LSOF_TCP_TPI_FLAG_RECV_QUEUE_LEN_VALID = 0x00000002,
+};
+
+/** TCP/TPI(Transport Provider Interface) information
+ */
+struct lsof_tcp_tpi {
+    /** Flags, see \ref lsof_tcp_tpi_flag */
+    uint64_t flags;
+
+    /** Protocol state, NULL if unknown */
+    char *state;
+
+    /** Send queue length, valid if \ref flags & \ref
+     * LSOF_TCP_TPI_FLAG_SEND_QUEUE_LEN_VALID  */
+    uint64_t send_queue_len;
+
+    /** Recv queue length, valid if \ref flags & \ref
+     * LSOF_TCP_TPI_FLAG_RECV_QUEUE_LEN_VALID  */
+    uint64_t recv_queue_len;
 };
 
 /** An open file
@@ -527,26 +556,26 @@ struct lsof_file {
 
     /* DEVICE column */
     /** Device ID of device containing file, use major() and minor() to extract
-     * components. Valid if \ref flags & \ref LSOF_FLAG_DEV_VALID */
+     * components. Valid if \ref flags & \ref LSOF_FILE_FLAG_DEV_VALID */
     uint64_t dev;
     /** Device ID of special character/block file, use major() and minor() to
      * extract components. Valid if \ref flags & \ref
-     * LSOF_FLAG_RDEV_VALID */
+     * LSOF_FILE_FLAG_RDEV_VALID */
     uint64_t rdev;
 
     /* SIZE, SIZE/OFF, OFFSET column */
-    /** File size, valid if \ref flags & \ref LSOF_FLAG_SIZE_VALID */
+    /** File size, valid if \ref flags & \ref LSOF_FILE_FLAG_SIZE_VALID */
     uint64_t size;
 
-    /** File offset, valid if \ref flags & \ref LSOF_FLAG_OFFSET_VALID */
+    /** File offset, valid if \ref flags & \ref LSOF_FILE_FLAG_OFFSET_VALID */
     uint64_t offset;
 
     /* NLINK column */
-    /** Link count, valid if \ref flags & \ref LSOF_FLAG_NUM_LINKS_VALID */
+    /** Link count, valid if \ref flags & \ref LSOF_FILE_FLAG_NUM_LINKS_VALID */
     uint64_t num_links;
 
     /* NODE column */
-    /** File inode, valid if \ref flags & \ref LSOF_FLAG_INODE_VALID */
+    /** File inode, valid if \ref flags & \ref LSOF_FILE_FLAG_INODE_VALID */
     uint64_t inode;
 
     /** Network protocol */
@@ -565,6 +594,10 @@ struct lsof_file {
 
     /** Foreign network address, valid if ss_family is non-zero */
     struct sockaddr_storage net_foreign;
+
+    /** TCP/TPI(Transport Provdier Interface) information, valid if \ref flags &
+     * \ref LSOF_FILE_FLAG_TCP_TPI_VALID */
+    struct lsof_tcp_tpi tcp_tpi;
 };
 
 /** The result of lsof_gather(), grouped by process

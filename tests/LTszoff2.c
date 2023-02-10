@@ -109,10 +109,11 @@ int main(int argc, char **argv) {
             if (f->fd_type == LSOF_FD_NUMERIC && f->fd_num == fd) {
                 /* check if fd, size and offset matches */
                 fd_found = 1;
-                if ((f->flags & LSOF_FLAG_SIZE_VALID) && f->size == TSTFSZ) {
+                if ((f->flags & LSOF_FILE_FLAG_SIZE_VALID) &&
+                    f->size == TSTFSZ) {
                     sz_correct = 1;
                 }
-                if ((f->flags & LSOF_FLAG_OFFSET_VALID) &&
+                if ((f->flags & LSOF_FILE_FLAG_OFFSET_VALID) &&
                     f->offset == TSTFSZ) {
                     off_correct = 1;
                 }

@@ -32,6 +32,7 @@
 
 #include "lsof.h"
 #include <stdio.h>
+#include <string.h>
 #include <arpa/inet.h>
 
 void print_sockaddr(struct sockaddr_storage sockaddr, char *output) {
@@ -64,6 +65,12 @@ int main(int argc, char **argv) {
     char *proto_header = "Proto";
     int proto_width = strlen(proto_header);
     char *proto;
+    char *recv_queue_header = "Recv-Q";
+    int recv_queue_width = strlen(recv_queue_header);
+    char recv_queue[128];
+    char *send_queue_header = "Send-Q";
+    int send_queue_width = strlen(send_queue_header);
+    char send_queue[128];
     char *local_addr_header = "Local Address";
     int local_addr_width = strlen(local_addr_header);
     char local_addr[128];
@@ -72,7 +79,7 @@ int main(int argc, char **argv) {
     char foreign_addr[128];
     char *state_header = "State";
     int state_width = strlen(state_header);
-    char state[128];
+    char *state;
     char *pid_program_header = "PID/Program name";
     char pid_program[128];
     int match;
@@ -111,7 +118,33 @@ int main(int argc, char **argv) {
                     print_sockaddr(f->net_local, local_addr);
                     print_sockaddr(f->net_foreign, foreign_addr);
                     sprintf(pid_program, "%d/%s", p->pid, p->command);
+                    recv_queue[0] = '\0';
+                    send_queue[0] = '\0';
+                    state = "";
+                    if (f->flags & LSOF_FILE_FLAG_TCP_TPI_VALID) {
+                        if (f->tcp_tpi.flags &
+                            LSOF_TCP_TPI_FLAG_RECV_QUEUE_LEN_VALID) {
+                            sprintf(recv_queue, "%d",
+                                    f->tcp_tpi.recv_queue_len);
+                        }
+                        if (f->tcp_tpi.flags &
+                            LSOF_TCP_TPI_FLAG_SEND_QUEUE_LEN_VALID) {
+                            sprintf(send_queue, "%d",
+                                    f->tcp_tpi.send_queue_len);
+                        }
+                        if (f->tcp_tpi.state) {
+                            state = f->tcp_tpi.state;
+                        }
+                    }
                     if (print_pass == 0) {
+                        len = strlen(recv_queue);
+                        if (len > recv_queue_width)
+                            recv_queue_width = len;
+
+                        len = strlen(send_queue);
+                        if (len > send_queue_width)
+                            send_queue_width = len;
+
                         len = strlen(local_addr);
                         if (len > local_addr_width)
                             local_addr_width = len;
@@ -119,19 +152,27 @@ int main(int argc, char **argv) {
                         len = strlen(foreign_addr);
                         if (len > foreign_addr_width)
                             foreign_addr_width = len;
+
+                        len = strlen(state);
+                        if (len > state_width)
+                            state_width = len;
                     } else {
-                        printf("%-*s %-*s %-*s %s\n", proto_width, proto,
-                               local_addr_width, local_addr, foreign_addr_width,
-                               foreign_addr, pid_program);
+                        printf("%-*s %-*s %-*s %-*s %-*s %-*s %s\n",
+                               proto_width, proto, recv_queue_width, recv_queue,
+                               send_queue_width, send_queue, local_addr_width,
+                               local_addr, foreign_addr_width, foreign_addr,
+                               state_width, state, pid_program);
                     }
                 }
             }
         }
 
         if (print_pass == 0) {
-            printf("%*s %-*s %-*s %s\n", proto_width, proto_header,
-                   local_addr_width, local_addr_header, foreign_addr_width,
-                   foreign_addr_header, pid_program_header);
+            printf("%*s %-*s %-*s %-*s %-*s %-*s %s\n", proto_width,
+                   proto_header, recv_queue_width, recv_queue_header,
+                   send_queue_width, send_queue_header, local_addr_width,
+                   local_addr_header, foreign_addr_width, foreign_addr_header,
+                   state_width, state_header, pid_program_header);
         }
     }
 
