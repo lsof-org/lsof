@@ -37,18 +37,19 @@
 #include <netinet/in.h>
 #include <inttypes.h>
 
-void print_sockaddr(struct sockaddr_storage sockaddr, char *output) {
+void print_sockaddr(struct sockaddr_storage sockaddr, char *output,
+                    size_t output_size) {
     char buffer[128];
     if (sockaddr.ss_family == AF_INET) {
         struct sockaddr_in *in = ((struct sockaddr_in *)&sockaddr);
         inet_ntop(sockaddr.ss_family, &in->sin_addr, buffer, sizeof(buffer));
-        sprintf(output, "%s:%d", buffer, ntohs(in->sin_port));
+        snprintf(output, output_size, "%s:%d", buffer, ntohs(in->sin_port));
     } else if (sockaddr.ss_family == AF_INET6) {
         struct sockaddr_in6 *in6 = ((struct sockaddr_in6 *)&sockaddr);
         inet_ntop(sockaddr.ss_family, &in6->sin6_addr, buffer, sizeof(buffer));
-        sprintf(output, "%s:%d", buffer, ntohs(in6->sin6_port));
+        snprintf(output, output_size, "%s:%d", buffer, ntohs(in6->sin6_port));
     } else {
-        sprintf(output, "");
+        snprintf(output, output_size, "");
     }
 }
 
@@ -119,9 +120,12 @@ int main(int argc, char **argv) {
 
                 if (match) {
                     /* local address */
-                    print_sockaddr(f->net_local, local_addr);
-                    print_sockaddr(f->net_foreign, foreign_addr);
-                    sprintf(pid_program, "%d/%s", p->pid, p->command);
+                    print_sockaddr(f->net_local, local_addr,
+                                   sizeof(local_addr));
+                    print_sockaddr(f->net_foreign, foreign_addr,
+                                   sizeof(foreign_addr));
+                    snprintf(pid_program, sizeof(pid_program), "%d/%s", p->pid,
+                             p->command);
                     recv_queue_len = 0;
                     send_queue_len = 0;
                     state = "";
@@ -138,8 +142,10 @@ int main(int argc, char **argv) {
                             state = f->tcp_tpi.state;
                         }
                     }
-                    sprintf(recv_queue, "%" PRId64, recv_queue_len);
-                    sprintf(send_queue, "%" PRId64, send_queue_len);
+                    snprintf(recv_queue, sizeof(recv_queue), "%" PRId64,
+                             recv_queue_len);
+                    snprintf(send_queue, sizeof(send_queue), "%" PRId64,
+                             send_queue_len);
 
                     if (print_pass == 0) {
                         len = strlen(recv_queue);

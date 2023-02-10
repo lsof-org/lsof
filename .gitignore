@@ -121,6 +121,7 @@ LTsock
 LTszoff
 LTszoff2
 LTunix
+LTunix2
 
 #
 # Dialect specific test related files
