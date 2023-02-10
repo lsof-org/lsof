@@ -37,6 +37,7 @@
 #include <fcntl.h>
 #include <sys/stat.h>
 #include <sys/un.h>
+#include <string.h>
 
 int main(int argc, char **argv) {
     struct lsof_result *result = NULL;
