@@ -519,13 +519,13 @@ struct lsof_tcp_tpi {
     /** Protocol state, NULL if unknown */
     char *state;
 
-    /** Send queue length, valid if \ref flags & \ref
-     * LSOF_TCP_TPI_FLAG_SEND_QUEUE_LEN_VALID  */
-    uint64_t send_queue_len;
-
     /** Recv queue length, valid if \ref flags & \ref
      * LSOF_TCP_TPI_FLAG_RECV_QUEUE_LEN_VALID  */
     uint64_t recv_queue_len;
+
+    /** Send queue length, valid if \ref flags & \ref
+     * LSOF_TCP_TPI_FLAG_SEND_QUEUE_LEN_VALID  */
+    uint64_t send_queue_len;
 };
 
 /** An open file
@@ -595,7 +595,7 @@ struct lsof_file {
     /** Foreign network address, valid if ss_family is non-zero */
     struct sockaddr_storage net_foreign;
 
-    /** TCP/TPI(Transport Provdier Interface) information, valid if \ref flags &
+    /** TCP/TPI(Transport Provider Interface) information, valid if \ref flags &
      * \ref LSOF_FILE_FLAG_TCP_TPI_VALID */
     struct lsof_tcp_tpi tcp_tpi;
 };

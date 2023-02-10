@@ -35,6 +35,7 @@
 #include <string.h>
 #include <arpa/inet.h>
 #include <netinet/in.h>
+#include <inttypes.h>
 
 void print_sockaddr(struct sockaddr_storage sockaddr, char *output) {
     char buffer[128];
@@ -61,6 +62,8 @@ int main(int argc, char **argv) {
     int print_pass = 0;
     char buffer[128];
     int len;
+    uint64_t recv_queue_len;
+    uint64_t send_queue_len;
 
     /* columns */
     char *proto_header = "Proto";
@@ -119,24 +122,25 @@ int main(int argc, char **argv) {
                     print_sockaddr(f->net_local, local_addr);
                     print_sockaddr(f->net_foreign, foreign_addr);
                     sprintf(pid_program, "%d/%s", p->pid, p->command);
-                    recv_queue[0] = '\0';
-                    send_queue[0] = '\0';
+                    recv_queue_len = 0;
+                    send_queue_len = 0;
                     state = "";
                     if (f->flags & LSOF_FILE_FLAG_TCP_TPI_VALID) {
                         if (f->tcp_tpi.flags &
                             LSOF_TCP_TPI_FLAG_RECV_QUEUE_LEN_VALID) {
-                            sprintf(recv_queue, "%d",
-                                    f->tcp_tpi.recv_queue_len);
+                            recv_queue_len = f->tcp_tpi.recv_queue_len;
                         }
                         if (f->tcp_tpi.flags &
                             LSOF_TCP_TPI_FLAG_SEND_QUEUE_LEN_VALID) {
-                            sprintf(send_queue, "%d",
-                                    f->tcp_tpi.send_queue_len);
+                            send_queue_len = f->tcp_tpi.send_queue_len;
                         }
                         if (f->tcp_tpi.state) {
                             state = f->tcp_tpi.state;
                         }
                     }
+                    sprintf(recv_queue, "%" PRId64, recv_queue_len);
+                    sprintf(send_queue, "%" PRId64, send_queue_len);
+
                     if (print_pass == 0) {
                         len = strlen(recv_queue);
                         if (len > recv_queue_width)
