@@ -106,9 +106,11 @@ int main(int argc, char **argv) {
 
     if (!fd_found) {
         fprintf(stderr, "ERROR!!!  test file %s not found by lsof\n", path);
+        res = 1;
     }
     if (!path_correct) {
         fprintf(stderr, "ERROR!!!  test file %s path incorrect\n", path);
+        res = 1;
     }
 
 cleanup:

@@ -128,12 +128,15 @@ int main(int argc, char **argv) {
 
     if (!fd_found) {
         fprintf(stderr, "ERROR!!!  test file %s not found by lsof\n", path);
+        res = 1;
     }
     if (!sz_correct) {
         fprintf(stderr, "ERROR!!!  test file %s size incorrect\n", path);
+        res = 1;
     }
     if (!off_correct) {
         fprintf(stderr, "ERROR!!!  test file %s offset incorrect\n", path);
+        res = 1;
     }
 
 cleanup:
