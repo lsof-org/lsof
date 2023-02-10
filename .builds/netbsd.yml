@@ -1,0 +1,25 @@
+image: netbsd/9.x
+packages:
+  - autoconf
+  - automake
+  - pkg-config
+  - libtool
+  - groff
+tasks:
+  - syssrc: |
+      curl https://cdn.netbsd.org/pub/NetBSD/NetBSD-9.2/source/sets/syssrc.tgz -o syssrc.tgz
+      sudo mkdir -p /usr/src
+      cd / && sudo tar -zxf ~/syssrc.tgz
+  - setup: |
+      cd lsof
+      autoreconf -vif
+      ./configure
+  - build: |
+      cd lsof
+      export PATH=/usr/pkg/gnu/bin:$PATH
+      make
+  - test: |
+      cd lsof
+      export PATH=/usr/pkg/gnu/bin:$PATH
+      sudo make check
+      sudo make distcheck

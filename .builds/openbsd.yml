@@ -1,0 +1,23 @@
+image: openbsd/7.2
+packages:
+  - autoconf-2.71
+  - automake-1.16.5
+  - pkgconf
+  - libtool
+  - groff
+tasks:
+  - setup: |
+      cd lsof
+      export AUTOCONF_VERSION=2.71
+      export AUTOMAKE_VERSION=1.16
+      autoreconf -vif
+      ./configure
+  - build: |
+      cd lsof
+      make
+  - test: |
+      cd lsof
+      export AUTOCONF_VERSION=2.71
+      export AUTOMAKE_VERSION=1.16
+      make check
+      make distcheck
