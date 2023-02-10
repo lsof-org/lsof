@@ -1,5 +1,6 @@
 [![Circle CI](https://circleci.com/gh/lsof-org/lsof.svg?style=svg)](https://circleci.com/gh/lsof-org/lsof)
 [![Cirrus CI](https://img.shields.io/cirrus/github/lsof-org/lsof)](https://cirrus-ci.com/github/lsof-org/lsof)
+[![builds.sr.ht status](https://builds.sr.ht/~jiegec/lsof.svg)](https://builds.sr.ht/~jiegec/lsof?)
 [![Read the Docs](https://readthedocs.org/projects/lsof/badge/?version=latest)](https://lsof.readthedocs.io/en/latest/)
 
 # lsof
@@ -53,9 +54,9 @@ current status of maintenance is as follows:
 <dt>Darwin</dt>
 <dd>fully maintained, and tested on Circle CI</dd>
 <dt>NetBSD</dt>
-<dd>fully maintained</dd>
+<dd>fully maintained, and tested on SourceHut CI</dd>
 <dt>OpenBSD</dt>
-<dd>fully maintained</dd>
+<dd>fully maintained, and tested on SourceHut CI</dd>
 <dt>Solaris/OpenIndiana</dt>
 <dd>fully maintained</dd>
 </dl>

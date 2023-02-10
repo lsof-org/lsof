@@ -44,12 +44,11 @@ lsof is tested in ci on the following platforms:
 - NixOS
 - openSUSE Leap 15
 - Ubuntu 18.04/20.04/22.04
+- NetBSD 9
+- OpenBSD 7
 
 Additionally, lsof is tested by maintainers manually on the following platforms:
 
-- FreeBSD 12/13
-- NetBSD 9
-- OpenBSD 7
 - Solaris 11
 - OpenIndiana 5
 
