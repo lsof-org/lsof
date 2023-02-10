@@ -34,6 +34,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <arpa/inet.h>
+#include <netinet/in.h>
 
 void print_sockaddr(struct sockaddr_storage sockaddr, char *output) {
     char buffer[128];
