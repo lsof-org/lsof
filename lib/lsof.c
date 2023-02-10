@@ -113,11 +113,11 @@ static struct sockaddr_storage fill_sockaddr(struct linaddr li) {
     struct sockaddr_in6 *in6 = (struct sockaddr_in6 *)&ret;
 
     memset(&ret, 0, sizeof(ret));
-    if (li.af == AF_INET6) {
-        in->sin_family = AF_INET6;
+    if (li.af == AF_INET) {
+        in->sin_family = AF_INET;
         in->sin_port = htons(li.p);
         in->sin_addr = li.ia.a4;
-    } else if (li.af == AF_INET) {
+    } else if (li.af == AF_INET6) {
         in6->sin6_family = AF_INET6;
         in6->sin6_port = htons(li.p);
         in6->sin6_addr = li.ia.a6;

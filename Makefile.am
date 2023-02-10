@@ -85,7 +85,7 @@ liblsof_la_SOURCES += lib/dialects/sun/ddev.c \
 endif
 
 # Binary
-bin_PROGRAMS = lsof
+bin_PROGRAMS = lsof lsof-netstat
 
 lsof_SOURCES = src/arg.c src/main.c src/print.c src/ptti.c src/store.c src/usage.c src/util.c
 lsof_SOURCES += src/cli.h
@@ -102,9 +102,12 @@ endif
 # TODO: link to dynamic library instead after internal functions are no longer used
 lsof_SOURCES += $(liblsof_la_SOURCES)
 #lsof_LDADD = liblsof.la
+lsof_netstat_SOURCES = src/netstat.c
+lsof_netstat_LDADD = liblsof.la
 
 liblsof_la_CPPFLAGS = -I$(DIALECT_PATH) -Iautotools -DAUTOTOOLS -I$(top_srcdir)/lib -I$(top_srcdir)/include
 lsof_CPPFLAGS = -I$(DIALECT_PATH) -Iautotools -DAUTOTOOLS -I$(top_srcdir)/lib -I$(top_srcdir)/include -I$(top_srcdir)/src
+lsof_netstat_CPPFLAGS = -I$(DIALECT_PATH) -Iautotools -DAUTOTOOLS -I$(top_srcdir)/lib -I$(top_srcdir)/include -I$(top_srcdir)/src
 
 
 # Testing scripts

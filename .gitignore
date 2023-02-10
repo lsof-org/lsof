@@ -66,6 +66,7 @@ dkms.conf
 lib/Makefile
 TAGS
 lsof
+lsof-netstat
 tags
 tests/config.*
 version.h
