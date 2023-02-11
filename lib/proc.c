@@ -123,6 +123,7 @@ void alloc_lfile(struct lsof_context *ctx,
             (unsigned char)0;
     Lf->li[0].af = Lf->li[1].af = 0;
     Lf->lts.type = -1;
+    Lf->lts.state.i = 0;
     Lf->nlink = 0l;
 
 #if defined(HASMNTSTAT)

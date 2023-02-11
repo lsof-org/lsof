@@ -176,140 +176,142 @@ enum lsof_error lsof_gather(struct lsof_context *ctx,
     for (pi = 0, upi = 0; pi < ctx->procs_size; pi++) {
         /* Copy fields from lproc */
         lp = &ctx->procs[pi];
-        if (!lp->pss)
-            continue;
-        p = &user_procs[upi++];
+        if (lp->pss) {
+            /* selected process */
+            p = &user_procs[upi++];
 
-        p->command = lp->cmd;
-        lp->cmd = NULL;
-        p->pid = lp->pid;
+            p->command = lp->cmd;
+            lp->cmd = NULL;
+            p->pid = lp->pid;
 
 #if defined(HASTASKS)
-        p->tid = lp->tid;
-        p->task_cmd = lp->tcmd;
-        lp->tcmd = NULL;
+            p->tid = lp->tid;
+            p->task_cmd = lp->tcmd;
+            lp->tcmd = NULL;
 #endif
-        p->pgid = lp->pgid;
-        p->ppid = lp->ppid;
-        p->uid = lp->uid;
+            p->pgid = lp->pgid;
+            p->ppid = lp->ppid;
+            p->uid = lp->uid;
 
-#if defined(HASSELINUX)
-        CLEAN(lp->cntx);
-#endif /* defined(HASSELINUX) */
-
-        /* Compute number of files in the linked list */
-        num_files = 0;
-        for (lf = lp->file; lf; lf = lf->next) {
-            if (!is_file_sel(ctx, lp, lf))
-                continue;
-            num_files++;
-        }
-
-        p->files =
-            (struct lsof_file *)malloc(sizeof(struct lsof_file) * num_files);
-        memset(p->files, 0, sizeof(struct lsof_file) * num_files);
-        p->num_files = num_files;
-        for (fi = 0, lf = lp->file; lf; lf = lf_next) {
-            if (is_file_sel(ctx, lp, lf)) {
-                /* Copy fields from lfile */
-                f = &p->files[fi++];
-                f->flags = 0;
-
-                /* FD column */
-                f->fd_type = lf->fd_type;
-                f->fd_num = lf->fd_num;
-                f->access = lf->access;
-                f->lock = lf->lock;
-
-                /* TYPE column */
-                f->file_type = lf->type;
-                f->unknown_file_type_number = lf->unknown_file_type_number;
-
-                /* DEVICE column */
-                f->dev = lf->dev;
-                if (lf->dev_def) {
-                    f->flags |= LSOF_FILE_FLAG_DEV_VALID;
-                }
-                f->rdev = lf->rdev;
-                if (lf->rdev_def) {
-                    f->flags |= LSOF_FILE_FLAG_RDEV_VALID;
-                }
-
-                /* SIZE, SIZE/OFF, OFFSET column */
-                f->size = lf->sz;
-                if (lf->sz_def) {
-                    f->flags |= LSOF_FILE_FLAG_SIZE_VALID;
-                }
-                f->offset = lf->off;
-                if (lf->off_def) {
-                    f->flags |= LSOF_FILE_FLAG_OFFSET_VALID;
-                }
-
-                /* NLINK column */
-                f->num_links = lf->nlink;
-                if (lf->nlink_def) {
-                    f->flags |= LSOF_FILE_FLAG_NUM_LINKS_VALID;
-                }
-
-                /* NODE column */
-                f->inode = lf->inode;
-                if (lf->inode_def) {
-                    f->flags |= LSOF_FILE_FLAG_INODE_VALID;
-                }
-                f->protocol = lf->iproto;
-                f->unknown_proto_number = lf->unknown_proto_number;
-
-                /* NAME column */
-                f->name = lf->nm;
-                lf->nm = NULL;
-
-                /* network address */
-                f->net_local = fill_sockaddr(lf->li[0]);
-                f->net_foreign = fill_sockaddr(lf->li[1]);
-
-                /* tcp/tpi state */
-                if (lf->lts.type != -1) {
-                    f->flags |= LSOF_FILE_FLAG_TCP_TPI_VALID;
-                    if (lf->lts.type == 0) {
-                        /* TCP */
-                        if (!TcpSt)
-                            (void)build_IPstates(ctx);
-                        if ((s = lf->lts.state.i + TcpStOff) < 0 ||
-                            s >= TcpNstates) {
-                            (void)snpf(buf, sizeof(buf), "UNKNOWN_TCP_STATE_%d",
-                                       lf->lts.state.i);
-                            cp = buf;
-                        } else
-                            cp = TcpSt[s];
-                    } else {
-                        /* TPI */
-                        if (!UdpSt)
-                            (void)build_IPstates(ctx);
-                        if ((s = lf->lts.state.i + UdpStOff) < 0 ||
-                            s >= UdpNstates) {
-                            (void)snpf(buf, sizeof(buf), "UNKNOWN_TPI_STATE_%d",
-                                       lf->lts.state.i);
-                            cp = buf;
-                        } else
-                            cp = UdpSt[s];
-                    }
-                    f->tcp_tpi.state = mkstrcpy(cp, NULL);
-
-#if defined(HASTCPTPIQ)
-                    if (lf->lts.rqs) {
-                        f->tcp_tpi.recv_queue_len = lf->lts.rq;
-                        f->tcp_tpi.flags |=
-                            LSOF_TCP_TPI_FLAG_RECV_QUEUE_LEN_VALID;
-                    }
-                    if (lf->lts.sqs) {
-                        f->tcp_tpi.send_queue_len = lf->lts.sq;
-                        f->tcp_tpi.flags |=
-                            LSOF_TCP_TPI_FLAG_SEND_QUEUE_LEN_VALID;
-                    }
-#endif /* defined(HASTCPTPIQ) */
-                }
+            /* Compute number of files in the linked list */
+            num_files = 0;
+            for (lf = lp->file; lf; lf = lf->next) {
+                if (!is_file_sel(ctx, lp, lf))
+                    continue;
+                num_files++;
             }
 
+            p->files = (struct lsof_file *)malloc(sizeof(struct lsof_file) *
+                                                  num_files);
+            memset(p->files, 0, sizeof(struct lsof_file) * num_files);
+            p->num_files = num_files;
+            for (fi = 0, lf = lp->file; lf; lf = lf_next) {
+                if (is_file_sel(ctx, lp, lf)) {
+                    /* Copy fields from lfile */
+                    f = &p->files[fi++];
+                    f->flags = 0;
+
+                    /* FD column */
+                    f->fd_type = lf->fd_type;
+                    f->fd_num = lf->fd_num;
+                    f->access = lf->access;
+                    f->lock = lf->lock;
+
+                    /* TYPE column */
+                    f->file_type = lf->type;
+                    f->unknown_file_type_number = lf->unknown_file_type_number;
+
+                    /* DEVICE column */
+                    f->dev = lf->dev;
+                    if (lf->dev_def) {
+                        f->flags |= LSOF_FILE_FLAG_DEV_VALID;
+                    }
+                    f->rdev = lf->rdev;
+                    if (lf->rdev_def) {
+                        f->flags |= LSOF_FILE_FLAG_RDEV_VALID;
+                    }
+
+                    /* SIZE, SIZE/OFF, OFFSET column */
+                    f->size = lf->sz;
+                    if (lf->sz_def) {
+                        f->flags |= LSOF_FILE_FLAG_SIZE_VALID;
+                    }
+                    f->offset = lf->off;
+                    if (lf->off_def) {
+                        f->flags |= LSOF_FILE_FLAG_OFFSET_VALID;
+                    }
+
+                    /* NLINK column */
+                    f->num_links = lf->nlink;
+                    if (lf->nlink_def) {
+                        f->flags |= LSOF_FILE_FLAG_NUM_LINKS_VALID;
+                    }
+
+                    /* NODE column */
+                    f->inode = lf->inode;
+                    if (lf->inode_def) {
+                        f->flags |= LSOF_FILE_FLAG_INODE_VALID;
+                    }
+                    f->protocol = lf->iproto;
+                    f->unknown_proto_number = lf->unknown_proto_number;
+
+                    /* NAME column */
+                    f->name = lf->nm;
+                    lf->nm = NULL;
+
+                    /* network address */
+                    f->net_local = fill_sockaddr(lf->li[0]);
+                    f->net_foreign = fill_sockaddr(lf->li[1]);
+
+                    /* tcp/tpi state */
+                    if (lf->lts.type != -1) {
+                        f->flags |= LSOF_FILE_FLAG_TCP_TPI_VALID;
+                        if (lf->lts.type == 0) {
+                            /* TCP */
+                            if (!TcpSt)
+                                (void)build_IPstates(ctx);
+                            if ((s = lf->lts.state.i + TcpStOff) < 0 ||
+                                s >= TcpNstates) {
+                                (void)snpf(buf, sizeof(buf),
+                                           "UNKNOWN_TCP_STATE_%d",
+                                           lf->lts.state.i);
+                                cp = buf;
+                            } else
+                                cp = TcpSt[s];
+                        } else {
+                            /* TPI */
+                            if (!UdpSt)
+                                (void)build_IPstates(ctx);
+                            if ((s = lf->lts.state.i + UdpStOff) < 0 ||
+                                s >= UdpNstates) {
+                                (void)snpf(buf, sizeof(buf),
+                                           "UNKNOWN_TPI_STATE_%d",
+                                           lf->lts.state.i);
+                                cp = buf;
+                            } else
+                                cp = UdpSt[s];
+                        }
+                        f->tcp_tpi.state = mkstrcpy(cp, NULL);
+
+#if defined(HASTCPTPIQ)
+                        if (lf->lts.rqs) {
+                            f->tcp_tpi.recv_queue_len = lf->lts.rq;
+                            f->tcp_tpi.flags |=
+                                LSOF_TCP_TPI_FLAG_RECV_QUEUE_LEN_VALID;
+                        }
+                        if (lf->lts.sqs) {
+                            f->tcp_tpi.send_queue_len = lf->lts.sq;
+                            f->tcp_tpi.flags |=
+                                LSOF_TCP_TPI_FLAG_SEND_QUEUE_LEN_VALID;
+                        }
+#endif /* defined(HASTCPTPIQ) */
+                    }
+                }
+                lf_next = lf->next;
+            }
+        }
+
+        for (lf = lp->file; lf; lf = lf_next) {
             /* free lf */
             lf_next = lf->next;
             CLEAN(lf->nma);
@@ -317,9 +319,19 @@ enum lsof_error lsof_gather(struct lsof_context *ctx,
 #if defined(CLRLFILEADD)
             CLRLFILEADD(lf)
 #endif /* defined(CLRLFILEADD) */
-            free(lf);
+            CLEAN(lf);
         }
         lp->file = NULL;
+
+        /* skip and free */
+        CLEAN(lp->cmd);
+#if defined(HASTASKS)
+        CLEAN(lp->tcmd);
+#endif
+#if defined(HASSELINUX)
+        CLEAN(lp->cntx);
+#endif /* defined(HASSELINUX) */
+        continue;
     }
 
     /* Cleanup */
@@ -352,6 +364,7 @@ enum lsof_error lsof_output_stream(struct lsof_context *ctx, FILE *fp,
 
 API_EXPORT
 void lsof_destroy(struct lsof_context *ctx) {
+    int i;
     struct str_lst *str_lst, *str_lst_next;
     struct int_lst *int_lst, *int_lst_next;
     struct mounts *mnt, *mnt_next;
@@ -391,6 +404,16 @@ void lsof_destroy(struct lsof_context *ctx) {
         Lmist = 0;
     }
 
+    /* state table */
+    for (i = 0; i < TcpNstates; i++) {
+        CLEAN(TcpSt[i]);
+    }
+    CLEAN(TcpSt);
+    for (i = 0; i < UdpNstates; i++) {
+        CLEAN(UdpSt[i]);
+    }
+    CLEAN(UdpSt);
+
     /* dialect specific free */
     deinitialize(ctx);
     CLEAN(ctx);
@@ -406,9 +429,8 @@ void lsof_free_result(struct lsof_result *result) {
         /* Free files */
         for (fi = 0; fi < p->num_files; fi++) {
             f = &p->files[fi];
-            if (f->name) {
-                free(f->name);
-            }
+            CLEAN(f->name);
+            CLEAN(f->tcp_tpi.state);
         }
         CLEAN(p->files);
 
