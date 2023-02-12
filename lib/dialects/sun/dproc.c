@@ -155,7 +155,7 @@ _PROTOTYPE(extern u_longlong_t kvm_physaddr, (kvm_t *, struct as *, u_int));
 #endif /* solaris>=20501 && solaris<70000 */
 
 #if defined(HASZONES)
-_PROTOTYPE(static int hash_zn, (char *zn));
+_PROTOTYPE(extern int hash_zn, (char *zn));
 #endif /* defined(HASZONES) */
 
 /*
@@ -777,76 +777,6 @@ static void get_kernel_access(struct lsof_context *ctx) {
         (void)dropgid(ctx);
 #endif /* defined(WILLDROPGID) */
 }
-
-#if defined(HASZONES)
-/*
- * enter_zone_arg() - enter zone name argument
- */
-
-int enter_zone_arg(struct lsof_context *ctx, char *zn) /* zone name */
-{
-    int zh;
-    znhash_t *zp, *zpn;
-    /*
-     * Allocate zone argument hash space, as required.
-     */
-    if (!ZoneArg) {
-        if (!(ZoneArg = (znhash_t **)calloc(HASHZONE, sizeof(znhash_t *)))) {
-            (void)fprintf(stderr, "%s: no space for zone arg hash\n", Pn);
-            Error(ctx);
-        }
-    }
-    /*
-     * Hash the zone name and search the argument hash.
-     */
-    zh = hash_zn(zn);
-    for (zp = ZoneArg[zh]; zp; zp = zp->next) {
-        if (!strcmp(zp->zn, zn))
-            break;
-    }
-    if (zp) {
-
-        /*
-         * Process a duplicate.
-         */
-        if (!Fwarn)
-            (void)fprintf(stderr, "%s: duplicate zone name: %s\n", Pn, zn);
-        return (1);
-    }
-    /*
-     * Create a new hash entry and link it to its bucket.
-     */
-    if (!(zpn = (znhash_t *)malloc((MALLOC_S)sizeof(znhash_t)))) {
-        (void)fprintf(stderr, "%s no hash space for zone: %s\n", Pn, zn);
-        Error(ctx);
-    }
-    zpn->f = 0;
-    zpn->zn = zn;
-    zpn->next = ZoneArg[zh];
-    ZoneArg[zh] = zpn;
-    return (0);
-}
-
-/*
- * hash_zn() - hash zone name
- */
-
-static int hash_zn(zn)
-char *zn; /* zone name */
-{
-    register int i, h;
-    size_t l;
-
-    if (!(l = strlen(zn)))
-        return (0);
-    if (l == 1)
-        return ((int)*zn & (HASHZONE - 1));
-    for (i = h = 0; i < (int)(l - 1); i++) {
-        h ^= ((int)zn[i] * (int)zn[i + 1]) << ((i * 3) % 13);
-    }
-    return (h & (HASHZONE - 1));
-}
-#endif /* defined(HASZONES) */
 
 /*
  * initialize() - perform all initialization

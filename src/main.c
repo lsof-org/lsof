@@ -974,7 +974,7 @@ closed:
                 /*
                  * Add to the zone name argument hash.
                  */
-                if (enter_zone_arg(ctx, GOv))
+                if (lsof_select_zones(ctx, GOv))
                     err = 1;
             } else if (GOv) {
                 GOx1 = GObk[0];
@@ -1088,11 +1088,6 @@ closed:
 
     if (Nwad)
         Selflags |= SELNA;
-
-#if defined(HASZONES)
-    if (ZoneArg)
-        Selflags |= SELZONE;
-#endif /* defined(HASZONES) */
 
     if (GOx1 < argc)
         Selflags |= SELNM;

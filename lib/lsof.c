@@ -1262,3 +1262,74 @@ enum lsof_error lsof_exit_on_fatal(struct lsof_context *ctx, int exit) {
     ctx->exit_on_fatal = exit;
     return LSOF_SUCCESS;
 }
+
+/*
+ * hash_zn() - hash zone name
+ */
+int hash_zn(char *zn) /* zone name */
+{
+    int i, h;
+    size_t l;
+
+    if (!(l = strlen(zn)))
+        return (0);
+    if (l == 1)
+        return ((int)*zn & (HASHZONE - 1));
+    for (i = h = 0; i < (int)(l - 1); i++) {
+        h ^= ((int)zn[i] * (int)zn[i + 1]) << ((i * 3) % 13);
+    }
+    return (h & (HASHZONE - 1));
+}
+
+enum lsof_error lsof_select_zones(struct lsof_context *ctx, char *zn) {
+    int zh;
+    znhash_t *zp, *zpn;
+    if (!ctx || ctx->frozen) {
+        return LSOF_ERROR_INVALID_ARGUMENT;
+    }
+
+    /*
+     * Allocate zone argument hash space, as required.
+     */
+    if (!ZoneArg) {
+        if (!(ZoneArg = (znhash_t **)calloc(HASHZONE, sizeof(znhash_t *)))) {
+            if (ctx->err)
+                (void)fprintf(ctx->err, "%s: no space for zone arg hash\n", Pn);
+            Error(ctx);
+            return LSOF_ERROR_NO_MEMORY;
+        }
+    }
+    /*
+     * Hash the zone name and search the argument hash.
+     */
+    zh = hash_zn(zn);
+    for (zp = ZoneArg[zh]; zp; zp = zp->next) {
+        if (!strcmp(zp->zn, zn))
+            break;
+    }
+    if (zp) {
+        /*
+         * Process a duplicate.
+         */
+        if (ctx->err && !Fwarn)
+            (void)fprintf(ctx->err, "%s: duplicate zone name: %s\n", Pn, zn);
+        return LSOF_SUCCESS;
+    }
+    /*
+     * Create a new hash entry and link it to its bucket.
+     */
+    if (!(zpn = (znhash_t *)malloc((MALLOC_S)sizeof(znhash_t)))) {
+        (void)fprintf(stderr, "%s no hash space for zone: %s\n", Pn, zn);
+        Error(ctx);
+        return LSOF_ERROR_NO_MEMORY;
+    }
+    zpn->f = 0;
+    zpn->zn = zn;
+    zpn->next = ZoneArg[zh];
+    ZoneArg[zh] = zpn;
+
+    /* Update selection flags */
+    Selflags |= SELZONE;
+
+    return LSOF_SUCCESS;
+}

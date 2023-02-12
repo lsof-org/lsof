@@ -307,11 +307,9 @@ extern int optind;
                  * -- MUST BE A POWER OF 2!!! */
 #    endif      /* defined(HASSELINUX) */
 
-#    if defined(HASZONES)
-#        define HASHZONE                                                       \
-            128 /* zone hash bucket count -- MUST BE                           \
-                 * A POWER OF 2!!! */
-#    endif      /* defined(HASZONES) */
+#    define HASHZONE                                                           \
+        128 /* zone hash bucket count -- MUST BE                               \
+             * A POWER OF 2!!! */
 
 #    define IDINCR 10 /* PID/PGID table malloc() increment */
 
@@ -1177,10 +1175,8 @@ struct lsof_context {
     int procfs_search;
 #    endif /* defined(HASPROCFS) */
 
-#    if defined(HASZONES)
     /* zone arguments supplied with -z */
     znhash_t **sel_zone;
-#    endif /* defined(HASZONES) */
 
     /** When frozen, paramters must not be changed */
     uint8_t frozen;

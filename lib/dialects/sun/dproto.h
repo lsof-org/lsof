@@ -91,10 +91,6 @@ _PROTOTYPE(extern int print_vxfs_rnl_path, (struct lfile * lf));
 #    endif /* defined(HASVXFSRNL) */
 #endif     /* defined(HASVXFS) */
 
-#if defined(HASZONES)
-_PROTOTYPE(extern int enter_zone_arg, (struct lsof_context * ctx, char *zn));
-#endif /* defined(HASZONES) */
-
 _PROTOTYPE(extern void close_kvm, (struct lsof_context * ctx));
 _PROTOTYPE(extern void open_kvm, (struct lsof_context * ctx));
 _PROTOTYPE(extern void process_socket,

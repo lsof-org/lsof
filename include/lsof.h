@@ -863,6 +863,12 @@ enum lsof_error lsof_select_nfs(struct lsof_context *ctx);
  */
 enum lsof_error lsof_select_num_links(struct lsof_context *ctx, int threshold);
 
+/** Ask lsof to select Solaris zones
+ *
+ * \since API version 1
+ */
+enum lsof_error lsof_select_zones(struct lsof_context *ctx, char *zone);
+
 /** Ask lsof to exempt file system for blocking stat, lstat and readlink
  * calls
  *
