@@ -370,8 +370,4 @@ _PROTOTYPE(extern int readvnode,
            (struct lsof_context * ctx, KA_T va, struct vnode *v));
 #    endif /* defined(HASVNODE) */
 
-#    if defined(USE_LIB_SNPF)
-_PROTOTYPE(extern int snpf, (char *str, int len, char *fmt, ...));
-#    endif /* defined(USE_LIB_SNPF) */
-
 #endif /* !defined(PROTO_H) */

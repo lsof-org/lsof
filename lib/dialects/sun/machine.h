@@ -655,11 +655,7 @@ typedef struct pad_mutex {
 
 /* #define	USE_LIB_RNMH			1	   rnmh.c */
 
-#    if solaris < 20600
-#        define USE_LIB_SNPF 1 /* snpf.c */
-#    else                      /* solaris>=20600 */
-#        define snpf snprintf  /* use the system's snprintf() */
-#    endif                     /* solaris<20600 */
+#    define snpf snprintf /* use the system's snprintf() */
 
 /*
  * WARNDEVACCESS is defined for those dialects that should issue a warning

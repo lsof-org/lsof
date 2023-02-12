@@ -80,7 +80,7 @@ struct lsof_context *lsof_new() {
          *	    necessary (-Du[path]) */
         ctx->dev_cache_state = 3;
         /* enable name cache */
-        ctx->name_cache_enable = 1;
+        Fncache = 1;
     }
     return ctx;
 }
