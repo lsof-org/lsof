@@ -1281,7 +1281,8 @@ int hash_zn(char *zn) /* zone name */
     return (h & (HASHZONE - 1));
 }
 
-enum lsof_error lsof_select_zones(struct lsof_context *ctx, char *zn) {
+enum lsof_error lsof_select_solaris_zone(struct lsof_context *ctx, char *zn) {
+#if defined(HASZONES)
     int zh;
     znhash_t *zp, *zpn;
     if (!ctx || ctx->frozen) {
@@ -1332,4 +1333,67 @@ enum lsof_error lsof_select_zones(struct lsof_context *ctx, char *zn) {
     Selflags |= SELZONE;
 
     return LSOF_SUCCESS;
+#else
+    return LSOF_ERROR_UNSUPPORTED;
+#endif /* defined(HASZONES) */
+}
+
+#if defined(HASSELINUX)
+_PROTOTYPE(extern int cmp_cntx_eq, (char *pcntx, char *ucntx));
+
+#    include <fnmatch.h>
+
+/*
+ * cmp_cntx_eq -- compare program and user security contexts
+ */
+int cmp_cntx_eq(char *pcntx, /* program context */
+                char *ucntx) /* user supplied context */
+{
+    return !fnmatch(ucntx, pcntx, 0);
+}
+
+#endif /* defined(HASSELINUX) */
+
+enum lsof_error lsof_select_selinux_context(struct lsof_context *ctx,
+                                            char *cntx) {
+#if defined(HASSELINUX)
+    cntxlist_t *cntxp;
+    if (!ctx || ctx->frozen) {
+        return LSOF_ERROR_INVALID_ARGUMENT;
+    }
+
+    /*
+     * Search the argument list for a duplicate.
+     */
+    for (cntxp = CntxArg; cntxp; cntxp = cntxp->next) {
+        if (!strcmp(cntxp->cntx, cntx)) {
+            if (ctx->err && !Fwarn) {
+                (void)fprintf(ctx->err, "%s: duplicate context: %s\n", Pn,
+                              cntx);
+            }
+            return LSOF_SUCCESS;
+        }
+    }
+
+    /*
+     * Create and link a new context argument list entry.
+     */
+    if (!(cntxp = (cntxlist_t *)malloc((MALLOC_S)sizeof(cntxlist_t)))) {
+        if (ctx->err) {
+            (void)fprintf(ctx->err, "%s: no space for context: %s\n", Pn, cntx);
+        }
+        Error(ctx);
+        return LSOF_ERROR_NO_MEMORY;
+    }
+    cntxp->f = 0;
+    cntxp->cntx = cntx;
+    cntxp->next = CntxArg;
+    CntxArg = cntxp;
+
+    /* Update selection flags */
+    Selflags |= SELCNTX;
+    return LSOF_SUCCESS;
+#else
+    return LSOF_ERROR_UNSUPPORTED;
+#endif /* defined(HASSELINUX) */
 }

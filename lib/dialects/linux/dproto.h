@@ -34,10 +34,6 @@
  * $Id: dproto.h,v 1.9 2013/01/02 17:02:36 abe Exp $
  */
 
-#if defined(HASSELINUX)
-_PROTOTYPE(extern int enter_cntx_arg, (struct lsof_context * ctx, char *cnxt));
-#endif /* defined(HASSELINUX) */
-
 _PROTOTYPE(extern int get_fields, (struct lsof_context * ctx, char *ln,
                                    char *sep, char ***fr, int *eb, int en));
 _PROTOTYPE(extern void get_locks, (struct lsof_context * ctx, char *p));

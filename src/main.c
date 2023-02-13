@@ -974,7 +974,7 @@ closed:
                 /*
                  * Add to the zone name argument hash.
                  */
-                if (lsof_select_zones(ctx, GOv))
+                if (lsof_select_solaris_zone(ctx, GOv))
                     err = 1;
             } else if (GOv) {
                 GOx1 = GObk[0];
@@ -995,7 +995,7 @@ closed:
                     /*
                      * Add to the context name argument hash.
                      */
-                    if (enter_cntx_arg(ctx, GOv))
+                    if (lsof_select_selinux_context(ctx, GOv))
                         err = 1;
                 } else if (GOv) {
                     GOx1 = GObk[0];
@@ -1080,11 +1080,6 @@ closed:
 
     if (DChelp || err || Fhelp || fh || version)
         usage(err ? 1 : 0, fh, version);
-
-#if defined(HASSELINUX)
-    if (CntxArg)
-        Selflags |= SELCNTX;
-#endif /* defined(HASSELINUX) */
 
     if (Nwad)
         Selflags |= SELNA;

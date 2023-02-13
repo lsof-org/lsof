@@ -126,54 +126,7 @@ _PROTOTYPE(static void snp_eventpoll,
            (char *p, int len, int *tfds, int tfd_count));
 
 #if defined(HASSELINUX)
-_PROTOTYPE(static int cmp_cntx_eq, (char *pcntx, char *ucntx));
-
-#    include <fnmatch.h>
-
-/*
- * cmp_cntx_eq -- compare program and user security contexts
- */
-
-static int cmp_cntx_eq(pcntx, ucntx)
-char *pcntx; /* program context */
-char *ucntx; /* user supplied context */
-{ return !fnmatch(ucntx, pcntx, 0); }
-
-/*
- * enter_cntx_arg() - enter name ecurity context argument
- */
-
-int enter_cntx_arg(struct lsof_context *ctx, char *cntx) /* context */
-{
-    cntxlist_t *cntxp;
-    /*
-     * Search the argument list for a duplicate.
-     */
-    for (cntxp = CntxArg; cntxp; cntxp = cntxp->next) {
-        if (!strcmp(cntxp->cntx, cntx)) {
-            if (ctx->err && !Fwarn) {
-                (void)fprintf(ctx->err, "%s: duplicate context: %s\n", Pn,
-                              cntx);
-            }
-            return (1);
-        }
-    }
-    /*
-     * Create and link a new context argument list entry.
-     */
-    if (!(cntxp = (cntxlist_t *)malloc((MALLOC_S)sizeof(cntxlist_t)))) {
-        if (ctx->err) {
-            (void)fprintf(ctx->err, "%s: no space for context: %s\n", Pn, cntx);
-        }
-        Error(ctx);
-        return (1);
-    }
-    cntxp->f = 0;
-    cntxp->cntx = cntx;
-    cntxp->next = CntxArg;
-    CntxArg = cntxp;
-    return (0);
-}
+_PROTOTYPE(extern int cmp_cntx_eq, (char *pcntx, char *ucntx));
 #endif /* defined(HASSELINUX) */
 
 /*

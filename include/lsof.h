@@ -56,8 +56,9 @@
 /** lsof error returns */
 enum lsof_error {
     LSOF_SUCCESS = 0,            /**< Success */
-    LSOF_ERROR_INVALID_ARGUMENT, /**< Invalid Argument */
+    LSOF_ERROR_INVALID_ARGUMENT, /**< Invalid argument */
     LSOF_ERROR_NO_MEMORY,        /**< No memory */
+    LSOF_ERROR_UNSUPPORTED,      /**< Unsupported operation */
 };
 
 /** File access mode */
@@ -867,7 +868,14 @@ enum lsof_error lsof_select_num_links(struct lsof_context *ctx, int threshold);
  *
  * \since API version 1
  */
-enum lsof_error lsof_select_zones(struct lsof_context *ctx, char *zone);
+enum lsof_error lsof_select_solaris_zone(struct lsof_context *ctx, char *zone);
+
+/** Ask lsof to select SELinux context
+ *
+ * \since API version 1
+ */
+enum lsof_error lsof_select_selinux_context(struct lsof_context *ctx,
+                                            char *context);
 
 /** Ask lsof to exempt file system for blocking stat, lstat and readlink
  * calls
