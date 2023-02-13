@@ -1255,7 +1255,7 @@ enum lsof_error lsof_select_inet_string(struct lsof_context *ctx, char *na) {
 
     /* arguments of lsof_select_inet_internal */
     int af = AF_UNSPEC;
-    enum lsof_protocol proto;
+    enum lsof_protocol proto = LSOF_PROTOCOL_INVALID;
     unsigned char a[MAX_AF_ADDR];
     int sp = -1;
     int ep = -1;
@@ -1666,8 +1666,8 @@ enum lsof_error lsof_select_inet_string(struct lsof_context *ctx, char *na) {
             } else {
                 continue;
             }
-            if ((ret = lsof_select_inet_internal(ctx, na, proto, af, addr_len,
-                                                 addr, sp, ep))) {
+            if ((ret = lsof_select_inet_internal(ctx, na, proto, he->ai_family,
+                                                 addr_len, addr, sp, ep))) {
                 goto cleanup;
             }
         }

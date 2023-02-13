@@ -832,7 +832,7 @@ enum lsof_error lsof_select_ip(struct lsof_context *ctx, int af);
  *
  * \arg `addr`: If `addr_len` is non-zero and `addr` is not NULL, select by
  * address.  If `addr` is not NULL, it should point to either `struct in_addr`
- * or `struct in6_addr`.
+ * or `struct in6_addr` and match the address family `af`.
  *
  * \arg `port_lo` and `port_hi`: Lower bound and upper bound of port range. Use
  * `-1` if all ports are allowed.
