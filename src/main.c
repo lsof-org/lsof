@@ -1081,9 +1081,6 @@ closed:
     if (DChelp || err || Fhelp || fh || version)
         usage(err ? 1 : 0, fh, version);
 
-    if (Nwad)
-        Selflags |= SELNA;
-
     if (GOx1 < argc)
         Selflags |= SELNM;
     if (Selflags == 0 && Fand) {

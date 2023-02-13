@@ -1086,6 +1086,9 @@ enum lsof_error lsof_select_inet_internal(struct lsof_context *ctx, char *arg,
     Nwad = n;
     n = NULL;
 
+    /* Update selection flags */
+    Selflags |= SELNA;
+
 cleanup:
     CLEAN(n);
     return ret;
