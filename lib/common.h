@@ -1155,9 +1155,9 @@ struct lsof_context {
     int net;             /* -i option status: 0==none
                           *		     1==find all
                           *		     2==some found*/
-    int net_type;        /* Fnet type request: 0==all
-                          *		      4==IPv4
-                          *		      6==IPv6 */
+    int net_type;        /* Fnet type request: AF_UNSPEC==all
+                          *		      AF_INET==IPv4
+                          *		      AF_INET6==IPv6 */
     int avoid_forking;   /* -O option status */
 
     /* security context arguments supplied with -Z */

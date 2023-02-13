@@ -474,8 +474,7 @@ int process_VSOCK(struct lsof_context *ctx,
              * Set network file selection status.
              */
             if (Fnet) {
-                if (!FnetTy || ((FnetTy == 4) && (af == AF_INET)) ||
-                    ((FnetTy == 6) && (af == AF_INET6))) {
+                if (FnetTy == AF_UNSPEC || FnetTy == af) {
                     Lf->sf |= SELNET;
                 }
             }
@@ -579,8 +578,7 @@ int process_VSOCK(struct lsof_context *ctx,
              * Set network file selection status.
              */
             if (Fnet) {
-                if (!FnetTy || ((FnetTy == 4) && (af == AF_INET)) ||
-                    ((FnetTy == 6) && (af == AF_INET6))) {
+                if (FnetTy == AF_UNSPEC || FnetTy == af) {
                     Lf->sf |= SELNET;
                 }
             }
@@ -666,8 +664,7 @@ int process_VSOCK(struct lsof_context *ctx,
              * Set network file selection status.
              */
             if (Fnet) {
-                if (!FnetTy || ((FnetTy == 4) && (af == AF_INET)) ||
-                    ((FnetTy == 6) && (af == AF_INET6))) {
+                if (FnetTy == AF_UNSPEC || FnetTy == af) {
                     Lf->sf |= SELNET;
                 }
             }
@@ -745,8 +742,7 @@ int process_VSOCK(struct lsof_context *ctx,
          * Set network file selection status.
          */
         if (Fnet) {
-            if (!FnetTy || ((FnetTy == 4) && (af == AF_INET)) ||
-                ((FnetTy == 6) && (af == AF_INET6))) {
+            if (FnetTy == AF_UNSPEC || FnetTy == af) {
                 Lf->sf |= SELNET;
             }
         }
@@ -937,13 +933,7 @@ void process_socket(struct lsof_context *ctx,
      * Set network file selection status.
      */
     if (Fnet) {
-        if (!FnetTy || ((FnetTy == 4) && (af == AF_INET))
-
-#if defined(HASIPv6)
-            || ((FnetTy == 6) && (af == AF_INET6))
-#endif /* defined(HASIPv6) */
-
-        ) {
+        if (FnetTy == AF_UNSPEC || FnetTy == af) {
             if (!TcpStIn && !UdpStIn)
                 Lf->sf |= SELNET;
         }
@@ -1053,13 +1043,7 @@ void process_socket(struct lsof_context *ctx,
             }
             if (!(Lf->sf & SELNET) && !TcpStIn && UdpStIn) {
                 if (Fnet) {
-                    if (!FnetTy || (FnetTy == 4) && (af == AF_INET)
-
-#if defined(HASIPv6)
-                        || (FnetTy == 6) && (af == AF_INET6)
-#endif /* defined(HASIPv6) */
-
-                    ) {
+                    if (FnetTy == AF_UNSPEC || FnetTy == af) {
                         Lf->sf |= SELNET;
                     }
                 }
@@ -1109,13 +1093,7 @@ void process_socket(struct lsof_context *ctx,
             }
             if (!(Lf->sf & SELNET) && TcpStIn && !UdpStIn) {
                 if (Fnet) {
-                    if (!FnetTy || (FnetTy == 4) && (af == AF_INET)
-
-#if defined(HASIPv6)
-                        || (FnetTy == 6) && (af == AF_INET6)
-#endif /* defined(HASIPv6) */
-
-                    ) {
+                    if (FnetTy == AF_UNSPEC || FnetTy == af) {
                         Lf->sf |= SELNET;
                     }
                 }

@@ -170,13 +170,7 @@ void process_socket(struct lsof_context *ctx,
 #endif /* defined(HASIPv6) */
 
         if (Fnet) {
-            if (!FnetTy || ((FnetTy == 4) && (fam == AF_INET))
-
-#if defined(HASIPv6)
-                || ((FnetTy == 6) && (fam == AF_INET6))
-#endif /* defined(HASIPv6) */
-            )
-
+            if (FnetTy == AF_UNSPEC || FnetTy == fam)
                 Lf->sf |= SELNET;
         }
         enter_ip_proto(ctx, p.pr_protocol);

@@ -96,13 +96,8 @@ void process_socket(struct lsof_context *ctx, struct kinfo_file *file) {
         /* Show this entry if -i */
         if (Fnet) {
             /* Handle v4/v6 only */
-            if (FnetTy == 4 && file->so_family == AF_INET) {
+            if (FnetTy == AF_UNSPEC || FnetTy == file->so_family)
                 Lf->sf |= SELNET;
-            } else if (FnetTy == 6 && file->so_family == AF_INET6) {
-                Lf->sf |= SELNET;
-            } else if (FnetTy == 0) {
-                Lf->sf |= SELNET;
-            }
         }
 
         /* Fill internet address info */

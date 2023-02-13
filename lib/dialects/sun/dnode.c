@@ -3568,7 +3568,7 @@ void process_node(struct lsof_context *ctx,
                 Namech[Namechl - 1] = '\0';
                 if (TcpStIn || UdpStIn || TcpStXn || UdpStXn)
                     Lf->sf |= SELEXCLF;
-                else if (Fnet && (FnetTy != 6))
+                else if (Fnet && (FnetTy != AF_INET6))
                     Lf->sf |= SELNET;
             }
 
@@ -3579,7 +3579,7 @@ void process_node(struct lsof_context *ctx,
                 Namech[Namechl - 1] = '\0';
                 if (TcpStIn || UdpStIn || TcpStXn || UdpStXn)
                     Lf->sf |= SELEXCLF;
-                else if (Fnet && (FnetTy != 4))
+                else if (Fnet && (FnetTy != AF_INET))
                     Lf->sf |= SELNET;
             }
 #        endif /* defined(HASIPv6) */

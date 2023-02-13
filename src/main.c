@@ -572,7 +572,7 @@ closed:
             break;
         case 'i':
             if (!GOv || *GOv == '-' || *GOv == '+') {
-                lsof_select_ip(ctx, 0);
+                lsof_select_ip(ctx, AF_UNSPEC);
                 if (GOv) {
                     GOx1 = GObk[0];
                     GOx2 = GObk[1];

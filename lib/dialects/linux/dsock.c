@@ -4044,7 +4044,7 @@ void process_proc_sock(struct lsof_context *ctx,
                 }
             }
         }
-        if (Fnet && (FnetTy != 4))
+        if (Fnet && FnetTy != AF_INET)
             Lf->sf |= SELNET;
         Lf->type = LSOF_FILE_IPV6;
         Lf->iproto = proto;
@@ -4148,7 +4148,7 @@ void process_proc_sock(struct lsof_context *ctx,
                 }
             }
         }
-        if (Fnet && (FnetTy != 6))
+        if (Fnet && (FnetTy != AF_INET6))
             Lf->sf |= SELNET;
 
 #if defined(HASIPv6)

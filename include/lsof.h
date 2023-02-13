@@ -813,18 +813,19 @@ enum lsof_error lsof_select_fd(struct lsof_context *ctx,
 
 /** Ask lsof to select internet sockets by ip version
  *
- * Select internet socket by ip version: 0 means any, 4 means IPv4 only, 6 means
- * IPv6 only.
+ * Select internet socket by ip version: AF_UNSPEC means any, AF_INET means IPv4
+ * only, AF_INET6 means IPv6 only.
  *
  * You can call this function multiple times to add more search conditions.
  *
  * \since API version 1
  */
-enum lsof_error lsof_select_ip(struct lsof_context *ctx, int ip);
+enum lsof_error lsof_select_ip(struct lsof_context *ctx, int af);
 
 /** Ask lsof to select internet sockets by protocol, address and port
  *
- * \arg `ip`: 0 means IPv4/IPv6, 4 means IPv4 only, 6 means IPv6 only.
+ * \arg `af`: AF_UNSPEC means IPv4/IPv6, AF_INET means IPv4 only, AF_INET6 means
+ * IPv6 only.
  *
  * \arg `proto`: \ref LSOF_PROTOCOL_INVALID means all, \ref LSOF_PROTOCOL_TCP
  * for TCP, \ref LSOF_PROTOCOL_UDP for UDP, etc.
@@ -840,7 +841,7 @@ enum lsof_error lsof_select_ip(struct lsof_context *ctx, int ip);
  *
  * \since API version 1
  */
-enum lsof_error lsof_select_inet(struct lsof_context *ctx, int ip,
+enum lsof_error lsof_select_inet(struct lsof_context *ctx, int af,
                                  enum lsof_protocol proto, size_t addr_len,
                                  void *addr, int port_lo, int port_hi);
 

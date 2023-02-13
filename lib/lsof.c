@@ -969,11 +969,11 @@ enum lsof_error lsof_select_pgid(struct lsof_context *ctx, uint32_t pgid,
 }
 
 API_EXPORT
-enum lsof_error lsof_select_ip(struct lsof_context *ctx, int ip) {
+enum lsof_error lsof_select_ip(struct lsof_context *ctx, int af) {
     if (!ctx || ctx->frozen) {
         return LSOF_ERROR_INVALID_ARGUMENT;
     }
-    if (ip != 0 && ip != 4 && ip != 6) {
+    if (af != AF_UNSPEC && af != AF_INET && af != AF_INET6) {
         return LSOF_ERROR_INVALID_ARGUMENT;
     }
 
@@ -984,15 +984,15 @@ enum lsof_error lsof_select_ip(struct lsof_context *ctx, int ip) {
      */
     if (!Fnet) {
         Fnet = 1;
-        FnetTy = ip;
+        FnetTy = af;
         /* Selection flags */
         Selflags |= SELNET;
     } else {
-        if (FnetTy) {
-            if (FnetTy != ip)
-                FnetTy = 0;
+        if (FnetTy != AF_UNSPEC) {
+            if (FnetTy != af)
+                FnetTy = AF_UNSPEC;
         } else
-            FnetTy = ip;
+            FnetTy = af;
     }
     return LSOF_SUCCESS;
 }
@@ -1092,19 +1092,10 @@ cleanup:
 }
 
 API_EXPORT
-enum lsof_error lsof_select_inet(struct lsof_context *ctx, int ip,
+enum lsof_error lsof_select_inet(struct lsof_context *ctx, int af,
                                  enum lsof_protocol proto, size_t addr_len,
                                  void *addr, int port_lo, int port_hi) {
-    int af = 0;
     if (!ctx || ctx->frozen) {
-        return LSOF_ERROR_INVALID_ARGUMENT;
-    }
-
-    if (ip == 4) {
-        af = AF_INET;
-    } else if (ip == 6) {
-        af = AF_INET6;
-    } else if (ip != 0) {
         return LSOF_ERROR_INVALID_ARGUMENT;
     }
 
@@ -1292,11 +1283,11 @@ enum lsof_error lsof_select_inet_string(struct lsof_context *ctx, char *na) {
      */
     if ((*wa == '4') || (*wa == '6')) {
         if (*wa == '4')
-            ft = 4;
+            af = AF_INET;
         else if (*wa == '6') {
 
 #if defined(HASIPv6)
-            ft = 6;
+            af = AF_INET6;
 #else  /* !defined(HASIPv6) */
             if (ctx->err) {
                 (void)fprintf(ctx->err, "%s: IPv6 not supported: -i ", Pn);
@@ -1313,23 +1304,8 @@ enum lsof_error lsof_select_inet_string(struct lsof_context *ctx, char *na) {
              * If nothing follows 4 or 6, then all network files of the
              * specified IP version are selected.
              */
-            return lsof_select_ip(ctx, ft);
+            return lsof_select_ip(ctx, af);
         }
-    }
-
-    /*
-     * If an IP version has been specified, use it to set the address family.
-     */
-    switch (ft) {
-    case 4:
-        af = AF_INET;
-        break;
-
-#if defined(HASIPv6)
-    case 6:
-        af = AF_INET6;
-        break;
-#endif /* defined(HASIPv6) */
     }
 
     /*
@@ -1406,7 +1382,7 @@ enum lsof_error lsof_select_inet_string(struct lsof_context *ctx, char *na) {
             /*
              * Process IPv4 address.
              */
-            if (ft == 6) {
+            if (af == AF_INET6) {
                 if (ctx->err) {
                     (void)fprintf(ctx->err,
                                   "%s: IPv4 addresses are prohibited: -i ", Pn);
@@ -1424,7 +1400,7 @@ enum lsof_error lsof_select_inet_string(struct lsof_context *ctx, char *na) {
              * Make sure IPv6 addresses are permitted.  If they are, assemble
              * one.
              */
-            if (ft == 4) {
+            if (af == AF_INET) {
                 if (ctx->err) {
                     (void)fprintf(ctx->err,
                                   "%s: IPv6 addresses are prohibited: -i ", Pn);
@@ -1447,7 +1423,7 @@ enum lsof_error lsof_select_inet_string(struct lsof_context *ctx, char *na) {
             if (!ae)
                 goto unacc_address;
             if (IN6_IS_ADDR_V4MAPPED((struct in6_addr *)&a[0])) {
-                if (ft == 6) {
+                if (af == AF_INET6) {
                     if (ctx->err) {
 
                         (void)fprintf(ctx->err,

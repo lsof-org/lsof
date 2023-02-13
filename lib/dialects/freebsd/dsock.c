@@ -303,10 +303,7 @@ static int ckstate(struct lsof_context *ctx, struct xtcpcb *pcb, int fam) {
          * See if this TCP file should be selected.
          */
         if (Fnet) {
-            if (!FnetTy || ((FnetTy == 4) && (fam == AF_INET)) ||
-                ((FnetTy == 6) && (fam == AF_INET6))
-
-            ) {
+            if (FnetTy == AF_UNSPEC || FnetTy == fam) {
                 Lf->sf |= SELNET;
             }
         }
@@ -439,8 +436,7 @@ void process_socket(struct lsof_context *ctx, struct kinfo_file *kf,
     case AF_INET6:
 
         if (Fnet) {
-            if (!FnetTy || ((FnetTy == 4) && (fam == AF_INET)) ||
-                ((FnetTy == 6) && (fam == AF_INET6))) {
+            if (FnetTy == AF_UNSPEC || FnetTy == fam) {
                 if (!TcpStIn && !UdpStIn)
                     Lf->sf |= SELNET;
             }

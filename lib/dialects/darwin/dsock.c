@@ -149,8 +149,7 @@ static void process_socket_common(struct lsof_context *ctx,
          * Process an Internet domain socket.
          */
         if (Fnet) {
-            if (!FnetTy || ((FnetTy == 4) && (fam == AF_INET)) ||
-                ((FnetTy == 6) && (fam == AF_INET6)))
+            if (FnetTy == AF_UNSPEC || (FnetTy == fam))
                 Lf->sf |= SELNET;
         }
         enter_ip_proto(ctx, si->psi.soi_protocol);
@@ -367,14 +366,16 @@ static void process_socket_common(struct lsof_context *ctx,
         Lf->type = LSOF_FILE_SYSTEM;
         switch (si->psi.soi_kind) {
         case SOCKINFO_KERN_EVENT:
-            enter_dev_ch(ctx, print_kptr((KA_T)si->psi.soi_pcb, (char *)NULL, 0));
+            enter_dev_ch(ctx,
+                         print_kptr((KA_T)si->psi.soi_pcb, (char *)NULL, 0));
             (void)snpf(Namech, Namechl, "[event %x:%x:%x]",
                        si->psi.soi_proto.pri_kern_event.kesi_vendor_code_filter,
                        si->psi.soi_proto.pri_kern_event.kesi_class_filter,
                        si->psi.soi_proto.pri_kern_event.kesi_subclass_filter);
             break;
         case SOCKINFO_KERN_CTL:
-            enter_dev_ch(ctx, print_kptr((KA_T)si->psi.soi_pcb, (char *)NULL, 0));
+            enter_dev_ch(ctx,
+                         print_kptr((KA_T)si->psi.soi_pcb, (char *)NULL, 0));
             (void)snpf(Namech, Namechl, "[ctl %s id %d unit %d]",
                        si->psi.soi_proto.pri_kern_ctl.kcsi_name,
                        si->psi.soi_proto.pri_kern_ctl.kcsi_id,

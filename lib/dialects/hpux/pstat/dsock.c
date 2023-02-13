@@ -1112,7 +1112,7 @@ struct pst_socket *s; /* optional socket information
      */
     switch (s->pst_family) {
     case PS_AF_INET:
-        if (Fnet && (!FnetTy || (FnetTy != 6)))
+        if (Fnet && (FnetTy == AF_UNSPEC || FnetTy == AF_INET))
             Lf->sf |= SELNET;
         Lf->type =
 #if defined(HASIPv6)
@@ -1156,7 +1156,7 @@ struct pst_socket *s; /* optional socket information
 #if defined(HASIPv6)
     case PS_AF_INET6:
         af = AF_INET6;
-        if (Fnet && (!FnetTy || (FnetTy != 4)))
+        if (Fnet && (FnetTy == AF_UNSPEC || FnetTy == AF_INET6))
             Lf->sf |= SELNET;
         Lf->type = LSOF_FILE_IPV6;
         printpsproto(s->pst_protocol);

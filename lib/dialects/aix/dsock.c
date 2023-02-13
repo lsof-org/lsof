@@ -203,13 +203,7 @@ void process_socket(sa) KA_T sa; /* socket address in kernel */
             /*
              * Set SELNET flag for the file, as requested.
              */
-            if (!FnetTy || ((FnetTy == 4) && (fam == AF_INET))
-
-#if defined(HASIPv6)
-                || ((FnetTy == 6) && (fam == AF_INET6))
-#endif /* defined(HASIPv6) */
-            )
-
+            if (FnetTy == AF_UNSPEC || (FnetTy == fam))
                 Lf->sf |= SELNET;
         }
         enter_ip_proto(p.pr_protocol);
