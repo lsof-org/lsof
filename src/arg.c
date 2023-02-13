@@ -49,8 +49,8 @@ _PROTOTYPE(static int ckfd_range,
            (char *first, char *dash, char *last, int *lo, int *hi));
 _PROTOTYPE(static int enter_fd_lst, (char *nm, int lo, int hi, int excl));
 _PROTOTYPE(static int enter_nwad,
-           (struct nwad * n, int sp, int ep, char *s, struct hostent *he));
-_PROTOTYPE(static struct hostent *lkup_hostnm, (char *hn, struct nwad *n));
+           (struct nwad * n, int sp, int ep, char *s, struct addrinfo *he));
+_PROTOTYPE(static struct addrinfo *lkup_hostnm, (char *hn, struct nwad *n));
 _PROTOTYPE(static char *isIPv4addr, (char *hn, unsigned char *a, int al));
 
 /*
@@ -1051,7 +1051,7 @@ char *na; /* Internet address string pointer */
     int ae, i, pr;
     int ep = -1;
     int ft = 0;
-    struct hostent *he = (struct hostent *)NULL;
+    struct addrinfo *he = (struct addrinfo *)NULL;
     char *hn = (char *)NULL;
     MALLOC_S l;
     struct nwad n;
@@ -1459,14 +1459,13 @@ char *na; /* Internet address string pointer */
  * enter_nwad() - enter nwad structure
  */
 
-static int enter_nwad(n, sp, ep, s, he)
-struct nwad *n;     /* pointer to partially completed
-                     * nwad (less port) */
-int sp;             /* starting port number */
-int ep;             /* ending port number */
-char *s;            /* string that states the address */
-struct hostent *he; /* pointer to hostent struct from which
-                     * network address came */
+static int enter_nwad(struct nwad *n,      /* pointer to partially completed
+                                            * nwad (less port) */
+                      int sp,              /* starting port number */
+                      int ep,              /* ending port number */
+                      char *s,             /* string that states the address */
+                      struct addrinfo *he) /* pointer to hostent struct from
+                                            * which network address came */
 {
     int ac;
     unsigned char *ap;
@@ -1548,28 +1547,32 @@ struct hostent *he; /* pointer to hostent struct from which
          */
         if (!he)
             break;
-        if (!he->h_addr_list[ac -
-                             1]) /* Check if address list ended prematurely */
+        /* Check if address list ended */
+        if (!he->ai_next)
             break;
-        if (!(ap = (unsigned char *)he->h_addr_list[ac++]))
+        he = he->ai_next;
+        if (!he->ai_addr)
             break;
 
-#if defined(HASIPv6)
-        {
-            int i;
-
-            for (i = 0; (i < (he->h_length - 1)) && (i < (MAX_AF_ADDR - 1));
-                 i++) {
-                nc.a[i] = *ap++;
-            }
-            nc.a[i] = *ap;
+        if (he->ai_family == AF_INET6) {
+            /*
+             * Copy an AF_INET6 address.
+             */
+            if (he->ai_addrlen != sizeof(struct sockaddr_in6))
+                break;
+            struct sockaddr_in6 *in6 = (struct sockaddr_in6 *)he->ai_addr;
+            (void)memcpy((void *)&n->a[0], (void *)&in6->sin6_addr,
+                         MAX_AF_ADDR);
+        } else {
+            /*
+             * Copy an AF_INET address.
+             */
+            if (he->ai_addrlen != sizeof(struct sockaddr_in))
+                break;
+            struct sockaddr_in *in = (struct sockaddr_in *)he->ai_addr;
+            (void)memcpy((void *)&n->a[0], (void *)&in->sin_addr,
+                         sizeof(struct in_addr));
         }
-#else  /* !defined(HASIPv6) */
-        nc.a[0] = *ap++;
-        nc.a[1] = *ap++;
-        nc.a[2] = *ap++;
-        nc.a[3] = *ap;
-#endif /* defined(HASIPv6) */
     }
     return (0);
 }
@@ -1870,42 +1873,42 @@ int al;           /* address receptor length */
  * lkup_hostnm() - look up host name
  */
 
-static struct hostent *lkup_hostnm(hn, n)
-char *hn;       /* host name */
-struct nwad *n; /* network address destination */
+static struct addrinfo *
+lkup_hostnm(char *hn,       /* host name */
+            struct nwad *n) /* network address destination */
 {
     unsigned char *ap;
-    struct hostent *he;
+    struct addrinfo *he = NULL;
+    struct addrinfo hint;
     int ln;
+    int res;
+
     /*
      * Get hostname structure pointer.  Return NULL if there is none.
      */
+    memset(&hint, 0, sizeof(hint));
+    hint.ai_family = n->af;
 
-#if defined(HASIPv6)
-    he = gethostbyname2(hn, n->af);
-#else  /* !defined(HASIPv6) */
-    he = gethostbyname(hn);
-#endif /* defined(HASIPv6) */
+    res = getaddrinfo(hn, NULL, &hint, &he);
 
-    if (!he || !he->h_addr)
+    if (!he || !he->ai_addr)
         return (he);
+
         /*
          * Copy first hostname structure address to destination structure.
          */
 
 #if defined(HASIPv6)
-    if (n->af != he->h_addrtype)
-        return ((struct hostent *)NULL);
+    if (n->af != he->ai_family)
+        return ((struct addrinfo *)NULL);
     if (n->af == AF_INET6) {
-
         /*
          * Copy an AF_INET6 address.
          */
-        if (he->h_length > MAX_AF_ADDR)
-            return ((struct hostent *)NULL);
-        (void)memcpy((void *)&n->a[0], (void *)he->h_addr, he->h_length);
-        if ((ln = MAX_AF_ADDR - he->h_length) > 0)
-            zeromem((char *)&n->a[he->h_length], ln);
+        if (he->ai_addrlen != sizeof(struct sockaddr_in6))
+            return ((struct addrinfo *)NULL);
+        struct sockaddr_in6 *in6 = (struct sockaddr_in6 *)he->ai_addr;
+        (void)memcpy((void *)&n->a[0], (void *)&in6->sin6_addr, MAX_AF_ADDR);
         return (he);
     }
 #endif /* defined(HASIPv6) */
@@ -1913,9 +1916,10 @@ struct nwad *n; /* network address destination */
     /*
      * Copy an AF_INET address.
      */
-    if (he->h_length != 4)
-        return ((struct hostent *)NULL);
-    ap = (unsigned char *)he->h_addr;
+    if (he->ai_addrlen != sizeof(struct sockaddr_in))
+        return ((struct addrinfo *)NULL);
+    struct sockaddr_in *in = (struct sockaddr_in *)he->ai_addr;
+    ap = (unsigned char *)&in->sin_addr;
     n->a[0] = *ap++;
     n->a[1] = *ap++;
     n->a[2] = *ap++;
