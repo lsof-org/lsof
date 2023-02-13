@@ -90,7 +90,7 @@ int main(int argc, char **argv) {
     int match;
 
     ctx = lsof_new();
-    lsof_select_inet(ctx, 0);
+    lsof_select_ip(ctx, 0);
     lsof_freeze(ctx);
     lsof_gather(ctx, &result);
 

@@ -811,16 +811,54 @@ enum lsof_error lsof_select_fd(struct lsof_context *ctx,
                                enum lsof_fd_type fd_type, int fd_num_lo,
                                int fd_num_hi, int exclude);
 
-/** Ask lsof to select internet sockets
+/** Ask lsof to select internet sockets by ip version
  *
- * Select internet socket by protocol: 0 means any, 4 means IPv4 only, 6 means
+ * Select internet socket by ip version: 0 means any, 4 means IPv4 only, 6 means
  * IPv6 only.
  *
  * You can call this function multiple times to add more search conditions.
  *
  * \since API version 1
  */
-enum lsof_error lsof_select_inet(struct lsof_context *ctx, int inet_proto);
+enum lsof_error lsof_select_ip(struct lsof_context *ctx, int ip);
+
+/** Ask lsof to select internet sockets by protocol, address and port
+ *
+ * \arg `ip`: 0 means IPv4/IPv6, 4 means IPv4 only, 6 means IPv6 only.
+ *
+ * \arg `proto`: \ref LSOF_PROTOCOL_INVALID means all, \ref LSOF_PROTOCOL_TCP
+ * for TCP, \ref LSOF_PROTOCOL_UDP for UDP, etc.
+ *
+ * \arg `addr`: If `addr_len` is non-zero and `addr` is not NULL, select by
+ * address.  If `addr` is not NULL, it should point to either `struct in_addr`
+ * or `struct in6_addr`.
+ *
+ * \arg `port_lo` and `port_hi`: Lower bound and upper bound of port range. Use
+ * `-1` if all ports are allowed.
+ *
+ * You can call this function multiple times to add more search conditions.
+ *
+ * \since API version 1
+ */
+enum lsof_error lsof_select_inet(struct lsof_context *ctx, int ip,
+                                 enum lsof_protocol proto, size_t addr_len,
+                                 void *addr, int port_lo, int port_hi);
+
+/** Ask lsof to select internet sockets by string argument
+ *
+ * The Internet address is specified in the form (items in square brackets are
+ * optional.):
+ *
+ * [46][protocol][@hostname|hostaddr][:service|port]
+ *
+ * Refer to the documentation of `-i` option in lsof cli for detailed
+ * information.
+ *
+ * You can call this function multiple times to add more search conditions.
+ *
+ * \since API version 1
+ */
+enum lsof_error lsof_select_inet_string(struct lsof_context *ctx, char *addr);
 
 /** Ask lsof to select unix sockets
  *

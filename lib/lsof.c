@@ -969,32 +969,744 @@ enum lsof_error lsof_select_pgid(struct lsof_context *ctx, uint32_t pgid,
 }
 
 API_EXPORT
-enum lsof_error lsof_select_inet(struct lsof_context *ctx, int inet_proto) {
+enum lsof_error lsof_select_ip(struct lsof_context *ctx, int ip) {
     if (!ctx || ctx->frozen) {
         return LSOF_ERROR_INVALID_ARGUMENT;
     }
-    if (inet_proto != 0 && inet_proto != 4 && inet_proto != 6) {
+    if (ip != 0 && ip != 4 && ip != 6) {
         return LSOF_ERROR_INVALID_ARGUMENT;
     }
 
     /*
      * Sequential -i, -i4, and -i6 specifications interact logically -- e.g.,
-     * -i[46] followed by -i[64] is the same as -i. Specifying  -i4, or -i6
+     * -i[46] followed by -i[64] is the same as -i. Specifying -i4, or -i6
      * after -i is the same as specifying -i4 or -i6 by itself.
      */
     if (!Fnet) {
         Fnet = 1;
-        FnetTy = inet_proto;
+        FnetTy = ip;
         /* Selection flags */
         Selflags |= SELNET;
     } else {
         if (FnetTy) {
-            if (FnetTy != inet_proto)
+            if (FnetTy != ip)
                 FnetTy = 0;
         } else
-            FnetTy = inet_proto;
+            FnetTy = ip;
     }
     return LSOF_SUCCESS;
+}
+
+enum lsof_error lsof_select_inet_internal(struct lsof_context *ctx, char *arg,
+                                          enum lsof_protocol proto, int af,
+                                          size_t addr_len, void *addr,
+                                          int port_lo, int port_hi) {
+    int ac;
+    unsigned char *ap;
+    struct nwad nc;
+    struct nwad *np;
+    struct nwad *n = NULL;
+    enum lsof_error ret = LSOF_SUCCESS;
+
+    /*
+     * Test address specification -- it must contain at least one of:
+     * protocol, Internet address or port.  If correct, link into search
+     * list.
+     */
+    if (proto == LSOF_PROTOCOL_INVALID && !addr && port_lo == -1 &&
+        port_hi == -1) {
+        if (ctx->err) {
+            (void)fprintf(ctx->err,
+                          "%s: incomplete Internet address specification: -i ",
+                          Pn);
+            safestrprt(arg, ctx->err, 1);
+        }
+        ret = LSOF_ERROR_INVALID_ARGUMENT;
+        goto cleanup;
+    }
+
+    if (!(n = (struct nwad *)malloc(sizeof(struct nwad)))) {
+        if (ctx->err) {
+            (void)fprintf(ctx->err,
+                          "%s: no space for network address from: -i ", Pn);
+            safestrprt(arg, ctx->err, 1);
+        }
+        Error(ctx);
+        ret = LSOF_ERROR_NO_MEMORY;
+        goto cleanup;
+    }
+
+    /*
+     * Construct and link the address specification.
+     */
+    n->proto = proto;
+    n->af = af;
+    n->sport = port_lo;
+    n->eport = port_hi;
+    n->f = 0;
+    n->next = Nwad;
+
+    if (af == AF_INET6 && addr) {
+        /*
+         * Copy an AF_INET6 address.
+         */
+        if (addr_len != sizeof(struct in6_addr)) {
+            ret = LSOF_ERROR_INVALID_ARGUMENT;
+            goto cleanup;
+        }
+        (void)memcpy((void *)&n->a[0], (void *)addr, sizeof(struct in6_addr));
+    } else if (af == AF_INET && addr) {
+        /*
+         * Copy an AF_INET address.
+         */
+        if (addr_len != sizeof(struct in_addr)) {
+            ret = LSOF_ERROR_INVALID_ARGUMENT;
+            goto cleanup;
+        }
+        (void)memcpy((void *)&n->a[0], (void *)addr, sizeof(struct in_addr));
+    }
+
+    /*
+     * Allocate space for the argument specification.
+     */
+    if (arg) {
+        if (!(n->arg = mkstrcpy(arg, (MALLOC_S *)NULL))) {
+            if (ctx->err) {
+                (void)fprintf(stderr, "%s: no space for Internet argument: -i ",
+                              Pn);
+                safestrprt(arg, stderr, 1);
+            }
+            Error(ctx);
+            ret = LSOF_ERROR_NO_MEMORY;
+            goto cleanup;
+        }
+    } else
+        n->arg = (char *)NULL;
+
+    Nwad = n;
+    n = NULL;
+
+cleanup:
+    CLEAN(n);
+    return ret;
+}
+
+API_EXPORT
+enum lsof_error lsof_select_inet(struct lsof_context *ctx, int ip,
+                                 enum lsof_protocol proto, size_t addr_len,
+                                 void *addr, int port_lo, int port_hi) {
+    int af = 0;
+    if (!ctx || ctx->frozen) {
+        return LSOF_ERROR_INVALID_ARGUMENT;
+    }
+
+    if (ip == 4) {
+        af = AF_INET;
+    } else if (ip == 6) {
+        af = AF_INET6;
+    } else if (ip != 0) {
+        return LSOF_ERROR_INVALID_ARGUMENT;
+    }
+
+    return lsof_select_inet_internal(ctx, "lsof_select_inet()", proto, af,
+                                     addr_len, addr, port_lo, port_hi);
+}
+
+/*
+ * isIPv4addr() - is host name an IPv4 address
+ */
+static char *isIPv4addr(char *hn,         /* host name */
+                        unsigned char *a, /* address receptor */
+                        int al)           /* address receptor length */
+{
+    int dc = 0;          /* dot count */
+    int i;               /* temorary index */
+    int ov[MIN_AF_ADDR]; /* octet values */
+    int ovx = 0;         /* ov[] index */
+    /*
+     * The host name must begin with a number and the return octet value
+     * arguments must be acceptable.
+     */
+    if ((*hn < '0') || (*hn > '9'))
+        return ((char *)NULL);
+    if (!a || (al < MIN_AF_ADDR))
+        return ((char *)NULL);
+    /*
+     * Start the first octet assembly, then parse tge remainder of the host
+     * name for four octets, separated by dots.
+     */
+    ov[0] = (int)(*hn++ - '0');
+    while (*hn && (*hn != ':')) {
+        if (*hn == '.') {
+
+            /*
+             * Count a dot.  Make sure a preceding octet value has been
+             * assembled.  Don't assemble more than MIN_AF_ADDR octets.
+             */
+            dc++;
+            if ((ov[ovx] < 0) || (ov[ovx] > 255))
+                return ((char *)NULL);
+            if (++ovx > (MIN_AF_ADDR - 1))
+                return ((char *)NULL);
+            ov[ovx] = -1;
+        } else if ((*hn >= '0') && (*hn <= '9')) {
+
+            /*
+             * Assemble an octet.
+             */
+            if (ov[ovx] < 0)
+                ov[ovx] = (int)(*hn - '0');
+            else
+                ov[ovx] = (ov[ovx] * 10) + (int)(*hn - '0');
+        } else {
+
+            /*
+             * A non-address character has been detected.
+             */
+            return ((char *)NULL);
+        }
+        hn++;
+    }
+    /*
+     * Make sure there were three dots and four non-null octets.
+     */
+    if ((dc != 3) || (ovx != (MIN_AF_ADDR - 1)) || (ov[ovx] < 0) ||
+        (ov[ovx] > 255))
+        return ((char *)NULL);
+    /*
+     * Copy the octets as unsigned characters and return the ending host name
+     * character position.
+     */
+    for (i = 0; i < MIN_AF_ADDR; i++) {
+        a[i] = (unsigned char)ov[i];
+    }
+    return (hn);
+}
+
+/*
+ * lkup_hostnm() - look up host name
+ */
+static struct addrinfo *
+lkup_hostnm(char *hn,       /* host name */
+            struct nwad *n) /* network address destination */
+{
+    unsigned char *ap;
+    struct addrinfo *he = NULL;
+    struct addrinfo hint;
+    int ln;
+    int res;
+
+    /*
+     * Get hostname structure pointer.  Return NULL if there is none.
+     */
+    memset(&hint, 0, sizeof(hint));
+    hint.ai_family = n->af;
+
+    res = getaddrinfo(hn, NULL, &hint, &he);
+
+    if (!he || !he->ai_addr)
+        return (he);
+
+        /*
+         * Copy first hostname structure address to destination structure.
+         */
+
+#if defined(HASIPv6)
+    if (n->af != he->ai_family)
+        return ((struct addrinfo *)NULL);
+    if (n->af == AF_INET6) {
+        /*
+         * Copy an AF_INET6 address.
+         */
+        if (he->ai_addrlen != sizeof(struct sockaddr_in6))
+            return ((struct addrinfo *)NULL);
+        struct sockaddr_in6 *in6 = (struct sockaddr_in6 *)he->ai_addr;
+        (void)memcpy((void *)&n->a[0], (void *)&in6->sin6_addr, MAX_AF_ADDR);
+        return (he);
+    }
+#endif /* defined(HASIPv6) */
+
+    /*
+     * Copy an AF_INET address.
+     */
+    if (he->ai_addrlen != sizeof(struct sockaddr_in))
+        return ((struct addrinfo *)NULL);
+    struct sockaddr_in *in = (struct sockaddr_in *)he->ai_addr;
+    ap = (unsigned char *)&in->sin_addr;
+    n->a[0] = *ap++;
+    n->a[1] = *ap++;
+    n->a[2] = *ap++;
+    n->a[3] = *ap;
+    if ((ln = MAX_AF_ADDR - 4) > 0)
+        zeromem((char *)&n->a[4], ln);
+    return (he);
+}
+
+API_EXPORT
+enum lsof_error lsof_select_inet_string(struct lsof_context *ctx, char *na) {
+    int ae, i, pr;
+    int ft = 0;
+    struct addrinfo *he = NULL;
+    struct addrinfo hint;
+    char *hn = (char *)NULL;
+    MALLOC_S l;
+    char *p, *wa;
+    int pt = 0;
+    int pu = 0;
+    struct servent *se, *se1;
+    char *sn = (char *)NULL;
+    MALLOC_S snl = 0;
+    char *str_proto = NULL;
+    enum lsof_error ret = LSOF_SUCCESS;
+
+    size_t addr_len = 0;
+    void *addr = NULL;
+
+    /* arguments of lsof_select_inet_internal */
+    int af = AF_UNSPEC;
+    enum lsof_protocol proto;
+    unsigned char a[MAX_AF_ADDR];
+    int sp = -1;
+    int ep = -1;
+
+#if defined(HASIPv6)
+    char *cp;
+#endif /* defined(HASIPv6) */
+
+    if (!ctx || ctx->frozen) {
+        return LSOF_ERROR_INVALID_ARGUMENT;
+    }
+
+    if (!na) {
+        if (ctx->err)
+            (void)fprintf(ctx->err, "%s: no network address specified\n", Pn);
+        return LSOF_ERROR_INVALID_ARGUMENT;
+    }
+
+    wa = na;
+
+    /*
+     * Process an IP version type specification, IPv4 or IPv6, optionally
+     * followed by a '@' and a host name or Internet address, or a ':' and a
+     * service name or port number.
+     */
+    if ((*wa == '4') || (*wa == '6')) {
+        if (*wa == '4')
+            ft = 4;
+        else if (*wa == '6') {
+
+#if defined(HASIPv6)
+            ft = 6;
+#else  /* !defined(HASIPv6) */
+            if (ctx->err) {
+                (void)fprintf(ctx->err, "%s: IPv6 not supported: -i ", Pn);
+                safestrprt(na, ctx->err, 1);
+            }
+            ret = LSOF_ERROR_UNSUPPORTED;
+            goto cleanup;
+#endif /* defined(HASIPv6) */
+        }
+        wa++;
+        if (!*wa) {
+
+            /*
+             * If nothing follows 4 or 6, then all network files of the
+             * specified IP version are selected.
+             */
+            return lsof_select_ip(ctx, ft);
+        }
+    }
+
+    /*
+     * If an IP version has been specified, use it to set the address family.
+     */
+    switch (ft) {
+    case 4:
+        af = AF_INET;
+        break;
+
+#if defined(HASIPv6)
+    case 6:
+        af = AF_INET6;
+        break;
+#endif /* defined(HASIPv6) */
+    }
+
+    /*
+     * Process protocol name, optionally followed by a '@' and a host name or
+     * Internet address, or a ':' and a service name or port number.
+     */
+    if (*wa && *wa != '@' && *wa != ':') {
+        for (p = wa; *wa && *wa != '@' && *wa != ':'; wa++)
+            ;
+        if ((l = wa - p)) {
+            if (!(str_proto = mkstrcat(p, l, (char *)NULL, -1, (char *)NULL, -1,
+                                       (MALLOC_S *)NULL))) {
+                if (ctx->err) {
+                    (void)fprintf(ctx->err,
+                                  "%s: no space for protocol name from: -i ",
+                                  Pn);
+                    safestrprt(na, ctx->err, 1);
+                }
+                ret = LSOF_ERROR_NO_MEMORY;
+                goto cleanup;
+            }
+            /*
+             * The protocol name should be "tcp", "udp" or "udplite".
+             */
+            if (strcasecmp(str_proto, "tcp") == 0) {
+                proto = LSOF_PROTOCOL_TCP;
+            } else if (strcasecmp(str_proto, "udp") == 0) {
+                proto = LSOF_PROTOCOL_UDP;
+            } else if (strcasecmp(str_proto, "udplite") == 0) {
+                proto = LSOF_PROTOCOL_UDPLITE;
+            } else {
+                if (ctx->err) {
+                    (void)fprintf(ctx->err,
+                                  "%s: unknown protocol name (%s) in: -i ", Pn,
+                                  str_proto);
+                    safestrprt(na, ctx->err, 1);
+                }
+                ret = LSOF_ERROR_INVALID_ARGUMENT;
+                goto cleanup;
+            }
+            /*
+             * Convert protocol name to lower case.
+             */
+            for (p = str_proto; *p; p++) {
+                if (*p >= 'A' && *p <= 'Z')
+                    *p = *p - 'A' + 'a';
+            }
+        }
+    }
+
+    /*
+     * Process an IPv4 address (1.2.3.4), IPv6 address ([1:2:3:4:5:6:7:8]),
+     * or host name, preceded by a '@' and optionally followed by a colon
+     * and a service name or port number.
+     */
+    if (*wa == '@') {
+        wa++;
+        if (!*wa || *wa == ':') {
+
+#if defined(HASIPv6)
+        unacc_address:
+#endif /* defined(HASIPv6) */
+            if (ctx->err) {
+                (void)fprintf(ctx->err,
+                              "%s: unacceptable Internet address in: -i ", Pn);
+                safestrprt(na, ctx->err, 1);
+            }
+            ret = LSOF_ERROR_INVALID_ARGUMENT;
+            goto cleanup;
+        }
+
+        if ((p = isIPv4addr(wa, a, sizeof(a)))) {
+
+            /*
+             * Process IPv4 address.
+             */
+            if (ft == 6) {
+                if (ctx->err) {
+                    (void)fprintf(ctx->err,
+                                  "%s: IPv4 addresses are prohibited: -i ", Pn);
+                    safestrprt(na, ctx->err, 1);
+                }
+                ret = LSOF_ERROR_INVALID_ARGUMENT;
+                goto cleanup;
+            }
+            wa = p;
+            af = AF_INET;
+        } else if (*wa == '[') {
+
+#if defined(HASIPv6)
+            /*
+             * Make sure IPv6 addresses are permitted.  If they are, assemble
+             * one.
+             */
+            if (ft == 4) {
+                if (ctx->err) {
+                    (void)fprintf(ctx->err,
+                                  "%s: IPv6 addresses are prohibited: -i ", Pn);
+                    safestrprt(na, ctx->err, 1);
+                }
+                ret = LSOF_ERROR_INVALID_ARGUMENT;
+                goto cleanup;
+            }
+            if (!(cp = strrchr(++wa, ']')))
+                goto unacc_address;
+            *cp = '\0';
+            i = inet_pton(AF_INET6, wa, (void *)&a);
+            *cp = ']';
+            if (i != 1)
+                goto unacc_address;
+            for (ae = i = 0; i < MAX_AF_ADDR; i++) {
+                if ((ae |= a[i]))
+                    break;
+            }
+            if (!ae)
+                goto unacc_address;
+            if (IN6_IS_ADDR_V4MAPPED((struct in6_addr *)&a[0])) {
+                if (ft == 6) {
+                    if (ctx->err) {
+
+                        (void)fprintf(ctx->err,
+                                      "%s: IPv4 addresses are prohibited: -i ",
+                                      Pn);
+                        safestrprt(na, ctx->err, 1);
+                    }
+                    ret = LSOF_ERROR_INVALID_ARGUMENT;
+                    goto cleanup;
+                }
+                for (i = 0; i < 4; i++) {
+                    a[i] = a[i + 12];
+                }
+                af = AF_INET;
+            } else
+                af = AF_INET6;
+            wa = cp + 1;
+#else  /* !defined(HASIPv6) */
+            if (ctx->err) {
+                (void)fprintf(ctx->err, "%s: unsupported IPv6 address in: -i ",
+                              Pn);
+                safestrprt(na, ctx->err, 1);
+            }
+            ret = LSOF_ERROR_UNSUPPORTED;
+            goto cleanup;
+#endif /* defined(HASIPv6) */
+
+        } else {
+
+            /*
+             * Assemble host name.
+             */
+            for (p = wa; *p && *p != ':'; p++)
+                ;
+            if ((l = p - wa)) {
+                if (!(hn = mkstrcat(wa, l, (char *)NULL, -1, (char *)NULL, -1,
+                                    (MALLOC_S *)NULL))) {
+                    if (ctx->err) {
+                        (void)fprintf(ctx->err,
+                                      "%s: no space for host name: -i ", Pn);
+                        safestrprt(na, ctx->err, 1);
+                    }
+                    ret = LSOF_ERROR_NO_MEMORY;
+                    goto cleanup;
+                }
+
+                /* Resolve hostnames */
+                memset(&hint, 0, sizeof(hint));
+                hint.ai_family = af;
+
+                if (getaddrinfo(hn, NULL, &hint, &he)) {
+                    if (ctx->err) {
+                        fprintf(ctx->err, "%s: unknown host name (%s) in: -i ",
+                                Pn, hn);
+                        safestrprt(na, ctx->err, 1);
+                    }
+                    ret = LSOF_ERROR_INVALID_ARGUMENT;
+                    goto cleanup;
+                }
+            }
+            wa = p;
+        }
+    }
+    /*
+     * If there is no port number, enter the address.
+     */
+    if (!*wa)
+        goto nwad_enter;
+    /*
+     * Process a service name or port number list, preceded by a colon.
+     *
+     * Entries of the list are separated with commas; elements of a numeric
+     * range are specified with a separating minus sign (`-'); all service names
+     * must belong to the same protocol; embedded spaces are not allowed.  An
+     * embedded minus sign in a name is taken to be part of the name, the
+     * starting entry of a range can't be a service name.
+     */
+    if (*wa != ':' || *(wa + 1) == '\0') {
+
+    unacc_port:
+        if (ctx->err) {
+
+            (void)fprintf(ctx->err,
+                          "%s: unacceptable port specification in: -i ", Pn);
+            safestrprt(na, ctx->err, 1);
+        }
+        ret = LSOF_ERROR_INVALID_ARGUMENT;
+        goto cleanup;
+    }
+    for (++wa; wa && *wa; wa++) {
+        for (ep = pr = sp = 0; *wa; wa++) {
+            if (*wa < '0' || *wa > '9') {
+
+                /*
+                 * Convert service name to port number, using already-specified
+                 * protocol name.  A '-' is taken to be part of the name; hence
+                 * the starting entry of a range can't be a service name.
+                 */
+                for (p = wa; *wa && *wa != ','; wa++)
+                    ;
+                if (!(l = wa - p)) {
+                    if (ctx->err) {
+                        (void)fprintf(ctx->err, "%s: invalid service name: -i ",
+                                      Pn);
+                        safestrprt(na, ctx->err, 1);
+                    }
+                    ret = LSOF_ERROR_INVALID_ARGUMENT;
+                    goto cleanup;
+                }
+                if (sn) {
+                    if (l > snl) {
+                        sn = (char *)realloc((MALLOC_P *)sn, l + 1);
+                        snl = l;
+                    }
+                } else {
+                    sn = (char *)malloc(l + 1);
+                    snl = l;
+                }
+                if (!sn) {
+                    if (ctx->err) {
+                        (void)fprintf(ctx->err,
+                                      "%s: no space for service name: -i ", Pn);
+                        safestrprt(na, ctx->err, 1);
+                    }
+                    ret = LSOF_ERROR_INVALID_ARGUMENT;
+                    goto cleanup;
+                }
+                (void)strncpy(sn, p, l);
+                *(sn + l) = '\0';
+                if (proto != LSOF_PROTOCOL_INVALID) {
+                    /*
+                     * If the protocol has been specified, look up the port
+                     * number for the service name for the specified protocol.
+                     */
+                    if (!(se = getservbyname(sn, str_proto))) {
+                        if (ctx->err) {
+                            (void)fprintf(
+                                ctx->err,
+                                "%s: unknown service %s for %s in: -i ", Pn, sn,
+                                proto);
+                            safestrprt(na, ctx->err, 1);
+                        }
+                        ret = LSOF_ERROR_INVALID_ARGUMENT;
+                        goto cleanup;
+                    }
+                    pt = (int)ntohs(se->s_port);
+                } else {
+
+                    /*
+                     * If no protocol has been specified, look up the port
+                     * numbers for the service name for both TCP and UDP.
+                     */
+                    if ((se = getservbyname(sn, "tcp")))
+                        pt = (int)ntohs(se->s_port);
+                    if ((se1 = getservbyname(sn, "udp")))
+                        pu = (int)ntohs(se1->s_port);
+                    if (!se && !se1) {
+                        if (ctx->err) {
+                            (void)fprintf(ctx->err,
+                                          "%s: unknown service %s in: -i ", Pn,
+                                          sn);
+                            safestrprt(na, ctx->err, 1);
+                        }
+                        ret = LSOF_ERROR_INVALID_ARGUMENT;
+                        goto cleanup;
+                    }
+                    if (se && se1 && pt != pu) {
+                        if (ctx->err) {
+                            (void)fprintf(
+                                ctx->err,
+                                "%s: TCP=%d and UDP=%d %s ports conflict;\n",
+                                Pn, pt, pu, sn);
+                            (void)fprintf(
+                                ctx->err,
+                                "      specify \"tcp:%s\" or \"udp:%s\": -i ",
+                                sn, sn);
+                            safestrprt(na, ctx->err, 1);
+                        }
+                        ret = LSOF_ERROR_INVALID_ARGUMENT;
+                        goto cleanup;
+                    }
+                    if (!se && se1)
+                        pt = pu;
+                }
+                if (pr)
+                    ep = pt;
+                else {
+                    sp = pt;
+                    if (*wa == '-')
+                        pr++;
+                }
+            } else {
+
+                /*
+                 * Assemble port number.
+                 */
+                for (; *wa && *wa != ','; wa++) {
+                    if (*wa == '-') {
+                        if (pr)
+                            goto unacc_port;
+                        pr++;
+                        break;
+                    }
+                    if (*wa < '0' || *wa > '9')
+                        goto unacc_port;
+                    if (pr)
+                        ep = (ep * 10) + *wa - '0';
+                    else
+                        sp = (sp * 10) + *wa - '0';
+                }
+            }
+            if (!*wa || *wa == ',')
+                break;
+            if (pr)
+                continue;
+            goto unacc_port;
+        }
+        if (!pr)
+            ep = sp;
+        if (ep < sp)
+            goto unacc_port;
+        /*
+         * Enter completed port or port range specification.
+         */
+
+    nwad_enter:
+
+        for (; he; he = he->ai_next) {
+            if (he->ai_family == AF_INET &&
+                he->ai_addrlen == sizeof(struct sockaddr_in) && he->ai_addr) {
+                struct sockaddr_in *in = (struct sockaddr_in *)he->ai_addr;
+                addr_len = sizeof(struct in_addr);
+                addr = &in->sin_addr;
+            } else if (he->ai_family == AF_INET6 &&
+                       he->ai_addrlen == sizeof(struct sockaddr_in6) &&
+                       he->ai_addr) {
+                struct sockaddr_in6 *in6 = (struct sockaddr_in6 *)he->ai_addr;
+                addr_len = sizeof(struct in6_addr);
+                addr = &in6->sin6_addr;
+            } else {
+                continue;
+            }
+            if ((ret = lsof_select_inet_internal(ctx, na, proto, af, addr_len,
+                                                 addr, sp, ep))) {
+                goto cleanup;
+            }
+        }
+        if (!*wa)
+            break;
+    }
+
+cleanup:
+    if (he) {
+        freeaddrinfo(he);
+    }
+    CLEAN(str_proto);
+    CLEAN(hn);
+    CLEAN(sn);
+    return ret;
 }
 
 API_EXPORT
@@ -1320,7 +2032,7 @@ enum lsof_error lsof_select_solaris_zone(struct lsof_context *ctx, char *zn) {
      * Create a new hash entry and link it to its bucket.
      */
     if (!(zpn = (znhash_t *)malloc((MALLOC_S)sizeof(znhash_t)))) {
-        (void)fprintf(stderr, "%s no hash space for zone: %s\n", Pn, zn);
+        (void)fprintf(ctx->err, "%s no hash space for zone: %s\n", Pn, zn);
         Error(ctx);
         return LSOF_ERROR_NO_MEMORY;
     }

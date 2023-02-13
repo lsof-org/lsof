@@ -572,14 +572,14 @@ closed:
             break;
         case 'i':
             if (!GOv || *GOv == '-' || *GOv == '+') {
-                lsof_select_inet(ctx, 0);
+                lsof_select_ip(ctx, 0);
                 if (GOv) {
                     GOx1 = GObk[0];
                     GOx2 = GObk[1];
                 }
                 break;
             }
-            if (enter_network_address(GOv))
+            if (lsof_select_inet_string(ctx, GOv))
                 err = 1;
             break;
 
