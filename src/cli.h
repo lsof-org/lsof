@@ -45,6 +45,7 @@ extern int Fsv;
 extern int FsvByf;
 extern int Fsize;
 extern int Foffset;
+extern int CmdLim;
 
 _PROTOTYPE(extern void print_tcptpi, (struct lsof_context * ctx, int nl));
 

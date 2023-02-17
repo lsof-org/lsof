@@ -992,8 +992,8 @@ static void prt_pinfo(struct lsof_context *ctx, pxinfo_t *pp, /* peer info */
     ep = &Lproc[pp->lpx];
     ef = pp->lf;
     print_fd(ef->fd_type, ef->fd_num, fd);
-    (void)snpf(nma, sizeof(nma) - 1, "%d,%.*s,%s%c", ep->pid, CmdLim, ep->cmd,
-               fd, print_access(ef->access));
+    (void)snpf(nma, sizeof(nma) - 1, "%d,%s,%s%c", ep->pid, ep->cmd, fd,
+               print_access(ef->access));
     (void)add_nma(ctx, nma, strlen(nma));
     if (ps) {
 
@@ -1091,8 +1091,8 @@ static void prt_psxmqinfo(struct lsof_context *ctx,
     ep = &Lproc[pp->lpx];
     ef = pp->lf;
     print_fd(ef->fd_type, ef->fd_num, fd);
-    (void)snpf(nma, sizeof(nma) - 1, "%d,%.*s,%s%c", ep->pid, CmdLim, ep->cmd,
-               fd, print_access(ef->access));
+    (void)snpf(nma, sizeof(nma) - 1, "%d,%s,%s%c", ep->pid, ep->cmd, fd,
+               print_access(ef->access));
     (void)add_nma(ctx, nma, strlen(nma));
     if (ps) {
 
@@ -1190,8 +1190,8 @@ static void prt_evtfdinfo(struct lsof_context *ctx,
     ep = &Lproc[pp->lpx];
     ef = pp->lf;
     print_fd(ef->fd_type, ef->fd_num, fd);
-    (void)snpf(nma, sizeof(nma) - 1, "%d,%.*s,%s%c", ep->pid, CmdLim, ep->cmd,
-               fd, print_access(ef->access));
+    (void)snpf(nma, sizeof(nma) - 1, "%d,%s,%s%c", ep->pid, ep->cmd, fd,
+               print_access(ef->access));
     (void)add_nma(ctx, nma, strlen(nma));
     if (ps) {
 
@@ -1304,12 +1304,12 @@ static void prt_ptyinfo(struct lsof_context *ctx, pxinfo_t *pp, /* peer info */
     ef = pp->lf;
     print_fd(ef->fd_type, ef->fd_num, fd);
     if (prt_edev) {
-        (void)snpf(nma, sizeof(nma) - 1, "->/dev/pts/%d %d,%.*s,%s%c",
-                   Lf->tty_index, ep->pid, CmdLim, ep->cmd, fd,
+        (void)snpf(nma, sizeof(nma) - 1, "->/dev/pts/%d %d,%s,%s%c",
+                   Lf->tty_index, ep->pid, ep->cmd, fd,
                    print_access(ef->access));
     } else {
-        (void)snpf(nma, sizeof(nma) - 1, "%d,%.*s,%s%c", ep->pid, CmdLim,
-                   ep->cmd, fd, print_access(ef->access));
+        (void)snpf(nma, sizeof(nma) - 1, "%d,%s,%s%c", ep->pid, ep->cmd, fd,
+                   print_access(ef->access));
     }
     (void)add_nma(ctx, nma, strlen(nma));
     if (ps) {

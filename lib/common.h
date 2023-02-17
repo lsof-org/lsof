@@ -1090,7 +1090,6 @@ struct lsof_context {
     struct str_lst *sel_cmds;
     int sel_cmd_incl;   /* number of command name inclusions selected with -c */
     int sel_cmd_excl;   /* number of command name exclusions selected with -c */
-    int cmd_name_limit; /* COMMAND column width limit */
 
     int time_limit; /* Readlink() and stat() timeout (seconds) */
 
@@ -1370,8 +1369,6 @@ struct lsof_context {
 #    define MntSupP (ctx->mnt_sup_path)
 /* nlink limit */
 #    define Nlink (ctx->nlink)
-/* command name limit */
-#    define CmdLim (ctx->cmd_name_limit)
 /* Time limit */
 #    define TmLimit (ctx->time_limit)
 /* number of unselected PIDs */

@@ -61,8 +61,6 @@ struct lsof_context *lsof_new() {
         Namechl = (size_t)(MAXPATHLEN + 1);
         /* all processes are selected (default) */
         AllProc = 1;
-        /* default command name limit */
-        ctx->cmd_name_limit = CMDL;
         /* Readlink() and stat() timeout (seconds) */
         TmLimit = TMLIMIT;
         /* Fdl[] type: -1 == none */

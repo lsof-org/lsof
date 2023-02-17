@@ -35,7 +35,6 @@
  * Global storage definitions
  */
 
-
 int CkPasswd = 0; /* time to check /etc/passwd for change */
 
 #if defined(HAS_STD_CLONE)
@@ -43,7 +42,8 @@ struct clone *Clone = (struct clone *)NULL;
 /* clone device list */
 #endif /* defined(HAS_STD_CLONE) */
 
-int CmdColW; /* COMMAND column width */
+int CmdColW;       /* COMMAND column width */
+int CmdLim = CMDL; /* COMMAND column width limit */
 
 #if defined(HASSELINUX)
 int CntxColW;       /* security context column width */
@@ -52,7 +52,7 @@ int CntxStatus = 0; /* security context status: 0 == disabled,
 #endif              /* defined(HASSELINUX) */
 
 #if defined(HASDCACHE)
-#endif             /* defined(HASDCACHE) */
+#endif /* defined(HASDCACHE) */
 
 int DChelp = 0; /* -D? status */
 
@@ -62,14 +62,14 @@ int DevColW; /* DEVICE column width */
  * Externals for a stkdir(), dumbed-down for older AIX compilers.
  */
 
-uid_t Euid;                  /* effective UID of this lsof process */
-int FcColW;                  /* FCT column width */
-int Fcntx = 0;               /* -Z option status */
-int FdColW;                  /* FD column width */
-int Ffilesys = 0;            /* -f option status:
-                              *    0 = paths may be file systems
-                              *    1 = paths are just files
-                              *    2 = paths must be file systems */
+uid_t Euid;       /* effective UID of this lsof process */
+int FcColW;       /* FCT column width */
+int Fcntx = 0;    /* -Z option status */
+int FdColW;       /* FD column width */
+int Ffilesys = 0; /* -f option status:
+                   *    0 = paths may be file systems
+                   *    1 = paths are just files
+                   *    2 = paths must be file systems */
 
 #if defined(HASNCACHE)
 int NcacheReload = 1; /* 1 == call ncache_load() */
@@ -144,28 +144,28 @@ struct fieldsel FieldSel[] = {
     {LSOF_FID_TERM, 0, LSOF_FNM_TERM, NULL, 0},                  /* 30 */
     {' ', 0, NULL, NULL, 0}};
 
-int Hdr = 0;                 /* header print status */
-int LastPid = -1;            /* last PID listed (for eliminating duplicates
-                              * in terse output) */
+int Hdr = 0;      /* header print status */
+int LastPid = -1; /* last PID listed (for eliminating duplicates
+                   * in terse output) */
 
 #if defined(HASPROCFS)
 #endif /* defined(HASPROCFS) */
 
-int NlColW;                 /* NLINK column width */
-int NmColW;                 /* NAME column width */
-int NodeColW;               /* NODE column width */
+int NlColW;   /* NLINK column width */
+int NmColW;   /* NAME column width */
+int NodeColW; /* NODE column width */
 /* list of network addresses */
 int OffDecDig = OFFDECDIG; /* offset decimal form (0t...) digit limit */
 int OffColW;               /* OFFSET column width */
 int PgidColW;              /* PGID column width */
 int PidColW;               /* PID column width */
-int PpidColW; /* PPID column width */
+int PpidColW;              /* PPID column width */
 
-int PrPass = 0;      /* print pass: 0 = compute column widths
-                      *	       1 = print */
-int RptTm = 0;       /* repeat time -- set by -r */
-int RptMaxCount = 0; /* count of repeasts: 0 = no limit
-                      * -- set by -r */
+int PrPass = 0;                   /* print pass: 0 = compute column widths
+                                   *	       1 = print */
+int RptTm = 0;                    /* repeat time -- set by -r */
+int RptMaxCount = 0;              /* count of repeasts: 0 = no limit
+                                   * -- set by -r */
 int SzColW;                       /* SIZE column width */
 int SzOffColW;                    /* SIZE/OFF column width */
 char *SzOffFmt_0t = (char *)NULL; /* SZOFFTYPE 0t%u printf specification */
