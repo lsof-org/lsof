@@ -916,6 +916,29 @@ enum lsof_error lsof_select_solaris_zone(struct lsof_context *ctx, char *zone);
 enum lsof_error lsof_select_selinux_context(struct lsof_context *ctx,
                                             char *context);
 
+/** flags for lsof_select_file() */
+enum lsof_select_file_flags {
+    /** The path must point to files */
+    LSOF_SELECT_FILE_ONLY_FILES = 0x00000001,
+    /** The path must point to file system */
+    LSOF_SELECT_FILE_ONLY_FILE_SYSTEMS = 0x00000002,
+    /** Accepted deleted paths */
+    LSOF_SELECT_FILE_ACCEPT_DELETED = 0x00000004
+};
+
+/** Ask lsof to select files by path
+ *
+ * The path can point to a file or a file system. If the path matches a
+ * mounted-on directory of a file system, liblsof will list all files open on
+ * the file system.
+ *
+ * You can call this function multiple times to add more search conditions.
+ *
+ * \since API version 1
+ */
+enum lsof_error lsof_select_file(struct lsof_context *ctx, char *path,
+                                 int flags);
+
 /** Ask lsof to exempt file system for blocking stat, lstat and readlink
  * calls
  *

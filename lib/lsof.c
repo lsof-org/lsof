@@ -2436,3 +2436,35 @@ cleanup:
     }
     return ((int)err);
 }
+
+enum lsof_error lsof_select_file(struct lsof_context *ctx, char *path,
+                                 int flags) {
+
+    int fv = 0;
+    int accept_deleted_file = 0;
+    if (!ctx || ctx->frozen) {
+        return LSOF_ERROR_INVALID_ARGUMENT;
+    }
+
+    if (flags &
+        (LSOF_SELECT_FILE_ONLY_FILES | LSOF_SELECT_FILE_ONLY_FILE_SYSTEMS)) {
+        /* conflcit */
+        return LSOF_ERROR_INVALID_ARGUMENT;
+    } else if (flags & LSOF_SELECT_FILE_ONLY_FILES) {
+        /* paths are files */
+        fv = 1;
+    } else if (flags & LSOF_SELECT_FILE_ONLY_FILE_SYSTEMS) {
+        /* paths are file systems */
+        fv = 2;
+    }
+
+    if (flags & LSOF_SELECT_FILE_ACCEPT_DELETED) {
+        accept_deleted_file = 1;
+    }
+
+    if (ck_file_arg(ctx, path, fv, 0, NULL, accept_deleted_file)) {
+        return LSOF_ERROR_INVALID_ARGUMENT;
+    }
+
+    return LSOF_SUCCESS;
+}
