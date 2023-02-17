@@ -276,7 +276,7 @@ closed:
 #endif /* defined(HAS_AFS) && defined(HASAOPT) */
 
         case 'b':
-            lsof_avoid_blocking(ctx);
+            lsof_avoid_blocking(ctx, 1);
             break;
         case 'c':
             if (GOp == '+') {
@@ -314,7 +314,7 @@ closed:
 
 #if defined(HASNCACHE)
         case 'C':
-            Fncache = (GOp == '-') ? 0 : 1;
+            lsof_use_name_cache(ctx, (GOp == '-') ? 0 : 1);
             break;
 
 #endif /* defined(HASNCACHE) */

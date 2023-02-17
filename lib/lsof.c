@@ -77,8 +77,14 @@ struct lsof_context *lsof_new() {
          *  3 = update; read and rebuild if
          *	    necessary (-Du[path]) */
         ctx->dev_cache_state = 3;
-        /* enable name cache */
+        /* enable name cache by default */
         Fncache = 1;
+
+#if defined(WARNINGSTATE)
+        Fwarn = 1; /* +|-w option status */
+#else              /* !defined(WARNINGSTATE) */
+        Fwarn = 0; /* +|-w option status */
+#endif             /* defined(WARNINGSTATE) */
     }
     return ctx;
 }
@@ -787,11 +793,11 @@ enum lsof_error lsof_select_login(struct lsof_context *ctx, char *login,
 }
 
 API_EXPORT
-enum lsof_error lsof_avoid_blocking(struct lsof_context *ctx) {
+enum lsof_error lsof_avoid_blocking(struct lsof_context *ctx, int avoid) {
     if (!ctx || ctx->frozen) {
         return LSOF_ERROR_INVALID_ARGUMENT;
     }
-    Fblock = 1;
+    Fblock = avoid;
     return LSOF_SUCCESS;
 }
 
@@ -1881,7 +1887,7 @@ enum lsof_error lsof_exempt_fs(struct lsof_context *ctx, char *orig_path,
     }
 
     if (!orig_path || (*orig_path != '/')) {
-        if (ctx->err && ctx->warn) {
+        if (ctx->err && !Fwarn) {
             (void)fprintf(ctx->err,
                           "%s: -e not followed by a file system path: \"%s\"\n",
                           Pn, orig_path);
@@ -2113,7 +2119,11 @@ enum lsof_error lsof_select_selinux_context(struct lsof_context *ctx,
  * ck_file_arg() - check file arguments
  */
 int ck_file_arg(struct lsof_context *ctx, char *arg, /* argument */
-                int fv,           /* Ffilesys value (real or temporary) */
+                int fv,           /* Ffilesys value (real or temporary)
+                                   *    0 = paths may be file systems
+                                   *    1 = paths are just files
+                                   *    2 = paths must be file systems
+                                   */
                 int rs,           /* Readlink() status if argument count == 1:
                                    *	0 = undone, 1 = done */
                 struct stat *sbp, /* if non-NULL, pointer to stat(2) buffer
@@ -2489,6 +2499,16 @@ enum lsof_error lsof_select_file(struct lsof_context *ctx, char *path,
     if (ck_file_arg(ctx, path, fv, 0, NULL, accept_deleted_file)) {
         return LSOF_ERROR_INVALID_ARGUMENT;
     }
+
+    return LSOF_SUCCESS;
+}
+
+enum lsof_error lsof_use_name_cache(struct lsof_context *ctx, int enable) {
+    if (!ctx || ctx->frozen) {
+        return LSOF_ERROR_INVALID_ARGUMENT;
+    }
+
+    Fncache = enable;
 
     return LSOF_SUCCESS;
 }

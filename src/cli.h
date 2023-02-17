@@ -37,15 +37,55 @@
 /* Global ctx in cli */
 extern struct lsof_context *ctx;
 
-extern char Terminator;
+struct fieldsel {
+    char id;          /* field ID character */
+    unsigned char st; /* field status */
+    char *nm;         /* field name */
+    int *opt;         /* option variable address */
+    int ov;           /* value to OR with option variable */
+};
+extern struct fieldsel FieldSel[];
+
+#    define LSOF_SEARCH_FAILURE                                                \
+        (FsearchErr ? LSOF_EXIT_ERROR : LSOF_EXIT_SUCCESS)
+
+extern int CmdLim;
+
+extern int Fcntx;
 extern int Ffield;
-extern int Ftcptpi;
+extern int Ffilesys;
+extern int Fhelp;
+extern int Fhuman;
+extern int Fhost;
 extern int Fnlink;
+extern int Foffset;
+extern int Fpgid;
+extern int Fppid;
+extern int Fport;
+extern int FsearchErr;
 extern int Fsv;
 extern int FsvByf;
+extern int FsvFlagX;
 extern int Fsize;
-extern int Foffset;
-extern int CmdLim;
+extern int Fterse;
+extern int Ftcptpi;
+extern int Futol;
+extern int Fverbose;
+extern int Fxover;
+extern int Fzone;
+
+extern int CntxStatus;
+
+extern char Terminator;
+
+extern int RptTm;
+extern int RptMaxCount;
+
+extern int OffDecDig;
+
+#    if !defined(HASNORPC_H)
+extern int FportMap;
+#    endif /* !defined(HASNORPC_H) */
 
 _PROTOTYPE(extern void print_tcptpi, (struct lsof_context * ctx, int nl));
 

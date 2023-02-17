@@ -584,8 +584,6 @@ enum ExitStatus {
     LSOF_EXIT_SUCCESS,
     LSOF_EXIT_ERROR,
 };
-#    define LSOF_SEARCH_FAILURE                                                \
-        (FsearchErr ? LSOF_EXIT_ERROR : LSOF_EXIT_SUCCESS)
 
 /*
  * Structure definitions
@@ -674,7 +672,6 @@ typedef struct cntxlist {
     int f;                 /* "find" flag (used only in CntxArg) */
     struct cntxlist *next; /* next zone hash entry */
 } cntxlist_t;
-extern int CntxStatus;
 
 #    if defined(HASDCACHE)
 extern unsigned DCcksum;
@@ -690,32 +687,10 @@ extern char **Dstk;
 extern int Dstkn;
 extern int Dstkx;
 extern uid_t Euid;
-extern int Fcntx;
-extern int Ffilesys;
-extern int Fhelp;
-extern int Fhost;
 
 #    if defined(HASNCACHE)
 extern int NcacheReload;
 #    endif /* defined(HASNCACHE) */
-
-extern int Fport;
-
-#    if !defined(HASNORPC_H)
-extern int FportMap;
-#    endif /* !defined(HASNORPC_H) */
-
-extern int Fpgid;
-extern int Fppid;
-extern int FsearchErr;
-extern int Fhuman;
-extern int FsvFlagX;
-extern int Fterse;
-extern int Futol;
-extern int Fverbose;
-
-extern int Fxover;
-extern int Fzone;
 
 #    include "lsof.h"
 
@@ -726,15 +701,6 @@ struct fd_lst {
     int hi;                    /* range end (if nm NULL) */
     struct fd_lst *next;
 };
-
-struct fieldsel {
-    char id;          /* field ID character */
-    unsigned char st; /* field status */
-    char *nm;         /* field name */
-    int *opt;         /* option variable address */
-    int ov;           /* value to OR with option variable */
-};
-extern struct fieldsel FieldSel[];
 
 extern int Hdr;
 
@@ -967,8 +933,6 @@ struct nwad {
     struct nwad *next;            /* forward link */
 };
 
-extern int OffDecDig;
-
 #    if defined(HASFSTRUCT)
 extern struct pff_tab Pff_tab[]; /* file flags table */
 extern struct pff_tab Pof_tab[]; /* process open file flags table */
@@ -990,8 +954,6 @@ struct procfsid {
 #    endif /* defined(HASPROCFS) */
 
 extern int PrPass;
-extern int RptTm;
-extern int RptMaxCount;
 extern int Setgid;
 extern int Setuidroot;
 extern char *SzOffFmt_0t;

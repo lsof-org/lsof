@@ -690,11 +690,11 @@ enum lsof_error lsof_exit_on_fatal(struct lsof_context *ctx, int exit);
 /** Ask lsof to avoid using blocking functions
  *
  * lsof may block when calling lstat(), readlink() or stat(). Call this function
- * to let lsof avoid calling these functions.
+ * with `avoid=1` to let lsof avoid calling these functions.
  *
  * \since API version 1
  */
-enum lsof_error lsof_avoid_blocking(struct lsof_context *ctx);
+enum lsof_error lsof_avoid_blocking(struct lsof_context *ctx, int avoid);
 
 /** Ask lsof to avoid forking
  *
@@ -948,6 +948,12 @@ enum lsof_error lsof_select_file(struct lsof_context *ctx, char *path,
  */
 enum lsof_error lsof_exempt_fs(struct lsof_context *ctx, char *path,
                                int avoid_readlink);
+
+/** Ask lsof to enable or disable getting file path from kernel vfs name cache
+ *
+ * \since API version 1
+ */
+enum lsof_error lsof_use_name_cache(struct lsof_context *ctx, int enable);
 
 /** Freeze the lsof context
  *
