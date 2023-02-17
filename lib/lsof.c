@@ -2088,3 +2088,351 @@ enum lsof_error lsof_select_selinux_context(struct lsof_context *ctx,
     return LSOF_ERROR_UNSUPPORTED;
 #endif /* defined(HASSELINUX) */
 }
+
+/*
+ * ck_file_arg() - check file arguments
+ */
+int ck_file_arg(struct lsof_context *ctx, char *arg, /* argument */
+                int fv,           /* Ffilesys value (real or temporary) */
+                int rs,           /* Readlink() status if argument count == 1:
+                                   *	0 = undone, 1 = done */
+                struct stat *sbp, /* if non-NULL, pointer to stat(2) buffer
+                                   * when argument count == 1 */
+                int accept_deleted_file) /* if non-zero, don't report an error
+                                          * even when the file doesn't exist. */
+{
+    char *ap, *fnm, *fsnm, *path;
+    short err = 0;
+    int fsm, ftype, j, k;
+    MALLOC_S l;
+    struct mounts *mp;
+    struct mounts **mmp = (struct mounts **)NULL;
+    int mx, nm;
+    static int nma = 0;
+    struct stat sb;
+    struct sfile *sfp;
+    short ss = 0;
+    int err_stat = 0;
+
+#if defined(HASPROCFS)
+    unsigned char ad, an;
+    int pfsnl = -1;
+    pid_t pid;
+    struct procfsid *pfi;
+#endif /* defined(HASPROCFS) */
+
+    if (rs)
+        path = arg;
+    else {
+        if (!(path = Readlink(ctx, arg))) {
+            err_stat = 1;
+            goto cleanup;
+        }
+    }
+    /*
+     * Remove terminating `/' characters from paths longer than one.
+     */
+    j = k = strlen(path);
+    while ((k > 1) && (path[k - 1] == '/')) {
+        k--;
+    }
+    if (k < j) {
+        if (path != arg)
+            path[k] = '\0';
+        else {
+            if (!(ap = (char *)malloc((MALLOC_S)(k + 1)))) {
+                (void)fprintf(stderr, "%s: no space for copy of %s\n", Pn,
+                              path);
+                Error(ctx);
+                return 1;
+            }
+            (void)strncpy(ap, path, k);
+            ap[k] = '\0';
+            path = ap;
+        }
+    }
+    /*
+     * Check for file system argument.
+     */
+    for (ftype = 1, mp = readmnt(ctx), nm = 0; (fv != 1) && mp; mp = mp->next) {
+        fsm = 0;
+        if (strcmp(mp->dir, path) == 0)
+            fsm++;
+        else if (fv == 2 || (mp->fs_mode & S_IFMT) == S_IFBLK) {
+            if (mp->fsnmres && strcmp(mp->fsnmres, path) == 0)
+                fsm++;
+        }
+        if (!fsm)
+            continue;
+        ftype = 0;
+        /*
+         * Skip duplicates.
+         */
+        for (mx = 0; mx < nm; mx++) {
+            if (strcmp(mp->dir, mmp[mx]->dir) == 0 && mp->dev == mmp[mx]->dev &&
+                mp->rdev == mmp[mx]->rdev && mp->inode == mmp[mx]->inode)
+                break;
+        }
+        if (mx < nm)
+            continue;
+        /*
+         * Allocate space for and save another mount point match and
+         * the type of match -- directory name (mounted) or file system
+         * name (mounted-on).
+         */
+        if (nm >= nma) {
+            nma += 5;
+            l = (MALLOC_S)(nma * sizeof(struct mounts *));
+            if (mmp)
+                mmp = (struct mounts **)realloc((MALLOC_P *)mmp, l);
+            else
+                mmp = (struct mounts **)malloc(l);
+            if (!mmp) {
+                (void)fprintf(stderr, "%s: no space for mount pointers\n", Pn);
+                Error(ctx);
+                return (1);
+            }
+        }
+        mmp[nm++] = mp;
+    }
+    if (fv == 2 && nm == 0) {
+        if (!accept_deleted_file) {
+            (void)fprintf(stderr, "%s: not a file system: ", Pn);
+            safestrprt(arg, stderr, 1);
+        }
+        err_stat = 1;
+        goto cleanup;
+    }
+    /*
+     * Loop through the file system matches.  If there were none, make one
+     * pass through the loop, using simply the path name.
+     */
+    mx = 0;
+    do {
+
+        /*
+         * Allocate an sfile structure and fill in the type and link.
+         */
+        if (!(sfp = (struct sfile *)malloc(sizeof(struct sfile)))) {
+            (void)fprintf(stderr, "%s: no space for files\n", Pn);
+            Error(ctx);
+            return (1);
+        }
+        sfp->next = Sfile;
+        Sfile = sfp;
+        sfp->f = 0;
+        if ((sfp->type = ftype)) {
+
+            /*
+             * For a non-file system path, use the path as the file name
+             * and set a NULL file system name.
+             */
+            fnm = path;
+            fsnm = (char *)NULL;
+            /*
+             * Stat the path to obtain its characteristics.
+             */
+            if (sbp)
+                sb = *sbp;
+            else {
+                if (statsafely(ctx, fnm, &sb) != 0) {
+                    int en = errno;
+                    if (!accept_deleted_file) {
+                        (void)fprintf(stderr, "%s: status error on ", Pn);
+                        safestrprt(fnm, stderr, 0);
+                        (void)fprintf(stderr, ": %s\n", strerror(en));
+                    }
+                    Sfile = sfp->next;
+                    err_stat = 1;
+                    CLEAN(sfp);
+                    CLEAN(path);
+                    continue;
+                }
+
+#if defined(HASSPECDEVD)
+                (void)HASSPECDEVD(ctx, fnm, &sb);
+#endif /* defined(HASSPECDEVD) */
+            }
+            sfp->i = (INODETYPE)sb.st_ino;
+            sfp->mode = sb.st_mode & S_IFMT;
+
+            sfp->dev = sb.st_dev;
+            sfp->rdev = sb.st_rdev;
+
+#if defined(CKFA_MPXCHAN)
+            /*
+             * Save a (possible) multiplexed channel number.  (This is an
+             * AIX artifact.)
+             */
+            sfp->ch = getchan(path);
+#endif /* defined(CKFA_MPXCHAN) */
+
+        } else {
+
+#if defined(SAVE_MP_IN_SFILE)
+            sfp->mp = mp = mmp[mx++];
+#else  /* !defined(SAVE_MP_IN_SFILE) */
+            mp = mmp[mx++];
+#endif /* defined(SAVE_MP_IN_SFILE) */
+
+            ss++;
+
+#if defined(HASPROCFS)
+            /*
+             * If this is a /proc file system, set the search flag and
+             * abandon the sfile entry.
+             */
+            if (mp == Mtprocfs) {
+                Sfile = sfp->next;
+                (void)free((FREE_P *)sfp);
+                Procsrch = 1;
+                continue;
+            }
+#endif /* defined(HASPROCFS) */
+
+            /*
+             * Derive file name and file system name for a mount point.
+             *
+             * Save the device numbers, inode number, and modes.
+             */
+            fnm = mp->dir;
+            fsnm = mp->fsname;
+            sfp->dev = mp->dev;
+            sfp->rdev = mp->rdev;
+            sfp->i = mp->inode;
+            sfp->mode = mp->mode & S_IFMT;
+        }
+        ss = 1; /* indicate a "safe" stat() */
+        /*
+         * Store the file name and file system name pointers in the sfile
+         * structure, allocating space as necessary.
+         */
+        if (!fnm || fnm == path) {
+            sfp->name = fnm;
+
+#if defined(HASPROCFS)
+            an = 0;
+#endif /* defined(HASPROCFS) */
+
+        } else {
+            if (!(sfp->name = mkstrcpy(fnm, (MALLOC_S *)NULL))) {
+                (void)fprintf(stderr, "%s: no space for file name: ", Pn);
+                safestrprt(fnm, stderr, 1);
+                Error(ctx);
+                return (1);
+            }
+
+#if defined(HASPROCFS)
+            an = 1;
+#endif /* defined(HASPROCFS) */
+        }
+        if (!fsnm || fsnm == path) {
+            sfp->devnm = fsnm;
+
+#if defined(HASPROCFS)
+            ad = 0;
+#endif /* defined(HASPROCFS) */
+
+        } else {
+            if (!(sfp->devnm = mkstrcpy(fsnm, (MALLOC_S *)NULL))) {
+                (void)fprintf(stderr,
+                              "%s: no space for file system name: ", Pn);
+                safestrprt(fsnm, stderr, 1);
+                Error(ctx);
+                return (1);
+            }
+
+#if defined(HASPROCFS)
+            ad = 1;
+#endif /* defined(HASPROCFS) */
+        }
+        if (!(sfp->aname = mkstrcpy(arg, (MALLOC_S *)NULL))) {
+            (void)fprintf(stderr, "%s: no space for argument file name: ", Pn);
+            safestrprt(arg, stderr, 1);
+            Error(ctx);
+            return (1);
+        }
+
+#if defined(HASPROCFS)
+        /*
+         * See if this is an individual member of a proc file system.
+         */
+        if (!Mtprocfs || Procsrch)
+            continue;
+
+#    if defined(HASFSTYPE) && HASFSTYPE == 1
+        if (strcmp(sb.st_fstype, HASPROCFS) != 0)
+            continue;
+#    endif /* defined(HASFSTYPE) && HASFSTYPE==1 */
+
+        if (pfsnl == -1)
+            pfsnl = strlen(Mtprocfs->dir);
+        if (!pfsnl)
+            continue;
+        if (strncmp(Mtprocfs->dir, path, pfsnl) != 0)
+            continue;
+        if (path[pfsnl] != '/')
+
+#    if defined(HASPINODEN)
+            pid = 0;
+#    else  /* !defined(HASPINODEN) */
+            continue;
+#    endif /* defined(HASPINODEN) */
+
+        else {
+            for (j = pfsnl + 1; path[j]; j++) {
+                if (!isdigit((unsigned char)path[j]))
+                    break;
+            }
+            if (path[j] || (j - pfsnl - 1) < 1 ||
+                (sfp->mode & S_IFMT) != S_IFREG)
+
+#    if defined(HASPINODEN)
+                pid = 0;
+#    else  /* !defined(HASPINODEN) */
+                continue;
+#    endif /* defined(HASPINODEN) */
+
+            else
+                pid = atoi(&path[pfsnl + 1]);
+        }
+        if (!(pfi = (struct procfsid *)malloc(
+                  (MALLOC_S)sizeof(struct procfsid)))) {
+            (void)fprintf(stderr, "%s: no space for %s ID: ", Pn,
+                          Mtprocfs->dir);
+            safestrprt(path, stderr, 1);
+            Error(ctx);
+            return (1);
+        }
+        pfi->pid = pid;
+        pfi->f = 0;
+        pfi->nm = sfp->aname;
+        pfi->next = Procfsid;
+        Procfsid = pfi;
+
+#    if defined(HASPINODEN)
+        pfi->inode = (INODETYPE)sfp->i;
+#    endif /* defined(HASPINODEN) */
+
+        /*
+         * Abandon the Sfile entry, lest it be used in is_file_named().
+         */
+        Sfile = sfp->next;
+        if (ad)
+            (void)free((FREE_P *)sfp->devnm);
+        if (an)
+            (void)free((FREE_P *)sfp->name);
+        (void)free((FREE_P *)sfp);
+#endif /* defined(HASPROCFS) */
+
+    } while (mx < nm);
+
+cleanup:
+    if (accept_deleted_file) {
+        if (!ss && err_stat == 0)
+            err = 1;
+    } else if (!ss) {
+        err = 1;
+    }
+    return ((int)err);
+}

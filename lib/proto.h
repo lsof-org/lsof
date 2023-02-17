@@ -74,8 +74,9 @@ _PROTOTYPE(extern void build_IPstates, (struct lsof_context * ctx));
 _PROTOTYPE(extern void childx, (struct lsof_context * ctx));
 _PROTOTYPE(extern int ck_fd_status,
            (struct lsof_context * ctx, enum lsof_fd_type fd_type, int num));
-_PROTOTYPE(extern int ck_file_arg, (int i, int ac, char *av[], int fv, int rs,
-                                    struct stat *sbp, int accept_deleted_file));
+_PROTOTYPE(extern int ck_file_arg,
+           (struct lsof_context * ctx, char *arg, int fv, int rs,
+            struct stat *sbp, int accept_deleted_file));
 _PROTOTYPE(extern void ckkv,
            (struct lsof_context * ctx, char *d, char *er, char *ev, char *ea));
 _PROTOTYPE(extern void clr_devtab, (struct lsof_context * ctx));

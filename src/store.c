@@ -62,7 +62,6 @@ int DevColW; /* DEVICE column width */
  * Externals for a stkdir(), dumbed-down for older AIX compilers.
  */
 
-int ErrStat = 0;             /* path stat() error count */
 uid_t Euid;                  /* effective UID of this lsof process */
 int FcColW;                  /* FCT column width */
 int Fcntx = 0;               /* -Z option status */

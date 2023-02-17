@@ -79,6 +79,9 @@ char *argv[];
     int xover = 0;
     int pr_count = 0;
 
+    int err_stat = 0;  /* path stat() error count */
+    int good_name = 0; /* success names argument */
+
 #if defined(HAS_STRFTIME)
     char *fmt = (char *)NULL;
     size_t fmtl = (size_t)0;
@@ -1117,9 +1120,17 @@ closed:
      * Process the file arguments.
      */
     if (GOx1 < argc) {
-        if (ck_file_arg(GOx1, argc, argv, Ffilesys, 0, (struct stat *)NULL,
-                        FsearchErr == 0))
+        for (i = GOx1; i < argc; i++) {
+            if (ck_file_arg(ctx, argv[i], Ffilesys, 0, (struct stat *)NULL,
+                            FsearchErr == 0)) {
+                err_stat += 1;
+            } else {
+                good_name += 1;
+            }
+        }
+        if (good_name == 0) {
             Error(ctx);
+        }
     }
     /* Freeze context as all args are handled */
     lsof_freeze(ctx);
@@ -1535,7 +1546,7 @@ closed:
     }
     if (!rv && rc)
         rv = ev;
-    if (!rv && ErrStat)
+    if (!rv && err_stat)
         rv = LSOF_EXIT_ERROR;
     Exit(ctx, rv);
     return (rv); /* to make code analyzers happy */

@@ -689,7 +689,6 @@ extern int DChelp;
 extern char **Dstk;
 extern int Dstkn;
 extern int Dstkx;
-extern int ErrStat;
 extern uid_t Euid;
 extern int Fcntx;
 extern int Ffilesys;
