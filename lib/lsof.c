@@ -1872,10 +1872,11 @@ enum lsof_error lsof_select_num_links(struct lsof_context *ctx, int threshold) {
 API_EXPORT
 enum lsof_error lsof_exempt_fs(struct lsof_context *ctx, char *orig_path,
                                int avoid_readlink) {
-    char *ec;         /* pointer to copy of path */
-    efsys_list_t *ep; /* file system path list pointer */
-    int i;            /* temporary index */
-    char *path;       /* Readlink() of file system path */
+    char *ec;                       /* pointer to copy of path */
+    efsys_list_t *ep;               /* file system path list pointer */
+    int i;                          /* temporary index */
+    char *path;                     /* Readlink() of file system path */
+    struct mounts *mp = NULL, *mpw; /* local mount table pointers */
 
     if (!ctx || ctx->frozen) {
         return LSOF_ERROR_INVALID_ARGUMENT;
@@ -1920,6 +1921,27 @@ enum lsof_error lsof_exempt_fs(struct lsof_context *ctx, char *orig_path,
         }
     }
 
+    /*
+     * If there are file systems specified by -e options, check them.
+     */
+
+    if ((mpw = readmnt(ctx))) {
+        for (; mpw; mpw = mpw->next) {
+            if (!strcmp(mpw->dir, path)) {
+                mp = mpw;
+                break;
+            }
+        }
+        if (!mp) {
+            if (ctx->err) {
+                (void)fprintf(ctx->err,
+                              "%s: \"-e %s\" is not a mounted file system.\n",
+                              Pn, path);
+                return LSOF_ERROR_INVALID_ARGUMENT;
+            }
+        }
+    }
+
     if (!(ep = (efsys_list_t *)malloc((MALLOC_S)(sizeof(efsys_list_t))))) {
         if (ctx->err) {
             (void)fprintf(ctx->err, "%s: no space for \"-e %s\" entry\n", Pn,
@@ -1931,7 +1953,7 @@ enum lsof_error lsof_exempt_fs(struct lsof_context *ctx, char *orig_path,
     ep->path = path;
     ep->pathl = i;
     ep->rdlnk = avoid_readlink;
-    ep->mp = (struct mounts *)NULL;
+    ep->mp = mp;
     ep->next = Efsysl;
     Efsysl = ep;
     return LSOF_SUCCESS;
@@ -2434,6 +2456,10 @@ cleanup:
     } else if (!ss) {
         err = 1;
     }
+
+    /* Update selection flags */
+    if (!err)
+        Selflags |= SELNM;
     return ((int)err);
 }
 

@@ -323,7 +323,6 @@ closed:
                 if (enter_dir(GOv, 0))
                     err = 1;
                 else {
-                    Selflags |= SELNM;
                     xover = 1;
                 }
             } else {
@@ -336,7 +335,6 @@ closed:
                 if (enter_dir(GOv, 1))
                     err = 1;
                 else {
-                    Selflags |= SELNM;
                     xover = 1;
                 }
             } else {
@@ -1053,39 +1051,9 @@ closed:
         err++;
     }
 
-#if defined(HASEOPT)
-    if (Efsysl) {
-
-        /*
-         * If there are file systems specified by -e options, check them.
-         */
-        efsys_list_t *ep;        /* Efsysl pointer */
-        struct mounts *mp, *mpw; /* local mount table pointers */
-
-        if ((mp = readmnt(ctx))) {
-            for (ep = Efsysl; ep; ep = ep->next) {
-                for (mpw = mp; mpw; mpw = mpw->next) {
-                    if (!strcmp(mpw->dir, ep->path)) {
-                        ep->mp = mpw;
-                        break;
-                    }
-                }
-                if (!ep->mp) {
-                    (void)fprintf(
-                        stderr, "%s: \"-e %s\" is not a mounted file system.\n",
-                        Pn, ep->path);
-                    err++;
-                }
-            }
-        }
-    }
-#endif /* defined(HASEOPT) */
-
     if (DChelp || err || Fhelp || fh || version)
         usage(err ? 1 : 0, fh, version);
 
-    if (GOx1 < argc)
-        Selflags |= SELNM;
     if (Selflags == 0 && Fand) {
         (void)fprintf(stderr, "%s: no select options to AND via -a\n", Pn);
         usage(1, 0, 0);
