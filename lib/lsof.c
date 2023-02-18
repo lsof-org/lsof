@@ -146,6 +146,8 @@ enum lsof_error lsof_gather(struct lsof_context *ctx,
     char *cp;
     char buf[64];
     int s;
+    int se1, se2, ss = 0, ad;
+    struct stat sb;
 
     if (!result) {
         ret = LSOF_ERROR_INVALID_ARGUMENT;
@@ -154,6 +156,37 @@ enum lsof_error lsof_gather(struct lsof_context *ctx,
         ret = LSOF_ERROR_INVALID_ARGUMENT;
         return ret;
     }
+
+    /*
+     * Get the device for DEVDEV_PATH.
+     */
+    if (stat(DEVDEV_PATH, &sb)) {
+        se1 = errno;
+        if ((ad = strcmp(DEVDEV_PATH, "/dev"))) {
+            if ((ss = stat("/dev", &sb)))
+                se2 = errno;
+            else {
+                DevDev = sb.st_dev;
+                se2 = 0;
+            }
+        } else {
+            se2 = 0;
+            ss = 1;
+        }
+        if (ss) {
+            if (ctx->err)
+                (void)fprintf(ctx->err, "%s: can't stat(%s): %s\n", Pn,
+                              DEVDEV_PATH, strerror(se1));
+            if (ad && ctx->err) {
+                (void)fprintf(ctx->err, "%s: can't stat(/dev): %s\n", Pn,
+                              strerror(se2));
+            }
+            Error(ctx);
+        }
+    } else {
+        DevDev = sb.st_dev;
+    }
+
     gather_proc_info(ctx);
 
     /* Cleanup orphaned cur_file, if any*/

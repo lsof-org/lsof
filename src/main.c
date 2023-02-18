@@ -1058,31 +1058,6 @@ closed:
         (void)fprintf(stderr, "%s: no select options to AND via -a\n", Pn);
         usage(1, 0, 0);
     }
-    /*
-     * Get the device for DEVDEV_PATH.
-     */
-    if (stat(DEVDEV_PATH, &sb)) {
-        se1 = errno;
-        if ((ad = strcmp(DEVDEV_PATH, "/dev"))) {
-            if ((ss = stat("/dev", &sb)))
-                se2 = errno;
-            else
-                se2 = 0;
-        } else {
-            se2 = 0;
-            ss = 1;
-        }
-        if (ss) {
-            (void)fprintf(stderr, "%s: can't stat(%s): %s\n", Pn, DEVDEV_PATH,
-                          strerror(se1));
-            if (ad) {
-                (void)fprintf(stderr, "%s: can't stat(/dev): %s\n", Pn,
-                              strerror(se2));
-            }
-            Error(ctx);
-        }
-    }
-    DevDev = sb.st_dev;
 
     /*
      * Process the file arguments.
