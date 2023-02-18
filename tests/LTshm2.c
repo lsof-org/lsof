@@ -91,7 +91,7 @@ int main(int argc, char **argv) {
                 shm_found = 1;
 
                 /* on Linux, f->name is /dev/shm/LTshm2... */
-                if (strstr(f->name, shm_name) != NULL) {
+                if (!f->name || strstr(f->name, shm_name) != NULL) {
                     shm_path_correct = 1;
                 }
             }
