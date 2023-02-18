@@ -148,6 +148,22 @@ enum lsof_error lsof_gather(struct lsof_context *ctx,
     int s;
     int se1, se2, ss = 0, ad;
     struct stat sb;
+    struct str_lst *str;
+    struct sfile *sfp;
+    struct nwad *np, *npn;
+#if defined(HASPROCFS)
+    struct procfsid *pfi;
+#endif /* defined(HASPROCFS) */
+#if defined(HASZONES)
+    znhash_t *zp;
+#endif /* defined(HASZONES) */
+#if defined(HASSELINUX)
+    cntxlist_t *cntxp;
+#endif /* defined(HASSELINUX) */
+    int pass;
+    int i;
+    struct lsof_selection *selections;
+    size_t num_selections = 0;
 
     if (!result) {
         ret = LSOF_ERROR_INVALID_ARGUMENT;
@@ -380,6 +396,231 @@ enum lsof_error lsof_gather(struct lsof_context *ctx,
 
     ctx->procs_size = ctx->procs_cap = 0;
     ctx->cur_file = ctx->prev_file = NULL;
+
+    /* Collect selection result */
+    for (pass = 0; pass < 2; pass++) {
+        num_selections = 0;
+
+        /* command */
+        for (str = Cmdl; str; str = str->next) {
+            if (pass) {
+                selections[num_selections].type = LSOF_SELECTION_COMMAND;
+                selections[num_selections].found = str->f;
+                selections[num_selections].string = str->str;
+            }
+            num_selections++;
+        }
+
+        /* command regex */
+        for (i = 0; i < NCmdRxU; i++) {
+            if (pass) {
+                selections[num_selections].type = LSOF_SELECTION_COMMAND_REGEX;
+                selections[num_selections].found = CmdRx[i].mc > 0;
+                selections[num_selections].string = CmdRx[i].exp;
+            }
+            num_selections++;
+        }
+
+        /* select file or file system */
+        for (sfp = Sfile; sfp; sfp = sfp->next) {
+            if (pass) {
+                selections[num_selections].type =
+                    sfp->type ? LSOF_SELECTION_PATH
+                              : LSOF_SELECTION_FILE_SYSTEM;
+                selections[num_selections].found = sfp->f;
+                selections[num_selections].string = sfp->aname;
+            }
+            num_selections++;
+        }
+
+#if defined(HASPROCFS)
+        /* procfs */
+        if (Procsrch) {
+            if (pass) {
+                selections[num_selections].type = LSOF_SELECTION_FILE_SYSTEM;
+                selections[num_selections].found = Procfind;
+                selections[num_selections].string =
+                    Mtprocfs ? Mtprocfs->dir : HASPROCFS;
+            }
+            num_selections++;
+        }
+
+        for (pfi = Procfsid; pfi; pfi = pfi->next) {
+            if (pass) {
+                selections[num_selections].type = LSOF_SELECTION_PATH;
+                selections[num_selections].found = pfi->f;
+                selections[num_selections].string = pfi->nm;
+            }
+            num_selections++;
+        }
+#endif /* defined(HASPROCFS) */
+
+        /* network address */
+        for (; np;) {
+            int found = np->f;
+            if (!(cp = np->arg)) {
+                np = np->next;
+                continue;
+            }
+            for (npn = np->next; npn; npn = npn->next) {
+                if (!npn->arg)
+                    continue;
+                if (!strcmp(cp, npn->arg)) {
+                    /* Found duplicate specification */
+                    found |= npn->f;
+                } else {
+                    break;
+                }
+            }
+
+            if (pass) {
+                selections[num_selections].type =
+                    LSOF_SELECTION_NETWORK_ADDRESS;
+                selections[num_selections].found = found;
+                selections[num_selections].string = np->arg;
+            }
+            num_selections++;
+            np = npn;
+        }
+
+        /* ip protocol */
+        if (Fnet) {
+            if (pass) {
+                selections[num_selections].type = LSOF_SELECTION_INTERNET;
+                selections[num_selections].found = Fnet == 2;
+            }
+            num_selections++;
+        }
+
+#if defined(HASTCPUDPSTATE)
+        /* tcp/tpi protocol state */
+        if (TcpStIn) {
+            for (i = 0; i < TcpNstates; i++) {
+                if (TcpStI[i]) {
+                    if (pass) {
+                        selections[num_selections].type =
+                            LSOF_SELECTION_PROTOCOL_STATE;
+                        selections[num_selections].found = TcpStI[i] == 2;
+                        selections[num_selections].string = TcpSt[i];
+                    }
+                    num_selections++;
+                }
+            }
+        }
+        if (UdpStIn) {
+            for (i = 0; i < UdpNstates; i++) {
+                if (UdpStI[i]) {
+                    if (pass) {
+                        selections[num_selections].type =
+                            LSOF_SELECTION_PROTOCOL_STATE;
+                        selections[num_selections].found = UdpStI[i] == 2;
+                        selections[num_selections].string = UdpSt[i];
+                    }
+                    num_selections++;
+                }
+            }
+        }
+#endif /* defined(HASTCPUDPSTATE) */
+
+        /* nfs */
+        if (Fnfs) {
+            if (pass) {
+                selections[num_selections].type = LSOF_SELECTION_NFS;
+                selections[num_selections].found = Fnfs == 2;
+            }
+            num_selections++;
+        }
+
+        /* pid */
+        for (i = 0; i < Npid; i++) {
+            if (Spid[i].x)
+                continue;
+            if (pass) {
+                selections[num_selections].type = LSOF_SELECTION_PID;
+                selections[num_selections].found = Spid[i].f;
+                selections[num_selections].integer = Spid[i].i;
+            }
+            num_selections++;
+        }
+
+        /* pgid */
+        for (i = 0; i < Npgid; i++) {
+            if (Spgid[i].x)
+                continue;
+            if (pass) {
+                selections[num_selections].type = LSOF_SELECTION_PGID;
+                selections[num_selections].found = Spgid[i].f;
+                selections[num_selections].integer = Spgid[i].i;
+            }
+            num_selections++;
+        }
+
+        /* uid */
+        for (i = 0; i < Nuid; i++) {
+            if (Suid[i].excl)
+                continue;
+            if (pass) {
+                selections[num_selections].type = LSOF_SELECTION_UID;
+                selections[num_selections].found = Suid[i].f;
+                selections[num_selections].string = Suid[i].lnm;
+                selections[num_selections].integer = Suid[i].uid;
+            }
+            num_selections++;
+        }
+
+#if defined(HASTASKS)
+        /* tasks */
+        if (Ftask) {
+            if (pass) {
+                selections[num_selections].type = LSOF_SELECTION_TASK;
+                selections[num_selections].found = Ftask == 2;
+            }
+            num_selections++;
+        }
+#endif /* defined(HASTASKS) */
+
+#if defined(HASZONES)
+        /* solaris zones */
+        if (ZoneArg) {
+            for (i = 0; i < HASHZONE; i++) {
+                for (zp = ZoneArg[i]; zp; zp = zp->next) {
+                    if (pass) {
+                        selections[num_selections].type =
+                            LSOF_SELECTION_SOLARIS_ZONE;
+                        selections[num_selections].found = zp->f;
+                        selections[num_selections].string = zp->zn;
+                    }
+                    num_selections++;
+                }
+            }
+        }
+#endif /* defined(HASZONES) */
+
+#if defined(HASSELINUX)
+        /* SELinux context */
+        if (CntxArg) {
+            for (cntxp = CntxArg; cntxp; cntxp = cntxp->next) {
+                if (pass) {
+                    selections[num_selections].type =
+                        LSOF_SELECTION_SELINUX_CONTEXT;
+                    selections[num_selections].found = cntxp->f;
+                    selections[num_selections].string = cntxp->cntx;
+                }
+                num_selections++;
+            }
+        }
+#endif /* defined(HASSELINUX) */
+
+        /* allocation selections array */
+        if (pass == 0) {
+            selections = (struct lsof_selection *)malloc(
+                sizeof(struct lsof_selection) * num_selections);
+            memset(selections, 0,
+                   sizeof(struct lsof_selection) * num_selections);
+            res->selections = selections;
+            res->num_selections = num_selections;
+        }
+    }
 
     /* Params */
     *result = res;

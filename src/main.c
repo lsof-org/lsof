@@ -1265,6 +1265,7 @@ closed:
         }
     }
     for (sfp = Sfile; sfp; sfp = sfp->next) {
+
         /*
          * Check file specifications.
          */

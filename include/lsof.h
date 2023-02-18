@@ -627,9 +627,50 @@ struct lsof_process {
     struct lsof_file *files; /**< array of open files */
 };
 
+/** selection types */
+enum lsof_selection_type {
+    LSOF_SELECTION_COMMAND,         /**< select by command */
+    LSOF_SELECTION_COMMAND_REGEX,   /**< select by command regex */
+    LSOF_SELECTION_PATH,            /**< select by file path */
+    LSOF_SELECTION_FILE_SYSTEM,     /**< select by file system */
+    LSOF_SELECTION_NETWORK_ADDRESS, /**< select by network address */
+    LSOF_SELECTION_INTERNET,        /**< select by internet protocol */
+    LSOF_SELECTION_PROTOCOL_STATE,  /**< select by tcp/tpi state */
+    LSOF_SELECTION_NFS,             /**< select by nfs */
+    LSOF_SELECTION_PID,             /**< select by pid */
+    LSOF_SELECTION_PGID,            /**< select by pgid */
+    LSOF_SELECTION_UID,             /**< select by uid */
+    LSOF_SELECTION_TASK,            /**< select by tasks */
+    LSOF_SELECTION_SOLARIS_ZONE,    /**< select by Solaris zones */
+    LSOF_SELECTION_SELINUX_CONTEXT, /**< select by SELinux context */
+};
+
+/** Report selection status */
+struct lsof_selection {
+    enum lsof_selection_type type; /**< selection type */
+    int found;                     /**< whether selection matches file */
+    /** string selection argument, valid if type is one of
+     * LSOF_SELECTION_COMMAND, LSOF_SELECTION_COMMAND_REGEX,
+     * LSOF_SELECTION_PATH, LSOF_SELECTION_FILE_SYSTEM,
+     * LSOF_SELECTION_NETWORK_ADDRESS, LSOF_SELECTION_PROTOCOL_STATE,
+     * LSOF_SELECTION_UID, LSOF_SELECTION_SOLARIS_ZONE,
+     * LSOF_SELECTION_SELINUX_CONTEXT
+     */
+    char *string;
+    /** integer selection argument, valid if type is one of
+     * LSOF_SELECTION_PID, LSOF_SELECTION_PGID, LSOF_SELECTION_UID
+     */
+    uint64_t integer;
+};
+
+/** The result of lsof_gather() */
 struct lsof_result {
-    struct lsof_process *processes; /**< array of processes */
     size_t num_processes;           /**< length of processes array */
+    struct lsof_process *processes; /**< array of processes */
+
+    /* Report selection status */
+    size_t num_selections;             /**< length of selections array */
+    struct lsof_selection *selections; /**< array of selections */
 };
 
 /** API version of liblsof
