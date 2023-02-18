@@ -197,7 +197,7 @@ void process_eventfd(struct lsof_context *ctx, struct kinfo_file *kf) {
 #endif /* defined(KF_TYPE_EVENTFD) */
 
 void process_shm(struct lsof_context *ctx, struct kinfo_file *kf) {
-    Lf->type = LSOF_FILE_SHM;
+    Lf->type = LSOF_FILE_POSIX_SHM;
     Lf->sz = kf->kf_un.kf_file.kf_file_size;
     Lf->sz_def = 1;
     Lf->off_def = 0;

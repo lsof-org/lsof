@@ -1570,7 +1570,7 @@ enum lsof_error lsof_select_inet_string(struct lsof_context *ctx, char *na) {
                             (void)fprintf(
                                 ctx->err,
                                 "%s: unknown service %s for %s in: -i ", Pn, sn,
-                                proto);
+                                str_proto);
                             safestrprt(na, ctx->err, 1);
                         }
                         ret = LSOF_ERROR_INVALID_ARGUMENT;

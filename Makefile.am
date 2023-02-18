@@ -202,7 +202,7 @@ tests_LTszoff2_LDADD = liblsof.la
 tests_LTunix2_CFLAGS = -I$(top_srcdir)/include
 tests_LTunix2_LDADD = liblsof.la
 tests_LTshm2_CFLAGS = -I$(top_srcdir)/include
-tests_LTshm2_LDADD = liblsof.la
+tests_LTshm2_LDADD = liblsof.la -lrt
 
 # Documentation
 EXTRA_DIST += 00.README.FIRST 00CREDITS 00DCACHE 00DIALECTS 00DIST 00FAQ 00LSOF-L 00MANIFEST 00PORTING 00QUICKSTART 00README 00TEST 00XCONFIG
