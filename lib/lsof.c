@@ -456,7 +456,7 @@ enum lsof_error lsof_gather(struct lsof_context *ctx,
 #endif /* defined(HASPROCFS) */
 
         /* network address */
-        for (; np;) {
+        for (np = Nwad; np;) {
             int found = np->f;
             if (!(cp = np->arg)) {
                 np = np->next;
@@ -657,6 +657,10 @@ void lsof_destroy(struct lsof_context *ctx) {
     }
     CLEAN(Spid);
     CLEAN(Spgid);
+    for (i = 0; i < Nuid; i++) {
+        CLEAN(Suid[i].lnm);
+    }
+    CLEAN(Suid);
     CLEAN(Nmlst);
 
     /* Free temporary */
@@ -691,6 +695,7 @@ void lsof_destroy(struct lsof_context *ctx) {
         CLEAN(UdpSt[i]);
     }
     CLEAN(UdpSt);
+    CLEAN(Pn);
 
     /* dialect specific free */
     deinitialize(ctx);
@@ -717,6 +722,7 @@ void lsof_free_result(struct lsof_result *result) {
         CLEAN(p->task_cmd);
     }
     CLEAN(result->processes);
+    CLEAN(result->selections);
     CLEAN(result);
 }
 
@@ -2392,21 +2398,22 @@ enum lsof_error lsof_select_selinux_context(struct lsof_context *ctx,
 /*
  * ck_file_arg() - check file arguments
  */
-int ck_file_arg(struct lsof_context *ctx, char *arg, /* argument */
-                int fv,           /* Ffilesys value (real or temporary)
-                                   *    0 = paths may be file systems
-                                   *    1 = paths are just files
-                                   *    2 = paths must be file systems
-                                   */
-                int rs,           /* Readlink() status if argument count == 1:
-                                   *	0 = undone, 1 = done */
-                struct stat *sbp, /* if non-NULL, pointer to stat(2) buffer
-                                   * when argument count == 1 */
-                int accept_deleted_file) /* if non-zero, don't report an error
-                                          * even when the file doesn't exist. */
+enum lsof_error
+ck_file_arg(struct lsof_context *ctx, char *arg, /* argument */
+            int fv,           /* Ffilesys value (real or temporary)
+                               *    0 = paths may be file systems
+                               *    1 = paths are just files
+                               *    2 = paths must be file systems
+                               */
+            int rs,           /* Readlink() status if argument count == 1:
+                               *	0 = undone, 1 = done */
+            struct stat *sbp, /* if non-NULL, pointer to stat(2) buffer
+                               * when argument count == 1 */
+            int accept_deleted_file) /* if non-zero, don't report an error
+                                      * even when the file doesn't exist. */
 {
     char *ap, *fnm, *fsnm, *path;
-    short err = 0;
+    enum lsof_error err = LSOF_SUCCESS;
     int fsm, ftype, j, k;
     MALLOC_S l;
     struct mounts *mp;
@@ -2430,6 +2437,7 @@ int ck_file_arg(struct lsof_context *ctx, char *arg, /* argument */
     else {
         if (!(path = Readlink(ctx, arg))) {
             err_stat = 1;
+            err = LSOF_ERROR_INVALID_ARGUMENT;
             goto cleanup;
         }
     }
@@ -2445,14 +2453,17 @@ int ck_file_arg(struct lsof_context *ctx, char *arg, /* argument */
             path[k] = '\0';
         else {
             if (!(ap = (char *)malloc((MALLOC_S)(k + 1)))) {
-                (void)fprintf(stderr, "%s: no space for copy of %s\n", Pn,
-                              path);
+                if (ctx->err)
+                    (void)fprintf(ctx->err, "%s: no space for copy of %s\n", Pn,
+                                  path);
                 Error(ctx);
-                return 1;
+                err = LSOF_ERROR_NO_MEMORY;
+                goto cleanup;
             }
             (void)strncpy(ap, path, k);
             ap[k] = '\0';
             path = ap;
+            ap = NULL;
         }
     }
     /*
@@ -2492,19 +2503,25 @@ int ck_file_arg(struct lsof_context *ctx, char *arg, /* argument */
             else
                 mmp = (struct mounts **)malloc(l);
             if (!mmp) {
-                (void)fprintf(stderr, "%s: no space for mount pointers\n", Pn);
+                if (ctx->err)
+                    (void)fprintf(ctx->err, "%s: no space for mount pointers\n",
+                                  Pn);
                 Error(ctx);
-                return (1);
+                err = LSOF_ERROR_NO_MEMORY;
+                goto cleanup;
             }
         }
         mmp[nm++] = mp;
     }
     if (fv == 2 && nm == 0) {
         if (!accept_deleted_file) {
-            (void)fprintf(stderr, "%s: not a file system: ", Pn);
-            safestrprt(arg, stderr, 1);
+            if (ctx->err) {
+                (void)fprintf(ctx->err, "%s: not a file system: ", Pn);
+                safestrprt(arg, ctx->err, 1);
+            }
         }
         err_stat = 1;
+        err = LSOF_ERROR_INVALID_ARGUMENT;
         goto cleanup;
     }
     /*
@@ -2518,9 +2535,11 @@ int ck_file_arg(struct lsof_context *ctx, char *arg, /* argument */
          * Allocate an sfile structure and fill in the type and link.
          */
         if (!(sfp = (struct sfile *)malloc(sizeof(struct sfile)))) {
-            (void)fprintf(stderr, "%s: no space for files\n", Pn);
+            if (ctx->err)
+                (void)fprintf(ctx->err, "%s: no space for files\n", Pn);
             Error(ctx);
-            return (1);
+            err = LSOF_ERROR_NO_MEMORY;
+            goto cleanup;
         }
         sfp->next = Sfile;
         Sfile = sfp;
@@ -2541,10 +2560,10 @@ int ck_file_arg(struct lsof_context *ctx, char *arg, /* argument */
             else {
                 if (statsafely(ctx, fnm, &sb) != 0) {
                     int en = errno;
-                    if (!accept_deleted_file) {
-                        (void)fprintf(stderr, "%s: status error on ", Pn);
-                        safestrprt(fnm, stderr, 0);
-                        (void)fprintf(stderr, ": %s\n", strerror(en));
+                    if (!accept_deleted_file && ctx->err) {
+                        (void)fprintf(ctx->err, "%s: status error on ", Pn);
+                        safestrprt(fnm, ctx->err, 0);
+                        (void)fprintf(ctx->err, ": %s\n", strerror(en));
                     }
                     Sfile = sfp->next;
                     err_stat = 1;
@@ -2588,7 +2607,7 @@ int ck_file_arg(struct lsof_context *ctx, char *arg, /* argument */
              */
             if (mp == Mtprocfs) {
                 Sfile = sfp->next;
-                (void)free((FREE_P *)sfp);
+                CLEAN(sfp);
                 Procsrch = 1;
                 continue;
             }
@@ -2620,10 +2639,13 @@ int ck_file_arg(struct lsof_context *ctx, char *arg, /* argument */
 
         } else {
             if (!(sfp->name = mkstrcpy(fnm, (MALLOC_S *)NULL))) {
-                (void)fprintf(stderr, "%s: no space for file name: ", Pn);
-                safestrprt(fnm, stderr, 1);
+                if (ctx->err) {
+                    (void)fprintf(ctx->err, "%s: no space for file name: ", Pn);
+                    safestrprt(fnm, ctx->err, 1);
+                }
                 Error(ctx);
-                return (1);
+                err = LSOF_ERROR_NO_MEMORY;
+                goto cleanup;
             }
 
 #if defined(HASPROCFS)
@@ -2639,11 +2661,14 @@ int ck_file_arg(struct lsof_context *ctx, char *arg, /* argument */
 
         } else {
             if (!(sfp->devnm = mkstrcpy(fsnm, (MALLOC_S *)NULL))) {
-                (void)fprintf(stderr,
-                              "%s: no space for file system name: ", Pn);
-                safestrprt(fsnm, stderr, 1);
+                if (ctx->err) {
+                    (void)fprintf(ctx->err,
+                                  "%s: no space for file system name: ", Pn);
+                    safestrprt(fsnm, ctx->err, 1);
+                }
                 Error(ctx);
-                return (1);
+                err = LSOF_ERROR_NO_MEMORY;
+                goto cleanup;
             }
 
 #if defined(HASPROCFS)
@@ -2651,10 +2676,14 @@ int ck_file_arg(struct lsof_context *ctx, char *arg, /* argument */
 #endif /* defined(HASPROCFS) */
         }
         if (!(sfp->aname = mkstrcpy(arg, (MALLOC_S *)NULL))) {
-            (void)fprintf(stderr, "%s: no space for argument file name: ", Pn);
-            safestrprt(arg, stderr, 1);
+            if (ctx->err) {
+                (void)fprintf(ctx->err,
+                              "%s: no space for argument file name: ", Pn);
+                safestrprt(arg, ctx->err, 1);
+            }
             Error(ctx);
-            return (1);
+            err = LSOF_ERROR_NO_MEMORY;
+            goto cleanup;
         }
 
 #if defined(HASPROCFS)
@@ -2702,11 +2731,14 @@ int ck_file_arg(struct lsof_context *ctx, char *arg, /* argument */
         }
         if (!(pfi = (struct procfsid *)malloc(
                   (MALLOC_S)sizeof(struct procfsid)))) {
-            (void)fprintf(stderr, "%s: no space for %s ID: ", Pn,
-                          Mtprocfs->dir);
-            safestrprt(path, stderr, 1);
+            if (ctx->err) {
+                (void)fprintf(ctx->err, "%s: no space for %s ID: ", Pn,
+                              Mtprocfs->dir);
+                safestrprt(path, ctx->err, 1);
+            }
             Error(ctx);
-            return (1);
+            err = LSOF_ERROR_NO_MEMORY;
+            goto cleanup;
         }
         pfi->pid = pid;
         pfi->f = 0;
@@ -2726,23 +2758,27 @@ int ck_file_arg(struct lsof_context *ctx, char *arg, /* argument */
             (void)free((FREE_P *)sfp->devnm);
         if (an)
             (void)free((FREE_P *)sfp->name);
-        (void)free((FREE_P *)sfp);
+        CLEAN(sfp);
 #endif /* defined(HASPROCFS) */
 
     } while (mx < nm);
 
 cleanup:
-    if (accept_deleted_file) {
-        if (!ss && err_stat == 0)
-            err = 1;
-    } else if (!ss) {
-        err = 1;
+    CLEAN(path);
+    CLEAN(mmp);
+    if (err == LSOF_SUCCESS) {
+        if (accept_deleted_file) {
+            if (!ss && err_stat == 0)
+                err = LSOF_ERROR_INVALID_ARGUMENT;
+        } else if (!ss) {
+            err = LSOF_ERROR_INVALID_ARGUMENT;
+        }
     }
 
     /* Update selection flags */
-    if (!err)
+    if (err == LSOF_SUCCESS)
         Selflags |= SELNM;
-    return ((int)err);
+    return err;
 }
 
 enum lsof_error lsof_select_file(struct lsof_context *ctx, char *path,
@@ -2770,11 +2806,7 @@ enum lsof_error lsof_select_file(struct lsof_context *ctx, char *path,
         accept_deleted_file = 1;
     }
 
-    if (ck_file_arg(ctx, path, fv, 0, NULL, accept_deleted_file)) {
-        return LSOF_ERROR_INVALID_ARGUMENT;
-    }
-
-    return LSOF_SUCCESS;
+    return ck_file_arg(ctx, path, fv, 0, NULL, accept_deleted_file);
 }
 
 enum lsof_error lsof_use_name_cache(struct lsof_context *ctx, int enable) {

@@ -1488,6 +1488,7 @@ closed:
                              (unsigned long)Suid[i].uid);
         }
     }
+    lsof_destroy(ctx);
     if (!rv && rc)
         rv = ev;
     if (!rv && err_stat)
