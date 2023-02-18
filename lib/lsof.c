@@ -687,10 +687,12 @@ void lsof_destroy(struct lsof_context *ctx) {
     }
 
     /* state table */
+#if !defined(USE_LIB_PRINT_TCPTPI)
     for (i = 0; i < TcpNstates; i++) {
         CLEAN(TcpSt[i]);
     }
     CLEAN(TcpSt);
+#endif /* !defined(USE_LIB_PRINT_TCPTPI) */
     for (i = 0; i < UdpNstates; i++) {
         CLEAN(UdpSt[i]);
     }
