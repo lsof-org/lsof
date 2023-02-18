@@ -207,11 +207,11 @@ enum lsof_file_type {
     LSOF_FILE_UNKNOWN_ROOT_DIR,  /**< Linux unknown root dir */
     LSOF_FILE_UNKNOWN_PROGRAM_TEXT, /**< Linux unknown program text */
     LSOF_FILE_PIPE,                 /**< pipes */
-    LSOF_FILE_PORT,                 /**< Solarise SYSV named pipe */
-    LSOF_FILE_POSIX_MQ,             /**< Linux POSIX message queue file */
-    LSOF_FILE_POSIX_SEMA,           /**< Darwin POSIX semaphore file */
-    LSOF_FILE_POSIX_SHM,            /**< Darwin POSIX shared memory file */
-    LSOF_FILE_SHM,                  /**< shared memory file */
+    LSOF_FILE_PORT,                 /**< Solaris SYSV named pipe */
+    LSOF_FILE_POSIX_MQ,             /**< POSIX named message queue file */
+    LSOF_FILE_POSIX_SEMA,           /**< POSIX named semaphore file */
+    LSOF_FILE_POSIX_SHM,            /**< POSIX named shared memory file */
+    LSOF_FILE_SHM,                  /**< SystemV shared memory file */
     LSOF_FILE_PTS,                  /**< FreeBSD /dev/pts file */
     LSOF_FILE_SHARED_MEM_TRANSPORT, /**< AIX Shared memory transport file */
     LSOF_FILE_STREAM,               /**< HP-UX streams */
