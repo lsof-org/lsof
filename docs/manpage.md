@@ -20,7 +20,9 @@ DESCRIPTION
             FreeBSD 8.2 and above
             Linux 2.1.72 and above
             NetBSD 1.2 and above
+            OpenBSD 7.2 and above
             Solaris 9, 10 and 11 and above
+            OpenIndiana 5.11 and above
 
        (See the DISTRIBUTION section of this manual page  for  information  on
        how to obtain the latest lsof revision.)
@@ -365,7 +367,7 @@ OPTIONS
                 for a slave device.  min is a slave device's minor device num‐
                 ber;  and PID, cmd, FD and mode are the same as with pipe end‐
                 point information.  Note: psudoterminal  endpoint  information
-                is  only available when the features enabled line of -V output
+                is  only available when the features enabled line of -v output
                 contains ptyept. In addition, this feature works on Linux ker‐
                 nels above 4.13.0.
 
@@ -2340,7 +2342,6 @@ KERNEL NAME CACHE
             HP-UX
             Linux
             NetBSD
-            OpenBSD
             SCO OpenServer
             SCO|Caldera UnixWare
             Solaris
@@ -2349,6 +2350,7 @@ KERNEL NAME CACHE
        Lsof can't report path name components for these dialects:
 
             AIX
+            OpenBSD
 
        If you want to know why lsof can't report path name components for some
        dialects, see the lsof FAQ (The FAQ section gives its location.)
