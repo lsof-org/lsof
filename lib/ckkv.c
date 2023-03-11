@@ -54,22 +54,25 @@ void ckkv(struct lsof_context *ctx, char *d, /* dialect */
      * Read the system information via uname(2).
      */
     if (uname(&u) < 0) {
-        (void)fprintf(stderr, "%s: uname error: %s\n", Pn, strerror(errno));
+        if (ctx->err)
+            (void)fprintf(ctx->err, "%s: uname error: %s\n", Pn,
+                          strerror(errno));
         Error(ctx);
+        return;
     }
-    if (er && strcmp(er, u.release)) {
-        (void)fprintf(stderr,
+    if (er && strcmp(er, u.release) && ctx->err) {
+        (void)fprintf(ctx->err,
                       "%s: WARNING: compiled for %s release %s; this is %s.\n",
                       Pn, d, er, u.release);
     }
-    if (ev && strcmp(ev, u.version)) {
-        (void)fprintf(stderr,
+    if (ev && strcmp(ev, u.version) && ctx->err) {
+        (void)fprintf(ctx->err,
                       "%s: WARNING: compiled for %s version %s; this is %s.\n",
                       Pn, d, ev, u.version);
     }
-    if (ea && strcmp(ea, u.machine)) {
+    if (ea && strcmp(ea, u.machine) && ctx->err) {
         (void)fprintf(
-            stderr,
+            ctx->err,
             "%s: WARNING: compiled for %s architecture %s; this is %s.\n", Pn,
             d, ea, u.machine);
     }

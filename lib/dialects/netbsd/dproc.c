@@ -99,17 +99,21 @@ void ckkv(struct lsof_context *ctx, char *d, /* dialect */
     m[1] = KERN_OSRELEASE;
     l = sizeof(v);
     if (sysctl(m, 2, v, &l, NULL, 0) < 0) {
-        (void)fprintf(stderr, "%s: CTL_KERN, KERN_OSRELEASE: %s\n", Pn,
-                      strerror(errno));
+        if (ctx->err)
+            (void)fprintf(ctx->err, "%s: CTL_KERN, KERN_OSRELEASE: %s\n", Pn,
+                          strerror(errno));
         Error(ctx);
     }
     /*
      * Warn if the actual and expected releases don't match.
      */
-    if (!er || strcmp(v, er))
-        (void)fprintf(stderr,
-                      "%s: WARNING: compiled for %s release %s; this is %s.\n",
-                      Pn, d, er ? er : "UNKNOWN", v);
+    if (!er || strcmp(v, er)) {
+        if (ctx->err)
+            (void)fprintf(
+                ctx->err,
+                "%s: WARNING: compiled for %s release %s; this is %s.\n", Pn, d,
+                er ? er : "UNKNOWN", v);
+    }
 #endif /* defined(HASKERNIDCK) */
 }
 
@@ -146,8 +150,8 @@ static void enter_vn_text(struct lsof_context *ctx, KA_T va, /* vnode address */
             Vp = (KA_T *)malloc((MALLOC_S)(sizeof(struct vnode *) * 10));
         else
             Vp = (KA_T *)realloc((MALLOC_P *)Vp, (MALLOC_S)(Nv * sizeof(KA_T)));
-        if (!Vp) {
-            (void)fprintf(stderr, "%s: no txt ptr space, PID %d\n", Pn,
+        if (!Vp && ctx->err) {
+            (void)fprintf(ctx->err, "%s: no txt ptr space, PID %d\n", Pn,
                           Lp->pid);
             Error(ctx);
         }
@@ -211,8 +215,8 @@ void gather_proc_info(struct lsof_context *ctx) {
     P = kvm_getprocs(Kd, KERN_PROC_ALL, 0, &Np);
 #endif /* defined(HASKVMGETPROC2) */
 
-    if (!P) {
-        (void)fprintf(stderr, "%s: can't read process table: %s\n", Pn,
+    if (!P && ctx->err) {
+        (void)fprintf(ctx->err, "%s: can't read process table: %s\n", Pn,
                       kvm_geterr(Kd));
         Error(ctx);
     }
@@ -298,8 +302,8 @@ void gather_proc_info(struct lsof_context *ctx) {
                 ofb = (FILESTRUCT **)malloc(nb);
             else
                 ofb = (FILESTRUCT **)realloc((MALLOC_P *)ofb, nb);
-            if (!ofb) {
-                (void)fprintf(stderr, "%s: PID %d, no file * space\n", Pn,
+            if (!ofb && ctx->err) {
+                (void)fprintf(ctx->err, "%s: PID %d, no file * space\n", Pn,
                               p->P_PID);
                 Error(ctx);
             }
@@ -315,8 +319,8 @@ void gather_proc_info(struct lsof_context *ctx) {
                 pof = (char *)malloc(nb);
             else
                 pof = (char *)realloc((MALLOC_P *)pof, nb);
-            if (!pof) {
-                (void)fprintf(stderr, "%s: PID %d, no file flag space\n", Pn,
+            if (!pof && ctx->err) {
+                (void)fprintf(ctx->err, "%s: PID %d, no file flag space\n", Pn,
                               p->P_PID);
                 Error(ctx);
             }
@@ -385,7 +389,9 @@ static void get_kernel_access(struct lsof_context *ctx) {
 #else  /* !defined(N_UNIX) */
     {
         if (!(Nmlst = get_nlist_path(ctx, 1))) {
-            (void)fprintf(stderr, "%s: can't get kernel name list path\n", Pn);
+            if (ctx->err)
+                (void)fprintf(ctx->err, "%s: can't get kernel name list path\n",
+                              Pn);
             Error(ctx);
             return;
         }
@@ -414,24 +420,27 @@ static void get_kernel_access(struct lsof_context *ctx) {
      * Open kernel memory access.
      */
     if ((Kd = kvm_openfiles(Nmlst, Memory, NULL, O_RDONLY, NULL)) == NULL) {
-        (void)fprintf(stderr,
-                      "%s: kvm_openfiles(execfile=%s, corefile=%s): %s\n", Pn,
-                      Nmlst,
-                      Memory ? Memory :
+        if (ctx->err)
+            (void)fprintf(ctx->err,
+                          "%s: kvm_openfiles(execfile=%s, corefile=%s): %s\n",
+                          Pn, Nmlst,
+                          Memory ? Memory :
 
 #if defined(_PATH_MEM)
-                             _PATH_MEM,
+                                 _PATH_MEM,
 #else  /* !defined(_PATH_MEM) */
-                             "default",
+                                 "default",
 #endif /* defined(_PATH_MEM) */
 
-                      strerror(errno));
+                          strerror(errno));
         Error(ctx);
         return;
     }
     (void)build_Nl(ctx, Drive_Nl);
     if (kvm_nlist(Kd, Nl) < 0) {
-        (void)fprintf(stderr, "%s: can't read namelist from %s\n", Pn, Nmlst);
+        if (ctx->err)
+            (void)fprintf(ctx->err, "%s: can't read namelist from %s\n", Pn,
+                          Nmlst);
         Error(ctx);
         return;
     }
@@ -474,9 +483,11 @@ char *get_nlist_path(struct lsof_context *ctx,
             return ("");
         bfl = (MALLOC_S)(strlen(bf) + 1);
         if (!(bfc = (char *)malloc(bfl))) {
-            (void)fprintf(
-                stderr, "%s: can't allocate %d bytes for boot file path: %s\n",
-                Pn, bfl, bf);
+            if (ctx->err)
+                (void)fprintf(
+                    ctx->err,
+                    "%s: can't allocate %d bytes for boot file path: %s\n", Pn,
+                    bfl, bf);
             Error(ctx);
         }
         (void)snpf(bfc, bfl, "%s", bf);

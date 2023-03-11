@@ -112,12 +112,15 @@ _PROTOTYPE(static int rw_clone_sect, (int m));
 void alloc_bdcache(struct lsof_context *ctx) {
     if (!(BDevtp =
               (struct l_dev *)calloc((MALLOC_S)BNdev, sizeof(struct l_dev)))) {
-        (void)fprintf(stderr, "%s: no space for block devices\n", Pn);
+        if (ctx->err)
+            (void)fprintf(ctx->err, "%s: no space for block devices\n", Pn);
         Error(ctx);
     }
     if (!(BSdev = (struct l_dev **)malloc(
               (MALLOC_S)(sizeof(struct l_dev *) * BNdev)))) {
-        (void)fprintf(stderr, "%s: no space for block device pointers\n", Pn);
+        if (ctx->err)
+            (void)fprintf(ctx->err, "%s: no space for block device pointers\n",
+                          Pn);
         Error(ctx);
     }
 }
@@ -130,12 +133,14 @@ void alloc_bdcache(struct lsof_context *ctx) {
 void alloc_dcache(struct lsof_context *ctx) {
     if (!(Devtp =
               (struct l_dev *)calloc((MALLOC_S)Ndev, sizeof(struct l_dev)))) {
-        (void)fprintf(stderr, "%s: no space for devices\n", Pn);
+        if (ctx->err)
+            (void)fprintf(ctx->err, "%s: no space for devices\n", Pn);
         Error(ctx);
     }
     if (!(Sdev = (struct l_dev **)malloc(
               (MALLOC_S)(sizeof(struct l_dev *) * Ndev)))) {
-        (void)fprintf(stderr, "%s: no space for device pointers\n", Pn);
+        if (ctx->err)
+            (void)fprintf(ctx->err, "%s: no space for device pointers\n", Pn);
         Error(ctx);
     }
 }
@@ -292,17 +297,21 @@ int dcpath(struct lsof_context *ctx, int rw, /* read (1) or write (2) mode */
     if ((cp1 = getenv(HASENVDC)) && (l = strlen(cp1)) > 0 && !Setuidroot &&
         Myuid && (rw == 1 || !Setgid)) {
         if (!(cp2 = mkstrcpy(cp1, (MALLOC_S *)NULL))) {
-            (void)fprintf(stderr, "%s: no space for device cache path: %s=", Pn,
-                          HASENVDC);
-            safestrprt(cp1, stderr, 1);
+            if (ctx->err) {
+                (void)fprintf(ctx->err,
+                              "%s: no space for device cache path: %s=", Pn,
+                              HASENVDC);
+                safestrprt(cp1, ctx->err, 1);
+            }
             merr = 1;
         } else
             DCpath[1] = cp2;
     } else if (cp1 && l > 0) {
-        if (!Fwarn && wenv) {
-            (void)fprintf(stderr, "%s: WARNING: ignoring environment: %s=", Pn,
+        if (!Fwarn && wenv && ctx->err) {
+            (void)fprintf(ctx->err,
+                          "%s: WARNING: ignoring environment: %s=", Pn,
                           HASENVDC);
-            safestrprt(cp1, stderr, 1);
+            safestrprt(cp1, ctx->err, 1);
         }
         wenv = 0;
     }
@@ -386,10 +395,11 @@ int dcpath(struct lsof_context *ctx, int rw, /* read (1) or write (2) mode */
 
         case 'h':
             if (!p && !(p = getpwuid(Myuid))) {
-                if (!Fwarn)
+                if (!Fwarn && ctx->err)
                     (void)fprintf(
-                        stderr, "%s: WARNING: can't get home dir for UID: %d\n",
-                        Pn, (int)Myuid);
+                        ctx->err,
+                        "%s: WARNING: can't get home dir for UID: %d\n", Pn,
+                        (int)Myuid);
                 ierr = 1;
                 break;
             }
@@ -421,9 +431,9 @@ int dcpath(struct lsof_context *ctx, int rw, /* read (1) or write (2) mode */
         case 'l':
         case 'L':
             if (gethostname(hn, sizeof(hn) - 1) < 0) {
-                if (!Fwarn)
+                if (!Fwarn && ctx->err)
                     (void)fprintf(
-                        stderr,
+                        ctx->err,
                         "%s: WARNING: no gethostname for %%l or %%L: %s\n", Pn,
                         strerror(errno));
                 ierr = 1;
@@ -474,18 +484,18 @@ int dcpath(struct lsof_context *ctx, int rw, /* read (1) or write (2) mode */
                     ierr = 2;
             } else {
                 if (cp2 && l > 0) {
-                    if (!Fwarn && wpp) {
-                        (void)fprintf(stderr,
+                    if (!Fwarn && wpp && ctx->err) {
+                        (void)fprintf(ctx->err,
                                       "%s: WARNING: ignoring environment: %s",
                                       Pn, HASPERSDCPATH);
-                        safestrprt(cp2, stderr, 1);
+                        safestrprt(cp2, ctx->err, 1);
                     }
                     wpp = 0;
                 }
             }
 #        else  /* !defined(HASPERSDCPATH) */
-            if (!Fwarn && wpp)
-                (void)fprintf(stderr,
+            if (!Fwarn && wpp && ctx->err)
+                (void)fprintf(ctx->err,
                               "%s: WARNING: HASPERSDCPATH disabled: %s\n", Pn,
                               HASPERSDC);
             ierr = 1;
@@ -501,9 +511,9 @@ int dcpath(struct lsof_context *ctx, int rw, /* read (1) or write (2) mode */
 
         case 'u':
             if (!p && !(p = getpwuid(Myuid))) {
-                if (!Fwarn)
+                if (!Fwarn && ctx->err)
                     (void)fprintf(
-                        stderr,
+                        ctx->err,
                         "%s: WARNING: can't get login name for UID: %d\n", Pn,
                         (int)Myuid);
                 ierr = 1;
@@ -531,8 +541,8 @@ int dcpath(struct lsof_context *ctx, int rw, /* read (1) or write (2) mode */
             }
             break;
         default:
-            if (!Fwarn)
-                (void)fprintf(stderr,
+            if (!Fwarn && ctx->err)
+                (void)fprintf(ctx->err,
                               "%s: WARNING: bad conversion (%%%c): %s\n", Pn,
                               *cp1, HASPERSDC);
             ierr = 1;
@@ -548,8 +558,8 @@ int dcpath(struct lsof_context *ctx, int rw, /* read (1) or write (2) mode */
          * warning message.  A type 2 intermediate error requires the
          * issuing of a buffer overlow warning message.
          */
-        if (ierr == 2 && !Fwarn)
-            (void)fprintf(stderr,
+        if (ierr == 2 && !Fwarn && ctx->err)
+            (void)fprintf(ctx->err,
                           "%s: WARNING: device cache path too large: %s\n", Pn,
                           HASPERSDC);
         i = 0;
@@ -561,8 +571,11 @@ int dcpath(struct lsof_context *ctx, int rw, /* read (1) or write (2) mode */
      */
     if (i) {
         if (!(cp1 = mkstrcpy(buf, (MALLOC_S *)NULL))) {
-            (void)fprintf(stderr, "%s: no space for device cache path: ", Pn);
-            safestrprt(buf, stderr, 1);
+            if (ctx->err) {
+                (void)fprintf(ctx->err,
+                              "%s: no space for device cache path: ", Pn);
+                safestrprt(buf, ctx->err, 1);
+            }
             merr = 1;
         } else
             DCpath[3] = cp1;
@@ -573,8 +586,10 @@ int dcpath(struct lsof_context *ctx, int rw, /* read (1) or write (2) mode */
      * Quit if there was a malloc() error.  The appropriate error message
      * will have been issued to stderr.
      */
-    if (merr)
+    if (merr) {
         Error(ctx);
+        return (-1);
+    }
     /*
      * Return the index of the first defined path.  Since DCpath[] is arranged
      * in priority order, searching it beginning to end follows priority.
@@ -584,9 +599,9 @@ int dcpath(struct lsof_context *ctx, int rw, /* read (1) or write (2) mode */
         if (DCpath[i])
             return (i);
     }
-    if (!Fwarn && npw)
-        (void)fprintf(stderr, "%s: WARNING: can't form any device cache path\n",
-                      Pn);
+    if (!Fwarn && npw && ctx->err)
+        (void)fprintf(ctx->err,
+                      "%s: WARNING: can't form any device cache path\n", Pn);
     return (-1);
 }
 
@@ -619,8 +634,8 @@ int open_dcache(struct lsof_context *ctx, int m, /* mode: 1 = read; 2 = write */
         if (!is_readable(ctx, DCpath[DCpathX], 0)) {
             if (DCpathX == 2 && errno == ENOENT)
                 return (2);
-            if (!Fwarn)
-                (void)fprintf(stderr, ACCESSERRFMT, Pn, DCpath[DCpathX],
+            if (!Fwarn && ctx->err)
+                (void)fprintf(ctx->err, ACCESSERRFMT, Pn, DCpath[DCpathX],
                               strerror(errno));
             return (1);
         }
@@ -632,15 +647,16 @@ int open_dcache(struct lsof_context *ctx, int m, /* mode: 1 = read; 2 = write */
                 return (1);
 
         cant_open:
-            (void)fprintf(stderr, "%s: WARNING: can't open %s: %s\n", Pn,
-                          DCpath[DCpathX], strerror(errno));
+            if (ctx->err)
+                (void)fprintf(ctx->err, "%s: WARNING: can't open %s: %s\n", Pn,
+                              DCpath[DCpathX], strerror(errno));
             return (1);
         }
         if (stat(DCpath[DCpathX], s) != 0) {
 
         cant_stat:
-            if (!Fwarn)
-                (void)fprintf(stderr, "%s: WARNING: can't stat(%s): %s\n", Pn,
+            if (!Fwarn && ctx->err)
+                (void)fprintf(ctx->err, "%s: WARNING: can't stat(%s): %s\n", Pn,
                               DCpath[DCpathX], strerror(errno));
         close_exit:
             (void)close(DCfd);
@@ -656,8 +672,8 @@ int open_dcache(struct lsof_context *ctx, int m, /* mode: 1 = read; 2 = write */
         else if (!s->st_size)
             w = "is empty";
         if (w) {
-            if (!Fwarn)
-                (void)fprintf(stderr, "%s: WARNING: %s %s.\n", Pn,
+            if (!Fwarn && ctx->err)
+                (void)fprintf(ctx->err, "%s: WARNING: %s %s.\n", Pn,
                               DCpath[DCpathX], w);
             goto close_exit;
         }
@@ -670,9 +686,10 @@ int open_dcache(struct lsof_context *ctx, int m, /* mode: 1 = read; 2 = write */
          */
         if (unlink(DCpath[DCpathX]) < 0) {
             if (errno != ENOENT) {
-                if (!Fwarn)
-                    (void)fprintf(stderr, "%s: WARNING: can't unlink %s: %s\n",
-                                  Pn, DCpath[DCpathX], strerror(errno));
+                if (!Fwarn && ctx->err)
+                    (void)fprintf(ctx->err,
+                                  "%s: WARNING: can't unlink %s: %s\n", Pn,
+                                  DCpath[DCpathX], strerror(errno));
                 return (1);
             }
         }
@@ -691,15 +708,15 @@ int open_dcache(struct lsof_context *ctx, int m, /* mode: 1 = read; 2 = write */
 #    endif /* defined(DVCH_CHOWN) */
 
             {
-                if (!Fwarn)
+                if (!Fwarn && ctx->err)
                     (void)fprintf(
-                        stderr,
+                        ctx->err,
                         "%s: WARNING: can't change ownerships of %s: %s\n", Pn,
                         DCpath[DCpathX], strerror(errno));
             }
         }
-        if (!Fwarn && DCstate != 1 && !DCunsafe)
-            (void)fprintf(stderr,
+        if (!Fwarn && DCstate != 1 && !DCunsafe && ctx->err)
+            (void)fprintf(ctx->err,
                           "%s: WARNING: created device cache file: %s\n", Pn,
                           DCpath[DCpathX]);
         if (stat(DCpath[DCpathX], s) != 0) {
@@ -712,7 +729,9 @@ int open_dcache(struct lsof_context *ctx, int m, /* mode: 1 = read; 2 = write */
         /*
          * Oops!
          */
-        (void)fprintf(stderr, "%s: internal error: open_dcache=%d\n", Pn, m);
+        if (ctx->err)
+            (void)fprintf(ctx->err, "%s: internal error: open_dcache=%d\n", Pn,
+                          m);
         Error(ctx);
     }
     return (1);
@@ -749,16 +768,16 @@ int read_dcache(struct lsof_context *ctx) {
      * DVCH_DEVPATH's mtime/ctime, ignore it, unless -Dr was specified.
      */
     if (stat(DVCH_DEVPATH, &devsb) != 0) {
-        if (!Fwarn)
-            (void)fprintf(stderr, "%s: WARNING: can't stat(%s): %s\n", Pn,
+        if (!Fwarn && ctx->err)
+            (void)fprintf(ctx->err, "%s: WARNING: can't stat(%s): %s\n", Pn,
                           DVCH_DEVPATH, strerror(errno));
     } else {
         if (sb.st_mtime <= devsb.st_mtime || sb.st_ctime <= devsb.st_ctime)
             DCunsafe = 1;
     }
     if (!(DCfs = fdopen(DCfd, "r"))) {
-        if (!Fwarn)
-            (void)fprintf(stderr, "%s: WARNING: can't fdopen(%s)\n", Pn,
+        if (!Fwarn && ctx->err)
+            (void)fprintf(ctx->err, "%s: WARNING: can't fdopen(%s)\n", Pn,
                           DCpath[DCpathX]);
         (void)close(DCfd);
         DCfd = -1;
@@ -771,8 +790,8 @@ int read_dcache(struct lsof_context *ctx) {
     if (!fgets(buf, sizeof(buf), DCfs)) {
 
     cant_read:
-        if (!Fwarn)
-            (void)fprintf(stderr, "%s: WARNING: can't fread %s: %s\n", Pn,
+        if (!Fwarn && ctx->err)
+            (void)fprintf(ctx->err, "%s: WARNING: can't fread %s: %s\n", Pn,
                           DCpath[DCpathX], strerror(errno));
     read_close:
         (void)fclose(DCfs);
@@ -811,19 +830,19 @@ int read_dcache(struct lsof_context *ctx) {
     len = strlen(cbuf);
     (void)snpf(&cbuf[len], sizeof(cbuf) - len, ", dev=%lx\n", (long)DevDev);
     if (!strncmp(buf, cbuf, len) && (buf[len] == '\n')) {
-        if (!Fwarn) {
-            (void)fprintf(stderr, "%s: WARNING: no /dev device in %s: line ",
+        if (!Fwarn && ctx->err) {
+            (void)fprintf(ctx->err, "%s: WARNING: no /dev device in %s: line ",
                           Pn, DCpath[DCpathX]);
-            safestrprt(buf, stderr, 1 + 4 + 8);
+            safestrprt(buf, ctx->err, 1 + 4 + 8);
         }
         goto read_close;
     }
     if (strcmp(buf, cbuf)) {
-        if (!Fwarn) {
-            (void)fprintf(stderr,
+        if (!Fwarn && ctx->err) {
+            (void)fprintf(ctx->err,
                           "%s: WARNING: bad section count line in %s: line ",
                           Pn, DCpath[DCpathX]);
-            safestrprt(buf, stderr, 1 + 4 + 8);
+            safestrprt(buf, ctx->err, 1 + 4 + 8);
         }
         goto read_close;
     }
@@ -837,11 +856,11 @@ int read_dcache(struct lsof_context *ctx) {
     if (strncmp(buf, "device section: ", len) != 0) {
 
     read_dhdr:
-        if (!Fwarn) {
-            (void)fprintf(stderr,
+        if (!Fwarn && ctx->err) {
+            (void)fprintf(ctx->err,
                           "%s: WARNING: bad device section header in %s: line ",
                           Pn, DCpath[DCpathX]);
-            safestrprt(buf, stderr, 1 + 4 + 8);
+            safestrprt(buf, ctx->err, 1 + 4 + 8);
         }
         goto read_close;
     }
@@ -857,8 +876,8 @@ int read_dcache(struct lsof_context *ctx) {
      */
     for (i = 0; i < Ndev; i++) {
         if (!fgets(buf, sizeof(buf), DCfs)) {
-            if (!Fwarn)
-                (void)fprintf(stderr,
+            if (!Fwarn && ctx->err)
+                (void)fprintf(ctx->err,
                               "%s: WARNING: can't read device %d from %s\n", Pn,
                               i + 1, DCpath[DCpathX]);
             goto read_close;
@@ -868,10 +887,11 @@ int read_dcache(struct lsof_context *ctx) {
          * Convert hexadecimal device number.
          */
         if (!(cp = x2dev(buf, &Devtp[i].rdev)) || *cp != ' ') {
-            if (!Fwarn) {
-                (void)fprintf(stderr, "%s: device %d: bad device in %s: line ",
-                              Pn, i + 1, DCpath[DCpathX]);
-                safestrprt(buf, stderr, 1 + 4 + 8);
+            if (!Fwarn && ctx->err) {
+                (void)fprintf(ctx->err,
+                              "%s: device %d: bad device in %s: line ", Pn,
+                              i + 1, DCpath[DCpathX]);
+                safestrprt(buf, ctx->err, 1 + 4 + 8);
             }
             goto read_close;
         }
@@ -880,12 +900,12 @@ int read_dcache(struct lsof_context *ctx) {
          */
         for (cp++, Devtp[i].inode = (INODETYPE)0; *cp != ' '; cp++) {
             if (*cp < '0' || *cp > '9') {
-                if (!Fwarn) {
+                if (!Fwarn && ctx->err) {
                     (void)fprintf(
-                        stderr,
+                        ctx->err,
                         "%s: WARNING: device %d: bad inode # in %s: line ", Pn,
                         i + 1, DCpath[DCpathX]);
-                    safestrprt(buf, stderr, 1 + 4 + 8);
+                    safestrprt(buf, ctx->err, 1 + 4 + 8);
                 }
                 goto read_close;
             }
@@ -898,19 +918,22 @@ int read_dcache(struct lsof_context *ctx) {
          * pointer to Devtp[].
          */
         if ((len = strlen(++cp)) < 2 || *(cp + len - 1) != '\n') {
-            if (!Fwarn) {
-                (void)fprintf(stderr,
+            if (!Fwarn && ctx->err) {
+                (void)fprintf(ctx->err,
                               "%s: WARNING: device %d: bad path in %s: line ",
                               Pn, i + 1, DCpath[DCpathX]);
-                safestrprt(buf, stderr, 1 + 4 + 8);
+                safestrprt(buf, ctx->err, 1 + 4 + 8);
             }
             goto read_close;
         }
         *(cp + len - 1) = '\0';
         if (!(Devtp[i].name = mkstrcpy(cp, (MALLOC_S *)NULL))) {
-            (void)fprintf(stderr, "%s: device %d: no space for path: line ", Pn,
-                          i + 1);
-            safestrprt(buf, stderr, 1 + 4 + 8);
+            if (ctx->err) {
+                (void)fprintf(ctx->err,
+                              "%s: device %d: no space for path: line ", Pn,
+                              i + 1);
+                safestrprt(buf, ctx->err, 1 + 4 + 8);
+            }
             Error(ctx);
         }
         Devtp[i].v = 0;
@@ -926,12 +949,12 @@ int read_dcache(struct lsof_context *ctx) {
     (void)crc(buf, strlen(buf), &DCcksum);
     len = strlen("block device section: ");
     if (strncmp(buf, "block device section: ", len) != 0) {
-        if (!Fwarn) {
+        if (!Fwarn && ctx->err) {
             (void)fprintf(
-                stderr,
+                ctx->err,
                 "%s: WARNING: bad block device section header in %s: line ", Pn,
                 DCpath[DCpathX]);
-            safestrprt(buf, stderr, 1 + 4 + 8);
+            safestrprt(buf, ctx->err, 1 + 4 + 8);
         }
         goto read_close;
     }
@@ -946,9 +969,9 @@ int read_dcache(struct lsof_context *ctx) {
          */
         for (i = 0; i < BNdev; i++) {
             if (!fgets(buf, sizeof(buf), DCfs)) {
-                if (!Fwarn)
+                if (!Fwarn && ctx->err)
                     (void)fprintf(
-                        stderr,
+                        ctx->err,
                         "%s: WARNING: can't read block device %d from %s\n", Pn,
                         i + 1, DCpath[DCpathX]);
                 goto read_close;
@@ -958,11 +981,11 @@ int read_dcache(struct lsof_context *ctx) {
              * Convert hexadecimal device number.
              */
             if (!(cp = x2dev(buf, &BDevtp[i].rdev)) || *cp != ' ') {
-                if (!Fwarn) {
-                    (void)fprintf(stderr,
+                if (!Fwarn && ctx->err) {
+                    (void)fprintf(ctx->err,
                                   "%s: block dev %d: bad device in %s: line ",
                                   Pn, i + 1, DCpath[DCpathX]);
-                    safestrprt(buf, stderr, 1 + 4 + 8);
+                    safestrprt(buf, ctx->err, 1 + 4 + 8);
                 }
                 goto read_close;
             }
@@ -971,12 +994,12 @@ int read_dcache(struct lsof_context *ctx) {
              */
             for (cp++, BDevtp[i].inode = (INODETYPE)0; *cp != ' '; cp++) {
                 if (*cp < '0' || *cp > '9') {
-                    if (!Fwarn) {
-                        (void)fprintf(stderr,
+                    if (!Fwarn && ctx->err) {
+                        (void)fprintf(ctx->err,
                                       "%s: WARNING: block dev %d: bad inode # "
                                       "in %s: line ",
                                       Pn, i + 1, DCpath[DCpathX]);
-                        safestrprt(buf, stderr, 1 + 4 + 8);
+                        safestrprt(buf, ctx->err, 1 + 4 + 8);
                     }
                     goto read_close;
                 }
@@ -989,21 +1012,23 @@ int read_dcache(struct lsof_context *ctx) {
              * pointer to BDevtp[].
              */
             if ((len = strlen(++cp)) < 2 || *(cp + len - 1) != '\n') {
-                if (!Fwarn) {
+                if (!Fwarn && ctx->err) {
                     (void)fprintf(
-                        stderr,
+                        ctx->err,
                         "%s: WARNING: block dev %d: bad path in %s: line", Pn,
                         i + 1, DCpath[DCpathX]);
-                    safestrprt(buf, stderr, 1 + 4 + 8);
+                    safestrprt(buf, ctx->err, 1 + 4 + 8);
                 }
                 goto read_close;
             }
             *(cp + len - 1) = '\0';
             if (!(BDevtp[i].name = mkstrcpy(cp, (MALLOC_S *)NULL))) {
-                (void)fprintf(stderr,
-                              "%s: block dev %d: no space for path: line", Pn,
-                              i + 1);
-                safestrprt(buf, stderr, 1 + 4 + 8);
+                if (ctx->err) {
+                    (void)fprintf(ctx->err,
+                                  "%s: block dev %d: no space for path: line",
+                                  Pn, i + 1);
+                    safestrprt(buf, ctx->err, 1 + 4 + 8);
+                }
                 Error(ctx);
             }
             BDevtp[i].v = 0;
@@ -1033,19 +1058,19 @@ int read_dcache(struct lsof_context *ctx) {
      */
     (void)snpf(cbuf, sizeof(cbuf), "CRC section: %x\n", DCcksum);
     if (!fgets(buf, sizeof(buf), DCfs) || strcmp(buf, cbuf) != 0) {
-        if (!Fwarn) {
-            (void)fprintf(stderr, "%s: WARNING: bad CRC section in %s: line ",
+        if (!Fwarn && ctx->err) {
+            (void)fprintf(ctx->err, "%s: WARNING: bad CRC section in %s: line ",
                           Pn, DCpath[DCpathX]);
-            safestrprt(buf, stderr, 1 + 4 + 8);
+            safestrprt(buf, ctx->err, 1 + 4 + 8);
         }
         goto read_close;
     }
     if (fgets(buf, sizeof(buf), DCfs)) {
-        if (!Fwarn) {
-            (void)fprintf(stderr,
+        if (!Fwarn && ctx->err) {
+            (void)fprintf(ctx->err,
                           "%s: WARNING: data follows CRC section in %s: line ",
                           Pn, DCpath[DCpathX]);
-            safestrprt(buf, stderr, 1 + 4 + 8);
+            safestrprt(buf, ctx->err, 1 + 4 + 8);
         }
         goto read_close;
     }
@@ -1063,8 +1088,8 @@ int read_dcache(struct lsof_context *ctx) {
 #    endif /* defined(DVCH_EXPDEV) */
 
         || sb.st_ino != Devtp[i].inode) {
-        if (!Fwarn)
-            (void)fprintf(stderr, "%s: WARNING: device cache mismatch: %s\n",
+        if (!Fwarn && ctx->err)
+            (void)fprintf(ctx->err, "%s: WARNING: device cache mismatch: %s\n",
                           Pn, Devtp[i].name);
         goto read_close;
     }
@@ -1098,11 +1123,11 @@ int m; /* mode: 1 = read; 2 = write */
         if (!fgets(buf, sizeof(buf), DCfs)) {
 
         bad_clone_sect:
-            if (!Fwarn) {
-                (void)fprintf(stderr,
+            if (!Fwarn && ctx->err) {
+                (void)fprintf(ctx->err,
                               "%s: bad clone section header in %s: line ", Pn,
                               DCpath[DCpathX]);
-                safestrprt(buf, stderr, 1 + 4 + 8);
+                safestrprt(buf, ctx->err, 1 + 4 + 8);
             }
             return (1);
         }
@@ -1117,10 +1142,10 @@ int m; /* mode: 1 = read; 2 = write */
          */
         for (i = 0; i < n; i++) {
             if (fgets(buf, sizeof(buf), DCfs) == NULL) {
-                if (!Fwarn) {
-                    (void)fprintf(stderr, "%s: no %d clone line in %s: line ",
+                if (!Fwarn && ctx->err) {
+                    (void)fprintf(ctx->err, "%s: no %d clone line in %s: line ",
                                   Pn, i + 1, DCpath[DCpathX]);
-                    safestrprt(buf, stderr, 1 + 4 + 8);
+                    safestrprt(buf, ctx->err, 1 + 4 + 8);
                 }
                 return (1);
             }
@@ -1132,12 +1157,12 @@ int m; /* mode: 1 = read; 2 = write */
                 if (*cp < '0' || *cp > '9') {
 
                 bad_clone_index:
-                    if (!Fwarn) {
+                    if (!Fwarn && ctx->err) {
                         (void)fprintf(
-                            stderr,
+                            ctx->err,
                             "%s: clone %d: bad cached device index: line ", Pn,
                             i + 1);
-                        safestrprt(buf, stderr, 1 + 4 + 8);
+                        safestrprt(buf, ctx->err, 1 + 4 + 8);
                     }
                     return (1);
                 }
@@ -1151,10 +1176,13 @@ int m; /* mode: 1 = read; 2 = write */
              * Allocate and complete a clone structure.
              */
             if (!(c = (struct clone *)malloc(sizeof(struct clone)))) {
-                (void)fprintf(stderr,
-                              "%s: clone %d: no space for cached clone: line ",
-                              Pn, i + 1);
-                safestrprt(buf, stderr, 1 + 4 + 8);
+                if (ctx->err) {
+                    (void)fprintf(
+                        ctx->err,
+                        "%s: clone %d: no space for cached clone: line ", Pn,
+                        i + 1);
+                    safestrprt(buf, ctx->err, 1 + 4 + 8);
+                }
                 Error(ctx);
             }
             c->dx = j;
@@ -1181,10 +1209,10 @@ int m; /* mode: 1 = read; 2 = write */
                     break;
             }
             if (j >= Ndev) {
-                if (!Fwarn) {
-                    (void)fprintf(stderr,
+                if (!Fwarn && ctx->err) {
+                    (void)fprintf(ctx->err,
                                   "%s: can't make index for clone: ", Pn);
-                    safestrprt(dp->name, stderr, 1);
+                    safestrprt(dp->name, ctx->err, 1);
                 }
                 (void)unlink(DCpath[DCpathX]);
                 (void)close(DCfd);
@@ -1200,7 +1228,9 @@ int m; /* mode: 1 = read; 2 = write */
     /*
      * A shouldn't-happen case: mode neither 1 nor 2.
      */
-    (void)fprintf(stderr, "%s: internal rw_clone_sect error: %d\n", Pn, m);
+    if (ctx->err)
+        (void)fprintf(ctx->err, "%s: internal rw_clone_sect error: %d\n", Pn,
+                      m);
     Error(ctx);
     return (1); /* This useless return(1) keeps some
                  * compilers happy. */
@@ -1300,8 +1330,8 @@ void write_dcache(struct lsof_context *ctx) {
     if (wr2DCfd(ctx, buf, (unsigned *)NULL))
         return;
     if (close(DCfd) != 0) {
-        if (!Fwarn)
-            (void)fprintf(stderr, "%s: WARNING: can't close %s: %s\n", Pn,
+        if (!Fwarn && ctx->err)
+            (void)fprintf(ctx->err, "%s: WARNING: can't close %s: %s\n", Pn,
                           DCpath[DCpathX], strerror(errno));
         (void)unlink(DCpath[DCpathX]);
         DCfd = -1;
@@ -1332,8 +1362,8 @@ int wr2DCfd(struct lsof_context *ctx, char *b, /* buffer */
         (void)crc(b, bl, c);
     while (bl > 0) {
         if ((bw = write(DCfd, b, bl)) < 0) {
-            if (!Fwarn)
-                (void)fprintf(stderr, "%s: WARNING: can't write to %s: %s\n",
+            if (!Fwarn && ctx->err)
+                (void)fprintf(ctx->err, "%s: WARNING: can't write to %s: %s\n",
                               Pn, DCpath[DCpathX], strerror(errno));
             (void)unlink(DCpath[DCpathX]);
             (void)close(DCfd);

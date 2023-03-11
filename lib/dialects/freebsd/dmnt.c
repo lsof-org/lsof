@@ -65,7 +65,8 @@ struct mounts *readmnt(struct lsof_context *ctx) {
      * Access mount information.
      */
     if ((n = getmntinfo(&mb, MNT_NOWAIT)) <= 0) {
-        (void)fprintf(stderr, "%s: no mount information\n", Pn);
+        if (ctx->err)
+            (void)fprintf(ctx->err, "%s: no mount information\n", Pn);
         return (0);
     }
     /*
@@ -89,16 +90,18 @@ struct mounts *readmnt(struct lsof_context *ctx) {
 
         no_space_for_mount:
 
-            (void)fprintf(stderr, "%s: no space for mount at ", Pn);
-            safestrprt(mb->f_mntonname, stderr, 0);
-            (void)fprintf(stderr, " (");
-            safestrprt(mb->f_mntfromname, stderr, 0);
-            (void)fprintf(stderr, ")\n");
+            if (ctx->err) {
+                (void)fprintf(ctx->err, "%s: no space for mount at ", Pn);
+                safestrprt(mb->f_mntonname, ctx->err, 0);
+                (void)fprintf(ctx->err, " (");
+                safestrprt(mb->f_mntfromname, ctx->err, 0);
+                (void)fprintf(ctx->err, ")\n");
+            }
             Error(ctx);
         }
         if (!(ln = Readlink(ctx, dn))) {
-            if (!Fwarn) {
-                (void)fprintf(stderr,
+            if (!Fwarn && ctx->err) {
+                (void)fprintf(ctx->err,
                               "      Output information may be incomplete.\n");
             }
             continue;
@@ -113,25 +116,25 @@ struct mounts *readmnt(struct lsof_context *ctx) {
          * Stat() the directory.
          */
         if (statsafely(ctx, dn, &sb)) {
-            if (!Fwarn) {
-                (void)fprintf(stderr, "%s: WARNING: can't stat() ", Pn);
+            if (!Fwarn && ctx->err) {
+                (void)fprintf(ctx->err, "%s: WARNING: can't stat() ", Pn);
 
 #if defined(HAS_MNT_NAMES)
-                safestrprt(mnt_names[mb->f_type], stderr, 0);
+                safestrprt(mnt_names[mb->f_type], ctx->err, 0);
 #else  /* !defined(HAS_MNT_NAMES) */
-                safestrprt(mb->f_fstypename, stderr, 0);
+                safestrprt(mb->f_fstypename, ctx->err, 0);
 #endif /* defined(HAS_MNT_NAMES) */
 
-                (void)fprintf(stderr, " file system ");
-                safestrprt(mb->f_mntonname, stderr, 1);
-                (void)fprintf(stderr,
+                (void)fprintf(ctx->err, " file system ");
+                safestrprt(mb->f_mntonname, ctx->err, 1);
+                (void)fprintf(ctx->err,
                               "      Output information may be incomplete.\n");
             }
             (void)bzero((char *)&sb, sizeof(sb));
             sb.st_dev = (dev_t)mb->f_fsid.val[0];
             sb.st_mode = S_IFDIR | 0777;
-            if (!Fwarn) {
-                (void)fprintf(stderr,
+            if (!Fwarn && ctx->err) {
+                (void)fprintf(ctx->err,
                               "      assuming \"dev=%lx\" from mount table\n",
                               (unsigned long)sb.st_dev);
             }
@@ -223,13 +226,16 @@ struct l_vfs *readvfs(struct lsof_context *ctx, uint64_t fsid,
             return (vp);
     }
     if (!(vp = (struct l_vfs *)malloc(sizeof(struct l_vfs)))) {
-        (void)fprintf(stderr, "%s: PID %d, no space for vfs\n", Pn, Lp->pid);
+        if (ctx->err)
+            (void)fprintf(ctx->err, "%s: PID %d, no space for vfs\n", Pn,
+                          Lp->pid);
         Error(ctx);
     }
     if (!(vp->dir = mkstrcpy(m.f_mntonname, (MALLOC_S *)NULL)) ||
         !(vp->fsname = mkstrcpy(m.f_mntfromname, (MALLOC_S *)NULL))) {
-        (void)fprintf(stderr, "%s: PID %d, no space for mount names\n", Pn,
-                      Lp->pid);
+        if (ctx->err)
+            (void)fprintf(ctx->err, "%s: PID %d, no space for mount names\n",
+                          Pn, Lp->pid);
         Error(ctx);
     }
     vp->fsid = fsid;
@@ -245,8 +251,11 @@ struct l_vfs *readvfs(struct lsof_context *ctx, uint64_t fsid,
                 len = MFSNAMELEN - 1;
             if (!(vp->typnm = mkstrcat(m.f_fstypename, len, (char *)NULL, -1,
                                        (char *)NULL, -1, (MALLOC_S *)NULL))) {
-                (void)fprintf(stderr, "%s: no space for fs type name: ", Pn);
-                safestrprt(m.f_fstypename, stderr, 1);
+                if (ctx->err) {
+                    (void)fprintf(ctx->err,
+                                  "%s: no space for fs type name: ", Pn);
+                    safestrprt(m.f_fstypename, ctx->err, 1);
+                }
                 Error(ctx);
             }
         } else

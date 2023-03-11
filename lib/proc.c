@@ -66,8 +66,9 @@ void add_nma(struct lsof_context *ctx, char *cp, /* string to add */
     }
     if (!Lf->nma) {
         if (ctx->err)
-            (void)fprintf(stderr, "%s: no name addition space: PID %ld, FD %s",
-                          Pn, (long)Lp->pid, fd);
+            (void)fprintf(ctx->err,
+                          "%s: no name addition space: PID %ld, FD %s", Pn,
+                          (long)Lp->pid, fd);
         return;
     }
     if (nl) {
@@ -108,8 +109,9 @@ void alloc_lfile(struct lsof_context *ctx,
          * Othwerise, allocate a new structure.
          */
     } else if (!(Lf = (struct lfile *)malloc(sizeof(struct lfile)))) {
-        (void)fprintf(stderr, "%s: no local file space at PID %d\n", Pn,
-                      Lp->pid);
+        if (ctx->err)
+            (void)fprintf(ctx->err, "%s: no local file space at PID %d\n", Pn,
+                          Lp->pid);
         Error(ctx);
         return;
     }
@@ -239,9 +241,11 @@ void alloc_lproc(struct lsof_context *ctx, int pid, /* Process ID */
     if (!Lproc) {
         if (!(Lproc = (struct lproc *)malloc(
                   (MALLOC_S)(LPROCINCR * sizeof(struct lproc))))) {
-            (void)fprintf(stderr,
-                          "%s: no malloc space for %d local proc structures\n",
-                          Pn, LPROCINCR);
+            if (ctx->err)
+                (void)fprintf(
+                    ctx->err,
+                    "%s: no malloc space for %d local proc structures\n", Pn,
+                    LPROCINCR);
             Error(ctx);
             return;
         }
@@ -251,9 +255,11 @@ void alloc_lproc(struct lsof_context *ctx, int pid, /* Process ID */
         if (!(Lproc = (struct lproc *)realloc(
                   (MALLOC_P *)Lproc,
                   (MALLOC_S)(ctx->procs_cap * sizeof(struct lproc))))) {
-            (void)fprintf(stderr,
-                          "%s: no realloc space for %d local proc structures\n",
-                          Pn, ctx->procs_cap);
+            if (ctx->err)
+                (void)fprintf(
+                    ctx->err,
+                    "%s: no realloc space for %d local proc structures\n", Pn,
+                    ctx->procs_cap);
             Error(ctx);
             return;
         }
@@ -280,9 +286,11 @@ void alloc_lproc(struct lsof_context *ctx, int pid, /* Process ID */
      * Allocate space for the full command name and copy it there.
      */
     if (!(Lp->cmd = mkstrcpy(cmd, (MALLOC_S *)NULL))) {
-        (void)fprintf(stderr, "%s: PID %d, no space for command name: ", Pn,
-                      pid);
-        safestrprt(cmd, stderr, 1);
+        if (ctx->err) {
+            (void)fprintf(ctx->err,
+                          "%s: PID %d, no space for command name: ", Pn, pid);
+            safestrprt(cmd, ctx->err, 1);
+        }
         Error(ctx);
         return;
     }
@@ -1350,8 +1358,8 @@ void Exit(struct lsof_context *ctx, enum ExitStatus xv) /* exit() value */
     (void)childx(ctx);
 
 #if defined(HASDCACHE)
-    if (DCrebuilt && !Fwarn)
-        (void)fprintf(stderr, "%s: WARNING: %s was updated.\n", Pn,
+    if (DCrebuilt && !Fwarn && ctx->err)
+        (void)fprintf(ctx->err, "%s: WARNING: %s was updated.\n", Pn,
                       DCpath[DCpathX]);
 #endif /* defined(HASDCACHE) */
 

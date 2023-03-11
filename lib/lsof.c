@@ -1358,9 +1358,9 @@ enum lsof_error lsof_select_inet_internal(struct lsof_context *ctx, char *arg,
     if (arg) {
         if (!(n->arg = mkstrcpy(arg, (MALLOC_S *)NULL))) {
             if (ctx->err) {
-                (void)fprintf(stderr, "%s: no space for Internet argument: -i ",
-                              Pn);
-                safestrprt(arg, stderr, 1);
+                (void)fprintf(ctx->err,
+                              "%s: no space for Internet argument: -i ", Pn);
+                safestrprt(arg, ctx->err, 1);
             }
             Error(ctx);
             ret = LSOF_ERROR_NO_MEMORY;

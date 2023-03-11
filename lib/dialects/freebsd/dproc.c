@@ -279,8 +279,8 @@ static void process_file_descriptors(struct lsof_context *ctx,
             if (Lf->sf)
                 link_lfile(ctx);
         } else if (!ckscko && kfiles[i].kf_fd < 0) {
-            if (!Fwarn)
-                fprintf(stderr, "%s: WARNING -- unsupported fd type %d\n", Pn,
+            if (!Fwarn && ctx->err)
+                fprintf(ctx->err, "%s: WARNING -- unsupported fd type %d\n", Pn,
                         kfiles[i].kf_fd);
         } else {
             alloc_lfile(ctx, LSOF_FD_NUMERIC, kfiles[i].kf_fd);
@@ -401,22 +401,23 @@ void gather_proc_info(struct lsof_context *ctx) {
         }
     }
     if (procs == NULL) {
-        (void)fprintf(stderr, "%s: can't read process table: %s\n", Pn,
-                      strerror(errno));
+        if (ctx->err)
+            (void)fprintf(ctx->err, "%s: can't read process table: %s\n", Pn,
+                          strerror(errno));
         Error(ctx);
     }
     num_procs = len / sizeof(struct kinfo_proc);
-    if (read_xfiles(&xfiles, &n_xfiles) && !Fwarn)
-        fprintf(stderr, "%s: WARNING -- reading xfile list failed: %s\n", Pn,
+    if (read_xfiles(&xfiles, &n_xfiles) && !Fwarn && ctx->err)
+        fprintf(ctx->err, "%s: WARNING -- reading xfile list failed: %s\n", Pn,
                 strerror(errno));
     qsort(xfiles, n_xfiles, sizeof(*xfiles), cmp_xfiles_pid_fd);
     pcbs = read_pcb_lists();
-    if (!pcbs && !Fwarn)
-        fprintf(stderr, "%s: WARNING -- reading PCBs failed: %s\n", Pn,
+    if (!pcbs && !Fwarn && ctx->err)
+        fprintf(ctx->err, "%s: WARNING -- reading PCBs failed: %s\n", Pn,
                 strerror(errno));
 #ifdef KERN_LOCKF
-    if (read_lockf(&locks.locks, &locks.n_locks) && !Fwarn)
-        fprintf(stderr, "%s: WARNING -- reading lockf list failed: %s\n", Pn,
+    if (read_lockf(&locks.locks, &locks.n_locks) && !Fwarn && ctx->err)
+        fprintf(ctx->err, "%s: WARNING -- reading lockf list failed: %s\n", Pn,
                 strerror(errno));
     qsort(locks.locks, locks.n_locks, sizeof(*locks.locks), cmp_kinfo_lockf);
 #endif
@@ -523,7 +524,9 @@ static void get_kernel_access(struct lsof_context *ctx) {
 #else  /* !defined(N_UNIX) */
     {
         if (!(Nmlst = get_nlist_path(ctx, 1))) {
-            (void)fprintf(stderr, "%s: can't get kernel name list path\n", Pn);
+            if (ctx->err)
+                (void)fprintf(ctx->err, "%s: can't get kernel name list path\n",
+                              Pn);
             Error(ctx);
         }
     }
@@ -552,26 +555,29 @@ static void get_kernel_access(struct lsof_context *ctx) {
     if ((Kd = kvm_open(Nmlst, Memory, NULL, O_RDONLY, NULL)) == NULL)
 
     {
-        (void)fprintf(stderr, "%s: kvm_open%s(execfile=%s, corefile=%s): %s\n",
-                      Pn,
+        if (ctx->err)
+            (void)fprintf(ctx->err,
+                          "%s: kvm_open%s(execfile=%s, corefile=%s): %s\n", Pn,
 
-                      "",
+                          "",
 
-                      Nmlst ? Nmlst : "default",
-                      Memory ? Memory :
+                          Nmlst ? Nmlst : "default",
+                          Memory ? Memory :
 
 #if defined(_PATH_MEM)
-                             _PATH_MEM,
+                                 _PATH_MEM,
 #else  /* !defined(_PATH_MEM) */
-                             "default",
+                                 "default",
 #endif /* defined(_PATH_MEM) */
 
-                      strerror(errno));
+                          strerror(errno));
         return;
     }
     (void)build_Nl(ctx, Drive_Nl);
     if (kvm_nlist(Kd, Nl) < 0) {
-        (void)fprintf(stderr, "%s: can't read namelist from %s\n", Pn, Nmlst);
+        if (ctx->err)
+            (void)fprintf(ctx->err, "%s: can't read namelist from %s\n", Pn,
+                          Nmlst);
         Error(ctx);
     }
 
@@ -617,9 +623,11 @@ char *get_nlist_path(struct lsof_context *ctx,
             return ("");
         bfl = (MALLOC_S)(strlen(bf) + 1);
         if (!(bfc = (char *)malloc(bfl))) {
-            (void)fprintf(
-                stderr, "%s: can't allocate %d bytes for boot file path: %s\n",
-                Pn, (int)bfl, bf);
+            if (ctx->err)
+                (void)fprintf(
+                    ctx->err,
+                    "%s: can't allocate %d bytes for boot file path: %s\n", Pn,
+                    (int)bfl, bf);
             Error(ctx);
         }
         (void)snpf(bfc, bfl, "%s", bf);

@@ -139,8 +139,9 @@ printdevname_again:
         ttl = (nty == N_BLK) ? LIKE_BLK_SPEC : LIKE_CHR_SPEC;
         len = (int)(1 + strlen(ttl) + 1 + strlen(dp->name) + 1);
         if (!(cp = (char *)malloc((MALLOC_S)(len + 1)))) {
-            (void)fprintf(stderr, "%s: no nma space for: (%s %s)\n", Pn, ttl,
-                          dp->name);
+            if (ctx->err)
+                (void)fprintf(ctx->err, "%s: no nma space for: (%s %s)\n", Pn,
+                              ttl, dp->name);
             Error(ctx);
         }
         (void)snpf(cp, len + 1, "(%s %s)", ttl, dp->name);
