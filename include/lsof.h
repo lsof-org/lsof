@@ -616,6 +616,11 @@ struct lsof_process {
     /* TASKCMD column */
     char *task_cmd; /**< task command name */
 
+    /* ZONES column */
+    char *solaris_zone; /**< solaris zone name */
+    /* SECURITY-CONTEXT column */
+    char *selinux_context; /**< seLinux context name */
+
     /* PGID column */
     uint32_t pgid; /**< process group ID */
     /* PPID column */

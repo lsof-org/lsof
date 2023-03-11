@@ -242,6 +242,15 @@ enum lsof_error lsof_gather(struct lsof_context *ctx,
             p->task_cmd = lp->tcmd;
             lp->tcmd = NULL;
 #endif
+#if defined(HASZONES)
+            p->solaris_zone = lp->zn;
+            lp->zn = NULL;
+#endif
+#if defined(HASSELINUX)
+            p->selinux_context = lp->cntx;
+            lp->cntx = NULL;
+#endif
+
             p->pgid = lp->pgid;
             p->ppid = lp->ppid;
             p->uid = lp->uid;
@@ -722,6 +731,8 @@ void lsof_free_result(struct lsof_result *result) {
         /* Free process fields */
         CLEAN(p->command);
         CLEAN(p->task_cmd);
+        CLEAN(p->solaris_zone);
+        CLEAN(p->selinux_context);
     }
     CLEAN(result->processes);
     CLEAN(result->selections);
