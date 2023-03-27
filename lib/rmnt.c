@@ -32,7 +32,7 @@
 
 #if defined(USE_LIB_READMNT)
 
-#    include "../lsof.h"
+#    include "common.h"
 
 /*
  * The caller may define:

@@ -32,7 +32,7 @@
 
 #if defined(USE_LIB_CKKV)
 
-#    include "../lsof.h"
+#    include "common.h"
 #    include <sys/utsname.h>
 
 /*

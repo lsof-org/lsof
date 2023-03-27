@@ -40,7 +40,7 @@
 
 #if defined(HASBLKDEV) || defined(USE_LIB_FIND_CH_INO)
 
-#    include "../lsof.h"
+#    include "common.h"
 
 #else  /* !defined(HASBLKDEV) && !defined(USE_LIB_FIND_CH_INO) */
 char fino_d1[] = "d";

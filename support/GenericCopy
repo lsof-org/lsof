@@ -30,7 +30,7 @@ fi
 # Set useful definitions.
 
 SDIR=src/lsof4
-F="00DIALECTS AFSConfig Configure Customize Inventory arg.c lsof_fields.h lsof.h main.c misc.c node.c print.c proc.c proto.h regex.h store.c usage.c util.c version"
+F="00DIALECTS AFSConfig Configure Customize Inventory arg.c lsof_fields.h common.h main.c misc.c node.c print.c proc.c proto.h regex.h store.c usage.c util.c version"
 
 cd $HOME/$SDIR
 

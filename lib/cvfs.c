@@ -43,7 +43,7 @@
 
 #if defined(USE_LIB_COMPLETEVFS)
 
-#    include "../lsof.h"
+#    include "common.h"
 
 /*
  * completevfs() - complete local vfs structure
