@@ -32,7 +32,7 @@
 
 #if defined(USE_LIB_PROCESS_FILE)
 
-#    include "../lsof.h"
+#    include "common.h"
 
 /*
  * process_file() - process file

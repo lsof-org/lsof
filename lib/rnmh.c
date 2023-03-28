@@ -33,7 +33,7 @@
 
 #if defined(HASNCACHE) && defined(USE_LIB_RNMH)
 
-#    include "../lsof.h"
+#    include "common.h"
 
 /*
  * rnmh.c - read BSD format hashed kernel name cache

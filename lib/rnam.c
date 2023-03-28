@@ -32,7 +32,7 @@
 
 #if defined(HASNCACHE) && defined(USE_LIB_RNAM)
 
-#    include "../lsof.h"
+#    include "common.h"
 
 /*
  * rnam.c - read BSD format (struct namecache or nch) name cache

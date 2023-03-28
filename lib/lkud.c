@@ -40,7 +40,7 @@
 
 #if defined(HASBLKDEV) || defined(USE_LIB_LKUPDEV)
 
-#    include "../lsof.h"
+#    include "common.h"
 
 #else  /* !defined(HASBLKDEV) && !defined(USE_LIB_LKUPDEV) */
 char lkud_d1[] = "d";

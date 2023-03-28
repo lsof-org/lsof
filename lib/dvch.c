@@ -32,7 +32,7 @@
 
 #if defined(HASDCACHE)
 
-#    include "../lsof.h"
+#    include "common.h"
 
 /*
  * dvch.c - module that contains common device cache functions

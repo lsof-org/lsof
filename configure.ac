@@ -458,7 +458,7 @@ AC_CONFIG_HEADERS([config.h])
 
 # For VPATH building
 AC_CONFIG_LINKS([tests/common.bash:tests/common.bash
-	dialects/linux/tests/util-open-flags.bash:dialects/linux/tests/util-open-flags.bash
+	lib/dialects/linux/tests/util-open-flags.bash:lib/dialects/linux/tests/util-open-flags.bash
 	Lsof.8:Lsof.8 00DIALECTS:00DIALECTS 00DIST:00DIST])
 
 # Generate cflags for tests

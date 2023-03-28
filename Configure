@@ -296,8 +296,8 @@ do
       echo "rm -f dialects/sun/solaris10"	# DEBUG -- for s10_44
       rm -f dialects/hpux/kmem/hpux_mount.h
       echo "rm -f dialects/hpux/kmem/hpux_mount.h"
-      rm -rf dialects/netbsd/include
-      echo "rm -rf dialects/netbsd/include"
+      rm -rf lib/dialects/netbsd/include
+      echo "rm -rf lib/dialects/netbsd/include"
       rm -f dialects/uw/uw7/vm/swap.h
       echo "rm -f dialects/uw/uw7/vm/swap.h"
       rm -f ${LSOF_LIB}/${LSOF_LIBMKF}
@@ -3314,13 +3314,13 @@ return(0); }
 
   # Build special header files, as required.
 
-    rm -rf dialects/netbsd/include
+    rm -rf lib/dialects/netbsd/include
     if test "X$NETBSD_UVM" = "XY" -o "X$NETBSD_UVM" = "Xy"	# {
     then
-      mkdir dialects/netbsd/include
-      touch dialects/netbsd/include/opt_uvmhist.h
-      touch dialects/netbsd/include/opt_lockdebug.h
-      LSOF_CFGF="$LSOF_CFGF -DUVM -I`pwd`/dialects/netbsd/include"
+      mkdir lib/dialects/netbsd/include
+      touch lib/dialects/netbsd/include/opt_uvmhist.h
+      touch lib/dialects/netbsd/include/opt_lockdebug.h
+      LSOF_CFGF="$LSOF_CFGF -DUVM -I`pwd`/lib/dialects/netbsd/include"
       if test -d ${LSOF_INCLUDE}/uvm	# {
       then
 	LSOF_CFGF="$LSOF_CFGF -DHAS_UVM_INCL"
@@ -3347,10 +3347,10 @@ return(0); }
       LSOF_TMP1=${LSOF_TMPC}.edscr
       LSOF_TMP2=${LSOF_TMPC}.netcred
       LSOF_TMP3=${LSOF_TMPC}.netexport
-      LSOF_TMP4=dialects/netbsd/include/netexport.h
-      if test ! -d dialects/netbsd/include	# {
+      LSOF_TMP4=lib/dialects/netbsd/include/netexport.h
+      if test ! -d lib/dialects/netbsd/include	# {
       then
-	mkdir dialects/netbsd/include
+	mkdir lib/dialects/netbsd/include
       fi	# }
       rm -f $LSOF_TMP1 $LSOF_TMP2 $LSOF_TMP3 $LSOF_TMP4
       echo "/^struct netcred" > $LSOF_TMP1
@@ -3386,10 +3386,10 @@ return(0); }
       fi	# }
       echo "#endif	/* !defined(NETEXPORT_H) */" >> $LSOF_TMP4
       rm -f $LSOF_TMP1 $LSOF_TMP2 $LSOF_TMP3
-      echo $LSOF_CFGF | grep /dialects/netbsd/include > /dev/null 2>&1
+      echo $LSOF_CFGF | grep /lib/dialects/netbsd/include > /dev/null 2>&1
       if test $? -ne 0	# {
       then
-	LSOF_CFGF="$LSOF_CFGF -I`pwd`/dialects/netbsd/include"
+	LSOF_CFGF="$LSOF_CFGF -I`pwd`/lib/dialects/netbsd/include"
       fi	# }
     fi	# }
     if test $LSOF_NBSD_BUFQH -eq 1	# {
@@ -3397,19 +3397,19 @@ return(0); }
 
     # Make a local copy of $NETBSD_SYS/sys/bufq.h.
 
-      if test ! -d dialects/netbsd/include	# {
+      if test ! -d lib/dialects/netbsd/include	# {
       then
-	mkdir dialects/netbsd/include
+	mkdir lib/dialects/netbsd/include
       fi	# }
-      if test ! -d dialects/netbsd/include/sys	# {
+      if test ! -d lib/dialects/netbsd/include/sys	# {
       then
-	mkdir dialects/netbsd/include/sys
+	mkdir lib/dialects/netbsd/include/sys
       fi	# }
-      cp $NETBSD_SYS/sys/bufq.h dialects/netbsd/include/sys
-      echo $LSOF_CFGF | grep /dialects/netbsd/include > /dev/null 2>&1
+      cp $NETBSD_SYS/sys/bufq.h lib/dialects/netbsd/include/sys
+      echo $LSOF_CFGF | grep lib/dialects/netbsd/include > /dev/null 2>&1
       if test $? -ne 0	# {
       then
-	LSOF_CFGF="$LSOF_CFGF -I`pwd`/dialects/netbsd/include"
+	LSOF_CFGF="$LSOF_CFGF -I`pwd`lib/dialects/netbsd/include"
       fi	# }
     fi	# }
     if test $LSOF_NBSD_PTYFS -eq 1	# {
@@ -3417,21 +3417,21 @@ return(0); }
 
     # Make a local copy of $NETBSD_SYS/sys/fs/ptyfs/.
 
-      if test ! -d dialects/netbsd/include	# {
+      if test ! -d lib/dialects/netbsd/include	# {
       then
-	mkdir dialects/netbsd/include
+	mkdir lib/dialects/netbsd/include
       fi	# }
-      if test ! -d dialects/netbsd/include/fs	# {
+      if test ! -d lib/dialects/netbsd/include/fs	# {
       then
-	mkdir dialects/netbsd/include/fs
+	mkdir lib/dialects/netbsd/include/fs
       fi	# }
-      rm -rf dialects/netbsd/include/fs/ptyfs
-      mkdir dialects/netbsd/include/fs/ptyfs
-      cp $NETBSD_SYS/fs/ptyfs/*.h dialects/netbsd/include/fs/ptyfs
-      echo $LSOF_CFGF | grep /dialects/netbsd/include > /dev/null 2>&1
+      rm -rf lib/dialects/netbsd/include/fs/ptyfs
+      mkdir lib/dialects/netbsd/include/fs/ptyfs
+      cp $NETBSD_SYS/fs/ptyfs/*.h lib/dialects/netbsd/include/fs/ptyfs
+      echo $LSOF_CFGF | grep lib/dialects/netbsd/include > /dev/null 2>&1
       if test $? -ne 0	# {
       then
-	LSOF_CFGF="$LSOF_CFGF -I`pwd`/dialects/netbsd/include"
+	LSOF_CFGF="$LSOF_CFGF -I`pwd`/lib/dialects/netbsd/include"
       fi	# }
     fi	# }
     if test $LSOF_NBSD_TMPFS -eq 1     # {
@@ -3439,21 +3439,21 @@ return(0); }
 
     # Make a local copy of $NETBSD_SYS/sys/fs/tmpfs/tmpfs.h.
 
-      if test ! -d dialects/netbsd/include     # {
+      if test ! -d lib/dialects/netbsd/include     # {
       then
-       mkdir dialects/netbsd/include
+       mkdir lib/dialects/netbsd/include
       fi       # }
-      if test ! -d dialects/netbsd/include/fs  # {
+      if test ! -d lib/dialects/netbsd/include/fs  # {
       then
-       mkdir dialects/netbsd/include/fs
+       mkdir lib/dialects/netbsd/include/fs
       fi       # }
-      rm -rf dialects/netbsd/include/fs/tmpfs
-      mkdir dialects/netbsd/include/fs/tmpfs
-      cp $NETBSD_SYS/fs/tmpfs/tmpfs.h dialects/netbsd/include/fs/tmpfs
-      echo $LSOF_CFGF | grep /dialects/netbsd/include > /dev/null 2>&1
+      rm -rf lib/dialects/netbsd/include/fs/tmpfs
+      mkdir lib/dialects/netbsd/include/fs/tmpfs
+      cp $NETBSD_SYS/fs/tmpfs/tmpfs.h lib/dialects/netbsd/include/fs/tmpfs
+      echo $LSOF_CFGF | grep lib/dialects/netbsd/include > /dev/null 2>&1
       if test $? -ne 0 # {
       then
-       LSOF_CFGF="$LSOF_CFGF -I`pwd`/dialects/netbsd/include"
+       LSOF_CFGF="$LSOF_CFGF -I`pwd`lib/dialects/netbsd/include"
       fi       # }
     fi # }
 
@@ -4824,18 +4824,18 @@ fi	# }
 
 # Make sure target directory exists.
 
-if test ! -d ./dialects/$LSOF_DIALECT_DIR	# {
+if test ! -d ./lib/dialects/$LSOF_DIALECT_DIR	# {
 then
-  echo "Can't configure for $LSOF_TGT -- ./dialects/$LSOF_DIALECT_DIR doesn't exist."
+  echo "Can't configure for $LSOF_TGT -- ./lib/dialects/$LSOF_DIALECT_DIR doesn't exist."
   rm -f $LSOF_HLP
   exit 1
 fi	# }
 
 # Make sure $LSOF_MK exists in the target directory.
 
-if test ! -r ./dialects/$LSOF_DIALECT_DIR/$LSOF_MK	# {
+if test ! -r ./lib/dialects/$LSOF_DIALECT_DIR/$LSOF_MK	# {
 then
-  echo "Can't configure for $LSOF_TGT -- ./dialects/$LSOF_DIALECT_DIR/$LSOF_MK doesn't exist."
+  echo "Can't configure for $LSOF_TGT -- ./lib/dialects/$LSOF_DIALECT_DIR/$LSOF_MK doesn't exist."
   rm -f $LSOF_HLP
   exit 1
 fi	# }
@@ -4855,9 +4855,9 @@ then
 else
   LSOF_REST=$LSOF_TMP1
 fi	# }
-if test ! -r ./dialects/$LSOF_DIALECT_DIR/$LSOF_REST	# {
+if test ! -r ./lib/dialects/$LSOF_DIALECT_DIR/$LSOF_REST	# {
 then
-  echo "Can't configure for $LSOF_TGT -- ./dialects/$LSOF_DIALECT_DIR/$LSOF_REST doesn't exist."
+  echo "Can't configure for $LSOF_TGT -- ./lib/dialects/$LSOF_DIALECT_DIR/$LSOF_REST doesn't exist."
   rm -f $LSOF_HLP
   exit 1
 fi	# }
@@ -4943,7 +4943,7 @@ if test "X$LSOF_MKC" = "X"	# {
 then
   LSOF_MKC="ln -s"
 fi	# }
-LSOF_MKC=$LSOF_MKC ./dialects/$LSOF_DIALECT_DIR/$LSOF_MK $LSOF_TGT $LSOF_VERS
+LSOF_MKC=$LSOF_MKC ./lib/dialects/$LSOF_DIALECT_DIR/$LSOF_MK $LSOF_TGT $LSOF_VERS
 
 # Make $LSOF_MKFC and ${LSOF_LIB}/$LSOF_LIBMKF.
 
@@ -5024,12 +5024,14 @@ then
   echo "" >> $LSOF_MKFC
   echo "KVM=	$LSOF_DISTRIBKVM" >> $LSOF_MKFC
 fi	# }
+echo "" >> $LSOF_MKFC
+echo "DIALECT_DIR=	$LSOF_DIALECT_DIR" >> $LSOF_MKFC
 rm -f ${LSOF_LIB}/$LSOF_LIBMKF
 if test "X$LSOF_LIB_NO" = "X"	# {
 then
   cp $LSOF_MKFC ${LSOF_LIB}/$LSOF_LIBMKF
 fi	# }
-cat ./dialects/$LSOF_DIALECT_DIR/$LSOF_REST >> $LSOF_MKFC
+cat ./lib/dialects/$LSOF_DIALECT_DIR/$LSOF_REST >> $LSOF_MKFC
 if test "X$LSOF_CFLAGS_OVERRIDE" != "X"	# {
 then
   sed -i -e 's/^CFLAGS=/override CFLAGS=/' $LSOF_MKFC
@@ -5043,6 +5045,8 @@ then
   #
   # Add the library Makefile skeleton section.
 
+  echo "" >> ${LSOF_LIB}/$LSOF_LIBMKF
+  echo "DIALECT_DIR=	$LSOF_DIALECT_DIR" >> ${LSOF_LIB}/$LSOF_LIBMKF
   echo "" >> ${LSOF_LIB}/$LSOF_LIBMKF
   if test "X$LSOF_AR" = "X"	# {
   then

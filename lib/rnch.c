@@ -32,7 +32,7 @@
 
 #if defined(HASNCACHE) && defined(USE_LIB_RNCH)
 
-#    include "../lsof.h"
+#    include "common.h"
 
 /*
  * rnch.c - read Sun format (struct ncache) name cache

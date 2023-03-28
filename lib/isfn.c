@@ -55,7 +55,7 @@
 
 #if defined(USE_LIB_IS_FILE_NAMED)
 
-#    include "../lsof.h"
+#    include "common.h"
 
 /*
  * Local structures

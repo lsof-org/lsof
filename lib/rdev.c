@@ -32,7 +32,7 @@
 
 #if defined(USE_LIB_READDEV)
 
-#    include "../lsof.h"
+#    include "common.h"
 
 _PROTOTYPE(static int rmdupdev, (struct l_dev * **dp, int n, char *nm));
 

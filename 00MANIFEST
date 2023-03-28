@@ -21,7 +21,7 @@ arg.c
 dialects/
 lib/
 lsof.8
-lsof.h
+common.h
 lsof.man
 lsof_fields.h
 main.c
