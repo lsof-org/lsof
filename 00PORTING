@@ -444,10 +444,6 @@ to be compiled and archived to liblsof.a.
 			NCACHE_VP, X_NCACHE, and X_NCSIZE, customize
 			them.
 
-    snpf.c		Source for the snprintf() family of functions
-
-			USE_LIB_SNPF selects it.
-
 
 The comments and the source code in these library files give more
 information on customization.

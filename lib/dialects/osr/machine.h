@@ -520,12 +520,8 @@
 /* #define	USE_LIB_RNAM			1	   rnam.c */
 /* #define	USE_LIB_RNCH			1	   rnch.c */
 /* #define	USE_LIB_RNMH			1	   rnmh.c */
-
-#    if OSRV < 500
-#        define USE_LIB_SNPF 1 /* snpf.c */
-#    else                      /* OSRV>=500 */
-#        define snpf snprintf  /* use the system's snprintf() */
-#    endif                     /* OSRV<500 */
+/* #define	USE_LIB_SNPF			1	   snpf.c */
+#    define snpf snprintf /* use the system's snprintf() */
 
 /*
  * WARNDEVACCESS is defined for those dialects that should issue a warning

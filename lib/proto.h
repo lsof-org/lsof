@@ -327,8 +327,4 @@ _PROTOTYPE(extern int readtnode, (KA_T ta, struct tmpnode *t));
 _PROTOTYPE(extern int readvnode, (KA_T va, struct vnode *v));
 #    endif /* defined(HASVNODE) */
 
-#    if defined(USE_LIB_SNPF)
-_PROTOTYPE(extern int snpf, (char *str, int len, char *fmt, ...));
-#    endif /* defined(USE_LIB_SNPF) */
-
 #endif /* !defined(PROTO_H) */
