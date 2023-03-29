@@ -68,6 +68,7 @@ _PROTOTYPE(extern void alloc_lproc, (int pid, int pgid, int ppid, UID_ARG uid,
                                      char *cmd, int pss, int sf));
 _PROTOTYPE(extern void build_IPstates, (void));
 _PROTOTYPE(extern void childx, (void));
+_PROTOTYPE(extern void closefrom_shim, (int low));
 _PROTOTYPE(extern int ck_fd_status, (char *nm, int num));
 _PROTOTYPE(extern int ck_file_arg, (int i, int ac, char *av[], int fv, int rs,
                                     struct stat *sbp, int accept_deleted_file));

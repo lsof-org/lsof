@@ -214,6 +214,28 @@ COMP_P *a1, *a2;
 }
 
 /*
+ * closefrom_shim() -- provide closefrom() when unavailable
+ */
+void closefrom_shim(int low) {
+    int i;
+#if defined(HAS_CLOSEFROM)
+    (void)closefrom(low);
+#else /* !defined(HAS_CLOSEFROM) */
+    /* fallback to SYS_close_range */
+#    if defined(SYS_close_range)
+    if (MaxFd > low && syscall(SYS_close_range, low, MaxFd - 1, 0) == 0)
+        goto closed;
+#    endif
+    /* slow fallback */
+    for (i = low; i < MaxFd; i++)
+        (void)close(i);
+#    if defined(SYS_close_range)
+closed:
+#    endif
+#endif /* !defined(HAS_CLOSEFROM) */
+}
+
+/*
  * doinchild() -- do a function in a child process
  */
 
@@ -285,7 +307,7 @@ int rbln; /* response buffer length */
                  * Pipes[3].
                  */
 
-#if defined(HAS_DUP2) && defined(HAS_CLOSEFROM)
+#if defined(HAS_DUP2)
                 int rc;
 
                 rc = dup2(Pipes[0], 0);
@@ -304,11 +326,11 @@ int rbln; /* response buffer length */
                     Error();
                 }
                 Pipes[3] = 1;
-                (void)closefrom(2);
+                (void)closefrom_shim(2);
                 Pipes[1] = -1;
                 Pipes[2] = -1;
 
-#else  /* !defined(HAS_DUP2) && !defined(HAS_CLOSEFROM) */
+#else  /* !defined(HAS_DUP2) */
                 int fd;
 
                 for (fd = 0; fd < MaxFd; fd++) {
@@ -328,7 +350,7 @@ int rbln; /* response buffer length */
                     (void)close(Pipes[2]);
                     Pipes[2] = -1;
                 }
-#endif /* defined(HAS_DUP2) && defined(HAS_CLOSEFROM) */
+#endif /* defined(HAS_DUP2) */
 
                 /*
                  * Read function requests, process them, and return replies.
