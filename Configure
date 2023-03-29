@@ -2471,6 +2471,23 @@ return(0); }
       fi	# }
     fi	# }
 
+  # Test for dup2 and closefrom
+
+    if test -f ${LSOF_INCLUDE}/unistd.h # {
+    then
+      grep -q dup2 ${LSOF_INCLUDE}/unistd.h
+      if test $? -eq 0 # {
+      then
+        LSOF_CFGF="$LSOF_CFGF -DHAS_DUP2"
+      fi	# }
+
+      grep -q closefrom ${LSOF_INCLUDE}/unistd.h
+      if test $? -eq 0 # {
+      then
+        LSOF_CFGF="$LSOF_CFGF -DHAS_CLOSEFROM"
+      fi	# }
+    fi	# }
+
     LSOF_DIALECT_DIR="linux"
     LSOF_CFGF="$LSOF_CFGF -D_FILE_OFFSET_BITS=64 -D_LARGEFILE64_SOURCE"
     ;;

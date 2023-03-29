@@ -193,4 +193,12 @@
 #define HASFDLINK
 #endif
 
+#if HAVE_DECL_DUP2
+#define HAS_DUP2
+#endif
+
+#if HAVE_DECL_CLOSEFROM
+#define HAS_CLOSEFROM
+#endif
+
 #endif
