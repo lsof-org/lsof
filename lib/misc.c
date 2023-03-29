@@ -224,14 +224,11 @@ void closefrom_shim(int low) {
     /* fallback to SYS_close_range */
 #    if defined(SYS_close_range)
     if (MaxFd > low && syscall(SYS_close_range, low, MaxFd - 1, 0) == 0)
-        goto closed;
+        return;
 #    endif
     /* slow fallback */
     for (i = low; i < MaxFd; i++)
         (void)close(i);
-#    if defined(SYS_close_range)
-closed:
-#    endif
 #endif /* !defined(HAS_CLOSEFROM) */
 }
 
