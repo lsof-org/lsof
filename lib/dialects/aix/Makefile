@@ -21,7 +21,7 @@ CFLAGS=	${CDEFS} ${INCL} ${DEBUG}
 
 GRP=
 
-HDR=    lsof.h lsof_fields.h dlsof.h machine.h proto.h dproto.h
+HDR=    common.h lsof_fields.h dlsof.h machine.h proto.h dproto.h
 
 SRC=    ddev.c dfile.c dmnt.c dnode.c dnode1.c dnode2.c dproc.c dsock.c \
 	dstore.c arg.c main.c misc.c node.c print.c proc.c store.c usage.c \

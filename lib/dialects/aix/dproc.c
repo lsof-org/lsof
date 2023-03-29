@@ -256,12 +256,12 @@ char *ea;                         /* expected architecture */
 
         (void)fprintf(stderr, "%s: can't execute %s: %s\n", Pn, OSLEVELPATH,
                       strerror(errno));
-        Error();
+        Errror(ctx);
     }
     if ((sb.st_mode & (S_IROTH | S_IXOTH)) != (S_IROTH | S_IXOTH)) {
         (void)fprintf(stderr, "%s: can't execute %s, modes: %o\n", Pn,
                       OSLEVELPATH, sb.st_mode);
-        Error();
+        Errror(ctx);
     }
     /*
      * Open a pipe for receiving the version number from OSLEVEL.  Fork a
@@ -270,7 +270,7 @@ char *ea;                         /* expected architecture */
     if (pipe(p)) {
         (void)fprintf(stderr, "%s: can't create pipe to: %s\n", Pn,
                       OSLEVELPATH);
-        Error();
+        Errror(ctx);
     }
     if ((pid = fork()) == 0) {
         (void)close(1);
@@ -285,7 +285,7 @@ char *ea;                         /* expected architecture */
     if (pid < 0) {
         (void)fprintf(stderr, "%s: can't fork a child for %s: %s\n", Pn,
                       OSLEVELPATH, strerror(errno));
-        Error();
+        Errror(ctx);
     }
     (void)close(p[1]);
     br = read(p[0], buf, sizeof(buf) - 1);
@@ -420,7 +420,7 @@ void gather_proc_info() {
     if (!P) {
         if (!(P = (struct PROCINFO *)malloc((MALLOC_S)PROCSIZE))) {
             (void)fprintf(stderr, "%s: can't allocate space for 1 proc\n", Pn);
-            Error();
+            Errror(ctx);
         }
         Np = 1;
     }
@@ -429,7 +429,7 @@ void gather_proc_info() {
         if (!(P = (struct PROCINFO *)realloc((MALLOC_P *)P,
                                              (size_t)(Np * PROCSIZE)))) {
             (void)fprintf(stderr, "%s: no space for %d procinfo's\n", Pn, Np);
-            Error();
+            Errror(ctx);
         }
     }
 #else  /* AIXV>=4300 */
@@ -438,7 +438,7 @@ void gather_proc_info() {
         if (!(P = (struct PROCINFO *)malloc(msz))) {
             (void)fprintf(stderr, "%s: can't allocate space for %d procs\n", Pn,
                           PROCINFO_INCR);
-            Error();
+            Errror(ctx);
         }
         Np = PROCINFO_INCR;
     }
@@ -452,7 +452,7 @@ void gather_proc_info() {
             if (!(P = (struct PROCINFO *)realloc((MALLOC_P *)P, msz))) {
                 (void)fprintf(stderr, "%s: no more space for proc storage\n",
                               Pn);
-                Error();
+                Errror(ctx);
             }
             Np += PROCINFO_INCR;
         }
@@ -548,7 +548,7 @@ void gather_proc_info() {
                 (void)fprintf(stderr,
                               "%s: can't allocate fdsinfo struct for PID %d\n",
                               Pn, pid);
-                Error();
+                Errror(ctx);
             }
         }
         pid = p->p_pid;
@@ -779,7 +779,7 @@ static void get_kernel_access() {
                       kbb);
         (void)fprintf(stderr, "      The bit size of this kernel is %s.\n",
                       kbr);
-        Error();
+        Errror(ctx);
     }
 #endif /* defined(AIX_KERNBITS) */
 
@@ -803,8 +803,8 @@ static void get_kernel_access() {
     /*
      * See if the non-KMEM memory file is readable.
      */
-    if (Memory && !is_readable(Memory, 1))
-        Error();
+    if (Memory && !is_readable(ctx, Memory, 1))
+        Errror(ctx);
 #endif /* defined(WILLDROPGID) */
 
     /*
@@ -816,7 +816,7 @@ static void get_kernel_access() {
         oe++;
     }
     if (oe)
-        Error();
+        Errror(ctx);
 
 #if defined(WILLDROPGID)
     /*
@@ -832,7 +832,7 @@ static void get_kernel_access() {
     if (knlist(Nl, X_NL_NUM, sizeof(struct nlist)) || !Nl[X_UADDR].n_value) {
         (void)fprintf(stderr, "%s: can't get kernel's %s address\n", Pn,
                       Nl[X_UADDR].n_name);
-        Error();
+        Errror(ctx);
     }
 
 #if defined(HAS_AFS)
@@ -1008,7 +1008,7 @@ static void getsoinfo() {
     if (!(SoHash = (so_hash_t **)calloc((MALLOC_S)SOHASHBUCKS,
                                         sizeof(so_hash_t *)))) {
         (void)fprintf(stderr, "%s: no space for *.so hash buckets\n", Pn);
-        Error();
+        Errror(ctx);
     }
     /*
      * Cache the loader module information, complete with stat(2) results.
@@ -1032,7 +1032,7 @@ static void getsoinfo() {
         if (!(rn = mkstrcpy(lp->mi_name, (MALLOC_S *)NULL))) {
             (void)fprintf(stderr, "%s: no space for name: %s\n", Pn,
                           lp->mi_name);
-            Error();
+            Errror(ctx);
         }
         /*
          * Resolve symbolic links.
@@ -1054,7 +1054,7 @@ static void getsoinfo() {
         if (!(sp = (so_hash_t *)malloc((MALLOC_S)sizeof(so_hash_t)))) {
             (void)fprintf(stderr, "%s: no space for *.so hash entry: %s\n", Pn,
                           ln);
-            Error();
+            Errror(ctx);
         }
         sp->dev = sb.st_dev;
         sp->nlink = (int)sb.st_nlink;
@@ -1154,7 +1154,7 @@ lowpgsp(sig)
 int sig;
 {
     (void)fprintf(stderr, "%s: FATAL: system paging space is low.\n", Pn);
-    Error();
+    Errror(ctx);
 }
 #endif /* defined(SIGDANGER) */
 
@@ -1259,7 +1259,7 @@ static void process_text(sid) KA_T sid; /* user area segment ID */
             if (!f) {
                 (void)fprintf(stderr, "%s: no space for text file pointers\n",
                               Pn);
-                Error();
+                Errror(ctx);
             }
         }
         f[n++] = le->fp;

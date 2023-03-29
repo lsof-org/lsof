@@ -172,7 +172,7 @@ void gather_proc_info() {
                 (void)fprintf(stderr,
                               "%s: PID %d; no space for %d file descriptors\n",
                               Pn, pid, nf);
-                Error();
+                Error(ctx);
             }
             nfea = nf;
         }
@@ -232,7 +232,7 @@ static int get_clonemaj() {
     len = (MALLOC_S)(sz * sizeof(struct cdevsw));
     if (!(cd = (struct cdevsw *)malloc(len))) {
         (void)fprintf(stderr, "%s: can't allocate %d bytes for cdevsw\n", Pn);
-        Error();
+        Error(ctx);
     }
     /*
      * Read the cdevsw[] from kernel memory.
@@ -293,7 +293,7 @@ static void get_kernel_access() {
      * See if the non-KMEM memory file is readable.
      */
     if (Memory && !is_readable(Memory, 1))
-        Error();
+        Error(ctx);
 #endif /* defined(WILLDROPGID) */
 
     /*
@@ -302,7 +302,7 @@ static void get_kernel_access() {
     if ((Kd = open(Memory ? Memory : KMEM, O_RDONLY, 0)) < 0) {
         (void)fprintf(stderr, "%s: can't open %s: %s\n", Pn,
                       Memory ? Memory : KMEM, strerror(errno));
-        Error();
+        Error(ctx);
     }
 
 #if defined(WILLDROPGID)
@@ -316,7 +316,7 @@ static void get_kernel_access() {
      * See if the name list file is readable.
      */
     if (Nmlst && !is_readable(Nmlst, 1))
-        Error();
+        Error(ctx);
 #endif /* defined(WILLDROPGID) */
 
     /*
@@ -326,17 +326,17 @@ static void get_kernel_access() {
     if (nlist(Nmlst ? Nmlst : N_UNIX, Nl) < 0) {
         (void)fprintf(stderr, "%s: can't read kernel name list from %s\n", Pn,
                       Nmlst ? Nmlst : N_UNIX);
-        Error();
+        Error(ctx);
     }
     if (get_Nl_value("var", Drive_Nl, &v) < 0 || !v ||
         kread((KA_T)v, (char *)&Var, sizeof(Var))) {
         (void)fprintf(stderr, "%s: can't read system configuration info\n", Pn);
-        Error();
+        Error(ctx);
     }
     if (get_Nl_value("proc", Drive_Nl, &Pract) < 0 || !Pract) {
         (void)fprintf(stderr, "%s: can't find active process chain pointer\n",
                       Pn);
-        Error();
+        Error(ctx);
     }
     if (get_Nl_value("sgdnops", Drive_Nl, &Sgdnops) < 0 || !Sgdnops)
         Sgdnops = (unsigned long)0;
@@ -478,26 +478,26 @@ static void readfsinfo() {
     if ((Fsinfomax = sysfs(GETNFSTYP)) == -1) {
         (void)fprintf(stderr, "%s: sysfs(GETNFSTYP) error: %s\n", Pn,
                       strerror(errno));
-        Error();
+        Error(ctx);
     }
     if (Fsinfomax == 0)
         return;
     if (!(Fsinfo = (char **)malloc((MALLOC_S)(Fsinfomax * sizeof(char *))))) {
         (void)fprintf(stderr, "%s: no space for sysfs info\n", Pn);
-        Error();
+        Error(ctx);
     }
     for (i = 1; i <= Fsinfomax; i++) {
         if (sysfs(GETFSTYP, i, buf) == -1) {
             (void)fprintf(stderr, "%s: sysfs(GETFSTYP) error: %s\n", Pn,
                           strerror(errno));
-            Error();
+            Error(ctx);
         }
         buf[FSTYPSZ] = '\0';
         len = strlen(buf) + 1;
         if (!(Fsinfo[i - 1] = (char *)malloc((MALLOC_S)len))) {
             (void)fprintf(stderr, "%s: no space for file system entry %s\n", Pn,
                           buf);
-            Error();
+            Error(ctx);
         }
         (void)snpf(Fsinfo[i - 1], len, "%s", buf);
     }
@@ -522,14 +522,14 @@ static void read_proc() {
         if ((Npa = Var.v_proc) < 1) {
             (void)fprintf(stderr, "%s: bad proc table size: %d\n", Pn,
                           Var.v_proc);
-            Error();
+            Error(ctx);
         }
         Npa += PROCINCR;
         len = (MALLOC_S)(Npa * sizeof(struct proc));
         if (!(P = (struct proc *)malloc(len))) {
             (void)fprintf(stderr, "%s: no space for %d proc structures\n", Pn,
                           Npa);
-            Error();
+            Error(ctx);
         }
     }
     /*
@@ -565,7 +565,7 @@ static void read_proc() {
                         stderr,
                         "%s: can't realloc %d proc table entries (%d)\n", Pn,
                         Npa, len);
-                    Error();
+                    Error(ctx);
                 }
                 p = &P[Np];
             }
@@ -594,7 +594,7 @@ static void read_proc() {
      */
     if (try >= PROCTRYLM) {
         (void)fprintf(stderr, "%s: can't read proc table\n", Pn);
-        Error();
+        Error(ctx);
     }
     if (Np < Npa && !RptTm) {
 
@@ -605,7 +605,7 @@ static void read_proc() {
         if (!(P = (struct proc *)realloc((MALLOC_P *)P, len))) {
             (void)fprintf(stderr, "%s: can't reduce proc table to %d entries\n",
                           Pn, Np);
-            Error();
+            Error(ctx);
         }
         Npa = Np;
     }

@@ -34,7 +34,7 @@ static char copyright[] =
 #endif
 
 #if defined(HAS_AFS)
-#    include "lsof.h"
+#    include "common.h"
 
 /*
  * This is an emulation of the afs_rwlock_t definition that appears in

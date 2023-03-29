@@ -29,6 +29,7 @@
  */
 
 #include "common.h"
+#include "cli.h"
 
 /*
  * Local definitions, structures and function prototypes
@@ -249,7 +250,7 @@ static void fill_portmap() {
             (void)fprintf(stderr,
                           "%s: can't allocate space for portmap entry: ", Pn);
             safestrprt(cp, stderr, 1);
-            Error();
+            Error(ctx);
         }
         if (!nl) {
             (void)free((FREE_P *)nm);
@@ -263,7 +264,7 @@ static void fill_portmap() {
             (void)fprintf(stderr,
                           "%s: can't allocate porttab entry for portmap: ", Pn);
             safestrprt(nm, stderr, 1);
-            Error();
+            Error(ctx);
         }
         pt->name = nm;
         pt->nl = nl;
@@ -324,7 +325,7 @@ static void fill_porttab() {
             (void)fprintf(stderr,
                           "%s: can't allocate %d bytes for port %d name: %s\n",
                           Pn, (int)(nl + 1), p, se->s_name);
-            Error();
+            Error(ctx);
         }
         if (!nl) {
             (void)free((FREE_P *)nm);
@@ -334,7 +335,7 @@ static void fill_porttab() {
             (void)fprintf(stderr,
                           "%s: can't allocate porttab entry for port %d: %s\n",
                           Pn, p, se->s_name);
-            Error();
+            Error(ctx);
         }
         pt->name = nm;
         pt->nl = nl - 1;
@@ -424,7 +425,7 @@ int af;            /* address family -- e.g., AF_INET
     if (!(np = mkstrcpy(hn, (MALLOC_S *)NULL))) {
         (void)fprintf(stderr, "%s: no space for host name: ", Pn);
         safestrprt(hn, stderr, 1);
-        Error();
+        Error(ctx);
     }
     /*
      * Add address/name entry to cache.  Allocate cache space in HCINC chunks.
@@ -438,7 +439,7 @@ int af;            /* address family -- e.g., AF_INET
             hc = (struct hostcache *)realloc((MALLOC_P *)hc, len);
         if (!hc) {
             (void)fprintf(stderr, "%s: no space for host cache\n", Pn);
-            Error();
+            Error(ctx);
         }
     }
     hc[hcx].af = af;
@@ -483,7 +484,7 @@ int src; /* port source: 0 = local
                     "%s: can't allocate %d bytes for %s %s hash buckets\n", Pn,
                     (int)(2 * (PORTHASHBUCKETS * sizeof(struct porttab *))),
                     (h & 1) ? "UDP" : "TCP", (h > 1) ? "portmap" : "port");
-                Error();
+                Error(ctx);
             }
         }
     }
@@ -548,7 +549,7 @@ int src; /* port source: 0 = local
     if (!(pt = (struct porttab *)malloc(sizeof(struct porttab)))) {
         (void)fprintf(stderr, "%s: can't allocate porttab entry for port %d\n",
                       Pn, p);
-        Error();
+        Error(ctx);
     }
     /*
      * Allocate space for the name; copy it to the porttab entry; and link the
@@ -559,7 +560,7 @@ int src; /* port source: 0 = local
     if (!(nm = mkstrcpy(pn, &nl))) {
         (void)fprintf(stderr, "%s: can't allocate space for port name: ", Pn);
         safestrprt(pn, stderr, 1);
-        Error();
+        Error(ctx);
     }
     pt->name = nm;
     pt->nl = nl;
@@ -639,7 +640,7 @@ int ss; /* search status: 1 = Pth[pr][h]
  * print_file() - print file
  */
 
-void print_file() {
+void print_file(struct lsof_context *ctx) {
     char buf[128];
     char *cp = (char *)NULL;
     dev_t dev;
@@ -906,7 +907,7 @@ void print_file() {
 #    if !defined(HASNOFSFLAGS)
         if (Fsv & FSV_FG) {
             if ((Lf->fsv & FSV_FG) && (FsvFlagX || Lf->ffg || Lf->pof))
-                cp = print_fflags(Lf->ffg, Lf->pof);
+                cp = print_fflags(ctx, Lf->ffg, Lf->pof);
             else
                 cp = "";
             if (!PrPass) {
@@ -1099,7 +1100,7 @@ void print_file() {
 #if defined(HASPRINTNM)
         HASPRINTNM(Lf);
 #else  /* !defined(HASPRINTNM) */
-        printname(1);
+        printname(ctx, 1);
 #endif /* defined(HASPRINTNM) */
     }
 }
@@ -1981,7 +1982,7 @@ void printiproto(p) int p; /* protocol number */
  * printname() - print output name field
  */
 
-void printname(nl) int nl; /* NL status */
+void printname(struct lsof_context *ctx, int nl) /* NL status */
 {
 
 #if defined(HASNCACHE)
@@ -2013,7 +2014,7 @@ void printname(nl) int nl; /* NL status */
         goto print_nma;
     }
     if (((Lf->ntype == N_BLK) || (Lf->ntype == N_CHR)) && Lf->dev_def &&
-        Lf->rdev_def && printdevname(&Lf->dev, &Lf->rdev, 0, Lf->ntype)) {
+        Lf->rdev_def && printdevname(ctx, &Lf->dev, &Lf->rdev, 0, Lf->ntype)) {
 
         /*
          * If this is a block or character device and it has a name, print it.
@@ -2044,7 +2045,7 @@ void printname(nl) int nl; /* NL status */
          * Do a deferred local mount info table search for the file system
          * (mounted) directory name and inode number, and mounted device name.
          */
-        for (mp = readmnt(); mp; mp = mp->next) {
+        for (mp = readmnt(ctx); mp; mp = mp->next) {
             if (Lf->dev == mp->dev) {
                 Lf->fsdir = mp->dir;
                 Lf->fsdev = mp->fsname;
@@ -2189,7 +2190,7 @@ print_nma:
              )) {
         if (ps)
             putchar(' ');
-        (void)print_tcptpi(0);
+        (void)print_tcptpi(ctx, 0);
     }
     if (nl)
         putchar('\n');
@@ -2298,7 +2299,7 @@ int *ty;     /* returned UID type pointer (NULL
             if (stat("/etc/passwd", &sb) != 0) {
                 (void)fprintf(stderr, "%s: can't stat(/etc/passwd): %s\n", Pn,
                               strerror(errno));
-                Error();
+                Error(ctx);
             }
         }
         /*
@@ -2310,7 +2311,7 @@ int *ty;     /* returned UID type pointer (NULL
                 (void)fprintf(
                     stderr, "%s: no space for %d byte UID cache hash buckets\n",
                     Pn, (int)(UIDCACHEL * (sizeof(struct uidcache *))));
-                Error();
+                Error(ctx);
             }
             if (CkPasswd) {
                 sbs = sb;
@@ -2366,7 +2367,7 @@ int *ty;     /* returned UID type pointer (NULL
                 (void)fprintf(
                     stderr, "%s: no space for UID cache entry for: %lu, %s)\n",
                     Pn, (unsigned long)uid, pw->pw_name);
-                Error();
+                Error(ctx);
             }
             (void)strncpy(upn->nm, pw->pw_name, LOGINML);
             upn->nm[LOGINML] = '\0';
@@ -2774,7 +2775,7 @@ char *pn;                                              /* port name */
         (void)fprintf(stderr,
                       "%s: can't allocate %d bytes for portmap name: %s[%s]\n",
                       Pn, (int)(nl + 1), pn, pt->name);
-        Error();
+        Error(ctx);
     }
     (void)snpf(cp, nl + 1, "%s[%s]", pn, pt->name);
     (void)free((FREE_P *)pt->name);

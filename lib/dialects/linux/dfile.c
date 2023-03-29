@@ -91,7 +91,7 @@ static int HbyNmCt = 0; /* HbyNm entry count */
 /*
  * hashSfile() - hash Sfile entries for use in is_file_named() searches
  */
-void hashSfile() {
+void hashSfile(struct lsof_context *ctx) {
     static int hs = 0;
     int i;
     struct sfile *s;
@@ -111,28 +111,28 @@ void hashSfile() {
         (void)fprintf(
             stderr, "%s: can't allocate space for %d (dev,ino) hash buckets\n",
             Pn, SFDIHASH);
-        Error();
+        Error(ctx);
     }
     if (!(HbyFrd = (struct hsfile *)calloc((MALLOC_S)SFRDHASH,
                                            sizeof(struct hsfile)))) {
         (void)fprintf(stderr,
                       "%s: can't allocate space for %d rdev hash buckets\n", Pn,
                       SFRDHASH);
-        Error();
+        Error(ctx);
     }
     if (!(HbyFsd = (struct hsfile *)calloc((MALLOC_S)SFFSHASH,
                                            sizeof(struct hsfile)))) {
         (void)fprintf(stderr,
                       "%s: can't allocate space for %d file sys hash buckets\n",
                       Pn, SFFSHASH);
-        Error();
+        Error(ctx);
     }
     if (!(HbyNm = (struct hsfile *)calloc((MALLOC_S)SFNMHASH,
                                           sizeof(struct hsfile)))) {
         (void)fprintf(stderr,
                       "%s: can't allocate space for %d name hash buckets\n", Pn,
                       SFNMHASH);
-        Error();
+        Error(ctx);
     }
     hs++;
     /*
@@ -185,7 +185,7 @@ void hashSfile() {
                     (void)fprintf(stderr,
                                   "%s: can't allocate hsfile bucket for: %s\n",
                                   Pn, s->aname);
-                    Error();
+                    Error(ctx);
                 }
                 sn->s = s;
                 sn->next = sh->next;
@@ -198,26 +198,26 @@ void hashSfile() {
 /*
  * is_file_named() - is this file named?
  */
-int is_file_named(
-    /* search type:	0 = only by device
-     *		    and inode
-     *		1 = by device and
-     *		    inode, or by file
-     *		    system device and
-     *		    path for NFS file
-     *		    systems
-     *		2 = only by path
-     */
-    int search_type,
-    /* path name (device and inode are
-     * identified via *Lf) */
-    char *path,
-    /* NFS file system (NULL if not) */
-    struct mounts *nfs_mount,
-    /* character or block type file --
-     * VCHR or VBLK vnode, or S_IFCHR
-     * or S_IFBLK inode */
-    int cd) {
+int is_file_named(struct lsof_context *ctx,
+                  /* search type:	0 = only by device
+                   *		    and inode
+                   *		1 = by device and
+                   *		    inode, or by file
+                   *		    system device and
+                   *		    path for NFS file
+                   *		    systems
+                   *		2 = only by path
+                   */
+                  int search_type,
+                  /* path name (device and inode are
+                   * identified via *Lf) */
+                  char *path,
+                  /* NFS file system (NULL if not) */
+                  struct mounts *nfs_mount,
+                  /* character or block type file --
+                   * VCHR or VBLK vnode, or S_IFCHR
+                   * or S_IFBLK inode */
+                  int cd) {
     char *ep;
     int f = 0;
     struct mounts *smp;
@@ -346,8 +346,8 @@ int is_file_named(
  *	 since it is called by printname() in print.c, an ersatz one
  *	 is provided here.
  */
-int printdevname(dev_t *dev,    /* device */
-                 dev_t *rdev,   /* raw device */
+int printdevname(struct lsof_context *ctx, dev_t *dev, /* device */
+                 dev_t *rdev,                          /* raw device */
                  int newline,   /* 1 = follow with '\n' */
                  int node_type) /* node type: N_BLK or N_chr */
 {

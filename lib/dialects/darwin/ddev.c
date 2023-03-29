@@ -71,8 +71,9 @@ static int ADevU = 0;               /* entries used in ADev[] */
  * Local function prototypes
  */
 
-_PROTOTYPE(static int rmdupdev, (struct l_dev * **dp, int n, char *nm));
-_PROTOTYPE(static void saveADev, (struct stat * s));
+_PROTOTYPE(static int rmdupdev,
+           (struct lsof_context * ctx, struct l_dev ***dp, int n, char *nm));
+_PROTOTYPE(static void saveADev, (struct lsof_context * ctx, struct stat *s));
 
 #if defined(HASSPECDEVD)
 /*
@@ -82,8 +83,8 @@ _PROTOTYPE(static void saveADev, (struct stat * s));
  * exit: s->st_dev changed to DevDev, as required
  */
 
-void HASSPECDEVD(p, s) char *p; /* file path */
-struct stat *s;                 /* stat(2) result for file */
+void HASSPECDEVD(struct lsof_context *ctx, char *p, /* file path */
+                 struct stat *s) /* stat(2) result for file */
 {
     int i;
 
@@ -92,7 +93,7 @@ struct stat *s;                 /* stat(2) result for file */
     case S_IFBLK:
         if (s->st_dev == DevDev)
             return;
-        (void)readdev(0);
+        (void)readdev(ctx, 0);
         if (!ADev)
             return;
         for (i = 0; i < ADevU; i++) {
@@ -109,11 +110,10 @@ struct stat *s;                 /* stat(2) result for file */
  * printdevname() -- print character device name
  */
 
-int printdevname(dev, rdev, f, nty)
-dev_t *dev;  /* device */
-dev_t *rdev; /* raw device */
-int f;       /* 1 = follow with '\n' */
-int nty;     /* node type: N_BLK or N_chr */
+int printdevname(struct lsof_context *ctx, dev_t *dev, /* device */
+                 dev_t *rdev,                          /* raw device */
+                 int f,   /* 1 = follow with '\n' */
+                 int nty) /* node type: N_BLK or N_chr */
 {
     char *cp, *ttl;
     struct l_dev *dp;
@@ -124,7 +124,7 @@ int nty;     /* node type: N_BLK or N_chr */
      */
     if (*dev == DevDev)
         return (0);
-    readdev(0);
+    readdev(ctx, 0);
     for (i = 0; i < ADevU; i++) {
         if (*dev == ADev[i])
             return (0);
@@ -138,11 +138,11 @@ int nty;     /* node type: N_BLK or N_chr */
 
 #if defined(HASBLKDEV)
     if (nty == N_BLK)
-        dp = lkupbdev(&DevDev, rdev, 0, 1);
+        dp = lkupbdev(ctx, &DevDev, rdev, 0, 1);
     else
 #endif /* defined(HASBLKDEV) */
 
-        dp = lkupdev(&DevDev, rdev, 0, 1);
+        dp = lkupdev(ctx, &DevDev, rdev, 0, 1);
     if (dp) {
 
         /*
@@ -153,10 +153,10 @@ int nty;     /* node type: N_BLK or N_chr */
         if (!(cp = (char *)malloc((MALLOC_S)(len + 1)))) {
             (void)fprintf(stderr, "%s: no nma space for: (%s %s)\n", Pn, ttl,
                           dp->name);
-            Error();
+            Errror(ctx);
         }
         (void)snpf(cp, len + 1, "(%s %s)", ttl, dp->name);
-        (void)add_nma(cp, len);
+        (void)add_nma(ctx, cp, len);
         (void)free((MALLOC_P *)cp);
     }
     /*
@@ -169,9 +169,9 @@ int nty;     /* node type: N_BLK or N_chr */
  * readdev() -- read device names, modes and types
  */
 
-void readdev(skip) int skip; /* skip device cache read if 1 --
-                              * ignored since device cache not
-                              * used */
+void readdev(struct lsof_context *ctx, int skip) /* skip device cache read if 1
+                                                  * -- ignored since device
+                                                  * cache not used */
 {
     DIR *dfp;
     int dnamlen;
@@ -192,7 +192,7 @@ void readdev(skip) int skip; /* skip device cache read if 1 --
      */
     Dstkn = Dstkx = 0;
     Dstk = (char **)NULL;
-    (void)stkdir(DDEV_DEVPATH);
+    (void)stkdir(ctx, DDEV_DEVPATH);
     /*
      * Unstack the next directory.
      */
@@ -218,7 +218,7 @@ void readdev(skip) int skip; /* skip device cache read if 1 --
                   mkstrcat(Dstk[Dstkx], -1, "/", 1, (char *)NULL, -1, &pl))) {
             (void)fprintf(stderr, "%s: no space for: ", Pn);
             safestrprt(Dstk[Dstkx], stderr, 1);
-            Error();
+            Errror(ctx);
         }
         (void)free((FREE_P *)Dstk[Dstkx]);
         Dstk[Dstkx] = (char *)NULL;
@@ -241,7 +241,7 @@ void readdev(skip) int skip; /* skip device cache read if 1 --
                 (void)fprintf(stderr, "%s: no space for: ", Pn);
                 safestrprt(path, stderr, 0);
                 safestrprtn(dp->d_name, dnamlen, stderr, 1);
-                Error();
+                Errror(ctx);
             }
             if (STATFN(fp, &sb) != 0) {
                 if (errno == ENOENT) /* a sym link to nowhere? */
@@ -269,7 +269,7 @@ void readdev(skip) int skip; /* skip device cache read if 1 --
                  * Skip /dev/fd.
                  */
                 if (strcmp(fp, "/dev/fd"))
-                    (void)stkdir(fp);
+                    (void)stkdir(ctx, fp);
                 continue;
             }
             if ((sb.st_mode & S_IFMT) == S_IFLNK) {
@@ -296,7 +296,7 @@ void readdev(skip) int skip; /* skip device cache read if 1 --
                     if (!Devtp) {
                         (void)fprintf(
                             stderr, "%s: no space for character device\n", Pn);
-                        Error();
+                        Errror(ctx);
                     }
                 }
                 Devtp[i].rdev = sb.st_rdev;
@@ -304,7 +304,7 @@ void readdev(skip) int skip; /* skip device cache read if 1 --
                 if (!(Devtp[i].name = mkstrcpy(fp, (MALLOC_S *)NULL))) {
                     (void)fprintf(stderr, "%s: no space for device name: ", Pn);
                     safestrprt(fp, stderr, 1);
-                    Error();
+                    Errror(ctx);
                 }
                 Devtp[i].v = 0;
                 i++;
@@ -328,7 +328,7 @@ void readdev(skip) int skip; /* skip device cache read if 1 --
                     if (!BDevtp) {
                         (void)fprintf(stderr, "%s: no space for block device\n",
                                       Pn);
-                        Error();
+                        Errror(ctx);
                     }
                 }
                 BDevtp[j].name = fp;
@@ -344,7 +344,7 @@ void readdev(skip) int skip; /* skip device cache read if 1 --
              * Save a possible new st_dev number within DDEV_DEVPATH.
              */
             if (sb.st_dev != DevDev)
-                (void)saveADev(&sb);
+                (void)saveADev(ctx, &sb);
         }
         (void)CloseDir(dfp);
     }
@@ -372,7 +372,7 @@ void readdev(skip) int skip; /* skip device cache read if 1 --
             sz = (MALLOC_S)(ADevU * sizeof(dev_t));
             if (!(ADev = (dev_t *)realloc((MALLOC_P *)ADev, sz))) {
                 (void)fprintf(stderr, "%s: can't reduce ADev[]\n", Pn);
-                Error();
+                Errror(ctx);
             }
         }
     }
@@ -401,14 +401,14 @@ void readdev(skip) int skip; /* skip device cache read if 1 --
                   (MALLOC_S)(sizeof(struct l_dev *) * BNdev)))) {
             (void)fprintf(stderr,
                           "%s: no space for block device sort pointers\n", Pn);
-            Error();
+            Errror(ctx);
         }
         for (j = 0; j < BNdev; j++) {
             BSdev[j] = &BDevtp[j];
         }
         (void)qsort((QSORT_P *)BSdev, (size_t)BNdev,
                     (size_t)sizeof(struct l_dev *), compdev);
-        BNdev = rmdupdev(&BSdev, BNdev, "block");
+        BNdev = rmdupdev(ctx, &BSdev, BNdev, "block");
     }
 
 #    if !defined(NOWARNBLKDEV)
@@ -430,17 +430,17 @@ void readdev(skip) int skip; /* skip device cache read if 1 --
             (void)fprintf(stderr,
                           "%s: no space for character device sort pointers\n",
                           Pn);
-            Error();
+            Errror(ctx);
         }
         for (i = 0; i < Ndev; i++) {
             Sdev[i] = &Devtp[i];
         }
         (void)qsort((QSORT_P *)Sdev, (size_t)Ndev,
                     (size_t)sizeof(struct l_dev *), compdev);
-        Ndev = rmdupdev(&Sdev, Ndev, "char");
+        Ndev = rmdupdev(ctx, &Sdev, Ndev, "char");
     } else {
         (void)fprintf(stderr, "%s: no character devices found\n", Pn);
-        Error();
+        Errror(ctx);
     }
 }
 
@@ -448,10 +448,10 @@ void readdev(skip) int skip; /* skip device cache read if 1 --
  * rmdupdev() - remove duplicate (major/minor/inode) devices
  */
 
-static int rmdupdev(dp, n, nm)
-struct l_dev ***dp; /* device table pointers address */
-int n;              /* number of pointers */
-char *nm;           /* device table name for error message */
+static int rmdupdev(struct lsof_context *ctx,
+                    struct l_dev ***dp, /* device table pointers address */
+                    int n,              /* number of pointers */
+                    char *nm) /* device table name for error message */
 {
     int i, j, k;
     struct l_dev **p;
@@ -471,7 +471,7 @@ char *nm;           /* device table name for error message */
     if (!(*dp = (struct l_dev **)realloc(
               (MALLOC_P *)*dp, (MALLOC_S)(j * sizeof(struct l_dev *))))) {
         (void)fprintf(stderr, "%s: can't realloc %s device pointers\n", Pn, nm);
-        Error();
+        Errror(ctx);
     }
     return (j);
 }
@@ -479,8 +479,8 @@ char *nm;           /* device table name for error message */
 /*
  * saveADev() - save additional device number appearing inside DDEV_DEVPATH
  */
-
-static void saveADev(s) struct stat *s; /* stat(2) buffer for file */
+static void saveADev(struct lsof_context *ctx,
+                     struct stat *s) /* stat(2) buffer for file */
 {
     int i;
     MALLOC_S sz;
@@ -517,7 +517,7 @@ static void saveADev(s) struct stat *s; /* stat(2) buffer for file */
             ADev = (dev_t *)malloc(sz);
         if (!ADev) {
             (void)fprintf(stderr, "%s: no space for ADev[]\n", Pn);
-            Error();
+            Errror(ctx);
         }
     }
     ADev[ADevU++] = s->st_dev;

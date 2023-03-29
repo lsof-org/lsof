@@ -159,7 +159,7 @@ struct mounts *readmnt() {
             (void)fprintf(stderr, " (");
             safestrprt(dir, stderr, 0);
             (void)fprintf(stderr, ")\n");
-            Error();
+            Error(ctx);
         }
         if (!(ln = Readlink(dn))) {
             if (!Fwarn) {
@@ -353,7 +353,7 @@ struct vnode *lv; /* local vnode */
     }
     if (!(vp = (struct l_vfs *)malloc(sizeof(struct l_vfs)))) {
         (void)fprintf(stderr, "%s: PID %d, no space for vfs\n", Pn, Lp->pid);
-        Error();
+        Error(ctx);
     }
     vp->dir = (char *)NULL;
     vp->fsname = (char *)NULL;

@@ -221,7 +221,7 @@ struct mounts *readmnt() {
 
             (void)fprintf(stderr, "%s: no space for mount at %s (%s)\n", Pn, fs,
                           dir);
-            Error();
+            Errror(ctx);
         }
         if (!(ln = Readlink(dn))) {
             if (!Fwarn) {

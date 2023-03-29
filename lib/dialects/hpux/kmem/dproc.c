@@ -223,11 +223,11 @@ void gather_proc_info() {
         if ((get_Nl_value("chunksz", Drive_Nl, &v) >= 0) && v) {
             if (kread(v, (char *)&oftsz, sizeof(oftsz))) {
                 (void)fprintf(stderr, "%s: can't get FD chunk size\n", Pn);
-                Error();
+                Error(ctx);
             }
             if (!oftsz) {
                 (void)fprintf(stderr, "%s: bad FD chunk size: %d\n", Pn, oftsz);
-                Error();
+                Error(ctx);
             }
         }
         ofasz = (int)(oftsz / SFDCHUNK);
@@ -235,11 +235,11 @@ void gather_proc_info() {
             (void)fprintf(stderr,
                           "%s: FD chunk size (%d) not exact multiple of %d\n",
                           Pn, oftsz, SFDCHUNK);
-            Error();
+            Error(ctx);
         }
         if (!(oftp = (char *)malloc((MALLOC_S)oftsz))) {
             (void)fprintf(stderr, "%s: no space for %d FD bytes\n", Pn, oftsz);
-            Error();
+            Error(ctx);
         }
     }
 #endif /* HPUXV>=1100 */
@@ -503,7 +503,7 @@ static void get_kernel_access() {
         if ((rv = sysconf(_SC_KERNEL_BITS)) < 0) {
             (void)fprintf(stderr, "%s: sysconf(_SC_KERNEL_BITS) returns: %s\n",
                           Pn, strerror(errno));
-            Error();
+            Error(ctx);
         }
         if (rv != (long)HPUXKERNBITS) {
             (void)fprintf(
@@ -511,7 +511,7 @@ static void get_kernel_access() {
                 "%s: FATAL: %s was built for a %d bit kernel, but this\n", Pn,
                 Pn, HPUXKERNBITS);
             (void)fprintf(stderr, "      is a %ld bit kernel.\n", rv);
-            Error();
+            Error(ctx);
         }
     }
 #endif /* HPUXV>=1030 */
@@ -549,7 +549,7 @@ static void get_kernel_access() {
      * See if the non-KMEM memory file is readable.
      */
     if (Memory && !is_readable(Memory, 1))
-        Error();
+        Error(ctx);
 #endif /* defined(WILLDROPGID) */
 
     /*
@@ -561,7 +561,7 @@ static void get_kernel_access() {
         (void)fprintf(stderr, "%s: can't open ", Pn);
         safestrprt(Memory ? Memory : KMEM, stderr, 0);
         (void)fprintf(stderr, ": %s\n", strerror(errno_save));
-        Error();
+        Error(ctx);
     }
 
 #if defined(WILLDROPGID)
@@ -575,7 +575,7 @@ static void get_kernel_access() {
      * See if the name list file is readable.
      */
     if (Nmlst && !is_readable(Nmlst, 1))
-        Error();
+        Error(ctx);
 #endif /* defined(WILLDROPGID) */
 
     (void)build_Nl(Drive_Nl);
@@ -590,7 +590,7 @@ static void get_kernel_access() {
          */
         if (!(nl = (struct NLIST_TYPE *)malloc(Nll))) {
             (void)fprintf(stderr, "%s: no space (%d) for Nl[] copy\n", Pn, Nll);
-            Error();
+            Error(ctx);
         }
         (void)memcpy((void *)nl, (void *)Nl, (size_t)Nll);
     }
@@ -602,14 +602,14 @@ static void get_kernel_access() {
     if (NLIST_TYPE(Nmlst ? Nmlst : N_UNIX, Nl) < 0) {
         (void)fprintf(stderr, "%s: can't read namelist from: ", Pn);
         safestrprt(Nmlst ? Nmlst : N_UNIX, stderr, 1);
-        Error();
+        Error(ctx);
     }
     if (get_Nl_value("proc", Drive_Nl, &v) < 0 || !v ||
         kread((KA_T)v, (char *)&Kp, sizeof(Kp)) ||
         get_Nl_value("nproc", Drive_Nl, &v) < 0 || !v ||
         kread((KA_T)v, (char *)&Np, sizeof(Np)) || !Kp || Np < 1) {
         (void)fprintf(stderr, "%s: can't read proc table info\n", Pn);
-        Error();
+        Error(ctx);
     }
     if (get_Nl_value("vfops", Drive_Nl, (KA_T *)&Vnfops) < 0)
         Vnfops = (KA_T)NULL;
@@ -617,11 +617,11 @@ static void get_kernel_access() {
 #if HPUXV < 800 && defined(hp9000s300)
     if (get_Nl_value("upmap", Drive_Nl, (unsigned long *)&Usrptmap) < 0) {
         (void)fprintf(stderr, "%s: can't get kernel's Usrptmap\n", Pn);
-        Error();
+        Error(ctx);
     }
     if (get_Nl_value("upt", Drive_Nl, (unsigned long *)&usrpt) < 0) {
         (void)fprintf(stderr, "%s: can't get kernel's usrpt\n", Pn);
-        Error();
+        Error(ctx);
     }
 #endif /* HPUXV<800 && defined(hp9000s300) */
 
@@ -629,12 +629,12 @@ static void get_kernel_access() {
     proc = (struct proc *)Kp;
     if (get_Nl_value("ubase", Drive_Nl, (unsigned long *)&ubase) < 0) {
         (void)fprintf(stderr, "%s: can't get kernel's ubase\n", Pn);
-        Error();
+        Error(ctx);
     }
     if (get_Nl_value("npids", Drive_Nl, &v) < 0 || !v ||
         kread((KA_T)v, (char *)&npids, sizeof(npids))) {
         (void)fprintf(stderr, "%s: can't get kernel's npids\n", Pn);
-        Error();
+        Error(ctx);
     }
 #endif /* HPUXV<800 && defined(hp9000s800) */
 
@@ -776,7 +776,7 @@ static void process_text(vasp) KA_T vasp; /* kernel's virtual address space
             if (!Vp) {
                 (void)fprintf(
                     stderr, "%s: no more space for text vnode pointers\n", Pn);
-                Error();
+                Error(ctx);
             }
         }
         Vp[i++] = va;

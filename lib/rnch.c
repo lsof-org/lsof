@@ -291,7 +291,7 @@ char *cp; /* partial path */
             vc = (KA_T *)realloc(vc, len);
         if (!vc) {
             (void)fprintf(stderr, "%s: no space for root vnode table\n", Pn);
-            Error();
+            Error(ctx);
         }
     }
     vc[vcn++] = va;
@@ -411,7 +411,7 @@ void ncache_load() {
                 (void)fprintf(stderr,
                               "%s: can't allocate name cache space: %d\n", Pn,
                               len);
-            Error();
+            Error(ctx);
         }
 #    endif /* !defined(NCACHE_NXT) */
 
@@ -427,7 +427,7 @@ void ncache_load() {
                 (void)fprintf(stderr,
                               "%s: no space for %d byte local name cache\n", Pn,
                               len);
-            Error();
+            Error(ctx);
         }
     } else {
 
@@ -516,7 +516,7 @@ void ncache_load() {
                     stderr,
                     "%s: can't allocate %d byte temporary name buffer\n", Pn,
                     na);
-                Error();
+                Error(ctx);
             }
         }
         if (!kc->NCACHE_NAME || kread((KA_T)kc->NCACHE_NAME, nb, len))
@@ -542,7 +542,7 @@ void ncache_load() {
             (void)fprintf(
                 stderr, "%s: can't allocate %d bytes for name cache name: %s\n",
                 Pn, len + 1, np);
-            Error();
+            Error(ctx);
         }
         (void)strncpy(cp, np, len);
         cp[len] = '\0';
@@ -560,7 +560,7 @@ void ncache_load() {
                 (void)fprintf(
                     stderr, "%s: no more space for %d entry local name cache\n",
                     Pn, Nc);
-                Error();
+                Error(ctx);
             }
             lc = &Ncache[n];
             iNc = Nc;
@@ -645,7 +645,7 @@ void ncache_load() {
             (void)fprintf(stderr,
                           "%s: no space for %d name cache hash pointers\n", Pn,
                           Nch + Nc);
-        Error();
+        Error(ctx);
     }
     for (i = 0, lc = Ncache; i < Nc; i++, lc++) {
 

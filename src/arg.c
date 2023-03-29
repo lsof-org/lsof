@@ -29,6 +29,7 @@
  */
 
 #include "common.h"
+#include "cli.h"
 #include <limits.h>
 
 /*
@@ -106,17 +107,16 @@ int *hi;     /* returned high value */
  * ck_file_arg() - check file arguments
  */
 
-int ck_file_arg(i, ac, av, fv, rs, sbp, accept_deleted_file)
-int i;                   /* first file argument index */
-int ac;                  /* argument count */
-char *av[];              /* argument vector */
-int fv;                  /* Ffilesys value (real or temporary) */
-int rs;                  /* Readlink() status if argument count == 1:
-                          *	0 = undone; 1 = done */
-struct stat *sbp;        /* if non-NULL, pointer to stat(2) buffer
-                          * when argument count == 1 */
-int accept_deleted_file; /* if non-zero, don't report an error even
-                          * when the file doesn't exist. */
+int ck_file_arg(struct lsof_context *ctx, int i, /* first file argument index */
+                int ac,                          /* argument count */
+                char *av[],                      /* argument vector */
+                int fv,           /* Ffilesys value (real or temporary) */
+                int rs,           /* Readlink() status if argument count == 1:
+                                   *	0 = undone; 1 = done */
+                struct stat *sbp, /* if non-NULL, pointer to stat(2) buffer
+                                   * when argument count == 1 */
+                int accept_deleted_file) /* if non-zero, don't report an error
+                                          * even when the file doesn't exist. */
 {
     char *ap, *fnm, *fsnm, *path;
     short err = 0;
@@ -148,7 +148,7 @@ int accept_deleted_file; /* if non-zero, don't report an error even
         if (rs && (ac == 1) && (i == 0))
             path = av[i];
         else {
-            if (!(path = Readlink(av[i]))) {
+            if (!(path = Readlink(ctx, av[i]))) {
                 ErrStat = 1;
                 continue;
             }
@@ -167,7 +167,7 @@ int accept_deleted_file; /* if non-zero, don't report an error even
                 if (!(ap = (char *)malloc((MALLOC_S)(k + 1)))) {
                     (void)fprintf(stderr, "%s: no space for copy of %s\n", Pn,
                                   path);
-                    Error();
+                    Error(ctx);
                 }
                 (void)strncpy(ap, path, k);
                 ap[k] = '\0';
@@ -177,7 +177,7 @@ int accept_deleted_file; /* if non-zero, don't report an error even
         /*
          * Check for file system argument.
          */
-        for (ftype = 1, mp = readmnt(), nm = 0; (fv != 1) && mp;
+        for (ftype = 1, mp = readmnt(ctx), nm = 0; (fv != 1) && mp;
              mp = mp->next) {
             fsm = 0;
             if (strcmp(mp->dir, path) == 0)
@@ -215,7 +215,7 @@ int accept_deleted_file; /* if non-zero, don't report an error even
                 if (!mmp) {
                     (void)fprintf(stderr, "%s: no space for mount pointers\n",
                                   Pn);
-                    Error();
+                    Error(ctx);
                 }
             }
             mmp[nm++] = mp;
@@ -240,7 +240,7 @@ int accept_deleted_file; /* if non-zero, don't report an error even
              */
             if (!(sfp = (struct sfile *)malloc(sizeof(struct sfile)))) {
                 (void)fprintf(stderr, "%s: no space for files\n", Pn);
-                Error();
+                Error(ctx);
             }
             sfp->next = Sfile;
             Sfile = sfp;
@@ -259,7 +259,7 @@ int accept_deleted_file; /* if non-zero, don't report an error even
                 if (sbp && (ac == 1))
                     sb = *sbp;
                 else {
-                    if (statsafely(fnm, &sb) != 0) {
+                    if (statsafely(ctx, fnm, &sb) != 0) {
                         int en = errno;
                         if (!accept_deleted_file) {
                             (void)fprintf(stderr, "%s: status error on ", Pn);
@@ -351,7 +351,7 @@ int accept_deleted_file; /* if non-zero, don't report an error even
                 if (!(sfp->name = mkstrcpy(fnm, (MALLOC_S *)NULL))) {
                     (void)fprintf(stderr, "%s: no space for file name: ", Pn);
                     safestrprt(fnm, stderr, 1);
-                    Error();
+                    Error(ctx);
                 }
 
 #if defined(HASPROCFS)
@@ -370,7 +370,7 @@ int accept_deleted_file; /* if non-zero, don't report an error even
                     (void)fprintf(stderr,
                                   "%s: no space for file system name: ", Pn);
                     safestrprt(fsnm, stderr, 1);
-                    Error();
+                    Error(ctx);
                 }
 
 #if defined(HASPROCFS)
@@ -381,7 +381,7 @@ int accept_deleted_file; /* if non-zero, don't report an error even
                 (void)fprintf(stderr,
                               "%s: no space for argument file name: ", Pn);
                 safestrprt(av[i], stderr, 1);
-                Error();
+                Error(ctx);
             }
 
 #if defined(HASPROCFS)
@@ -432,7 +432,7 @@ int accept_deleted_file; /* if non-zero, don't report an error even
                 (void)fprintf(stderr, "%s: no space for %s ID: ", Pn,
                               Mtprocfs->dir);
                 safestrprt(path, stderr, 1);
-                Error();
+                Error(ctx);
             }
             pfi->pid = pid;
             pfi->f = 0;
@@ -554,7 +554,7 @@ char *c; /* control string */
         if (!(DCpathArg = mkstrcpy(c, (MALLOC_S *)NULL))) {
             (void)fprintf(stderr, "%s: no space for -D path: ", Pn);
             safestrprt(c, stderr, 1);
-            Error();
+            Error(ctx);
         }
     }
     return (0);
@@ -565,8 +565,7 @@ char *c; /* control string */
  * enter_cmd_rx() - enter command regular expression
  */
 
-int enter_cmd_rx(x)
-char *x; /* regular expression */
+int enter_cmd_rx(char *x) /* regular expression */
 {
     int bmod = 0;
     int bxmod = 0;
@@ -666,7 +665,7 @@ char *x; /* regular expression */
     if (!(xp = (char *)malloc(xl + 1))) {
         (void)fprintf(stderr, "%s: no regexp space for: ", Pn);
         safestrprt(x, stderr, 1);
-        Error();
+        Error(ctx);
     }
     (void)strncpy(xp, xb, xl);
     xp[(int)xl] = '\0';
@@ -687,7 +686,7 @@ char *x; /* regular expression */
         if (!CmdRx) {
             (void)fprintf(stderr, "%s: no space for regexp: ", Pn);
             safestrprt(x, stderr, 1);
-            Error();
+            Error(ctx);
         }
     }
     i = NCmdRxU;
@@ -721,9 +720,8 @@ char *x; /* regular expression */
  *		    eliminated
  */
 
-int enter_efsys(e, rdlnk)
-char *e;   /* file system path */
-int rdlnk; /* avoid readlink(2) if non-zero */
+int enter_efsys(char *e,   /* file system path */
+                int rdlnk) /* avoid readlink(2) if non-zero */
 {
     char *ec;         /* pointer to copy of path */
     efsys_list_t *ep; /* file system path list pointer */
@@ -740,12 +738,12 @@ int rdlnk; /* avoid readlink(2) if non-zero */
     if (!(ec = mkstrcpy(e, (MALLOC_S *)NULL))) {
         (void)fprintf(stderr, "%s: no space for -e string: ", Pn);
         safestrprt(e, stderr, 1);
-        Error();
+        Error(ctx);
     }
     if (rdlnk)
         path = ec;
     else {
-        if (!(path = Readlink(ec)))
+        if (!(path = Readlink(ctx, ec)))
             return (1);
     }
     /*
@@ -765,7 +763,7 @@ int rdlnk; /* avoid readlink(2) if non-zero */
     }
     if (!(ep = (efsys_list_t *)malloc((MALLOC_S)(sizeof(efsys_list_t))))) {
         (void)fprintf(stderr, "%s: no space for \"-e %s\" entry\n", Pn, e);
-        Error();
+        Error(ctx);
     }
     ep->path = path;
     ep->pathl = i;
@@ -781,8 +779,7 @@ int rdlnk; /* avoid readlink(2) if non-zero */
  * enter_fd() - enter file descriptor list for searching
  */
 
-int enter_fd(f)
-char *f; /* file descriptor list pointer */
+int enter_fd(char *f) /* file descriptor list pointer */
 {
     char c, *cp1, *cp2, *dash;
     int err, excl, hi, lo;
@@ -797,7 +794,7 @@ char *f; /* file descriptor list pointer */
     if (!(fc = mkstrcpy(f, (MALLOC_S *)NULL))) {
         (void)fprintf(stderr, "%s: no space for fd string: ", Pn);
         safestrprt(f, stderr, 1);
-        Error();
+        Error(ctx);
     }
     /*
      * Isolate each file descriptor in the comma-separated list, then enter it
@@ -890,7 +887,7 @@ int excl; /* exclusion on match */
      */
     if (!(f = (struct fd_lst *)malloc((MALLOC_S)sizeof(struct fd_lst)))) {
         (void)fprintf(stderr, "%s: no space for FD list entry\n", Pn);
-        Error();
+        Error(ctx);
     }
     if (nm) {
 
@@ -910,7 +907,7 @@ int excl; /* exclusion on match */
         if (*cp) {
             if (!(f->nm = mkstrcpy(nm, (MALLOC_S *)NULL))) {
                 (void)fprintf(stderr, "%s: no space for copy of: %s\n", Pn, nm);
-                Error();
+                Error(ctx);
             }
             lo = 1;
             hi = 0;
@@ -955,11 +952,10 @@ int excl; /* exclusion on match */
 
 #define EDDEFFNL 128 /* default file name length */
 
-int enter_dir(d, descend)
-char *d;     /* directory path name pointer */
-int descend; /* subdirectory descend flag:
-              *	0 = don't descend
-              *	1 = descend */
+int enter_dir(char *d,     /* directory path name pointer */
+              int descend) /* subdirectory descend flag:
+                            *	0 = don't descend
+                            *	1 = descend */
 {
     char *av[2];
     dev_t ddev;
@@ -983,9 +979,9 @@ int descend; /* subdirectory descend flag:
                           Pn);
         return (1);
     }
-    if (!(dn = Readlink(d)))
+    if (!(dn = Readlink(ctx, d)))
         return (1);
-    if (statsafely(dn, &sb)) {
+    if (statsafely(ctx, dn, &sb)) {
         if (!Fwarn) {
             en = errno;
             (void)fprintf(stderr, "%s: WARNING: can't stat(", Pn);
@@ -1020,11 +1016,11 @@ int descend; /* subdirectory descend flag:
      */
     Dstkn = Dstkx = 0;
     Dstk = (char **)NULL;
-    (void)stkdir(dn);
+    (void)stkdir(ctx, dn);
     av[0] = (dn == d) ? mkstrcpy(dn, (MALLOC_S *)NULL) : dn;
     av[1] = (char *)NULL;
     dn = (char *)NULL;
-    if (!ck_file_arg(0, 1, av, 1, 1, &sb, 0)) {
+    if (!ck_file_arg(ctx, 0, 1, av, 1, 1, &sb, 0)) {
         av[0] = (char *)NULL;
         fct++;
     }
@@ -1068,7 +1064,7 @@ int descend; /* subdirectory descend flag:
                     stderr,
                     "%s: no space for path to entries in directory: %s\n", Pn,
                     dn);
-                Error();
+                Error(ctx);
             }
         }
         (void)snpf(fp, (size_t)fpl, "%s%s", dn, sl ? "/" : "");
@@ -1113,7 +1109,7 @@ int descend; /* subdirectory descend flag:
                     safestrprt(dn, stderr, 0);
                     putc('/', stderr);
                     safestrprtn(dp->d_name, dnamlen, stderr, 1);
-                    Error();
+                    Error(ctx);
                 }
             }
             (void)strncpy(fp + dnl + sl, dp->d_name, dnamlen);
@@ -1123,7 +1119,7 @@ int descend; /* subdirectory descend flag:
              *
              * Stack entries that represent subdirectories.
              */
-            if (lstatsafely(fp, &sb)) {
+            if (lstatsafely(ctx, fp, &sb)) {
                 if ((en = errno) != ENOENT) {
                     if (!Fwarn) {
                         (void)fprintf(stderr, "%s: WARNING: can't lstat(", Pn);
@@ -1156,7 +1152,7 @@ int descend; /* subdirectory descend flag:
                  * Otherwise skip symbolic links.
                  */
                 if (Fxover & XO_SYMLINK) {
-                    if (statsafely(fp, &sb)) {
+                    if (statsafely(ctx, fp, &sb)) {
                         if ((en = errno) != ENOENT) {
                             if (!Fwarn) {
                                 (void)fprintf(stderr,
@@ -1181,12 +1177,12 @@ int descend; /* subdirectory descend flag:
                 /*
                  * Stack a subdirectory according to the descend argument.
                  */
-                stkdir(av[0]);
+                stkdir(ctx, av[0]);
             /*
              * Use ck_file_arg() to record the entry for searching.  Force it
              * to consider the entry a file, not a file system.
              */
-            if (!ck_file_arg(0, 1, av, 1, 1, &sb, 0)) {
+            if (!ck_file_arg(ctx, 0, 1, av, 1, 1, &sb, 0)) {
                 av[0] = (char *)NULL;
                 fct++;
             }
@@ -1269,7 +1265,7 @@ char *p;                            /* process group ID string pointer */
         (void)fprintf(stderr, "%s: enter_id \"", Pn);
         safestrprt(p, stderr, 0);
         (void)fprintf(stderr, "\", invalid type: %d\n", ty);
-        Error();
+        Error(ctx);
     }
     /*
      * Convert and store the ID.
@@ -1336,7 +1332,7 @@ char *p;                            /* process group ID string pointer */
             if (!s) {
                 (void)fprintf(stderr, "%s: no space for %d process%s IDs", Pn,
                               mx, (ty == PGID) ? " group" : "");
-                Error();
+                Error(ctx);
             }
         }
         s[n].f = 0;
@@ -1817,7 +1813,7 @@ struct hostent *he; /* pointer to hostent struct from which
             (void)fprintf(stderr, "%s: no space for Internet argument: -i ",
                           Pn);
             safestrprt(s, stderr, 1);
-            Error();
+            Error(ctx);
         }
     } else
         n->arg = (char *)NULL;
@@ -1914,8 +1910,8 @@ struct hostent *he; /* pointer to hostent struct from which
  * enter_state_spec() -- enter TCP and UDP state specifications
  */
 
-int enter_state_spec(ss)
-char *ss; /* state specification string */
+int enter_state_spec(struct lsof_context *ctx,
+                     char *ss) /* state specification string */
 {
     char *cp, *ne, *ns, *pr;
     int err, d, f, i, tx, x;
@@ -1946,7 +1942,7 @@ char *ss; /* state specification string */
         (void)fprintf(stderr, "%s: no %s state names in: %s\n", Pn, pr, ss);
         return (1);
     }
-    (void)build_IPstates();
+    (void)build_IPstates(ctx);
     if (!(tx ? UdpSt : TcpSt)) {
         (void)fprintf(stderr, "%s: no %s state names available: %s\n", Pn, pr,
                       ss);
@@ -1965,7 +1961,7 @@ char *ss; /* state specification string */
                 no_IorX_space:
 
                     (void)fprintf(stderr, "%s: no %s table space\n", Pn, ty);
-                    Error();
+                    Error(ctx);
                 }
             }
             if (!UdpStX) {
@@ -2003,7 +1999,7 @@ char *ss; /* state specification string */
     if (!(ssc = mkstrcpy(cp, (MALLOC_S *)NULL))) {
         (void)fprintf(stderr, "%s: no temporary state argument space for: %s\n",
                       Pn, ss);
-        Error();
+        Error(ctx);
     }
     cp = ssc;
     err = 0;
@@ -2288,14 +2284,14 @@ char *us; /* User IDentifier string pointer */
                 Suid = (struct seluid *)realloc((MALLOC_P *)Suid, len);
             if (!Suid) {
                 (void)fprintf(stderr, "%s: no space for UIDs", Pn);
-                Error();
+                Error(ctx);
             }
         }
         if (nn) {
             if (!(lp = mkstrcpy(lnm, (MALLOC_S *)NULL))) {
                 (void)fprintf(stderr, "%s: no space for login: ", Pn);
                 safestrprt(lnm, stderr, 1);
-                Error();
+                Error(ctx);
             }
             Suid[Nuid].lnm = lp;
         } else

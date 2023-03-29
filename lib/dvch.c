@@ -114,12 +114,12 @@ void alloc_bdcache() {
     if (!(BDevtp =
               (struct l_dev *)calloc((MALLOC_S)BNdev, sizeof(struct l_dev)))) {
         (void)fprintf(stderr, "%s: no space for block devices\n", Pn);
-        Error();
+        Error(ctx);
     }
     if (!(BSdev = (struct l_dev **)malloc(
               (MALLOC_S)(sizeof(struct l_dev *) * BNdev)))) {
         (void)fprintf(stderr, "%s: no space for block device pointers\n", Pn);
-        Error();
+        Error(ctx);
     }
 }
 #    endif /* defined(HASBLKDEV) */
@@ -132,12 +132,12 @@ void alloc_dcache() {
     if (!(Devtp =
               (struct l_dev *)calloc((MALLOC_S)Ndev, sizeof(struct l_dev)))) {
         (void)fprintf(stderr, "%s: no space for devices\n", Pn);
-        Error();
+        Error(ctx);
     }
     if (!(Sdev = (struct l_dev **)malloc(
               (MALLOC_S)(sizeof(struct l_dev *) * Ndev)))) {
         (void)fprintf(stderr, "%s: no space for device pointers\n", Pn);
-        Error();
+        Error(ctx);
     }
 }
 
@@ -576,7 +576,7 @@ int npw; /* inhibit (0) or enable (1) no
      * will have been issued to stderr.
      */
     if (merr)
-        Error();
+        Error(ctx);
     /*
      * Return the index of the first defined path.  Since DCpath[] is arranged
      * in priority order, searching it beginning to end follows priority.
@@ -716,7 +716,7 @@ struct stat *s; /* stat() receiver */
          * Oops!
          */
         (void)fprintf(stderr, "%s: internal error: open_dcache=%d\n", Pn, m);
-        Error();
+        Error(ctx);
     }
     return (1);
 }
@@ -914,7 +914,7 @@ int read_dcache() {
             (void)fprintf(stderr, "%s: device %d: no space for path: line ", Pn,
                           i + 1);
             safestrprt(buf, stderr, 1 + 4 + 8);
-            Error();
+            Error(ctx);
         }
         Devtp[i].v = 0;
         Sdev[i] = &Devtp[i];
@@ -1007,7 +1007,7 @@ int read_dcache() {
                               "%s: block dev %d: no space for path: line", Pn,
                               i + 1);
                 safestrprt(buf, stderr, 1 + 4 + 8);
-                Error();
+                Error(ctx);
             }
             BDevtp[i].v = 0;
             BSdev[i] = &BDevtp[i];
@@ -1158,7 +1158,7 @@ int m; /* mode: 1 = read; 2 = write */
                               "%s: clone %d: no space for cached clone: line ",
                               Pn, i + 1);
                 safestrprt(buf, stderr, 1 + 4 + 8);
-                Error();
+                Error(ctx);
             }
             c->dx = j;
             c->next = Clone;
@@ -1204,7 +1204,7 @@ int m; /* mode: 1 = read; 2 = write */
      * A shouldn't-happen case: mode neither 1 nor 2.
      */
     (void)fprintf(stderr, "%s: internal rw_clone_sect error: %d\n", Pn, m);
-    Error();
+    Error(ctx);
     return (1); /* This useless return(1) keeps some
                  * compilers happy. */
 }

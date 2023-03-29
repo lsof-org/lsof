@@ -85,7 +85,7 @@ void gather_proc_info() {
         if (sysctl(mib, 6, NULL, &size, NULL, 0) < 0) {
             (void)fprintf(stderr, "%s: can't read process table: %d\n", Pn,
                           errno);
-            Error();
+            Error(ctx);
         }
 
         /* Alloc more to handle new processes in the meantime */
@@ -99,7 +99,7 @@ void gather_proc_info() {
         }
         if (!procs) {
             (void)fprintf(stderr, "%s: no kinfo_proc * space\n", Pn);
-            Error();
+            Error(ctx);
         }
 
         mib[5] = size / sizeof(struct kinfo_proc); /* elem_count */
@@ -110,7 +110,7 @@ void gather_proc_info() {
         } else if (res < 0 && errno != ENOMEM) {
             (void)fprintf(stderr, "%s: can't read process table: %d\n", Pn,
                           errno);
-            Error();
+            Error(ctx);
         }
     };
 
@@ -164,7 +164,7 @@ void gather_proc_info() {
             if (sysctl(mib, 6, NULL, &size, NULL, 0) < 0) {
                 (void)fprintf(stderr, "%s: can't read file table: %d\n", Pn,
                               errno);
-                Error();
+                Error(ctx);
             }
 
             /* Alloc more to handle new processes in the meantime */
@@ -178,7 +178,7 @@ void gather_proc_info() {
             }
             if (!files) {
                 (void)fprintf(stderr, "%s: no kinfo_file * space\n", Pn);
-                Error();
+                Error(ctx);
             }
 
             mib[5] = size / sizeof(struct kinfo_file); /* elem_count */
@@ -189,7 +189,7 @@ void gather_proc_info() {
             } else if (res < 0 && errno != ENOMEM) {
                 (void)fprintf(stderr, "%s: can't read file table: %d\n", Pn,
                               errno);
-                Error();
+                Error(ctx);
             }
         };
 

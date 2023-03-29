@@ -55,7 +55,8 @@ _PROTOTYPE(static void closePipes, (void));
 _PROTOTYPE(static int dolstat, (char *path, char *buf, int len));
 _PROTOTYPE(static int dostat, (char *path, char *buf, int len));
 _PROTOTYPE(static int doreadlink, (char *path, char *buf, int len));
-_PROTOTYPE(static int doinchild, (int (*fn)(), char *fp, char *rbuf, int rbln));
+_PROTOTYPE(static int doinchild, (struct lsof_context * ctx, int (*fn)(),
+                                  char *fp, char *rbuf, int rbln));
 
 #if defined(HASINTSIGNAL)
 _PROTOTYPE(static int handleint, (int sig));
@@ -96,7 +97,7 @@ void build_Nl(d) struct drive_Nl *d; /* data to drive the construction */
     if (n < 1) {
         (void)fprintf(stderr, "%s: can't calculate kernel name list length\n",
                       Pn);
-        Error();
+        Error(ctx);
     }
     if (!(Nl = (struct NLIST_TYPE *)calloc((n + 1),
                                            sizeof(struct NLIST_TYPE)))) {
@@ -104,7 +105,7 @@ void build_Nl(d) struct drive_Nl *d; /* data to drive the construction */
             stderr,
             "%s: can't allocate %d bytes to kernel name list structure\n", Pn,
             (int)((n + 1) * sizeof(struct NLIST_TYPE)));
-        Error();
+        Error(ctx);
     }
     for (dp = d, i = 0; i < n; dp++, i++) {
         Nl[i].NL_NAME = dp->knm;
@@ -118,7 +119,7 @@ void build_Nl(d) struct drive_Nl *d; /* data to drive the construction */
  * childx() - make child process exit (if possible)
  */
 
-void childx() {
+void childx(struct lsof_context *ctx) {
     static int at, sx;
     pid_t wpid;
 
@@ -236,10 +237,11 @@ void closefrom_shim(int low) {
  * doinchild() -- do a function in a child process
  */
 
-static int doinchild(fn, fp, rbuf, rbln) int (*fn)(); /* function to perform */
-char *fp;                                             /* function parameter */
-char *rbuf;                                           /* response buffer */
-int rbln; /* response buffer length */
+static int doinchild(struct lsof_context *ctx,
+                     int (*fn)(), /* function to perform */
+                     char *fp,    /* function parameter */
+                     char *rbuf,  /* response buffer */
+                     int rbln)    /* response buffer length */
 {
     int en, rv;
 
@@ -250,7 +252,7 @@ int rbln; /* response buffer length */
         (void)fprintf(stderr,
                       "%s: doinchild error; response buffer too large: %d\n",
                       Pn, rbln);
-        Error();
+        Error(ctx);
     }
     /*
      * Set up to handle an alarm signal; handle an alarm signal; build
@@ -265,7 +267,7 @@ int rbln; /* response buffer length */
              */
             (void)alarm(0);
             (void)signal(SIGALRM, SIG_DFL);
-            (void)childx();
+            (void)childx(ctx);
             errno = ETIMEDOUT;
             return (1);
         } else if (!Cpid) {
@@ -277,7 +279,7 @@ int rbln; /* response buffer length */
             if (pipe(Pipes) < 0 || pipe(&Pipes[2]) < 0) {
                 (void)fprintf(stderr, "%s: can't open pipes: %s\n", Pn,
                               strerror(errno));
-                Error();
+                Error(ctx);
             }
             /*
              * Fork a child to execute functions.
@@ -312,7 +314,7 @@ int rbln; /* response buffer length */
                     (void)fprintf(stderr,
                                   "%s: can't dup Pipes[0] to fd 0: %s\n", Pn,
                                   strerror(errno));
-                    Error();
+                    Error(ctx);
                 }
                 Pipes[0] = 0;
                 rc = dup2(Pipes[3], 1);
@@ -320,7 +322,7 @@ int rbln; /* response buffer length */
                     (void)fprintf(stderr,
                                   "%s: can't dup Pipes.[3] to fd 1: %s\n", Pn,
                                   strerror(errno));
-                    Error();
+                    Error(ctx);
                 }
                 Pipes[3] = 1;
                 (void)closefrom_shim(2);
@@ -381,7 +383,7 @@ int rbln; /* response buffer length */
             if (Cpid < 0) {
                 (void)fprintf(stderr, "%s: can't fork: %s\n", Pn,
                               strerror(errno));
-                Error();
+                Error(ctx);
             }
             (void)close(Pipes[0]);
             (void)close(Pipes[3]);
@@ -406,7 +408,7 @@ int rbln; /* response buffer length */
             read(Pipes[2], rbuf, rbln) != rbln) {
             (void)alarm(0);
             (void)signal(SIGALRM, SIG_DFL);
-            (void)childx();
+            (void)childx(ctx);
             errno = ECHILD;
             return (-1);
         }
@@ -475,7 +477,7 @@ void dropgid() {
         if (setgid(Mygid) < 0) {
             (void)fprintf(stderr, "%s: can't setgid(%d): %s\n", Pn, (int)Mygid,
                           strerror(errno));
-            Error();
+            Error(ctx);
         }
         Setgid = 0;
     }
@@ -486,8 +488,7 @@ void dropgid() {
  * enter_dev_ch() - enter device characters in file structure
  */
 
-void enter_dev_ch(m) char *m;
-{
+void enter_dev_ch(struct lsof_context *ctx, char *m) {
     char *mp;
 
     if (!m || *m == '\0')
@@ -496,7 +497,7 @@ void enter_dev_ch(m) char *m;
         (void)fprintf(stderr, "%s: no more dev_ch space at PID %d: \n", Pn,
                       Lp->pid);
         safestrprt(m, stderr, 1);
-        Error();
+        Error(ctx);
     }
     if (Lf->dev_ch)
         (void)free((FREE_P *)Lf->dev_ch);
@@ -507,9 +508,9 @@ void enter_dev_ch(m) char *m;
  * enter_IPstate() -- enter a TCP or UDP state
  */
 
-void enter_IPstate(ty, nm, nr) char *ty; /* type -- TCP or UDP */
-char *nm;                                /* state name (may be NULL) */
-int nr;                                  /* state number */
+void enter_IPstate(struct lsof_context *ctx, char *ty, /* type -- TCP or UDP */
+                   char *nm, /* state name (may be NULL) */
+                   int nr)   /* state number */
 {
 
 #if defined(USE_LIB_PRINT_TCPTPI)
@@ -524,7 +525,7 @@ int nr;                                  /* state number */
      */
     if (!ty) {
         (void)fprintf(stderr, "%s: no type specified to enter_IPstate()\n", Pn);
-        Error();
+        Error(ctx);
     }
     if (!strcmp(ty, "TCP"))
         tx = 0;
@@ -533,7 +534,7 @@ int nr;                                  /* state number */
     else {
         (void)fprintf(stderr, "%s: unknown type for enter_IPstate: %s\n", Pn,
                       ty);
-        Error();
+        Error(ctx);
     }
     /*
      * If the name argument is NULL, reduce the allocated table to its minimum
@@ -550,7 +551,7 @@ int nr;                                  /* state number */
                     len = (MALLOC_S)(UdpNstates * sizeof(char *));
                     if (!(UdpSt = (char **)realloc((MALLOC_P *)UdpSt, len))) {
                         (void)fprintf(stderr, "%s: can't reduce UdpSt[]\n", Pn);
-                        Error();
+                        Error(ctx);
                     }
                 }
                 UdpStAlloc = UdpNstates;
@@ -565,7 +566,7 @@ int nr;                                  /* state number */
                     len = (MALLOC_S)(TcpNstates * sizeof(char *));
                     if (!(TcpSt = (char **)realloc((MALLOC_P *)TcpSt, len))) {
                         (void)fprintf(stderr, "%s: can't reduce TcpSt[]\n", Pn);
-                        Error();
+                        Error(ctx);
                     }
                 }
                 TcpStAlloc = TcpNstates;
@@ -579,7 +580,7 @@ int nr;                                  /* state number */
     if (strlen(nm) < 1) {
         (void)fprintf(stderr, "%s: bad %s name (\"%s\"), number=%d\n", Pn, ty,
                       nm, nr);
-        Error();
+        Error(ctx);
     }
     /*
      * Make a copy of the name.
@@ -587,7 +588,7 @@ int nr;                                  /* state number */
     if (!(cp = mkstrcpy(nm, (MALLOC_S *)NULL))) {
         (void)fprintf(stderr, "%s: enter_IPstate(): no %s space for %s\n", Pn,
                       ty, nm);
-        Error();
+        Error(ctx);
     }
     /*
      * Set the necessary offset for using nr as an index.  If it is
@@ -664,7 +665,7 @@ int nr;                                  /* state number */
             no_IP_space:
 
                 (void)fprintf(stderr, "%s: no %s state space\n", Pn, ty);
-                Error();
+                Error(ctx);
             }
             UdpNstates = nn;
             UdpStAlloc = al;
@@ -702,7 +703,7 @@ int nr;                                  /* state number */
             (void)fprintf(
                 stderr, "%s: duplicate %s state %d (already %s): %s\n", Pn, ty,
                 nr, tx ? UdpSt[nr + UdpStOff] : TcpSt[nr + TcpStOff], nm);
-            Error();
+            Error(ctx);
         }
         UdpSt[nr + UdpStOff] = cp;
     } else {
@@ -717,8 +718,7 @@ int nr;                                  /* state number */
  * enter_nm() - enter name in local file structure
  */
 
-void enter_nm(m) char *m;
-{
+void enter_nm(struct lsof_context *ctx, char *m) {
     char *mp;
 
     if (!m || *m == '\0')
@@ -727,7 +727,7 @@ void enter_nm(m) char *m;
         (void)fprintf(stderr, "%s: no more nm space at PID %d for: ", Pn,
                       Lp->pid);
         safestrprt(m, stderr, 1);
-        Error();
+        Error(ctx);
     }
     if (Lf->nm)
         (void)free((FREE_P *)Lf->nm);
@@ -738,9 +738,9 @@ void enter_nm(m) char *m;
  * Exit() - do a clean exit()
  */
 
-void Exit(xv) enum ExitStatus xv; /* exit() value */
+void Exit(struct lsof_context *ctx, enum ExitStatus xv) /* exit() value */
 {
-    (void)childx();
+    (void)childx(ctx);
 
 #if defined(HASDCACHE)
     if (DCrebuilt && !Fwarn)
@@ -754,7 +754,7 @@ void Exit(xv) enum ExitStatus xv; /* exit() value */
 /*
  * Error() - exit with an error status
  */
-void Error(void) { Exit(LSOF_ERROR); }
+void Error(struct lsof_context *ctx) { Exit(ctx, LSOF_ERROR); }
 
 #if defined(HASNLIST)
 /*
@@ -985,9 +985,8 @@ int msg;    /* issue warning message if 1 */
  * lstatsafely() - lstat path safely (i. e., with timeout)
  */
 
-int lstatsafely(path, buf)
-char *path;       /* file path */
-struct stat *buf; /* stat buffer address */
+int lstatsafely(struct lsof_context *ctx, char *path, /* file path */
+                struct stat *buf)                     /* stat buffer address */
 {
     if (Fblock) {
         if (!Fwarn)
@@ -996,15 +995,15 @@ struct stat *buf; /* stat buffer address */
         errno = EWOULDBLOCK;
         return (1);
     }
-    return (doinchild(dolstat, path, (char *)buf, sizeof(struct stat)));
+    return (doinchild(ctx, dolstat, path, (char *)buf, sizeof(struct stat)));
 }
 
 /*
  * Readlink() - read and interpret file system symbolic links
  */
 
-char *Readlink(arg)
-char *arg; /* argument to be interpreted */
+char *Readlink(struct lsof_context *ctx,
+               char *arg) /* argument to be interpreted */
 {
     char abuf[MAXPATHLEN + 1];
     int alen;
@@ -1056,7 +1055,8 @@ char *arg; /* argument to be interpreted */
         /*
          * Dereference a symbolic link.
          */
-        if ((llen = doinchild(doreadlink, tbuf, lbuf, sizeof(lbuf) - 1)) >= 0) {
+        if ((llen = doinchild(ctx, doreadlink, tbuf, lbuf, sizeof(lbuf) - 1)) >=
+            0) {
 
             /*
              * If the link is a new absolute path, replace
@@ -1143,7 +1143,7 @@ char *arg; /* argument to be interpreted */
 
         (void)fprintf(stderr, "%s: no Readlink string space for ", Pn);
         safestrprt(abuf, stderr, 1);
-        Error();
+        Error(ctx);
     }
     if (sx >= MAXSYMLINKS) {
 
@@ -1181,7 +1181,7 @@ char *arg; /* argument to be interpreted */
         ss = sx;
     }
     stk[sx - 1] = s1;
-    return (Readlink(s1));
+    return (Readlink(ctx, s1));
 }
 
 #if defined(HASSTREAMS)
@@ -1498,9 +1498,8 @@ int flags;                        /* flags:
  * statsafely() - stat path safely (i. e., with timeout)
  */
 
-int statsafely(path, buf)
-char *path;       /* file path */
-struct stat *buf; /* stat buffer address */
+int statsafely(struct lsof_context *ctx, char *path, /* file path */
+               struct stat *buf)                     /* stat buffer address */
 {
     if (Fblock) {
         if (!Fwarn)
@@ -1509,14 +1508,14 @@ struct stat *buf; /* stat buffer address */
         errno = EWOULDBLOCK;
         return (1);
     }
-    return (doinchild(dostat, path, (char *)buf, sizeof(struct stat)));
+    return (doinchild(ctx, dostat, path, (char *)buf, sizeof(struct stat)));
 }
 
 /*
  * stkdir() - stack directory name
  */
 
-void stkdir(p) char *p; /* directory path */
+void stkdir(struct lsof_context *ctx, char *p) /* directory path */
 {
     MALLOC_S len;
     /*
@@ -1532,7 +1531,7 @@ void stkdir(p) char *p; /* directory path */
         if (!Dstk) {
             (void)fprintf(stderr, "%s: no space for directory stack at: ", Pn);
             safestrprt(p, stderr, 1);
-            Error();
+            Error(ctx);
         }
     }
     /*
@@ -1542,7 +1541,7 @@ void stkdir(p) char *p; /* directory path */
     if (!(Dstk[Dstkx] = mkstrcpy(p, (MALLOC_S *)NULL))) {
         (void)fprintf(stderr, "%s: no space for: ", Pn);
         safestrprt(p, stderr, 1);
-        Error();
+        Error(ctx);
     }
     Dstkx++;
 }

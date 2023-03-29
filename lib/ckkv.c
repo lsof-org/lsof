@@ -28,22 +28,22 @@
  * 4. This notice may not be removed or altered.
  */
 
+#include "common.h"
 #include "machine.h"
 
 #if defined(USE_LIB_CKKV)
 
-#    include "common.h"
 #    include <sys/utsname.h>
 
 /*
  * ckkv() - check kernel version
  */
 
-void ckkv(d, er, ev, ea) char *d; /* dialect */
-char *er;                         /* expected revision; NULL, no test */
-char *ev;                         /* expected version; NULL, no test */
-char *ea;                         /* expected architecture; NULL, no
-                                   * test */
+void ckkv(struct lsof_context *ctx, char *d, /* dialect */
+          char *er, /* expected revision; NULL, no test */
+          char *ev, /* expected version; NULL, no test */
+          char *ea) /* expected architecture; NULL, no
+                     * test */
 {
 
 #    if defined(HASKERNIDCK)
@@ -56,7 +56,7 @@ char *ea;                         /* expected architecture; NULL, no
      */
     if (uname(&u) < 0) {
         (void)fprintf(stderr, "%s: uname error: %s\n", Pn, strerror(errno));
-        Error();
+        Error(ctx);
     }
     if (er && strcmp(er, u.release)) {
         (void)fprintf(stderr,

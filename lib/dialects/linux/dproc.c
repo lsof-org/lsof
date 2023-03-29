@@ -113,20 +113,24 @@ static short Ckscko; /* socket file only checking status:
  * Local function prototypes
  */
 
-_PROTOTYPE(static MALLOC_S alloc_cbf,
-           (MALLOC_S len, char **cbf, MALLOC_S cbfa));
-_PROTOTYPE(static int get_fdinfo, (char *p, int msk, struct l_fdinfo *fi));
+_PROTOTYPE(static MALLOC_S alloc_cbf, (struct lsof_context * ctx, MALLOC_S len,
+                                       char **cbf, MALLOC_S cbfa));
+_PROTOTYPE(static int get_fdinfo,
+           (struct lsof_context * ctx, char *p, int msk, struct l_fdinfo *fi));
 _PROTOTYPE(static int getlinksrc, (char *ln, char *src, int srcl, char **rest));
-_PROTOTYPE(static int isefsys, (char *path, char *type, int l,
-                                efsys_list_t **rep, struct lfile **lfr));
+_PROTOTYPE(static int isefsys,
+           (struct lsof_context * ctx, char *path, char *type, int l,
+            efsys_list_t **rep, struct lfile **lfr));
 _PROTOTYPE(static int nm2id, (char *nm, int *id, int *idl));
-_PROTOTYPE(static int read_id_stat,
-           (char *p, int id, char **cmd, int *ppid, int *pgid));
-_PROTOTYPE(static void process_proc_map, (char *p, struct stat *s, int ss));
+_PROTOTYPE(static int read_id_stat, (struct lsof_context * ctx, char *p, int id,
+                                     char **cmd, int *ppid, int *pgid));
+_PROTOTYPE(static void process_proc_map,
+           (struct lsof_context * ctx, char *p, struct stat *s, int ss));
 _PROTOTYPE(static int process_id,
-           (char *idp, int idpl, char *cmd, UID_ARG uid, int pid, int ppid,
-            int pgid, int tid, char *tcmd));
-_PROTOTYPE(static int statEx, (char *p, struct stat *s, int *ss));
+           (struct lsof_context * ctx, char *idp, int idpl, char *cmd,
+            UID_ARG uid, int pid, int ppid, int pgid, int tid, char *tcmd));
+_PROTOTYPE(static int statEx,
+           (struct lsof_context * ctx, char *p, struct stat *s, int *ss));
 
 _PROTOTYPE(static void snp_eventpoll,
            (char *p, int len, int *tfds, int tfd_count));
@@ -149,8 +153,7 @@ char *ucntx; /* user supplied context */
  * enter_cntx_arg() - enter name ecurity context argument
  */
 
-int enter_cntx_arg(cntx)
-char *cntx; /* context */
+int enter_cntx_arg(struct lsof_context *ctx, char *cntx) /* context */
 {
     cntxlist_t *cntxp;
     /*
@@ -169,7 +172,7 @@ char *cntx; /* context */
      */
     if (!(cntxp = (cntxlist_t *)malloc((MALLOC_S)sizeof(cntxlist_t)))) {
         (void)fprintf(stderr, "%s: no space for context: %s\n", Pn, cntx);
-        Error();
+        Error(ctx);
     }
     cntxp->f = 0;
     cntxp->cntx = cntx;
@@ -183,10 +186,10 @@ char *cntx; /* context */
  * alloc_cbf() -- allocate a command buffer
  */
 
-static MALLOC_S alloc_cbf(len, cbf, cbfa)
-MALLOC_S len;  /* required length */
-char **cbf;    /* current buffer */
-MALLOC_S cbfa; /* current buffer allocation */
+static MALLOC_S alloc_cbf(struct lsof_context *ctx,
+                          MALLOC_S len,  /* required length */
+                          char **cbf,    /* current buffer */
+                          MALLOC_S cbfa) /* current buffer allocation */
 {
     if (*cbf)
         *cbf = (char *)realloc((MALLOC_P *)*cbf, len);
@@ -195,7 +198,7 @@ MALLOC_S cbfa; /* current buffer allocation */
     if (!*cbf) {
         (void)fprintf(stderr, "%s: can't allocate command %d bytes\n", Pn,
                       (int)len);
-        Error();
+        Error(ctx);
     }
     return (len);
 }
@@ -204,7 +207,7 @@ MALLOC_S cbfa; /* current buffer allocation */
  * gather_proc_info() -- gather process information
  */
 
-void gather_proc_info() {
+void gather_proc_info(struct lsof_context *ctx) {
     char *cmd, *tcmd;
     char cmdbuf[MAXPATHLEN];
     struct dirent *dp;
@@ -234,17 +237,17 @@ void gather_proc_info() {
             (void)fprintf(stderr,
                           "%s: can't allocate %d bytes for \"%s/\"<pid>\n", Pn,
                           (int)pidpathl, PROCFS);
-            Error();
+            Error(ctx);
         }
         (void)snpf(pidpath, pidpathl, "%s/", PROCFS);
     }
     /*
      * Get lock and net information.
      */
-    (void)make_proc_path(pidpath, pidx, &path, &pathl, "locks");
-    (void)get_locks(path);
-    (void)make_proc_path(pidpath, pidx, &path, &pathl, "net/");
-    (void)set_net_paths(path, strlen(path));
+    (void)make_proc_path(ctx, pidpath, pidx, &path, &pathl, "locks");
+    (void)get_locks(ctx, path);
+    (void)make_proc_path(ctx, pidpath, pidx, &path, &pathl, "net/");
+    (void)set_net_paths(ctx, path, strlen(path));
     /*
      * If only socket files have been selected, or socket files have been
      * selected ANDed with other selection options, enable the skipping of
@@ -298,7 +301,7 @@ void gather_proc_info() {
     if (!ps) {
         if (!(ps = opendir(PROCFS))) {
             (void)fprintf(stderr, "%s: can't open %s\n", Pn, PROCFS);
-            Error();
+            Error(ctx);
         }
     } else
         (void)rewinddir(ps);
@@ -314,7 +317,7 @@ void gather_proc_info() {
                 (void)fprintf(stderr,
                               "%s: can't allocate %d bytes for \"%s/%s/\"\n",
                               Pn, (int)pidpathl, PROCFS, dp->d_name);
-                Error();
+                Error(ctx);
             }
         }
         (void)snpf(pidpath + pidx, pidpathl - pidx, "%s/", dp->d_name);
@@ -329,8 +332,8 @@ void gather_proc_info() {
         /*
          * Get the PID's command name.
          */
-        (void)make_proc_path(pidpath, n, &path, &pathl, "stat");
-        if ((prv = read_id_stat(path, pid, &cmd, &ppid, &pgid)) < 0)
+        (void)make_proc_path(ctx, pidpath, n, &path, &pathl, "stat");
+        if ((prv = read_id_stat(ctx, path, pid, &cmd, &ppid, &pgid)) < 0)
             cmd = NULL; /* NULL means failure to get command name */
 
 #if defined(HASTASKS)
@@ -353,7 +356,8 @@ void gather_proc_info() {
                 cmd = cmdbuf;
             }
 
-            (void)make_proc_path(pidpath, n, &taskpath, &taskpathl, "task");
+            (void)make_proc_path(ctx, pidpath, n, &taskpath, &taskpathl,
+                                 "task");
             tx = n + 4;
             if ((ts = opendir(taskpath))) {
 
@@ -390,7 +394,7 @@ void gather_proc_info() {
                                           Pn, tidpathl);
                             (void)fprintf(stderr, " for \"%s/%s/stat\"\n",
                                           taskpath, dp->d_name);
-                            Error();
+                            Error(ctx);
                         }
                     }
                     (void)snpf(tidpath, tidpathl, "%s/%s/stat", taskpath,
@@ -398,14 +402,14 @@ void gather_proc_info() {
                     /*
                      * Check the task state.
                      */
-                    rv = read_id_stat(tidpath, tid, &tcmd, &tppid, &tpgid);
+                    rv = read_id_stat(ctx, tidpath, tid, &tcmd, &tppid, &tpgid);
                     if ((rv < 0) || (rv == 1))
                         continue;
                     /*
                      * Attempt to record the task.
                      */
-                    if (!process_id(tidpath, (tx + 1 + nl + 1), cmd, uid, pid,
-                                    tppid, tpgid, tid, tcmd)) {
+                    if (!process_id(ctx, tidpath, (tx + 1 + nl + 1), cmd, uid,
+                                    pid, tppid, tpgid, tid, tcmd)) {
                         ht = 1;
                     }
                 }
@@ -424,7 +428,7 @@ void gather_proc_info() {
             tid = (Fand && ht && pidts && !IgnTasks && (Selflags & SELTASK))
                       ? pid
                       : 0;
-            if ((!process_id(pidpath, n, cmd, uid, pid, ppid, pgid, tid,
+            if ((!process_id(ctx, pidpath, n, cmd, uid, pid, ppid, pgid, tid,
                              (char *)NULL)) &&
                 tid) {
                 Lp->tid = 0;
@@ -437,12 +441,12 @@ void gather_proc_info() {
  * get_fdinfo() - get values from /proc/<PID>fdinfo/FD
  */
 
-static int get_fdinfo(p, msk, fi)
-char *p;             /* path to fdinfo file */
-int msk;             /* mask for information type: e.g.,
-                      * the FDINFO_* definition */
-struct l_fdinfo *fi; /* pointer to local fdinfo values
-                      * return structure */
+static int get_fdinfo(struct lsof_context *ctx,
+                      char *p,             /* path to fdinfo file */
+                      int msk,             /* mask for information type: e.g.,
+                                            * the FDINFO_* definition */
+                      struct l_fdinfo *fi) /* pointer to local fdinfo values
+                                            * return structure */
 {
     char buf[MAXPATHLEN + 1], *ep, **fp;
     FILE *fs;
@@ -472,7 +476,7 @@ struct l_fdinfo *fi; /* pointer to local fdinfo values
      */
     while (fgets(buf, sizeof(buf), fs)) {
         int opt_flg = 0;
-        if (get_fields(buf, (char *)NULL, &fp, (int *)NULL, 0) < 2)
+        if (get_fields(ctx, buf, (char *)NULL, &fp, (int *)NULL, 0) < 2)
             continue;
         if (!fp[0] || !*fp[0] || !fp[1] || !*fp[1])
             continue;
@@ -608,7 +612,7 @@ char **rest; /* pointer to what follows the ':' in
  * initialize() - perform all initialization
  */
 
-void initialize() {
+void initialize(struct lsof_context *ctx) {
     int fd;
     struct l_fdinfo fi;
     char path[MAXPATHLEN];
@@ -641,7 +645,7 @@ void initialize() {
         if (OffType == OFFSET_UNKNOWN) {
             (void)snpf(path, sizeof(path), "%s/%d/fdinfo/%d", PROCFS, Mypid,
                        fd);
-            if (get_fdinfo(path, FDINFO_POS, &fi) & FDINFO_POS) {
+            if (get_fdinfo(ctx, path, FDINFO_POS, &fi) & FDINFO_POS) {
                 if (fi.pos == (off_t)LSTAT_TEST_SEEK)
                     OffType = OFFSET_FDINFO;
             }
@@ -669,7 +673,7 @@ void initialize() {
      * local mount table.)
      */
     if (Selinet == 0)
-        (void)readmnt();
+        (void)readmnt(ctx);
 }
 
 /*
@@ -686,12 +690,12 @@ void initialize() {
  *	np = updated with new path
  *	nl = updated with new buffer size
  */
-int make_proc_path(pp, pl, np, nl, sf)
-char *pp;  /* path prefix -- e.g., /proc/<pid>/ */
-int pl;    /* strlen(pp) */
-char **np; /* malloc'd receiving buffer */
-int *nl;   /* malloc'd size */
-char *sf;  /* suffix of new path */
+int make_proc_path(struct lsof_context *ctx,
+                   char *pp,  /* path prefix -- e.g., /proc/<pid>/ */
+                   int pl,    /* strlen(pp) */
+                   char **np, /* malloc'd receiving buffer */
+                   int *nl,   /* malloc'd size */
+                   char *sf)  /* suffix of new path */
 {
     char *cp;
     MALLOC_S rl, sl;
@@ -705,7 +709,7 @@ char *sf;  /* suffix of new path */
         if (!cp) {
             (void)fprintf(stderr, "%s: can't allocate %d bytes for %s%s\n", Pn,
                           (int)rl, pp, sf);
-            Error();
+            Error(ctx);
         }
         *nl = rl;
         *np = cp;
@@ -721,14 +725,13 @@ char *sf;  /* suffix of new path */
  * Note: alloc_lfile() must have been called in advance.
  */
 
-static int isefsys(path, type, l, rep, lfr)
-char *path;         /* path to file */
-char *type;         /* unknown file type */
-int l;              /* link request: 0 = report
-                     *               1 = link */
-efsys_list_t **rep; /* returned Efsysl pointer, if not
-                     * NULL */
-struct lfile **lfr; /* allocated struct lfile pointer */
+static int isefsys(struct lsof_context *ctx, char *path, /* path to file */
+                   char *type,                           /* unknown file type */
+                   int l,              /* link request: 0 = report
+                                        *               1 = link */
+                   efsys_list_t **rep, /* returned Efsysl pointer, if not
+                                        * NULL */
+                   struct lfile **lfr) /* allocated struct lfile pointer */
 {
     efsys_list_t *ep;
     int ds, len;
@@ -769,18 +772,18 @@ struct lfile **lfr; /* allocated struct lfile pointer */
             }
         }
         if (!ds)
-            (void)enter_dev_ch("UNKNOWN");
+            (void)enter_dev_ch(ctx, "UNKNOWN");
         Lf->ntype = N_UNKN;
         (void)snpf(Lf->type, sizeof(Lf->type), "%s", (type ? type : "UNKN"));
-        (void)enter_nm(path);
+        (void)enter_nm(ctx, path);
         (void)snpf(nmabuf, sizeof(nmabuf), "(%ce %s)", ep->rdlnk ? '+' : '-',
                    ep->path);
         nmabuf[sizeof(nmabuf) - 1] = '\0';
-        (void)add_nma(nmabuf, strlen(nmabuf));
+        (void)add_nma(ctx, nmabuf, strlen(nmabuf));
         if (Lf->sf) {
             if (lfr)
                 *lfr = Lf;
-            link_lfile();
+            link_lfile(ctx);
         } else if (lfr)
             *lfr = (struct lfile *)NULL;
         return (0);
@@ -822,18 +825,18 @@ int *idl; /* pointer to ID length receiver */
  * open_proc_stream() -- open a /proc stream
  */
 
-FILE *open_proc_stream(p, m, buf, sz, act)
-char *p;    /* pointer to path to open */
-char *m;    /* pointer to mode -- e.g., "r" */
-char **buf; /* pointer tp setvbuf() address
-             * (NULL if none) */
-size_t *sz; /* setvbuf() size (0 if none or if
-             * getpagesize() desired */
-int act;    /* fopen() failure action:
-             *     0 : return (FILE *)NULL
-             *   <>0 : fprintf() an error message
-             *         and Error()
-             */
+FILE *open_proc_stream(struct lsof_context *ctx,
+                       char *p,    /* pointer to path to open */
+                       char *m,    /* pointer to mode -- e.g., "r" */
+                       char **buf, /* pointer tp setvbuf() address
+                                    * (NULL if none) */
+                       size_t *sz, /* setvbuf() size (0 if none or if
+                                    * getpagesize() desired */
+                       int act)    /* fopen() failure action:
+                                    *     0 : return (FILE *)NULL
+                                    *   <>0 : fprintf() an error message
+                                    *         and Error()
+                                    */
 {
     FILE *fs;                      /* opened stream */
     static size_t psz = (size_t)0; /* page size */
@@ -846,7 +849,7 @@ int act;    /* fopen() failure action:
             return ((FILE *)NULL);
         (void)fprintf(stderr, "%s: can't fopen(%s, \"%s\"): %s\n", Pn, p, m,
                       strerror(errno));
-        Error();
+        Error(ctx);
     }
     /*
      * Return the stream if no buffer change is required.
@@ -869,7 +872,7 @@ int act;    /* fopen() failure action:
             (void)fprintf(stderr,
                           "%s: can't allocate %d bytes for %s stream buffer\n",
                           Pn, (int)tsz, p);
-            Error();
+            Error(ctx);
         }
         *sz = tsz;
     }
@@ -879,7 +882,7 @@ int act;    /* fopen() failure action:
     if (setvbuf(fs, *buf, _IOFBF, tsz)) {
         (void)fprintf(stderr, "%s: setvbuf(%s)=%d failure: %s\n", Pn, p,
                       (int)tsz, strerror(errno));
-        Error();
+        Error(ctx);
     }
     return (fs);
 }
@@ -891,16 +894,16 @@ int act;    /* fopen() failure action:
  *          1 == ID not processed
  */
 
-static int process_id(idp, idpl, cmd, uid, pid, ppid, pgid, tid, tcmd)
-char *idp;   /* pointer to ID's path */
-int idpl;    /* pointer to ID's path length */
-char *cmd;   /* pointer to ID's command */
-UID_ARG uid; /* ID's UID */
-int pid;     /* ID's PID */
-int ppid;    /* parent PID */
-int pgid;    /* parent GID */
-int tid;     /* task ID, if non-zero */
-char *tcmd;  /* task command, if non-NULL) */
+static int process_id(struct lsof_context *ctx,
+                      char *idp,   /* pointer to ID's path */
+                      int idpl,    /* pointer to ID's path length */
+                      char *cmd,   /* pointer to ID's command */
+                      UID_ARG uid, /* ID's UID */
+                      int pid,     /* ID's PID */
+                      int ppid,    /* parent PID */
+                      int pgid,    /* parent GID */
+                      int tid,     /* task ID, if non-zero */
+                      char *tcmd)  /* task command, if non-NULL) */
 {
     int av = 0;
     static char *dpath = (char *)NULL;
@@ -949,7 +952,7 @@ char *tcmd;  /* task command, if non-NULL) */
          */
         Ckscko = (sf & SelProc) ? 0 : 1;
     }
-    alloc_lproc(pid, pgid, ppid, uid, cmd, (int)pss, (int)sf);
+    alloc_lproc(ctx, pid, pgid, ppid, uid, cmd, (int)pss, (int)sf);
     Plf = (struct lfile *)NULL;
 
 #if defined(HASTASKS)
@@ -963,7 +966,7 @@ char *tcmd;  /* task command, if non-NULL) */
                           "%s: PID %d, TID %d, no space for task name: ", Pn,
                           pid, tid);
             safestrprt(tcmd, stderr, 1);
-            Error();
+            Error(ctx);
         }
     }
 #endif /* defined(HASTASKS) */
@@ -973,8 +976,8 @@ char *tcmd;  /* task command, if non-NULL) */
      */
     efs = 0;
     if (!Ckscko) {
-        (void)make_proc_path(idp, idpl, &path, &pathl, "cwd");
-        alloc_lfile(CWD, -1);
+        (void)make_proc_path(ctx, idp, idpl, &path, &pathl, "cwd");
+        alloc_lfile(ctx, CWD, -1);
         if (getlinksrc(path, pbuf, sizeof(pbuf), (char **)NULL) < 1) {
             if (!Fwarn) {
                 zeromem((char *)&sb, sizeof(sb));
@@ -982,20 +985,20 @@ char *tcmd;  /* task command, if non-NULL) */
                 (void)snpf(nmabuf, sizeof(nmabuf), "(readlink: %s)",
                            strerror(errno));
                 nmabuf[sizeof(nmabuf) - 1] = '\0';
-                (void)add_nma(nmabuf, strlen(nmabuf));
+                (void)add_nma(ctx, nmabuf, strlen(nmabuf));
                 pn = 1;
             } else
                 pn = 0;
         } else {
             lnk = pn = 1;
-            if (Efsysl && !isefsys(pbuf, "UNKNcwd", 1, NULL, &lfr)) {
+            if (Efsysl && !isefsys(ctx, pbuf, "UNKNcwd", 1, NULL, &lfr)) {
                 efs = 1;
                 pn = 0;
             } else {
                 ss = SB_ALL;
                 if (HasNFS) {
-                    if ((sv = statsafely(path, &sb)))
-                        sv = statEx(pbuf, &sb, &ss);
+                    if ((sv = statsafely(ctx, path, &sb)))
+                        sv = statEx(ctx, pbuf, &sb, &ss);
                 } else
                     sv = stat(path, &sb);
                 if (sv) {
@@ -1004,16 +1007,16 @@ char *tcmd;  /* task command, if non-NULL) */
                         (void)snpf(nmabuf, sizeof(nmabuf), "(stat: %s)",
                                    strerror(errno));
                         nmabuf[sizeof(nmabuf) - 1] = '\0';
-                        (void)add_nma(nmabuf, strlen(nmabuf));
+                        (void)add_nma(ctx, nmabuf, strlen(nmabuf));
                     }
                 }
             }
         }
         if (pn) {
-            (void)process_proc_node(lnk ? pbuf : path, path, &sb, ss,
+            (void)process_proc_node(ctx, lnk ? pbuf : path, path, &sb, ss,
                                     (struct stat *)NULL, 0);
             if (Lf->sf)
-                link_lfile();
+                link_lfile(ctx);
         }
     }
     /*
@@ -1021,27 +1024,27 @@ char *tcmd;  /* task command, if non-NULL) */
      */
     lnk = ss = 0;
     if (!Ckscko) {
-        (void)make_proc_path(idp, idpl, &path, &pathl, "root");
-        alloc_lfile(RTD, -1);
+        (void)make_proc_path(ctx, idp, idpl, &path, &pathl, "root");
+        alloc_lfile(ctx, RTD, -1);
         if (getlinksrc(path, pbuf, sizeof(pbuf), (char **)NULL) < 1) {
             if (!Fwarn) {
                 zeromem((char *)&sb, sizeof(sb));
                 (void)snpf(nmabuf, sizeof(nmabuf), "(readlink: %s)",
                            strerror(errno));
                 nmabuf[sizeof(nmabuf) - 1] = '\0';
-                (void)add_nma(nmabuf, strlen(nmabuf));
+                (void)add_nma(ctx, nmabuf, strlen(nmabuf));
                 pn = 1;
             } else
                 pn = 0;
         } else {
             lnk = pn = 1;
-            if (Efsysl && !isefsys(pbuf, "UNKNrtd", 1, NULL, NULL))
+            if (Efsysl && !isefsys(ctx, pbuf, "UNKNrtd", 1, NULL, NULL))
                 pn = 0;
             else {
                 ss = SB_ALL;
                 if (HasNFS) {
-                    if ((sv = statsafely(path, &sb)))
-                        sv = statEx(pbuf, &sb, &ss);
+                    if ((sv = statsafely(ctx, path, &sb)))
+                        sv = statEx(ctx, pbuf, &sb, &ss);
                 } else
                     sv = stat(path, &sb);
                 if (sv) {
@@ -1050,16 +1053,16 @@ char *tcmd;  /* task command, if non-NULL) */
                         (void)snpf(nmabuf, sizeof(nmabuf), "(stat: %s)",
                                    strerror(errno));
                         nmabuf[sizeof(nmabuf) - 1] = '\0';
-                        (void)add_nma(nmabuf, strlen(nmabuf));
+                        (void)add_nma(ctx, nmabuf, strlen(nmabuf));
                     }
                 }
             }
         }
         if (pn) {
-            (void)process_proc_node(lnk ? pbuf : path, path, &sb, ss,
+            (void)process_proc_node(ctx, lnk ? pbuf : path, path, &sb, ss,
                                     (struct stat *)NULL, 0);
             if (Lf->sf)
-                link_lfile();
+                link_lfile(ctx);
         }
     }
     /*
@@ -1067,8 +1070,8 @@ char *tcmd;  /* task command, if non-NULL) */
      */
     lnk = ss = txts = 0;
     if (!Ckscko) {
-        (void)make_proc_path(idp, idpl, &path, &pathl, "exe");
-        alloc_lfile("txt", -1);
+        (void)make_proc_path(ctx, idp, idpl, &path, &pathl, "exe");
+        alloc_lfile(ctx, "txt", -1);
         if (getlinksrc(path, pbuf, sizeof(pbuf), (char **)NULL) < 1) {
             zeromem((void *)&sb, sizeof(sb));
             if (!Fwarn) {
@@ -1076,20 +1079,20 @@ char *tcmd;  /* task command, if non-NULL) */
                     (void)snpf(nmabuf, sizeof(nmabuf), "(readlink: %s)",
                                strerror(errno));
                     nmabuf[sizeof(nmabuf) - 1] = '\0';
-                    (void)add_nma(nmabuf, strlen(nmabuf));
+                    (void)add_nma(ctx, nmabuf, strlen(nmabuf));
                 }
                 pn = 1;
             } else
                 pn = 0;
         } else {
             lnk = pn = 1;
-            if (Efsysl && !isefsys(pbuf, "UNKNtxt", 1, NULL, NULL))
+            if (Efsysl && !isefsys(ctx, pbuf, "UNKNtxt", 1, NULL, NULL))
                 pn = 0;
             else {
                 ss = SB_ALL;
                 if (HasNFS) {
-                    if ((sv = statsafely(path, &sb))) {
-                        sv = statEx(pbuf, &sb, &ss);
+                    if ((sv = statsafely(ctx, path, &sb))) {
+                        sv = statEx(ctx, pbuf, &sb, &ss);
                         if (!sv && (ss & SB_DEV) && (ss & SB_INO))
                             txts = 1;
                     }
@@ -1101,25 +1104,25 @@ char *tcmd;  /* task command, if non-NULL) */
                         (void)snpf(nmabuf, sizeof(nmabuf), "(stat: %s)",
                                    strerror(errno));
                         nmabuf[sizeof(nmabuf) - 1] = '\0';
-                        (void)add_nma(nmabuf, strlen(nmabuf));
+                        (void)add_nma(ctx, nmabuf, strlen(nmabuf));
                     }
                 } else
                     txts = 1;
             }
         }
         if (pn) {
-            (void)process_proc_node(lnk ? pbuf : path, path, &sb, ss,
+            (void)process_proc_node(ctx, lnk ? pbuf : path, path, &sb, ss,
                                     (struct stat *)NULL, 0);
             if (Lf->sf)
-                link_lfile();
+                link_lfile(ctx);
         }
     }
     /*
      * Process the ID's memory map info.
      */
     if (!Ckscko) {
-        (void)make_proc_path(idp, idpl, &path, &pathl, "maps");
-        (void)process_proc_map(path, txts ? &sb : (struct stat *)NULL,
+        (void)make_proc_path(ctx, idp, idpl, &path, &pathl, "maps");
+        (void)process_proc_map(ctx, path, txts ? &sb : (struct stat *)NULL,
                                txts ? ss : 0);
     }
 
@@ -1141,7 +1144,7 @@ char *tcmd;  /* task command, if non-NULL) */
                 if (!(Lp->cntx = strdup(nmabuf))) {
                     (void)fprintf(stderr, "%s: no context error space: PID %ld",
                                   Pn, (long)Lp->pid);
-                    Error();
+                    Error(ctx);
                 }
             }
         } else if (CntxArg) {
@@ -1164,11 +1167,11 @@ char *tcmd;  /* task command, if non-NULL) */
     /*
      * Process the ID's file descriptor directory.
      */
-    if ((i = make_proc_path(idp, idpl, &dpath, &dpathl, "fd/")) < 3)
+    if ((i = make_proc_path(ctx, idp, idpl, &dpath, &dpathl, "fd/")) < 3)
         return (0);
     dpath[i - 1] = '\0';
     if ((OffType == OFFSET_FDINFO) &&
-        ((j = make_proc_path(idp, idpl, &ipath, &ipathl, "fdinfo/")) >= 7))
+        ((j = make_proc_path(ctx, idp, idpl, &ipath, &ipathl, "fdinfo/")) >= 7))
         oty = 1;
     else
         oty = 0;
@@ -1176,10 +1179,10 @@ char *tcmd;  /* task command, if non-NULL) */
         if (!Fwarn) {
             (void)snpf(nmabuf, sizeof(nmabuf), "%s (opendir: %s)", dpath,
                        strerror(errno));
-            alloc_lfile("NOFD", -1);
+            alloc_lfile(ctx, "NOFD", -1);
             nmabuf[sizeof(nmabuf) - 1] = '\0';
-            (void)add_nma(nmabuf, strlen(nmabuf));
-            link_lfile();
+            (void)add_nma(ctx, nmabuf, strlen(nmabuf));
+            link_lfile(ctx);
         }
         return (0);
     }
@@ -1187,8 +1190,8 @@ char *tcmd;  /* task command, if non-NULL) */
     while ((fp = readdir(fdp))) {
         if (nm2id(fp->d_name, &fd, &n))
             continue;
-        (void)make_proc_path(dpath, i, &path, &pathl, fp->d_name);
-        (void)alloc_lfile((char *)NULL, fd);
+        (void)make_proc_path(ctx, dpath, i, &path, &pathl, fp->d_name);
+        (void)alloc_lfile(ctx, (char *)NULL, fd);
         if (getlinksrc(path, pbuf, sizeof(pbuf), &rest) < 1) {
             zeromem((char *)&sb, sizeof(sb));
             lnk = ss = 0;
@@ -1197,26 +1200,26 @@ char *tcmd;  /* task command, if non-NULL) */
                 (void)snpf(nmabuf, sizeof(nmabuf), "(readlink: %s)",
                            strerror(errno));
                 nmabuf[sizeof(nmabuf) - 1] = '\0';
-                (void)add_nma(nmabuf, strlen(nmabuf));
+                (void)add_nma(ctx, nmabuf, strlen(nmabuf));
                 pn = 1;
             } else
                 pn = 0;
         } else {
             lnk = 1;
-            if (Efsysl && !isefsys(pbuf, "UNKNfd", 1, NULL, &lfr)) {
+            if (Efsysl && !isefsys(ctx, pbuf, "UNKNfd", 1, NULL, &lfr)) {
                 efs = 1;
                 pn = 0;
             } else {
                 if (HasNFS) {
-                    if (lstatsafely(path, &lsb)) {
-                        (void)statEx(pbuf, &lsb, &ls);
+                    if (lstatsafely(ctx, path, &lsb)) {
+                        (void)statEx(ctx, pbuf, &lsb, &ls);
                         enls = errno;
                     } else {
                         enls = 0;
                         ls = SB_ALL;
                     }
-                    if (statsafely(path, &sb)) {
-                        (void)statEx(pbuf, &sb, &ss);
+                    if (statsafely(ctx, path, &sb)) {
+                        (void)statEx(ctx, pbuf, &sb, &ss);
                         enss = errno;
                     } else {
                         enss = 0;
@@ -1232,13 +1235,13 @@ char *tcmd;  /* task command, if non-NULL) */
                     (void)snpf(nmabuf, sizeof(nmabuf), "lstat: %s)",
                                strerror(enls));
                     nmabuf[sizeof(nmabuf) - 1] = '\0';
-                    (void)add_nma(nmabuf, strlen(nmabuf));
+                    (void)add_nma(ctx, nmabuf, strlen(nmabuf));
                 }
                 if (!ss && !Fwarn) {
                     (void)snpf(nmabuf, sizeof(nmabuf), "(stat: %s)",
                                strerror(enss));
                     nmabuf[sizeof(nmabuf) - 1] = '\0';
-                    (void)add_nma(nmabuf, strlen(nmabuf));
+                    (void)add_nma(ctx, nmabuf, strlen(nmabuf));
                 }
                 if (Ckscko) {
                     if ((ss & SB_MODE) && ((sb.st_mode & S_IFMT) == S_IFSOCK)) {
@@ -1257,7 +1260,8 @@ char *tcmd;  /* task command, if non-NULL) */
 
             if (oty) {
                 int fdinfo_mask = FDINFO_BASE;
-                (void)make_proc_path(ipath, j, &pathi, &pathil, fp->d_name);
+                (void)make_proc_path(ctx, ipath, j, &pathi, &pathil,
+                                     fp->d_name);
 
                 if (rest && rest[0] == '[' && rest[1] == 'e' &&
                     rest[2] == 'v' && rest[3] == 'e' && rest[4] == 'n' &&
@@ -1277,7 +1281,8 @@ char *tcmd;  /* task command, if non-NULL) */
                 if (rest && rest[0] == '[' && rest[1] == 'p')
                     fdinfo_mask |= FDINFO_PID;
 
-                if ((av = get_fdinfo(pathi, fdinfo_mask, &fi)) & FDINFO_POS) {
+                if ((av = get_fdinfo(ctx, pathi, fdinfo_mask, &fi)) &
+                    FDINFO_POS) {
                     if (efs) {
                         if (Foffset) {
                             lfr->off = (SZOFFTYPE)fi.pos;
@@ -1303,7 +1308,8 @@ char *tcmd;  /* task command, if non-NULL) */
 #endif /* !defined(HASNOFSFLAGS) */
             }
             if (pn) {
-                process_proc_node(lnk ? pbuf : path, path, &sb, ss, &lsb, ls);
+                process_proc_node(ctx, lnk ? pbuf : path, path, &sb, ss, &lsb,
+                                  ls);
                 if (Lf->ntype == N_ANON_INODE) {
                     if (rest && *rest) {
 #if defined(HASEPTOPTS)
@@ -1323,11 +1329,11 @@ char *tcmd;  /* task command, if non-NULL) */
                                           fi.tfds, fi.tfd_count);
                         }
 
-                        enter_nm(rest);
+                        enter_nm(ctx, rest);
                     }
 #if defined(HASEPTOPTS)
                     if (FeptE && fi.eventfd_id != -1) {
-                        enter_evtfdinfo(fi.eventfd_id);
+                        enter_evtfdinfo(ctx, fi.eventfd_id);
                         Lf->eventfd_id = fi.eventfd_id;
                         Lf->sf |= SELEVTFDINFO;
                     }
@@ -1336,14 +1342,14 @@ char *tcmd;  /* task command, if non-NULL) */
 #if defined(HASEPTOPTS) && defined(HASPTYEPT)
                 else if (FeptE && Lf->rdev_def && is_pty_ptmx(Lf->rdev) &&
                          (av & FDINFO_TTY_INDEX)) {
-                    enter_ptmxi(fi.tty_index);
+                    enter_ptmxi(ctx, fi.tty_index);
                     Lf->tty_index = fi.tty_index;
                     Lf->sf |= SELPTYINFO;
                 }
 #endif /* defined(HASEPTOPTS) && defined(HASPTYEPT) */
 
                 if (Lf->sf)
-                    link_lfile();
+                    link_lfile(ctx);
             }
         }
     }
@@ -1381,7 +1387,8 @@ int pid; /* pid of the target process */
  */
 
 static void
-process_proc_map(char *p,        /* path to process maps file */
+process_proc_map(struct lsof_context *ctx,
+                 char *p,        /* path to process maps file */
                  struct stat *s, /* executing text file state buffer */
                  int ss)         /* *s status -- i.e., SB_* values */
 {
@@ -1409,7 +1416,7 @@ process_proc_map(char *p,        /* path to process maps file */
      * Open the /proc/<pid>/maps file, assign a page size buffer to its stream,
      * and read it/
      */
-    if (!(ms = open_proc_stream(p, "r", &vbuf, &vsz, 0)))
+    if (!(ms = open_proc_stream(ctx, p, "r", &vbuf, &vsz, 0)))
         return;
 
     /* target process in a different mount namespace from lsof process. */
@@ -1417,7 +1424,7 @@ process_proc_map(char *p,        /* path to process maps file */
         diff_mntns = 1;
 
     while (fgets(buf, sizeof(buf), ms)) {
-        if (get_fields(buf, ":", &fp, &eb, 1) < 7)
+        if (get_fields(ctx, buf, ":", &fp, &eb, 1) < 7)
             continue; /* not enough fields */
         if (!fp[6] || !*fp[6])
             continue; /* no path name */
@@ -1485,7 +1492,7 @@ process_proc_map(char *p,        /* path to process maps file */
                     stderr,
                     "%s: can't allocate %d bytes for saved maps, PID %d\n", Pn,
                     (int)len, Lp->pid);
-                Error();
+                Error(ctx);
             }
         }
         sm[ns].dev = dev;
@@ -1495,8 +1502,8 @@ process_proc_map(char *p,        /* path to process maps file */
          * for it.  Skip the stat(2) operation if this is on an exempt file
          * system.
          */
-        alloc_lfile("mem", -1);
-        if (Efsysl && !isefsys(fp[6], (char *)NULL, 0, &rep, NULL))
+        alloc_lfile(ctx, "mem", -1);
+        if (Efsysl && !isefsys(ctx, fp[6], (char *)NULL, 0, &rep, NULL))
             efs = sv = 1;
         else
             efs = 0;
@@ -1526,7 +1533,7 @@ process_proc_map(char *p,        /* path to process maps file */
 
             if (!efs) {
                 if (HasNFS)
-                    sv = statsafely(path, &sb);
+                    sv = statsafely(ctx, path, &sb);
                 else
                     sv = stat(path, &sb);
             }
@@ -1534,7 +1541,7 @@ process_proc_map(char *p,        /* path to process maps file */
         stat_directly:
             if (!efs) {
                 if (HasNFS)
-                    sv = statsafely(fp[6], &sb);
+                    sv = statsafely(ctx, fp[6], &sb);
                 else
                     sv = stat(fp[6], &sb);
             }
@@ -1555,11 +1562,11 @@ process_proc_map(char *p,        /* path to process maps file */
             sb.st_mode = S_IFREG;
             mss = SB_DEV | SB_INO | SB_MODE;
             if (ds)
-                alloc_lfile("DEL", -1);
+                alloc_lfile(ctx, "DEL", -1);
             else if (!efs && !Fwarn) {
                 (void)snpf(nmabuf, sizeof(nmabuf), "(stat: %s)", strerror(en));
                 nmabuf[sizeof(nmabuf) - 1] = '\0';
-                (void)add_nma(nmabuf, strlen(nmabuf));
+                (void)add_nma(ctx, nmabuf, strlen(nmabuf));
             }
         } else if (diff_mntns) {
             mss = SB_ALL;
@@ -1576,7 +1583,7 @@ process_proc_map(char *p,        /* path to process maps file */
              * information.
              */
             if (ds)
-                alloc_lfile("DEL", -1);
+                alloc_lfile(ctx, "DEL", -1);
             else if (!Fwarn) {
                 char *sep;
 
@@ -1585,7 +1592,7 @@ process_proc_map(char *p,        /* path to process maps file */
                                GET_MAJ_DEV(sb.st_dev), GET_MIN_DEV(sb.st_dev),
                                ((INODETYPE)sb.st_ino == inode) ? ")" : ",");
                     nmabuf[sizeof(nmabuf) - 1] = '\0';
-                    (void)add_nma(nmabuf, strlen(nmabuf));
+                    (void)add_nma(ctx, nmabuf, strlen(nmabuf));
                     sep = "";
                 } else
                     sep = "(path ";
@@ -1595,7 +1602,7 @@ process_proc_map(char *p,        /* path to process maps file */
                     (void)snpf(nmabuf, sizeof(nmabuf), fmtbuf, sep,
                                (INODETYPE)sb.st_ino);
                     nmabuf[sizeof(nmabuf) - 1] = '\0';
-                    (void)add_nma(nmabuf, strlen(nmabuf));
+                    (void)add_nma(ctx, nmabuf, strlen(nmabuf));
                 }
             }
             zeromem((char *)&sb, sizeof(sb));
@@ -1609,7 +1616,8 @@ process_proc_map(char *p,        /* path to process maps file */
          * Record the file's information.
          */
         if (!efs)
-            process_proc_node(fp[6], fp[6], &sb, mss, (struct stat *)NULL, 0);
+            process_proc_node(ctx, fp[6], fp[6], &sb, mss, (struct stat *)NULL,
+                              0);
         else {
 
             /*
@@ -1620,16 +1628,16 @@ process_proc_map(char *p,        /* path to process maps file */
             Lf->dev = sb.st_dev;
             Lf->inode = (ino_t)sb.st_ino;
             Lf->dev_def = Lf->inp_ty = 1;
-            (void)enter_nm(fp[6]);
+            (void)enter_nm(ctx, fp[6]);
             (void)snpf(Lf->type, sizeof(Lf->type), "%s",
                        (ds ? "UNKNdel" : "UNKNmem"));
             (void)snpf(nmabuf, sizeof(nmabuf), "(%ce %s)",
                        rep->rdlnk ? '+' : '-', rep->path);
             nmabuf[sizeof(nmabuf) - 1] = '\0';
-            (void)add_nma(nmabuf, strlen(nmabuf));
+            (void)add_nma(ctx, nmabuf, strlen(nmabuf));
         }
         if (Lf->sf)
-            link_lfile();
+            link_lfile(ctx);
     }
     (void)fclose(ms);
 }
@@ -1642,7 +1650,8 @@ process_proc_map(char *p,        /* path to process maps file */
  *          1 == ID is a zombie
  *	    2 == ID is a thread
  */
-static int read_id_stat(char *p,    /* path to status file */
+static int read_id_stat(struct lsof_context *ctx,
+                        char *p,    /* path to status file */
                         int id,     /* ID: PID or LWP */
                         char **cmd, /* malloc'd command name */
                         int *ppid,  /* returned parent PID for PID type */
@@ -1660,7 +1669,7 @@ static int read_id_stat(char *p,    /* path to status file */
      * Open the stat file path, assign a page size buffer to its stream,
      * and read the file's first line.
      */
-    if (!(fs = open_proc_stream(p, "r", &vbuf, &vsz, 0)))
+    if (!(fs = open_proc_stream(ctx, p, "r", &vbuf, &vsz, 0)))
         return (-1);
     if (!(cp = fgets(buf, sizeof(buf), fs))) {
 
@@ -1728,7 +1737,7 @@ static int read_id_stat(char *p,    /* path to status file */
                 break;
         }
         if ((cx + 2) > cbfa)
-            cbfa = alloc_cbf((cx + 2), &cbf, cbfa);
+            cbfa = alloc_cbf(ctx, (cx + 2), &cbf, cbfa);
         cbf[cx] = ch;
         cx++;
         cbf[cx] = '\0';
@@ -1747,7 +1756,7 @@ static int read_id_stat(char *p,    /* path to status file */
     (void)fclose(fs);
     if (!cp || !*cp)
         return (-1);
-    if (get_fields(cp, (char *)NULL, &fp, (int *)NULL, 0) < 3)
+    if (get_fields(ctx, cp, (char *)NULL, &fp, (int *)NULL, 0) < 3)
         return (-1);
     /*
      * Convert and return parent process (fourth field) and process group (fifth
@@ -1784,7 +1793,7 @@ static int read_id_stat(char *p,    /* path to status file */
  *	 This function should be used only when links have been successfully
  *	 resolved in the /proc path by getlinksrc().
  */
-static int statEx(char *p,        /* file path */
+static int statEx(struct lsof_context *ctx, char *p, /* file path */
                   struct stat *s, /* stat() result -- NULL if none
                                    * wanted */
                   int *ss)        /* stat() status --  SB_* values */
@@ -1808,7 +1817,7 @@ static int statEx(char *p,        /* file path */
         if (!cb) {
             (void)fprintf(stderr, "%s: PID %ld: no statEx path space: %s\n", Pn,
                           (long)Lp->pid, p);
-            Error();
+            Error(ctx);
         }
         ca = sz + 1;
     }
@@ -1820,7 +1829,7 @@ static int statEx(char *p,        /* file path */
      */
     for (cp = strrchr(cb, '/'); cp && (cp != cb);) {
         *cp = '\0';
-        if (!statsafely(cb, &sb)) {
+        if (!statsafely(ctx, cb, &sb)) {
             st = 1;
             break;
         }

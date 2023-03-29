@@ -534,12 +534,12 @@ static void build_Voptab() {
     if (!(Voptab =
               (v_optab_t **)calloc((MALLOC_S)VOPHASHBINS, sizeof(v_optab_t)))) {
         (void)fprintf(stderr, "%s: no space for Voptab\n", Pn);
-        Error();
+        Error(ctx);
     }
     if (!(FxToVoptab =
               (v_optab_t **)calloc((MALLOC_S)Fsinfomax, sizeof(v_optab_t *)))) {
         (void)fprintf(stderr, "%s: no space for FxToVoptab\n", Pn);
-        Error();
+        Error(ctx);
     }
     for (i = 0; i < VXVOP_NUM; i++) {
         Vvops[i] = (KA_T)NULL;
@@ -580,7 +580,7 @@ static void build_Voptab() {
         if (!(nv = (v_optab_t *)malloc((MALLOC_S)sizeof(v_optab_t)))) {
             (void)fprintf(stderr, "%s: out of Voptab space at: %s\n", Pn,
                           bp->dnm);
-            Error();
+            Error(ctx);
         }
         nv->fsys = bp->fsys;
         nv->fx = -1;
@@ -780,7 +780,7 @@ CTF_request_t *r;              /* CTF requests */
     if (!isas) {
         if (sysinfo(SI_ARCHITECTURE_K, isa, sizeof(isa) - 1) == -1) {
             (void)fprintf(stderr, "%s: sysinfo: %s\n", Pn, strerror(errno));
-            Error();
+            Error(ctx);
         }
         isas = 1;
         isa[sizeof(isa) - 1] = '\0';
@@ -828,7 +828,7 @@ CTF_request_t *r;              /* CTF requests */
     if ((f = ctf_open(kmp, &err)) == NULL) {
         (void)fprintf(stderr, "%s: ctf_open: %s: %s\n", Pn, kmp,
                       ctf_errmsg(err));
-        Error();
+        Error(ctx);
     }
     for (err = 0; r->name; r++) {
         if (CTF_getmem(f, kmp, r->name, r->mem))
@@ -836,7 +836,7 @@ CTF_request_t *r;              /* CTF requests */
     }
     (void)ctf_close(f);
     if (err)
-        Error();
+        Error(ctx);
     *i = 1;
 }
 
@@ -1204,7 +1204,7 @@ struct door_node *d; /* door's node */
         (void)snpf(buf, bufl, "(door to %.64s[%ld])", dp.p_user.u_comm,
                    (long)dpid.pid_id);
     }
-    (void)add_nma(buf, (int)strlen(buf));
+    (void)add_nma(ctx, buf, (int)strlen(buf));
     return (1);
 }
 #endif /* solaris>=20500 */
@@ -1385,7 +1385,7 @@ void process_node(va) KA_T va; /* vnode kernel space address */
 #endif /* defined(HAS_AFS) */
 
             );
-            Error();
+            Error(ctx);
         }
     }
     if (readvnode(va, v)) {
@@ -1745,7 +1745,7 @@ void process_node(va) KA_T va; /* vnode kernel space address */
 #endif /* solaris<20500 */
 
             if (tbufx)
-                (void)add_nma(tbuf, tbufx);
+                (void)add_nma(ctx, tbuf, tbufx);
             break;
         }
         break;
@@ -1817,7 +1817,7 @@ void process_node(va) KA_T va; /* vnode kernel space address */
 #endif /* solaris>=110000 */
 
     case N_SAMFS:
-        (void)add_nma(SAMFS_NMA_MSG, (int)strlen(SAMFS_NMA_MSG));
+        (void)add_nma(ctx, SAMFS_NMA_MSG, (int)strlen(SAMFS_NMA_MSG));
         break;
     case N_SHARED:
         break; /* No more sharedfs information is available. */
@@ -2039,7 +2039,7 @@ void process_node(va) KA_T va; /* vnode kernel space address */
                 return;
             break;
         case N_SAMFS:
-            (void)add_nma(SAMFS_NMA_MSG, (int)strlen(SAMFS_NMA_MSG));
+            (void)add_nma(ctx, SAMFS_NMA_MSG, (int)strlen(SAMFS_NMA_MSG));
 
 #if solaris >= 110000
         case N_SDEV:
@@ -3612,7 +3612,7 @@ void process_node(va) KA_T va; /* vnode kernel space address */
      * If a file attach description remains, put it in the NAME column addition.
      */
     if (fa)
-        (void)add_nma(fa, fal);
+        (void)add_nma(ctx, fa, fal);
 
 #if defined(HASBLKDEV)
     /*
@@ -3696,7 +3696,7 @@ void process_node(va) KA_T va; /* vnode kernel space address */
                             stderr,
                             "%s: no space for (COMMON): PID %d; FD %s\n", Pn,
                             Lp->pid, Lf->fd);
-                        Error();
+                        Error(ctx);
                     }
                     (void)snpf(Lf->nma, len, "(COMMON)");
                 }
@@ -5156,7 +5156,7 @@ int fx;           /* file system index (-1 if none) */
             if (!(nv = (v_optab_t *)malloc((MALLOC_S)sizeof(v_optab_t)))) {
                 (void)fprintf(stderr, "%s: can't add \"%s\" to Voptab\n", Pn,
                               Fsinfo[fx]);
-                Error();
+                Error(ctx);
             }
             *nv = *v;
             nv->v_op = ka;

@@ -90,24 +90,28 @@ static int NVips = 0;               /* entries allocated to Vips */
 /*
  * Local function prototypes
  */
-_PROTOTYPE(static void enter_vn_text, (struct vnode_info_path * vip, int *n));
-_PROTOTYPE(static void process_fds, (int pid, uint32_t n, int ckscko));
-_PROTOTYPE(static void process_text, (int pid));
+_PROTOTYPE(static void enter_vn_text,
+           (struct lsof_context * ctx, struct vnode_info_path *vip, int *n));
+_PROTOTYPE(static void process_fds,
+           (struct lsof_context * ctx, int pid, uint32_t n, int ckscko));
+_PROTOTYPE(static void process_text, (struct lsof_context * ctx, int pid));
 
 #if DARWINV >= 900
-_PROTOTYPE(static void process_threads, (int pid, uint32_t n));
+_PROTOTYPE(static void process_threads,
+           (struct lsof_context * ctx, int pid, uint32_t n));
 #endif /* DARWINV>=900 */
 
 #if defined(PROC_PIDLISTFILEPORTS)
-_PROTOTYPE(static void process_fileports, (int pid, int ckscko));
+_PROTOTYPE(static void process_fileports,
+           (struct lsof_context * ctx, int pid, int ckscko));
 #endif /* PROC_PIDLISTFILEPORTS */
 
 /*
  * enter_vn_text() -- enter vnode information text reference
  */
-
-static void enter_vn_text(vip, n) struct vnode_info_path *vip; /* vnode info */
-int *n; /* number of vips[] entries in use */
+static void enter_vn_text(struct lsof_context *ctx,
+                          struct vnode_info_path *vip, /* vnode info */
+                          int *n) /* number of vips[] entries in use */
 {
     int i;
     /*
@@ -122,11 +126,11 @@ int *n; /* number of vips[] entries in use */
     /*
      * Save the text file information.
      */
-    alloc_lfile(" txt", -1);
+    alloc_lfile(ctx, " txt", -1);
     Cfp = (struct file *)NULL;
-    (void)enter_vnode_info(vip);
+    (void)enter_vnode_info(ctx, vip);
     if (Lf->sf)
-        link_lfile();
+        link_lfile(ctx);
     /*
      * Record the entry of the vnode information.
      */
@@ -145,7 +149,7 @@ int *n; /* number of vips[] entries in use */
         if (!Vips) {
             (void)fprintf(stderr, "%s: PID %d: no text recording space\n", Pn,
                           Lp->pid);
-            Error();
+            Errror(ctx);
         }
     }
     /*
@@ -159,8 +163,7 @@ int *n; /* number of vips[] entries in use */
 /*
  * gather_proc_info() -- gather process information
  */
-
-void gather_proc_info() {
+void gather_proc_info(struct lsof_context *ctx) {
     short cckreg; /* conditional status of regular file
                    * checking:
                    *     0 = unconditionally check
@@ -232,7 +235,7 @@ void gather_proc_info() {
     if ((nb = proc_listpids(PROC_ALL_PIDS, 0, NULL, 0)) <= 0) {
         (void)fprintf(stderr, "%s: can't get PID byte count: %s\n", Pn,
                       strerror(errno));
-        Error();
+        Errror(ctx);
     }
     if (nb > NbPids) {
         while (nb > NbPids) {
@@ -245,7 +248,7 @@ void gather_proc_info() {
         if (!Pids) {
             (void)fprintf(stderr, "%s: can't allocate space for %d PIDs\n", Pn,
                           (int)(NbPids / sizeof(int *)));
-            Error();
+            Errror(ctx);
         }
     }
     /*
@@ -255,7 +258,7 @@ void gather_proc_info() {
         if ((nb = proc_listpids(PROC_ALL_PIDS, 0, Pids, NbPids)) <= 0) {
             (void)fprintf(stderr, "%s: can't get list of PIDs: %s\n", Pn,
                           strerror(errno));
-            Error();
+            Errror(ctx);
         }
 
         if ((nb + sizeof(int)) < NbPids) {
@@ -275,7 +278,7 @@ void gather_proc_info() {
             if (!Pids) {
                 (void)fprintf(stderr, "%s: can't allocate space for %d PIDs\n",
                               Pn, (int)(NbPids / sizeof(int *)));
-                Error();
+                Errror(ctx);
             }
         }
     }
@@ -300,21 +303,21 @@ void gather_proc_info() {
                           Pn, pid);
             (void)fprintf(stderr, "      too few bytes; expected %ld, got %d\n",
                           sizeof(tai), nb);
-            Error();
+            Errror(ctx);
         }
         /*
          * Check for process or command exclusion.
          */
-        if (is_proc_excl((int)pid, (int)tai.pbsd.pbi_pgid,
+        if (is_proc_excl(ctx, (int)pid, (int)tai.pbsd.pbi_pgid,
                          (UID_ARG)tai.pbsd.pbi_uid, &pss, &sf)) {
             continue;
         }
         tai.pbsd.pbi_comm[sizeof(tai.pbsd.pbi_comm) - 1] = '\0';
-        if (is_cmd_excl(tai.pbsd.pbi_comm, &pss, &sf))
+        if (is_cmd_excl(ctx, tai.pbsd.pbi_comm, &pss, &sf))
             continue;
         if (tai.pbsd.pbi_name[0]) {
             tai.pbsd.pbi_name[sizeof(tai.pbsd.pbi_name) - 1] = '\0';
-            if (is_cmd_excl(tai.pbsd.pbi_name, &pss, &sf))
+            if (is_cmd_excl(ctx, tai.pbsd.pbi_name, &pss, &sf))
                 continue;
         }
         if (cckreg) {
@@ -342,7 +345,7 @@ void gather_proc_info() {
                 (void)fprintf(stderr,
                               "      too few bytes; expected %ld, got %d\n",
                               sizeof(vpi), nb);
-                Error();
+                Errror(ctx);
             } else
                 cres = 0;
         }
@@ -352,8 +355,8 @@ void gather_proc_info() {
          * Caveat: pbi_name can be changed by setprogname(3), while pbi_comm
          * cannot. Should we allow empty pbi_name here?
          */
-        alloc_lproc((int)pid, (int)tai.pbsd.pbi_pgid, (int)tai.pbsd.pbi_ppid,
-                    (UID_ARG)tai.pbsd.pbi_uid,
+        alloc_lproc(ctx, (int)pid, (int)tai.pbsd.pbi_pgid,
+                    (int)tai.pbsd.pbi_ppid, (UID_ARG)tai.pbsd.pbi_uid,
                     (tai.pbsd.pbi_name[0] != '\0') ? tai.pbsd.pbi_name
                                                    : tai.pbsd.pbi_comm,
                     (int)pss, (int)sf);
@@ -363,7 +366,7 @@ void gather_proc_info() {
          */
         if (!ckscko) {
             if (cres || vpi.pvi_cdir.vip_path[0]) {
-                alloc_lfile(CWD, -1);
+                alloc_lfile(ctx, CWD, -1);
                 Cfp = (struct file *)NULL;
                 if (cres) {
 
@@ -376,14 +379,14 @@ void gather_proc_info() {
                         (void)snpf(Namech, Namechl, "%s|%s info error: %s",
                                    CWD + 1, RTD + 1, strerror(cre));
                         Namech[Namechl - 1] = '\0';
-                        enter_nm(Namech);
+                        enter_nm(ctx, Namech);
                         if (Lf->sf)
-                            link_lfile();
+                            link_lfile(ctx);
                     }
                 } else {
-                    (void)enter_vnode_info(&vpi.pvi_cdir);
+                    (void)enter_vnode_info(ctx, &vpi.pvi_cdir);
                     if (Lf->sf)
-                        link_lfile();
+                        link_lfile(ctx);
                 }
             }
         }
@@ -392,11 +395,11 @@ void gather_proc_info() {
          */
         if (!ckscko) {
             if (!cres && vpi.pvi_rdir.vip_path[0]) {
-                alloc_lfile(RTD, -1);
+                alloc_lfile(ctx, RTD, -1);
                 Cfp = (struct file *)NULL;
-                (void)enter_vnode_info(&vpi.pvi_rdir);
+                (void)enter_vnode_info(ctx, &vpi.pvi_rdir);
                 if (Lf->sf)
-                    link_lfile();
+                    link_lfile(ctx);
             }
         }
 
@@ -406,7 +409,7 @@ void gather_proc_info() {
          */
         if (!ckscko) {
             if (tai.pbsd.pbi_flags & PROC_FLAG_THCWD) {
-                (void)process_threads(pid, tai.ptinfo.pti_threadnum);
+                (void)process_threads(ctx, pid, tai.ptinfo.pti_threadnum);
             }
         }
 #endif /* DARWINV>=900 */
@@ -415,23 +418,23 @@ void gather_proc_info() {
          * Print text file information.
          */
         if (!ckscko)
-            (void)process_text(pid);
+            (void)process_text(ctx, pid);
 
 #if defined(PROC_PIDLISTFILEPORTS)
         /*
          * Loop through the fileports
          */
-        (void)process_fileports(pid, ckscko);
+        (void)process_fileports(ctx, pid, ckscko);
 #endif /* PROC_PIDLISTFILEPORTS */
 
         /*
          * Loop through the file descriptors.
          */
-        (void)process_fds(pid, tai.pbsd.pbi_nfiles, ckscko);
+        (void)process_fds(ctx, pid, tai.pbsd.pbi_nfiles, ckscko);
         /*
          * Examine results.
          */
-        if (examine_lproc())
+        if (examine_lproc(ctx))
             return;
     }
 }
@@ -445,10 +448,9 @@ void initialize() {}
 /*
  * process_fds() -- process file descriptors
  */
-
-static void process_fds(pid, n, ckscko) int pid; /* PID of interest */
-uint32_t n;                                      /* max FDs */
-int ckscko;                                      /* check socket files only */
+static void process_fds(struct lsof_context *ctx, int pid, /* PID of interest */
+                        uint32_t n,                        /* max FDs */
+                        int ckscko) /* check socket files only */
 {
     int i, isock, nb, nf;
     struct proc_fdinfo *fdp;
@@ -469,7 +471,7 @@ int ckscko;                                      /* check socket files only */
     if (!Fds) {
         (void)fprintf(stderr, "%s: PID %d: can't allocate space for %d FDs\n",
                       Pn, pid, (int)(NbFds / sizeof(struct proc_fdinfo)));
-        Error();
+        Errror(ctx);
     }
     /*
      * Get FD information for the process.
@@ -486,12 +488,12 @@ int ckscko;                                      /* check socket files only */
         /*
          * Make a dummy file entry with an error message in its NAME column.
          */
-        alloc_lfile(" err", -1);
+        alloc_lfile(ctx, " err", -1);
         (void)snpf(Namech, Namechl, "FD info error: %s", strerror(errno));
         Namech[Namechl - 1] = '\0';
-        enter_nm(Namech);
+        enter_nm(ctx, Namech);
         if (Lf->sf)
-            link_lfile();
+            link_lfile(ctx);
         return;
     }
     nf = (int)(nb / sizeof(struct proc_fdinfo));
@@ -500,7 +502,7 @@ int ckscko;                                      /* check socket files only */
      */
     for (i = 0; i < nf; i++) {
         fdp = &Fds[i];
-        alloc_lfile(NULL, (int)fdp->proc_fd);
+        alloc_lfile(ctx, NULL, (int)fdp->proc_fd);
         /*
          * Process the file by its type.
          */
@@ -508,44 +510,44 @@ int ckscko;                                      /* check socket files only */
         switch (fdp->proc_fdtype) {
         case PROX_FDTYPE_ATALK:
             if (!ckscko)
-                (void)process_atalk(pid, fdp->proc_fd);
+                (void)process_atalk(ctx, pid, fdp->proc_fd);
             break;
         case PROX_FDTYPE_FSEVENTS:
             if (!ckscko)
-                (void)process_fsevents(pid, fdp->proc_fd);
+                (void)process_fsevents(ctx, pid, fdp->proc_fd);
             break;
         case PROX_FDTYPE_KQUEUE:
             if (!ckscko)
-                (void)process_kqueue(pid, fdp->proc_fd);
+                (void)process_kqueue(ctx, pid, fdp->proc_fd);
             break;
         case PROX_FDTYPE_PIPE:
             if (!ckscko)
-                (void)process_pipe(pid, fdp->proc_fd);
+                (void)process_pipe(ctx, pid, fdp->proc_fd);
             break;
         case PROX_FDTYPE_PSEM:
             if (!ckscko)
-                (void)process_psem(pid, fdp->proc_fd);
+                (void)process_psem(ctx, pid, fdp->proc_fd);
             break;
         case PROX_FDTYPE_SOCKET:
-            (void)process_socket(pid, fdp->proc_fd);
+            (void)process_socket(ctx, pid, fdp->proc_fd);
             isock = 1;
             break;
         case PROX_FDTYPE_PSHM:
-            (void)process_pshm(pid, fdp->proc_fd);
+            (void)process_pshm(ctx, pid, fdp->proc_fd);
             break;
         case PROX_FDTYPE_VNODE:
-            (void)process_vnode(pid, fdp->proc_fd);
+            (void)process_vnode(ctx, pid, fdp->proc_fd);
             break;
         default:
             (void)snpf(Namech, Namechl - 1, "unknown file type: %d",
                        fdp->proc_fdtype);
             Namech[Namechl - 1] = '\0';
-            (void)enter_nm(Namech);
+            (void)enter_nm(ctx, Namech);
             break;
         }
         if (Lf->sf) {
             if (!ckscko || isock)
-                link_lfile();
+                link_lfile(ctx);
         }
     }
 }
@@ -554,9 +556,9 @@ int ckscko;                                      /* check socket files only */
 /*
  * process_fileports() -- process fileports
  */
-
-static void process_fileports(pid, ckscko) int pid; /* PID of interest */
-int ckscko; /* check socket files only */
+static void process_fileports(struct lsof_context *ctx,
+                              int pid,    /* PID of interest */
+                              int ckscko) /* check socket files only */
 {
     int ef, i, isock, nb = 0, nf;
     struct proc_fileportinfo *fpi;
@@ -583,13 +585,13 @@ int ckscko; /* check socket files only */
             /*
              * Make a dummy file entry with an error message in its NAME column.
              */
-            alloc_lfile(" err", -1);
+            alloc_lfile(ctx, " err", -1);
             (void)snpf(Namech, Namechl, "FILEPORT info error: %s",
                        strerror(errno));
             Namech[Namechl - 1] = '\0';
-            enter_nm(Namech);
+            enter_nm(ctx, Namech);
             if (Lf->sf)
-                link_lfile();
+                link_lfile(ctx);
         }
 
         if ((nb + sizeof(struct proc_fileportinfo)) < NbFps) {
@@ -603,7 +605,7 @@ int ckscko; /* check socket files only */
                                            0)) <= 0)) {
                 (void)fprintf(stderr, "%s: can't get fileport byte count: %s\n",
                               Pn, strerror(errno));
-                Error();
+                Errror(ctx);
             }
 
             /*
@@ -630,7 +632,7 @@ int ckscko; /* check socket files only */
          * fileport reported as "fp." with "(fileport=0xXXXX)" in the Name
          * column
          */
-        alloc_lfile(" fp.", -1);
+        alloc_lfile(ctx, " fp.", -1);
         Lf->fileport = fpi->proc_fileport;
         /*
          * Process the file by its type.
@@ -639,28 +641,28 @@ int ckscko; /* check socket files only */
         switch (fpi->proc_fdtype) {
         case PROX_FDTYPE_PIPE:
             if (!ckscko)
-                (void)process_fileport_pipe(pid, fpi->proc_fileport);
+                (void)process_fileport_pipe(ctx, pid, fpi->proc_fileport);
             break;
         case PROX_FDTYPE_SOCKET:
-            (void)process_fileport_socket(pid, fpi->proc_fileport);
+            (void)process_fileport_socket(ctx, pid, fpi->proc_fileport);
             isock = 1;
             break;
         case PROX_FDTYPE_PSHM:
-            (void)process_fileport_pshm(pid, fpi->proc_fileport);
+            (void)process_fileport_pshm(ctx, pid, fpi->proc_fileport);
             break;
         case PROX_FDTYPE_VNODE:
-            (void)process_fileport_vnode(pid, fpi->proc_fileport);
+            (void)process_fileport_vnode(ctx, pid, fpi->proc_fileport);
             break;
         default:
             (void)snpf(Namech, Namechl - 1, "unknown file type: %d",
                        fpi->proc_fileport);
             Namech[Namechl - 1] = '\0';
-            (void)enter_nm(Namech);
+            (void)enter_nm(ctx, Namech);
             break;
         }
         if (Lf->sf) {
             if (!ckscko || isock)
-                link_lfile();
+                link_lfile(ctx);
         }
     }
 }
@@ -669,8 +671,7 @@ int ckscko; /* check socket files only */
 /*
  * process_text() -- process text information
  */
-
-static void process_text(pid) int pid; /* PID */
+static void process_text(struct lsof_context *ctx, int pid) /* PID */
 {
     uint64_t a;
     int i, n, nb;
@@ -690,14 +691,14 @@ static void process_text(pid) int pid; /* PID */
             /*
              * Warn about all other errors via a NAME column message.
              */
-            alloc_lfile(" txt", -1);
+            alloc_lfile(ctx, " txt", -1);
             Cfp = (struct file *)NULL;
             (void)snpf(Namech, Namechl, "region info error: %s",
                        strerror(errno));
             Namech[Namechl - 1] = '\0';
-            enter_nm(Namech);
+            enter_nm(ctx, Namech);
             if (Lf->sf)
-                link_lfile();
+                link_lfile(ctx);
             return;
         } else if (nb < sizeof(rwpi)) {
             (void)fprintf(stderr,
@@ -705,10 +706,10 @@ static void process_text(pid) int pid; /* PID */
                           Pn, pid);
             (void)fprintf(stderr, "      too few bytes; expected %ld, got %d\n",
                           sizeof(rwpi), nb);
-            Error();
+            Errror(ctx);
         }
         if (rwpi.prp_vip.vip_path[0])
-            enter_vn_text(&rwpi.prp_vip, &n);
+            enter_vn_text(ctx, &rwpi.prp_vip, &n);
         a = rwpi.prp_prinfo.pri_address + rwpi.prp_prinfo.pri_size;
     }
 }
@@ -722,8 +723,8 @@ static void process_text(pid) int pid; /* PID */
         " twd" /* per-thread current working directory                         \
                 * fd name */
 
-static void process_threads(pid, n) int pid; /* PID */
-uint32_t n;                                  /* number of threads */
+static void process_threads(struct lsof_context *ctx, int pid, /* PID */
+                            uint32_t n) /* number of threads */
 {
     int i, nb, nt;
     /*
@@ -742,7 +743,7 @@ uint32_t n;                                  /* number of threads */
         if (!Threads) {
             (void)fprintf(stderr, "%s: can't allocate space for %d Threads\n",
                           Pn, (int)(NbThreads / sizeof(int *)));
-            Error();
+            Errror(ctx);
         }
     }
     /*
@@ -781,14 +782,14 @@ uint32_t n;                                  /* number of threads */
             /*
              * Warn about all other errors via a NAME column message.
              */
-            alloc_lfile(TWD, -1);
+            alloc_lfile(ctx, TWD, -1);
             Cfp = (struct file *)NULL;
             (void)snpf(Namech, Namechl, "thread info error: %s",
                        strerror(errno));
             Namech[Namechl - 1] = '\0';
-            enter_nm(Namech);
+            enter_nm(ctx, Namech);
             if (Lf->sf)
-                link_lfile();
+                link_lfile(ctx);
             return;
         } else if (nb < sizeof(tpi)) {
             (void)fprintf(stderr,
@@ -796,14 +797,14 @@ uint32_t n;                                  /* number of threads */
                           Pn, pid);
             (void)fprintf(stderr, "      too few bytes; expected %ld, got %d\n",
                           sizeof(tpi), nb);
-            Error();
+            Errror(ctx);
         }
         if (tpi.pvip.vip_path[0]) {
-            alloc_lfile(TWD, -1);
+            alloc_lfile(ctx, TWD, -1);
             Cfp = (struct file *)NULL;
-            (void)enter_vnode_info(&tpi.pvip);
+            (void)enter_vnode_info(ctx, &tpi.pvip);
             if (Lf->sf)
-                link_lfile();
+                link_lfile(ctx);
         }
     }
 }

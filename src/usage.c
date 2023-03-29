@@ -32,6 +32,7 @@ static char copyright[] =
     "Copyright 1998 Purdue Research Foundation. All rights reserved.";
 
 #include "common.h"
+#include "cli.h"
 #include "version.h"
 
 /*
@@ -451,7 +452,7 @@ int version;                 /* ``-v'' status */
         (void)fprintf(stderr,
                       "Use the ``-h'' option to get more help information.\n");
         if (!fh)
-            Exit(err ? LSOF_ERROR : LSOF_SUCCESS);
+            Exit(ctx, err ? LSOF_ERROR : LSOF_SUCCESS);
     }
     if (Fhelp) {
         (void)fprintf(
@@ -994,5 +995,5 @@ int version;                 /* ``-v'' status */
 
         (void)report_HASDCACHE(1, "    ", "\t");
     }
-    Exit(err ? LSOF_ERROR : LSOF_SUCCESS);
+    Exit(ctx, err ? LSOF_ERROR : LSOF_SUCCESS);
 }

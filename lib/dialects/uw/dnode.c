@@ -129,7 +129,7 @@ char *d;                                /* direction ("->" or "<-") */
         (void)fprintf(stderr,
                       "%s: no space for fattach addresses at PID %d, FD %s\n",
                       Pn, Lp->pid, Lf->fd);
-        Error();
+        Error(ctx);
     }
     (void)snpf(cp, len, "%s", buf);
     Lf->nma = cp;
@@ -288,7 +288,7 @@ KA_T *sqp; /* special module's q_ptr */
                 }
                 if (!ab) {
                     (void)fprintf(stderr, "%s: no space for stream chain", Pn);
-                    Error();
+                    Error(ctx);
                 }
             }
             (void)snpf(ap, aba - (al - 1), "%s%s", (ap == ab) ? "" : "->",
@@ -1384,7 +1384,7 @@ get_lock_state:
                     stderr,
                     "%s: can't allocate %d bytes for l_ino name addition\n",
                     msz, Pn);
-                Error();
+                Error(ctx);
             }
             (void)snpf(cp, msz + 1, "%s", i.nm);
             Lf->nma = cp;

@@ -35,20 +35,41 @@
  */
 
 #if defined(HASSELINUX)
-_PROTOTYPE(extern int enter_cntx_arg, (char *cnxt));
+_PROTOTYPE(extern int enter_cntx_arg, (struct lsof_context * ctx, char *cnxt));
 #endif /* defined(HASSELINUX) */
 
-_PROTOTYPE(extern int get_fields,
-           (char *ln, char *sep, char ***fr, int *eb, int en));
-_PROTOTYPE(extern void get_locks, (char *p));
-_PROTOTYPE(extern int is_file_named,
-           (int ty, char *p, struct mounts *mp, int cd));
-_PROTOTYPE(extern int make_proc_path,
-           (char *pp, int lp, char **np, int *npl, char *sf));
+_PROTOTYPE(extern int get_fields, (struct lsof_context * ctx, char *ln,
+                                   char *sep, char ***fr, int *eb, int en));
+_PROTOTYPE(extern void get_locks, (struct lsof_context * ctx, char *p));
+_PROTOTYPE(extern void clean_locks, (struct lsof_context * ctx));
+_PROTOTYPE(extern void clean_ax25, (struct lsof_context * ctx));
+_PROTOTYPE(extern void clean_icmp, (struct lsof_context * ctx));
+_PROTOTYPE(extern void clean_ipx, (struct lsof_context * ctx));
+_PROTOTYPE(extern void clean_netlink, (struct lsof_context * ctx));
+_PROTOTYPE(extern void clean_pack, (struct lsof_context * ctx));
+_PROTOTYPE(extern void clean_raw, (struct lsof_context * ctx));
+_PROTOTYPE(extern void clean_sctp, (struct lsof_context * ctx));
+_PROTOTYPE(extern void clean_unix, (struct lsof_context * ctx));
+_PROTOTYPE(extern void clean_tcpudp,
+           (struct lsof_context * ctx, int free_array));
+#if defined(HASIPv6)
+_PROTOTYPE(extern void clean_raw6, (struct lsof_context * ctx));
+_PROTOTYPE(extern void clean_tcpudp6,
+           (struct lsof_context * ctx, int free_array));
+#endif
+_PROTOTYPE(extern int is_file_named, (struct lsof_context * ctx, int ty,
+                                      char *p, struct mounts *mp, int cd));
+_PROTOTYPE(extern int make_proc_path, (struct lsof_context * ctx, char *pp,
+                                       int lp, char **np, int *npl, char *sf));
 _PROTOTYPE(extern FILE *open_proc_stream,
-           (char *p, char *mode, char **buf, size_t *sz, int act));
-_PROTOTYPE(extern void process_proc_node, (char *p, char *pbr, struct stat *s,
-                                           int ss, struct stat *l, int ls));
-_PROTOTYPE(extern void process_proc_sock, (char *p, char *pbr, struct stat *s,
-                                           int ss, struct stat *l, int ls));
-_PROTOTYPE(extern void set_net_paths, (char *p, int pl));
+           (struct lsof_context * ctx, char *p, char *mode, char **buf,
+            size_t *sz, int act));
+_PROTOTYPE(extern void process_proc_node,
+           (struct lsof_context * ctx, char *p, char *pbr, struct stat *s,
+            int ss, struct stat *l, int ls));
+_PROTOTYPE(extern void process_proc_sock,
+           (struct lsof_context * ctx, char *p, char *pbr, struct stat *s,
+            int ss, struct stat *l, int ls));
+_PROTOTYPE(extern void set_net_paths,
+           (struct lsof_context * ctx, char *p, int pl));
+_PROTOTYPE(extern void refresh_socket_info, (struct lsof_context * ctx));

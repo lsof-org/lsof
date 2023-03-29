@@ -174,7 +174,7 @@ void readdev(skip) int skip; /* skip device cache read if 1 */
                   mkstrcat(Dstk[Dstkx], -1, "/", 1, (char *)NULL, -1, &pl))) {
             (void)fprintf(stderr, "%s: no space for: ", Pn);
             safestrprt(Dstk[Dstkx], stderr, 1);
-            Error();
+            Error(ctx);
         }
         (void)free((FREE_P *)Dstk[Dstkx]);
         Dstk[Dstkx] = (char *)NULL;
@@ -203,7 +203,7 @@ void readdev(skip) int skip; /* skip device cache read if 1 */
                 (void)fprintf(stderr, "%s: no space for: ", Pn);
                 safestrprt(path, stderr, 0);
                 safestrprtn(dp->d_name, dnamlen, stderr, 1);
-                Error();
+                Error(ctx);
             }
             if (RDEV_STATFN(fp, &sb) != 0) {
                 if (errno == ENOENT) /* a sym link to nowhere? */
@@ -246,7 +246,7 @@ void readdev(skip) int skip; /* skip device cache read if 1 */
                     if (!Devtp) {
                         (void)fprintf(
                             stderr, "%s: no space for character device\n", Pn);
-                        Error();
+                        Error(ctx);
                     }
                 }
                 Devtp[i].rdev = RDEV_EXPDEV(sb.st_rdev);
@@ -254,7 +254,7 @@ void readdev(skip) int skip; /* skip device cache read if 1 */
                 if (!(Devtp[i].name = mkstrcpy(fp, (MALLOC_S *)NULL))) {
                     (void)fprintf(stderr, "%s: no space for device name: ", Pn);
                     safestrprt(fp, stderr, 1);
-                    Error();
+                    Error(ctx);
                 }
                 Devtp[i].v = 0;
 
@@ -268,7 +268,7 @@ void readdev(skip) int skip; /* skip device cache read if 1 */
                         (void)fprintf(stderr,
                                       "%s: no space for clone device: ", Pn);
                         safestrprt(fp, stderr, 1);
-                        Error();
+                        Error(ctx);
                     }
                     c->dx = i;
                     c->next = Clone;
@@ -297,7 +297,7 @@ void readdev(skip) int skip; /* skip device cache read if 1 */
                     if (!BDevtp) {
                         (void)fprintf(stderr, "%s: no space for block device\n",
                                       Pn);
-                        Error();
+                        Error(ctx);
                     }
                 }
                 BDevtp[j].name = fp;
@@ -339,7 +339,7 @@ void readdev(skip) int skip; /* skip device cache read if 1 */
                   (MALLOC_S)(sizeof(struct l_dev *) * BNdev)))) {
             (void)fprintf(stderr,
                           "%s: no space for block device sort pointers\n", Pn);
-            Error();
+            Error(ctx);
         }
         for (j = 0; j < BNdev; j++) {
             BSdev[j] = &BDevtp[j];
@@ -368,7 +368,7 @@ void readdev(skip) int skip; /* skip device cache read if 1 */
             (void)fprintf(stderr,
                           "%s: no space for character device sort pointers\n",
                           Pn);
-            Error();
+            Error(ctx);
         }
         for (i = 0; i < Ndev; i++) {
             Sdev[i] = &Devtp[i];
@@ -378,7 +378,7 @@ void readdev(skip) int skip; /* skip device cache read if 1 */
         Ndev = rmdupdev(&Sdev, Ndev, "char");
     } else {
         (void)fprintf(stderr, "%s: no character devices found\n", Pn);
-        Error();
+        Error(ctx);
     }
 
 #    if defined(HASDCACHE)
@@ -456,7 +456,7 @@ char *nm;           /* device table name for error message */
     if (!(*dp = (struct l_dev **)realloc(
               (MALLOC_P *)*dp, (MALLOC_S)(j * sizeof(struct l_dev *))))) {
         (void)fprintf(stderr, "%s: can't realloc %s device pointers\n", Pn, nm);
-        Error();
+        Error(ctx);
     }
     return (j);
 }

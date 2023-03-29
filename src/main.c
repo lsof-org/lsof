@@ -31,6 +31,7 @@
  */
 
 #include "common.h"
+#include "cli.h"
 
 /*
  * Local definitions
@@ -120,7 +121,7 @@ char *argv[];
     while (((i = open("/dev/null", O_RDWR, 0)) >= 0) && (i < 2))
         ;
     if (i < 0)
-        Error();
+        Error(ctx);
     if (i > 2)
         (void)close(i);
     (void)umask(0);
@@ -143,7 +144,7 @@ char *argv[];
         Setuidroot = 1;
     if (!(Namech = (char *)malloc(MAXPATHLEN + 1))) {
         (void)fprintf(stderr, "%s: no space for name buffer\n", Pn);
-        Error();
+        Error(ctx);
     }
     Namechl = (size_t)(MAXPATHLEN + 1);
     /*
@@ -805,7 +806,7 @@ char *argv[];
                     (void)fprintf(
                         stderr, "%s: no space (%d) for <fmt> result: \"%s\"\n",
                         Pn, (int)fmtl, cp);
-                    Error();
+                    Error(ctx);
                 }
                 if (util_strftime(fmtr, fmtl - 1, fmt) < 1) {
                     (void)fprintf(stderr, "%s: illegal <fmt>: \"%s\"\n", Pn,
@@ -837,7 +838,7 @@ char *argv[];
                     GOx2 = GObk[1];
                 }
             } else {
-                if (enter_state_spec(GOv))
+                if (enter_state_spec(ctx, GOv))
                     err = 1;
             }
 #else  /* !defined(HASTCPUDPSTATE) */
@@ -998,7 +999,7 @@ char *argv[];
                     /*
                      * Add to the context name argument hash.
                      */
-                    if (enter_cntx_arg(GOv))
+                    if (enter_cntx_arg(ctx, GOv))
                         err = 1;
                 } else if (GOv) {
                     GOx1 = GObk[0];
@@ -1118,7 +1119,7 @@ char *argv[];
         efsys_list_t *ep;        /* Efsysl pointer */
         struct mounts *mp, *mpw; /* local mount table pointers */
 
-        if ((mp = readmnt())) {
+        if ((mp = readmnt(ctx))) {
             for (ep = Efsysl; ep; ep = ep->next) {
                 for (mpw = mp; mpw; mpw = mpw->next) {
                     if (!strcmp(mpw->dir, ep->path)) {
@@ -1147,7 +1148,7 @@ char *argv[];
                   (MALLOC_P *)Suid,
                   (MALLOC_S)(sizeof(struct seluid) * Nuid)))) {
             (void)fprintf(stderr, "%s: can't realloc UID table\n", Pn);
-            Error();
+            Error(ctx);
         }
         Mxuid = Nuid;
     }
@@ -1219,7 +1220,7 @@ char *argv[];
                 (void)fprintf(stderr, "%s: can't stat(/dev): %s\n", Pn,
                               strerror(se2));
             }
-            Error();
+            Error(ctx);
         }
     }
     DevDev = sb.st_dev;
@@ -1227,16 +1228,16 @@ char *argv[];
      * Process the file arguments.
      */
     if (GOx1 < argc) {
-        if (ck_file_arg(GOx1, argc, argv, Ffilesys, 0, (struct stat *)NULL,
+        if (ck_file_arg(ctx, GOx1, argc, argv, Ffilesys, 0, (struct stat *)NULL,
                         FsearchErr == 0))
-            Error();
+            Error(ctx);
     }
     /*
      * Do dialect-specific initialization.
      */
-    initialize();
+    initialize(ctx);
     if (Sfile)
-        (void)hashSfile();
+        (void)hashSfile(ctx);
 
 #if defined(WILLDROPGID)
     /*
@@ -1275,8 +1276,8 @@ char *argv[];
      * Report mount supplement information, as requested.
      */
     if (MntSup == 1) {
-        (void)readmnt();
-        Exit(LSOF_SUCCESS);
+        (void)readmnt(ctx);
+        Exit(ctx, LSOF_SUCCESS);
     }
 #endif /* defined(HASMNTSUP) */
 
@@ -1290,7 +1291,7 @@ char *argv[];
         /*
          * Gather information about processes.
          */
-        gather_proc_info();
+        gather_proc_info(ctx);
         /*
          * If the local process table has more than one entry, sort it by PID.
          */
@@ -1305,7 +1306,7 @@ char *argv[];
                 if (!slp) {
                     (void)fprintf(stderr, "%s: no space for %d sort pointers\n",
                                   Pn, Nlproc);
-                    Error();
+                    Error(ctx);
                 }
             }
             for (i = 0; i < Nlproc; i++) {
@@ -1346,12 +1347,12 @@ char *argv[];
                      * process the file endpoints.
                      */
                     if (Lp->pss && (Lp->ept & EPT_PIPE))
-                        (void)process_pinfo(0);
+                        (void)process_pinfo(ctx, 0);
                     /*
                      * Process POSIX MQ endpoints.
                      */
                     if (Lp->ept & EPT_PSXMQ)
-                        (void)process_psxmqinfo(0);
+                        (void)process_psxmqinfo(ctx, 0);
 
 #    if defined(HASUXSOCKEPT)
                     /*
@@ -1360,7 +1361,7 @@ char *argv[];
                      * socket(s), process the file endpoints.
                      */
                     if (Lp->pss && (Lp->ept & EPT_UXS))
-                        (void)process_uxsinfo(0);
+                        (void)process_uxsinfo(ctx, 0);
 #    endif /* defined(HASUXSOCKEPT) */
 
 #    if defined(HASPTYEPT)
@@ -1370,27 +1371,27 @@ char *argv[];
                      * terminal files(s), process the file endpoints.
                      */
                     if (Lp->pss && (Lp->ept & EPT_PTY))
-                        (void)process_ptyinfo(0);
+                        (void)process_ptyinfo(ctx, 0);
 #    endif /* defined(HASPTYEPT) */
 
                     /*
                      * Process INET socket endpoints.
                      */
                     if (Lp->ept & EPT_NETS)
-                        (void)process_netsinfo(0);
+                        (void)process_netsinfo(ctx, 0);
 
 #    if defined(HASIPv6)
                     /*
                      * Process INET6 socket endpoints.
                      */
                     if (Lp->ept & EPT_NETS6)
-                        (void)process_nets6info(0);
+                        (void)process_nets6info(ctx, 0);
 #    endif /* defined(HASIPv6) */
                     /*
                      * Process eventfd endpoints.
                      */
                     if (Lp->ept & EPT_EVTFD)
-                        (void)process_evtfdinfo(0);
+                        (void)process_evtfdinfo(ctx, 0);
                 }
                 /*
                  * In a second pass, look for unselected endpoint files,
@@ -1403,19 +1404,19 @@ char *argv[];
                      * Process pipe endpoints.
                      */
                     if (Lp->ept & EPT_PIPE_END)
-                        (void)process_pinfo(1);
+                        (void)process_pinfo(ctx, 1);
                     /*
                      * Process POSIX MQ endpoints.
                      */
                     if (Lp->ept & EPT_PSXMQ_END)
-                        (void)process_psxmqinfo(1);
+                        (void)process_psxmqinfo(ctx, 1);
 
 #    if defined(HASUXSOCKEPT)
                     /*
                      * Process UNIX socket endpoints.
                      */
                     if (Lp->ept & EPT_UXS_END)
-                        (void)process_uxsinfo(1);
+                        (void)process_uxsinfo(ctx, 1);
 #    endif /* defined(HASUXSOCKEPT) */
 
 #    if defined(HASPTYEPT)
@@ -1423,28 +1424,28 @@ char *argv[];
                      * Process pseudo-terminal endpoints.
                      */
                     if (Lp->ept & EPT_PTY_END)
-                        (void)process_ptyinfo(1);
+                        (void)process_ptyinfo(ctx, 1);
 #    endif /* defined(HASPTYEPT) */
 
                     /*
                      * Process INET socket endpoints.
                      */
                     if (Lp->ept & EPT_NETS_END)
-                        (void)process_netsinfo(1);
+                        (void)process_netsinfo(ctx, 1);
 
 #    if defined(HASIPv6)
                     /*
                      * Process INET6 socket endpoints.
                      */
                     if (Lp->ept & EPT_NETS6_END)
-                        (void)process_nets6info(1);
+                        (void)process_nets6info(ctx, 1);
 #    endif /* defined(HASIPv6) */
 
                     /*
                      * Process envetfd endpoints.
                      */
                     if (Lp->ept & EPT_EVTFD_END)
-                        (void)process_evtfdinfo(1);
+                        (void)process_evtfdinfo(ctx, 1);
                 }
                 Lf = lf;
             }
@@ -1461,7 +1462,7 @@ char *argv[];
                 for (i = n = 0; i < Nlproc; i++) {
                     Lp = (Nlproc > 1) ? slp[i] : &Lproc[i];
                     if (Lp->pss) {
-                        if (print_proc())
+                        if (print_proc(ctx))
                             n++;
                     }
                     if (RptTm && PrPass)
@@ -1478,25 +1479,25 @@ char *argv[];
         if (RptTm) {
 
 #if defined(HASEPTOPTS)
-            (void)clear_pinfo();
+            (void)clear_pinfo(ctx);
 
-            (void)clear_psxmqinfo();
+            (void)clear_psxmqinfo(ctx);
 
 #    if defined(HASUXSOCKEPT)
-            (void)clear_uxsinfo();
+            (void)clear_uxsinfo(ctx);
 #    endif /* defined(HASUXSOCKEPT) */
 
 #    if defined(HASPTYEPT)
-            (void)clear_ptyinfo();
+            (void)clear_ptyinfo(ctx);
 #    endif /* defined(HASPTYEPT) */
 
-            (void)clear_netsinfo();
+            (void)clear_netsinfo(ctx);
 
 #    if defined(HASIPv6)
-            (void)clear_nets6info();
+            (void)clear_nets6info(ctx);
 #    endif /* defined(HASIPv6) */
 
-            (void)clear_evtfdinfo();
+            (void)clear_evtfdinfo(ctx);
 #endif /* defined(HASEPTOPTS) */
 
             if (rc) {
@@ -1540,7 +1541,7 @@ char *argv[];
                 puts(cp);
             }
             (void)fflush(stdout);
-            (void)childx();
+            (void)childx(ctx);
             (void)sleep(RptTm);
             Hdr = Nlproc = 0;
             CkPasswd = 1;
@@ -1552,7 +1553,7 @@ char *argv[];
      * See if all requested information was displayed.  Return zero if it
      * was; one, if not.  If -V was specified, report what was not displayed.
      */
-    (void)childx();
+    (void)childx(ctx);
     rv = LSOF_SUCCESS;
     for (str = Cmdl; str; str = str->next) {
 
@@ -1809,7 +1810,7 @@ char *argv[];
         rv = ev;
     if (!rv && ErrStat)
         rv = LSOF_ERROR;
-    Exit(rv);
+    Exit(ctx, rv);
     return (rv); /* to make code analyzers happy */
 }
 
@@ -1952,7 +1953,7 @@ char *f; /* format string */
     if (!(cp = (char *)malloc(l))) {
         (void)fprintf(stderr, "%s: can't allocate %d bytes for format: %s\n",
                       Pn, (int)l, f);
-        Error();
+        Error(ctx);
     }
     (void)snpf(cp, l, "%s", f);
     return (cp);

@@ -97,7 +97,7 @@ struct mounts *readmnt() {
             (void)fprintf(stderr, " (");
             safestrprt(me.mnt_mountp, stderr, 0);
             (void)fprintf(stderr, ")\n");
-            Error();
+            Error(ctx);
         }
         if (!(ln = Readlink(dn))) {
             if (!Fwarn) {

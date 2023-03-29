@@ -62,18 +62,23 @@
 #        define exiting
 #    endif /* gcc && gcc>=2.7 */
 
-_PROTOTYPE(extern void add_nma, (char *cp, int len));
-_PROTOTYPE(extern void alloc_lfile, (char *nm, int num));
-_PROTOTYPE(extern void alloc_lproc, (int pid, int pgid, int ppid, UID_ARG uid,
-                                     char *cmd, int pss, int sf));
-_PROTOTYPE(extern void build_IPstates, (void));
-_PROTOTYPE(extern void childx, (void));
+_PROTOTYPE(extern void add_nma, (struct lsof_context * ctx, char *cp, int len));
+_PROTOTYPE(extern void alloc_lfile,
+           (struct lsof_context * ctx, char *nm, int num));
+_PROTOTYPE(extern void alloc_lproc,
+           (struct lsof_context * ctx, int pid, int pgid, int ppid, UID_ARG uid,
+            char *cmd, int pss, int sf));
+_PROTOTYPE(extern void build_IPstates, (struct lsof_context * ctx));
+_PROTOTYPE(extern void childx, (struct lsof_context * ctx));
 _PROTOTYPE(extern void closefrom_shim, (int low));
-_PROTOTYPE(extern int ck_fd_status, (char *nm, int num));
-_PROTOTYPE(extern int ck_file_arg, (int i, int ac, char *av[], int fv, int rs,
-                                    struct stat *sbp, int accept_deleted_file));
-_PROTOTYPE(extern void ckkv, (char *d, char *er, char *ev, char *ea));
-_PROTOTYPE(extern void clr_devtab, (void));
+_PROTOTYPE(extern int ck_fd_status,
+           (struct lsof_context * ctx, char *nm, int num));
+_PROTOTYPE(extern int ck_file_arg,
+           (struct lsof_context * ctx, int i, int ac, char *av[], int fv,
+            int rs, struct stat *sbp, int accept_deleted_file));
+_PROTOTYPE(extern void ckkv,
+           (struct lsof_context * ctx, char *d, char *er, char *ev, char *ea));
+_PROTOTYPE(extern void clr_devtab, (struct lsof_context * ctx));
 _PROTOTYPE(extern int compdev, (COMP_P * a1, COMP_P *a2));
 _PROTOTYPE(extern int comppid, (COMP_P * a1, COMP_P *a2));
 
@@ -83,7 +88,7 @@ _PROTOTYPE(extern void dropgid, (void));
 
 _PROTOTYPE(extern char *endnm, (size_t * sz));
 _PROTOTYPE(extern int enter_cmd_rx, (char *x));
-_PROTOTYPE(extern void enter_dev_ch, (char *m));
+_PROTOTYPE(extern void enter_dev_ch, (struct lsof_context * ctx, char *m));
 _PROTOTYPE(extern int enter_dir, (char *d, int descend));
 
 #    if defined(HASEOPT)
@@ -93,11 +98,12 @@ _PROTOTYPE(extern int enter_efsys, (char *e, int rdlnk));
 _PROTOTYPE(extern int enter_fd, (char *f));
 _PROTOTYPE(extern int enter_network_address, (char *na));
 _PROTOTYPE(extern int enter_id, (enum IDType ty, char *p));
-_PROTOTYPE(extern void enter_IPstate, (char *ty, char *nm, int nr));
-_PROTOTYPE(extern void enter_nm, (char *m));
+_PROTOTYPE(extern void enter_IPstate,
+           (struct lsof_context * ctx, char *ty, char *nm, int nr));
+_PROTOTYPE(extern void enter_nm, (struct lsof_context * ctx, char *m));
 
 #    if defined(HASTCPUDPSTATE)
-_PROTOTYPE(extern int enter_state_spec, (char *ss));
+_PROTOTYPE(extern int enter_state_spec, (struct lsof_context * ctx, char *ss));
 #    endif /* defined(HASTCPUDPSTATE) */
 
 _PROTOTYPE(extern int enter_str_lst,
@@ -105,49 +111,51 @@ _PROTOTYPE(extern int enter_str_lst,
 _PROTOTYPE(extern int enter_uid, (char *us));
 _PROTOTYPE(extern void ent_inaddr,
            (unsigned char *la, int lp, unsigned char *fa, int fp, int af));
-_PROTOTYPE(extern int examine_lproc, (void));
-_PROTOTYPE(extern void Exit, (enum ExitStatus xv)) exiting;
-_PROTOTYPE(extern void Error, ()) exiting;
+_PROTOTYPE(extern int examine_lproc, (struct lsof_context * ctx));
+_PROTOTYPE(extern void Exit, (struct lsof_context * ctx, enum ExitStatus xv))
+exiting;
+_PROTOTYPE(extern void Error, (struct lsof_context * ctx)) exiting;
 _PROTOTYPE(extern void find_ch_ino, (void));
 
 #    if defined(HASEPTOPTS)
-_PROTOTYPE(extern void clear_pinfo, (void));
-_PROTOTYPE(extern pxinfo_t *find_pepti,
-           (int pid, struct lfile *lf, pxinfo_t *pp));
-_PROTOTYPE(extern void process_pinfo, (int f));
-_PROTOTYPE(extern void clear_psxmqinfo, (void));
-_PROTOTYPE(extern pxinfo_t *find_psxmqinfo,
-           (int pid, struct lfile *lf, pxinfo_t *pp));
-_PROTOTYPE(extern void process_psxmqinfo, (int f));
+_PROTOTYPE(extern void clear_pinfo, (struct lsof_context * ctx));
+_PROTOTYPE(extern pxinfo_t *find_pepti, (struct lsof_context * ctx, int pid,
+                                         struct lfile *lf, pxinfo_t *pp));
+_PROTOTYPE(extern void process_pinfo, (struct lsof_context * ctx, int f));
+_PROTOTYPE(extern void clear_psxmqinfo, (struct lsof_context * ctx));
+_PROTOTYPE(extern pxinfo_t *find_psxmqinfo, (struct lsof_context * ctx, int pid,
+                                             struct lfile *lf, pxinfo_t *pp));
+_PROTOTYPE(extern void process_psxmqinfo, (struct lsof_context * ctx, int f));
 #        if defined(HASUXSOCKEPT)
-_PROTOTYPE(extern void clear_uxsinfo, (void));
+_PROTOTYPE(extern void clear_uxsinfo, (struct lsof_context * ctx));
 _PROTOTYPE(extern struct uxsin *find_uxsepti, (struct lfile * lf));
-_PROTOTYPE(extern void process_uxsinfo, (int f));
+_PROTOTYPE(extern void process_uxsinfo, (struct lsof_context * ctx, int f));
 #        endif /* defined(HASUXSOCKEPT) */
 #        if defined(HASPTYEPT)
-_PROTOTYPE(extern void clear_ptyinfo, (void));
-_PROTOTYPE(extern void enter_ptmxi, (int mn));
+_PROTOTYPE(extern void clear_ptyinfo, (struct lsof_context * ctx));
+_PROTOTYPE(extern void enter_ptmxi, (struct lsof_context * ctx, int mn));
 _PROTOTYPE(extern pxinfo_t *find_ptyepti,
-           (int pid, struct lfile *lf, int m, pxinfo_t *pp));
+           (struct lsof_context * ctx, int pid, struct lfile *lf, int m,
+            pxinfo_t *pp));
 _PROTOTYPE(extern int is_pty_slave, (int sm));
 _PROTOTYPE(extern int is_pty_ptmx, (dev_t dev));
-_PROTOTYPE(extern void process_ptyinfo, (int f));
+_PROTOTYPE(extern void process_ptyinfo, (struct lsof_context * ctx, int f));
 #        endif /* defined(HASPTYEPT) */
-_PROTOTYPE(extern void clear_evtfdinfo, (void));
-_PROTOTYPE(extern void enter_evtfdinfo, (int id));
-_PROTOTYPE(extern pxinfo_t *find_evtfdinfo,
-           (int pid, struct lfile *lf, pxinfo_t *pp));
-_PROTOTYPE(extern void process_evtfdinfo, (int f));
-_PROTOTYPE(extern void clear_netsinfo, (void));
-_PROTOTYPE(extern void process_netsinfo, (int f));
+_PROTOTYPE(extern void clear_evtfdinfo, (struct lsof_context * ctx));
+_PROTOTYPE(extern void enter_evtfdinfo, (struct lsof_context * ctx, int id));
+_PROTOTYPE(extern pxinfo_t *find_evtfdinfo, (struct lsof_context * ctx, int pid,
+                                             struct lfile *lf, pxinfo_t *pp));
+_PROTOTYPE(extern void process_evtfdinfo, (struct lsof_context * ctx, int f));
+_PROTOTYPE(extern void clear_netsinfo, (struct lsof_context * ctx));
+_PROTOTYPE(extern void process_netsinfo, (struct lsof_context * ctx, int f));
 #        if defined(HASIPv6)
-_PROTOTYPE(extern void clear_nets6info, (void));
-_PROTOTYPE(extern void process_nets6info, (int f));
+_PROTOTYPE(extern void clear_nets6info, (struct lsof_context * ctx));
+_PROTOTYPE(extern void process_nets6info, (struct lsof_context * ctx, int f));
 #        endif /* defined(HASIPv6) */
 #    endif     /* defined(HASEPTOPTS) */
 
 _PROTOTYPE(extern void free_lproc, (struct lproc * lp));
-_PROTOTYPE(extern void gather_proc_info, (void));
+_PROTOTYPE(extern void gather_proc_info, (struct lsof_context * ctx));
 _PROTOTYPE(extern char *gethostnm, (unsigned char *ia, int af));
 
 #    if !defined(GET_MAX_FD)
@@ -163,8 +171,8 @@ _PROTOTYPE(extern char *gethostnm, (unsigned char *ia, int af));
 #    endif /* !defined(GET_MAX_FD) */
 
 _PROTOTYPE(extern int hashbyname, (char *nm, int mod));
-_PROTOTYPE(extern void hashSfile, (void));
-_PROTOTYPE(extern void initialize, (void));
+_PROTOTYPE(extern void hashSfile, (struct lsof_context * ctx));
+_PROTOTYPE(extern void initialize, (struct lsof_context * ctx));
 _PROTOTYPE(extern int is_cmd_excl, (char *cmd, short *pss, short *sf));
 _PROTOTYPE(extern int is_file_sel, (struct lproc * lp, struct lfile *lf));
 _PROTOTYPE(extern int is_nw_addr, (unsigned char *ia, int p, int af));
@@ -179,37 +187,40 @@ _PROTOTYPE(extern int is_proc_excl,
 
 _PROTOTYPE(extern int is_readable, (char *path, int msg));
 _PROTOTYPE(extern int kread, (KA_T addr, char *buf, READLEN_T len));
-_PROTOTYPE(extern void link_lfile, (void));
+_PROTOTYPE(extern void link_lfile, (struct lsof_context * ctx));
 _PROTOTYPE(extern struct l_dev *lkupdev,
            (dev_t * dev, dev_t *rdev, int i, int r));
 _PROTOTYPE(extern int main, (int argc, char *argv[]));
-_PROTOTYPE(extern int lstatsafely, (char *path, struct stat *buf));
+_PROTOTYPE(extern int lstatsafely,
+           (struct lsof_context * ctx, char *path, struct stat *buf));
 _PROTOTYPE(extern char *mkstrcpy, (char *src, MALLOC_S *rlp));
 _PROTOTYPE(extern char *mkstrcat, (char *s1, int l1, char *s2, int l2, char *s3,
                                    int l3, MALLOC_S *clp));
-_PROTOTYPE(extern int printdevname, (dev_t * dev, dev_t *rdev, int f, int nty));
-_PROTOTYPE(extern void print_file, (void));
+_PROTOTYPE(extern int printdevname, (struct lsof_context * ctx, dev_t *dev,
+                                     dev_t *rdev, int f, int nty));
+_PROTOTYPE(extern void print_file, (struct lsof_context * ctx));
 _PROTOTYPE(extern void print_init, (void));
-_PROTOTYPE(extern void printname, (int nl));
+_PROTOTYPE(extern void printname, (struct lsof_context * ctx, int nl));
 _PROTOTYPE(extern char *print_kptr, (KA_T kp, char *buf, size_t bufl));
-_PROTOTYPE(extern int print_proc, (void));
+_PROTOTYPE(extern int print_proc, (struct lsof_context * ctx));
 _PROTOTYPE(extern void printrawaddr, (struct sockaddr * sa));
-_PROTOTYPE(extern void print_tcptpi, (int nl));
+_PROTOTYPE(extern void print_tcptpi, (struct lsof_context * ctx, int nl));
 _PROTOTYPE(extern char *printuid, (UID_ARG uid, int *ty));
 _PROTOTYPE(extern void printunkaf, (int fam, int ty));
 _PROTOTYPE(extern char *printsockty, (int ty));
 _PROTOTYPE(extern void process_file, (KA_T fp));
 _PROTOTYPE(extern void process_node, (KA_T f));
-_PROTOTYPE(extern char *Readlink, (char *arg));
+_PROTOTYPE(extern char *Readlink, (struct lsof_context * ctx, char *arg));
 _PROTOTYPE(extern void readdev, (int skip));
-_PROTOTYPE(extern struct mounts *readmnt, (void));
+_PROTOTYPE(extern struct mounts *readmnt, (struct lsof_context * ctx));
 _PROTOTYPE(extern void rereaddev, (void));
 _PROTOTYPE(extern char *safepup, (unsigned int c, int *cl));
 _PROTOTYPE(extern int safestrlen, (char *sp, int flags));
 _PROTOTYPE(extern void safestrprtn, (char *sp, int len, FILE *fs, int flags));
 _PROTOTYPE(extern void safestrprt, (char *sp, FILE *fs, int flags));
-_PROTOTYPE(extern int statsafely, (char *path, struct stat *buf));
-_PROTOTYPE(extern void stkdir, (char *p));
+_PROTOTYPE(extern int statsafely,
+           (struct lsof_context * ctx, char *path, struct stat *buf));
+_PROTOTYPE(extern void stkdir, (struct lsof_context * ctx, char *p));
 _PROTOTYPE(extern void usage, (int err, int fh, int version));
 _PROTOTYPE(extern int util_strftime, (char *fmtr, int fmtl, char *fmt));
 _PROTOTYPE(extern int vfy_dev, (struct l_dev * dp));
@@ -243,7 +254,8 @@ _PROTOTYPE(extern int readfifonode, (KA_T fa, struct fifonode *f));
 #    endif /* defined(HASFIFONODE) */
 
 #    if defined(HASFSTRUCT)
-_PROTOTYPE(extern char *print_fflags, (long ffg, long pof));
+_PROTOTYPE(extern char *print_fflags,
+           (struct lsof_context * ctx, long ffg, long pof));
 #    endif /* defined(HASFSTRUCT) */
 
 #    if defined(HASGNODE)

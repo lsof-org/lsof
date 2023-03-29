@@ -385,3 +385,6 @@ znhash_t **ZoneArg = (znhash_t **)NULL;
 #endif /* defined(HASZONES) */
 
 int ZoneColW; /* ZONE column width */
+
+/** liblsof context */
+struct lsof_context *ctx = NULL;

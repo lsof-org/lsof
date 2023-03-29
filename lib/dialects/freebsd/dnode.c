@@ -210,7 +210,7 @@ void process_procdesc(struct kinfo_file *kf) {
 
     snpf(Lf->type, sizeof(Lf->type), "PROCDSC");
     snpf(pidstr, sizeof(pidstr), "pid=%d", kf->kf_un.kf_proc.kf_pid);
-    add_nma(pidstr, strlen(pidstr));
+    add_nma(ctx, pidstr, strlen(pidstr));
     if (kf->kf_path[0]) {
         snpf(Namech, Namechl, "%s", kf->kf_path);
         enter_nm(Namech);
@@ -427,7 +427,7 @@ process_overlaid_node:
                 np = tbuf;
             } else
                 np = "(nullfs)";
-            (void)add_nma(np, (int)strlen(np));
+            (void)add_nma(ctx, np, (int)strlen(np));
         }
         fsid = VNOVAL;
         /* -------dir--------

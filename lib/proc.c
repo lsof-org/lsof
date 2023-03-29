@@ -31,20 +31,24 @@
 #include "common.h"
 
 #if defined(HASEPTOPTS)
-_PROTOTYPE(static void prt_pinfo, (pxinfo_t * pp, int ps));
-_PROTOTYPE(static void prt_psxmqinfo, (pxinfo_t * pp, int ps));
-_PROTOTYPE(static void prt_evtfdinfo, (pxinfo_t * pp, int ps));
+_PROTOTYPE(static void prt_pinfo,
+           (struct lsof_context * ctx, pxinfo_t *pp, int ps));
+_PROTOTYPE(static void prt_psxmqinfo,
+           (struct lsof_context * ctx, pxinfo_t *pp, int ps));
+_PROTOTYPE(static void prt_evtfdinfo,
+           (struct lsof_context * ctx, pxinfo_t *pp, int ps));
 #endif /* defined(HASEPTOPTS) */
 #if defined(HASPTYEPT)
-_PROTOTYPE(static void prt_ptyinfo, (pxinfo_t * pp, int prt_edev, int ps));
+_PROTOTYPE(static void prt_ptyinfo,
+           (struct lsof_context * ctx, pxinfo_t *pp, int prt_edev, int ps));
 #endif /* defined(HASPTYEPT) */
 
 /*
  * add_nma() - add to NAME column addition
  */
 
-void add_nma(cp, len) char *cp; /* string to add */
-int len;                        /* string length */
+void add_nma(struct lsof_context *ctx, char *cp, /* string to add */
+             int len)                            /* string length */
 {
     int nl;
 
@@ -61,7 +65,7 @@ int len;                        /* string length */
     if (!Lf->nma) {
         (void)fprintf(stderr, "%s: no name addition space: PID %ld, FD %s", Pn,
                       (long)Lp->pid, Lf->fd);
-        Error();
+        Error(ctx);
     }
     if (nl) {
         Lf->nma[nl] = ' ';
@@ -74,16 +78,17 @@ int len;                        /* string length */
 }
 
 #if defined(HASFSTRUCT)
-_PROTOTYPE(static char *alloc_fflbuf, (char **bp, int *al, int lr));
+_PROTOTYPE(static char *alloc_fflbuf,
+           (struct lsof_context * ctx, char **bp, int *al, int lr));
 
 /*
  * alloc_fflbuf() - allocate file flags print buffer
  */
 
-static char *alloc_fflbuf(bp, al, lr)
-char **bp; /* current buffer pointer */
-int *al;   /* current allocated length */
-int lr;    /* length required */
+static char *alloc_fflbuf(struct lsof_context *ctx,
+                          char **bp, /* current buffer pointer */
+                          int *al,   /* current allocated length */
+                          int lr)    /* length required */
 {
     int sz;
 
@@ -96,7 +101,7 @@ int lr;    /* length required */
         *bp = (char *)malloc((MALLOC_S)sz);
     if (!*bp) {
         (void)fprintf(stderr, "%s: no space (%d) for print flags\n", Pn, sz);
-        Error();
+        Error(ctx);
     }
     *al = sz;
     return (*bp);
@@ -107,9 +112,10 @@ int lr;    /* length required */
  * alloc_lfile() - allocate local file structure space
  */
 
-void alloc_lfile(nm, num) char *nm; /* file descriptor name (may be NULL) */
-int num;                            /* file descriptor number -- -1 if
-                                     * none */
+void alloc_lfile(struct lsof_context *ctx,
+                 char *nm, /* file descriptor name (may be NULL) */
+                 int num)  /* file descriptor number -- -1 if
+                            * none */
 {
     int fds;
 
@@ -135,7 +141,7 @@ int num;                            /* file descriptor number -- -1 if
     } else if (!(Lf = (struct lfile *)malloc(sizeof(struct lfile)))) {
         (void)fprintf(stderr, "%s: no local file space at PID %d\n", Pn,
                       Lp->pid);
-        Error();
+        Error(ctx);
     }
     /*
      * Initialize the structure.
@@ -240,7 +246,7 @@ int num;                            /* file descriptor number -- -1 if
      */
     if (!Fdl || (!nm && num < 0))
         return;
-    fds = ck_fd_status(nm, num);
+    fds = ck_fd_status(ctx, nm, num);
     switch (FdlTy) {
     case 0: /* inclusion list */
         if (fds == 2)
@@ -256,13 +262,13 @@ int num;                            /* file descriptor number -- -1 if
  * alloc_lproc() - allocate local proc structure space
  */
 
-void alloc_lproc(pid, pgid, ppid, uid, cmd, pss, sf) int pid; /* Process ID */
-int pgid;    /* process group ID */
-int ppid;    /* parent process ID */
-UID_ARG uid; /* User ID */
-char *cmd;   /* command */
-int pss;     /* process select state */
-int sf;      /* process select flags */
+void alloc_lproc(struct lsof_context *ctx, int pid, /* Process ID */
+                 int pgid,                          /* process group ID */
+                 int ppid,                          /* parent process ID */
+                 UID_ARG uid,                       /* User ID */
+                 char *cmd,                         /* command */
+                 int pss,                           /* process select state */
+                 int sf)                            /* process select flags */
 {
     static int sz = 0;
 
@@ -272,7 +278,7 @@ int sf;      /* process select flags */
             (void)fprintf(stderr,
                           "%s: no malloc space for %d local proc structures\n",
                           Pn, LPROCINCR);
-            Error();
+            Error(ctx);
         }
         sz = LPROCINCR;
     } else if ((Nlproc + 1) > sz) {
@@ -282,7 +288,7 @@ int sf;      /* process select flags */
             (void)fprintf(stderr,
                           "%s: no realloc space for %d local proc structures\n",
                           Pn, sz);
-            Error();
+            Error(ctx);
         }
     }
     Lp = &Lproc[Nlproc++];
@@ -310,7 +316,7 @@ int sf;      /* process select flags */
         (void)fprintf(stderr, "%s: PID %d, no space for command name: ", Pn,
                       pid);
         safestrprt(cmd, stderr, 1);
-        Error();
+        Error(ctx);
     }
 
 #if defined(HASZONES)
@@ -337,10 +343,10 @@ int sf;      /* process select flags */
  *	   2 == FD is included
  */
 
-extern int ck_fd_status(nm, num)
-char *nm; /* file descriptor name (may be NULL) */
-int num;  /* file descriptor number -- -1 if
-           * none */
+extern int ck_fd_status(struct lsof_context *ctx,
+                        char *nm, /* file descriptor name (may be NULL) */
+                        int num)  /* file descriptor number -- -1 if
+                                   * none */
 {
     char *cp;
     struct fd_lst *fp;
@@ -465,7 +471,7 @@ int af;                                /* address family -- e.g, AF_INET,
  * return: 1 = last process
  */
 
-int examine_lproc() {
+int examine_lproc(struct lsof_context *ctx) {
     int sbp = 0;
 
     if (RptTm)
@@ -486,10 +492,10 @@ int examine_lproc() {
     }
     if (Lp->pss && Npid == 1 && sbp) {
         print_init();
-        (void)print_proc();
+        (void)print_proc(ctx);
         PrPass++;
         if (PrPass < 2)
-            (void)print_proc();
+            (void)print_proc(ctx);
         Lp->pss = 0;
     }
     /*
@@ -856,7 +862,7 @@ int tid; /* task ID (not a task if zero) */
  * link_lfile() - link local file structures
  */
 
-void link_lfile() {
+void link_lfile(struct lsof_context * ctx) {
     if (Lf->sf & SELEXCLF)
         return;
 
@@ -963,10 +969,11 @@ void link_lfile() {
  *		      selecting pipe end files (if requested)
  */
 
-void process_pinfo(f) int f; /* function:
-                              *     0 == process selected pipe
-                              *     1 == process end point
-                              */
+void process_pinfo(struct lsof_context *ctx,
+                   int f) /* function:
+                           *     0 == process selected pipe
+                           *     1 == process end point
+                           */
 {
     pxinfo_t *pp; /* previous pipe info */
 
@@ -989,14 +996,14 @@ void process_pinfo(f) int f; /* function:
                  * its being a pipe.  Look up the pipe's endpoints.
                  */
                 do {
-                    if ((pp = find_pepti(Lp->pid, Lf, pp))) {
+                    if ((pp = find_pepti(ctx, Lp->pid, Lf, pp))) {
 
                         /*
                          * This pipe endpoint is linked to the selected pipe
                          * file.  Add its PID and FD to the name column
                          * addition.
                          */
-                        prt_pinfo(pp, (FeptE == 2));
+                        prt_pinfo(ctx, pp, (FeptE == 2));
                         pp = pp->next;
                     }
                 } while (pp);
@@ -1012,8 +1019,8 @@ void process_pinfo(f) int f; /* function:
                 Lf->sf = Selflags;
                 Lp->pss |= PS_SEC;
                 do {
-                    if ((pp = find_pepti(Lp->pid, Lf, pp))) {
-                        prt_pinfo(pp, 0);
+                    if ((pp = find_pepti(ctx, Lp->pid, Lf, pp))) {
+                        prt_pinfo(ctx, pp, 0);
                         pp = pp->next;
                     }
                 } while (pp);
@@ -1027,10 +1034,10 @@ void process_pinfo(f) int f; /* function:
  * prt_pinfo() -- print pipe information
  */
 
-static void prt_pinfo(pp, ps) pxinfo_t *pp; /* peer info */
-int ps;                                     /* processing status:
-                                             *    0 == process immediately
-                                             *    1 == process later */
+static void prt_pinfo(struct lsof_context *ctx, pxinfo_t *pp, /* peer info */
+                      int ps) /* processing status:
+                               *    0 == process immediately
+                               *    1 == process later */
 {
     struct lproc *ep; /* pipe endpoint process */
     struct lfile *ef; /* pipe endpoint file */
@@ -1045,7 +1052,7 @@ int ps;                                     /* processing status:
     }
     (void)snpf(nma, sizeof(nma) - 1, "%d,%.*s,%s%c", ep->pid, CmdLim, ep->cmd,
                &ef->fd[i], ef->access);
-    (void)add_nma(nma, strlen(nma));
+    (void)add_nma(ctx, nma, strlen(nma));
     if (ps) {
 
         /*
@@ -1062,10 +1069,11 @@ int ps;                                     /* processing status:
  *		          selecting posix mq end files (if requested)
  */
 
-void process_psxmqinfo(f) int f; /* function:
-                                  *     0 == process selected posix mq
-                                  *     1 == process end point
-                                  */
+void process_psxmqinfo(struct lsof_context *ctx,
+                       int f) /* function:
+                               *     0 == process selected posix mq
+                               *     1 == process end point
+                               */
 {
     pxinfo_t *pp; /* previous posix mq info */
 
@@ -1088,14 +1096,14 @@ void process_psxmqinfo(f) int f; /* function:
                  * its being a posix mq.  Look up the posix mq's endpoints.
                  */
                 do {
-                    if ((pp = find_psxmqinfo(Lp->pid, Lf, pp))) {
+                    if ((pp = find_psxmqinfo(ctx, Lp->pid, Lf, pp))) {
 
                         /*
                          * This posix mq endpoint is linked to the selected
                          * posix mq file.  Add its PID and FD to the name column
                          * addition.
                          */
-                        prt_psxmqinfo(pp, (FeptE == 2));
+                        prt_psxmqinfo(ctx, pp, (FeptE == 2));
                         pp = pp->next;
                     }
                 } while (pp);
@@ -1111,8 +1119,8 @@ void process_psxmqinfo(f) int f; /* function:
                 Lf->sf = Selflags;
                 Lp->pss |= PS_SEC;
                 do {
-                    if ((pp = find_psxmqinfo(Lp->pid, Lf, pp))) {
-                        prt_psxmqinfo(pp, 0);
+                    if ((pp = find_psxmqinfo(ctx, Lp->pid, Lf, pp))) {
+                        prt_psxmqinfo(ctx, pp, 0);
                         pp = pp->next;
                     }
                 } while (pp);
@@ -1126,10 +1134,11 @@ void process_psxmqinfo(f) int f; /* function:
  * prt_psxmqinfo() -- print posix mq information
  */
 
-static void prt_psxmqinfo(pp, ps) pxinfo_t *pp; /* peer info */
-int ps;                                         /* processing status:
-                                                 *    0 == process immediately
-                                                 *    1 == process later */
+static void prt_psxmqinfo(struct lsof_context *ctx,
+                          pxinfo_t *pp, /* peer info */
+                          int ps)       /* processing status:
+                                         *    0 == process immediately
+                                         *    1 == process later */
 {
     struct lproc *ep; /* posix mq endpoint process */
     struct lfile *ef; /* posix mq endpoint file */
@@ -1144,7 +1153,7 @@ int ps;                                         /* processing status:
     }
     (void)snpf(nma, sizeof(nma) - 1, "%d,%.*s,%s%c", ep->pid, CmdLim, ep->cmd,
                &ef->fd[i], ef->access);
-    (void)add_nma(nma, strlen(nma));
+    (void)add_nma(ctx, nma, strlen(nma));
     if (ps) {
 
         /*
@@ -1161,10 +1170,11 @@ int ps;                                         /* processing status:
  *		          selecting envetfd end files (if requested)
  */
 
-void process_evtfdinfo(f) int f; /* function:
-                                  *     0 == process selected eventfd
-                                  *     1 == process end point
-                                  */
+void process_evtfdinfo(struct lsof_context *ctx,
+                       int f) /* function:
+                               *     0 == process selected eventfd
+                               *     1 == process end point
+                               */
 {
     pxinfo_t *pp; /* previous eventfd info */
 
@@ -1187,14 +1197,14 @@ void process_evtfdinfo(f) int f; /* function:
                  * its being a eventfd.  Look up the eventfd's endpoints.
                  */
                 do {
-                    if ((pp = find_evtfdinfo(Lp->pid, Lf, pp))) {
+                    if ((pp = find_evtfdinfo(ctx, Lp->pid, Lf, pp))) {
 
                         /*
                          * This eventfd endpoint is linked to the selected
                          * eventfd file.  Add its PID and FD to the name column
                          * addition.
                          */
-                        prt_evtfdinfo(pp, (FeptE == 2));
+                        prt_evtfdinfo(ctx, pp, (FeptE == 2));
                         pp = pp->next;
                     }
                 } while (pp);
@@ -1210,8 +1220,8 @@ void process_evtfdinfo(f) int f; /* function:
                 Lf->sf = Selflags;
                 Lp->pss |= PS_SEC;
                 do {
-                    if ((pp = find_evtfdinfo(Lp->pid, Lf, pp))) {
-                        prt_evtfdinfo(pp, 0);
+                    if ((pp = find_evtfdinfo(ctx, Lp->pid, Lf, pp))) {
+                        prt_evtfdinfo(ctx, pp, 0);
                         pp = pp->next;
                     }
                 } while (pp);
@@ -1225,10 +1235,11 @@ void process_evtfdinfo(f) int f; /* function:
  * prt_evtfdinfo() -- print eventfd information
  */
 
-static void prt_evtfdinfo(pp, ps) pxinfo_t *pp; /* peer info */
-int ps;                                         /* processing status:
-                                                 *    0 == process immediately
-                                                 *    1 == process later */
+static void prt_evtfdinfo(struct lsof_context *ctx,
+                          pxinfo_t *pp, /* peer info */
+                          int ps)       /* processing status:
+                                         *    0 == process immediately
+                                         *    1 == process later */
 {
     struct lproc *ep; /* eventfd endpoint process */
     struct lfile *ef; /* eventfd endpoint file */
@@ -1243,7 +1254,7 @@ int ps;                                         /* processing status:
     }
     (void)snpf(nma, sizeof(nma) - 1, "%d,%.*s,%s%c", ep->pid, CmdLim, ep->cmd,
                &ef->fd[i], ef->access);
-    (void)add_nma(nma, strlen(nma));
+    (void)add_nma(ctx, nma, strlen(nma));
     if (ps) {
 
         /*
@@ -1261,9 +1272,9 @@ int ps;                                         /* processing status:
  * print_fflags() - print interpreted f_flag[s]
  */
 
-char *print_fflags(ffg, pof)
-long ffg; /* file structure's flags value */
-long pof; /* process open files flags value */
+char *print_fflags(struct lsof_context *ctx,
+                   long ffg, /* file structure's flags value */
+                   long pof) /* process open files flags value */
 {
     int al, ct, fx;
     static int bl = 0;
@@ -1298,7 +1309,7 @@ long pof; /* process open files flags value */
             if (!tp->nm)
                 break;
             al = (int)strlen(tp->nm) + sepl;
-            bp = alloc_fflbuf(&bp, &bl, al + ct);
+            bp = alloc_fflbuf(ctx, &bp, &bl, al + ct);
             (void)snpf(bp + ct, al + 1, "%s%s", sep, tp->nm);
             sep = ",";
             sepl = 1;
@@ -1312,7 +1323,7 @@ long pof; /* process open files flags value */
         if (wf || FsvFlagX) {
             (void)snpf(xbuf, sizeof(xbuf), "0x%lx", wf);
             al = (int)strlen(xbuf) + sepl;
-            bp = alloc_fflbuf(&bp, &bl, al + ct);
+            bp = alloc_fflbuf(ctx, &bp, &bl, al + ct);
             (void)snpf(bp + ct, al + 1, "%s%s", sep, xbuf);
             ct += al;
         }
@@ -1321,7 +1332,7 @@ long pof; /* process open files flags value */
      * Make sure there is at least a NUL terminated reply.
      */
     if (!bp) {
-        bp = alloc_fflbuf(&bp, &bl, 0);
+        bp = alloc_fflbuf(ctx, &bp, &bl, 0);
         *bp = '\0';
     }
     return (bp);
@@ -1332,7 +1343,7 @@ long pof; /* process open files flags value */
  * print_proc() - print process
  */
 
-int print_proc() {
+int print_proc(struct lsof_context *ctx) {
     char buf[128], *cp;
     int lc, len, st, ty;
     int rv = 0;
@@ -1426,7 +1437,7 @@ int print_proc() {
          * output.
          */
         if (!Ffield) {
-            print_file();
+            print_file(ctx);
             continue;
         }
         lc = st = 0;
@@ -1474,8 +1485,8 @@ int print_proc() {
         }
         if (FieldSel[LSOF_FIX_FG].st && (Fsv & FSV_FG) && (Lf->fsv & FSV_FG) &&
             (FsvFlagX || Lf->ffg || Lf->pof)) {
-            (void)printf("%c%s%c", LSOF_FID_FG, print_fflags(Lf->ffg, Lf->pof),
-                         Terminator);
+            (void)printf("%c%s%c", LSOF_FID_FG,
+                         print_fflags(ctx, Lf->ffg, Lf->pof), Terminator);
             lc++;
         }
         if (FieldSel[LSOF_FIX_NI].st && (Fsv & FSV_NI) && (Lf->fsv & FSV_NI)) {
@@ -1565,7 +1576,7 @@ int print_proc() {
             if (strncmp(Lf->nm, "STR:", 4) == 0 ||
                 strcmp(Lf->iproto, "STR") == 0) {
                 putchar(LSOF_FID_STREAM);
-                printname(0);
+                printname(ctx, 0);
                 putchar(Terminator);
                 lc++;
                 st++;
@@ -1573,12 +1584,12 @@ int print_proc() {
         }
         if (st == 0 && FieldSel[LSOF_FIX_NAME].st) {
             putchar(LSOF_FID_NAME);
-            printname(0);
+            printname(ctx, 0);
             putchar(Terminator);
             lc++;
         }
         if (Lf->lts.type >= 0 && FieldSel[LSOF_FIX_TCPTPI].st) {
-            print_tcptpi(0);
+            print_tcptpi(ctx, 0);
             lc++;
         }
         if (Terminator == '\0' && lc)
@@ -1593,9 +1604,10 @@ int print_proc() {
  *and selecting pseudoterminal end files (if requested)
  */
 
-void process_ptyinfo(f) int f; /* function:
-                                *  0 == process selected pseudoterminal
-                                *  1 == process end point */
+void process_ptyinfo(struct lsof_context *ctx,
+                     int f) /* function:
+                             *  0 == process selected pseudoterminal
+                             *  1 == process end point */
 {
     pxinfo_t *pp; /* previous pseudoterminal info */
     int mos;      /* master or slave indicator
@@ -1628,14 +1640,14 @@ void process_ptyinfo(f) int f; /* function:
                  */
                 pc = 1;
                 do {
-                    if ((pp = find_ptyepti(Lp->pid, Lf, !mos, pp))) {
+                    if ((pp = find_ptyepti(ctx, Lp->pid, Lf, !mos, pp))) {
 
                         /*
                          * This pseudoterminal endpoint is linked to the
                          * selected pseudoterminal file.  Add its PID, FD and
                          * access mode to the name column addition.
                          */
-                        prt_ptyinfo(pp, (mos && pc), (FeptE == 2));
+                        prt_ptyinfo(ctx, pp, (mos && pc), (FeptE == 2));
                         pp = pp->next;
                         pc = 0;
                     }
@@ -1653,8 +1665,8 @@ void process_ptyinfo(f) int f; /* function:
                 Lp->pss |= PS_SEC;
                 pc = 1;
                 do {
-                    if ((pp = find_ptyepti(Lp->pid, Lf, !mos, pp))) {
-                        prt_ptyinfo(pp, (mos && pc), 0);
+                    if ((pp = find_ptyepti(ctx, Lp->pid, Lf, !mos, pp))) {
+                        prt_ptyinfo(ctx, pp, (mos && pc), 0);
                         pp = pp->next;
                         pc = 0;
                     }
@@ -1669,11 +1681,11 @@ void process_ptyinfo(f) int f; /* function:
  * prt_ptyinfo() -- print pseudoterminal information
  */
 
-static void prt_ptyinfo(pp, prt_edev, ps) pxinfo_t *pp; /* peer info */
-int prt_edev; /* print the end point device file */
-int ps;       /* processing status:
-               *    0 == process immediately
-               *    1 == process later */
+static void prt_ptyinfo(struct lsof_context *ctx, pxinfo_t *pp, /* peer info */
+                        int prt_edev, /* print the end point device file */
+                        int ps)       /* processing status:
+                                       *    0 == process immediately
+                                       *    1 == process later */
 {
     struct lproc *ep; /* pseudoterminal endpoint process */
     struct lfile *ef; /* pseudoterminal endpoint file */
@@ -1694,7 +1706,7 @@ int ps;       /* processing status:
         (void)snpf(nma, sizeof(nma) - 1, "%d,%.*s,%s%c", ep->pid, CmdLim,
                    ep->cmd, &ef->fd[i], ef->access);
     }
-    (void)add_nma(nma, strlen(nma));
+    (void)add_nma(ctx, nma, strlen(nma));
     if (ps) {
 
         /*

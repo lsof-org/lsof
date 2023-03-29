@@ -69,10 +69,10 @@ struct llock **LckH = (struct llock **)NULL; /* PID-hashed locks */
  * Local function prototypes
  */
 
-_PROTOTYPE(static void check_lock, (void));
+_PROTOTYPE(static void check_lock, (struct lsof_context * ctx));
 
 #if defined(HASEPTOPTS)
-_PROTOTYPE(static void enter_pinfo, (void));
+_PROTOTYPE(static void enter_pinfo, (struct lsof_context * ctx));
 #endif /* defined(HASEPTOPTS) */
 
 /*
@@ -95,7 +95,7 @@ static pxinfo_t **EvtFDinfo =
  * check_lock() - check lock for file *Lf, process *Lp
  */
 
-static void check_lock() {
+static void check_lock(struct lsof_context *ctx) {
     int h;
     struct llock *lp;
 
@@ -129,8 +129,8 @@ static void endpoint_pxinfo_hash(pxinfo_t **pinfo_hash, const size_t nbuckets,
     }
 }
 
-static void endpoint_enter(pxinfo_t **pinfo_hash, const char *table_name,
-                           int id) {
+static void endpoint_enter(struct lsof_context *ctx, pxinfo_t **pinfo_hash,
+                           const char *table_name, int id) {
     int h;
     struct lfile *lf;       /* local file structure pointer */
     struct lproc *lp;       /* local proc structure pointer */
@@ -156,7 +156,7 @@ static void endpoint_enter(pxinfo_t **pinfo_hash, const char *table_name,
         (void)fprintf(stderr,
                       "%s: no space for pipeinfo for %s, PID %d, FD %s\n",
                       table_name, Pn, Lp->pid, Lf->fd);
-        Error();
+        Error(ctx);
     }
     np->ino = id;
     np->lf = Lf;
@@ -169,9 +169,10 @@ static void endpoint_enter(pxinfo_t **pinfo_hash, const char *table_name,
 }
 
 static pxinfo_t *
-endpoint_find(pxinfo_t **pinfo_hash,
-              int (*is_acceptable)(pxinfo_t *, int, struct lfile *), int pid,
-              struct lfile *lf, int id, pxinfo_t *pp) {
+endpoint_find(struct lsof_context *ctx, pxinfo_t **pinfo_hash,
+              int (*is_acceptable)(struct lsof_context *, pxinfo_t *, int,
+                                   struct lfile *),
+              int pid, struct lfile *lf, int id, pxinfo_t *pp) {
     int h;        /* hash result */
     pxinfo_t *pi; /* pipe info pointer */
 
@@ -183,7 +184,7 @@ endpoint_find(pxinfo_t **pinfo_hash,
             pi = pinfo_hash[h];
         }
         while (pi) {
-            if (pi->ino == id && is_acceptable(pi, pid, lf))
+            if (pi->ino == id && is_acceptable(ctx, pi, pid, lf))
                 return (pi);
             pi = pi->next;
         }
@@ -196,7 +197,8 @@ endpoint_find(pxinfo_t **pinfo_hash,
  * fd associated with pi is not the same as fd associated with lf.
  */
 
-static int endpoint_accept_other_than_self(pxinfo_t *pi, int pid,
+static int endpoint_accept_other_than_self(struct lsof_context *ctx,
+                                           pxinfo_t *pi, int pid,
                                            struct lfile *lf) {
     struct lfile *ef = pi->lf;
     struct lproc *ep = &Lproc[pi->lpx];
@@ -207,7 +209,9 @@ static int endpoint_accept_other_than_self(pxinfo_t *pi, int pid,
  * clear_pinfo() -- clear allocated pipe info
  */
 
-void clear_pinfo() { endpoint_pxinfo_hash(Pinfo, PINFOBUCKS, free); }
+void clear_pinfo(struct lsof_context *ctx) {
+    endpoint_pxinfo_hash(Pinfo, PINFOBUCKS, free);
+}
 
 /*
  * enter_pinfo() -- enter pipe info
@@ -216,7 +220,7 @@ void clear_pinfo() { endpoint_pxinfo_hash(Pinfo, PINFOBUCKS, free); }
  * 		Lp = local process structure pointer
  */
 
-static void enter_pinfo() {
+static void enter_pinfo(struct lsof_context *ctx) {
     if (!Pinfo) {
         /*
          * Allocate pipe info hash buckets.
@@ -224,22 +228,22 @@ static void enter_pinfo() {
         if (!(Pinfo = (pxinfo_t **)calloc(PINFOBUCKS, sizeof(pxinfo_t *)))) {
             (void)fprintf(stderr, "%s: no space for %d pipe info buckets\n", Pn,
                           PINFOBUCKS);
-            Error();
+            Error(ctx);
         }
     }
-    endpoint_enter(Pinfo, "pipeinfo", Lf->inode);
+    endpoint_enter(ctx, Pinfo, "pipeinfo", Lf->inode);
 }
 
 /*
  * find_pepti() -- find pipe end point info
  */
 
-pxinfo_t *find_pepti(pid, lf, pp)
-int pid;          /* pid of the process owning lf */
-struct lfile *lf; /* pipe's lfile */
-pxinfo_t *pp;     /* previous pipe info (NULL == none) */
+pxinfo_t *find_pepti(struct lsof_context *ctx,
+                     int pid,          /* pid of the process owning lf */
+                     struct lfile *lf, /* pipe's lfile */
+                     pxinfo_t *pp)     /* previous pipe info (NULL == none) */
 {
-    return endpoint_find(Pinfo, endpoint_accept_other_than_self, pid, lf,
+    return endpoint_find(ctx, Pinfo, endpoint_accept_other_than_self, pid, lf,
                          lf->inode, pp);
 }
 
@@ -249,7 +253,9 @@ pxinfo_t *pp;     /* previous pipe info (NULL == none) */
  * clear_ptyinfo() -- clear allocated pseudoterminal info
  */
 
-void clear_ptyinfo() { endpoint_pxinfo_hash(PtyInfo, PINFOBUCKS, free); }
+void clear_ptyinfo(struct lsof_context *ctx) {
+    endpoint_pxinfo_hash(PtyInfo, PINFOBUCKS, free);
+}
 
 /*
  * enter_ptmxi() -- enter pty info
@@ -258,7 +264,7 @@ void clear_ptyinfo() { endpoint_pxinfo_hash(PtyInfo, PINFOBUCKS, free); }
  * 		Lp = local process structure pointer
  */
 
-void enter_ptmxi(mn) int mn; /* minor number of device */
+void enter_ptmxi(struct lsof_context *ctx, int mn) /* minor number of device */
 {
     /*
      * Allocate pipe info hash buckets (but used for pty).
@@ -267,10 +273,10 @@ void enter_ptmxi(mn) int mn; /* minor number of device */
         if (!(PtyInfo = (pxinfo_t **)calloc(PINFOBUCKS, sizeof(pxinfo_t *)))) {
             (void)fprintf(stderr, "%s: no space for %d pty info buckets\n", Pn,
                           PINFOBUCKS);
-            Error();
+            Error(ctx);
         }
     }
-    endpoint_enter(PtyInfo, "pty", mn);
+    endpoint_enter(ctx, PtyInfo, "pty", mn);
 }
 
 /*
@@ -278,7 +284,8 @@ void enter_ptmxi(mn) int mn; /* minor number of device */
  * or not
  */
 
-static int ptyepti_accept_ptmx(pxinfo_t *pi, int pid, struct lfile *lf) {
+static int ptyepti_accept_ptmx(struct lsof_context *ctx, pxinfo_t *pi, int pid,
+                               struct lfile *lf) {
     struct lfile *ef = pi->lf;
     return is_pty_ptmx(ef->rdev);
 }
@@ -288,7 +295,8 @@ static int ptyepti_accept_ptmx(pxinfo_t *pi, int pid, struct lfile *lf) {
  * slave or not
  */
 
-static int ptyepti_accept_slave(pxinfo_t *pi, int pid, struct lfile *lf) {
+static int ptyepti_accept_slave(struct lsof_context *ctx, pxinfo_t *pi, int pid,
+                                struct lfile *lf) {
     struct lfile *ef = pi->lf;
     return is_pty_slave(GET_MAJ_DEV(ef->rdev));
 }
@@ -297,16 +305,15 @@ static int ptyepti_accept_slave(pxinfo_t *pi, int pid, struct lfile *lf) {
  * find_ptyepti() -- find pseudoterminal end point info
  */
 
-pxinfo_t *find_ptyepti(pid, lf, m, pp)
-int pid;
-struct lfile *lf; /* pseudoterminal's lfile */
-int m;            /* minor number type:
-                   *     0 == use tty_index
-                   *     1 == use minor device */
-pxinfo_t *pp;     /* previous pseudoterminal info
-                   * (NULL == none) */
+pxinfo_t *find_ptyepti(struct lsof_context *ctx, int pid,
+                       struct lfile *lf, /* pseudoterminal's lfile */
+                       int m,            /* minor number type:
+                                          *     0 == use tty_index
+                                          *     1 == use minor device */
+                       pxinfo_t *pp)     /* previous pseudoterminal info
+                                          * (NULL == none) */
 {
-    return endpoint_find(PtyInfo,
+    return endpoint_find(ctx, PtyInfo,
                          m ? ptyepti_accept_ptmx : ptyepti_accept_slave, pid,
                          lf, m ? GET_MIN_DEV(lf->rdev) : lf->tty_index, pp);
 }
@@ -355,7 +362,9 @@ dev_t dev; /* device number */
  * clear_psxmqinfo -- clear allocate posix mq info
  */
 
-void clear_psxmqinfo() { endpoint_pxinfo_hash(PSXMQinfo, PINFOBUCKS, free); }
+void clear_psxmqinfo(struct lsof_context *ctx) {
+    endpoint_pxinfo_hash(PSXMQinfo, PINFOBUCKS, free);
+}
 
 /*
  * enter_psxmqinfo() -- enter posix mq info
@@ -364,7 +373,7 @@ void clear_psxmqinfo() { endpoint_pxinfo_hash(PSXMQinfo, PINFOBUCKS, free); }
  *		Lp = local process structure pointer
  */
 
-void enter_psxmqinfo() {
+void enter_psxmqinfo(struct lsof_context *ctx) {
     if (!PSXMQinfo) {
         /*
          * Allocate posix mq info hash buckets.
@@ -373,30 +382,33 @@ void enter_psxmqinfo() {
                   (pxinfo_t **)calloc(PINFOBUCKS, sizeof(pxinfo_t *)))) {
             (void)fprintf(stderr, "%s: no space for %d posix mq info buckets\n",
                           Pn, PINFOBUCKS);
-            Error();
+            Error(ctx);
         }
     }
-    endpoint_enter(PSXMQinfo, "psxmqinfo", Lf->inode);
+    endpoint_enter(ctx, PSXMQinfo, "psxmqinfo", Lf->inode);
 }
 
 /*
  * find_psxmqinfo() -- find posix mq end point info
  */
 
-pxinfo_t *find_psxmqinfo(pid, lf, pp)
-int pid;          /* pid of the process owning lf */
-struct lfile *lf; /* posix mq's lfile */
-pxinfo_t *pp;     /* previous posix mq info (NULL == none) */
+pxinfo_t *
+find_psxmqinfo(struct lsof_context *ctx,
+               int pid,          /* pid of the process owning lf */
+               struct lfile *lf, /* posix mq's lfile */
+               pxinfo_t *pp)     /* previous posix mq info (NULL == none) */
 {
-    return endpoint_find(PSXMQinfo, endpoint_accept_other_than_self, pid, lf,
-                         lf->inode, pp);
+    return endpoint_find(ctx, PSXMQinfo, endpoint_accept_other_than_self, pid,
+                         lf, lf->inode, pp);
 }
 
 /*
  * clear_evtfdinfo -- clear allocate eventfd info
  */
 
-void clear_evtfdinfo() { endpoint_pxinfo_hash(EvtFDinfo, PINFOBUCKS, free); }
+void clear_evtfdinfo(struct lsof_context *ctx) {
+    endpoint_pxinfo_hash(EvtFDinfo, PINFOBUCKS, free);
+}
 
 /*
  * enter_evtfdinfo() -- enter eventfd info
@@ -405,7 +417,7 @@ void clear_evtfdinfo() { endpoint_pxinfo_hash(EvtFDinfo, PINFOBUCKS, free); }
  *		Lp = local process structure pointer
  */
 
-void enter_evtfdinfo(int id) {
+void enter_evtfdinfo(struct lsof_context *ctx, int id) {
     if (!EvtFDinfo) {
         /*
          * Allocate eventfd info hash buckets.
@@ -414,23 +426,24 @@ void enter_evtfdinfo(int id) {
                   (pxinfo_t **)calloc(PINFOBUCKS, sizeof(pxinfo_t *)))) {
             (void)fprintf(stderr, "%s: no space for %d envet fd info buckets\n",
                           Pn, PINFOBUCKS);
-            Error();
+            Error(ctx);
         }
     }
-    endpoint_enter(EvtFDinfo, "evtfdinfo", id);
+    endpoint_enter(ctx, EvtFDinfo, "evtfdinfo", id);
 }
 
 /*
  * find_evtfdinfo() -- find eventfd end point info
  */
 
-pxinfo_t *find_evtfdinfo(pid, lf, pp)
-int pid;          /* pid of the process owning lf */
-struct lfile *lf; /* eventfd's lfile */
-pxinfo_t *pp;     /* previous eventfd info (NULL == none) */
+pxinfo_t *
+find_evtfdinfo(struct lsof_context *ctx,
+               int pid,          /* pid of the process owning lf */
+               struct lfile *lf, /* eventfd's lfile */
+               pxinfo_t *pp)     /* previous eventfd info (NULL == none) */
 {
-    void *r = endpoint_find(EvtFDinfo, endpoint_accept_other_than_self, pid, lf,
-                            lf->eventfd_id, pp);
+    void *r = endpoint_find(ctx, EvtFDinfo, endpoint_accept_other_than_self,
+                            pid, lf, lf->eventfd_id, pp);
     return r;
 }
 #endif /* defined(HASEPTOPTS) */
@@ -439,16 +452,15 @@ pxinfo_t *pp;     /* previous eventfd info (NULL == none) */
  * get_fields() - separate a line into fields
  */
 
-int get_fields(ln, sep, fr, eb, en)
-char *ln;   /* input line */
-char *sep;  /* separator list */
-char ***fr; /* field pointer return address */
-int *eb;    /* indexes of fields where blank or an
-             * entry from the separator list may be
-             * embedded and are not separators
-             * (may be NULL) */
-int en;     /* number of entries in eb[] (may be
-             * zero) */
+int get_fields(struct lsof_context *ctx, char *ln, /* input line */
+               char *sep,                          /* separator list */
+               char ***fr, /* field pointer return address */
+               int *eb,    /* indexes of fields where blank or an
+                            * entry from the separator list may be
+                            * embedded and are not separators
+                            * (may be NULL) */
+               int en)     /* number of entries in eb[] (may be
+                            * zero) */
 {
     char *bp, *cp, *sp;
     int i, j, n;
@@ -529,7 +541,7 @@ int en;     /* number of entries in eb[] (may be
                 (void)fprintf(
                     stderr, "%s: can't allocate %d bytes for field pointers.\n",
                     Pn, (int)len);
-                Error();
+                Error(ctx);
             }
         }
         fp[n++] = bp;
@@ -542,7 +554,7 @@ int en;     /* number of entries in eb[] (may be
  * get_locks() - get lock information from /proc/locks
  */
 
-void get_locks(p) char *p; /* /proc lock path */
+void get_locks(struct lsof_context *ctx, char *p) /* /proc lock path */
 {
     unsigned long bp, ep;
     char buf[MAXPATHLEN], *ec, **fp;
@@ -576,17 +588,17 @@ void get_locks(p) char *p; /* /proc lock path */
         if (!LckH) {
             (void)fprintf(stderr, "%s: can't allocate %d lock hash bytes\n", Pn,
                           (int)(sizeof(struct llock *) * PIDBUCKS));
-            Error();
+            Error(ctx);
         }
     }
     /*
      * Open the /proc lock file, assign a page size buffer to its stream,
      * and read it.
      */
-    if (!(ls = open_proc_stream(p, "r", &vbuf, &vsz, 0)))
+    if (!(ls = open_proc_stream(ctx, p, "r", &vbuf, &vsz, 0)))
         return;
     while (fgets(buf, sizeof(buf), ls)) {
-        if (get_fields(buf, ":", &fp, (int *)NULL, 0) < 10)
+        if (get_fields(ctx, buf, ":", &fp, (int *)NULL, 0) < 10)
             continue;
         if (!fp[1] || strcmp(fp[1], "->") == 0)
             continue;
@@ -665,7 +677,7 @@ void get_locks(p) char *p; /* /proc lock path */
             (void)fprintf(
                 stderr, "%s: can't allocate llock: PID %d; dev %x; inode %s\n",
                 Pn, pid, (int)dev, buf);
-            Error();
+            Error(ctx);
         }
         lp->pid = pid;
         lp->dev = dev;
@@ -681,14 +693,14 @@ void get_locks(p) char *p; /* /proc lock path */
  * process_proc_node() - process file node
  */
 
-void process_proc_node(p, pbr, s, ss, l,
-                       ls) char *p; /* node's readlink() path */
-char *pbr;                          /* node's path before readlink() */
-struct stat *s;                     /* stat() result for path */
-int ss;                             /* *s status -- i.e., SB_* values */
-struct stat *l;                     /* lstat() result for FD (NULL for
-                                     * others) */
-int ls;                             /* *l status -- i.e., SB_* values */
+void process_proc_node(struct lsof_context *ctx,
+                       char *p,        /* node's readlink() path */
+                       char *pbr,      /* node's path before readlink() */
+                       struct stat *s, /* stat() result for path */
+                       int ss,         /* *s status -- i.e., SB_* values */
+                       struct stat *l, /* lstat() result for FD (NULL for
+                                        * others) */
+                       int ls)         /* *l status -- i.e., SB_* values */
 {
     mode_t access;
     mode_t type = 0;
@@ -724,7 +736,7 @@ int ls;                             /* *l status -- i.e., SB_* values */
             break;
         case S_IFSOCK:
             /* Lf->ntype = Ntype = N_REGLR;		by alloc_lfile() */
-            process_proc_sock(p, pbr, s, ss, l, ls);
+            process_proc_sock(ctx, p, pbr, s, ss, l, ls);
             return;
         case 0:
             if (!strcmp(p, "anon_inode"))
@@ -749,14 +761,14 @@ int ls;                             /* *l status -- i.e., SB_* values */
 #if defined(HASEPTOPTS) && defined(HASPTYEPT)
             if (FeptE && (Ntype == N_CHR) &&
                 is_pty_slave(GET_MAJ_DEV(Lf->rdev))) {
-                enter_ptmxi(GET_MIN_DEV(Lf->rdev));
+                enter_ptmxi(ctx, GET_MIN_DEV(Lf->rdev));
                 Lf->sf |= SELPTYINFO;
             }
 #endif /* defined(HASEPTOPTS) && defined(HASPTYEPT) */
         }
     }
     if (Ntype == N_REGLR && (HasNFS == 2)) {
-        for (mp = readmnt(); mp; mp = mp->next) {
+        for (mp = readmnt(ctx); mp; mp = mp->next) {
             if ((mp->ty == N_NFS) && (mp->ds & SB_DEV) && Lf->dev_def &&
                 (Lf->dev == mp->dev) &&
                 (mp->dir && mp->dirl && !strncmp(mp->dir, p, mp->dirl))) {
@@ -774,10 +786,10 @@ int ls;                             /* *l status -- i.e., SB_* values */
 
 #if defined(HASEPTOPTS)
         if ((Lf->ntype == N_FIFO) && FeptE) {
-            (void)enter_pinfo();
+            (void)enter_pinfo(ctx);
             Lf->sf |= SELPINFO;
         } else if ((Lf->dev == MqueueDev) && FeptE) {
-            (void)enter_psxmqinfo();
+            (void)enter_psxmqinfo(ctx);
             Lf->sf |= SELPSXMQINFO;
         }
 #endif /* defined(HASEPTOPTS) */
@@ -786,7 +798,7 @@ int ls;                             /* *l status -- i.e., SB_* values */
      * Check for a lock.
      */
     if (Lf->dev_def && (Lf->inp_ty == 1))
-        (void)check_lock();
+        (void)check_lock(ctx);
     /*
      * Save the file size.
      */
@@ -872,7 +884,7 @@ int ls;                             /* *l status -- i.e., SB_* values */
      * Test for specified file.
      */
     if (Sfile &&
-        is_file_named(1, p, mp,
+        is_file_named(ctx, 1, p, mp,
                       ((type == S_IFCHR) || (type == S_IFBLK)) ? 1 : 0))
         Lf->sf |= SELNM;
     /*
@@ -888,5 +900,5 @@ int ls;                             /* *l status -- i.e., SB_* values */
         }
     }
     if (Namech[0])
-        enter_nm(Namech);
+        enter_nm(ctx, Namech);
 }

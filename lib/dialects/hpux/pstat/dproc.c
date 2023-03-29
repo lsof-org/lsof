@@ -153,7 +153,7 @@ void gather_proc_info() {
         if (!(fds = (int *)malloc(nb))) {
             (void)fprintf(stderr, "%s: can't allocate %d FD status entries\n",
                           Pn, FDS_ALLOC_INIT);
-            Error();
+            Error(ctx);
         }
         for (fdsa = 0; fdsa < FDS_ALLOC_INIT; fdsa++) {
             if (Fand && Fdl)
@@ -310,7 +310,7 @@ void gather_proc_info() {
                             stderr,
                             "%s: can't reallocate %d FD status entries\n", Pn,
                             l);
-                        Error();
+                        Error(ctx);
                     }
                     while (fdsa < l) {
                         fds[fdsa] = (ck_fd_status(NULL, fdsa) == 2) ? 1 : 0;
@@ -448,12 +448,12 @@ static void get_kernel_access() {
         (void)fprintf(stderr,
                       "%s: FATAL: can't determine PSTAT static size: %s\n", Pn,
                       strerror(errno));
-        Error();
+        Error(ctx);
     }
     if (pstat_getstatic(&pst, (size_t)pst.pst_static_size, 1, 0) != 1) {
         (void)fprintf(stderr, "%s: FATAL: can't read %ld bytes of pst_static\n",
                       Pn, (long)pst.pst_static_size);
-        Error();
+        Error(ctx);
     }
     /*
      * Check all the pst_static members defined in PstatCk[].
@@ -485,7 +485,7 @@ static void get_kernel_access() {
     }
     if (!err)
         return;
-    Error();
+    Error(ctx);
 }
 
 /*
@@ -546,7 +546,7 @@ static void process_text(p) struct pst_status *p; /* pst_status for process */
             (void)fprintf(stderr,
                           "%s: no memory for text and VM info array; PID: %d\n",
                           Pn, (int)p->pst_pid);
-            Error();
+            Error(ctx);
         }
     }
     /*
@@ -689,7 +689,7 @@ int *n;               /* returned fi[] entry count */
                 (void)fprintf(stderr,
                               "%s: can't allocate %d bytes for pst_filinfo\n",
                               Pn, nb);
-                Error();
+                Error(ctx);
             }
         }
         /*
@@ -743,7 +743,7 @@ int *n; /* returned ps[] entry count */
                     stderr,
                     "%s: can't allocate %d bytes for pst_status table\n", Pn,
                     nb);
-                Error();
+                Error(ctx);
             }
         }
         /*
@@ -803,7 +803,7 @@ int *n;               /* returned region count */
                 (void)fprintf(stderr,
                               "%s: can't allocate %d bytes for pst_vm_status\n",
                               Pn, nb);
-                Error();
+                Error(ctx);
             }
         }
         /*

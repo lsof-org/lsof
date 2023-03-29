@@ -97,7 +97,7 @@ struct mounts *readmnt() {
             (void)fprintf(stderr, " (");
             safestrprt(mb->f_mntfromname, stderr, 0);
             (void)fprintf(stderr, ")\n");
-            Error();
+            Error(ctx);
         }
         if (!(ln = Readlink(dn))) {
             if (!Fwarn) {
@@ -226,13 +226,13 @@ struct l_vfs *readvfs(uint64_t fsid, const char *path) {
     }
     if (!(vp = (struct l_vfs *)malloc(sizeof(struct l_vfs)))) {
         (void)fprintf(stderr, "%s: PID %d, no space for vfs\n", Pn, Lp->pid);
-        Error();
+        Error(ctx);
     }
     if (!(vp->dir = mkstrcpy(m.f_mntonname, (MALLOC_S *)NULL)) ||
         !(vp->fsname = mkstrcpy(m.f_mntfromname, (MALLOC_S *)NULL))) {
         (void)fprintf(stderr, "%s: PID %d, no space for mount names\n", Pn,
                       Lp->pid);
-        Error();
+        Error(ctx);
     }
     vp->fsid = fsid;
 
@@ -249,7 +249,7 @@ struct l_vfs *readvfs(uint64_t fsid, const char *path) {
                                        (char *)NULL, -1, (MALLOC_S *)NULL))) {
                 (void)fprintf(stderr, "%s: no space for fs type name: ", Pn);
                 safestrprt(m.f_fstypename, stderr, 1);
-                Error();
+                Error(ctx);
             }
         } else
             vp->typnm = "";

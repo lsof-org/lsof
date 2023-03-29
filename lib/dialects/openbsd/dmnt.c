@@ -84,7 +84,7 @@ struct mounts *readmnt() {
             (void)fprintf(stderr, " (");
             safestrprt(mb->f_mntfromname, stderr, 0);
             (void)fprintf(stderr, ")\n");
-            Error();
+            Error(ctx);
         }
         if ((ln = Readlink(dn)) == NULL) {
             if (!Fwarn) {
