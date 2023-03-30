@@ -4960,7 +4960,7 @@ if test "X$LSOF_MKC" = "X"	# {
 then
   LSOF_MKC="ln -s"
 fi	# }
-LSOF_MKC=$LSOF_MKC ./lib/dialects/$LSOF_DIALECT_DIR/$LSOF_MK $LSOF_TGT $LSOF_VERS
+LSOF_MKC=$LSOF_MKC ./lib/dialects/$LSOF_DIALECT_DIR/$LSOF_MK $LSOF_TGT $LSOF_VERS || exit 1
 
 # Make $LSOF_MKFC and ${LSOF_LIB}/$LSOF_LIBMKF.
 
