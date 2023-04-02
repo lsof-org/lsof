@@ -252,3 +252,5 @@
 #if HAVE_DECL_CLOSEFROM
 #define HAS_CLOSEFROM
 #endif
+
+#endif
