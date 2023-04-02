@@ -81,8 +81,8 @@ AS_CASE([${host_os}],
 	# Add FREEBSDV to cflags
 	CFLAGS="$CFLAGS -DFREEBSDV=$LSOF_VERS"
 
-	# Always define HASPROCFS HAS_DUP2 HAS_CLOSEFROM
-	CFLAGS="$CFLAGS -DHASPROCFS -DHAS_DUP2 -DHAS_CLOSEFROM"
+	# Always define HASPROCFS
+	CFLAGS="$CFLAGS -DHASPROCFS"
 
 	# Always link libutil
 	LDFLAGS="$LDFLAGS -lutil"
@@ -453,6 +453,12 @@ AC_CHECK_MEMBERS([struct fdescnode.fd_link], [], [], [#define _KERNEL
 
 # Detect miscfs/nullfs/null.h header for HASNULLFS
 AC_CHECK_HEADERS([miscfs/nullfs/null.h], [], [], [#include <sys/mount.h>])
+
+# Detect dup2 for HAS_DUP2
+AC_CHECK_DECLS([dup2], [], [], [[#include <unistd.h>]])
+
+# Detect closefrom for HAS_CLOSEFROM
+AC_CHECK_DECLS([closefrom], [], [], [[#include <unistd.h>]])
 
 # Detect sizeof(dev_t) for LT_DEV64
 AC_CHECK_SIZEOF([dev_t])

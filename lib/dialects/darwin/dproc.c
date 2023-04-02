@@ -465,13 +465,13 @@ void gather_proc_info(struct lsof_context *ctx) {
  * initialize() -- perform all initialization
  */
 
-void initialize() {}
+void initialize(struct lsof_context *ctx) {}
 
 /*
  * deinitialize() -- perform all cleanup
  */
 
-void deinitialize() {}
+void deinitialize(struct lsof_context *ctx) {}
 
 /*
  * process_fds() -- process file descriptors

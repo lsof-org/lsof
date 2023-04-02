@@ -72,6 +72,7 @@ _PROTOTYPE(extern void alloc_lproc,
             char *cmd, int pss, int sf));
 _PROTOTYPE(extern void build_IPstates, (struct lsof_context * ctx));
 _PROTOTYPE(extern void childx, (struct lsof_context * ctx));
+_PROTOTYPE(extern void closefrom_shim, (struct lsof_context *ctx, int low));
 _PROTOTYPE(extern int ck_fd_status,
            (struct lsof_context * ctx, enum lsof_fd_type fd_type, int num));
 _PROTOTYPE(extern enum lsof_error ck_file_arg,

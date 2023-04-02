@@ -127,19 +127,7 @@ char *argv[];
     if ((MaxFd = (int)GET_MAX_FD()) < 53)
         MaxFd = 53;
 
-#if defined(HAS_CLOSEFROM)
-    (void)closefrom(3);
-#else /* !defined(HAS_CLOSEFROM) */
-#    if defined(SYS_close_range)
-    if (MaxFd > 3 && syscall(SYS_close_range, 3, MaxFd - 1, 0) == 0)
-        goto closed;
-#    endif
-    for (i = 3; i < MaxFd; i++)
-        (void)close(i);
-#    if defined(SYS_close_range)
-closed:
-#    endif
-#endif /* !defined(HAS_CLOSEFROM) */
+    closefrom_shim(ctx, 3);
 
     while (((i = open("/dev/null", O_RDWR, 0)) >= 0) && (i < 2))
         ;

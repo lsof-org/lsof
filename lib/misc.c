@@ -29,6 +29,7 @@
  */
 
 #include "common.h"
+#include "lsof.h"
 
 #if defined(HASWIDECHAR)
 #    if defined(WIDECHARINCL)
@@ -219,6 +220,25 @@ COMP_P *a1, *a2;
 }
 
 /*
+ * closefrom_shim() -- provide closefrom() when unavailable
+ */
+void closefrom_shim(struct lsof_context *ctx, int low) {
+    int i;
+#if defined(HAS_CLOSEFROM)
+    (void)closefrom(low);
+#else /* !defined(HAS_CLOSEFROM) */
+    /* fallback to SYS_close_range */
+#    if defined(SYS_close_range)
+    if (MaxFd > low && syscall(SYS_close_range, low, MaxFd - 1, 0) == 0)
+        return;
+#    endif
+    /* slow fallback */
+    for (i = low; i < MaxFd; i++)
+        (void)close(i);
+#endif /* !defined(HAS_CLOSEFROM) */
+}
+
+/*
  * doinchild() -- do a function in a child process
  */
 
@@ -291,7 +311,7 @@ int doinchild(struct lsof_context *ctx, int (*fn)(), /* function to perform */
                  * Pipes[3].
                  */
 
-#if defined(HAS_DUP2) && defined(HAS_CLOSEFROM)
+#if defined(HAS_DUP2)
                 int rc;
 
                 rc = dup2(Pipes[0], 0);
@@ -312,11 +332,11 @@ int doinchild(struct lsof_context *ctx, int (*fn)(), /* function to perform */
                     Error(ctx);
                 }
                 Pipes[3] = 1;
-                (void)closefrom(2);
+                (void)closefrom_shim(ctx, 2);
                 Pipes[1] = -1;
                 Pipes[2] = -1;
 
-#else  /* !defined(HAS_DUP2) && !defined(HAS_CLOSEFROM) */
+#else  /* !defined(HAS_DUP2) */
                 int fd;
 
                 for (fd = 0; fd < MaxFd; fd++) {
@@ -336,7 +356,7 @@ int doinchild(struct lsof_context *ctx, int (*fn)(), /* function to perform */
                     (void)close(Pipes[2]);
                     Pipes[2] = -1;
                 }
-#endif /* defined(HAS_DUP2) && defined(HAS_CLOSEFROM) */
+#endif /* defined(HAS_DUP2) */
 
                 /*
                  * Read function requests, process them, and return replies.
