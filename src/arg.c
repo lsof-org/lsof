@@ -273,7 +273,7 @@ int ck_file_arg(struct lsof_context *ctx, int i, /* first file argument index */
                     }
 
 #if defined(HASSPECDEVD)
-                    (void)HASSPECDEVD(fnm, &sb);
+                    (void)HASSPECDEVD(ctx, fnm, &sb);
 #endif /* defined(HASSPECDEVD) */
                 }
                 sfp->i = (INODETYPE)sb.st_ino;
@@ -1007,7 +1007,7 @@ int enter_dir(char *d,     /* directory path name pointer */
     }
 
 #if defined(HASSPECDEVD)
-    (void)HASSPECDEVD(dn, &sb);
+    (void)HASSPECDEVD(ctx, dn, &sb);
 #endif /* defined(HASSPECDEVD) */
 
     ddev = sb.st_dev;
@@ -1131,7 +1131,7 @@ int enter_dir(char *d,     /* directory path name pointer */
             }
 
 #if defined(HASSPECDEVD)
-            (void)HASSPECDEVD(fp, &sb);
+            (void)HASSPECDEVD(ctx, fp, &sb);
 #endif /* defined(HASSPECDEVD) */
 
             if (!(Fxover & XO_FILESYS)) {

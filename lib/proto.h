@@ -83,10 +83,10 @@ _PROTOTYPE(extern int compdev, (COMP_P * a1, COMP_P *a2));
 _PROTOTYPE(extern int comppid, (COMP_P * a1, COMP_P *a2));
 
 #    if defined(WILLDROPGID)
-_PROTOTYPE(extern void dropgid, (void));
+_PROTOTYPE(extern void dropgid, (struct lsof_context * ctx));
 #    endif /* defined(WILLDROPGID) */
 
-_PROTOTYPE(extern char *endnm, (size_t * sz));
+_PROTOTYPE(extern char *endnm, (struct lsof_context * ctx, size_t *sz));
 _PROTOTYPE(extern int enter_cmd_rx, (char *x));
 _PROTOTYPE(extern void enter_dev_ch, (struct lsof_context * ctx, char *m));
 _PROTOTYPE(extern int enter_dir, (char *d, int descend));
@@ -110,12 +110,13 @@ _PROTOTYPE(extern int enter_str_lst,
            (char *opt, char *s, struct str_lst **lp, int *incl, int *excl));
 _PROTOTYPE(extern int enter_uid, (char *us));
 _PROTOTYPE(extern void ent_inaddr,
-           (unsigned char *la, int lp, unsigned char *fa, int fp, int af));
+           (struct lsof_context * ctx, unsigned char *la, int lp,
+            unsigned char *fa, int fp, int af));
 _PROTOTYPE(extern int examine_lproc, (struct lsof_context * ctx));
 _PROTOTYPE(extern void Exit, (struct lsof_context * ctx, enum ExitStatus xv))
 exiting;
 _PROTOTYPE(extern void Error, (struct lsof_context * ctx)) exiting;
-_PROTOTYPE(extern void find_ch_ino, (void));
+_PROTOTYPE(extern void find_ch_ino, (struct lsof_context * ctx));
 
 #    if defined(HASEPTOPTS)
 _PROTOTYPE(extern void clear_pinfo, (struct lsof_context * ctx));
@@ -173,23 +174,26 @@ _PROTOTYPE(extern char *gethostnm, (unsigned char *ia, int af));
 _PROTOTYPE(extern int hashbyname, (char *nm, int mod));
 _PROTOTYPE(extern void hashSfile, (struct lsof_context * ctx));
 _PROTOTYPE(extern void initialize, (struct lsof_context * ctx));
-_PROTOTYPE(extern int is_cmd_excl, (char *cmd, short *pss, short *sf));
+_PROTOTYPE(extern int is_cmd_excl,
+           (struct lsof_context * ctx, char *cmd, short *pss, short *sf));
 _PROTOTYPE(extern int is_file_sel, (struct lproc * lp, struct lfile *lf));
 _PROTOTYPE(extern int is_nw_addr, (unsigned char *ia, int p, int af));
 
 #    if defined(HASTASKS)
 _PROTOTYPE(extern int is_proc_excl,
-           (int pid, int pgid, UID_ARG uid, short *pss, short *sf, int tid));
+           (struct lsof_context * ctx, int pid, int pgid, UID_ARG uid,
+            short *pss, short *sf, int tid));
 #    else  /* !defined(HASTASKS) */
 _PROTOTYPE(extern int is_proc_excl,
-           (int pid, int pgid, UID_ARG uid, short *pss, short *sf));
+           (struct lsof_context * ctx, int pid, int pgid, UID_ARG uid,
+            short *pss, short *sf));
 #    endif /* defined(HASTASKS) */
 
 _PROTOTYPE(extern int is_readable, (char *path, int msg));
 _PROTOTYPE(extern int kread, (KA_T addr, char *buf, READLEN_T len));
 _PROTOTYPE(extern void link_lfile, (struct lsof_context * ctx));
 _PROTOTYPE(extern struct l_dev *lkupdev,
-           (dev_t * dev, dev_t *rdev, int i, int r));
+           (struct lsof_context * ctx, dev_t *dev, dev_t *rdev, int i, int r));
 _PROTOTYPE(extern int main, (int argc, char *argv[]));
 _PROTOTYPE(extern int lstatsafely,
            (struct lsof_context * ctx, char *path, struct stat *buf));
@@ -203,15 +207,17 @@ _PROTOTYPE(extern void print_init, (void));
 _PROTOTYPE(extern void printname, (struct lsof_context * ctx, int nl));
 _PROTOTYPE(extern char *print_kptr, (KA_T kp, char *buf, size_t bufl));
 _PROTOTYPE(extern int print_proc, (struct lsof_context * ctx));
-_PROTOTYPE(extern void printrawaddr, (struct sockaddr * sa));
+_PROTOTYPE(extern void printrawaddr,
+           (struct lsof_context * ctx, struct sockaddr *sa));
 _PROTOTYPE(extern void print_tcptpi, (struct lsof_context * ctx, int nl));
 _PROTOTYPE(extern char *printuid, (UID_ARG uid, int *ty));
-_PROTOTYPE(extern void printunkaf, (int fam, int ty));
+_PROTOTYPE(extern void printunkaf,
+           (struct lsof_context * ctx, int fam, int ty));
 _PROTOTYPE(extern char *printsockty, (int ty));
 _PROTOTYPE(extern void process_file, (KA_T fp));
 _PROTOTYPE(extern void process_node, (KA_T f));
 _PROTOTYPE(extern char *Readlink, (struct lsof_context * ctx, char *arg));
-_PROTOTYPE(extern void readdev, (int skip));
+_PROTOTYPE(extern void readdev, (struct lsof_context * ctx, int skip));
 _PROTOTYPE(extern struct mounts *readmnt, (struct lsof_context * ctx));
 _PROTOTYPE(extern void rereaddev, (void));
 _PROTOTYPE(extern char *safepup, (unsigned int c, int *cl));
@@ -227,9 +233,9 @@ _PROTOTYPE(extern int vfy_dev, (struct l_dev * dp));
 _PROTOTYPE(extern char *x2dev, (char *s, dev_t *d));
 
 #    if defined(HASBLKDEV)
-_PROTOTYPE(extern void find_bl_ino, (void));
+_PROTOTYPE(extern void find_bl_ino, (struct lsof_context * ctx));
 _PROTOTYPE(extern struct l_dev *lkupbdev,
-           (dev_t * dev, dev_t *rdev, int i, int r));
+           (struct lsof_context * ctx, dev_t *dev, dev_t *rdev, int i, int r));
 _PROTOTYPE(extern int printbdevname, (dev_t * dev, dev_t *rdev, int f));
 #    endif /* defined(HASBLKDEV) */
 
@@ -297,7 +303,8 @@ _PROTOTYPE(extern char *HASPRINTINO, (struct lfile * lf));
 #    endif /* defined(HASPRINTINO) */
 
 #    if defined(HASPRINTNM)
-_PROTOTYPE(extern void HASPRINTNM, (struct lfile * lf));
+_PROTOTYPE(extern void HASPRINTNM,
+           (struct lsof_context * ctx, struct lfile *lf));
 #    endif /* defined(HASPRINTNM) */
 
 #    if defined(HASPRINTOFF)
@@ -305,7 +312,8 @@ _PROTOTYPE(extern char *HASPRINTOFF, (struct lfile * lf, int ty));
 #    endif /* defined(HASPRINTOFF) */
 
 #    if defined(HASPRIVNMCACHE)
-_PROTOTYPE(extern int HASPRIVNMCACHE, (struct lfile * lf));
+_PROTOTYPE(extern int HASPRIVNMCACHE,
+           (struct lsof_context * ctx, struct lfile *lf));
 #    endif /* defined(HASPRIVNMCACHE) */
 
 #    if !defined(HASPRIVPRIPP)
@@ -317,7 +325,8 @@ _PROTOTYPE(extern int readrnode, (KA_T ra, struct rnode *r));
 #    endif /* defined(HASRNODE) */
 
 #    if defined(HASSPECDEVD)
-_PROTOTYPE(extern void HASSPECDEVD, (char *p, struct stat *s));
+_PROTOTYPE(extern void HASSPECDEVD,
+           (struct lsof_context * ctx, char *p, struct stat *s));
 #    endif /* defined(HASSPECDEVD) */
 
 #    if defined(HASSNODE)

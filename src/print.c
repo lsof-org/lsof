@@ -94,8 +94,7 @@ _PROTOTYPE(static int human_readable_size, (SZOFFTYPE sz, int print, int col));
  * endnm() - locate end of Namech
  */
 
-char *endnm(sz)
-size_t *sz; /* returned remaining size */
+char *endnm(struct lsof_context *ctx, size_t *sz) /* returned remaining size */
 {
     register char *s;
     register size_t tsz;
@@ -1098,7 +1097,7 @@ void print_file(struct lsof_context *ctx) {
         putchar(' ');
 
 #if defined(HASPRINTNM)
-        HASPRINTNM(Lf);
+        HASPRINTNM(ctx, Lf);
 #else  /* !defined(HASPRINTNM) */
         printname(ctx, 1);
 #endif /* defined(HASPRINTNM) */
@@ -2033,7 +2032,7 @@ void printname(struct lsof_context *ctx, int nl) /* NL status */
     }
 
 #if defined(HASPRIVNMCACHE)
-    if (HASPRIVNMCACHE(Lf)) {
+    if (HASPRIVNMCACHE(ctx, Lf)) {
         ps++;
         goto print_nma;
     }
@@ -2200,12 +2199,13 @@ print_nma:
  * printrawaddr() - print raw socket address
  */
 
-void printrawaddr(sa) struct sockaddr *sa; /* socket address */
+void printrawaddr(struct lsof_context *ctx,
+                  struct sockaddr *sa) /* socket address */
 {
     char *ep;
     size_t sz;
 
-    ep = endnm(&sz);
+    ep = endnm(ctx, &sz);
     (void)snpf(ep, sz, "%u/%u,%u,%u,%u,%u,%u,%u,%u,%u,%u,%u,%u,%u,%u",
                sa->sa_family, (unsigned char)sa->sa_data[0],
                (unsigned char)sa->sa_data[1], (unsigned char)sa->sa_data[2],
@@ -2392,8 +2392,8 @@ int *ty;     /* returned UID type pointer (NULL
  * printunkaf() - print unknown address family
  */
 
-void printunkaf(fam, ty) int fam; /* unknown address family */
-int ty;                           /* output type: 0 = terse; 1 = full */
+void printunkaf(struct lsof_context *ctx, int fam, /* unknown address family */
+                int ty) /* output type: 0 = terse; 1 = full */
 {
     char *p, *s;
 

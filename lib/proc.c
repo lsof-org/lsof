@@ -416,15 +416,15 @@ COMP_P *a1, *a2;
  * ent_inaddr() - enter Internet addresses
  */
 
-void ent_inaddr(la, lp, fa, fp,
-                af) unsigned char *la; /* local Internet address */
-int lp;                                /* local port */
-unsigned char *fa;                     /* foreign Internet address -- may
-                                        * be NULL to indicate no foreign
-                                        * address is known */
-int fp;                                /* foreign port */
-int af;                                /* address family -- e.g, AF_INET,
-                                        * AF_INET */
+void ent_inaddr(struct lsof_context *ctx,
+                unsigned char *la, /* local Internet address */
+                int lp,            /* local port */
+                unsigned char *fa, /* foreign Internet address -- may
+                                    * be NULL to indicate no foreign
+                                    * address is known */
+                int fp,            /* foreign port */
+                int af)            /* address family -- e.g, AF_INET,
+                                    * AF_INET */
 {
     int m;
 
@@ -559,10 +559,9 @@ void free_lproc(lp) struct lproc *lp;
  * is_cmd_excl() - is command excluded?
  */
 
-int is_cmd_excl(cmd, pss, sf)
-char *cmd;  /* command name */
-short *pss; /* process state */
-short *sf;  /* process select flags */
+int is_cmd_excl(struct lsof_context *ctx, char *cmd, /* command name */
+                short *pss,                          /* process state */
+                short *sf)                           /* process select flags */
 {
     int i;
     struct str_lst *sp;
@@ -644,23 +643,16 @@ struct lfile *lf; /* lfile structure pointer */
  * is_proc_excl() - is process excluded?
  */
 
-int
-
+int is_proc_excl(struct lsof_context *ctx, int pid, /* Process ID */
+                 int pgid,                          /* process group ID */
+                 UID_ARG uid,                       /* User ID */
+                 short *pss, /* process select state for lproc */
 #if defined(HASTASKS)
-is_proc_excl(pid, pgid, uid, pss, sf, tid)
-#else  /* !defined(HASTASKS) */
-	is_proc_excl(pid, pgid, uid, pss, sf)
+                 short *sf, /* select flags for lproc */
+                 int tid)   /* task ID (not a task if zero) */
+#else
+                 short *sf) /* select flags for lproc */
 #endif /* defined(HASTASKS) */
-
-int pid;     /* Process ID */
-int pgid;    /* process group ID */
-UID_ARG uid; /* User ID */
-short *pss;  /* process select state for lproc */
-short *sf;   /* select flags for lproc */
-
-#if defined(HASTASKS)
-int tid; /* task ID (not a task if zero) */
-#endif   /* defined(HASTASKS) */
 
 {
     int i, j;
@@ -862,7 +854,7 @@ int tid; /* task ID (not a task if zero) */
  * link_lfile() - link local file structures
  */
 
-void link_lfile(struct lsof_context * ctx) {
+void link_lfile(struct lsof_context *ctx) {
     if (Lf->sf & SELEXCLF)
         return;
 

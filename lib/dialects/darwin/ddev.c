@@ -153,7 +153,7 @@ int printdevname(struct lsof_context *ctx, dev_t *dev, /* device */
         if (!(cp = (char *)malloc((MALLOC_S)(len + 1)))) {
             (void)fprintf(stderr, "%s: no nma space for: (%s %s)\n", Pn, ttl,
                           dp->name);
-            Errror(ctx);
+            Error(ctx);
         }
         (void)snpf(cp, len + 1, "(%s %s)", ttl, dp->name);
         (void)add_nma(ctx, cp, len);
@@ -218,7 +218,7 @@ void readdev(struct lsof_context *ctx, int skip) /* skip device cache read if 1
                   mkstrcat(Dstk[Dstkx], -1, "/", 1, (char *)NULL, -1, &pl))) {
             (void)fprintf(stderr, "%s: no space for: ", Pn);
             safestrprt(Dstk[Dstkx], stderr, 1);
-            Errror(ctx);
+            Error(ctx);
         }
         (void)free((FREE_P *)Dstk[Dstkx]);
         Dstk[Dstkx] = (char *)NULL;
@@ -241,7 +241,7 @@ void readdev(struct lsof_context *ctx, int skip) /* skip device cache read if 1
                 (void)fprintf(stderr, "%s: no space for: ", Pn);
                 safestrprt(path, stderr, 0);
                 safestrprtn(dp->d_name, dnamlen, stderr, 1);
-                Errror(ctx);
+                Error(ctx);
             }
             if (STATFN(fp, &sb) != 0) {
                 if (errno == ENOENT) /* a sym link to nowhere? */
@@ -296,7 +296,7 @@ void readdev(struct lsof_context *ctx, int skip) /* skip device cache read if 1
                     if (!Devtp) {
                         (void)fprintf(
                             stderr, "%s: no space for character device\n", Pn);
-                        Errror(ctx);
+                        Error(ctx);
                     }
                 }
                 Devtp[i].rdev = sb.st_rdev;
@@ -304,7 +304,7 @@ void readdev(struct lsof_context *ctx, int skip) /* skip device cache read if 1
                 if (!(Devtp[i].name = mkstrcpy(fp, (MALLOC_S *)NULL))) {
                     (void)fprintf(stderr, "%s: no space for device name: ", Pn);
                     safestrprt(fp, stderr, 1);
-                    Errror(ctx);
+                    Error(ctx);
                 }
                 Devtp[i].v = 0;
                 i++;
@@ -328,7 +328,7 @@ void readdev(struct lsof_context *ctx, int skip) /* skip device cache read if 1
                     if (!BDevtp) {
                         (void)fprintf(stderr, "%s: no space for block device\n",
                                       Pn);
-                        Errror(ctx);
+                        Error(ctx);
                     }
                 }
                 BDevtp[j].name = fp;
@@ -372,7 +372,7 @@ void readdev(struct lsof_context *ctx, int skip) /* skip device cache read if 1
             sz = (MALLOC_S)(ADevU * sizeof(dev_t));
             if (!(ADev = (dev_t *)realloc((MALLOC_P *)ADev, sz))) {
                 (void)fprintf(stderr, "%s: can't reduce ADev[]\n", Pn);
-                Errror(ctx);
+                Error(ctx);
             }
         }
     }
@@ -401,7 +401,7 @@ void readdev(struct lsof_context *ctx, int skip) /* skip device cache read if 1
                   (MALLOC_S)(sizeof(struct l_dev *) * BNdev)))) {
             (void)fprintf(stderr,
                           "%s: no space for block device sort pointers\n", Pn);
-            Errror(ctx);
+            Error(ctx);
         }
         for (j = 0; j < BNdev; j++) {
             BSdev[j] = &BDevtp[j];
@@ -430,7 +430,7 @@ void readdev(struct lsof_context *ctx, int skip) /* skip device cache read if 1
             (void)fprintf(stderr,
                           "%s: no space for character device sort pointers\n",
                           Pn);
-            Errror(ctx);
+            Error(ctx);
         }
         for (i = 0; i < Ndev; i++) {
             Sdev[i] = &Devtp[i];
@@ -440,7 +440,7 @@ void readdev(struct lsof_context *ctx, int skip) /* skip device cache read if 1
         Ndev = rmdupdev(ctx, &Sdev, Ndev, "char");
     } else {
         (void)fprintf(stderr, "%s: no character devices found\n", Pn);
-        Errror(ctx);
+        Error(ctx);
     }
 }
 
@@ -471,7 +471,7 @@ static int rmdupdev(struct lsof_context *ctx,
     if (!(*dp = (struct l_dev **)realloc(
               (MALLOC_P *)*dp, (MALLOC_S)(j * sizeof(struct l_dev *))))) {
         (void)fprintf(stderr, "%s: can't realloc %s device pointers\n", Pn, nm);
-        Errror(ctx);
+        Error(ctx);
     }
     return (j);
 }
@@ -517,7 +517,7 @@ static void saveADev(struct lsof_context *ctx,
             ADev = (dev_t *)malloc(sz);
         if (!ADev) {
             (void)fprintf(stderr, "%s: no space for ADev[]\n", Pn);
-            Errror(ctx);
+            Error(ctx);
         }
     }
     ADev[ADevU++] = s->st_dev;

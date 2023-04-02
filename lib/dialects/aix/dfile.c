@@ -121,35 +121,35 @@ void hashSfile() {
         (void)fprintf(
             stderr, "%s: can't allocate space for %d (dev,ino) hash buckets\n",
             Pn, SFDIHASH);
-        Errror(ctx);
+        Error(ctx);
     }
     if (!(HbyFrd = (struct hsfile *)calloc((MALLOC_S)SFRDHASH,
                                            sizeof(struct hsfile)))) {
         (void)fprintf(stderr,
                       "%s: can't allocate space for %d rdev hash buckets\n", Pn,
                       SFRDHASH);
-        Errror(ctx);
+        Error(ctx);
     }
     if (!(HbyFsd = (struct hsfile *)calloc((MALLOC_S)SFFSHASH,
                                            sizeof(struct hsfile)))) {
         (void)fprintf(stderr,
                       "%s: can't allocate space for %d file sys hash buckets\n",
                       Pn, SFFSHASH);
-        Errror(ctx);
+        Error(ctx);
     }
     if (!(HbyMPC = (struct hsfile *)calloc((MALLOC_S)SFMPCHASH,
                                            sizeof(struct hsfile)))) {
         (void)fprintf(stderr,
                       "%s: can't allocate space for %d MPC file hash buckets\n",
                       Pn, SFMPCHASH);
-        Errror(ctx);
+        Error(ctx);
     }
     if (!(HbyNm = (struct hsfile *)calloc((MALLOC_S)SFNMHASH,
                                           sizeof(struct hsfile)))) {
         (void)fprintf(stderr,
                       "%s: can't allocate space for %d name hash buckets\n", Pn,
                       SFNMHASH);
-        Errror(ctx);
+        Error(ctx);
     }
     hs++;
     /*
@@ -203,7 +203,7 @@ void hashSfile() {
                     (void)fprintf(stderr,
                                   "%s: can't allocate hsfile bucket for: %s\n",
                                   Pn, s->aname);
-                    Errror(ctx);
+                    Error(ctx);
                 }
                 sn->s = s;
                 sn->next = sh->next;
@@ -424,7 +424,7 @@ struct vnode *vn; /* vnode */
     }
     if (!(vp = (struct l_vfs *)malloc((MALLOC_S)sizeof(struct l_vfs)))) {
         (void)fprintf(stderr, "%s: PID %d, no space for vfs\n", Pn, Lp->pid);
-        Errror(ctx);
+        Error(ctx);
     }
     vp->dir = (char *)NULL;
     vp->fsname = (char *)NULL;
@@ -449,7 +449,7 @@ struct vnode *vn; /* vnode */
     if (!(mp = (void *)malloc((MALLOC_S)ul))) {
         (void)fprintf(stderr, "%s: PID %d, no space for mount data\n", Pn,
                       Lp->pid);
-        Errror(ctx);
+        Error(ctx);
     }
     if (kread((KA_T)v.vfs_mdata, (char *)mp, (int)ul)) {
         (void)free((FREE_P *)mp);
@@ -507,7 +507,7 @@ struct vnode *vn; /* vnode */
         readvfs_aix1:
             (void)fprintf(stderr, "%s: PID %d, readvfs, no space\n", Pn,
                           Lp->pid);
-            Errror(ctx);
+            Error(ctx);
         }
     } else
         vp->dir = (char *)NULL;

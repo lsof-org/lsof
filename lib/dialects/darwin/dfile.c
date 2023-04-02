@@ -176,7 +176,7 @@ void enter_vnode_info(
      * If a device number is defined, locate file system and save its identity.
      */
     if (devs) {
-        for (mp = readmnt(); mp; mp = mp->next) {
+        for (mp = readmnt(ctx); mp; mp = mp->next) {
             if (dev == mp->dev) {
                 Lf->fsdir = mp->dir;
                 Lf->fsdev = mp->fsname;
@@ -202,14 +202,15 @@ void enter_vnode_info(
      * Test for specified file.
      */
     if (Sfile &&
-        is_file_named(NULL, ((Ntype == N_CHR) || (Ntype == N_BLK) ? 1 : 0))) {
+        is_file_named(ctx, NULL,
+                      ((Ntype == N_CHR) || (Ntype == N_BLK) ? 1 : 0))) {
         Lf->sf |= SELNM;
     }
     /*
      * Enter name characters.
      */
     if (!Lf->nm && Namech[0])
-        enter_nm(Namech);
+        enter_nm(ctx, Namech);
 }
 
 /*
@@ -242,17 +243,16 @@ void err2nm(struct lsof_context *ctx, char *pfx) /* Namech message prefix */
         sfx = strerror(errno);
     }
     (void)snpf(Namech, Namechl, "%s: %s", pfx, sfx);
-    enter_nm(Namech);
+    enter_nm(ctx, Namech);
 }
 
 /*
  * print_nm() -- print Name column
  */
-void print_nm(lf) struct lfile *lf;
-{
+void print_nm(struct lsof_context *ctx, struct lfile *lf) {
     unsigned char extra = 0;
 
-    printname(0);
+    printname(ctx, 0);
 
 #if defined(PROC_PIDLISTFILEPORTS)
     if (lf->fileport)
@@ -466,7 +466,7 @@ void process_fileport_pipe(struct lsof_context *ctx, int pid, /* PID */
                       Pn, pid, fp);
         (void)fprintf(stderr, "      too few bytes; expected %ld, got %d\n",
                       sizeof(pi), nb);
-        Error(ctx, );
+        Error(ctx);
     }
 
     process_pipe_common(ctx, &pi);

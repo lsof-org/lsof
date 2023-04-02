@@ -1244,7 +1244,7 @@ char *argv[];
      * If this process isn't setuid(root), but it is setgid(not_real_gid),
      * relinquish the setgid power.  (If it hasn't already been done.)
      */
-    (void)dropgid();
+    (void)dropgid(ctx);
 #endif /* defined(WILLDROPGID) */
 
 #if defined(HASDCACHE)

@@ -405,7 +405,7 @@ static void process_socket_common(struct lsof_context *ctx,
      * If there are NAME column characters, enter them.
      */
     if (Namech[0])
-        enter_nm(Namech);
+        enter_nm(ctx, Namech);
 }
 
 void process_socket(struct lsof_context *ctx, int pid, /* PID */

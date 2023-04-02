@@ -52,11 +52,11 @@ char *fino_d2 = fino_d1;
  * find_bl_ino() - find the inode number for a block device file
  */
 
-void find_bl_ino() {
+void find_bl_ino(struct lsof_context *ctx) {
     dev_t ldev, tdev;
     int low, hi, mid;
 
-    readdev(0);
+    readdev(ctx, 0);
 
 #    if defined(HASDCACHE)
 find_bl_ino_again:
@@ -95,11 +95,11 @@ find_bl_ino_again:
  * find_ch_ino() - find the inode number for a character device file
  */
 
-void find_ch_ino() {
+void find_ch_ino(struct lsof_context *ctx) {
     dev_t ldev, tdev;
     int low, hi, mid;
 
-    readdev(0);
+    readdev(ctx, 0);
 
 #    if defined(HASDCACHE)
 find_ch_ino_again:

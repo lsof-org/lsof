@@ -472,7 +472,7 @@ int rbln;   /* response buffer length */
  * dropgid() - drop setgid permission
  */
 
-void dropgid() {
+void dropgid(struct lsof_context *ctx) {
     if (!Setuidroot && Setgid) {
         if (setgid(Mygid) < 0) {
             (void)fprintf(stderr, "%s: can't setgid(%d): %s\n", Pn, (int)Mygid,
