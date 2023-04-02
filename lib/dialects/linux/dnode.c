@@ -895,7 +895,7 @@ void process_proc_node(struct lsof_context *ctx,
     if (!Namech[0]) {
         (void)snpf(Namech, Namechl, "%s", p);
         if ((Ntype == N_NFS) && mp && mp->fsname) {
-            cp = endnm(&sz);
+            cp = endnm(ctx, &sz);
             (void)snpf(cp, sz, " (%s)", mp->fsname);
         }
     }

@@ -933,8 +933,8 @@ static int process_id(struct lsof_context *ctx,
     /*
      * See if process is excluded.
      */
-    if (is_proc_excl(pid, pgid, uid, &pss, &sf, tid) ||
-        is_cmd_excl(cmd, &pss, &sf)) {
+    if (is_proc_excl(ctx, pid, pgid, uid, &pss, &sf, tid) ||
+        is_cmd_excl(ctx, cmd, &pss, &sf)) {
 
 #if defined(HASEPTOPTS)
         if (!FeptE)

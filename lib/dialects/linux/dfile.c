@@ -325,7 +325,7 @@ int is_file_named(struct lsof_context *ctx,
              */
             (void)snpf(Namech, Namechl, "%s", s->name);
             if (s->devnm) {
-                ep = endnm(&sz);
+                ep = endnm(ctx, &sz);
                 (void)snpf(ep, sz, " (%s)", s->devnm);
             }
         }

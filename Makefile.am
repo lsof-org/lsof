@@ -6,7 +6,7 @@ EXTRA_DIST = 00.README.FIRST 00CREDITS 00DCACHE 00DIALECTS 00DIST 00FAQ 00LSOF-L
 EXTRA_DIST += tests/00README tests/TestDB tests/CkTestDB tests/Makefile tests/LsofTest.h check.bash
 
 # Dialect neutral sources
-lsof_SOURCES = src/arg.c src/main.c lib/node.c src/print.c src/ptti.c src/store.c src/usage.c src/util.c \
+lsof_SOURCES = src/arg.c src/main.c lib/node.c src/print.c src/ptti.c src/store.c src/usage.c src/util.c src/cli.h \
 	lib/ckkv.c lib/dvch.c lib/fino.c lib/isfn.c lib/lkud.c lib/misc.c lib/pdvn.c lib/prfp.c lib/proc.c lib/ptti.c lib/rdev.c lib/rnmt.c lib/rmnt.c lib/rnam.c lib/rnch.c lib/rnmh.c
 lsof_SOURCES += lib/common.h include/lsof_fields.h lib/proto.h lib/hash.h
 include_HEADERS = include/lsof.h include/lsof_fields.h

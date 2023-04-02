@@ -4065,7 +4065,7 @@ void process_proc_sock(struct lsof_context *ctx,
             if (la)
                 la += 12;
         }
-        ent_inaddr(la, tp6->lport, fa, tp6->fport, af);
+        ent_inaddr(ctx, la, tp6->lport, fa, tp6->fport, af);
         Lf->lts.type = tp6->proto;
         Lf->lts.state.i = tp6->state;
 
@@ -4171,7 +4171,7 @@ void process_proc_sock(struct lsof_context *ctx,
             la = (unsigned char *)&ls;
         } else
             la = (unsigned char *)NULL;
-        ent_inaddr(la, tp->lport, fa, tp->fport, AF_INET);
+        ent_inaddr(ctx, la, tp->lport, fa, tp->fport, AF_INET);
         Lf->lts.type = tp->proto;
         Lf->lts.state.i = tp->state;
 
