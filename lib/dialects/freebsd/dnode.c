@@ -182,7 +182,7 @@ void process_eventfd(struct lsof_context *ctx, struct kinfo_file *kf) {
     (void)snpf(Lf->type, sizeof(Lf->type), "EVENTFD");
 #    if __FreeBSD_version >= 1400062
     enter_dev_ch(
-        print_kptr(kf->kf_un.kf_eventfd.kf_eventfd_addr, (char *)NULL, 0));
+        ctx, print_kptr(kf->kf_un.kf_eventfd.kf_eventfd_addr, (char *)NULL, 0));
 #    endif /* __FreeBSD_version >= 1400062 */
     (void)snpf(Namech, Namechl, "value=%ju, flags=0x%x",
                kf->kf_un.kf_eventfd.kf_eventfd_value,
