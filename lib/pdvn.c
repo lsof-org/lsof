@@ -62,11 +62,10 @@ char *pdvn_d2 = pdvn_d1;
  * printdevname() - print block or character device name
  */
 
-int printdevname(dev, rdev, f, nty)
-dev_t *dev;  /* device */
-dev_t *rdev; /* raw device */
-int f;       /* 1 = print trailing '\n' */
-int nty;     /* node type: N_BLK or N_CHR */
+int printdevname(struct lsof_context *ctx, dev_t *dev, /* device */
+                 dev_t *rdev,                          /* raw device */
+                 int f,   /* 1 = print trailing '\n' */
+                 int nty) /* node type: N_BLK or N_CHR */
 {
 
 #    if defined(HAS_STD_CLONE)
@@ -113,11 +112,11 @@ printdevname_again:
 
 #    if defined(HASBLKDEV)
     if (nty == N_BLK)
-        dp = lkupbdev(dev, rdev, 1, r);
+        dp = lkupbdev(ctx, dev, rdev, 1, r);
     else
 #    endif /* defined(HASBLKDEV) */
 
-        dp = lkupdev(dev, rdev, 1, r);
+        dp = lkupdev(ctx, dev, rdev, 1, r);
     if (dp) {
         safestrprt(dp->name, stdout, f);
         return (1);
@@ -128,11 +127,11 @@ printdevname_again:
 
 #    if defined(HASBLKDEV)
     if (nty == N_BLK)
-        dp = lkupbdev(&DevDev, rdev, 0, r);
+        dp = lkupbdev(ctx, &DevDev, rdev, 0, r);
     else
 #    endif /* defined(HASBLKDEV) */
 
-        dp = lkupdev(&DevDev, rdev, 0, r);
+        dp = lkupdev(ctx, &DevDev, rdev, 0, r);
     if (dp) {
         /*
          * A match was found.  Record it as a name column addition.
@@ -161,7 +160,7 @@ printdevname_again:
      * "unsafe," rebuild it.
      */
     if (!r && DCunsafe) {
-        (void)rereaddev();
+        (void)rereaddev(ctx);
         goto printdevname_again;
     }
 #    endif /* defined(HASDCACHE) */

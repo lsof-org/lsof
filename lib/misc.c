@@ -87,7 +87,8 @@ static int CtSigs[] = {0, SIGINT, SIGKILL};
 static struct drive_Nl *Build_Nl = (struct drive_Nl *)NULL;
 /* the default Drive_Nl address */
 
-void build_Nl(d) struct drive_Nl *d; /* data to drive the construction */
+void build_Nl(struct lsof_context *ctx,
+              struct drive_Nl *d) /* data to drive the construction */
 {
     struct drive_Nl *dp;
     int i, n;

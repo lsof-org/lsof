@@ -1252,7 +1252,7 @@ char *argv[];
      * If there is a device cache, prepare the device table.
      */
     if (DCstate)
-        readdev(0);
+        readdev(ctx, 0);
 #endif /* defined(HASDCACHE) */
 
     /*

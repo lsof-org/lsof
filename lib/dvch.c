@@ -128,7 +128,7 @@ void alloc_bdcache() {
  * alloc_dcache() - allocate device cache
  */
 
-void alloc_dcache() {
+void alloc_dcache(struct lsof_context *ctx) {
     if (!(Devtp =
               (struct l_dev *)calloc((MALLOC_S)Ndev, sizeof(struct l_dev)))) {
         (void)fprintf(stderr, "%s: no space for devices\n", Pn);
@@ -145,7 +145,7 @@ void alloc_dcache() {
  * clr_devtab() - clear the device tables and free their space
  */
 
-void clr_devtab() {
+void clr_devtab(struct lsof_context *ctx) {
     int i;
 
     if (Devtp) {
@@ -249,10 +249,9 @@ void crcbld() {
  * dcpath() - define device cache file paths
  */
 
-int dcpath(rw, npw)
-int rw;  /* read (1) or write (2) mode */
-int npw; /* inhibit (0) or enable (1) no
-          * path warning message */
+int dcpath(struct lsof_context *ctx, int rw, /* read (1) or write (2) mode */
+           int npw)                          /* inhibit (0) or enable (1) no
+                                              * path warning message */
 {
     char buf[MAXPATHLEN + 1], *cp1, *cp2, hn[MAXPATHLEN + 1];
     int endf;
@@ -596,10 +595,9 @@ int npw; /* inhibit (0) or enable (1) no
  * open_dcache() - open device cache file
  */
 
-int open_dcache(m, r, s)
-int m;          /* mode: 1 = read; 2 = write */
-int r;          /* create DCpath[] if 0, reuse if 1 */
-struct stat *s; /* stat() receiver */
+int open_dcache(struct lsof_context *ctx, int m, /* mode: 1 = read; 2 = write */
+                int r,          /* create DCpath[] if 0, reuse if 1 */
+                struct stat *s) /* stat() receiver */
 {
     char buf[128];
     char *w = (char *)NULL;
@@ -607,7 +605,7 @@ struct stat *s; /* stat() receiver */
      * Get the device cache file paths.
      */
     if (!r) {
-        if ((DCpathX = dcpath(m, 1)) < 0)
+        if ((DCpathX = dcpath(ctx, m, 1)) < 0)
             return (1);
     }
     /*
@@ -725,7 +723,7 @@ struct stat *s; /* stat() receiver */
  * read_dcache() - read device cache file
  */
 
-int read_dcache() {
+int read_dcache(struct lsof_context *ctx) {
     char buf[MAXPATHLEN * 2], cbuf[64], *cp;
     int i, len, ov;
     struct stat sb, devsb;
@@ -736,11 +734,11 @@ int read_dcache() {
      * the real UID of this process is not zero, try to open a device cache
      * file at HASPERSDC.
      */
-    if ((ov = open_dcache(1, 0, &sb)) != 0) {
+    if ((ov = open_dcache(ctx, 1, 0, &sb)) != 0) {
         if (DCpathX == 2) {
             if (ov == 2 && DCpath[3]) {
                 DCpathX = 3;
-                if (open_dcache(1, 1, &sb) != 0)
+                if (open_dcache(ctx, 1, 1, &sb) != 0)
                     return (1);
             } else
                 return (1);
@@ -781,7 +779,7 @@ int read_dcache() {
         (void)fclose(DCfs);
         DCfd = -1;
         DCfs = (FILE *)NULL;
-        (void)clr_devtab();
+        (void)clr_devtab(ctx);
 
 #    if defined(DCACHE_CLR)
         (void)DCACHE_CLR();
@@ -853,7 +851,7 @@ int read_dcache() {
      */
     if ((Ndev = atoi(&buf[len])) < 1)
         goto read_dhdr;
-    alloc_dcache();
+    alloc_dcache(ctx);
     /*
      * Read the device lines and store their information in Devtp[].
      * Construct the Sdev[] pointers to Devtp[].
@@ -1214,7 +1212,7 @@ int m; /* mode: 1 = read; 2 = write */
  * write_dcache() - write device cache file
  */
 
-void write_dcache() {
+void write_dcache(struct lsof_context *ctx) {
     char buf[MAXPATHLEN * 2], *cp;
     struct l_dev *dp;
     int i;
@@ -1222,7 +1220,7 @@ void write_dcache() {
     /*
      * Open the cache file; set up the CRC table; write the section count.
      */
-    if (open_dcache(2, 0, &sb))
+    if (open_dcache(ctx, 2, 0, &sb))
         return;
     i = 1;
     cp = "";

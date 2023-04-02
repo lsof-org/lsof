@@ -34,7 +34,8 @@
 
 #    include "common.h"
 
-_PROTOTYPE(static int rmdupdev, (struct l_dev * **dp, int n, char *nm));
+_PROTOTYPE(static int rmdupdev,
+           (struct lsof_context * ctx, struct l_dev ***dp, int n, char *nm));
 
 /*
  * To use this source file:
@@ -105,7 +106,8 @@ _PROTOTYPE(static int rmdupdev, (struct l_dev * **dp, int n, char *nm));
  * readdev() - read device names, modes and types
  */
 
-void readdev(skip) int skip; /* skip device cache read if 1 */
+void readdev(struct lsof_context *ctx,
+             int skip) /* skip device cache read if 1 */
 {
 
 #    if defined(HAS_STD_CLONE) && HAS_STD_CLONE == 1
@@ -139,7 +141,7 @@ void readdev(skip) int skip; /* skip device cache read if 1 */
      */
     if (!skip) {
         if (DCstate == 2 || DCstate == 3) {
-            if ((dcrd = read_dcache()) == 0)
+            if ((dcrd = read_dcache(ctx)) == 0)
                 return;
         }
     } else
@@ -148,7 +150,7 @@ void readdev(skip) int skip; /* skip device cache read if 1 */
 
     Dstkn = Dstkx = 0;
     Dstk = (char **)NULL;
-    (void)stkdir("/dev");
+    (void)stkdir(ctx, "/dev");
     /*
      * Unstack the next /dev or /dev/<subdirectory> directory.
      */
@@ -226,7 +228,7 @@ void readdev(skip) int skip; /* skip device cache read if 1 */
              * processing.
              */
             if ((sb.st_mode & S_IFMT) == S_IFDIR) {
-                (void)stkdir(fp);
+                (void)stkdir(ctx, fp);
                 continue;
             }
             if ((sb.st_mode & S_IFMT) == S_IFCHR) {
@@ -375,7 +377,7 @@ void readdev(skip) int skip; /* skip device cache read if 1 */
         }
         (void)qsort((QSORT_P *)Sdev, (size_t)Ndev,
                     (size_t)sizeof(struct l_dev *), compdev);
-        Ndev = rmdupdev(&Sdev, Ndev, "char");
+        Ndev = rmdupdev(ctx, &Sdev, Ndev, "char");
     } else {
         (void)fprintf(stderr, "%s: no character devices found\n", Pn);
         Error(ctx);
@@ -386,7 +388,7 @@ void readdev(skip) int skip; /* skip device cache read if 1 */
      * Write device cache file, as required.
      */
     if (DCstate == 1 || (DCstate == 3 && dcrd))
-        write_dcache();
+        write_dcache(ctx);
 #    endif /* defined(HASDCACHE) */
 }
 
@@ -395,14 +397,14 @@ void readdev(skip) int skip; /* skip device cache read if 1 */
  * rereaddev() - reread device names, modes and types
  */
 
-void rereaddev() {
-    (void)clr_devtab();
+void rereaddev(struct lsof_context *ctx) {
+    (void)clr_devtab(ctx);
 
 #        if defined(DCACHE_CLR)
     (void)DCACHE_CLR();
 #        endif /* defined(DCACHE_CLR) */
 
-    readdev(1);
+    readdev(ctx, 1);
     DCunsafe = 0;
 }
 #    endif /* defined(HASDCACHE) */
@@ -411,10 +413,10 @@ void rereaddev() {
  * rmdupdev() - remove duplicate (major/minor/inode) devices
  */
 
-static int rmdupdev(dp, n, nm)
-struct l_dev ***dp; /* device table pointers address */
-int n;              /* number of pointers */
-char *nm;           /* device table name for error message */
+static int rmdupdev(struct lsof_context *ctx,
+                    struct l_dev ***dp, /* device table pointers address */
+                    int n,              /* number of pointers */
+                    char *nm) /* device table name for error message */
 {
 
 #    if defined(HAS_STD_CLONE) && HAS_STD_CLONE == 1
@@ -468,8 +470,8 @@ char *nm;           /* device table name for error message */
  * Note: rereads entire device table when an entry can't be verified.
  */
 
-int vfy_dev(dp)
-struct l_dev *dp; /* device table pointer */
+int vfy_dev(struct lsof_context *ctx,
+            struct l_dev *dp) /* device table pointer */
 {
     struct stat sb;
 
@@ -477,7 +479,7 @@ struct l_dev *dp; /* device table pointer */
         return (1);
     if (RDEV_STATFN(dp->name, &sb) != 0 ||
         dp->rdev != RDEV_EXPDEV(sb.st_rdev) || dp->inode != sb.st_ino) {
-        (void)rereaddev();
+        (void)rereaddev(ctx);
         return (0);
     }
     dp->v = 1;

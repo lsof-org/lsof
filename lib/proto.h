@@ -219,7 +219,7 @@ _PROTOTYPE(extern void process_node, (KA_T f));
 _PROTOTYPE(extern char *Readlink, (struct lsof_context * ctx, char *arg));
 _PROTOTYPE(extern void readdev, (struct lsof_context * ctx, int skip));
 _PROTOTYPE(extern struct mounts *readmnt, (struct lsof_context * ctx));
-_PROTOTYPE(extern void rereaddev, (void));
+_PROTOTYPE(extern void rereaddev, (struct lsof_context * ctx));
 _PROTOTYPE(extern char *safepup, (unsigned int c, int *cl));
 _PROTOTYPE(extern int safestrlen, (char *sp, int flags));
 _PROTOTYPE(extern void safestrprtn, (char *sp, int len, FILE *fs, int flags));
@@ -229,7 +229,7 @@ _PROTOTYPE(extern int statsafely,
 _PROTOTYPE(extern void stkdir, (struct lsof_context * ctx, char *p));
 _PROTOTYPE(extern void usage, (int err, int fh, int version));
 _PROTOTYPE(extern int util_strftime, (char *fmtr, int fmtl, char *fmt));
-_PROTOTYPE(extern int vfy_dev, (struct l_dev * dp));
+_PROTOTYPE(extern int vfy_dev, (struct lsof_context * ctx, struct l_dev *dp));
 _PROTOTYPE(extern char *x2dev, (char *s, dev_t *d));
 
 #    if defined(HASBLKDEV)
@@ -244,15 +244,16 @@ _PROTOTYPE(extern int readcdrnode, (KA_T ca, struct cdrnode *c));
 #    endif /* defined(HASCDRNODE) */
 
 #    if defined(HASDCACHE)
-_PROTOTYPE(extern void alloc_dcache, (void));
+_PROTOTYPE(extern void alloc_dcache, (struct lsof_context * ctx));
 _PROTOTYPE(extern void crc, (char *b, int l, unsigned *s));
 _PROTOTYPE(extern void crdbld, (void));
 _PROTOTYPE(extern int ctrl_dcache, (char *p));
-_PROTOTYPE(extern int dcpath, (int rw, int npw));
-_PROTOTYPE(extern int open_dcache, (int m, int r, struct stat *sb));
-_PROTOTYPE(extern int read_dcache, (void));
+_PROTOTYPE(extern int dcpath, (struct lsof_context * ctx, int rw, int npw));
+_PROTOTYPE(extern int open_dcache,
+           (struct lsof_context * ctx, int m, int r, struct stat *sb));
+_PROTOTYPE(extern int read_dcache, (struct lsof_context * ctx));
 _PROTOTYPE(extern int wr2DCfd, (char *b, unsigned *c));
-_PROTOTYPE(extern void write_dcache, (void));
+_PROTOTYPE(extern void write_dcache, (struct lsof_context * ctx));
 #    endif /* defined(HASDCACHE) */
 
 #    if defined(HASFIFONODE)
@@ -286,7 +287,8 @@ _PROTOTYPE(extern char *ncache_lookup, (char *buf, int blen, int *fp));
 #    endif /* defined(HASNCACHE) */
 
 #    if defined(HASNLIST)
-_PROTOTYPE(extern void build_Nl, (struct drive_Nl * d));
+_PROTOTYPE(extern void build_Nl,
+           (struct lsof_context * ctx, struct drive_Nl *d));
 _PROTOTYPE(extern int get_Nl_value, (char *nn, struct drive_Nl *d, KA_T *v));
 #    endif /* defined(HASNLIST) */
 

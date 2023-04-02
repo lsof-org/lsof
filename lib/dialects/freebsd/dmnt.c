@@ -53,7 +53,7 @@ static char *mnt_names[] = INITMOUNTNAMES;
  * readmnt() - read mount table
  */
 
-struct mounts *readmnt() {
+struct mounts *readmnt(struct lsof_context *ctx) {
     char *dn = (char *)NULL;
     char *ln;
     struct statfs *mb;
@@ -99,7 +99,7 @@ struct mounts *readmnt() {
             (void)fprintf(stderr, ")\n");
             Error(ctx);
         }
-        if (!(ln = Readlink(dn))) {
+        if (!(ln = Readlink(ctx, dn))) {
             if (!Fwarn) {
                 (void)fprintf(stderr,
                               "      Output information may be incomplete.\n");
@@ -115,7 +115,7 @@ struct mounts *readmnt() {
         /*
          * Stat() the directory.
          */
-        if (statsafely(dn, &sb)) {
+        if (statsafely(ctx, dn, &sb)) {
             if (!Fwarn) {
                 (void)fprintf(stderr, "%s: WARNING: can't stat() ", Pn);
 
@@ -170,13 +170,13 @@ struct mounts *readmnt() {
         if (!(dn = mkstrcpy(mb->f_mntfromname, (MALLOC_S *)NULL)))
             goto no_space_for_mount;
         mtp->fsname = dn;
-        ln = Readlink(dn);
+        ln = Readlink(ctx, dn);
         dn = (char *)NULL;
         /*
          * Stat() the file system (mounted-on) name and add file system
          * information to the local mount table entry.
          */
-        if (!ln || statsafely(ln, &sb))
+        if (!ln || statsafely(ctx, ln, &sb))
             sb.st_mode = 0;
         mtp->fsnmres = ln;
         mtp->fs_mode = sb.st_mode;
@@ -195,7 +195,8 @@ struct mounts *readmnt() {
  * readvfs() - read vfs structure
  */
 
-struct l_vfs *readvfs(uint64_t fsid, const char *path) {
+struct l_vfs *readvfs(struct lsof_context *ctx, uint64_t fsid,
+                      const char *path) {
     struct statfs m;
     struct l_vfs *vp;
     /*

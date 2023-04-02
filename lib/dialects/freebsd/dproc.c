@@ -35,7 +35,7 @@ static char copyright[] =
 
 #include "common.h"
 
-_PROTOTYPE(static void get_kernel_access, (void));
+_PROTOTYPE(static void get_kernel_access, (struct lsof_context * ctx));
 
 /*
  * Local static values
@@ -158,8 +158,8 @@ static int kf_flags_to_fflags(int kf_flags) {
 }
 
 /* Based on process_file() in lib/prfd.c */
-static void process_kinfo_file(struct kinfo_file *kf, struct xfile *xfile,
-                               struct pcb_lists *pcbs,
+static void process_kinfo_file(struct lsof_context *ctx, struct kinfo_file *kf,
+                               struct xfile *xfile, struct pcb_lists *pcbs,
                                struct lock_list *locks) {
     Lf->off = kf->kf_offset;
     if (kf->kf_ref_count) {
@@ -198,42 +198,43 @@ static void process_kinfo_file(struct kinfo_file *kf, struct xfile *xfile,
     switch (kf->kf_type) {
     case KF_TYPE_FIFO:
     case KF_TYPE_VNODE:
-        process_vnode(kf, xfile, locks);
+        process_vnode(ctx, kf, xfile, locks);
         break;
     case KF_TYPE_SOCKET:
-        process_socket(kf, pcbs);
+        process_socket(ctx, kf, pcbs);
         break;
     case KF_TYPE_KQUEUE:
-        process_kf_kqueue(kf, xfile ? xfile->xf_data : 0UL);
+        process_kf_kqueue(ctx, kf, xfile ? xfile->xf_data : 0UL);
         break;
     case KF_TYPE_PIPE:
         if (!Selinet)
-            process_pipe(kf, xfile ? xfile->xf_data : 0UL);
+            process_pipe(ctx, kf, xfile ? xfile->xf_data : 0UL);
         break;
     case KF_TYPE_PTS:
-        process_pts(kf);
+        process_pts(ctx, kf);
         break;
 #if defined(KF_TYPE_EVENTFD)
     case KF_TYPE_EVENTFD:
-        process_eventfd(kf);
+        process_eventfd(ctx, kf);
         break;
 #endif /* defined(KF_TYPE_EVENTFD) */
     case KF_TYPE_SHM:
-        process_shm(kf);
+        process_shm(ctx, kf);
         break;
     case KF_TYPE_PROCDESC:
-        process_procdesc(kf);
+        process_procdesc(ctx, kf);
         break;
     default:
         /* FIXME: unlike struct file, xfile doesn't have f_ops which should be
          * printed here */
         snpf(Namech, Namechl, "%p file struct, ty=%d",
              xfile ? (void *)xfile->xf_file : NULL, kf->kf_type);
-        enter_nm(Namech);
+        enter_nm(ctx, Namech);
     }
 }
 
-static void process_file_descriptors(struct kinfo_proc *p, short ckscko,
+static void process_file_descriptors(struct lsof_context *ctx,
+                                     struct kinfo_proc *p, short ckscko,
                                      struct xfile *xfiles, size_t n_xfiles,
                                      struct pcb_lists *pcbs,
                                      struct lock_list *locks) {
@@ -247,7 +248,7 @@ static void process_file_descriptors(struct kinfo_proc *p, short ckscko,
     for (i = 0; i < n_kfiles; i++) {
         if (kfiles[i].kf_fd < 0 || kfiles[i].kf_type == KF_TYPE_FIFO ||
             kfiles[i].kf_type == KF_TYPE_VNODE)
-            readvfs(kfiles[i].kf_un.kf_file.kf_file_fsid, kfiles[i].kf_path);
+            readvfs(ctx, kfiles[i].kf_un.kf_file.kf_file_fsid, kfiles[i].kf_path);
     }
     for (i = 0; i < n_kfiles; i++) {
         struct xfile key, *xfile;
@@ -258,39 +259,39 @@ static void process_file_descriptors(struct kinfo_proc *p, short ckscko,
             bsearch(&key, xfiles, n_xfiles, sizeof(*xfiles), cmp_xfiles_pid_fd);
 
         if (!ckscko && kfiles[i].kf_fd == KF_FD_TYPE_CWD) {
-            alloc_lfile(CWD, -1);
-            process_vnode(&kfiles[i], xfile, locks);
+            alloc_lfile(ctx, CWD, -1);
+            process_vnode(ctx, &kfiles[i], xfile, locks);
             if (Lf->sf)
-                link_lfile();
+                link_lfile(ctx);
         } else if (!ckscko && kfiles[i].kf_fd == KF_FD_TYPE_ROOT) {
-            alloc_lfile(RTD, -1);
-            process_vnode(&kfiles[i], xfile, locks);
+            alloc_lfile(ctx, RTD, -1);
+            process_vnode(ctx, &kfiles[i], xfile, locks);
             if (Lf->sf)
-                link_lfile();
+                link_lfile(ctx);
         } else if (!ckscko && kfiles[i].kf_fd == KF_FD_TYPE_JAIL) {
-            alloc_lfile(" jld", -1);
-            process_vnode(&kfiles[i], xfile, locks);
+            alloc_lfile(ctx, " jld", -1);
+            process_vnode(ctx, &kfiles[i], xfile, locks);
             if (Lf->sf)
-                link_lfile();
+                link_lfile(ctx);
         } else if (!ckscko && kfiles[i].kf_fd == KF_FD_TYPE_TEXT) {
-            alloc_lfile(" txt", -1);
-            process_vnode(&kfiles[i], xfile, locks);
+            alloc_lfile(ctx, " txt", -1);
+            process_vnode(ctx, &kfiles[i], xfile, locks);
             if (Lf->sf)
-                link_lfile();
+                link_lfile(ctx);
         } else if (!ckscko && kfiles[i].kf_fd == KF_FD_TYPE_CTTY) {
-            alloc_lfile("ctty", -1);
-            process_vnode(&kfiles[i], xfile, locks);
+            alloc_lfile(ctx, "ctty", -1);
+            process_vnode(ctx, &kfiles[i], xfile, locks);
             if (Lf->sf)
-                link_lfile();
+                link_lfile(ctx);
         } else if (!ckscko && kfiles[i].kf_fd < 0) {
             if (!Fwarn)
                 fprintf(stderr, "%s: WARNING -- unsupported fd type %d\n", Pn,
                         kfiles[i].kf_fd);
         } else {
-            alloc_lfile(NULL, kfiles[i].kf_fd);
-            process_kinfo_file(&kfiles[i], xfile, pcbs, locks);
+            alloc_lfile(ctx, NULL, kfiles[i].kf_fd);
+            process_kinfo_file(ctx, &kfiles[i], xfile, pcbs, locks);
             if (Lf->sf)
-                link_lfile();
+                link_lfile(ctx);
         }
     }
     free(kfiles);
@@ -300,7 +301,7 @@ static void process_file_descriptors(struct kinfo_proc *p, short ckscko,
  * gather_proc_info() -- gather process information
  */
 
-void gather_proc_info() {
+void gather_proc_info(struct lsof_context *ctx) {
 
     int mib[3];
     size_t len;
@@ -446,20 +447,20 @@ void gather_proc_info() {
          * See if process,including its tasks, is excluded.
          */
         tid = Ftask ? (int)p->ki_tid : 0;
-        if (is_proc_excl(p->P_PID, pgid, (UID_ARG)uid, &pss, &sf, tid))
+        if (is_proc_excl(ctx, p->P_PID, pgid, (UID_ARG)uid, &pss, &sf, tid))
             continue;
 #else  /* !defined(HASTASKS) */
         /*
          * See if process is excluded.
          */
-        if (is_proc_excl(p->P_PID, pgid, (UID_ARG)uid, &pss, &sf))
+        if (is_proc_excl(ctx, p->P_PID, pgid, (UID_ARG)uid, &pss, &sf))
             continue;
 #endif /* defined(HASTASKS) */
 
         /*
          * Allocate a local process structure.
          */
-        if (is_cmd_excl(p->P_COMM, &pss, &sf))
+        if (is_cmd_excl(ctx, p->P_COMM, &pss, &sf))
             continue;
         if (cckreg) {
 
@@ -470,8 +471,8 @@ void gather_proc_info() {
              */
             ckscko = (sf & SelProc) ? 0 : 1;
         }
-        alloc_lproc(p->P_PID, pgid, ppid, (UID_ARG)uid, p->P_COMM, (int)pss,
-                    (int)sf);
+        alloc_lproc(ctx, p->P_PID, pgid, ppid, (UID_ARG)uid, p->P_COMM,
+                    (int)pss, (int)sf);
         Plf = (struct lfile *)NULL;
 
 #if defined(HASTASKS)
@@ -488,13 +489,14 @@ void gather_proc_info() {
         Kpa = (KA_T)p->P_ADDR;
 #endif /* defined(P_ADDR) */
 
-        process_file_descriptors(p, ckscko, xfiles, n_xfiles, pcbs, &locks);
+        process_file_descriptors(ctx, p, ckscko, xfiles, n_xfiles, pcbs,
+                                 &locks);
 
         /*
          * Unless threads (tasks) are being processed, examine results.
          */
         if (!Ftask) {
-            if (examine_lproc())
+            if (examine_lproc(ctx))
                 break;
         }
     }
@@ -510,12 +512,12 @@ void gather_proc_info() {
  * get_kernel_access() - get access to kernel memory
  */
 
-static void get_kernel_access() {
+static void get_kernel_access(struct lsof_context *ctx) {
 
     /*
      * Check kernel version.
      */
-    (void)ckkv("FreeBSD", LSOF_VSTR, (char *)NULL, (char *)NULL);
+    (void)ckkv(ctx, "FreeBSD", LSOF_VSTR, (char *)NULL, (char *)NULL);
     /*
      * Set name list file path.
      */
@@ -525,7 +527,7 @@ static void get_kernel_access() {
         Nmlst = N_UNIX;
 #else  /* !defined(N_UNIX) */
     {
-        if (!(Nmlst = get_nlist_path(1))) {
+        if (!(Nmlst = get_nlist_path(ctx, 1))) {
             (void)fprintf(stderr, "%s: can't get kernel name list path\n", Pn);
             Error(ctx);
         }
@@ -538,7 +540,7 @@ static void get_kernel_access() {
      * before attempting to open the (Memory) file.
      */
     if (Memory)
-        (void)dropgid();
+        (void)dropgid(ctx);
 #else  /* !defined(WILLDROPGID) */
     /*
      * See if the non-KMEM memory and the name list files are readable.
@@ -572,7 +574,7 @@ static void get_kernel_access() {
                       strerror(errno));
         return;
     }
-    (void)build_Nl(Drive_Nl);
+    (void)build_Nl(ctx, Drive_Nl);
     if (kvm_nlist(Kd, Nl) < 0) {
         (void)fprintf(stderr, "%s: can't read namelist from %s\n", Pn, Nmlst);
         Error(ctx);
@@ -593,7 +595,7 @@ static void get_kernel_access() {
      * Drop setgid permission, if necessary.
      */
     if (!Memory)
-        (void)dropgid();
+        (void)dropgid(ctx);
 #endif /* defined(WILLDROPGID) */
 }
 
@@ -602,11 +604,11 @@ static void get_kernel_access() {
  * get_nlist_path() - get kernel name list path
  */
 
-char *get_nlist_path(ap)
-int ap; /* on success, return an allocated path
-         * string pointer if 1; return a
-         * constant character pointer if 0;
-         * return NULL if failure */
+char *get_nlist_path(struct lsof_context *ctx,
+                     int ap) /* on success, return an allocated path
+                              * string pointer if 1; return a
+                              * constant character pointer if 0;
+                              * return NULL if failure */
 {
     const char *bf;
     static char *bfc;
@@ -635,9 +637,9 @@ int ap; /* on success, return an allocated path
  * initialize() - perform all initialization
  */
 
-void initialize() {
+void initialize(struct lsof_context *ctx) {
 #if __FreeBSD_version < 1400062
-    get_kernel_access();
+    get_kernel_access(ctx);
 #endif /* __FreeBSD_version < 1400062 */
 }
 

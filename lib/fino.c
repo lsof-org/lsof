@@ -120,7 +120,7 @@ find_ch_ino_again:
         else {
 
 #    if defined(HASDCACHE)
-            if (DCunsafe && !Sdev[mid]->v && !vfy_dev(Sdev[mid]))
+            if (DCunsafe && !Sdev[mid]->v && !vfy_dev(ctx, Sdev[mid]))
                 goto find_ch_ino_again;
 #    endif /* defined(HASDCACHE) */
 
