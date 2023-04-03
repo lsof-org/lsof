@@ -101,7 +101,7 @@ void process_socket(struct lsof_context *ctx,
         enter_nm(ctx, "no socket address");
         return;
     }
-    if (kread(sa, (char *)&s, sizeof(s))) {
+    if (kread(ctx, sa, (char *)&s, sizeof(s))) {
         (void)snpf(Namech, Namechl, "can't read socket struct from %s",
                    print_kptr(sa, (char *)NULL, 0));
         enter_nm(ctx, Namech);
@@ -111,13 +111,13 @@ void process_socket(struct lsof_context *ctx,
         enter_nm(ctx, "no socket type");
         return;
     }
-    if (!s.so_proto || kread((KA_T)s.so_proto, (char *)&p, sizeof(p))) {
+    if (!s.so_proto || kread(ctx, (KA_T)s.so_proto, (char *)&p, sizeof(p))) {
         (void)snpf(Namech, Namechl, "can't read protocol switch from %s",
                    print_kptr((KA_T)s.so_proto, (char *)NULL, 0));
         enter_nm(ctx, Namech);
         return;
     }
-    if (!p.pr_domain || kread((KA_T)p.pr_domain, (char *)&d, sizeof(d))) {
+    if (!p.pr_domain || kread(ctx, (KA_T)p.pr_domain, (char *)&d, sizeof(d))) {
         (void)snpf(Namech, Namechl, "can't read domain struct from %s",
                    print_kptr((KA_T)p.pr_domain, (char *)NULL, 0));
         enter_nm(ctx, Namech);
@@ -198,7 +198,7 @@ void process_socket(struct lsof_context *ctx,
              * Read IPv6 protocol control block.
              */
             if (!s.so_pcb ||
-                kread((KA_T)s.so_pcb, (char *)&in6p, sizeof(in6p))) {
+                kread(ctx, (KA_T)s.so_pcb, (char *)&in6p, sizeof(in6p))) {
                 (void)snpf(Namech, Namechl, "can't read in6pcb at %s",
                            print_kptr((KA_T)s.so_pcb, (char *)NULL, 0));
                 enter_nm(ctx, Namech);
@@ -236,7 +236,7 @@ void process_socket(struct lsof_context *ctx,
             /*
              * Read IPv4 or IPv6 (NetBSD) protocol control block.
              */
-            if (!s.so_pcb || kread((KA_T)s.so_pcb, (char *)&inp, sizeof(inp))) {
+            if (!s.so_pcb || kread(ctx, (KA_T)s.so_pcb, (char *)&inp, sizeof(inp))) {
                 if (!s.so_pcb) {
                     (void)snpf(
                         Namech, Namechl, "no PCB%s%s",
@@ -321,7 +321,7 @@ void process_socket(struct lsof_context *ctx,
          * If the protocol is TCP, and its address is available, read the
          * TCP protocol control block and save its state.
          */
-        if (ta && !kread(ta, (char *)&t, sizeof(t))) {
+        if (ta && !kread(ctx, ta, (char *)&t, sizeof(t))) {
             Lf->lts.type = 0;
             Lf->lts.state.i = (int)t.t_state;
 
@@ -357,7 +357,7 @@ void process_socket(struct lsof_context *ctx,
          */
 
         enter_dev_ch(ctx, print_kptr(sa, (char *)NULL, 0));
-        if (kread((KA_T)s.so_pcb, (char *)&unp, sizeof(unp))) {
+        if (kread(ctx, (KA_T)s.so_pcb, (char *)&unp, sizeof(unp))) {
             (void)snpf(Namech, Namechl, "can't read unpcb at %s",
                        print_kptr((KA_T)s.so_pcb, (char *)NULL, 0));
             break;
@@ -370,9 +370,9 @@ void process_socket(struct lsof_context *ctx,
         if (unp.unp_addr) {
 
 #if defined(UNPADDR_IN_MBUF)
-            if (kread((KA_T)unp.unp_addr, (char *)&mb, sizeof(mb)))
+            if (kread(ctx, (KA_T)unp.unp_addr, (char *)&mb, sizeof(mb)))
 #else  /* !defined(UNPADDR_IN_MBUF) */
-            if (kread((KA_T)unp.unp_addr, (char *)&un, sizeof(un)))
+            if (kread(ctx, (KA_T)unp.unp_addr, (char *)&un, sizeof(un)))
 #endif /* defined(UNPADDR_IN_MBUF) */
 
             {
@@ -403,7 +403,7 @@ void process_socket(struct lsof_context *ctx,
         if (ua->sun_family != AF_UNIX) {
             if (ua->sun_family == AF_UNSPEC) {
                 if (unp.unp_conn) {
-                    if (kread((KA_T)unp.unp_conn, (char *)&uc, sizeof(uc)))
+                    if (kread(ctx, (KA_T)unp.unp_conn, (char *)&uc, sizeof(uc)))
                         (void)snpf(
                             Namech, Namechl, "can't read unp_conn at %s",
                             print_kptr((KA_T)unp.unp_conn, (char *)NULL, 0));

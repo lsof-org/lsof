@@ -168,7 +168,7 @@ struct vnode *lv; /* local vnode */
     vp->fs_ino = 0;
 #endif /* defined(HASFSINO) */
 
-    if (lv->v_vfsp && kread((KA_T)lv->v_vfsp, (char *)&v, sizeof(v))) {
+    if (lv->v_vfsp && kread(ctx, (KA_T)lv->v_vfsp, (char *)&v, sizeof(v))) {
         (void)free((FREE_P *)vp);
         return ((struct l_vfs *)NULL);
     }
@@ -182,7 +182,7 @@ struct vnode *lv; /* local vnode */
          * private data pointer to an mntinfo structure.
          */
         if (v.vfs_data &&
-            kread((KA_T)v.vfs_data, (char *)&mi, sizeof(mi)) == 0) {
+            kread(ctx, (KA_T)v.vfs_data, (char *)&mi, sizeof(mi)) == 0) {
 
 #if HPUXV < 1020
             td = (dev_t)makedev(255, (int)mi.mi_mntno);
@@ -198,7 +198,7 @@ struct vnode *lv; /* local vnode */
         }
     } else {
         if (v.vfs_data) {
-            if (kread((KA_T)v.vfs_data, (char *)&m, sizeof(m)) == 0)
+            if (kread(ctx, (KA_T)v.vfs_data, (char *)&m, sizeof(m)) == 0)
                 ms = 1;
             else
                 ms = 0;

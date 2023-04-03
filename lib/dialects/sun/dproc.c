@@ -333,7 +333,7 @@ void gather_proc_info() {
         /*
          * Read credentials for Solaris 2.5 and above process.
          */
-        if (kread((KA_T)p->p_cred, (char *)&pc, sizeof(pc)))
+        if (kread(ctx, (KA_T)p->p_cred, (char *)&pc, sizeof(pc)))
             continue;
         uid = pc.cr_uid;
 #endif /* solaris<20500 */
@@ -350,9 +350,10 @@ void gather_proc_info() {
          */
         if (Fzone) {
             zn[0] = zn[sizeof(zn) - 1] = '\0';
-            if (p->p_zone && !kread((KA_T)p->p_zone, (char *)&z, sizeof(z))) {
+            if (p->p_zone &&
+                !kread(ctx, (KA_T)p->p_zone, (char *)&z, sizeof(z))) {
                 if (!z.zone_name ||
-                    kread((KA_T)z.zone_name, (char *)&zn, sizeof(zn) - 1))
+                    kread(ctx, (KA_T)z.zone_name, (char *)&zn, sizeof(zn) - 1))
                     zn[0] = '\0';
             }
         }
@@ -503,7 +504,7 @@ void gather_proc_info() {
             if (++j > NFPCHUNK) {
                 if (!u->u_flist.uf_next)
                     break;
-                if (kread((KA_T)u->u_flist.uf_next, (char *)&u->u_flist,
+                if (kread(ctx, (KA_T)u->u_flist.uf_next, (char *)&u->u_flist,
                           sizeof(struct ufchunk)))
                     break;
                 j = 1;
@@ -515,7 +516,8 @@ void gather_proc_info() {
                 k = u->u_nofiles - i;
                 if (k > NFPREAD)
                     k = NFPREAD;
-                if (kread((KA_T)((unsigned long)u->u_flist +
+                if (kread(ctx,
+                          (KA_T)((unsigned long)u->u_flist +
                                  i * sizeof(uf_entry_t)),
                           (char *)&uf, k * sizeof(uf_entry_t))) {
                     break;
@@ -730,7 +732,7 @@ static void get_kernel_access() {
      */
     v = (KA_T)0;
     if (get_Nl_value("kbase", Drive_Nl, &v) < 0 || !v ||
-        kread((KA_T)v, (char *)&Kb, sizeof(Kb))) {
+        kread(ctx, (KA_T)v, (char *)&Kb, sizeof(Kb))) {
         (void)fprintf(stderr, "%s: can't read kernel base address from %s\n",
                       Pn, print_kptr(v, (char *)NULL, 0));
         Error(ctx);
@@ -745,7 +747,7 @@ static void get_kernel_access() {
         if (get_Nl_value("clmaj_alt", Drive_Nl, &v) < 0)
             v = (KA_T)0;
     }
-    if (v && kread((KA_T)v, (char *)&CloneMaj, sizeof(CloneMaj)) == 0)
+    if (v && kread(ctx, (KA_T)v, (char *)&CloneMaj, sizeof(CloneMaj)) == 0)
         HaveCloneMaj = 1;
     /*
      * If the ALLKMEM device is available, check for the address of the kernel's
@@ -878,10 +880,9 @@ void initialize() {
  * kread() - read from kernel memory
  */
 
-int kread(addr, buf, len)
-KA_T addr;     /* kernel memory address */
-char *buf;     /* buffer to receive data */
-READLEN_T len; /* length to read */
+int kread(struct lsof_context *ctx, KA_T addr, /* kernel memory address */
+          char *buf,                           /* buffer to receive data */
+          READLEN_T len)                       /* length to read */
 {
     register int br;
     /*
@@ -1056,7 +1057,7 @@ void open_kvm() {
  */
 
 #    define READ_AVL_NODE(n, o, s)                                             \
-        if (kread((KA_T)AVL_NODE2DATA(n, o), (char *)s, sizeof(*s)))           \
+        if (kread(ctx, (KA_T)AVL_NODE2DATA(n, o), (char *)s, sizeof(*s)))      \
         return -1
 
 static int get_first_seg(avl_tree_t *av, struct seg *s) {
@@ -1120,7 +1121,7 @@ static void process_text(pa) KA_T pa; /* address space description pointer */
     /*
      * Get address space description.
      */
-    if (kread((KA_T)pa, (char *)&as, sizeof(as))) {
+    if (kread(ctx, (KA_T)pa, (char *)&as, sizeof(as))) {
         alloc_lfile(" txt", -1);
         (void)snpf(Namech, Namechl, "can't read text segment list (%s)",
                    print_kptr(pa, (char *)NULL, 0));
@@ -1140,7 +1141,7 @@ static void process_text(pa) KA_T pa; /* address space description pointer */
         if (j ? get_next_seg(avtp, &s) : get_first_seg(avtp, &s))
             break;
         if ((KA_T)s.s_ops == Sgvops && s.s_data) {
-            if (kread((KA_T)s.s_data, (char *)&vn, sizeof(vn)))
+            if (kread(ctx, (KA_T)s.s_data, (char *)&vn, sizeof(vn)))
                 break;
             if (vn.vp) {
 
@@ -1189,7 +1190,7 @@ static void process_text(pa) KA_T pa; /* address space description pointer */
     /*
      * Get address space description.
      */
-    if (kread((KA_T)pa, (char *)&as, sizeof(as))) {
+    if (kread(ctx, (KA_T)pa, (char *)&as, sizeof(as))) {
         alloc_lfile(" txt", -1);
         (void)snpf(Namech, Namechl, "can't read text segment list (%s)",
                    print_kptr(pa, (char *)NULL, 0));
@@ -1205,10 +1206,10 @@ static void process_text(pa) KA_T pa; /* address space description pointer */
      * have been examined.
      */
     for (s.s_next = as.a_segs, i = j = 0; i < MAXSEGS && j < 2 * MAXSEGS; j++) {
-        if (!s.S_NEXT || kread((KA_T)s.S_NEXT, (char *)&s, sizeof(s)))
+        if (!s.S_NEXT || kread(ctx, (KA_T)s.S_NEXT, (char *)&s, sizeof(s)))
             break;
         if ((KA_T)s.s_ops == Sgvops && s.s_data) {
-            if (kread((KA_T)s.s_data, (char *)&vn, sizeof(vn)))
+            if (kread(ctx, (KA_T)s.s_data, (char *)&vn, sizeof(vn)))
                 break;
             if (vn.vp) {
 
@@ -1314,7 +1315,7 @@ static void readkam(addr) KA_T addr; /* kernel virtual address */
     Kas = (struct as *)NULL;
 
 #    if solaris < 70000
-    if (kas && !kread(kas, (char *)&Kam, sizeof(Kam)))
+    if (kas && !kread(ctx, kas, (char *)&Kam, sizeof(Kam)))
         Kas = (KA_T)&Kam;
 #    else  /* solaris>=70000 */
     Kas = (struct as *)kas;
@@ -1366,7 +1367,7 @@ static void read_proc() {
          * Get a proc structure count estimate.
          */
         if (get_Nl_value("nproc", Drive_Nl, &pa) < 0 || !pa ||
-            kread(pa, (char *)&knp, sizeof(knp)) || knp < 1)
+            kread(ctx, pa, (char *)&knp, sizeof(knp)) || knp < 1)
             knp = PROCDFLT;
         /*
          * Pre-allocate space, as required.
@@ -1416,7 +1417,7 @@ static void read_proc() {
              * Prepare for a proc table scan via direct reading of the active
              * chain.
              */
-            if (!PrAct || kread(PrAct, (char *)&paf, sizeof(pa))) {
+            if (!PrAct || kread(ctx, PrAct, (char *)&paf, sizeof(pa))) {
                 (void)fprintf(stderr, "%s: can't read practive from %s\n", Pn,
                               print_kptr(PrAct, (char *)NULL, 0));
                 Error(ctx);
@@ -1489,7 +1490,7 @@ static void read_proc() {
                 if (!pa)
                     break;
                 p = (struct proc *)&P[Np];
-                if (kread(pa, (char *)p, sizeof(struct proc)))
+                if (kread(ctx, pa, (char *)p, sizeof(struct proc)))
                     break;
                 pan = (KA_T)p->p_next;
             } else {
@@ -1520,11 +1521,11 @@ static void read_proc() {
              */
             if (Fpgid) {
                 if (!p->p_pgidp ||
-                    kread((KA_T)p->p_pgidp, (char *)&pg, sizeof(pg)))
+                    kread(ctx, (KA_T)p->p_pgidp, (char *)&pg, sizeof(pg)))
                     continue;
             }
             if (!p->p_pidp ||
-                kread((KA_T)p->p_pidp, (char *)&pids, sizeof(pids)))
+                kread(ctx, (KA_T)p->p_pidp, (char *)&pids, sizeof(pids)))
                 continue;
             /*
              * Save the PGID and PID numbers in local tables.
@@ -1704,7 +1705,7 @@ char *cp; /* partial path */
      * matches the one we have for this file.  If it does, then the path is
      * complete.
      */
-    if (kread((KA_T)va, (char *)&v, sizeof(v)) || v.v_type != VDIR ||
+    if (kread(ctx, (KA_T)va, (char *)&v, sizeof(v)) || v.v_type != VDIR ||
         !(v.v_flag & VROOT)) {
 
         /*
@@ -1781,7 +1782,7 @@ void ncache_load() {
          */
         v = (KA_T)0;
         if (get_Nl_value(X_NCSIZE, (struct drive_Nl *)NULL, &v) < 0 || !v ||
-            kread((KA_T)v, (char *)&Nch, sizeof(Nch))) {
+            kread(ctx, (KA_T)v, (char *)&Nch, sizeof(Nch))) {
             if (!Fwarn)
                 (void)fprintf(stderr,
                               "%s: WARNING: can't read DNLC hash size: %s\n",
@@ -1806,7 +1807,7 @@ void ncache_load() {
          */
         v = (KA_T)0;
         if (get_Nl_value(X_NCACHE, (struct drive_Nl *)NULL, (KA_T *)&v) < 0 ||
-            !v || kread(v, (char *)&kha, sizeof(kha)) || !kha) {
+            !v || kread(ctx, v, (char *)&kha, sizeof(kha)) || !kha) {
             if (!Fwarn)
                 (void)fprintf(stderr, "%s: WARNING: no DNLC hash address\n",
                               Pn);
@@ -1839,7 +1840,7 @@ void ncache_load() {
          */
         v = (KA_T)0;
         if ((get_Nl_value("hshav", (struct drive_Nl *)NULL, (KA_T *)&v) < 0) ||
-            !v || kread(v, (char *)&i, sizeof(i)) || (i < 1)) {
+            !v || kread(ctx, v, (char *)&i, sizeof(i)) || (i < 1)) {
             i = 16;
             if (!Fwarn) {
                 (void)fprintf(stderr,
@@ -1886,7 +1887,7 @@ void ncache_load() {
     /*
      * Read the kernel's DNLC hash.
      */
-    if (kread(kha, (char *)khl, (Nch * sizeof(nc_hash_t)))) {
+    if (kread(ctx, kha, (char *)khl, (Nch * sizeof(nc_hash_t)))) {
         if (!Fwarn)
             (void)fprintf(stderr, "%s: WARNING: can't read DNLC hash: %s\n", Pn,
                           print_kptr(kha, (char *)NULL, 0));
@@ -1909,7 +1910,7 @@ void ncache_load() {
         for (kn = (KA_T)kh->hash_next, h = 0;
              kn && (h < Nch) && (!h || (h && kn != (KA_T)kh->hash_next));
              kn = (KA_T)nc->hash_next, h++) {
-            if (kread(kn, (char *)nc, sizeof(ncache_t) + XNC))
+            if (kread(ctx, kn, (char *)nc, sizeof(ncache_t) + XNC))
                 break;
             if (!nc->vp || (len = (int)nc->namlen) < 1)
                 continue;
@@ -1940,7 +1941,7 @@ void ncache_load() {
                 cp = &nc->name[XNC + 1];
                 v = (KA_T)((char *)kn + nmo + XNC + 1);
                 xl = len - XNC - 1;
-                if (kread(v, cp, xl))
+                if (kread(ctx, v, cp, xl))
                     continue;
             }
             /*

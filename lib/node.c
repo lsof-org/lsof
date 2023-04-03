@@ -54,7 +54,7 @@ int readcdrnode(ca, c)
 KA_T ca;           /* cdrnode kernel address */
 struct cdrnode *c; /* cdrnode buffer */
 {
-    if (kread((KA_T)ca, (char *)c, sizeof(struct cdrnode))) {
+    if (kread(ctx, (KA_T)ca, (char *)c, sizeof(struct cdrnode))) {
         (void)snpf(Namech, Namechl, "can't read cdrnode at %s",
                    print_kptr(ca, (char *)NULL, 0));
         return (1);
@@ -72,7 +72,7 @@ int readfifonode(fa, f)
 KA_T fa;            /* fifonode kernel address */
 struct fifonode *f; /* fifonode buffer */
 {
-    if (kread((KA_T)fa, (char *)f, sizeof(struct fifonode))) {
+    if (kread(ctx, (KA_T)fa, (char *)f, sizeof(struct fifonode))) {
         (void)snpf(Namech, Namechl, "can't read fifonode at %s",
                    print_kptr(fa, (char *)NULL, 0));
         return (1);
@@ -90,7 +90,7 @@ int readgnode(ga, g)
 KA_T ga;         /* gnode kernel address */
 struct gnode *g; /* gnode buffer */
 {
-    if (kread((KA_T)ga, (char *)g, sizeof(struct gnode))) {
+    if (kread(ctx, (KA_T)ga, (char *)g, sizeof(struct gnode))) {
         (void)snpf(Namech, Namechl, "can't read gnode at %s",
                    print_kptr(ga, (char *)NULL, 0));
         return (1);
@@ -108,7 +108,7 @@ int readhsnode(ha, h)
 KA_T ha;          /* hsnode kernel address */
 struct hsnode *h; /* hsnode buffer */
 {
-    if (kread((KA_T)ha, (char *)h, sizeof(struct hsnode))) {
+    if (kread(ctx, (KA_T)ha, (char *)h, sizeof(struct hsnode))) {
         (void)snpf(Namech, Namechl, "can't read hsnode at %s",
                    print_kptr(ha, (char *)NULL, 0));
         return (1);
@@ -122,11 +122,10 @@ struct hsnode *h; /* hsnode buffer */
  * readinode() - read inode
  */
 
-int readinode(ia, i)
-KA_T ia;         /* inode kernel address */
-struct inode *i; /* inode buffer */
+int readinode(struct lsof_context *ctx, KA_T ia, /* inode kernel address */
+              struct inode *i)                   /* inode buffer */
 {
-    if (kread((KA_T)ia, (char *)i, sizeof(struct inode))) {
+    if (kread(ctx, (KA_T)ia, (char *)i, sizeof(struct inode))) {
         (void)snpf(Namech, Namechl, "can't read inode at %s",
                    print_kptr(ia, (char *)NULL, 0));
         return (1);
@@ -144,7 +143,7 @@ int readpipenode(pa, p)
 KA_T pa;            /* pipe node kernel address */
 struct pipenode *p; /* pipe node buffer */
 {
-    if (kread((KA_T)pa, (char *)p, sizeof(struct pipenode))) {
+    if (kread(ctx, (KA_T)pa, (char *)p, sizeof(struct pipenode))) {
         (void)snpf(Namech, Namechl, "can't read pipenode at %s",
                    print_kptr(pa, (char *)NULL, 0));
         return (1);
@@ -162,7 +161,7 @@ int readrnode(ra, r)
 KA_T ra;         /* rnode kernel space address */
 struct rnode *r; /* rnode buffer pointer */
 {
-    if (kread((KA_T)ra, (char *)r, sizeof(struct rnode))) {
+    if (kread(ctx, (KA_T)ra, (char *)r, sizeof(struct rnode))) {
         (void)snpf(Namech, Namechl, "can't read rnode at %s",
                    print_kptr(ra, (char *)NULL, 0));
         return (1);
@@ -180,7 +179,7 @@ int readsnode(sa, s)
 KA_T sa;         /* snode kernel space address */
 struct snode *s; /* snode buffer pointer */
 {
-    if (kread((KA_T)sa, (char *)s, sizeof(struct snode))) {
+    if (kread(ctx, (KA_T)sa, (char *)s, sizeof(struct snode))) {
         (void)snpf(Namech, Namechl, "can't read snode at %s",
                    print_kptr(sa, (char *)NULL, 0));
         return (1);
@@ -198,7 +197,7 @@ int readtnode(ta, t)
 KA_T ta;           /* tmpnode kernel space address */
 struct tmpnode *t; /* tmpnode buffer pointer */
 {
-    if (kread((KA_T)ta, (char *)t, sizeof(struct tmpnode))) {
+    if (kread(ctx, (KA_T)ta, (char *)t, sizeof(struct tmpnode))) {
         (void)snpf(Namech, Namechl, "can't read tmpnode at %s",
                    print_kptr(ta, (char *)NULL, 0));
         return (1);
@@ -216,7 +215,7 @@ int readvnode(struct lsof_context *ctx,
               KA_T va,         /* vnode kernel space address */
               struct vnode *v) /* vnode buffer pointer */
 {
-    if (kread((KA_T)va, (char *)v, sizeof(struct vnode))) {
+    if (kread(ctx, (KA_T)va, (char *)v, sizeof(struct vnode))) {
         (void)snpf(Namech, Namechl, "can't read vnode at %s",
                    print_kptr(va, (char *)NULL, 0));
         return (1);

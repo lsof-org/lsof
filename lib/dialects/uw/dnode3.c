@@ -115,9 +115,9 @@ struct l_ino *i; /* local inode information */
     struct inode b;
     struct vfs kv;
 
-    if (kread((KA_T)v->v_data, (char *)&b, sizeof(b)))
+    if (kread(ctx, (KA_T)v->v_data, (char *)&b, sizeof(b)))
         return (1);
-    if (!v->v_vfsp || kread((KA_T)v->v_vfsp, (char *)&kv, sizeof(kv)))
+    if (!v->v_vfsp || kread(ctx, (KA_T)v->v_vfsp, (char *)&kv, sizeof(kv)))
         return (1);
     i->dev = kv.vfs_dev;
     i->dev_def = 1;
@@ -151,9 +151,9 @@ struct l_ino *i; /* local inode information */
     /*
      * Read the CDFs node.  Fill in return values from its contents.
      */
-    if (!v->v_data || kread((KA_T)v->v_data, (char *)&ci, sizeof(ci)))
+    if (!v->v_data || kread(ctx, (KA_T)v->v_data, (char *)&ci, sizeof(ci)))
         return (1);
-    if (!v->v_vfsp || kread((KA_T)v->v_vfsp, (char *)&kv, sizeof(kv)))
+    if (!v->v_vfsp || kread(ctx, (KA_T)v->v_vfsp, (char *)&kv, sizeof(kv)))
         return (1);
     i->dev = kv.vfs_dev;
     i->dev_def = 1;
@@ -178,7 +178,7 @@ struct l_ino *i; /* local inode information */
     if (!(ka = (KA_T)kv.vfs_data))
         return (0);
     ka = (KA_T)((char *)ka + offsetof(struct cdfs, cdfs_LogSecShift));
-    if (!kread(ka, (char *)&lss, sizeof(lss))) {
+    if (!kread(ctx, ka, (char *)&lss, sizeof(lss))) {
         i->number =
             (INODETYPE)((ci.i_Fid.fid_SectNum << lss) + ci.i_Fid.fid_Offset);
         i->number_def = 1;
@@ -213,7 +213,7 @@ struct l_ino *i; /* local inode information */
     /*
      * Read the DOSFS node.  Fill in return values from its contents.
      */
-    if (!v->v_data || kread((KA_T)v->v_data, (char *)&di, sizeof(di)))
+    if (!v->v_data || kread(ctx, (KA_T)v->v_data, (char *)&di, sizeof(di)))
         return (1);
     i->dev = (dev_t)di.device;
     i->dev_def = 1;

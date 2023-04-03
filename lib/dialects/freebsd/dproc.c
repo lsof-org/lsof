@@ -248,7 +248,8 @@ static void process_file_descriptors(struct lsof_context *ctx,
     for (i = 0; i < n_kfiles; i++) {
         if (kfiles[i].kf_fd < 0 || kfiles[i].kf_type == KF_TYPE_FIFO ||
             kfiles[i].kf_type == KF_TYPE_VNODE)
-            readvfs(ctx, kfiles[i].kf_un.kf_file.kf_file_fsid, kfiles[i].kf_path);
+            readvfs(ctx, kfiles[i].kf_un.kf_file.kf_file_fsid,
+                    kfiles[i].kf_path);
     }
     for (i = 0; i < n_kfiles; i++) {
         struct xfile key, *xfile;
@@ -647,10 +648,9 @@ void initialize(struct lsof_context *ctx) {
  * kread() - read from kernel memory
  */
 
-int kread(addr, buf, len)
-KA_T addr;     /* kernel memory address */
-char *buf;     /* buffer to receive data */
-READLEN_T len; /* length to read */
+int kread(struct lsof_context *ctx, KA_T addr, /* kernel memory address */
+          char *buf,                           /* buffer to receive data */
+          READLEN_T len)                       /* length to read */
 {
     int br;
 

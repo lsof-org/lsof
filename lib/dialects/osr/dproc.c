@@ -152,7 +152,7 @@ void gather_proc_info() {
             i = Var.v_proc - px;
             if (i > PROCBFRD)
                 i = PROCBFRD;
-            j = kread((KA_T)(Kp + (px * sizeof(struct proc))), pb,
+            j = kread(ctx, (KA_T)(Kp + (px * sizeof(struct proc))), pb,
                       sizeof(struct proc) * i);
             pbc = px + i;
             p = (struct proc *)pb;
@@ -243,7 +243,7 @@ void gather_proc_info() {
                     }
                     npofb = nf;
                 }
-                if (kread((KA_T)u->u_pofile, pofb, nf))
+                if (kread(ctx, (KA_T)u->u_pofile, pofb, nf))
                     pof = (char *)NULL;
                 else
                     pof = pofb;
@@ -291,7 +291,7 @@ void get_cdevsw() {
      */
     if (get_Nl_value("cdev", Drive_Nl, &v[0]) < 0 ||
         get_Nl_value("ncdev", Drive_Nl, &v[1]) < 0 || !v[0] || !v[1] ||
-        kread(v[1], (char *)&Cdevcnt, sizeof(Cdevcnt)) || Cdevcnt < 1)
+        kread(ctx, v[1], (char *)&Cdevcnt, sizeof(Cdevcnt)) || Cdevcnt < 1)
         return;
     /*
      * Allocate cache space.
@@ -310,7 +310,7 @@ void get_cdevsw() {
                       Cdevcnt);
         Error(ctx);
     }
-    if (kread((KA_T)v[0], (char *)tmp, i)) {
+    if (kread(ctx, (KA_T)v[0], (char *)tmp, i)) {
         (void)free((FREE_P *)Cdevsw);
         Cdevsw = (char **)NULL;
         Cdevcnt = 0;
@@ -327,7 +327,7 @@ void get_cdevsw() {
         Cdevsw[i] = (char *)NULL;
         if (!c->d_name)
             continue;
-        if (kread((KA_T)c->d_name, buf, j)) {
+        if (kread(ctx, (KA_T)c->d_name, buf, j)) {
             (void)fprintf(stderr,
                           "%s: WARNING: can't read name for cdevsw[%d]: %#x\n",
                           Pn, i, c->d_name);
@@ -415,7 +415,7 @@ static void get_kernel_access() {
      */
     v = (KA_T)0;
     if (get_Nl_value("pregpp", Drive_Nl, &v) < 0 || !v ||
-        kread(v, (char *)&Npp, sizeof(Npp)) || Npp < 1) {
+        kread(ctx, v, (char *)&Npp, sizeof(Npp)) || Npp < 1) {
         (void)fprintf(stderr, "%s: can't read pregion count (%d) from %s\n", Pn,
                       Npp, print_kptr(v, (char *)NULL, 0));
         Error(ctx);
@@ -432,7 +432,7 @@ static void get_kernel_access() {
      * Read system configuration information.
      */
     if (get_Nl_value("var", Drive_Nl, &v) < 0 || !v ||
-        kread((KA_T)v, (char *)&Var, sizeof(Var))) {
+        kread(ctx, (KA_T)v, (char *)&Var, sizeof(Var))) {
         (void)fprintf(stderr, "%s: can't read system configuration info\n", Pn);
         Error(ctx);
     }
@@ -441,14 +441,14 @@ static void get_kernel_access() {
      */
     v = (KA_T)0;
     if (get_Nl_value("hz", Drive_Nl, &v) < 0 || !v ||
-        kread(v, (char *)&Hz, sizeof(Hz))) {
+        kread(ctx, v, (char *)&Hz, sizeof(Hz))) {
         if (!Fwarn)
             (void)fprintf(stderr, "%s: WARNING: can't read Hz from %s\n", Pn,
                           print_kptr(v, (char *)NULL, 0));
         Hz = -1;
     }
     if (get_Nl_value("lbolt", Drive_Nl, &Lbolt) < 0 || !v ||
-        kread((KA_T)v, (char *)&lbolt, sizeof(lbolt))) {
+        kread(ctx, (KA_T)v, (char *)&lbolt, sizeof(lbolt))) {
         if (!Fwarn)
             (void)fprintf(
                 stderr,
@@ -460,7 +460,7 @@ static void get_kernel_access() {
      * Get socket device number and socket table address.
      */
     if (get_Nl_value("sockd", Drive_Nl, &v) < 0 || !v ||
-        kread(v, (char *)&Sockdev, sizeof(Sockdev))) {
+        kread(ctx, v, (char *)&Sockdev, sizeof(Sockdev))) {
         (void)fprintf(stderr, "%s: WARNING: can't identify socket device.\n",
                       Pn);
         (void)fprintf(stderr, "      Socket output may be incomplete.\n");
@@ -482,7 +482,7 @@ static void get_kernel_access() {
      */
     v = (KA_T)0;
     if (get_Nl_value("nxdm", Drive_Nl, &v) < 0 || !v ||
-        kread(v, (char *)&nxdevmaps, sizeof(nxdevmaps)) || nxdevmaps < 0) {
+        kread(ctx, v, (char *)&nxdevmaps, sizeof(nxdevmaps)) || nxdevmaps < 0) {
         (void)fprintf(stderr,
                       "%s: bad extended device table size (%d) at %s.\n", Pn,
                       nxdevmaps, print_kptr(v, (char *)NULL, 0));
@@ -496,7 +496,7 @@ static void get_kernel_access() {
     }
     v = (KA_T)0;
     if (get_Nl_value("xdm", Drive_Nl, &v) < 0 || !v ||
-        kread((KA_T)v, (char *)Xdevmap, len)) {
+        kread(ctx, (KA_T)v, (char *)Xdevmap, len)) {
         (void)fprintf(stderr, "%s: can't read %d byte xdevmap table at #x\n",
                       Pn, len, v);
         Error(ctx);
@@ -643,7 +643,7 @@ is_boot(p) char *p; /* specified path */
     } s1, s2;
     /*
      * Get the scoutsname structure via __scoinfo() to use as a reference
-     * against the one obtained via kread()'ing from the
+     * against the one obtained via kread(ctx, )'ing from the
      * nlist(<possible_kernel>) address. If __scoinfo() fails, return the
      * default boot path.
      */
@@ -667,7 +667,7 @@ is_boot(p) char *p; /* specified path */
         if (open_kmem(1))
             return (0);
     }
-    if (kread(ka, (char *)&s2.s, sizeof(s2.s)))
+    if (kread(ctx, ka, (char *)&s2.s, sizeof(s2.s)))
         return (0);
     for (i = 0; i < sizeof(struct scoutsname); i++) {
         if (s1.sc[i] != s2.sc[i])
@@ -681,10 +681,9 @@ is_boot(p) char *p; /* specified path */
  * kread() - read from kernel memory
  */
 
-int kread(addr, buf, len)
-KA_T addr;     /* kernel memory address */
-char *buf;     /* buffer to receive data */
-READLEN_T len; /* length to read */
+int kread(struct lsof_context *ctx, KA_T addr, /* kernel memory address */
+          char *buf,                           /* buffer to receive data */
+          READLEN_T len)                       /* length to read */
 {
     int br;
 
@@ -747,7 +746,7 @@ static void process_text(prp) KA_T prp; /* process region pointer */
      */
 
 #if OSRV < 500
-    if (kread(prp, (char *)Pr, Prsz))
+    if (kread(ctx, prp, (char *)Pr, Prsz))
         return;
     for (i = j = 0, p = Pr; i < Npp; i++, p++)
 #else  /* OSRV>=500 */
@@ -767,7 +766,7 @@ static void process_text(prp) KA_T prp; /* process region pointer */
                     Pn, Lp->pid);
             return;
         }
-        if ((i && pc == prp) || kread((KA_T)pc, (char *)p, sizeof(ps)))
+        if ((i && pc == prp) || kread(ctx, (KA_T)pc, (char *)p, sizeof(ps)))
             return;
 #endif /* OSRV>=500 */
 
@@ -777,7 +776,7 @@ static void process_text(prp) KA_T prp; /* process region pointer */
          * Read the region.
          * Skip entries with no node pointers and duplicate node addresses.
          */
-        if (kread((KA_T)p->p_reg, (char *)&r, sizeof(r)))
+        if (kread(ctx, (KA_T)p->p_reg, (char *)&r, sizeof(r)))
             continue;
         if (!(na = (KA_T)r.r_iptr))
             continue;
@@ -1077,14 +1076,14 @@ static void DNLC_load() {
              * get the array's address.  If that fails, return without comment
              * and without further action.
              */
-            if (kread(ka, (char *)&ka, sizeof(ka)))
+            if (kread(ctx, ka, (char *)&ka, sizeof(ka)))
                 return;
         }
         /*
          * Get the kernel's DNLC name cache size.
          */
         if (get_Nl_value("ndnlc", Drive_Nl, &v) < 0 || !v ||
-            kread(v, (char *)&dnlce, sizeof(dnlce)) || dnlce < 1)
+            kread(ctx, v, (char *)&dnlce, sizeof(dnlce)) || dnlce < 1)
             return;
         /*
          * Allocate space for a copy of a portion ("chunk") of the kernel's
@@ -1118,7 +1117,7 @@ static void DNLC_load() {
          */
         ccs = ((dnlce - i) < cha) ? (dnlce - i) : cha;
         ccl = sizeof(struct dnlc__cachent) * ccs;
-        if (kread((KA_T)wa, (char *)dnlc, ccl))
+        if (kread(ctx, (KA_T)wa, (char *)dnlc, ccl))
             break;
         /*
          * Process the "chunk".
@@ -1180,7 +1179,7 @@ static void DTFS_load() {
          * Get the kernel's DTFS name cache size.
          */
         if (get_Nl_value("ndtnc", Drive_Nl, &v) < 0 || !v ||
-            kread(v, (char *)&dtnce, sizeof(dtnce)) || dtnce < 1)
+            kread(ctx, v, (char *)&dtnce, sizeof(dtnce)) || dtnce < 1)
             return;
         /*
          * Allocate space for a copy of the kernel's DTFS name cache.
@@ -1196,7 +1195,7 @@ static void DTFS_load() {
     /*
      * Read the kernel's DTFS name cache.
      */
-    if (!dtnc || !kcl || !ka || kread(ka, (char *)dtnc, kcl))
+    if (!dtnc || !kcl || !ka || kread(ctx, ka, (char *)dtnc, kcl))
         return;
     /*
      * Build a local copy of the kernel's DTFS name cache.
@@ -1257,7 +1256,7 @@ static void HTFS_load() {
          * Get the kernel's HTFS name cache size.
          */
         if (get_Nl_value("nhtnc", Drive_Nl, &v) < 0 || !v ||
-            kread(v, (char *)&htnce, sizeof(htnce)) || htnce < 1)
+            kread(ctx, v, (char *)&htnce, sizeof(htnce)) || htnce < 1)
             return;
         /*
          * Allocate space for a copy of the kernel's HTFS name cache.
@@ -1273,7 +1272,7 @@ static void HTFS_load() {
     /*
      * Read the kernel's HTFS name cache.
      */
-    if (!htnc || !kcl || !ka || kread(ka, (char *)htnc, kcl))
+    if (!htnc || !kcl || !ka || kread(ctx, ka, (char *)htnc, kcl))
         return;
     /*
      * Build a local copy of the kernel's HTFS name cache.
@@ -1704,7 +1703,7 @@ static void NFS_load() {
          * Get the kernel's NFS name cache size.
          */
         if (get_Nl_value("nnfnc", Drive_Nl, &v) < 0 || !v ||
-            kread(v, (char *)&nfnce, sizeof(nfnce)) || nfnce < 1)
+            kread(ctx, v, (char *)&nfnce, sizeof(nfnce)) || nfnce < 1)
             return;
         /*
          * Allocate space for a copy of the kernel's NFS name cache.
@@ -1720,7 +1719,7 @@ static void NFS_load() {
     /*
      * Read the kernel's NFS name cache.
      */
-    if (!nfnc || !kcl || !ka || kread(ka, (char *)nfnc, kcl))
+    if (!nfnc || !kcl || !ka || kread(ctx, ka, (char *)nfnc, kcl))
         return;
     /*
      * Build a local copy of the kernel's NFS name cache.
@@ -1782,7 +1781,7 @@ KA_T r; /* node's rnode address */
     /*
      * Read rnode and get the node number.
      */
-    if (kread(r, (char *)&rn, sizeof(rn)))
+    if (kread(ctx, r, (char *)&rn, sizeof(rn)))
         return (0);
 
 #        if OSRV < 500
@@ -1854,7 +1853,7 @@ static void SYSV_load() {
         s5nce = Var.v_s5cacheents;
 #        else  /* OSRV>=500 */
         if (get_Nl_value("nsfnc", Drive_Nl, &v) < 0 || !v ||
-            kread(v, (char *)&s5nce, sizeof(s5nce)))
+            kread(ctx, v, (char *)&s5nce, sizeof(s5nce)))
             return;
 #        endif /* OSRV<500 */
 
@@ -1874,7 +1873,7 @@ static void SYSV_load() {
     /*
      * Read the kernel's SYSV name cache.
      */
-    if (!s5nc || !kcl || !ka || kread(ka, (char *)s5nc, kcl))
+    if (!s5nc || !kcl || !ka || kread(ctx, ka, (char *)s5nc, kcl))
         return;
     /*
      * Build a local copy of the kernel's SYSV name cache.

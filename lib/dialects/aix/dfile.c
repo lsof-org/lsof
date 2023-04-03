@@ -431,7 +431,7 @@ struct vnode *vn; /* vnode */
     /*
      * Read the vfs structure.
      */
-    if (kread((KA_T)vn->v_vfsp, (char *)&v, sizeof(v))) {
+    if (kread(ctx, (KA_T)vn->v_vfsp, (char *)&v, sizeof(v))) {
 
     vfs_exit:
         (void)free((FREE_P *)vp);
@@ -440,10 +440,10 @@ struct vnode *vn; /* vnode */
     /*
      * Locate AIX mount information.
      */
-    if (!v.vfs_gfs || kread((KA_T)v.vfs_gfs, (char *)&g, sizeof(g)))
+    if (!v.vfs_gfs || kread(ctx, (KA_T)v.vfs_gfs, (char *)&g, sizeof(g)))
         goto vfs_exit;
     if (!v.vfs_mdata ||
-        kread((KA_T)((char *)v.vfs_mdata + offsetof(struct vmount, vmt_length)),
+        kread(ctx, (KA_T)((char *)v.vfs_mdata + offsetof(struct vmount, vmt_length)),
               (char *)&ul, sizeof(ul)))
         goto vfs_exit;
     if (!(mp = (void *)malloc((MALLOC_S)ul))) {
@@ -451,7 +451,7 @@ struct vnode *vn; /* vnode */
                       Lp->pid);
         Error(ctx);
     }
-    if (kread((KA_T)v.vfs_mdata, (char *)mp, (int)ul)) {
+    if (kread(ctx, (KA_T)v.vfs_mdata, (char *)mp, (int)ul)) {
         (void)free((FREE_P *)mp);
         goto vfs_exit;
     }

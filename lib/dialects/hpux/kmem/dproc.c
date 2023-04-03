@@ -221,7 +221,7 @@ void gather_proc_info() {
      */
     if (!oftp) {
         if ((get_Nl_value("chunksz", Drive_Nl, &v) >= 0) && v) {
-            if (kread(v, (char *)&oftsz, sizeof(oftsz))) {
+            if (kread(ctx, v, (char *)&oftsz, sizeof(oftsz))) {
                 (void)fprintf(stderr, "%s: can't get FD chunk size\n", Pn);
                 Error(ctx);
             }
@@ -258,7 +258,7 @@ void gather_proc_info() {
 
     {
         Kpa = Kp + (KA_T)(px * sizeof(struct proc));
-        if (kread(Kpa, (char *)&pbuf, sizeof(pbuf)))
+        if (kread(ctx, Kpa, (char *)&pbuf, sizeof(pbuf)))
             continue;
         if (p->p_stat == 0 || p->p_stat == SZOMB)
             continue;
@@ -341,7 +341,7 @@ void gather_proc_info() {
 
 #    if defined(hp9000s300)
             pte_off = (KA_T)&Usrptmap[btokmx(p->p_p0br) + p->p_szpt - 1];
-            if (kread(pte_off, (char *)&pte1, sizeof(pte1)))
+            if (kread(ctx, pte_off, (char *)&pte1, sizeof(pte1)))
                 continue;
             pte_addr = (KA_T)(ctob(pte1.pg_pfnum + 1) -
                               ((UPAGES + FLOAT) * sizeof(pte2)));
@@ -353,7 +353,7 @@ void gather_proc_info() {
 #    endif /* defined(hp9000s300) */
 
 #    if defined(hp9000s800)
-            if (kread((KA_T)uvadd((struct proc *)Kpa), (char *)u,
+            if (kread(ctx, (KA_T)uvadd((struct proc *)Kpa), (char *)u,
                       sizeof(struct user)))
                 continue;
         }
@@ -409,8 +409,8 @@ void gather_proc_info() {
 
 #if HPUXV >= 800
             if (j >= SFDCHUNK) {
-                if (!pfp || kread((KA_T)pfp, (char *)&ofp, sizeof(ofp)) ||
-                    !ofp || kread((KA_T)ofp, oftp, oftsz))
+                if (!pfp || kread(ctx, (KA_T)pfp, (char *)&ofp, sizeof(ofp)) ||
+                    !ofp || kread(ctx, (KA_T)ofp, oftp, oftsz))
                     break;
                 j = 0;
                 pfp += sizeof(KA_T);
@@ -446,7 +446,7 @@ void gather_proc_info() {
                     ;
                 if (k >= NFDCHUNKS)
                     break;
-                if (kread((KA_T)u->u_ofilep[k], (char *)&u->u_ofile,
+                if (kread(ctx, (KA_T)u->u_ofilep[k], (char *)&u->u_ofile,
                           sizeof(struct ofile_t))) {
                     break;
                 }
@@ -605,9 +605,9 @@ static void get_kernel_access() {
         Error(ctx);
     }
     if (get_Nl_value("proc", Drive_Nl, &v) < 0 || !v ||
-        kread((KA_T)v, (char *)&Kp, sizeof(Kp)) ||
+        kread(ctx, (KA_T)v, (char *)&Kp, sizeof(Kp)) ||
         get_Nl_value("nproc", Drive_Nl, &v) < 0 || !v ||
-        kread((KA_T)v, (char *)&Np, sizeof(Np)) || !Kp || Np < 1) {
+        kread(ctx, (KA_T)v, (char *)&Np, sizeof(Np)) || !Kp || Np < 1) {
         (void)fprintf(stderr, "%s: can't read proc table info\n", Pn);
         Error(ctx);
     }
@@ -632,7 +632,7 @@ static void get_kernel_access() {
         Error(ctx);
     }
     if (get_Nl_value("npids", Drive_Nl, &v) < 0 || !v ||
-        kread((KA_T)v, (char *)&npids, sizeof(npids))) {
+        kread(ctx, (KA_T)v, (char *)&npids, sizeof(npids))) {
         (void)fprintf(stderr, "%s: can't get kernel's npids\n", Pn);
         Error(ctx);
     }
@@ -640,7 +640,7 @@ static void get_kernel_access() {
 
 #if HPUXV >= 1030
     if (get_Nl_value("clmaj", Drive_Nl, &v) < 0 || !v ||
-        kread((KA_T)v, (char *)&CloneMaj, sizeof(CloneMaj)))
+        kread(ctx, (KA_T)v, (char *)&CloneMaj, sizeof(CloneMaj)))
         HaveCloneMaj = 0;
     else
         HaveCloneMaj = 1;
@@ -674,10 +674,9 @@ void initialize() { get_kernel_access(); }
  * kread() - read from kernel memory
  */
 
-int kread(addr, buf, len)
-KA_T addr;     /* kernel memory address */
-char *buf;     /* buffer to receive data */
-READLEN_T len; /* length to read */
+int kread(struct lsof_context *ctx, KA_T addr, /* kernel memory address */
+          char *buf,                           /* buffer to receive data */
+          READLEN_T len)                       /* length to read */
 {
     int br;
 
@@ -725,7 +724,7 @@ static void process_text(vasp) KA_T vasp; /* kernel's virtual address space
     /*
      * Read virtual address space pointer.
      */
-    if (kread(vasp, (char *)&v, sizeof(v)))
+    if (kread(ctx, vasp, (char *)&v, sizeof(v)))
         return;
     /*
      * Follow the virtual address space pregion structure chain.
@@ -746,9 +745,9 @@ static void process_text(vasp) KA_T vasp; /* kernel's virtual address space
         /*
          * Read the pregion and region.
          */
-        if (kread(prp, (char *)&p, sizeof(p)))
+        if (kread(ctx, prp, (char *)&p, sizeof(p)))
             return;
-        if (kread((KA_T)p.p_reg, (char *)&r, sizeof(r)))
+        if (kread(ctx, (KA_T)p.p_reg, (char *)&r, sizeof(r)))
             return;
         /*
          * Skip file entries with no file pointers.

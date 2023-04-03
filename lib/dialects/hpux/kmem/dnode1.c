@@ -108,7 +108,7 @@ int *rdevs;        /* raw device status receiver */
 {
     struct vx_inode i;
 
-    if (!v->v_data || kread((KA_T)v->v_data, (char *)&i, sizeof(i)))
+    if (!v->v_data || kread(ctx, (KA_T)v->v_data, (char *)&i, sizeof(i)))
         return (1);
     /*
      * Return device numbers.

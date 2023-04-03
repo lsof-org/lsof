@@ -1194,7 +1194,7 @@ int readstdata(addr, buf)
 KA_T addr;          /* stdata address in kernel*/
 struct stdata *buf; /* buffer addess */
 {
-    if (!addr || kread(addr, (char *)buf, sizeof(struct stdata))) {
+    if (!addr || kread(ctx, addr, (char *)buf, sizeof(struct stdata))) {
         (void)snpf(Namech, Namechl, "no stream data in %s",
                    print_kptr(addr, (char *)NULL, 0));
         return (1);
@@ -1217,7 +1217,7 @@ struct queue *buf; /* buffer for queue head */
         return (1);
     }
     for (qp = addr; qp; qp = (KA_T)buf->q_next) {
-        if (kread(qp, (char *)buf, sizeof(struct queue))) {
+        if (kread(ctx, qp, (char *)buf, sizeof(struct queue))) {
             (void)snpf(Namech, Namechl, "bad stream queue link at %s",
                        print_kptr(qp, (char *)NULL, 0));
             return (1);
@@ -1235,7 +1235,7 @@ KA_T addr;     /* module ID name address in kernel */
 char *buf;     /* receiving buffer address */
 READLEN_T len; /* buffer length */
 {
-    if (!addr || kread(addr, buf, len)) {
+    if (!addr || kread(ctx, addr, buf, len)) {
         (void)snpf(Namech, Namechl, "can't read module ID name from %s",
                    print_kptr(addr, (char *)NULL, 0));
         return (1);
@@ -1251,7 +1251,7 @@ int readstmin(addr, buf)
 KA_T addr;               /* module info address in kernel */
 struct module_info *buf; /* receiving buffer address */
 {
-    if (!addr || kread(addr, (char *)buf, sizeof(struct module_info))) {
+    if (!addr || kread(ctx, addr, (char *)buf, sizeof(struct module_info))) {
         (void)snpf(Namech, Namechl, "can't read module info from %s",
                    print_kptr(addr, (char *)NULL, 0));
         return (1);
@@ -1267,7 +1267,7 @@ int readstqinit(addr, buf)
 KA_T addr;         /* queue info address in kernel */
 struct qinit *buf; /* receiving buffer address */
 {
-    if (!addr || kread(addr, (char *)buf, sizeof(struct qinit))) {
+    if (!addr || kread(ctx, addr, (char *)buf, sizeof(struct qinit))) {
         (void)snpf(Namech, Namechl, "can't read queue info from %s",
                    print_kptr(addr, (char *)NULL, 0));
         return (1);

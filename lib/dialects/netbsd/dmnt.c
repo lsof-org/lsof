@@ -235,7 +235,7 @@ struct l_vfs *readvfs(struct lsof_context *ctx,
     /*
      * Read the (new) mount structure, allocate a local entry, and fill it.
      */
-    if (kread(vm, (char *)&m, sizeof(m)) != 0)
+    if (kread(ctx, vm, (char *)&m, sizeof(m)) != 0)
         return ((struct l_vfs *)NULL);
     if (!(vp = (struct l_vfs *)malloc(sizeof(struct l_vfs)))) {
         (void)fprintf(stderr, "%s: PID %d, no space for vfs\n", Pn, Lp->pid);

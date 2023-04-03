@@ -912,7 +912,7 @@ char **err; /* error message (if return is NULL) */
 
 #    if AIXV >= 4110
     if (!sid) {
-        if (!kread(a, (char *)&le, sizeof(le)))
+        if (!kread(ctx, a, (char *)&le, sizeof(le)))
             return (&le);
     } else {
         if (!kreadx((KA_T)(a & RDXMASK), (char *)&le, sizeof(le), (KA_T)sid))
@@ -947,7 +947,7 @@ KA_T sid;                                   /* segment ID */
 #    else /* AIXV>=4300 */
 #        if AIXA < 2
     if (!sid) {
-        if (kread((KA_T)le->nm, buf, LIBNMLN))
+        if (kread(ctx, (KA_T)le->nm, buf, LIBNMLN))
             return;
     } else {
         if (!Soff_stat || !le->nm ||
@@ -961,7 +961,7 @@ KA_T sid;                                   /* segment ID */
     else if (buf[0])
         enter_nm(buf);
 #        else  /* AIXA>=2 */
-    if (!le->nm || kread(le->nm, buf, sizeof(buf)))
+    if (!le->nm || kread(ctx, le->nm, buf, sizeof(buf)))
         return;
     buf[LIBNMLN - 1] = '\0';
     if (!strlen(buf))
@@ -1098,10 +1098,9 @@ void initialize() {
  * kread() - read from kernel memory
  */
 
-int kread(addr, buf, len)
-KA_T addr;     /* kernel memory address */
-char *buf;     /* buffer to receive data */
-READLEN_T len; /* length to read */
+int kread(struct lsof_context *ctx, KA_T addr, /* kernel memory address */
+          char *buf,                           /* buffer to receive data */
+          READLEN_T len)                       /* length to read */
 {
     int br;
 
@@ -1303,7 +1302,8 @@ static void process_text(pid) pid_t pid; /* process PID */
     /*
      * Display information on the exec'd entry.
      */
-    if (la->exec && !kread((KA_T)la->exec, (char *)&le, sizeof(le)) && le.fp) {
+    if (la->exec && !kread(ctx, (KA_T)la->exec, (char *)&le, sizeof(le)) &&
+        le.fp) {
         alloc_lfile(" txt", -1);
         process_file((KA_T)le.fp);
         if (Lf->dev_def && (Lf->inp_ty == 1)) {

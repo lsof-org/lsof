@@ -132,7 +132,7 @@ struct gnode *ga; /* local gnode address */
     do {
 #endif /* AIXV>=4140 */
 
-        if (kread((KA_T)cfp, (char *)&f, sizeof(f)))
+        if (kread(ctx, (KA_T)cfp, (char *)&f, sizeof(f)))
             return (' ');
 
 #if AIXV >= 4140
@@ -348,7 +348,7 @@ void process_node(va) KA_T va; /* vnode kernel space address */
         /*
          * Read the special node.
          */
-        if (!g.gn_data || kread((KA_T)g.gn_data, (char *)&sn, sizeof(sn))) {
+        if (!g.gn_data || kread(ctx, (KA_T)g.gn_data, (char *)&sn, sizeof(sn))) {
             if (Selinet) {
                 Lf->sf = SELEXCLF;
                 return;
@@ -404,7 +404,7 @@ void process_node(va) KA_T va; /* vnode kernel space address */
              *     and the devnode must have a stream head pointer.
              */
             if (CloneMaj >= 0 && sn.sn_devnode &&
-                kread((KA_T)sn.sn_devnode, (char *)&dn, sizeof(dn)) == 0 &&
+                kread(ctx, (KA_T)sn.sn_devnode, (char *)&dn, sizeof(dn)) == 0 &&
                 (ka = (KA_T)dn.dv_pdata)) {
 
 #        if defined(HASDCACHE)
@@ -450,7 +450,7 @@ void process_node(va) KA_T va; /* vnode kernel space address */
                          */
                         (void)snpf(Namech, Namechl, "STR:%s", cl->cd.name);
                         nx = (int)strlen(Namech);
-                        if (!kread(ka, (char *)&sh, sizeof(sh)))
+                        if (!kread(ctx, ka, (char *)&sh, sizeof(sh)))
                             qp = (KA_T)sh.sth_wq;
                         else
                             qp = (KA_T)NULL;
@@ -470,20 +470,20 @@ void process_node(va) KA_T va; /* vnode kernel space address */
                              * If the qinfo or module_info structures can't be
                              * read, skip to the next queue structure.
                              */
-                            if (kread(qp, (char *)&q, sizeof(q)))
+                            if (kread(ctx, qp, (char *)&q, sizeof(q)))
                                 break;
                             if (!(ka = (KA_T)q.q_qinfo) ||
-                                kread(ka, (char *)&qi, sizeof(qi)))
+                                kread(ctx, ka, (char *)&qi, sizeof(qi)))
                                 continue;
                             if (!(ka = (KA_T)qi.qi_minfo) ||
-                                kread(ka, (char *)&mi, sizeof(mi)))
+                                kread(ctx, ka, (char *)&mi, sizeof(mi)))
                                 continue;
                             if (!(ka = (KA_T)mi.mi_idname) ||
-                                kread(ka, mn, sizeof(mn) - 1) ||
+                                kread(ctx, ka, mn, sizeof(mn) - 1) ||
                                 !(ml = (int)strlen(mn)) || !strcmp(mn, "sth"))
                                 continue;
                             if (!strcmp(mn, "xtiso") && (xp = (KA_T)q.q_ptr) &&
-                                !kread(xp, (char *)&xt, sizeof(xt)) &&
+                                !kread(ctx, xp, (char *)&xt, sizeof(xt)) &&
                                 (ka = (KA_T)xt.xti_so)) {
 
                                 /*
@@ -533,7 +533,7 @@ void process_node(va) KA_T va; /* vnode kernel space address */
              */
         } else {
             if (!sn.sn_devnode ||
-                kread((KA_T)sn.sn_devnode, (char *)&dn, sizeof(dn))) {
+                kread(ctx, (KA_T)sn.sn_devnode, (char *)&dn, sizeof(dn))) {
                 (void)snpf(Namech, Namechl,
                            "vnode at %s: can't read devnode (%s)",
                            print_kptr(va, tbuf, sizeof(tbuf)),
@@ -642,7 +642,7 @@ void process_node(va) KA_T va; /* vnode kernel space address */
 #    endif /* AIXA<2 */
 
         if (width > 0) {
-            if (!g.gn_data || kread((KA_T)g.gn_data, rp, rsz)) {
+            if (!g.gn_data || kread(ctx, (KA_T)g.gn_data, rp, rsz)) {
                 (void)snpf(Namech, Namechl, "remote gnode at %s has no rnode",
                            print_kptr((KA_T)v->v_gnode, (char *)NULL, 0));
                 enter_nm(Namech);
@@ -673,7 +673,7 @@ void process_node(va) KA_T va; /* vnode kernel space address */
          * Read SANFS node and associated structures.
          */
     case N_SANFS:
-        if (!g.gn_data || kread((KA_T)g.gn_data, &san, sizeof(san))) {
+        if (!g.gn_data || kread(ctx, (KA_T)g.gn_data, &san, sizeof(san))) {
             (void)snpf(Namech, Namechl, "gnode at %s has no SANFS node",
                        print_kptr((KA_T)v->v_gnode, (char *)NULL, 0));
             enter_nm(Namech);
@@ -1173,7 +1173,7 @@ void process_shmt(sa) KA_T sa; /* shared memory transport node struct
      * Set type to " SMT" and put shmtnode structure address in device column.
      */
     (void)snpf(Lf->type, sizeof(Lf->type), " SMT");
-    if (!sa || kread((KA_T)sa, (char *)&mn, sizeof(mn))) {
+    if (!sa || kread(ctx, (KA_T)sa, (char *)&mn, sizeof(mn))) {
         (void)snpf(Namech, Namechl, "can't read shmtnode: %s",
                    print_kptr(sa, (char *)NULL, 0));
         enter_nm(Namech);
@@ -1197,7 +1197,7 @@ void process_shmt(sa) KA_T sa; /* shared memory transport node struct
     if (!mn.peer)
         (void)snpf(Namech, Namechl, "->(unknown)");
     else {
-        if (kread((KA_T)mn.peer, (char *)&pn, sizeof(pn)))
+        if (kread(ctx, (KA_T)mn.peer, (char *)&pn, sizeof(pn)))
             (void)snpf(Namech, Namechl, "can't read peer shmtnode: %s",
                        print_kptr((KA_T)mn.peer, (char *)NULL, 0));
         else {

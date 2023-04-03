@@ -497,7 +497,7 @@ static KA_T Vvops[VXVOP_NUM]; /* addresses of:
 #    define GETVOPS(name, nl, ops)                                             \
         if (get_Nl_value(name, nl, &ops) < 0)                                  \
             ops = (KA_T)0;                                                     \
-        else if (kread(ops, (char *)&ops, sizeof(ops)))                        \
+        else if (kread(ctx, ops, (char *)&ops, sizeof(ops)))                        \
         ops = (KA_T)0
 #else /* !defined(VOPNAME_OPEN) || solaris<100000 */
 #    define GETVOPS(name, nl, ops)                                             \
@@ -1047,7 +1047,7 @@ struct vnode *va; /* local vnode address */
         ff = fp = (KA_T)va->v_filocks;
         i = 0;
         do {
-            if (kread(fp, (char *)&f, sizeof(f)))
+            if (kread(ctx, fp, (char *)&f, sizeof(f)))
                 return (' ');
             i++;
             if (f.set.l_pid != (pid_t)Lp->pid)
@@ -1075,7 +1075,7 @@ struct vnode *va; /* local vnode address */
     lf = lp = (KA_T)va->v_filocks;
     i = 0;
     do {
-        if (kread(lp, (char *)&ld, sizeof(ld)))
+        if (kread(ctx, lp, (char *)&ld, sizeof(ld)))
             return (' ');
         i++;
         if (!(LOCK_FLAGS & ACTIVE_LOCK) || LOCK_OWNER != (pid_t)Lp->pid)
@@ -1187,9 +1187,9 @@ struct door_node *d; /* door's node */
     /*
      * Get the proc structure and its pid structure for the door target.
      */
-    if (!d->door_target || kread((KA_T)d->door_target, (char *)&dp, sizeof(dp)))
+    if (!d->door_target || kread(ctx, (KA_T)d->door_target, (char *)&dp, sizeof(dp)))
         return (0);
-    if (!dp.p_pidp || kread((KA_T)dp.p_pidp, (char *)&dpid, sizeof(dpid)))
+    if (!dp.p_pidp || kread(ctx, (KA_T)dp.p_pidp, (char *)&dpid, sizeof(dpid)))
         return (0);
     /*
      * Form a description of the door.
@@ -1416,7 +1416,7 @@ void process_node(va) KA_T va; /* vnode kernel space address */
      * Obtain the Solaris virtual file system structure.
      */
     if ((ka = (KA_T)v->v_vfsp)) {
-        if (kread(ka, (char *)&kv, sizeof(kv))) {
+        if (kread(ctx, ka, (char *)&kv, sizeof(kv))) {
             vka = va;
 
         vfs_read_error:
@@ -1496,10 +1496,10 @@ void process_node(va) KA_T va; /* vnode kernel space address */
 #endif /* solaris>=20500 */
 
         if (Ntype != N_FIFO && nn.nm_filevp &&
-            !kread((KA_T)nn.nm_filevp, (char *)&rv, sizeof(rv))) {
+            !kread(ctx, (KA_T)nn.nm_filevp, (char *)&rv, sizeof(rv))) {
             rvs = 1;
             if ((ka = (KA_T)rv.v_vfsp) &&
-                !kread(ka, (char *)&rkv, sizeof(rkv)) &&
+                !kread(ctx, ka, (char *)&rkv, sizeof(rkv)) &&
                 ((rfx = rkv.vfs_fstype - 1) >= 0) && (rfx < Fsinfomax)) {
                 rfxs = 1;
             } else {
@@ -1773,7 +1773,7 @@ void process_node(va) KA_T va; /* vnode kernel space address */
             rvs = 1;
             llc++;
             if ((ka = (KA_T)rv.v_vfsp) &&
-                !kread(ka, (char *)&rkv, sizeof(rkv)) &&
+                !kread(ctx, ka, (char *)&rkv, sizeof(rkv)) &&
                 ((rfx = rkv.vfs_fstype - 1) >= 0) && (rfx < Fsinfomax)) {
                 rfxs = 1;
             } else {
@@ -1880,7 +1880,7 @@ void process_node(va) KA_T va; /* vnode kernel space address */
 #endif /* defined(HASNCACHE) */
 
                 if ((ka = (KA_T)v->v_vfsp) &&
-                    !kread(ka, (char *)&kv, sizeof(kv))) {
+                    !kread(ctx, ka, (char *)&kv, sizeof(kv))) {
                     kvs = 1;
                 }
                 if (kvs && ((fx = kv.vfs_fstype - 1) >= 0) &&
@@ -2649,7 +2649,7 @@ void process_node(va) KA_T va; /* vnode kernel space address */
                 devs = 0;
             }
             if (soso.laddr.buf && soso.laddr.len == sizeof(ua)) {
-                if (kread((KA_T)soso.laddr.buf, (char *)&ua, sizeof(ua)) == 0) {
+                if (kread(ctx, (KA_T)soso.laddr.buf, (char *)&ua, sizeof(ua)) == 0) {
                     ua.sun_path[sizeof(ua.sun_path) - 1] = '\0';
                     if (ua.sun_path[0]) {
                         if (Sfile && is_file_named(ua.sun_path, Ntype, type, 0))
@@ -2708,7 +2708,7 @@ void process_node(va) KA_T va; /* vnode kernel space address */
         if (zns) {
             if (!read_nzvfs((KA_T)v->v_data, (KA_T)zn.z_zfsvfs, &zvfs) &&
                 zvfs.z_vfs &&
-                !kread((KA_T)zvfs.z_vfs, (char *)&zgvfs, sizeof(zgvfs))) {
+                !kread(ctx, (KA_T)zvfs.z_vfs, (char *)&zgvfs, sizeof(zgvfs))) {
                 dev = zgvfs.vfs_dev;
                 devs = 1;
             }
@@ -2870,7 +2870,7 @@ void process_node(va) KA_T va; /* vnode kernel space address */
 
     case N_PCFS:
         if (kvs && kv.vfs_data &&
-            !kread((KA_T)kv.vfs_data, (char *)&pcfs, sizeof(pcfs))) {
+            !kread(ctx, (KA_T)kv.vfs_data, (char *)&pcfs, sizeof(pcfs))) {
 
 #if solaris >= 70000
 #    if defined(HAS_PC_DIRENTPERSEC)
@@ -3362,7 +3362,7 @@ void process_node(va) KA_T va; /* vnode kernel space address */
         Namech[Namechl - 1] = '\0';
 #    else  /* solaris>=20600 */
         if (fnn.fn_name && (len = fnn.fn_namelen) > 0 && len < (Namechl - 1)) {
-            if (kread((KA_T)fnn.fn_name, Namech, len))
+            if (kread(ctx, (KA_T)fnn.fn_name, Namech, len))
                 Namech[0] = '\0';
             else
                 Namech[len] = '\0';
@@ -3783,7 +3783,7 @@ int dinl;            /* sizeof(*din) */
         return (1);
     *din = '\0';
     if (rs->s_dip) {
-        if (kread((KA_T)rs->s_dip, (char *)di, sizeof(struct dev_info))) {
+        if (kread(ctx, (KA_T)rs->s_dip, (char *)di, sizeof(struct dev_info))) {
             (void)snpf(Namech, Namechl - 1,
                        "common snode at %s: no dev info: %s",
                        print_kptr((KA_T)rv->v_data, tbuf, sizeof(tbuf)),
@@ -3792,7 +3792,7 @@ int dinl;            /* sizeof(*din) */
             enter_nm(Namech);
             return (1);
         }
-        if (di->devi_name && kread((KA_T)di->devi_name, din, dinl - 1) == 0)
+        if (di->devi_name && kread(ctx, (KA_T)di->devi_name, din, dinl - 1) == 0)
             din[dinl - 1] = '\0';
     }
     return (0);
@@ -3806,7 +3806,7 @@ static int readinode(ia, i)
 KA_T ia;         /* inode kernel address */
 struct inode *i; /* inode buffer */
 {
-    if (kread((KA_T)ia, (char *)i, sizeof(struct inode))) {
+    if (kread(ctx, (KA_T)ia, (char *)i, sizeof(struct inode))) {
         (void)snpf(Namech, Namechl - 1, "can't read inode at %s",
                    print_kptr((KA_T)ia, (char *)NULL, 0));
         Namech[Namechl - 1] = '\0';
@@ -3828,7 +3828,7 @@ struct door_node *dn; /* door node receiver */
 {
     char tbuf[32];
 
-    if (!da || kread((KA_T)da, (char *)dn, sizeof(struct door_node))) {
+    if (!da || kread(ctx, (KA_T)da, (char *)dn, sizeof(struct door_node))) {
         (void)snpf(Namech, Namechl - 1, "vnode at %s: can't read door_node: %s",
                    print_kptr(na, tbuf, sizeof(tbuf)),
                    print_kptr(da, (char *)NULL, 0));
@@ -3867,7 +3867,7 @@ struct l_dev **sdp;              /* returned device pointer */
      */
     if (!s)
         return;
-    if (kread((KA_T)s, (char *)&sd, sizeof(sd))) {
+    if (kread(ctx, (KA_T)s, (char *)&sd, sizeof(sd))) {
         (void)snpf(Namech, Namechl - 1, "can't read stream head: %s",
                    print_kptr(s, (char *)NULL, 0));
         Namech[Namechl - 1] = '\0';
@@ -3899,15 +3899,15 @@ struct l_dev **sdp;              /* returned device pointer */
     mn[nl] = '\0';
     qp = (KA_T)sd.sd_wrq;
     for (i = 0; qp && i < 20; i++, qp = (KA_T)q.q_next) {
-        if (!qp || kread(qp, (char *)&q, sizeof(q)))
+        if (!qp || kread(ctx, qp, (char *)&q, sizeof(q)))
             break;
         if ((ka = (KA_T)q.q_qinfo) == (KA_T)NULL ||
-            kread(ka, (char *)&qi, sizeof(qi)))
+            kread(ctx, ka, (char *)&qi, sizeof(qi)))
             continue;
         if ((ka = (KA_T)qi.qi_minfo) == (KA_T)NULL ||
-            kread(ka, (char *)&mi, sizeof(mi)))
+            kread(ctx, ka, (char *)&mi, sizeof(mi)))
             continue;
-        if ((ka = (KA_T)mi.mi_idname) == (KA_T)NULL || kread(ka, mn, nl))
+        if ((ka = (KA_T)mi.mi_idname) == (KA_T)NULL || kread(ctx, ka, mn, nl))
             continue;
         if ((j = (int)strlen(mn)) < 1)
             continue;
@@ -3924,7 +3924,7 @@ struct l_dev **sdp;              /* returned device pointer */
 
                 struct so_so s;
 
-                if (!kread((KA_T)q.q_ptr, (char *)&s, sizeof(s))) {
+                if (!kread(ctx, (KA_T)q.q_ptr, (char *)&s, sizeof(s))) {
                     if (!(*so_st))
                         so_ad[0] = (KA_T)q.q_ptr;
                     else
@@ -3968,9 +3968,9 @@ struct fnnode *rn; /* autofs node receiver */
     char tbuf[32];
 
 #    if solaris < 20600
-    if (!aa || kread((KA_T)aa, (char *)rn, sizeof(struct autonode)))
+    if (!aa || kread(ctx, (KA_T)aa, (char *)rn, sizeof(struct autonode)))
 #    else  /* solaris>=20600 */
-    if (!aa || kread((KA_T)aa, (char *)rn, sizeof(struct fnnode)))
+    if (!aa || kread(ctx, (KA_T)aa, (char *)rn, sizeof(struct fnnode)))
 #    endif /* solaris<20600 */
 
     {
@@ -4004,7 +4004,7 @@ struct cnode *cn; /* cache node receiver */
 {
     char tbuf[32];
 
-    if (!ca || kread((KA_T)ca, (char *)cn, sizeof(struct cnode))) {
+    if (!ca || kread(ctx, (KA_T)ca, (char *)cn, sizeof(struct cnode))) {
         (void)snpf(Namech, Namechl - 1, "node at %s: can't read cnode: %s",
                    print_kptr(na, tbuf, sizeof(tbuf)),
                    print_kptr(ca, (char *)NULL, 0));
@@ -4081,7 +4081,7 @@ char *cn; /* CTFS node receiver */
         enter_nm(Namech);
         return (1);
     }
-    if (!ca || kread((KA_T)ca, cn, sz)) {
+    if (!ca || kread(ctx, (KA_T)ca, cn, sz)) {
         (void)snpf(Namech, Namechl - 1,
                    "node at %s: can't read CTFS %s node: %s",
                    print_kptr(na, tbuf, sizeof(tbuf)), nm,
@@ -4171,7 +4171,7 @@ struct lnode *ln; /* loopback node receiver */
 {
     char tbuf[32];
 
-    if (!la || kread((KA_T)la, (char *)ln, sizeof(struct lnode))) {
+    if (!la || kread(ctx, (KA_T)la, (char *)ln, sizeof(struct lnode))) {
         (void)snpf(Namech, Namechl - 1, "node at %s: can't read lnode: %s",
                    print_kptr(na, tbuf, sizeof(tbuf)),
                    print_kptr(la, (char *)NULL, 0));
@@ -4193,7 +4193,7 @@ struct namenode *nn; /* namenode receiver */
 {
     char tbuf[32];
 
-    if (!nna || kread((KA_T)nna, (char *)nn, sizeof(struct namenode))) {
+    if (!nna || kread(ctx, (KA_T)nna, (char *)nn, sizeof(struct namenode))) {
         (void)snpf(Namech, Namechl - 1, "node at %s: can't read namenode: %s",
                    print_kptr(na, tbuf, sizeof(tbuf)),
                    print_kptr(nna, (char *)NULL, 0));
@@ -4215,7 +4215,7 @@ struct mvfsnode *m; /* mvfsnode receiver */
 {
     char tbuf[32];
 
-    if (!ma || kread((KA_T)ma, (char *)m, sizeof(struct mvfsnode))) {
+    if (!ma || kread(ctx, (KA_T)ma, (char *)m, sizeof(struct mvfsnode))) {
         (void)snpf(Namech, Namechl - 1, "node at %s: can't read mvfsnode: %s",
                    print_kptr(na, tbuf, sizeof(tbuf)),
                    print_kptr(ma, (char *)NULL, 0));
@@ -4251,7 +4251,7 @@ struct pid *pids; /* pid structure receiver */
     char *ty = (char *)NULL;
 #    endif /* solaris>=20600 */
 
-    if (!v->v_data || kread((KA_T)v->v_data, (char *)&pr, sizeof(pr))) {
+    if (!v->v_data || kread(ctx, (KA_T)v->v_data, (char *)&pr, sizeof(pr))) {
         (void)snpf(Namech, Namechl - 1, "node at %s: can't read prnode: %s",
                    print_kptr(na, tbuf, sizeof(tbuf)),
                    print_kptr((KA_T)v->v_data, (char *)NULL, 0));
@@ -4283,7 +4283,7 @@ struct pid *pids; /* pid structure receiver */
         }
         return (0);
     }
-    if (kread((KA_T)pr.pr_proc, (char *)&p, sizeof(p))) {
+    if (kread(ctx, (KA_T)pr.pr_proc, (char *)&p, sizeof(p))) {
         (void)snpf(Namech, Namechl - 1, "prnode at %s: can't read proc: %s",
                    print_kptr((KA_T)v->v_data, tbuf, sizeof(tbuf)),
                    print_kptr((KA_T)pr.pr_proc, (char *)NULL, 0));
@@ -4291,11 +4291,11 @@ struct pid *pids; /* pid structure receiver */
         enter_nm(Namech);
         return (1);
     }
-    if (p.p_as && !kread((KA_T)p.p_as, (char *)&as, sizeof(as))) {
+    if (p.p_as && !kread(ctx, (KA_T)p.p_as, (char *)&as, sizeof(as))) {
         Lf->sz = (SZOFFTYPE)as.a_size;
         Lf->sz_def = 1;
     }
-    if (!p.p_pidp || kread((KA_T)p.p_pidp, (char *)pids, sizeof(struct pid))) {
+    if (!p.p_pidp || kread(ctx, (KA_T)p.p_pidp, (char *)pids, sizeof(struct pid))) {
         (void)snpf(Namech, Namechl - 1, "proc struct at %s: can't read pid: %s",
                    print_kptr((KA_T)pr.pr_proc, tbuf, sizeof(tbuf)),
                    print_kptr((KA_T)p.p_pidp, (char *)NULL, 0));
@@ -4321,37 +4321,37 @@ struct pid *pids; /* pid structure receiver */
      * Identify the lwp PID (the thread ID).
      */
     if (pr.pr_common &&
-        kread((KA_T)pr.pr_common, (char *)&pc, sizeof(pc)) == 0) {
+        kread(ctx, (KA_T)pr.pr_common, (char *)&pc, sizeof(pc)) == 0) {
         pcs = 1;
-        if (pc.prc_proc && kread((KA_T)pc.prc_proc, (char *)&p, sizeof(p)) == 0)
+        if (pc.prc_proc && kread(ctx, (KA_T)pc.prc_proc, (char *)&p, sizeof(p)) == 0)
             prpcs = 1;
         else
             prpcs = 0;
     } else
         pcs = prpcs = 0;
     if (pr.pr_pcommon &&
-        kread((KA_T)pr.pr_pcommon, (char *)&ppc, sizeof(ppc)) == 0) {
+        kread(ctx, (KA_T)pr.pr_pcommon, (char *)&ppc, sizeof(ppc)) == 0) {
         ppcs = 1;
         if (ppc.prc_proc &&
-            kread((KA_T)ppc.prc_proc, (char *)&pp, sizeof(pp)) == 0)
+            kread(ctx, (KA_T)ppc.prc_proc, (char *)&pp, sizeof(pp)) == 0)
             prppcs = 1;
         else
             prppcs = 0;
     } else
         ppcs = prppcs = 0;
     if (prpcs && p.p_pidp &&
-        kread((KA_T)p.p_pidp, (char *)pids, sizeof(struct pid)) == 0)
+        kread(ctx, (KA_T)p.p_pidp, (char *)pids, sizeof(struct pid)) == 0)
         prpid = pids->pid_id;
     else if (prppcs && pp.p_pidp &&
-             kread((KA_T)pp.p_pidp, (char *)pids, sizeof(struct pid)) == 0)
+             kread(ctx, (KA_T)pp.p_pidp, (char *)pids, sizeof(struct pid)) == 0)
         prpid = pids->pid_id;
     else
         pids->pid_id = prpid = (pid_t)0;
     if (pcs && pc.prc_thread &&
-        kread((KA_T)pc.prc_thread, (char *)&thread, sizeof(kthread_t)) == 0)
+        kread(ctx, (KA_T)pc.prc_thread, (char *)&thread, sizeof(kthread_t)) == 0)
         prtid = thread.t_tid;
     else if (ppcs && ppc.prc_thread &&
-             kread((KA_T)ppc.prc_thread, (char *)&thread, sizeof(kthread_t)) ==
+             kread(ctx, (KA_T)ppc.prc_thread, (char *)&thread, sizeof(kthread_t)) ==
                  0)
         prtid = thread.t_tid;
     else
@@ -4372,8 +4372,8 @@ struct pid *pids; /* pid structure receiver */
     case PR_AS:
         (void)snpf(Namech, Namechl - 1, "/%s/%d/as", HASPROCFS, (int)prpid);
         ty = "PAS";
-        if (prpcs && kread((KA_T)pc.prc_proc, (char *)&p, sizeof(p)) == 0 &&
-            p.p_as && kread((KA_T)p.p_as, (char *)&as, sizeof(as)) == 0) {
+        if (prpcs && kread(ctx, (KA_T)pc.prc_proc, (char *)&p, sizeof(p)) == 0 &&
+            p.p_as && kread(ctx, (KA_T)p.p_as, (char *)&as, sizeof(as)) == 0) {
             Lf->sz = (SZOFFTYPE)as.a_size;
             Lf->sz_def = 1;
         }
@@ -4567,7 +4567,7 @@ struct pcnode *p; /* pcnode receiver */
 {
     char tbuf[32];
 
-    if (!pa || kread(pa, (char *)p, sizeof(struct pcnode))) {
+    if (!pa || kread(ctx, pa, (char *)p, sizeof(struct pcnode))) {
         (void)snpf(Namech, Namechl - 1, "node at %s: can't read pcnode: %s",
                    print_kptr(na, tbuf, sizeof(tbuf)),
                    print_kptr(pa, (char *)NULL, 0));
@@ -4590,7 +4590,7 @@ port_t *p; /* port node receiver */
 {
     char tbuf[32];
 
-    if (!pa || kread(pa, (char *)p, sizeof(port_t))) {
+    if (!pa || kread(ctx, pa, (char *)p, sizeof(port_t))) {
         (void)snpf(Namech, Namechl - 1, "node at %s: can't read port node: %s",
                    print_kptr(na, tbuf, sizeof(tbuf)),
                    print_kptr(pa, (char *)NULL, 0));
@@ -4636,7 +4636,7 @@ struct rnode4 *r; /* rnode receiver */
 {
     char tbuf[32];
 
-    if (!ra || kread((KA_T)ra, (char *)r, sizeof(struct rnode4))) {
+    if (!ra || kread(ctx, (KA_T)ra, (char *)r, sizeof(struct rnode4))) {
         (void)snpf(Namech, Namechl - 1, "node at %s: can't read rnode4: %s",
                    print_kptr(na, tbuf, sizeof(tbuf)),
                    print_kptr(ra, (char *)NULL, 0));
@@ -4662,7 +4662,7 @@ struct vattr *sdva;    /* sdev_node's vattr receiver */
     KA_T va;
     char tbuf[32], tbuf1[32];
 
-    if (!sa || kread((KA_T)sa, (char *)sdn, sizeof(struct sdev_node))) {
+    if (!sa || kread(ctx, (KA_T)sa, (char *)sdn, sizeof(struct sdev_node))) {
         (void)snpf(Namech, Namechl - 1, "node at %s: can't read sdev_node: %s",
                    print_kptr(na, tbuf, sizeof(tbuf)),
                    print_kptr(sa, (char *)NULL, 0));
@@ -4671,7 +4671,7 @@ struct vattr *sdva;    /* sdev_node's vattr receiver */
         return (1);
     }
     if (!(va = (KA_T)sdn->sdev_attr) ||
-        kread(va, (char *)sdva, sizeof(struct vattr))) {
+        kread(ctx, va, (char *)sdva, sizeof(struct vattr))) {
         (void)snpf(Namech, Namechl - 1,
                    "node at %s; sdev_node at %s: can't read vattr: %s",
                    print_kptr(na, tbuf, sizeof(tbuf)),
@@ -4698,7 +4698,7 @@ struct sonode *sn; /* sonode receiver */
 {
     char tbuf[32];
 
-    if (!sa || kread((KA_T)sa, (char *)sn, sizeof(struct sonode))) {
+    if (!sa || kread(ctx, (KA_T)sa, (char *)sn, sizeof(struct sonode))) {
         (void)snpf(Namech, Namechl - 1, "node at %s: can't read sonode: %s",
                    print_kptr(na, tbuf, sizeof(tbuf)),
                    print_kptr(sa, (char *)NULL, 0));
@@ -4800,7 +4800,7 @@ struct sockaddr_un *ua; /* local sockaddr_un address */
     ua->sun_path[0] = '\0';
 
     if (!(a = (KA_T)so->soa_sa) || (len = so->soa_len) < (min + 2) ||
-        len > (int)sizeof(struct sockaddr_un) || kread(a, (char *)ua, len) ||
+        len > (int)sizeof(struct sockaddr_un) || kread(ctx, a, (char *)ua, len) ||
         ua->sun_family != AF_UNIX)
         return (0);
     len -= min;
@@ -5216,7 +5216,7 @@ unsigned char *devs; /* status of *dev */
     /*
      * Read the snode.
      */
-    if (!da || kread((KA_T)da, (char *)&s, sizeof(s))) {
+    if (!da || kread(ctx, (KA_T)da, (char *)&s, sizeof(s))) {
         (void)snpf(Namech, Namechl - 1,
                    "dv_node vnode at %s: can't read snode: %s",
                    print_kptr(na, tbuf, sizeof(tbuf)),
@@ -5229,7 +5229,7 @@ unsigned char *devs; /* status of *dev */
      * Read the snode's real vnode.
      */
     if (!s.s_realvp ||
-        kread((KA_T)s.s_realvp, (char *)&rv, sizeof(struct dv_node))) {
+        kread(ctx, (KA_T)s.s_realvp, (char *)&rv, sizeof(struct dv_node))) {
         (void)snpf(Namech, Namechl - 1,
                    "dv_node snode at %s: can't read real vnode: %s",
                    print_kptr(da, tbuf, sizeof(tbuf)),
@@ -5241,7 +5241,7 @@ unsigned char *devs; /* status of *dev */
     /*
      * Read the real vnode's dv_node.
      */
-    if (!rv.v_data || kread((KA_T)rv.v_data, (char *)dv, sizeof(rv))) {
+    if (!rv.v_data || kread(ctx, (KA_T)rv.v_data, (char *)dv, sizeof(rv))) {
         (void)snpf(Namech, Namechl - 1,
                    "dv_node real vnode at %s: can't read dv_node: %s",
                    print_kptr((KA_T)s.s_realvp, tbuf, sizeof(tbuf)),
@@ -5253,7 +5253,7 @@ unsigned char *devs; /* status of *dev */
     /*
      * Return the device number of the underlying file system, if possible.
      */
-    if (rv.v_vfsp && !kread((KA_T)rv.v_vfsp, (char *)&v, sizeof(v))) {
+    if (rv.v_vfsp && !kread(ctx, (KA_T)rv.v_vfsp, (char *)&v, sizeof(v))) {
         *dev = v.vfs_dev;
         *devs = 1;
     }

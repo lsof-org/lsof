@@ -233,19 +233,19 @@ void gather_proc_info(struct lsof_context *ctx) {
                          &sf)) {
             continue;
         }
-        if (!p->P_FD || kread((KA_T)p->P_FD, (char *)&fd, sizeof(fd)))
+        if (!p->P_FD || kread(ctx, (KA_T)p->P_FD, (char *)&fd, sizeof(fd)))
             continue;
         if (!fd.fd_refcnt)
             continue;
 #if HAVE_STRUCT_FDTAB
-        if (!fd.fd_dt || kread((KA_T)fd.fd_dt, (char *)&dt, sizeof(dt)))
+        if (!fd.fd_dt || kread(ctx, (KA_T)fd.fd_dt, (char *)&dt, sizeof(dt)))
             continue;
 #endif /* ! HAVE_STRUCT_FDTAB */
         if (fd.fd_lastfile > NFILES(fd, dt))
             continue;
 
 #if defined(HASCWDINFO)
-        if (!p->P_CWDI || kread((KA_T)p->P_CWDI, (char *)&cw, sizeof(cw)))
+        if (!p->P_CWDI || kread(ctx, (KA_T)p->P_CWDI, (char *)&cw, sizeof(cw)))
             CDIR = RDIR = (struct vnode *)NULL;
 #endif /* defined(HASCWDINFO) */
 
@@ -302,7 +302,7 @@ void gather_proc_info(struct lsof_context *ctx) {
             }
             ofbb = nb;
         }
-        if (kread((KA_T)OFILES(fd, dt), (char *)ofb, nb))
+        if (kread(ctx, (KA_T)OFILES(fd, dt), (char *)ofb, nb))
             continue;
 
 #if defined(HASFSTRUCT)
@@ -321,7 +321,8 @@ void gather_proc_info(struct lsof_context *ctx) {
                 pofb = nb;
             }
 #    if !HAVE_STRUCT_FDFILE
-            if (!fd.fd_ofileflags || kread((KA_T)fd.fd_ofileflags, pof, nb))
+            if (!fd.fd_ofileflags ||
+                kread(ctx, (KA_T)fd.fd_ofileflags, pof, nb))
                 zeromem(pof, nb);
 #    endif /* ! HAVE_STRUCT_FDFILE */
         }
@@ -334,7 +335,7 @@ void gather_proc_info(struct lsof_context *ctx) {
             if (ofb[i]) {
 #if HAVE_STRUCT_FDFILE
                 struct fdfile fdf;
-                if (kread((KA_T)ofb[i], (char *)&fdf, sizeof(fdf)))
+                if (kread(ctx, (KA_T)ofb[i], (char *)&fdf, sizeof(fdf)))
                     continue;
                 Cfp = fdf.ff_file;
                 if (Cfp == NULL)
@@ -443,7 +444,7 @@ static void get_kernel_access(struct lsof_context *ctx) {
      * Read the kernel's page shift amount, if possible.
      */
     if (get_Nl_value("pgshift", Drive_Nl, &v) < 0 || !v ||
-        kread((KA_T)v, (char *)&pgshift, sizeof(pgshift)))
+        kread(ctx, (KA_T)v, (char *)&pgshift, sizeof(pgshift)))
         pgshift = 0;
 }
 
@@ -491,10 +492,9 @@ void initialize(struct lsof_context *ctx) { get_kernel_access(ctx); }
  * kread() - read from kernel memory
  */
 
-int kread(addr, buf, len)
-KA_T addr;     /* kernel memory address */
-char *buf;     /* buffer to receive data */
-READLEN_T len; /* length to read */
+int kread(struct lsof_context *ctx, KA_T addr, /* kernel memory address */
+          char *buf,                           /* buffer to receive data */
+          READLEN_T len)                       /* length to read */
 {
     int br;
 
@@ -522,7 +522,7 @@ void process_text(struct lsof_context *ctx,
     /*
      * Read the vmspace structure for the process.
      */
-    if (kread(vm, (char *)&vmsp, sizeof(vmsp)))
+    if (kread(ctx, vm, (char *)&vmsp, sizeof(vmsp)))
         return;
         /*
          * Read the vm_map structure.  Search its vm_map_entry structure list.
@@ -544,7 +544,7 @@ void process_text(struct lsof_context *ctx,
             if (!(ka = (KA_T)e->next))
                 return;
             e = &vmme;
-            if (kread(ka, (char *)e, sizeof(vmme)))
+            if (kread(ctx, ka, (char *)e, sizeof(vmme)))
                 return;
         }
 
@@ -564,9 +564,10 @@ void process_text(struct lsof_context *ctx,
             continue;
         for (j = 0, ka = (KA_T)e->object.vm_object; j < 2 && ka;
              j++, ka = (KA_T)vmo.shadow) {
-            if (kread(ka, (char *)&vmo, sizeof(vmo)))
+            if (kread(ctx, ka, (char *)&vmo, sizeof(vmo)))
                 break;
-            if (!(ka = (KA_T)vmo.pager) || kread(ka, (char *)&pg, sizeof(pg)))
+            if (!(ka = (KA_T)vmo.pager) ||
+                kread(ctx, ka, (char *)&pg, sizeof(pg)))
                 continue;
             if (!pg.pg_handle || pg.pg_type != PG_VNODE)
                 continue;

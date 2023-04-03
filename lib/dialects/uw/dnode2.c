@@ -84,7 +84,7 @@ struct l_ino *i; /* local inode information */
 #if defined(HASVXFS)
     struct vx_inode vx;
 
-    if (kread((KA_T)v->v_data, (char *)&vx, sizeof(vx)))
+    if (kread(ctx, (KA_T)v->v_data, (char *)&vx, sizeof(vx)))
         return (1);
     i->dev = vx.i_dev;
     i->dev_def = 1;

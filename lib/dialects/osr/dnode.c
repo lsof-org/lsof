@@ -231,7 +231,7 @@ void process_node(na) KA_T na; /* inode kernel space address */
     if ((flf = (KA_T)i.i_filocks)) {
         flp = flf;
         do {
-            if ((kread(flp, (char *)&fl, sizeof(fl))))
+            if ((kread(ctx, flp, (char *)&fl, sizeof(fl))))
                 break;
             if (fl.set.l_pid != (pid_t)Lp->pid)
                 continue;
@@ -266,7 +266,7 @@ void process_node(na) KA_T na; /* inode kernel space address */
         hpps = 1;
         if (i.i_fsptr) {
             enter_dev_ch(print_kptr((KA_T)i.i_fsptr, (char)NULL, 0));
-            if (kread((KA_T)i.i_fsptr, (char *)&pi, sizeof(pi)) == 0)
+            if (kread(ctx, (KA_T)i.i_fsptr, (char *)&pi, sizeof(pi)) == 0)
                 hpps = 2;
         }
     }
@@ -327,20 +327,20 @@ void process_node(na) KA_T na; /* inode kernel space address */
              * cdevsw[].d_name.
              */
             p = (KA_T)NULL;
-            if (!kread((KA_T)i.i_sptr, (char *)&sd, sizeof(sd))) {
+            if (!kread(ctx, (KA_T)i.i_sptr, (char *)&sd, sizeof(sd))) {
                 dl = sizeof(tbuf) - 1;
                 tbuf[dl] = '\0';
                 qp = (KA_T)sd.sd_wrq;
                 for (j = 0; qp && j < 20; j++, qp = (KA_T)q.q_next) {
-                    if (kread(qp, (char *)&q, sizeof(q)))
+                    if (kread(ctx, qp, (char *)&q, sizeof(q)))
                         break;
                     if (!(ka = (KA_T)q.q_qinfo) ||
-                        kread(ka, (char *)&qi, sizeof(qi)))
+                        kread(ctx, ka, (char *)&qi, sizeof(qi)))
                         continue;
                     if (!(ka = (KA_T)qi.qi_minfo) ||
-                        kread(ka, (char *)&mi, sizeof(mi)))
+                        kread(ctx, ka, (char *)&mi, sizeof(mi)))
                         continue;
-                    if (!(ka = (KA_T)mi.mi_idname) || kread(ka, tbuf, dl))
+                    if (!(ka = (KA_T)mi.mi_idname) || kread(ctx, ka, tbuf, dl))
                         continue;
                     if ((l = strlen(tbuf)) < 1)
                         continue;
@@ -388,7 +388,7 @@ void process_node(na) KA_T na; /* inode kernel space address */
                  * If the stream has a TCP or UDP module with a PCB pointer,
                  * print any associated local and foreign Internet addresses.
                  */
-                if (kread(p, (char *)&pcb, sizeof(pcb)))
+                if (kread(ctx, p, (char *)&pcb, sizeof(pcb)))
                     break;
                 if (Fnet)
                     Lf->sf |= SELNET;
@@ -400,7 +400,7 @@ void process_node(na) KA_T na; /* inode kernel space address */
                      * If this is a UDP stream, get the udpdev structure at the
                      * PCB's per-protocol address.  It may contain addresses.
                      */
-                    if (kread((KA_T)pcb.inp_ppcb, (char *)&udp, sizeof(udp)) ==
+                    if (kread(ctx, (KA_T)pcb.inp_ppcb, (char *)&udp, sizeof(udp)) ==
                         0) {
 
 #if OSRV >= 500

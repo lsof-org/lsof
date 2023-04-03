@@ -383,7 +383,7 @@ KA_T *vnops;       /* table of VxFS v_op values */
      */
     if (v->v_data && v->v_op && (VXVOP_FDDCH < VXVOP_NUM) &&
         vnops[VXVOP_FDDCH] && ((KA_T)v->v_op == vnops[VXVOP_FDDCH])) {
-        if (kread((KA_T)v->v_data, (char *)&cv, sizeof(cv))) {
+        if (kread(ctx, (KA_T)v->v_data, (char *)&cv, sizeof(cv))) {
             (void)snpf(Namech, Namechl,
                        "node at %s: can't read real vx vnode: %s",
                        print_kptr(va, tbuf, sizeof(tbuf)),
@@ -433,7 +433,7 @@ KA_T *vnops;       /* table of VxFS v_op values */
     /*
      * Read vnode's vx_inode.
      */
-    if (!v->v_data || kread((KA_T)v->v_data, vxp, vxl)) {
+    if (!v->v_data || kread(ctx, (KA_T)v->v_data, vxp, vxl)) {
         (void)snpf(Namech, Namechl, "node at %s: can't read vx_inode: %s",
                    print_kptr(va, tbuf, sizeof(tbuf)),
                    print_kptr((KA_T)v->v_data, (char *)NULL, 0));

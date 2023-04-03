@@ -190,7 +190,8 @@ _PROTOTYPE(extern int is_proc_excl,
 #    endif /* defined(HASTASKS) */
 
 _PROTOTYPE(extern int is_readable, (char *path, int msg));
-_PROTOTYPE(extern int kread, (KA_T addr, char *buf, READLEN_T len));
+_PROTOTYPE(extern int kread,
+           (struct lsof_context * ctx, KA_T addr, char *buf, READLEN_T len));
 _PROTOTYPE(extern void link_lfile, (struct lsof_context * ctx));
 _PROTOTYPE(extern struct l_dev *lkupdev,
            (struct lsof_context * ctx, dev_t *dev, dev_t *rdev, int i, int r));
@@ -278,7 +279,8 @@ _PROTOTYPE(extern int readhsnode, (KA_T ha, struct hsnode *h));
 #    endif /* defined(HASHSNODE) */
 
 #    if defined(HASINODE)
-_PROTOTYPE(extern int readinode, (KA_T ia, struct inode *i));
+_PROTOTYPE(extern int readinode,
+           (struct lsof_context * ctx, KA_T ia, struct inode *i));
 #    endif /* defined(HASINODE) */
 
 #    if defined(HASNCACHE)

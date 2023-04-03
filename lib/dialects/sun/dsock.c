@@ -716,7 +716,7 @@ struct sonode *so; /* pointer to socket's sonode */
                */
     if (!(pha = (KA_T)so->so_proto_handle))
         return (0);
-    if (kread(pha, (char *)&cs, sizeof(cs))) {
+    if (kread(ctx, pha, (char *)&cs, sizeof(cs))) {
         (void)snpf(Namech, Namechl,
                    "vnode at %s; snode at %s; can't read proto handle at: %s",
                    print_kptr(va, tbuf, sizeof(tbuf)),
@@ -750,7 +750,7 @@ struct sonode *so; /* pointer to socket's sonode */
              * Process TCP socket; read its control structure.
              */
             if (!(ka = (KA_T)cs.conn_proto_priv.cp_tcp) ||
-                kread(ka, (char *)&tc, sizeof(tc))) {
+                kread(ctx, ka, (char *)&tc, sizeof(tc))) {
                 (void)snpf(Namech, Namechl - 1,
                            "can't read TCP socket's control structure: %s",
                            print_kptr((KA_T)ka, (char *)NULL, 0));
@@ -831,13 +831,13 @@ struct sonode *so; /* pointer to socket's sonode */
 
 #    if defined(HAS_CONN_NEW)
             if ((ka = (KA_T)cs.conn_ixa) &&
-                !kread(ka, (char *)&xa, sizeof(xa))) {
+                !kread(ctx, ka, (char *)&xa, sizeof(xa))) {
                 xp = (caddr_t *)&xa;
             }
             (void)save_TCP_states(&tc, (caddr_t *)&cs, (tcpb_t *)NULL, xp);
 #    else  /* !defined(HAS_CONN_NEW) */
             if (tc.tcp_tcp_hdr_len && (ka = (KA_T)tc.tcp_tcph) &&
-                !kread(ka, (char *)&th, sizeof(th))) {
+                !kread(ctx, ka, (char *)&th, sizeof(th))) {
                 tha = &th;
             }
             (void)save_TCP_states(&tc, (caddr_t *)tha, (tcpb_t *)NULL,
@@ -857,7 +857,7 @@ struct sonode *so; /* pointer to socket's sonode */
              * Process UDP socket; read its control structure.
              */
             if (!(ka = (KA_T)cs.conn_proto_priv.cp_udp) ||
-                kread(ka, (char *)&uc, sizeof(uc))) {
+                kread(ctx, ka, (char *)&uc, sizeof(uc))) {
                 (void)snpf(Namech, Namechl - 1,
                            "can't read UDP socket's control structure: %s",
                            print_kptr((KA_T)ka, (char *)NULL, 0));
@@ -1302,23 +1302,23 @@ char *ty;                            /* socket type name */
     else
         qp = (KA_T)sd.sd_wrq;
     for (i = 0; qp && i < 20; i++, qp = (KA_T)q.q_next) {
-        if (kread(qp, (char *)&q, sizeof(q)))
+        if (kread(ctx, qp, (char *)&q, sizeof(q)))
             break;
         if ((ka = (KA_T)q.q_qinfo) == (KA_T)NULL ||
-            kread(ka, (char *)&qi, sizeof(qi)))
+            kread(ctx, ka, (char *)&qi, sizeof(qi)))
             continue;
         if ((ka = (KA_T)qi.qi_minfo) == (KA_T)NULL ||
-            kread(ka, (char *)&mi, sizeof(mi)) ||
+            kread(ctx, ka, (char *)&mi, sizeof(mi)) ||
             (ka = (KA_T)mi.mi_idname) == (KA_T)NULL)
             continue;
-        if (kread(ka, (char *)&tbuf, sizeof(tbuf) - 1))
+        if (kread(ctx, ka, (char *)&tbuf, sizeof(tbuf) - 1))
             continue;
         if ((pcb = (KA_T)q.q_ptr) == (KA_T)NULL)
             continue;
 
 #if solaris < 110000
         if (strncasecmp(tbuf, "IP", 2) == 0) {
-            if (kread(pcb, (char *)&ic, sizeof(ic)) == 0)
+            if (kread(ctx, pcb, (char *)&ic, sizeof(ic)) == 0)
                 ics = 1;
             continue;
         }
@@ -1327,12 +1327,12 @@ char *ty;                            /* socket type name */
         if (strncasecmp(tbuf, "TCP", 3) == 0) {
 
 #if solaris <= 90000 || !defined(HAS_IPCLASSIFIER_H)
-            if (!kread((KA_T)pcb, (char *)&tc, sizeof(tc)))
+            if (!kread(ctx, (KA_T)pcb, (char *)&tc, sizeof(tc)))
 
 #    if solaris >= 80000
             {
                 if (tc.tcp_base &&
-                    !kread((KA_T)tc.tcp_base, (char *)&tcb, sizeof(tcb))) {
+                    !kread(ctx, (KA_T)tc.tcp_base, (char *)&tcb, sizeof(tcb))) {
                     tcs = 1;
                     tcbp = &tcb;
                 }
@@ -1344,17 +1344,17 @@ char *ty;                            /* socket type name */
 #    endif /* solaris>=80000 */
 #else      /* solaris>90000 && defined(HAS_IPCLASSIFIER_H) */
 #    if solaris >= 110000
-            if (!kread(pcb, (char *)&cs, sizeof(cs)) &&
+            if (!kread(ctx, pcb, (char *)&cs, sizeof(cs)) &&
                 (cs.conn_ulp == IPPROTO_TCP)) {
                 ics = 1;
                 if ((ka = (KA_T)cs.conn_proto_priv.cp_tcp) &&
-                    !kread(ka, (char *)&tc, sizeof(tc))) {
+                    !kread(ctx, ka, (char *)&tc, sizeof(tc))) {
                     tcs = 1;
                 }
             }
 #    else  /* solaris<110000 */
-            if (!kread((KA_T)pcb, (char *)&ic, sizeof(ic)) && ic.conn_tcp &&
-                !kread((KA_T)ic.conn_tcp, (char *)&tc, sizeof(tc))) {
+            if (!kread(ctx, (KA_T)pcb, (char *)&ic, sizeof(ic)) && ic.conn_tcp &&
+                !kread(ctx, (KA_T)ic.conn_tcp, (char *)&tc, sizeof(tc))) {
                 ics = tcs = 1;
             }
 #    endif /* solaris>=110000 */
@@ -1404,10 +1404,10 @@ char *ty;                            /* socket type name */
         if (strncasecmp(tbuf, "UDP", 3) == 0) {
 
 #if solaris < 110000
-            if (kread(pcb, (char *)&uc, sizeof(uc)) == 0)
+            if (kread(ctx, pcb, (char *)&uc, sizeof(uc)) == 0)
                 ucs = 1;
 #else  /* solaris>=110000 */
-            if (!kread(pcb, (char *)&cs, sizeof(cs)) &&
+            if (!kread(ctx, pcb, (char *)&cs, sizeof(cs)) &&
                 (cs.conn_ulp == IPPROTO_UDP)) {
                 ics = 1;
                 if ((ka = (KA_T)cs.conn_proto_priv.cp_udp) &&
@@ -1593,7 +1593,7 @@ char *ty;                            /* socket type name */
 #    endif             /* solaris!=20400 && !defined(HASIPv6) */
 
                     if (tc.tcp_hdr_len && tc.tcp_tcph &&
-                        !kread((KA_T)tc.tcp_tcph, (char *)&th, sizeof(th))) {
+                        !kread(ctx, (KA_T)tc.tcp_tcph, (char *)&th, sizeof(th))) {
                         tha = &th;
                         s = (u_short *)&th.th_lport[0];
                         p = *s;
@@ -1733,7 +1733,7 @@ icmp_t *ic; /* local icmp_t receiver */
     }
 
 #    if defined(HAS_CONN_NEW)
-    if ((ka = (KA_T)ic->icmp_connp) && !kread(ka, (char *)&cs, sizeof(cs))) {
+    if ((ka = (KA_T)ic->icmp_connp) && !kread(ctx, ka, (char *)&cs, sizeof(cs))) {
         struct ip_xmit_attr_s xa;
 
         /*
@@ -1746,7 +1746,7 @@ icmp_t *ic; /* local icmp_t receiver */
         ic->icmp_debug.icmp_reuseaddr = cs.conn_reuseaddr;
         ic->icmp_debug.icmp_useloopback = cs.conn_useloopback;
         ic->icmp_debug.icmp_dgram_errind = cs.conn_dgram_errind;
-        if ((ka = (KA_T)cs.conn_ixa) && !kread(ka, (char *)&xa, sizeof(xa))) {
+        if ((ka = (KA_T)cs.conn_ixa) && !kread(ctx, ka, (char *)&xa, sizeof(xa))) {
             ic->icmp_debug.icmp_dontroute =
                 (xa.ixa_flags & IXAF_DONTROUTE) ? 1 : 0;
         }
@@ -1798,7 +1798,7 @@ rts_t *rt; /* local rts_t receiver */
 
 #    if defined(HAS_CONN_NEW)
     if ((ka = (KA_T)rt->rts_connp) &&
-        !kread(ka, (char *)&cs, sizeof(struct conn_s))) {
+        !kread(ctx, ka, (char *)&cs, sizeof(struct conn_s))) {
         struct ip_xmit_attr_s xa;
 
         /*
@@ -1808,7 +1808,7 @@ rts_t *rt; /* local rts_t receiver */
         rt->rts_debug.rts_broadcast = cs.conn_broadcast;
         rt->rts_debug.rts_reuseaddr = cs.conn_reuseaddr;
         rt->rts_debug.rts_useloopback = cs.conn_useloopback;
-        if ((ka = (KA_T)cs.conn_ixa) && !kread(ka, (char *)&xa, sizeof(xa))) {
+        if ((ka = (KA_T)cs.conn_ixa) && !kread(ctx, ka, (char *)&xa, sizeof(xa))) {
             rt->rts_debug.rts_dontroute =
                 (xa.ixa_flags & IXAF_DONTROUTE) ? 1 : 0;
         }

@@ -520,7 +520,7 @@ typedef struct CTF_request {
 #        define CTF_MEMBER(name)                                               \
             { #name, CTF_MEMBER_UNDEF }
 #        define CTF_MEMBER_READ(ka, s, members, member)                        \
-            kread((KA_T)(ka) + members[MX_##member].m_offset,                  \
+            kread(ctx, (KA_T)(ka) + members[MX_##member].m_offset,                  \
                   (char *)&s->member, sizeof(s->member))
 #    endif /* defined(HAS_LIBCTF) */
 

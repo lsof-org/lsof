@@ -419,7 +419,7 @@ void process_lla(la) KA_T la; /* link level CB address in kernel */
     /*
      * Read link level access control block.
      */
-    if (!la || kread((KA_T)la, (char *)&lcb, sizeof(lcb))) {
+    if (!la || kread(ctx, (KA_T)la, (char *)&lcb, sizeof(lcb))) {
         (void)snpf(Namech, Namechl, "can't read LLA CB (%s)",
                    print_kptr(la, (char *)NULL, 0));
         enter_nm(Namech);
@@ -509,7 +509,7 @@ void process_socket(sa) KA_T sa; /* socket address in kernel */
         enter_nm("no socket address");
         return;
     }
-    if (kread((KA_T)sa, (char *)&s, sizeof(s))) {
+    if (kread(ctx, (KA_T)sa, (char *)&s, sizeof(s))) {
         (void)snpf(Namech, Namechl, "can't read socket struct from %s",
                    print_kptr(sa, (char *)NULL, 0));
         enter_nm(Namech);
@@ -523,14 +523,14 @@ void process_socket(sa) KA_T sa; /* socket address in kernel */
         enter_nm(Namech);
         return;
     }
-    if (!s.so_proto || kread((KA_T)s.so_proto, (char *)&p, sizeof(p))) {
+    if (!s.so_proto || kread(ctx, (KA_T)s.so_proto, (char *)&p, sizeof(p))) {
         (void)snpf(Namech, Namechl, "no protocol switch");
         enter_nm(Namech);
         return;
     }
 
 #if HPUXV >= 800
-    if (kread((KA_T)p.pr_domain, (char *)&d, sizeof(d))) {
+    if (kread(ctx, (KA_T)p.pr_domain, (char *)&d, sizeof(d))) {
         (void)snpf(Namech, Namechl, "can't read domain struct from %s",
                    print_kptr((KA_T)p.pr_domain, (char *)NULL, 0));
         enter_nm(Namech);
@@ -584,7 +584,7 @@ void process_socket(sa) KA_T sa; /* socket address in kernel */
         /*
          * Get the X25 PCB and its extension.
          */
-        if (!s.so_pcb || kread((KA_T)s.so_pcb, (char *)&xp, sizeof(xp))) {
+        if (!s.so_pcb || kread(ctx, (KA_T)s.so_pcb, (char *)&xp, sizeof(xp))) {
             (void)snpf(Namech, Namechl, "can't read x.25 pcb at %s",
                        print_kptr((KA_T)s.so_pcb, (char *)NULL, 0));
             enter_nm(Namech);
@@ -592,7 +592,7 @@ void process_socket(sa) KA_T sa; /* socket address in kernel */
         }
         enter_dev_ch(print_kptr((KA_T)s.so_pcb, (char *)NULL, 0));
         if (!xp.x25pcb_extend ||
-            kread((KA_T)xp.x25pcb_extend, (char *)&xpe, sizeof(xpe))) {
+            kread(ctx, (KA_T)xp.x25pcb_extend, (char *)&xpe, sizeof(xpe))) {
             (void)snpf(Namech, Namechl,
                        "can't read x.25 pcb (%s) extension at %s",
                        print_kptr((KA_T)s.so_pcb, tbuf, sizeof(tbuf)),
@@ -707,7 +707,7 @@ void process_socket(sa) KA_T sa; /* socket address in kernel */
             /*
              * Print raw socket information.
              */
-            if (kread((KA_T)s.so_pcb, (char *)&raw, sizeof(raw)) ||
+            if (kread(ctx, (KA_T)s.so_pcb, (char *)&raw, sizeof(raw)) ||
                 (struct socket *)sa != (struct socket *)raw.rcb_socket) {
                 (void)snpf(Namech, Namechl, "can't read rawcb at %s",
                            print_kptr((KA_T)s.so_pcb, (char *)NULL, 0));
@@ -734,7 +734,7 @@ void process_socket(sa) KA_T sa; /* socket address in kernel */
             /*
              * Print Internet socket information.
              */
-            if (kread((KA_T)s.so_pcb, (char *)&inp, sizeof(inp))) {
+            if (kread(ctx, (KA_T)s.so_pcb, (char *)&inp, sizeof(inp))) {
                 (void)snpf(Namech, Namechl, "can't read inpcb at %s",
                            print_kptr((KA_T)s.so_pcb, (char *)NULL, 0));
                 enter_nm(Namech);
@@ -752,7 +752,7 @@ void process_socket(sa) KA_T sa; /* socket address in kernel */
             if (fa || la)
                 (void)ent_inaddr(la, lp, fa, fp, AF_INET);
             if (p.pr_protocol == IPPROTO_TCP && inp.inp_ppcb &&
-                kread((KA_T)inp.inp_ppcb, (char *)&t, sizeof(t)) == 0) {
+                kread(ctx, (KA_T)inp.inp_ppcb, (char *)&t, sizeof(t)) == 0) {
                 Lf->lts.type = 0;
                 Lf->lts.state.i = (int)t.t_state;
             }
@@ -773,9 +773,9 @@ void process_socket(sa) KA_T sa; /* socket address in kernel */
          * Save size information for HP-UX 10.30 and above.
          */
         if (Fsize) {
-            if (!s.so_rcv || kread((KA_T)s.so_rcv, (char *)&rb, sizeof(rb)))
+            if (!s.so_rcv || kread(ctx, (KA_T)s.so_rcv, (char *)&rb, sizeof(rb)))
                 rb.sb_cc = 0;
-            if (!s.so_snd || kread((KA_T)s.so_snd, (char *)&sb, sizeof(sb)))
+            if (!s.so_snd || kread(ctx, (KA_T)s.so_snd, (char *)&sb, sizeof(sb)))
                 sb.sb_cc = 0;
             if (Lf->access == 'r')
                 Lf->sz = (SZOFFTYPE)rb.sb_cc;
@@ -792,7 +792,7 @@ void process_socket(sa) KA_T sa; /* socket address in kernel */
          * Read Unix protocol control block and the Unix address structure.
          */
         enter_dev_ch(print_kptr(sa, (char *)NULL, 0));
-        if (kread((KA_T)s.so_pcb, (char *)&unp, sizeof(unp))) {
+        if (kread(ctx, (KA_T)s.so_pcb, (char *)&unp, sizeof(unp))) {
             (void)snpf(Namech, Namechl, "can't read unpcb at %s",
                        print_kptr((KA_T)s.so_pcb, (char *)NULL, 0));
             break;
@@ -808,7 +808,7 @@ void process_socket(sa) KA_T sa; /* socket address in kernel */
          * Read UNIX domain socket address information for HP-UX below 10.30.
          */
         if (unp.unp_addr) {
-            if (kread((KA_T)unp.unp_addr, (char *)&mb, sizeof(mb))) {
+            if (kread(ctx, (KA_T)unp.unp_addr, (char *)&mb, sizeof(mb))) {
                 (void)snpf(Namech, Namechl, "can't read unp_addr at %s",
                            print_kptr((KA_T)unp.unp_addr, (char *)NULL, 0));
                 break;
@@ -828,9 +828,9 @@ void process_socket(sa) KA_T sa; /* socket address in kernel */
         ua = (struct sockaddr_un *)NULL;
         mbl = 0;
         if (unp.unp_addr &&
-            kread((KA_T)unp.unp_addr, (char *)&mb, sizeof(mb)) == 0 &&
+            kread(ctx, (KA_T)unp.unp_addr, (char *)&mb, sizeof(mb)) == 0 &&
             mb.b_datap &&
-            kread((KA_T)mb.b_datap, (char *)&db, sizeof(db)) == 0) {
+            kread(ctx, (KA_T)mb.b_datap, (char *)&db, sizeof(db)) == 0) {
             if (db.db_base) {
                 if (dbl < (db.db_size + 1)) {
                     dbl = db.db_size + 1;
@@ -846,7 +846,7 @@ void process_socket(sa) KA_T sa; /* socket address in kernel */
                         Error(ctx);
                     }
                 }
-                if (kread((KA_T)db.db_base, dbf, db.db_size) == 0) {
+                if (kread(ctx, (KA_T)db.db_base, dbf, db.db_size) == 0) {
                     mbl = db.db_size;
                     dbf[mbl] = '\0';
                     ua = (struct sockaddr_un *)dbf;
@@ -868,7 +868,7 @@ void process_socket(sa) KA_T sa; /* socket address in kernel */
         if (ua->sun_family != AF_UNIX) {
             if (ua->sun_family == AF_UNSPEC) {
                 if (unp.unp_conn) {
-                    if (kread((KA_T)unp.unp_conn, (char *)&uc, sizeof(uc)))
+                    if (kread(ctx, (KA_T)unp.unp_conn, (char *)&uc, sizeof(uc)))
                         (void)snpf(
                             Namech, Namechl, "can't read unp_conn at %s",
                             print_kptr((KA_T)unp.unp_conn, (char *)NULL, 0));
@@ -945,7 +945,7 @@ enum vtype vt;                                     /* vnode type */
      * Get IP structure.
      */
     *Namech = '\0';
-    if (!ip || kread(ip, (char *)&ic, sizeof(ic))) {
+    if (!ip || kread(ctx, ip, (char *)&ic, sizeof(ic))) {
         ep = endnm(&sz);
         (void)snpf(ep, sz, "%scan't read IP control structure from %s",
                    sz ? " " : "", print_kptr(ip, (char *)NULL, 0));
@@ -973,7 +973,7 @@ enum vtype vt;                                     /* vnode type */
         /*
          * Process TCP socket.
          */
-        if (kread(pcb, (char *)&tc, sizeof(tc))) {
+        if (kread(ctx, pcb, (char *)&tc, sizeof(tc))) {
             ep = endnm(&sz);
             (void)snpf(ep, sz, "%scan't read TCP PCB from %s", sz ? " " : "",
                        print_kptr(pcb, (char *)NULL, 0));
@@ -994,7 +994,7 @@ enum vtype vt;                                     /* vnode type */
              */
             la = (unsigned char *)&tc.tcp_u.tcp_u_iph.iph_src[0];
             if (tc.tcp_hdr_len && tc.tcp_tcph &&
-                kread((KA_T)tc.tcp_tcph, (char *)&th, sizeof(th)) == 0)
+                kread(ctx, (KA_T)tc.tcp_tcph, (char *)&th, sizeof(th)) == 0)
                 pt = (u_short)th.th_lport;
         }
         lp = (int)ntohs(pt);
@@ -1101,7 +1101,7 @@ enum vtype vt;                                     /* vnode type */
         /*
          * Process UDP socket.
          */
-        if (kread(pcb, (char *)&ud, sizeof(ud))) {
+        if (kread(ctx, pcb, (char *)&ud, sizeof(ud))) {
             ep = endnm(&sz);
             (void)snpf(ep, sz, "%scan't read UDP PCB from %s", sz ? " " : "",
                        print_kptr(pcb, (char *)NULL, 0));

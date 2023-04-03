@@ -508,7 +508,7 @@ size_t rbl;                                   /* receiving buffer length */
             *(rb + rbl - 1) = '\0';
             break;
         }
-        if (!kread(ka, ba, rl)) {
+        if (!kread(ctx, ka, ba, rl)) {
             *(ba + rl) = '\0';
             if (strchr(ba, '\0') < (ba + rl))
                 break;
@@ -520,7 +520,7 @@ size_t rbl;                                   /* receiving buffer length */
              * has been established that no more bytes can be read.
              */
             for (rl--; rl > 0; rl--) {
-                if (!kread(ka, ba, rl)) {
+                if (!kread(ctx, ka, ba, rl)) {
                     *(ba + rl) = '\0';
                     break;
                 }
@@ -546,7 +546,7 @@ void process_file(fp) KA_T fp; /* kernel file structure address */
     FILEPTR = &f;
 #endif /* defined(FILEPTR) */
 
-    if (kread(fp, (char *)&f, sizeof(f))) {
+    if (kread(ctx, fp, (char *)&f, sizeof(f))) {
         (void)snpf(Namech, Namechl, "can't read file struct from %s",
                    print_kptr(fp, (char *)NULL, 0));
         enter_nm(Namech);

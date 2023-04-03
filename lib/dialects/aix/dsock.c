@@ -82,7 +82,7 @@ void process_socket(sa) KA_T sa; /* socket address in kernel */
         enter_nm("no socket address");
         return;
     }
-    if (kread(sa, (char *)&s, sizeof(s))) {
+    if (kread(ctx, sa, (char *)&s, sizeof(s))) {
         (void)snpf(Namech, Namechl, "can't read socket struct from %s",
                    print_kptr(sa, (char *)NULL, 0));
         enter_nm(Namech);
@@ -92,7 +92,7 @@ void process_socket(sa) KA_T sa; /* socket address in kernel */
         enter_nm("no socket type");
         return;
     }
-    if (!s.so_proto || kread((KA_T)s.so_proto, (char *)&p, sizeof(p))) {
+    if (!s.so_proto || kread(ctx, (KA_T)s.so_proto, (char *)&p, sizeof(p))) {
         (void)snpf(Namech, Namechl, "can't read protocol switch from %s",
                    print_kptr((KA_T)s.so_proto, (char *)NULL, 0));
         enter_nm(Namech);
@@ -137,7 +137,7 @@ void process_socket(sa) KA_T sa; /* socket address in kernel */
     /*
      * Process socket by the associated domain family.
      */
-    if (!p.pr_domain || kread((KA_T)p.pr_domain, (char *)&d, sizeof(d))) {
+    if (!p.pr_domain || kread(ctx, (KA_T)p.pr_domain, (char *)&d, sizeof(d))) {
         (void)snpf(Namech, Namechl, "can't read domain struct from %s",
                    print_kptr((KA_T)p.pr_domain, (char *)NULL, 0));
         enter_nm(Namech);
@@ -156,7 +156,7 @@ void process_socket(sa) KA_T sa; /* socket address in kernel */
         /*
          * Read protocol control block.
          */
-        if (!s.so_pcb || kread((KA_T)s.so_pcb, (char *)&inp, sizeof(inp))) {
+        if (!s.so_pcb || kread(ctx, (KA_T)s.so_pcb, (char *)&inp, sizeof(inp))) {
             if (!s.so_pcb) {
                 (void)snpf(
                     Namech, Namechl, "no PCB%s%s",
@@ -175,7 +175,7 @@ void process_socket(sa) KA_T sa; /* socket address in kernel */
              * If this is a TCP socket, read its control block.
              */
             if (inp.inp_ppcb &&
-                !kread((KA_T)inp.inp_ppcb, (char *)&t, sizeof(t))) {
+                !kread(ctx, (KA_T)inp.inp_ppcb, (char *)&t, sizeof(t))) {
                 ts = 1;
                 tsn = (int)t.t_state;
                 tsnx = tsn + TcpStOff;
@@ -318,7 +318,7 @@ void process_socket(sa) KA_T sa; /* socket address in kernel */
          * Read Unix protocol control block and the Unix address structure.
          */
         enter_dev_ch(print_kptr(sa, (char *)NULL, 0));
-        if (kread((KA_T)s.so_pcb, (char *)&unp, sizeof(unp))) {
+        if (kread(ctx, (KA_T)s.so_pcb, (char *)&unp, sizeof(unp))) {
             (void)snpf(Namech, Namechl, "can't read unpcb at %s",
                        print_kptr((KA_T)s.so_pcb, (char *)NULL, 0));
             break;
@@ -329,7 +329,7 @@ void process_socket(sa) KA_T sa; /* socket address in kernel */
             break;
         }
         if (unp.unp_addr) {
-            if (kread((KA_T)unp.unp_addr, (char *)&mb, sizeof(mb))) {
+            if (kread(ctx, (KA_T)unp.unp_addr, (char *)&mb, sizeof(mb))) {
                 (void)snpf(Namech, Namechl, "can't read unp_addr at %s",
                            print_kptr((KA_T)unp.unp_addr, (char *)NULL, 0));
                 break;
@@ -341,7 +341,7 @@ void process_socket(sa) KA_T sa; /* socket address in kernel */
                 ua = (struct sockaddr_un *)((char *)&mb + uo);
             else {
                 if (mb.m_hdr.mh_data &&
-                    !kread((KA_T)mb.m_hdr.mh_data, (char *)&un, sizeof(un))) {
+                    !kread(ctx, (KA_T)mb.m_hdr.mh_data, (char *)&un, sizeof(un))) {
                     ua = &un;
                 }
             }
@@ -362,7 +362,7 @@ void process_socket(sa) KA_T sa; /* socket address in kernel */
         if (ua->sun_family != AF_UNIX) {
             if (ua->sun_family == AF_UNSPEC) {
                 if (unp.unp_conn) {
-                    if (kread((KA_T)unp.unp_conn, (char *)&uc, sizeof(uc)))
+                    if (kread(ctx, (KA_T)unp.unp_conn, (char *)&uc, sizeof(uc)))
                         (void)snpf(
                             Namech, Namechl, "can't read unp_conn at %s",
                             print_kptr((KA_T)unp.unp_conn, (char *)NULL, 0));

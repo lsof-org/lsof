@@ -60,7 +60,7 @@ void process_file(fp) KA_T fp; /* kernel file structure address */
     FILEPTR = &f;
 #endif /* defined(FILEPTR) */
 
-    if (kread(fp, (char *)&f, sizeof(f))) {
+    if (kread(ctx, fp, (char *)&f, sizeof(f))) {
         (void)snpf(Namech, Namechl, "can't read file struct from %s",
                    print_kptr(fp, (char *)NULL, 0));
         enter_nm(Namech);

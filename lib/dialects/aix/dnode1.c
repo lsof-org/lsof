@@ -107,10 +107,10 @@ int *vols;          /* afs_volumes status return */
     *vols = 1;
     i = (NVOLS - 1) & f->Fid.Volume;
     kh = (KA_T)((char *)ka + (i * sizeof(struct volume *)));
-    if (kread(kh, (char *)&vp, sizeof(vp)))
+    if (kread(ctx, kh, (char *)&vp, sizeof(vp)))
         return ((struct volume *)NULL);
     while (vp) {
-        if (kread((KA_T)vp, (char *)&v, sizeof(v)))
+        if (kread(ctx, (KA_T)vp, (char *)&v, sizeof(v)))
             return ((struct volume *)NULL);
         if (v.volume == f->Fid.Volume && v.cell == f->Cell)
             return (&v);
@@ -143,9 +143,9 @@ struct vnode *vp; /* vnode pointer */
         return (1);
     if (vp->v_data || !vp->v_vfsp)
         return (0);
-    if (kread((KA_T)vp->v_vfsp, (char *)&v, sizeof(v)))
+    if (kread(ctx, (KA_T)vp->v_vfsp, (char *)&v, sizeof(v)))
         return (0);
-    if (!v.vfs_mdata || kread((KA_T)v.vfs_mdata, (char *)&vm, sizeof(vm)))
+    if (!v.vfs_mdata || kread(ctx, (KA_T)v.vfs_mdata, (char *)&vm, sizeof(vm)))
         return (0);
     if (vm.vmt_gfstype != MNT_AFS)
         return (0);
@@ -206,7 +206,7 @@ int *rfid;         /* root file ID pointer status return */
             *rfid = 0;
             return (0);
         }
-        if (kread((KA_T)AFSnl[X_AFS_FID].n_value, (char *)&r, sizeof(r))) {
+        if (kread(ctx, (KA_T)AFSnl[X_AFS_FID].n_value, (char *)&r, sizeof(r))) {
             err = 0;
             goto rfid_unavailable;
         }
@@ -241,7 +241,7 @@ struct afsnode *an; /* afsnode recipient */
     cp = ((char *)v + sizeof(struct vnode));
     ka = (KA_T)((char *)va + sizeof(struct vnode));
     len = sizeof(struct vcache) - sizeof(struct vnode);
-    if (kread(ka, cp, len)) {
+    if (kread(ctx, ka, cp, len)) {
         (void)snpf(Namech, Namechl,
                    "vnode at %s: can't read vcache remainder from %s",
                    print_kptr(va, tbuf, sizeof(tbuf)),

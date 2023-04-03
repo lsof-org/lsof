@@ -369,7 +369,7 @@ struct vnode *lv; /* local vnode */
         v = la;
     else {
         v = &tv;
-        if (kread((KA_T)ka, (char *)v, sizeof(tv))) {
+        if (kread(ctx, (KA_T)ka, (char *)v, sizeof(tv))) {
             (void)free((FREE_P *)vp);
             return ((struct l_vfs *)NULL);
         }

@@ -103,19 +103,21 @@ void gather_proc_info() {
         /*
          * Get Process ID, Process group ID, and User ID.
          */
-        if (!p->p_pidp || kread((KA_T)p->p_pidp, (char *)&pids, sizeof(pids)))
+        if (!p->p_pidp ||
+            kread(ctx, (KA_T)p->p_pidp, (char *)&pids, sizeof(pids)))
             continue;
         pid = (int)pids.pid_id;
 
 #if defined(HAS_P_PGID)
         pgid = (int)p->p_pgid;
 #else  /* !defined(HAS_P_PGID) */
-        if (!p->p_pgidp || kread((KA_T)p->p_pgidp, (char *)&pids, sizeof(pids)))
+        if (!p->p_pgidp ||
+            kread(ctx, (KA_T)p->p_pgidp, (char *)&pids, sizeof(pids)))
             continue;
         pgid = (int)pids.pid_id;
 #endif /* defined(HAS_P_PGID) */
 
-        if (!p->p_cred || kread((KA_T)p->p_cred, (char *)&cr, sizeof(cr)))
+        if (!p->p_cred || kread(ctx, (KA_T)p->p_cred, (char *)&cr, sizeof(cr)))
             continue;
         uid = cr.cr_uid;
         if (is_proc_excl(pid, pgid, (UID_ARG)uid, &pss, &sf))
@@ -124,7 +126,7 @@ void gather_proc_info() {
          * Get the execution information -- for the command name.
          */
         if (!p->p_execinfo ||
-            kread((KA_T)p->p_execinfo, (char *)&ex, sizeof(ex)))
+            kread(ctx, (KA_T)p->p_execinfo, (char *)&ex, sizeof(ex)))
             continue;
         /*
          * Allocate a local process structure.
@@ -176,14 +178,14 @@ void gather_proc_info() {
             }
             nfea = nf;
         }
-        if (kread((KA_T)p->p_fdtab.fdt_entrytab, (char *)fe, len))
+        if (kread(ctx, (KA_T)p->p_fdtab.fdt_entrytab, (char *)fe, len))
             continue;
         for (f = fe, i = 0; i < nf; f++, i++) {
             if ((fa = (KA_T)f->fd_file) && (f->fd_status & FD_INUSE)) {
 
 #if UNIXWAREV >= 70103
                 if (f->fd_flag & FPOLLED) {
-                    if (kread(fa, (char *)&plx, sizeof(plx)) ||
+                    if (kread(ctx, fa, (char *)&plx, sizeof(plx)) ||
                         !(fa = (KA_T)plx.px_fp))
                         continue;
                 }
@@ -227,7 +229,7 @@ static int get_clonemaj() {
      * Read the cdevsw[] size and allocate temporary space for it.
      */
     if (get_Nl_value("ncdev", Drive_Nl, &v) < 0 || !v ||
-        kread((KA_T)v, (char *)&sz, sizeof(sz)) || !sz)
+        kread(ctx, (KA_T)v, (char *)&sz, sizeof(sz)) || !sz)
         return (rv);
     len = (MALLOC_S)(sz * sizeof(struct cdevsw));
     if (!(cd = (struct cdevsw *)malloc(len))) {
@@ -238,7 +240,7 @@ static int get_clonemaj() {
      * Read the cdevsw[] from kernel memory.
      */
     if (get_Nl_value("cdev", Drive_Nl, &v) < 0 || !v ||
-        kread((KA_T)v, (char *)cd, (int)len)) {
+        kread(ctx, (KA_T)v, (char *)cd, (int)len)) {
         (void)free((MALLOC_P *)cd);
         return (rv);
     }
@@ -249,7 +251,7 @@ static int get_clonemaj() {
     len = sizeof(buf) - 1;
     buf[len] = '\0';
     for (c = cd, i = 0; i < sz; c++, i++) {
-        if (!c->d_name || kread((KA_T)c->d_name, buf, len) ||
+        if (!c->d_name || kread(ctx, (KA_T)c->d_name, buf, len) ||
             strcmp(buf, "clone") != 0)
             continue;
         CloneMaj = i;
@@ -264,7 +266,7 @@ static int get_clonemaj() {
      * clonemajor variable.
      */
     if (get_Nl_value("cmaj", Drive_Nl, &v) < 0 || !v ||
-        kread((KA_T)v, (char *)&CloneMaj, sizeof(CloneMaj)))
+        kread(ctx, (KA_T)v, (char *)&CloneMaj, sizeof(CloneMaj)))
         return (0);
     return ((HaveCloneMaj = 1));
 #endif /* UNIXWAREV<70000 */
@@ -329,7 +331,7 @@ static void get_kernel_access() {
         Error(ctx);
     }
     if (get_Nl_value("var", Drive_Nl, &v) < 0 || !v ||
-        kread((KA_T)v, (char *)&Var, sizeof(Var))) {
+        kread(ctx, (KA_T)v, (char *)&Var, sizeof(Var))) {
         (void)fprintf(stderr, "%s: can't read system configuration info\n", Pn);
         Error(ctx);
     }
@@ -366,10 +368,9 @@ void initialize() {
  * kread() - read from kernel memory
  */
 
-int kread(addr, buf, len)
-KA_T addr;     /* kernel memory address */
-char *buf;     /* buffer to receive data */
-READLEN_T len; /* length to read */
+int kread(struct lsof_context *ctx, KA_T addr, /* kernel memory address */
+          char *buf,                           /* buffer to receive data */
+          READLEN_T len)                       /* length to read */
 {
     READLEN_T br;
 
@@ -402,7 +403,7 @@ static void process_text(pa) KA_T pa; /* kernel address space description
     /*
      * Get address space description.
      */
-    if (kread(pa, (char *)&as, sizeof(as)))
+    if (kread(ctx, pa, (char *)&as, sizeof(as)))
         return;
     /*
      * Loop through the segments.  The loop should stop when the segment
@@ -411,7 +412,7 @@ static void process_text(pa) KA_T pa; /* kernel address space description
      */
     s.s_next = as.a_segs;
     for (i = j = k = 0; i < MAXSEGS && j < 2 * MAXSEGS; j++) {
-        if (!s.s_next || kread((KA_T)s.s_next, (char *)&s, sizeof(s)))
+        if (!s.s_next || kread(ctx, (KA_T)s.s_next, (char *)&s, sizeof(s)))
             break;
         fd = (char *)NULL;
         vp = (KA_T)NULL;
@@ -420,7 +421,7 @@ static void process_text(pa) KA_T pa; /* kernel address space description
             /*
              * Process a virtual node segment.
              */
-            if (kread((KA_T)s.s_data, (char *)&vn, sizeof(vn)))
+            if (kread(ctx, (KA_T)s.s_data, (char *)&vn, sizeof(vn)))
                 break;
             if ((vp = (KA_T)vn.svd_vp)) {
                 if ((vn.svd_flags & SEGVN_PGPROT) || (vn.svd_prot & PROT_EXEC))
@@ -433,7 +434,7 @@ static void process_text(pa) KA_T pa; /* kernel address space description
             /*
              * Process a special device segment.
              */
-            if (kread((KA_T)s.s_data, (char *)&dv, sizeof(dv)))
+            if (kread(ctx, (KA_T)s.s_data, (char *)&dv, sizeof(dv)))
                 break;
             if ((vp = (KA_T)dv.vp))
                 fd = "mmap";
@@ -541,7 +542,7 @@ static void read_proc() {
          * Read the active process chain head.
          */
         pa = (KA_T)NULL;
-        if (!Pract || kread((KA_T)Pract, (char *)&pa, sizeof(pa)) || !pa) {
+        if (!Pract || kread(ctx, (KA_T)Pract, (char *)&pa, sizeof(pa)) || !pa) {
             if (!Fwarn)
                 (void)fprintf(
                     stderr, "%s: active proc chain ptr err; addr=%s, val=%s\n",
@@ -569,7 +570,7 @@ static void read_proc() {
                 }
                 p = &P[Np];
             }
-            if (kread(pa, (char *)p, sizeof(struct proc)))
+            if (kread(ctx, pa, (char *)p, sizeof(struct proc)))
                 break;
             pa = (KA_T)p->p_next;
             if ((p->p_flag & P_DESTROY) || (p->p_flag & P_GONE) || !p->p_pidp

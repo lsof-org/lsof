@@ -245,7 +245,7 @@ static int ncache_isroot(struct lsof_context *ctx,
      * matches the one we have for this file.  If it does, then the path is
      * complete.
      */
-    if (kread((KA_T)na, (char *)&v, sizeof(v)) || v.v_type != VDIR ||
+    if (kread(ctx, (KA_T)na, (char *)&v, sizeof(v)) || v.v_type != VDIR ||
         !(v.VNODE_VFLAG & NCACHE_VROOT)) {
 
         /*
@@ -345,7 +345,7 @@ void ncache_load(struct lsof_context *ctx) {
      */
     v = (KA_T)0;
     if (get_Nl_value(X_NCSIZE, (struct drive_Nl *)NULL, &v) < 0 || !v ||
-        kread((KA_T)v, (char *)&khsz, sizeof(khsz))) {
+        kread(ctx, (KA_T)v, (char *)&khsz, sizeof(khsz))) {
         if (!Fwarn)
             (void)fprintf(stderr,
                           "%s: WARNING: can't read name cache hash size: %s\n",
@@ -366,7 +366,7 @@ void ncache_load(struct lsof_context *ctx) {
     ka = (KA_T)0;
     v = (KA_T)0;
     if (get_Nl_value(X_NCACHE, (struct drive_Nl *)NULL, &v) < 0 || !v ||
-        kread((KA_T)v, (char *)&ka, sizeof(ka)) || !ka) {
+        kread(ctx, (KA_T)v, (char *)&ka, sizeof(ka)) || !ka) {
         if (!Fwarn)
             (void)fprintf(
                 stderr,
@@ -393,7 +393,7 @@ void ncache_load(struct lsof_context *ctx) {
         }
         khpl = len;
     }
-    if (kread((KA_T)ka, (char *)khp, len)) {
+    if (kread(ctx, (KA_T)ka, (char *)khp, len)) {
         (void)fprintf(stderr,
                       "%s: can't read name cache hash pointers from: %s\n", Pn,
                       print_kptr(ka, (char *)NULL, 0));
@@ -416,7 +416,7 @@ void ncache_load(struct lsof_context *ctx) {
                         Pn);
                 break;
             }
-            if (kread(ka, (char *)&c, sizeof(c)))
+            if (kread(ctx, ka, (char *)&c, sizeof(c)))
                 break;
             knx = (KA_T)c.NCACHE_NXT;
             if (!c.NCACHE_NODEADDR)
@@ -430,7 +430,7 @@ void ncache_load(struct lsof_context *ctx) {
              * If it's possible to read the first four characters of the name,
              * do so and check for "." and "..".
              */
-            if (!c.NCACHE_NM || kread((KA_T)c.NCACHE_NM, nbf, 4))
+            if (!c.NCACHE_NM || kread(ctx, (KA_T)c.NCACHE_NM, nbf, 4))
                 continue;
             if (nbf[0] == '.') {
                 if (!nbf[1] || ((nbf[1] == '.') && !nbf[2]))
@@ -451,7 +451,7 @@ void ncache_load(struct lsof_context *ctx) {
                         nbf[len + rl] = '\0';
                     }
                     nk = (KA_T)((char *)c.NCACHE_NM + len);
-                    if (kread(nk, np, rl)) {
+                    if (kread(ctx, nk, np, rl)) {
                         rl = -1;
                         break;
                     }
@@ -523,7 +523,7 @@ void ncache_load(struct lsof_context *ctx) {
                  */
                 if (cin > 0)
                     (void)strncpy(lc->nm, c.NCACHE_NM, cin);
-                if (kread(ka + (KA_T)(nmo + cin), &lc->nm[cin], len - cin))
+                if (kread(ctx, ka + (KA_T)(nmo + cin), &lc->nm[cin], len - cin))
                     continue;
                 if ((cin < 2) && (len < 3) && (lc->nm[0] == '.')) {
                     if (len == 1 || (len == 2 && lc->nm[1] == '.'))
