@@ -1034,52 +1034,47 @@ enum vtype vt;                                     /* vnode type */
 #    endif /* defined(HASTCPTPIQ) || defined(HASTCPTPIW) */
 
 #    if defined(HASTCPOPT)
-        if (Ftcptpi & TCPTPI_FLAGS) {
 
-            /*
-             * Save TCP options and values..
-             */
-            if (tc.tcp_naglim == (uint)1)
-                Lf->lts.topt |= TF_NODELAY;
-            Lf->lts.mss = (unsigned long)tc.tcp_mss;
-            Lf->lts.msss = (unsigned char)1;
-        }
+        /*
+         * Save TCP options and values..
+         */
+        if (tc.tcp_naglim == (uint)1)
+            Lf->lts.topt |= TF_NODELAY;
+        Lf->lts.mss = (unsigned long)tc.tcp_mss;
+        Lf->lts.msss = (unsigned char)1;
 #    endif /* defined(HASTCPOPT) */
 
 #    if defined(HASSOOPT)
-        if (Ftcptpi & TCPTPI_FLAGS) {
 
-            /*
-             * Save socket options.
-             */
-            if (tc.tcp_broadcast)
-                Lf->lts.opt |= SO_BROADCAST;
-            if (tc.tcp_so_debug)
-                Lf->lts.opt |= SO_DEBUG;
-            if (tc.tcp_dontroute)
-                Lf->lts.opt |= SO_DONTROUTE;
-            if (tc.tcp_keepalive_intrvl &&
-                (tc.tcp_keepalive_intrvl != 7200000)) {
-                Lf->lts.opt |= SO_KEEPALIVE;
-                Lf->lts.kai = (unsigned int)tc.tcp_keepalive_intrvl;
-            }
-            if (tc.tcp_lingering) {
-                Lf->lts.opt |= SO_LINGER;
-                Lf->lts.ltm = (unsigned int)tc.tcp_linger;
-            }
-            if (tc.tcp_oobinline)
-                Lf->lts.opt |= SO_OOBINLINE;
-            if (tc.tcp_reuseaddr)
-                Lf->lts.opt |= SO_REUSEADDR;
-            if (tc.tcp_reuseport)
-                Lf->lts.opt |= SO_REUSEPORT;
-            if (tc.tcp_useloopback)
-                Lf->lts.opt |= SO_USELOOPBACK;
-            Lf->lts.qlen = (unsigned int)tc.tcp_conn_ind_cnt;
-            Lf->lts.qlim = (unsigned int)tc.tcp_conn_ind_max;
-            if (Lf->lts.qlen || Lf->lts.qlim)
-                Lf->lts.qlens = Lf->lts.qlims = (unsigned char)1;
+        /*
+         * Save socket options.
+         */
+        if (tc.tcp_broadcast)
+            Lf->lts.opt |= SO_BROADCAST;
+        if (tc.tcp_so_debug)
+            Lf->lts.opt |= SO_DEBUG;
+        if (tc.tcp_dontroute)
+            Lf->lts.opt |= SO_DONTROUTE;
+        if (tc.tcp_keepalive_intrvl && (tc.tcp_keepalive_intrvl != 7200000)) {
+            Lf->lts.opt |= SO_KEEPALIVE;
+            Lf->lts.kai = (unsigned int)tc.tcp_keepalive_intrvl;
         }
+        if (tc.tcp_lingering) {
+            Lf->lts.opt |= SO_LINGER;
+            Lf->lts.ltm = (unsigned int)tc.tcp_linger;
+        }
+        if (tc.tcp_oobinline)
+            Lf->lts.opt |= SO_OOBINLINE;
+        if (tc.tcp_reuseaddr)
+            Lf->lts.opt |= SO_REUSEADDR;
+        if (tc.tcp_reuseport)
+            Lf->lts.opt |= SO_REUSEPORT;
+        if (tc.tcp_useloopback)
+            Lf->lts.opt |= SO_USELOOPBACK;
+        Lf->lts.qlen = (unsigned int)tc.tcp_conn_ind_cnt;
+        Lf->lts.qlim = (unsigned int)tc.tcp_conn_ind_max;
+        if (Lf->lts.qlen || Lf->lts.qlim)
+            Lf->lts.qlens = Lf->lts.qlims = (unsigned char)1;
 #    endif /* defined(HASSOOPT) */
 
         Namech[0] = '\0';
