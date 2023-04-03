@@ -39,11 +39,10 @@
  * mounts entry to the local vfs structure.
  */
 
-#include "../machine.h"
+#include "common.h"
+#include "machine.h"
 
 #if defined(USE_LIB_COMPLETEVFS)
-
-#    include "common.h"
 
 /*
  * completevfs() - complete local vfs structure

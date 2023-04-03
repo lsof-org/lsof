@@ -28,11 +28,10 @@
  * 4. This notice may not be removed or altered.
  */
 
+#include "common.h"
 #include "machine.h"
 
 #if defined(HASDCACHE)
-
-#    include "common.h"
 
 /*
  * dvch.c - module that contains common device cache functions
