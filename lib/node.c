@@ -212,9 +212,9 @@ struct tmpnode *t; /* tmpnode buffer pointer */
  * readvnode() - read vnode
  */
 
-int readvnode(va, v)
-KA_T va;         /* vnode kernel space address */
-struct vnode *v; /* vnode buffer pointer */
+int readvnode(struct lsof_context *ctx,
+              KA_T va,         /* vnode kernel space address */
+              struct vnode *v) /* vnode buffer pointer */
 {
     if (kread((KA_T)va, (char *)v, sizeof(struct vnode))) {
         (void)snpf(Namech, Namechl, "can't read vnode at %s",

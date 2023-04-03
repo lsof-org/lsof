@@ -110,7 +110,7 @@ _PROTOTYPE(static int rw_clone_sect, (int m));
  * alloc_bdcache() - allocate block device cache
  */
 
-void alloc_bdcache() {
+void alloc_bdcache(struct lsof_context *ctx) {
     if (!(BDevtp =
               (struct l_dev *)calloc((MALLOC_S)BNdev, sizeof(struct l_dev)))) {
         (void)fprintf(stderr, "%s: no space for block devices\n", Pn);
@@ -940,7 +940,7 @@ int read_dcache(struct lsof_context *ctx) {
      * Compute the block device count; allocate BSdev[] and BDevtp[] space.
      */
     if ((BNdev = atoi(&buf[len])) > 0) {
-        alloc_bdcache();
+        alloc_bdcache(ctx);
         /*
          * Read the block device lines and store their information in BDevtp[].
          * Construct the BSdev[] pointers to BDevtp[].

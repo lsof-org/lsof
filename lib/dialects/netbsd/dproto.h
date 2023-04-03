@@ -35,19 +35,21 @@
  */
 
 #if !defined(N_UNIX)
-_PROTOTYPE(extern char *get_nlist_path, (int ap));
+_PROTOTYPE(extern char *get_nlist_path, (struct lsof_context * ctx, int ap));
 #endif /* !defined(N_UNIX) */
 
-_PROTOTYPE(extern int is_file_named, (char *p, int cd));
-_PROTOTYPE(extern struct l_vfs *readvfs, (KA_T vm));
+_PROTOTYPE(extern int is_file_named,
+           (struct lsof_context * ctx, char *p, int cd));
+_PROTOTYPE(extern struct l_vfs *readvfs, (struct lsof_context * ctx, KA_T vm));
 
 #if defined(HAS_SYS_PIPEH)
-_PROTOTYPE(extern void process_pipe, (KA_T pa));
+_PROTOTYPE(extern void process_pipe, (struct lsof_context * ctx, KA_T pa));
 #endif /* defined(HAS_SYS_PIPEH) */
 
 #if defined(HAS9660FS)
-_PROTOTYPE(extern int read_iso_node, (struct vnode * v, dev_t *d,
-                                      INODETYPE *ino, long *nl, SZOFFTYPE *sz));
+_PROTOTYPE(extern int read_iso_node,
+           (struct lsof_context * ctx, struct vnode *v, dev_t *d,
+            INODETYPE *ino, long *nl, SZOFFTYPE *sz));
 #endif /* defined(HAS9660FS) */
 
-_PROTOTYPE(extern void process_socket, (KA_T sa));
+_PROTOTYPE(extern void process_socket, (struct lsof_context * ctx, KA_T sa));

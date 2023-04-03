@@ -214,8 +214,8 @@ _PROTOTYPE(extern char *printuid, (UID_ARG uid, int *ty));
 _PROTOTYPE(extern void printunkaf,
            (struct lsof_context * ctx, int fam, int ty));
 _PROTOTYPE(extern char *printsockty, (int ty));
-_PROTOTYPE(extern void process_file, (KA_T fp));
-_PROTOTYPE(extern void process_node, (KA_T f));
+_PROTOTYPE(extern void process_file, (struct lsof_context * ctx, KA_T fp));
+_PROTOTYPE(extern void process_node, (struct lsof_context * ctx, KA_T f));
 _PROTOTYPE(extern char *Readlink, (struct lsof_context * ctx, char *arg));
 _PROTOTYPE(extern void readdev, (struct lsof_context * ctx, int skip));
 _PROTOTYPE(extern struct mounts *readmnt, (struct lsof_context * ctx));
@@ -270,7 +270,7 @@ _PROTOTYPE(extern int readgnode, (KA_T ga, struct gnode *g));
 #    endif /* defined(HASGNODE) */
 
 #    if defined(HASKQUEUE)
-_PROTOTYPE(extern void process_kqueue, (KA_T ka));
+_PROTOTYPE(extern void process_kqueue, (struct lsof_context * ctx, KA_T ka));
 #    endif /* defined(HASKQUEUE) */
 
 #    if defined(HASHSNODE)
@@ -282,8 +282,9 @@ _PROTOTYPE(extern int readinode, (KA_T ia, struct inode *i));
 #    endif /* defined(HASINODE) */
 
 #    if defined(HASNCACHE)
-_PROTOTYPE(extern void ncache_load, (void));
-_PROTOTYPE(extern char *ncache_lookup, (char *buf, int blen, int *fp));
+_PROTOTYPE(extern void ncache_load, (struct lsof_context * ctx));
+_PROTOTYPE(extern char *ncache_lookup,
+           (struct lsof_context * ctx, char *buf, int blen, int *fp));
 #    endif /* defined(HASNCACHE) */
 
 #    if defined(HASNLIST)
@@ -348,7 +349,8 @@ _PROTOTYPE(extern int readtnode, (KA_T ta, struct tmpnode *t));
 #    endif /* defined(HASTMPNODE) */
 
 #    if defined(HASVNODE)
-_PROTOTYPE(extern int readvnode, (KA_T va, struct vnode *v));
+_PROTOTYPE(extern int readvnode,
+           (struct lsof_context * ctx, KA_T va, struct vnode *v));
 #    endif /* defined(HASVNODE) */
 
 #endif /* !defined(PROTO_H) */

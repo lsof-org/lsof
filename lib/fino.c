@@ -77,7 +77,7 @@ find_bl_ino_again:
         else {
 
 #    if defined(HASDCACHE)
-            if (DCunsafe && !BSdev[mid]->v && !vfy_dev(BSdev[mid]))
+            if (DCunsafe && !BSdev[mid]->v && !vfy_dev(ctx, BSdev[mid]))
                 goto find_bl_ino_again;
 #    endif /* defined(HASDCACHE) */
 

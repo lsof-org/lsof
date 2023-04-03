@@ -49,7 +49,8 @@ static char copyright[] =
  * process_socket() - process socket
  */
 
-void process_socket(sa) KA_T sa; /* socket address in kernel */
+void process_socket(struct lsof_context *ctx,
+                    KA_T sa) /* socket address in kernel */
 {
 #if NETBSDV >= 9099104
 #    define NETBSD_MERGED_INPCB
@@ -97,29 +98,29 @@ void process_socket(sa) KA_T sa; /* socket address in kernel */
      * Read the socket, protocol, and domain structures.
      */
     if (!sa) {
-        enter_nm("no socket address");
+        enter_nm(ctx, "no socket address");
         return;
     }
     if (kread(sa, (char *)&s, sizeof(s))) {
         (void)snpf(Namech, Namechl, "can't read socket struct from %s",
                    print_kptr(sa, (char *)NULL, 0));
-        enter_nm(Namech);
+        enter_nm(ctx, Namech);
         return;
     }
     if (!s.so_type) {
-        enter_nm("no socket type");
+        enter_nm(ctx, "no socket type");
         return;
     }
     if (!s.so_proto || kread((KA_T)s.so_proto, (char *)&p, sizeof(p))) {
         (void)snpf(Namech, Namechl, "can't read protocol switch from %s",
                    print_kptr((KA_T)s.so_proto, (char *)NULL, 0));
-        enter_nm(Namech);
+        enter_nm(ctx, Namech);
         return;
     }
     if (!p.pr_domain || kread((KA_T)p.pr_domain, (char *)&d, sizeof(d))) {
         (void)snpf(Namech, Namechl, "can't read domain struct from %s",
                    print_kptr((KA_T)p.pr_domain, (char *)NULL, 0));
-        enter_nm(Namech);
+        enter_nm(ctx, Namech);
         return;
     }
     /*
@@ -200,15 +201,15 @@ void process_socket(sa) KA_T sa; /* socket address in kernel */
                 kread((KA_T)s.so_pcb, (char *)&in6p, sizeof(in6p))) {
                 (void)snpf(Namech, Namechl, "can't read in6pcb at %s",
                            print_kptr((KA_T)s.so_pcb, (char *)NULL, 0));
-                enter_nm(Namech);
+                enter_nm(ctx, Namech);
                 return;
             }
             /*
              * Save IPv6 address information.
              */
-            enter_dev_ch(
-                print_kptr((KA_T)(in6p.in6p_ppcb ? in6p.in6p_ppcb : s.so_pcb),
-                           (char *)NULL, 0));
+            enter_dev_ch(ctx, print_kptr((KA_T)(in6p.in6p_ppcb ? in6p.in6p_ppcb
+                                                               : s.so_pcb),
+                                         (char *)NULL, 0));
             if (p.pr_protocol == IPPROTO_TCP)
                 ta = (KA_T)in6p.in6p_ppcb;
 #    ifdef NETBSD_MERGED_INPCB
@@ -245,7 +246,7 @@ void process_socket(sa) KA_T sa; /* socket address in kernel */
                     (void)snpf(Namech, Namechl, "can't read inpcb at %s",
                                print_kptr((KA_T)s.so_pcb, (char *)NULL, 0));
                 }
-                enter_nm(Namech);
+                enter_nm(ctx, Namech);
                 return;
             }
 #ifdef NETBSD_MERGED_INPCB
@@ -253,8 +254,8 @@ void process_socket(sa) KA_T sa; /* socket address in kernel */
 #    define inp_lport in4p_pcb.inp_lport
 #endif
             enter_dev_ch(
-                print_kptr((KA_T)(inp.inp_ppcb ? inp.inp_ppcb : s.so_pcb),
-                           (char *)NULL, 0));
+                ctx, print_kptr((KA_T)(inp.inp_ppcb ? inp.inp_ppcb : s.so_pcb),
+                                (char *)NULL, 0));
             if (p.pr_protocol == IPPROTO_TCP)
                 ta = (KA_T)inp.inp_ppcb;
             lp = (int)ntohs(inp.inp_lport);
@@ -315,7 +316,7 @@ void process_socket(sa) KA_T sa; /* socket address in kernel */
          * Enter local and remote addresses by address family.
          */
         if (fa || la)
-            (void)ent_inaddr(la, lp, fa, fp, fam);
+            (void)ent_inaddr(ctx, la, lp, fa, fp, fam);
         /*
          * If the protocol is TCP, and its address is available, read the
          * TCP protocol control block and save its state.
@@ -338,7 +339,7 @@ void process_socket(sa) KA_T sa; /* socket address in kernel */
     case AF_ROUTE:
         (void)snpf(Lf->type, sizeof(Lf->type), "rte");
         if (s.so_pcb)
-            enter_dev_ch(print_kptr((KA_T)(s.so_pcb), (char *)NULL, 0));
+            enter_dev_ch(ctx, print_kptr((KA_T)(s.so_pcb), (char *)NULL, 0));
         else
             (void)snpf(Namech, Namechl, "no protocol control block");
         if (!Fsize)
@@ -355,7 +356,7 @@ void process_socket(sa) KA_T sa; /* socket address in kernel */
          * Read Unix protocol control block and the Unix address structure.
          */
 
-        enter_dev_ch(print_kptr(sa, (char *)NULL, 0));
+        enter_dev_ch(ctx, print_kptr(sa, (char *)NULL, 0));
         if (kread((KA_T)s.so_pcb, (char *)&unp, sizeof(unp))) {
             (void)snpf(Namech, Namechl, "can't read unpcb at %s",
                        print_kptr((KA_T)s.so_pcb, (char *)NULL, 0));
@@ -427,7 +428,7 @@ void process_socket(sa) KA_T sa; /* socket address in kernel */
             ua->sun_path[sizeof(ua->sun_path) - 1] = '\0';
 #endif /* defined(UNPADDR_IN_MBUF) */
 
-            if (Sfile && is_file_named(ua->sun_path, 0))
+            if (Sfile && is_file_named(ctx, ua->sun_path, 0))
                 Lf->sf |= SELNM;
             if (!Namech[0])
                 (void)snpf(Namech, Namechl, "%s", ua->sun_path);
@@ -435,8 +436,8 @@ void process_socket(sa) KA_T sa; /* socket address in kernel */
             (void)snpf(Namech, Namechl, "no address");
         break;
     default:
-        printunkaf(fam, 1);
+        printunkaf(ctx, fam, 1);
     }
     if (Namech[0])
-        enter_nm(Namech);
+        enter_nm(ctx, Namech);
 }

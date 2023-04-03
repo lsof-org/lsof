@@ -167,7 +167,8 @@ _PROTOTYPE(static struct l_nch *ncache_addr, (KA_T na));
 #    endif /* defined(NCACHE_NODEID) */
 
 #    if !defined(NCACHE_NO_ROOT)
-_PROTOTYPE(static int ncache_isroot, (KA_T na, char *cp));
+_PROTOTYPE(static int ncache_isroot,
+           (struct lsof_context * ctx, KA_T na, char *cp));
 #    endif /* !defined(NCACHE_NO_ROOT) */
 
 /*
@@ -211,9 +212,9 @@ KA_T na; /* node's address */
  * ncache_isroot() - is head of name cache path a file system root?
  */
 
-static int ncache_isroot(na, cp)
-KA_T na;  /* kernel node address */
-char *cp; /* partial path */
+static int ncache_isroot(struct lsof_context *ctx,
+                         KA_T na,  /* kernel node address */
+                         char *cp) /* partial path */
 {
     char buf[MAXPATHLEN];
     int i;
@@ -255,7 +256,7 @@ char *cp; /* partial path */
             return (0);
         if ((len + 1 + strlen(cp) + 1) > sizeof(buf))
             return (0);
-        for (mtp = readmnt(); mtp; mtp = mtp->next) {
+        for (mtp = readmnt(ctx); mtp; mtp = mtp->next) {
             if (!mtp->dir || !mtp->inode)
                 continue;
             if (strcmp(Lf->fsdir, mtp->dir) == 0)
@@ -267,7 +268,8 @@ char *cp; /* partial path */
         if (buf[len - 1] != '/')
             buf[len++] = '/';
         (void)strcpy(&buf[len], cp);
-        if (statsafely(buf, &sb) != 0 || (unsigned long)sb.st_ino != Lf->inode)
+        if (statsafely(ctx, buf, &sb) != 0 ||
+            (unsigned long)sb.st_ino != Lf->inode)
             return (0);
     }
     /*
@@ -296,7 +298,7 @@ char *cp; /* partial path */
  * ncache_load() - load the kernel's name cache
  */
 
-void ncache_load() {
+void ncache_load(struct lsof_context *ctx) {
     struct NCACHE c;
     struct l_nch **hp, *ln;
     KA_T ka, knx;
@@ -625,10 +627,10 @@ void ncache_load() {
  * ncache_lookup() - look up a node's name in the kernel's name cache
  */
 
-char *ncache_lookup(buf, blen, fp)
-char *buf; /* receiving name buffer */
-int blen;  /* receiving buffer length */
-int *fp;   /* full path reply */
+char *ncache_lookup(struct lsof_context *ctx,
+                    char *buf, /* receiving name buffer */
+                    int blen,  /* receiving buffer length */
+                    int *fp)   /* full path reply */
 {
     char *cp = buf;
     struct l_nch *lc;
@@ -666,7 +668,7 @@ int *fp;   /* full path reply */
          */
         if (!Lf->fsdir || !Lf->dev_def || Lf->inp_ty != 1)
             return ((char *)NULL);
-        for (mtp = readmnt(); mtp; mtp = mtp->next) {
+        for (mtp = readmnt(ctx); mtp; mtp = mtp->next) {
             if (!mtp->dir || !mtp->inode)
                 continue;
             if (Lf->dev == mtp->dev && mtp->inode == Lf->inode &&
@@ -694,7 +696,7 @@ int *fp;   /* full path reply */
         if (!lc->pla) {
 
 #    if !defined(NCACHE_NO_ROOT)
-            if (ncache_isroot(lc->pa, cp))
+            if (ncache_isroot(ctx, lc->pa, cp))
                 *fp = 1;
 #    endif /* !defined(NCACHE_NO_ROOT) */
 
