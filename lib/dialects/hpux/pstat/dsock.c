@@ -1056,11 +1056,9 @@ struct pst_socket *s; /* optional socket information
                 (KA_T)(f->psf_lo_nodeid & 0xffffffff));
 
 #if defined(HASFSTRUCT)
-    if (na && (Fsv & FSV_NI)) {
-        if (na) {
-            Lf->fna = na;
-            Lf->fsv |= FSV_NI;
-        }
+    if (na) {
+        Lf->fna = na;
+        Lf->fsv |= FSV_NI;
     }
 #endif /* defined(HASFSTRUCT) */
 
@@ -1366,7 +1364,7 @@ int ckscko; /* socket file only checking
                 (KA_T)(f->psf_lo_nodeid & 0xffffffff));
 
 #if defined(HASFSTRUCT)
-    if (na && (Fsv & FSV_NI)) {
+    if (na) {
         Lf->fna = na;
         Lf->fsv |= FSV_NI;
     }

@@ -539,8 +539,7 @@ void gather_proc_info() {
             if (Lf->sf) {
 
 #if defined(HASFSTRUCT)
-                if (Fsv & FSV_FG)
-                    Lf->pof = pofv;
+                Lf->pof = pofv;
 #endif /* defined(HASFSTRUCT) */
 
                 link_lfile();

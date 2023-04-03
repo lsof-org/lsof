@@ -722,12 +722,11 @@ void gather_proc_info() {
                 if (Lf->sf) {
 
 #if defined(HASFSTRUCT)
-                    if (Fsv & FSV_FG)
 
 #    if AIXV < 4300
-                        Lf->pof = (long)(Up->u_ufd[i].flags & 0x7f);
+                    Lf->pof = (long)(Up->u_ufd[i].flags & 0x7f);
 #    else  /* AIXV>=4300 */
-                        Lf->pof = (long)(fds->pi_ufd[i].flags & 0x7f);
+                    Lf->pof = (long)(fds->pi_ufd[i].flags & 0x7f);
 #    endif /* AIXV<4300 */
 #endif     /* defined(HASFSTRUCT) */
 

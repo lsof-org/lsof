@@ -617,7 +617,7 @@ KA_T na;                /* node address */
     /*
      * Save node ID.
      */
-    if (na && (Fsv & FSV_NI)) {
+    if (na) {
         Lf->fna = na;
         Lf->fsv |= FSV_NI;
     }

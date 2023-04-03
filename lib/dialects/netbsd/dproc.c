@@ -305,26 +305,24 @@ void gather_proc_info() {
             continue;
 
 #if defined(HASFSTRUCT)
-        if (Fsv & FSV_FG) {
-            nb = (MALLOC_S)(sizeof(char) * nf);
-            if (nb > pofb) {
-                if (!pof)
-                    pof = (char *)malloc(nb);
-                else
-                    pof = (char *)realloc((MALLOC_P *)pof, nb);
-                if (!pof) {
-                    (void)fprintf(stderr, "%s: PID %d, no file flag space\n",
-                                  Pn, p->P_PID);
-                    Error();
-                }
-                pofb = nb;
+        nb = (MALLOC_S)(sizeof(char) * nf);
+        if (nb > pofb) {
+            if (!pof)
+                pof = (char *)malloc(nb);
+            else
+                pof = (char *)realloc((MALLOC_P *)pof, nb);
+            if (!pof) {
+                (void)fprintf(stderr, "%s: PID %d, no file flag space\n", Pn,
+                              p->P_PID);
+                Error();
             }
-#    if !HAVE_STRUCT_FDFILE
-            if (!fd.fd_ofileflags || kread((KA_T)fd.fd_ofileflags, pof, nb))
-                zeromem(pof, nb);
-#    endif /* ! HAVE_STRUCT_FDFILE */
+            pofb = nb;
         }
-#endif /* defined(HASFSTRUCT) */
+#    if !HAVE_STRUCT_FDFILE
+        if (!fd.fd_ofileflags || kread((KA_T)fd.fd_ofileflags, pof, nb))
+            zeromem(pof, nb);
+#    endif /* ! HAVE_STRUCT_FDFILE */
+#endif     /* defined(HASFSTRUCT) */
 
         /*
          * Save information on file descriptors.
@@ -348,8 +346,7 @@ void gather_proc_info() {
                 if (Lf->sf) {
 
 #if defined(HASFSTRUCT)
-                    if (Fsv & FSV_FG)
-                        Lf->pof = (long)pof[i];
+                    Lf->pof = (long)pof[i];
 #endif /* defined(HASFSTRUCT) */
 
                     link_lfile();

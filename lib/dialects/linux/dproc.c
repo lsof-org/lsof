@@ -1289,7 +1289,7 @@ char *tcmd;  /* task command, if non-NULL) */
                     ls &= ~SB_SIZE;
 
 #if !defined(HASNOFSFLAGS)
-                if ((av & FDINFO_FLAGS) && (Fsv & FSV_FG)) {
+                if (av & FDINFO_FLAGS) {
                     if (efs) {
                         lfr->ffg = (long)fi.flags;
                         lfr->fsv |= FSV_FG;

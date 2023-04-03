@@ -68,16 +68,14 @@ void enter_file_info(
     /*
      * Save file structure information as requested.
      */
-    if (Fsv & FSV_FG) {
-        Lf->ffg = (long)pfi->fi_openflags;
-        Lf->fsv |= FSV_FG;
+    Lf->ffg = (long)pfi->fi_openflags;
+    Lf->fsv |= FSV_FG;
 
 #if defined(PROC_FP_GUARDED)
-        if (pfi->fi_status & PROC_FP_GUARDED) {
-            Lf->guardflags = pfi->fi_guardflags;
-        }
-#endif /* defined(PROC_FP_GUARDED) */
+    if (pfi->fi_status & PROC_FP_GUARDED) {
+        Lf->guardflags = pfi->fi_guardflags;
     }
+#endif /* defined(PROC_FP_GUARDED) */
     Lf->pof = (long)pfi->fi_status;
 }
 

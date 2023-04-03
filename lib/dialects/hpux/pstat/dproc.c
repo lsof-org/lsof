@@ -335,20 +335,14 @@ void gather_proc_info() {
             /*
              * Save file structure values.
              */
-            if (Fsv & FSV_CT) {
-                Lf->fct = (long)f->psf_count;
-                Lf->fsv |= FSV_CT;
-            }
-            if (Fsv & FSV_FA) {
-                ka = (((KA_T)(f->psf_hi_fileid & 0xffffffff) << 32) |
-                      (KA_T)(f->psf_lo_fileid & 0xffffffff));
-                if ((Lf->fsa = ka))
-                    Lf->fsv |= FSV_FA;
-            }
-            if (Fsv & FSV_FG) {
-                Lf->ffg = flag;
-                Lf->fsv |= FSV_FG;
-            }
+            Lf->fct = (long)f->psf_count;
+            Lf->fsv |= FSV_CT;
+            ka = (((KA_T)(f->psf_hi_fileid & 0xffffffff) << 32) |
+                  (KA_T)(f->psf_lo_fileid & 0xffffffff));
+            if ((Lf->fsa = ka))
+                Lf->fsv |= FSV_FA;
+            Lf->ffg = flag;
+            Lf->fsv |= FSV_FG;
             Lf->pof = (long)(f->psf_flag & PS_FEXCLOS);
 #endif /* defined(HASFSTRUCT) */
 

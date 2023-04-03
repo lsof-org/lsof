@@ -125,22 +125,14 @@ void process_file(fp) KA_T fp; /* kernel file structure address */
         /*
          * Save file structure values.
          */
-        if (Fsv & FSV_CT) {
-            Lf->fct = (long)f.f_count;
-            Lf->fsv |= FSV_CT;
-        }
-        if (Fsv & FSV_FA) {
-            Lf->fsa = fp;
-            Lf->fsv |= FSV_FA;
-        }
-        if (Fsv & FSV_FG) {
-            Lf->ffg = (long)f.f_flag;
-            Lf->fsv |= FSV_FG;
-        }
-        if (Fsv & FSV_NI) {
-            Lf->fna = (KA_T)f.f_inode;
-            Lf->fsv |= FSV_NI;
-        }
+        Lf->fct = (long)f.f_count;
+        Lf->fsv |= FSV_CT;
+        Lf->fsa = fp;
+        Lf->fsv |= FSV_FA;
+        Lf->ffg = (long)f.f_flag;
+        Lf->fsv |= FSV_FG;
+        Lf->fna = (KA_T)f.f_inode;
+        Lf->fsv |= FSV_NI;
 #endif /* defined(HASFSTRUCT) */
 
         process_node((KA_T)f.f_inode);

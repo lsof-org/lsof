@@ -174,27 +174,19 @@ static void process_kinfo_file(struct kinfo_file *kf, struct xfile *xfile,
             Lf->access = 'u';
     }
 
-    if (Fsv & FSV_CT) {
-        Lf->fct = (long)kf->kf_ref_count;
-        Lf->fsv |= FSV_CT;
-    }
+    Lf->fct = (long)kf->kf_ref_count;
+    Lf->fsv |= FSV_CT;
     if (xfile) {
-        if (Fsv & FSV_FA) {
-            Lf->fsa = xfile->xf_file;
-            Lf->fsv |= FSV_FA;
-        }
-        if (Fsv & FSV_NI) {
-            Lf->fna = (KA_T)xfile->xf_data;
-            Lf->fsv |= FSV_NI;
-        }
+        Lf->fsa = xfile->xf_file;
+        Lf->fsv |= FSV_FA;
+        Lf->fna = (KA_T)xfile->xf_data;
+        Lf->fsv |= FSV_NI;
     }
-    if (Fsv & FSV_FG) {
-        if (xfile)
-            Lf->ffg = (long)xfile->xf_flag;
-        else
-            Lf->ffg = kf_flags_to_fflags(kf->kf_flags);
-        Lf->fsv |= FSV_FG;
-    }
+    if (xfile)
+        Lf->ffg = (long)xfile->xf_flag;
+    else
+        Lf->ffg = kf_flags_to_fflags(kf->kf_flags);
+    Lf->fsv |= FSV_FG;
 
     switch (kf->kf_type) {
     case KF_TYPE_FIFO:
