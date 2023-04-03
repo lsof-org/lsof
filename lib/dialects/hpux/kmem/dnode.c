@@ -852,64 +852,62 @@ void process_node(va) KA_T va; /* vnode kernel space address */
     /*
      * Record link count.
      */
-    if (Fnlink) {
-        switch (Ntype) {
+    switch (Ntype) {
 
 #if defined(HAS_AFS)
-        case N_AFS:
-            Lf->nlink = an.nlink;
-            Lf->nlink_def = an.nlink_st;
-            break;
+    case N_AFS:
+        Lf->nlink = an.nlink;
+        Lf->nlink_def = an.nlink_st;
+        break;
 #endif /* defined(HAS_AFS) */
 
-        case N_MVFS:
-            /* The location of the link count isn't known. */
-            break;
-        case N_NFS:
+    case N_MVFS:
+        /* The location of the link count isn't known. */
+        break;
+    case N_NFS:
 
 #if HPUXV < 1030
-            Lf->nlink = r.r_nfsattr.na_nlink;
+        Lf->nlink = r.r_nfsattr.na_nlink;
 #else  /* HPUXV>=1030 */
-            Lf->nlink = r.r_attr.va_nlink;
+        Lf->nlink = r.r_attr.va_nlink;
 #endif /* HPUXV<1030 */
 
+        Lf->nlink_def = 1;
+        break;
+
+#if HPUXV >= 1000
+    case N_CDFS: /* no link count? */
+        break;
+#endif /* HPUXV>=1000 */
+
+    case N_FIFO:
+    case N_PIPE:
+
+#if HPUXV >= 1000
+        if (vats) {
+            Lf->nlink = (long)vat.va_nlink;
             Lf->nlink_def = 1;
-            break;
-
-#if HPUXV >= 1000
-        case N_CDFS: /* no link count? */
-            break;
+        }
 #endif /* HPUXV>=1000 */
 
-        case N_FIFO:
-        case N_PIPE:
-
-#if HPUXV >= 1000
-            if (vats) {
-                Lf->nlink = (long)vat.va_nlink;
-                Lf->nlink_def = 1;
-            }
-#endif /* HPUXV>=1000 */
-
-            break;
+        break;
 
 #if defined(HASVXFS)
-        case N_VXFS:
-            /* set in read_vxnode() */
-            break;
+    case N_VXFS:
+        /* set in read_vxnode() */
+        break;
 #endif /* defined(HASVXFS) */
 
-        case N_SPEC:
-        default:
-            if (ins) {
-                Lf->nlink = (long)i.i_nlink;
-                Lf->nlink_def = 1;
-            }
-            break;
+    case N_SPEC:
+    default:
+        if (ins) {
+            Lf->nlink = (long)i.i_nlink;
+            Lf->nlink_def = 1;
         }
-        if (Nlink && Lf->nlink_def && (Lf->nlink < Nlink))
-            Lf->sf |= SELNLINK;
+        break;
     }
+    if (Nlink && Lf->nlink_def && (Lf->nlink < Nlink))
+        Lf->sf |= SELNLINK;
     /*
      * Record an NFS file selection.
      */

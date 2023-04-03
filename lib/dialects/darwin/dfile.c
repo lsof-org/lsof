@@ -163,12 +163,10 @@ void enter_vnode_info(
     /*
      * Save link count, as requested.
      */
-    if (Fnlink) {
-        Lf->nlink = vip->vip_vi.vi_stat.vst_nlink;
-        Lf->nlink_def = 1;
-        if (Nlink && (Lf->nlink < Nlink))
-            Lf->sf |= SELNLINK;
-    }
+    Lf->nlink = vip->vip_vi.vi_stat.vst_nlink;
+    Lf->nlink_def = 1;
+    if (Nlink && (Lf->nlink < Nlink))
+        Lf->sf |= SELNLINK;
     /*
      * If a device number is defined, locate file system and save its identity.
      */

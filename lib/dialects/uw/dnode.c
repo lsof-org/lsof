@@ -1192,32 +1192,30 @@ get_lock_state:
     /*
      * Record link count.
      */
-    if (Fnlink) {
-        switch (Ntype) {
-        case N_FIFO:
-            Lf->nlink = (long)f.fn_open;
-            Lf->nlink_def = 1;
-            break;
-        case N_NFS:
-            Lf->nlink = (long)r.r_attr.va_nlink;
-            Lf->nlink_def = 1;
-            break;
+    switch (Ntype) {
+    case N_FIFO:
+        Lf->nlink = (long)f.fn_open;
+        Lf->nlink_def = 1;
+        break;
+    case N_NFS:
+        Lf->nlink = (long)r.r_attr.va_nlink;
+        Lf->nlink_def = 1;
+        break;
 
 #if defined(HASPROCFS)
-        case N_PROC:
+    case N_PROC:
 #endif /* defined(HASPROCFS) */
 
-        case N_CFS:
-        case N_REGLR:
-            if (!ni) {
-                Lf->nlink = (long)i.nlink;
-                Lf->nlink_def = i.nlink_def;
-            }
-            break;
+    case N_CFS:
+    case N_REGLR:
+        if (!ni) {
+            Lf->nlink = (long)i.nlink;
+            Lf->nlink_def = i.nlink_def;
         }
-        if (Nlink && Lf->nlink_def && (Lf->nlink < Nlink))
-            Lf->sf |= SELNLINK;
+        break;
     }
+    if (Nlink && Lf->nlink_def && (Lf->nlink < Nlink))
+        Lf->sf |= SELNLINK;
     /*
      * Record an NFS file selection.
      */

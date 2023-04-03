@@ -590,12 +590,10 @@ void process_node(na) KA_T na; /* inode kernel space address */
     /*
      * Record link count.
      */
-    if (Fnlink) {
-        Lf->nlink = (long)i.i_nlink;
-        Lf->nlink_def = 1;
-        if (Nlink && (Lf->nlink < Nlink))
-            Lf->sf |= SELNLINK;
-    }
+    Lf->nlink = (long)i.i_nlink;
+    Lf->nlink_def = 1;
+    if (Nlink && (Lf->nlink < Nlink))
+        Lf->sf |= SELNLINK;
     /*
      * Format the type name.
      */

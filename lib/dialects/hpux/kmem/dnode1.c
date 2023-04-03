@@ -137,12 +137,10 @@ int *rdevs;        /* raw device status receiver */
     /*
      * Record link count.
      */
-    if (Fnlink) {
-        Lf->nlink = (long)i.i_nlink;
-        Lf->nlink_def = 1;
-        if (Nlink && (Lf->nlink < Nlink))
-            Lf->sf |= SELNLINK;
-    }
+    Lf->nlink = (long)i.i_nlink;
+    Lf->nlink_def = 1;
+    if (Nlink && (Lf->nlink < Nlink))
+        Lf->sf |= SELNLINK;
     return (0);
 }
 #endif /* defined(HASVXFS) */

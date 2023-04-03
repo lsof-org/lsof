@@ -495,20 +495,18 @@ process_overlaid_node:
     /*
      * Record the link count.
      */
-    if (Fnlink) {
-        /* Read nlink from kernel if provided, otherwise call stat() */
+    /* Read nlink from kernel if provided, otherwise call stat() */
 #if defined(HAS_KF_FILE_NLINK)
-        Lf->nlink = kf->kf_un.kf_file.kf_file_nlink;
-        Lf->nlink_def = 1;
+    Lf->nlink = kf->kf_un.kf_file.kf_file_nlink;
+    Lf->nlink_def = 1;
 #else
-        if (kf->kf_path[0] && stat(kf->kf_path, &st) == 0) {
-            Lf->nlink = st.st_nlink;
-            Lf->nlink_def = 1;
-        }
-#endif
-        if (Lf->nlink_def && Nlink && (Lf->nlink < Nlink))
-            Lf->sf |= SELNLINK;
+    if (kf->kf_path[0] && stat(kf->kf_path, &st) == 0) {
+        Lf->nlink = st.st_nlink;
+        Lf->nlink_def = 1;
     }
+#endif
+    if (Lf->nlink_def && Nlink && (Lf->nlink < Nlink))
+        Lf->sf |= SELNLINK;
     /*
      * Record an NFS file selection.
      */

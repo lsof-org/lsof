@@ -3155,166 +3155,160 @@ void process_node(va) KA_T va; /* vnode kernel space address */
      * Record link count.
      */
 
-#if !defined(HASXOPT)
-    if (Fnlink)
-#endif /* !defined(HASXOPT) */
-
-    {
-        switch (Ntype) {
+    switch (Ntype) {
 
 #if defined(HAS_AFS)
-        case N_AFS:
-            Lf->nlink = an.nlink;
-            Lf->nlink_def = an.nlink_st;
-            break;
+    case N_AFS:
+        Lf->nlink = an.nlink;
+        Lf->nlink_def = an.nlink_st;
+        break;
 #endif /* defined(HAS_AFS) */
 
 #if solaris >= 20500
-        case N_AUTO:
-            break;
+    case N_AUTO:
+        break;
 
 #    if defined(HASCACHEFS)
-        case N_CACHE:
-            Lf->nlink = (long)cn.c_attr.va_nlink;
-            Lf->nlink_def = 1;
-            break;
+    case N_CACHE:
+        Lf->nlink = (long)cn.c_attr.va_nlink;
+        Lf->nlink_def = 1;
+        break;
 #    endif /* defined(HASCACHEFS) */
 
 #endif /* solaris>=20500 */
 
 #if solaris >= 100000
-        case N_CTFSADIR:
-        case N_CTFSBUND:
-        case N_CTFSCDIR:
-        case N_CTFSCTL:
-        case N_CTFSEVT:
-        case N_CTFSLATE:
-        case N_CTFSROOT:
-        case N_CTFSSTAT:
-        case N_CTFSSYM:
-        case N_CTFSTDIR:
-        case N_CTFSTMPL:
-            /* Method of computing CTFS link count not known. */
-            break;
+    case N_CTFSADIR:
+    case N_CTFSBUND:
+    case N_CTFSCDIR:
+    case N_CTFSCTL:
+    case N_CTFSEVT:
+    case N_CTFSLATE:
+    case N_CTFSROOT:
+    case N_CTFSSTAT:
+    case N_CTFSSYM:
+    case N_CTFSTDIR:
+    case N_CTFSTMPL:
+        /* Method of computing CTFS link count not known. */
+        break;
 #endif /* solaris>=100000 */
 
-        case N_FD:
-            Lf->nlink = (v->v_type == VDIR) ? 2 : 1;
-            Lf->nlink_def = 1;
-            break;
+    case N_FD:
+        Lf->nlink = (v->v_type == VDIR) ? 2 : 1;
+        Lf->nlink_def = 1;
+        break;
 
 #if solaris >= 20600
-        case N_SOCK: /* no link count */
-            break;
+    case N_SOCK: /* no link count */
+        break;
 #endif /* solaris>=20600 */
 
-        case N_HSFS:
-            Lf->nlink = (long)h.hs_dirent.nlink;
-            Lf->nlink_def = 1;
-            break;
-        case N_NM:
-            Lf->nlink = (long)nn.nm_vattr.va_nlink;
-            Lf->nlink_def = 1;
-            break;
+    case N_HSFS:
+        Lf->nlink = (long)h.hs_dirent.nlink;
+        Lf->nlink_def = 1;
+        break;
+    case N_NM:
+        Lf->nlink = (long)nn.nm_vattr.va_nlink;
+        Lf->nlink_def = 1;
+        break;
 
 #if solaris >= 100000
-        case N_DEV:
-            if (dvs) {
-                Lf->nlink = (long)dv.dv_nlink;
-                Lf->nlink_def = 1;
-            }
-            break;
+    case N_DEV:
+        if (dvs) {
+            Lf->nlink = (long)dv.dv_nlink;
+            Lf->nlink_def = 1;
+        }
+        break;
 #endif /* solaris>=100000 */
 
-        case N_DOOR:
-            Lf->nlink = (long)v->v_count;
-            Lf->nlink_def = 1;
-            break;
-        case N_FIFO:
-            break;
-        case N_MNT:
+    case N_DOOR:
+        Lf->nlink = (long)v->v_count;
+        Lf->nlink_def = 1;
+        break;
+    case N_FIFO:
+        break;
+    case N_MNT:
 
 #if defined(CVFS_NLKSAVE)
-            if (vfs) {
-                Lf->nlink = (long)vfs->nlink;
-                Lf->nlink_def = 1;
-            }
+        if (vfs) {
+            Lf->nlink = (long)vfs->nlink;
+            Lf->nlink_def = 1;
+        }
 #endif /* defined(CVFS_NLKSAVE) */
 
-            break;
-        case N_MVFS: /* no link count */
-            break;
-        case N_NFS:
-            Lf->nlink = (long)r.r_attr.va_nlink;
-            Lf->nlink_def = 1;
-            break;
+        break;
+    case N_MVFS: /* no link count */
+        break;
+    case N_NFS:
+        Lf->nlink = (long)r.r_attr.va_nlink;
+        Lf->nlink_def = 1;
+        break;
 
 #if solaris >= 100000
-        case N_NFS4:
-            Lf->nlink = (long)r4.r_attr.va_nlink;
-            Lf->nlink_def = 1;
-            break;
+    case N_NFS4:
+        Lf->nlink = (long)r4.r_attr.va_nlink;
+        Lf->nlink_def = 1;
+        break;
 #endif /* solaris>=100000 */
 
-        case N_PCFS:
-            break;
+    case N_PCFS:
+        break;
 
 #if defined(HASPROCFS)
-        case N_PROC:
-            break;
+    case N_PROC:
+        break;
 #endif /* defined(HASPROCFS) */
 
-        case N_REGLR:
-            if (ins) {
-                Lf->nlink = (long)i.i_nlink;
-                Lf->nlink_def = 1;
-            }
-            break;
-        case N_SAMFS:
-            break; /* No more SAM-FS information is available. */
+    case N_REGLR:
+        if (ins) {
+            Lf->nlink = (long)i.i_nlink;
+            Lf->nlink_def = 1;
+        }
+        break;
+    case N_SAMFS:
+        break; /* No more SAM-FS information is available. */
 
 #if solaris >= 110000
-        case N_SDEV:
-            if (sdns) {
-                Lf->nlink = (long)sdva.va_nlink;
-                Lf->nlink_def = 1;
-            }
-            break;
+    case N_SDEV:
+        if (sdns) {
+            Lf->nlink = (long)sdva.va_nlink;
+            Lf->nlink_def = 1;
+        }
+        break;
 #endif /* solaris>=110000 */
 
-        case N_SHARED:
-            break; /* No more sharedfs information is available. */
-        case N_STREAM:
-            break;
-        case N_TMP:
-            Lf->nlink = (long)t.tn_attr.va_nlink;
-            Lf->nlink_def = 1;
-            break;
+    case N_SHARED:
+        break; /* No more sharedfs information is available. */
+    case N_STREAM:
+        break;
+    case N_TMP:
+        Lf->nlink = (long)t.tn_attr.va_nlink;
+        Lf->nlink_def = 1;
+        break;
 
 #if defined(HASVXFS)
-        case N_VXFS:
-            Lf->nlink = vx.nl;
-            Lf->nlink_def = vx.nl_def;
-            break;
+    case N_VXFS:
+        Lf->nlink = vx.nl;
+        Lf->nlink_def = vx.nl_def;
+        break;
 #endif /* defined(HASVXFS) */
 
 #if defined(HAS_ZFS)
-        case N_ZFS:
-            if (zns) {
-                Lf->nlink = (long)MIN(zn.z_links, UINT32_MAX);
-                Lf->nlink_def = 1;
-            }
-            break;
-#endif /* defined(HAS_ZFS) */
+    case N_ZFS:
+        if (zns) {
+            Lf->nlink = (long)MIN(zn.z_links, UINT32_MAX);
+            Lf->nlink_def = 1;
         }
-        if (Nlink && Lf->nlink_def && (Lf->nlink < Nlink))
-            Lf->sf |= SELNLINK;
+        break;
+#endif /* defined(HAS_ZFS) */
     }
+    if (Nlink && Lf->nlink_def && (Lf->nlink < Nlink))
+        Lf->sf |= SELNLINK;
 
 #if defined(HASVXFS)
-    /*
-     * Record a VxFS file.
-     */
+        /*
+         * Record a VxFS file.
+         */
 
 #    if defined(HASVXFSDNLC)
     Lf->is_vxfs = (Ntype == N_VXFS) ? 1 : 0;

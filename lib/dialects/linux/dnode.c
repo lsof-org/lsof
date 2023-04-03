@@ -812,7 +812,7 @@ int ls;                             /* *l status -- i.e., SB_* values */
     /*
      * Record the link count.
      */
-    if (Fnlink && (ss & SB_NLINK)) {
+    if (ss & SB_NLINK) {
         Lf->nlink = (long)s->st_nlink;
         Lf->nlink_def = 1;
         if (Nlink && (Lf->nlink < Nlink))

@@ -143,14 +143,12 @@ void process_vnode(struct kinfo_file *file) {
     Lf->lmi_srch = 1;
 
     /* Fill number of links */
-    if (Fnlink) {
-        Lf->nlink = file->va_nlink;
-        Lf->nlink_def = 1;
+    Lf->nlink = file->va_nlink;
+    Lf->nlink_def = 1;
 
-        /* Handle link count filter */
-        if (Nlink && (Lf->nlink < Nlink))
-            Lf->sf |= SELNLINK;
-    }
+    /* Handle link count filter */
+    if (Nlink && (Lf->nlink < Nlink))
+        Lf->sf |= SELNLINK;
 
     /* Handle name match, must be done late, because if_file_named checks
      * Lf->dev etc. */

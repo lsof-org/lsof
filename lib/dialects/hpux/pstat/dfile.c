@@ -692,16 +692,14 @@ KA_T na;                /* node address */
     /*
      * Save link count.
      */
-    if (Fnlink) {
 
-        /*
-         * Ignore a zero link count only if the file is a FIFO.
-         */
-        if ((Lf->nlink = (long)pd->psfd_nlink) || (Ntype != N_FIFO))
-            Lf->nlink_def = 1;
-        if (Lf->nlink_def && Nlink && (Lf->nlink < Nlink))
-            Lf->sf |= SELNLINK;
-    }
+    /*
+     * Ignore a zero link count only if the file is a FIFO.
+     */
+    if ((Lf->nlink = (long)pd->psfd_nlink) || (Ntype != N_FIFO))
+        Lf->nlink_def = 1;
+    if (Lf->nlink_def && Nlink && (Lf->nlink < Nlink))
+        Lf->sf |= SELNLINK;
     /*
      * Save file system identity.
      */

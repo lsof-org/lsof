@@ -938,57 +938,55 @@ void process_node(va) KA_T va; /* vnode kernel space address */
     /*
      * Record link count.
      */
-    if (Fnlink) {
-        switch (Ntype) {
+    switch (Ntype) {
 
 #if defined(HAS_AFS)
-        case N_AFS:
-            Lf->nlink = an.nlink;
-            Lf->nlink_def = an.nlink_st;
-            break;
+    case N_AFS:
+        Lf->nlink = an.nlink;
+        Lf->nlink_def = an.nlink_st;
+        break;
 #endif /* defined(HAS_AFS) */
 
 #if defined(HAS_NFS)
-        case N_NFS:
-            if (nfss) {
-                Lf->nlink = (long)nfs_attr.va_nlink;
-                Lf->nlink_def = 1;
-            }
-            break;
+    case N_NFS:
+        if (nfss) {
+            Lf->nlink = (long)nfs_attr.va_nlink;
+            Lf->nlink_def = 1;
+        }
+        break;
 #endif /* defined(HAS_NFS) */
 
 #if defined(HAS_SANFS)
-        case N_SANFS:
-            if (sans) {
+    case N_SANFS:
+        if (sans) {
 
-                /*
-                 * DEBUG: this code is insufficient.  It can't be completed
-                 * until IBM makes the SANFS header files available in
-                 * /usr/include.
-                 */
-                /* Lf->nlink = (long)???	DEBUG */
-                Lf->nlink_def = 1;
-            }
-            break;
+            /*
+             * DEBUG: this code is insufficient.  It can't be completed
+             * until IBM makes the SANFS header files available in
+             * /usr/include.
+             */
+            /* Lf->nlink = (long)???	DEBUG */
+            Lf->nlink_def = 1;
+        }
+        break;
 #endif /* defined(HAS_SANFS) */
 
 #if AIXV >= 3200
-        case N_BLK:
-        case N_CHR:
-        case N_FIFO:
-        case N_MPC:
+    case N_BLK:
+    case N_CHR:
+    case N_FIFO:
+    case N_MPC:
 #endif /* AIXV>=3200 */
 
-        case N_REGLR:
-            if (ins) {
-                Lf->nlink = (long)i.nlink;
-                Lf->nlink_def = i.nlink_def;
-            }
-            break;
+    case N_REGLR:
+        if (ins) {
+            Lf->nlink = (long)i.nlink;
+            Lf->nlink_def = i.nlink_def;
         }
-        if (Nlink && Lf->nlink_def && (Lf->nlink < Nlink))
-            Lf->sf |= SELNLINK;
+        break;
     }
+    if (Nlink && Lf->nlink_def && (Lf->nlink < Nlink))
+        Lf->sf |= SELNLINK;
 
 #if defined(HAS_NFS)
     /*

@@ -1038,89 +1038,87 @@ process_overlaid_node:
     /*
      * Record the link count.
      */
-    if (Fnlink) {
-        switch (Ntype) {
+    switch (Ntype) {
 
 #if defined(HAS9660FS)
-        case N_CDFS:
-            if (iso_stat) {
-                Lf->nlink = iso_nlink;
-                Lf->nlink_def = 1;
-            }
-            break;
+    case N_CDFS:
+        if (iso_stat) {
+            Lf->nlink = iso_nlink;
+            Lf->nlink_def = 1;
+        }
+        break;
 #endif /* defined(HAS9660FS) */
 
 #if defined(HASKERNFS)
-        case N_KERN:
-            if (ksbs) {
-                Lf->nlink = (long)ksb.st_nlink;
-                Lf->nlink_def = 1;
-            }
-            break;
+    case N_KERN:
+        if (ksbs) {
+            Lf->nlink = (long)ksb.st_nlink;
+            Lf->nlink_def = 1;
+        }
+        break;
 #endif /* defined(HASKERNFS) */
 
-        case N_NFS:
-            if (nty == NFSNODE) {
-                Lf->nlink = (long)NVATTR.va_nlink;
-                Lf->nlink_def = 1;
-            }
-            break;
-        case N_REGLR:
-            switch (nty) {
-            case INODE:
+    case N_NFS:
+        if (nty == NFSNODE) {
+            Lf->nlink = (long)NVATTR.va_nlink;
+            Lf->nlink_def = 1;
+        }
+        break;
+    case N_REGLR:
+        switch (nty) {
+        case INODE:
 
 #if defined(HASEFFNLINK)
-                Lf->nlink = (long)i.HASEFFNLINK;
+            Lf->nlink = (long)i.HASEFFNLINK;
 #else /* !defined(HASEFFNLINK) */
 #    if defined(HASI_FFS)
-                Lf->nlink = (long)i.i_ffs_nlink;
+            Lf->nlink = (long)i.i_ffs_nlink;
 #    else /* !defined(HASI_FFS) */
 #        if defined(HASI_FFS1)
-                if (ffs == 1) {
-                    if (u1s)
-                        Lf->nlink = (long)u1.di_nlink;
-                } else if (ffs == 2) {
-                    if (u2s)
-                        Lf->nlink = (long)u2.di_nlink;
-                }
+            if (ffs == 1) {
+                if (u1s)
+                    Lf->nlink = (long)u1.di_nlink;
+            } else if (ffs == 2) {
+                if (u2s)
+                    Lf->nlink = (long)u2.di_nlink;
+            }
 #        else  /* !defined(HASI_FFS1) */
 
-                Lf->nlink = (long)i.i_nlink;
+            Lf->nlink = (long)i.i_nlink;
 #        endif /* defined(HASI_FFS1) */
 #    endif     /* defined(HASI_FFS) */
 #endif         /* defined(HASEFFNLINK) */
 
-                Lf->nlink_def = 1;
-                break;
+            Lf->nlink_def = 1;
+            break;
 
 #if defined(HASMSDOSFS)
-            case DOSNODE:
-                Lf->nlink = (long)d.de_refcnt;
-                Lf->nlink_def = 1;
-                break;
+        case DOSNODE:
+            Lf->nlink = (long)d.de_refcnt;
+            Lf->nlink_def = 1;
+            break;
 #endif /* defined(HASMSDOSFS) */
 
 #if defined(HASEXT2FS)
-            case EXT2NODE:
+        case EXT2NODE:
 #    if defined(HASI_E2FS_PTR)
-                if (edp) {
-                    Lf->nlink = (long)edp->e2di_nlink;
-                    Lf->nlink_def = 1;
-                }
-#    else  /* !defined(HASI_E2FS_PTR) */
-                Lf->nlink = (long)i.i_e2fs_nlink;
+            if (edp) {
+                Lf->nlink = (long)edp->e2di_nlink;
                 Lf->nlink_def = 1;
+            }
+#    else  /* !defined(HASI_E2FS_PTR) */
+            Lf->nlink = (long)i.i_e2fs_nlink;
+            Lf->nlink_def = 1;
 #    endif /* defined(HASI_E2FS_PTR) */
 
-                break;
+            break;
 
 #endif /* defined(HASEXT2FS) */
-            }
-            break;
         }
-        if (Lf->nlink_def && Nlink && (Lf->nlink < Nlink))
-            Lf->sf |= SELNLINK;
+        break;
     }
+    if (Lf->nlink_def && Nlink && (Lf->nlink < Nlink))
+        Lf->sf |= SELNLINK;
     /*
      * Record an NFS file selection.
      */
