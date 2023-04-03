@@ -162,6 +162,7 @@ static void process_kinfo_file(struct kinfo_file *kf, struct xfile *xfile,
                                struct pcb_lists *pcbs,
                                struct lock_list *locks) {
     Lf->off = kf->kf_offset;
+    Lf->off_def = 1;
     if (kf->kf_ref_count) {
         if ((kf->kf_flags & (KF_FLAG_READ | KF_FLAG_WRITE)) == KF_FLAG_READ)
             Lf->access = 'r';

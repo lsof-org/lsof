@@ -362,6 +362,7 @@ void gather_proc_info() {
 #else  /* !defined(_PSTAT64) */
             Lf->off = (SZOFFTYPE)f->psf_offset;
 #endif /* defined(_PSTAT64) */
+            Lf->off_def = 1;
 
             /*
              * Process the file by its type.

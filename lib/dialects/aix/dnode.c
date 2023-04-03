@@ -879,72 +879,61 @@ void process_node(va) KA_T va; /* vnode kernel space address */
     /*
      * Obtain the file size.
      */
-    if (Foffset)
-        Lf->off_def = 1;
-    else {
-        switch (Ntype) {
-
+    switch (Ntype) {
 #if defined(HAS_AFS)
-        case N_AFS:
-            Lf->sz = (SZOFFTYPE)an.size;
-            Lf->sz_def = 1;
-            break;
+    case N_AFS:
+        Lf->sz = (SZOFFTYPE)an.size;
+        Lf->sz_def = 1;
+        break;
 #endif /* defined(HAS_AFS) */
 
 #if AIXV >= 3200
-        case N_FIFO:
-            Lf->sz = (SZOFFTYPE)f.ff_size;
-            Lf->sz_def = 1;
-            break;
+    case N_FIFO:
+        Lf->sz = (SZOFFTYPE)f.ff_size;
+        Lf->sz_def = 1;
+        break;
 #endif /* AIXV>=3200 */
 
 #if defined(HAS_NFS)
-        case N_NFS:
-            if (nfss) {
-                Lf->sz = (SZOFFTYPE)nfs_attr.va_size;
-                Lf->sz_def = 1;
-            }
-            break;
+    case N_NFS:
+        if (nfss) {
+            Lf->sz = (SZOFFTYPE)nfs_attr.va_size;
+            Lf->sz_def = 1;
+        }
+        break;
 #endif /* defined(HAS_NFS) */
 
 #if defined(HAS_SANFS)
-        case N_SANFS:
-            if (sans) {
+    case N_SANFS:
+        if (sans) {
 
-                /*
-                 * DEBUG: this code is insufficient.  It can't be completed
-                 * until IBM makes the SANFS header files available in
-                 * /usr/include.
-                 */
-                /* Lf->sz = (SZOFFTYPE)???	DEBUG */
-                Lf->sz_def = 1;
-            }
-            break;
+            /*
+             * DEBUG: this code is insufficient.  It can't be completed
+             * until IBM makes the SANFS header files available in
+             * /usr/include.
+             */
+            /* Lf->sz = (SZOFFTYPE)???	DEBUG */
+            Lf->sz_def = 1;
+        }
+        break;
 #endif /* defined(HAS_SANFS) */
 
 #if AIXV >= 3200
-        case N_BLK:
-            if (!Fsize)
-                Lf->off_def = 1;
-            break;
-        case N_CHR:
-        case N_MPC:
-            if (!Fsize)
-                Lf->off_def = 1;
-            break;
+    case N_BLK:
+        break;
+    case N_CHR:
+    case N_MPC:
+        break;
 #endif /* AIXV>=3200 */
 
-        case N_REGLR:
-            if (type == VREG || type == VDIR) {
-                if (ins) {
-                    Lf->sz = (SZOFFTYPE)i.size;
-                    Lf->sz_def = i.size_def;
-                }
-            } else if (((type == VBLK) || (type == VCHR) || (type == VMPC)) &&
-                       !Fsize)
-                Lf->off_def = 1;
-            break;
+    case N_REGLR:
+        if (type == VREG || type == VDIR) {
+            if (ins) {
+                Lf->sz = (SZOFFTYPE)i.size;
+                Lf->sz_def = i.size_def;
+            }
         }
+        break;
     }
     /*
      * Record link count.
@@ -1181,13 +1170,10 @@ void process_shmt(sa) KA_T sa; /* shared memory transport node struct
     }
     enter_dev_ch(print_kptr(sa, (char *)NULL, 0));
     /*
-     * If offset display has been requested or if buffer size less free bytes is
-     * negative, enable offset display.  Otherwise set the  file size as buffer
-     * size less free bytes.
+     * If buffer size is less than free bytes, enable offset display. Otherwise
+     * set the file size as buffer size less free bytes.
      */
-    if (Foffset || mn.free > mn.sz)
-        Lf->off_def = 1;
-    else {
+    if (mn.free <= mn.sz) {
         Lf->sz = (SZOFFTYPE)(mn.sz - mn.free);
         Lf->sz_def = 1;
     }

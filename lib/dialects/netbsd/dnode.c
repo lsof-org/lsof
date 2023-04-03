@@ -905,143 +905,135 @@ process_overlaid_node:
     /*
      * Obtain the file size.
      */
-    if (Foffset)
-        Lf->off_def = 1;
-    else {
-        switch (Ntype) {
-
+    switch (Ntype) {
 #if defined(HAS9660FS)
-        case N_CDFS:
-            if (iso_stat) {
-                Lf->sz = (SZOFFTYPE)iso_sz;
-                Lf->sz_def = 1;
-            }
-            break;
+    case N_CDFS:
+        if (iso_stat) {
+            Lf->sz = (SZOFFTYPE)iso_sz;
+            Lf->sz_def = 1;
+        }
+        break;
 #endif /* defined(HAS9660FS) */
 
-        case N_FIFO:
-            if (!Fsize)
-                Lf->off_def = 1;
-            break;
+    case N_FIFO:
+        break;
 
 #if defined(HASKERNFS)
-        case N_KERN:
-            if (ksbs) {
-                Lf->sz = (SZOFFTYPE)ksb.st_size;
-                Lf->sz_def = 1;
-            }
-            break;
+    case N_KERN:
+        if (ksbs) {
+            Lf->sz = (SZOFFTYPE)ksb.st_size;
+            Lf->sz_def = 1;
+        }
+        break;
 #endif /* defined(HASKERNFS) */
 
-        case N_NFS:
-            if (nty == NFSNODE) {
-                Lf->sz = (SZOFFTYPE)NVATTR.va_size;
-                Lf->sz_def = 1;
-            }
-            break;
+    case N_NFS:
+        if (nty == NFSNODE) {
+            Lf->sz = (SZOFFTYPE)NVATTR.va_size;
+            Lf->sz_def = 1;
+        }
+        break;
 
 #if defined(HASPROCFS)
-        case N_PROC:
-            if (nty == PFSNODE) {
-                switch (p.pfs_type) {
-                case Proot:
-                case Pproc:
-                    Lf->sz = (SZOFFTYPE)DEV_BSIZE;
-                    Lf->sz_def = 1;
-                    break;
-                case Pcurproc:
-                    Lf->sz = (SZOFFTYPE)DEV_BSIZE;
-                    Lf->sz_def = 1;
-                    break;
-                case Pmem:
-                    (void)getmemsz(p.pfs_pid);
-                    break;
-                case Pregs:
-                    Lf->sz = (SZOFFTYPE)sizeof(struct reg);
-                    Lf->sz_def = 1;
-                    break;
+    case N_PROC:
+        if (nty == PFSNODE) {
+            switch (p.pfs_type) {
+            case Proot:
+            case Pproc:
+                Lf->sz = (SZOFFTYPE)DEV_BSIZE;
+                Lf->sz_def = 1;
+                break;
+            case Pcurproc:
+                Lf->sz = (SZOFFTYPE)DEV_BSIZE;
+                Lf->sz_def = 1;
+                break;
+            case Pmem:
+                (void)getmemsz(p.pfs_pid);
+                break;
+            case Pregs:
+                Lf->sz = (SZOFFTYPE)sizeof(struct reg);
+                Lf->sz_def = 1;
+                break;
 
 #    if defined(FP_QSIZE)
-                case Pfpregs:
-                    Lf->sz = (SZOFFTYPE)sizeof(struct fpreg);
-                    Lf->sz_def = 1;
-                    break;
+            case Pfpregs:
+                Lf->sz = (SZOFFTYPE)sizeof(struct fpreg);
+                Lf->sz_def = 1;
+                break;
 #    endif /* defined(FP_QSIZE) */
-                }
             }
-            break;
+        }
+        break;
 #endif /* defined(HASPROCFS) */
 
-        case N_REGLR:
-            if (type == VREG || type == VDIR) {
-                switch (nty) {
-                case INODE:
+    case N_REGLR:
+        if (type == VREG || type == VDIR) {
+            switch (nty) {
+            case INODE:
 
 #if defined(HASI_FFS)
 
-                    Lf->sz = (SZOFFTYPE)i.i_ffs_size;
-                    Lf->sz_def = 1;
-                    break;
+                Lf->sz = (SZOFFTYPE)i.i_ffs_size;
+                Lf->sz_def = 1;
+                break;
 #else /* !defined(HASI_FFS) */
 #    if defined(HASI_FFS1)
 
-                    if (ffs == 1) {
-                        if (u1s) {
-                            Lf->sz = (SZOFFTYPE)u1.di_size;
-                            Lf->sz_def = 1;
-                        }
-                    } else if (ffs == 2) {
-                        if (u2s) {
-                            Lf->sz = (SZOFFTYPE)u2.di_size;
-                            Lf->sz_def = 1;
-                        }
+                if (ffs == 1) {
+                    if (u1s) {
+                        Lf->sz = (SZOFFTYPE)u1.di_size;
+                        Lf->sz_def = 1;
                     }
-                    break;
+                } else if (ffs == 2) {
+                    if (u2s) {
+                        Lf->sz = (SZOFFTYPE)u2.di_size;
+                        Lf->sz_def = 1;
+                    }
+                }
+                break;
 #    else  /* !defined(HASI_FFS1) */
-                    Lf->sz = (SZOFFTYPE)i.i_size;
-                    Lf->sz_def = 1;
+                Lf->sz = (SZOFFTYPE)i.i_size;
+                Lf->sz_def = 1;
 #    endif /* defined(HASI_FFS1) */
 #endif     /* defined(HASI_FFS) */
 
-                    break;
+                break;
 
 #if defined(HASMSDOSFS)
-                case DOSNODE:
-                    Lf->sz = (SZOFFTYPE)d.de_FileSize;
-                    Lf->sz_def = 1;
-                    break;
+            case DOSNODE:
+                Lf->sz = (SZOFFTYPE)d.de_FileSize;
+                Lf->sz_def = 1;
+                break;
 #endif /* defined(HASMSDOSFS) */
 
-                case MFSNODE:
-                    Lf->sz = (SZOFFTYPE)m.mfs_size;
-                    Lf->sz_def = 1;
-                    break;
+            case MFSNODE:
+                Lf->sz = (SZOFFTYPE)m.mfs_size;
+                Lf->sz_def = 1;
+                break;
 
 #if defined(HASTMPFS)
-                case TMPFSNODE:
-                    Lf->sz = (SZOFFTYPE)tmp.tn_size;
-                    Lf->sz_def = 1;
-                    break;
+            case TMPFSNODE:
+                Lf->sz = (SZOFFTYPE)tmp.tn_size;
+                Lf->sz_def = 1;
+                break;
 #endif /* defined(HASTMPFS) */
 
 #if defined(HASEXT2FS)
-                case EXT2NODE:
+            case EXT2NODE:
 #    if defined(HASI_E2FS_PTR)
-                    if (edp) {
-                        Lf->sz = (SZOFFTYPE)edp->e2di_size;
-                        Lf->sz_def = 1;
-                    }
-#    else  /* !defined(HASI_E2FS_PTR) */
-                    Lf->sz = (SZOFFTYPE)i.i_e2fs_size;
+                if (edp) {
+                    Lf->sz = (SZOFFTYPE)edp->e2di_size;
                     Lf->sz_def = 1;
-#    endif /* defined(HASI_E2FS_PTR) */
-                    break;
-#endif /* defined(HASEXT2FS) */
                 }
-            } else if ((type == VCHR || type == VBLK) && !Fsize)
-                Lf->off_def = 1;
-            break;
+#    else  /* !defined(HASI_E2FS_PTR) */
+                Lf->sz = (SZOFFTYPE)i.i_e2fs_size;
+                Lf->sz_def = 1;
+#    endif /* defined(HASI_E2FS_PTR) */
+                break;
+#endif /* defined(HASEXT2FS) */
+            }
         }
+        break;
     }
     /*
      * Record the link count.
@@ -1427,12 +1419,8 @@ void process_pipe(pa) KA_T pa; /* pipe structure kernel address */
     }
     (void)snpf(Lf->type, sizeof(Lf->type), "PIPE");
     enter_dev_ch(print_kptr(pa, (char *)NULL, 0));
-    if (Foffset)
-        Lf->off_def = 1;
-    else {
-        Lf->sz = (SZOFFTYPE)p.pipe_buffer.size;
-        Lf->sz_def = 1;
-    }
+    Lf->sz = (SZOFFTYPE)p.pipe_buffer.size;
+    Lf->sz_def = 1;
     if (p.pipe_peer)
         (void)snpf(Namech, Namechl, "->%s",
                    print_kptr((KA_T)p.pipe_peer, (char *)NULL, 0));

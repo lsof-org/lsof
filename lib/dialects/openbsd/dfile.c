@@ -54,10 +54,6 @@ void process_kqueue_file(struct kinfo_file *file) {
         enter_dev_ch(buf);
     }
 
-    /* Fill offset */
-    Lf->off = 0;
-    Lf->off_def = 1;
-
     /*
      * Construct access code.
      */

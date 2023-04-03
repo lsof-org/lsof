@@ -542,16 +542,13 @@ void process_socket(sa) KA_T sa; /* socket address in kernel */
     /*
      * Save size information for HP-UX < 10.30.
      */
-    if (Fsize) {
-        if (Lf->access == 'r')
-            Lf->sz = (SZOFFTYPE)s.so_rcv.sb_cc;
-        else if (Lf->access == 'w')
-            Lf->sz = (SZOFFTYPE)s.so_snd.sb_cc;
-        else
-            Lf->sz = (SZOFFTYPE)(s.so_rcv.sb_cc + s.so_snd.sb_cc);
-        Lf->sz_def = 1;
-    } else
-        Lf->off_def = 1;
+    if (Lf->access == 'r')
+        Lf->sz = (SZOFFTYPE)s.so_rcv.sb_cc;
+    else if (Lf->access == 'w')
+        Lf->sz = (SZOFFTYPE)s.so_snd.sb_cc;
+    else
+        Lf->sz = (SZOFFTYPE)(s.so_rcv.sb_cc + s.so_snd.sb_cc);
+    Lf->sz_def = 1;
 
 #    if defined(HASTCPTPIQ)
     Lf->lts.rq = s.so_rcv.sb_cc;
@@ -772,20 +769,17 @@ void process_socket(sa) KA_T sa; /* socket address in kernel */
         /*
          * Save size information for HP-UX 10.30 and above.
          */
-        if (Fsize) {
-            if (!s.so_rcv || kread((KA_T)s.so_rcv, (char *)&rb, sizeof(rb)))
-                rb.sb_cc = 0;
-            if (!s.so_snd || kread((KA_T)s.so_snd, (char *)&sb, sizeof(sb)))
-                sb.sb_cc = 0;
-            if (Lf->access == 'r')
-                Lf->sz = (SZOFFTYPE)rb.sb_cc;
-            else if (Lf->access == 'w')
-                Lf->sz = (SZOFFTYPE)sb.sb_cc;
-            else
-                Lf->sz = (SZOFFTYPE)(rb.sb_cc + sb.sb_cc);
-            Lf->sz_def = 1;
-        } else
-            Lf->off_def = 1;
+        if (!s.so_rcv || kread((KA_T)s.so_rcv, (char *)&rb, sizeof(rb)))
+            rb.sb_cc = 0;
+        if (!s.so_snd || kread((KA_T)s.so_snd, (char *)&sb, sizeof(sb)))
+            sb.sb_cc = 0;
+        if (Lf->access == 'r')
+            Lf->sz = (SZOFFTYPE)rb.sb_cc;
+        else if (Lf->access == 'w')
+            Lf->sz = (SZOFFTYPE)sb.sb_cc;
+        else
+            Lf->sz = (SZOFFTYPE)(rb.sb_cc + sb.sb_cc);
+        Lf->sz_def = 1;
 #endif /* HPUXV>=1030 */
 
         /*
@@ -1029,20 +1023,14 @@ enum vtype vt;                                     /* vnode type */
         Lf->lts.rqs = Lf->lts.sqs = 1;
 #        endif /* defined(HASTCPTPIQ) */
 
-        if (Fsize) {
-            if (Lf->access == 'r')
-                Lf->sz = (SZOFFTYPE)rq;
-            else if (Lf->access == 'w')
-                Lf->sz = (SZOFFTYPE)sq;
-            else
-                Lf->sz = (SZOFFTYPE)(rq + sq);
-            Lf->sz_def = 1;
-        } else
-            Lf->off_def = 1;
+        if (Lf->access == 'r')
+            Lf->sz = (SZOFFTYPE)rq;
+        else if (Lf->access == 'w')
+            Lf->sz = (SZOFFTYPE)sq;
+        else
+            Lf->sz = (SZOFFTYPE)(rq + sq);
+        Lf->sz_def = 1;
 
-#    else  /* !defined(HASTCPTPIQ) && !defined(HASTCPTPIW) */
-        if (!Fsize)
-            Lf->off_def = 1;
 #    endif /* defined(HASTCPTPIQ) || defined(HASTCPTPIW) */
 
 #    if defined(HASTCPOPT)
@@ -1123,8 +1111,6 @@ enum vtype vt;                                     /* vnode type */
         }
         (void)ent_inaddr(la, (int)ntohs(pt), (unsigned char *)NULL, -1,
                          AF_INET);
-        if (!Fsize)
-            Lf->off_def = 1;
         Lf->lts.type = 1;
         Lf->lts.state.ui = (unsigned int)ud.udp_state;
         Namech[0] = '\0';

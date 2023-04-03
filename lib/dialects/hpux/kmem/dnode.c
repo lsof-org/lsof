@@ -760,101 +760,94 @@ void process_node(va) KA_T va; /* vnode kernel space address */
     /*
      * Obtain the file size.
      */
-    if (Foffset)
-        Lf->off_def = 1;
-    else {
-        switch (Ntype) {
-
+    switch (Ntype) {
 #if defined(HAS_AFS)
-        case N_AFS:
-            Lf->sz = (SZOFFTYPE)an.size;
-            Lf->sz_def = 1;
-            break;
+    case N_AFS:
+        Lf->sz = (SZOFFTYPE)an.size;
+        Lf->sz_def = 1;
+        break;
 #endif /* defined(HAS_AFS) */
 
 #if HPUXV >= 1000
-        case N_CDFS:
-            Lf->sz = (SZOFFTYPE)c.cd_cdc.cdc_size;
+    case N_CDFS:
+        Lf->sz = (SZOFFTYPE)c.cd_cdc.cdc_size;
+        Lf->sz_def = 1;
+        break;
+    case N_PIPE:
+        if (vats) {
+            Lf->sz = (SZOFFTYPE)vat.va_size;
             Lf->sz_def = 1;
-            break;
-        case N_PIPE:
-            if (vats) {
-                Lf->sz = (SZOFFTYPE)vat.va_size;
-                Lf->sz_def = 1;
-            }
-            break;
+        }
+        break;
 #endif /* HPUXV>=1000 */
 
 #if HPUXV >= 900
-        case N_FIFO:
+    case N_FIFO:
 
 #    if HPUXV < 1000
-            if (ins) {
-                rp = i.i_frptr;
-                sz = (int)i.i_fifosize;
-                wp = i.i_fwptr;
-            } else if (rns)
-                Lf->sz = (SZOFFTYPE)r.r_nfsattr.na_size;
+        if (ins) {
+            rp = i.i_frptr;
+            sz = (int)i.i_fifosize;
+            wp = i.i_fwptr;
+        } else if (rns)
+            Lf->sz = (SZOFFTYPE)r.r_nfsattr.na_size;
 #    else  /* HPUXV>=1000 */
-            if (fns) {
-                rp = f.fn_rptr;
-                sz = f.fn_size;
-                wp = f.fn_wptr;
-            }
+        if (fns) {
+            rp = f.fn_rptr;
+            sz = f.fn_size;
+            wp = f.fn_wptr;
+        }
 #    endif /* HPUXV<1000 */
 
-            if (Fsize || (Lf->access != 'r' && Lf->access != 'w')) {
-                if (fns || ins) {
-                    (void)snpf(fb, sizeof(fb), "rd=%#x; wr=%#x", rp, wp);
-                    (void)enter_nma(fb);
-                }
-                if (fns || ins || rns) {
-                    Lf->sz = (SZOFFTYPE)sz;
-                    Lf->sz_def = 1;
-                }
-                break;
-            }
+        if (Lf->access != 'r' && Lf->access != 'w') {
             if (fns || ins) {
-                Lf->off = (unsigned long)((Lf->access == 'r') ? rp : wp);
-                (void)snpf(fb, sizeof(fb), "%s=%#x",
-                           (Lf->access == 'r') ? "rd" : "wr",
-                           (Lf->access == 'r') ? rp : wp);
+                (void)snpf(fb, sizeof(fb), "rd=%#x; wr=%#x", rp, wp);
                 (void)enter_nma(fb);
             }
-            Lf->off_def = 1;
-            break;
-#endif /* HPUXV>=900 */
-
-        case N_MVFS:
-            /* The location of the file size isn't known. */
-            break;
-        case N_NFS:
-
-#if HPUXV < 1030
-            Lf->sz = (SZOFFTYPE)r.r_nfsattr.na_size;
-#else  /* HPUXV>=1030 */
-            Lf->sz = (SZOFFTYPE)r.r_attr.va_size;
-#endif /* HPUXV<1030 */
-
-            Lf->sz_def = 1;
-            break;
-
-#if defined(HASVXFS)
-        case N_VXFS:
-            /* set in read_vxnode() */
-            break;
-#endif /* defined(HASVXFS) */
-
-        case N_SPEC:
-        case N_REGLR:
-            if ((type == VCHR || type == VBLK) && !Fsize)
-                Lf->off_def = 1;
-            else if (ins) {
-                Lf->sz = (SZOFFTYPE)i.i_size;
+            if (fns || ins || rns) {
+                Lf->sz = (SZOFFTYPE)sz;
                 Lf->sz_def = 1;
             }
             break;
         }
+        if (fns || ins) {
+            Lf->off = (unsigned long)((Lf->access == 'r') ? rp : wp);
+            Lf->off_def = 1;
+            (void)snpf(fb, sizeof(fb), "%s=%#x",
+                       (Lf->access == 'r') ? "rd" : "wr",
+                       (Lf->access == 'r') ? rp : wp);
+            (void)enter_nma(fb);
+        }
+        break;
+#endif /* HPUXV>=900 */
+
+    case N_MVFS:
+        /* The location of the file size isn't known. */
+        break;
+    case N_NFS:
+
+#if HPUXV < 1030
+        Lf->sz = (SZOFFTYPE)r.r_nfsattr.na_size;
+#else  /* HPUXV>=1030 */
+        Lf->sz = (SZOFFTYPE)r.r_attr.va_size;
+#endif /* HPUXV<1030 */
+
+        Lf->sz_def = 1;
+        break;
+
+#if defined(HASVXFS)
+    case N_VXFS:
+        /* set in read_vxnode() */
+        break;
+#endif /* defined(HASVXFS) */
+
+    case N_SPEC:
+    case N_REGLR:
+        if (!(type == VCHR || type == VBLK) && ins) {
+            Lf->sz = (SZOFFTYPE)i.i_size;
+            Lf->sz_def = 1;
+        }
+        break;
     }
     /*
      * Record link count.

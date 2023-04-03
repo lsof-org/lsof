@@ -1279,10 +1279,8 @@ char *tcmd;  /* task command, if non-NULL) */
 
                 if ((av = get_fdinfo(pathi, fdinfo_mask, &fi)) & FDINFO_POS) {
                     if (efs) {
-                        if (Foffset) {
-                            lfr->off = (SZOFFTYPE)fi.pos;
-                            lfr->off_def = 1;
-                        }
+                        lfr->off = (SZOFFTYPE)fi.pos;
+                        lfr->off_def = 1;
                     } else {
                         ls |= SB_SIZE;
                         lsb.st_size = fi.pos;

@@ -96,10 +96,6 @@ void process_socket(struct kinfo_file *file) {
         Lf->inp_ty = 2;
     }
 
-    /* Fill offset, always zero */
-    Lf->off = 0;
-    Lf->off_def = 1;
-
     if (file->so_family == AF_INET || file->so_family == AF_INET6) {
         /* Show this entry if -i */
         if (Fnet) {

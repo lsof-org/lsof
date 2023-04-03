@@ -921,8 +921,6 @@ struct sonode *so; /* pointer to socket's sonode */
             /*
              * Save UDP state and size information.
              */
-            if (!Fsize)
-                Lf->off_def = 1;
             Lf->lts.type = 1;
             Lf->lts.state.ui = (unsigned int)uc.udp_state;
 
@@ -982,8 +980,6 @@ struct sonode *so; /* pointer to socket's sonode */
             /*
              * Save ICMP size and state information.
              */
-            if (!Fsize)
-                Lf->off_def = 1;
             Lf->lts.type = 1;
             Lf->lts.state.ui = (unsigned int)ic.icmp_state;
             /*
@@ -1067,8 +1063,6 @@ struct sonode *so; /* pointer to socket's sonode */
         /*
          * Save AF_ROUTE size and state information.
          */
-        if (!Fsize)
-            Lf->off_def = 1;
         Lf->lts.type = 1;
         Lf->lts.state.i = (int)rt.rts_state;
         /*
@@ -1521,8 +1515,6 @@ char *ty;                            /* socket type name */
 #endif     /* solaris<110000 */
 
             (void)ent_inaddr(la, (int)ntohs(p), (unsigned char *)NULL, -1, af);
-            if (!Fsize)
-                Lf->off_def = 1;
             if (ucs) {
                 Lf->lts.type = 1;
                 Lf->lts.state.ui = (unsigned int)uc.udp_state;
@@ -1880,18 +1872,13 @@ static void
     Lf->lts.rqs = Lf->lts.sqs = 1;
 #    endif /* defined(HASTCPTPIQ) */
 
-    if (Fsize) {
-        if (Lf->access == 'r')
-            Lf->sz = (SZOFFTYPE)rq;
-        else if (Lf->access == 'w')
-            Lf->sz = (SZOFFTYPE)sq;
-        else
-            Lf->sz = (SZOFFTYPE)(rq + sq);
-        Lf->sz_def = 1;
-    } else
-        Lf->off_def = 1;
-#else  /* !defined(HASTCPTPIQ) && !defined(HASTCPTPIW) */
-    Lf->off_def = 1;
+    if (Lf->access == 'r')
+        Lf->sz = (SZOFFTYPE)rq;
+    else if (Lf->access == 'w')
+        Lf->sz = (SZOFFTYPE)sq;
+    else
+        Lf->sz = (SZOFFTYPE)(rq + sq);
+    Lf->sz_def = 1;
 #endif /* defined(HASTCPTPIQ) || defined(HASTCPTPIW) */
 }
 

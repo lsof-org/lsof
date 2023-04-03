@@ -104,6 +104,7 @@ void process_file(fp) KA_T fp; /* kernel file structure address */
         return;
     }
     Lf->off = (SZOFFTYPE)f.f_offset;
+    Lf->off_def = 1;
 
     if (f.f_count) {
 

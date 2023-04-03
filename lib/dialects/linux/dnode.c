@@ -794,22 +794,19 @@ int ls;                             /* *l status -- i.e., SB_* values */
     case N_BLK:
     case N_CHR:
     case N_FIFO:
-        if (!Fsize && l && (ls & SB_SIZE) && OffType != OFFSET_UNKNOWN) {
+        if (l && (ls & SB_SIZE) && OffType != OFFSET_UNKNOWN) {
             Lf->off = (SZOFFTYPE)l->st_size;
             Lf->off_def = 1;
         }
         break;
     default:
-        if (Foffset) {
-            if (l && (ls & SB_SIZE) && OffType != OFFSET_UNKNOWN) {
-                Lf->off = (SZOFFTYPE)l->st_size;
-                Lf->off_def = 1;
-            }
-        } else if (!Foffset || Fsize) {
-            if (ss & SB_SIZE) {
-                Lf->sz = (SZOFFTYPE)s->st_size;
-                Lf->sz_def = 1;
-            }
+        if (l && (ls & SB_SIZE) && OffType != OFFSET_UNKNOWN) {
+            Lf->off = (SZOFFTYPE)l->st_size;
+            Lf->off_def = 1;
+        }
+        if (ss & SB_SIZE) {
+            Lf->sz = (SZOFFTYPE)s->st_size;
+            Lf->sz_def = 1;
         }
     }
     /*

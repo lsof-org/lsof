@@ -130,9 +130,7 @@ int *rdevs;        /* raw device status receiver */
     /*
      * Record size.
      */
-    if (Foffset || ((v->v_type == VCHR || v->v_type == VBLK) && !Fsize))
-        Lf->off_def = 1;
-    else {
+    if (!(v->v_type == VCHR || v->v_type == VBLK)) {
         Lf->sz = (SZOFFTYPE)i.i_size;
         Lf->sz_def = 1;
     }

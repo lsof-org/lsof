@@ -68,17 +68,13 @@ static void process_socket_common(si) struct socket_fdinfo *si;
     /*
      * Enable size or offset display.
      */
-    if (Fsize) {
-        if (Lf->access == 'r')
-            Lf->sz = (SZOFFTYPE)si->psi.soi_rcv.sbi_cc;
-        else if (Lf->access == 'w')
-            Lf->sz = (SZOFFTYPE)si->psi.soi_snd.sbi_cc;
-        else
-            Lf->sz =
-                (SZOFFTYPE)(si->psi.soi_rcv.sbi_cc + si->psi.soi_snd.sbi_cc);
-        Lf->sz_def = 1;
-    } else
-        Lf->off_def = 1;
+    if (Lf->access == 'r')
+        Lf->sz = (SZOFFTYPE)si->psi.soi_rcv.sbi_cc;
+    else if (Lf->access == 'w')
+        Lf->sz = (SZOFFTYPE)si->psi.soi_snd.sbi_cc;
+    else
+        Lf->sz = (SZOFFTYPE)(si->psi.soi_rcv.sbi_cc + si->psi.soi_snd.sbi_cc);
+    Lf->sz_def = 1;
 
 #if defined(HASTCPTPIQ)
     /*
@@ -336,8 +332,6 @@ static void process_socket_common(si) struct socket_fdinfo *si;
          * Process a ROUTE domain socket.
          */
         (void)snpf(Lf->type, sizeof(Lf->type), "rte");
-        if (!Fsize)
-            Lf->off_def = 1;
         break;
     case AF_NDRV:
 

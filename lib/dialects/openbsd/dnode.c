@@ -100,13 +100,10 @@ void process_vnode(struct kinfo_file *file) {
             Lf->off_def = 1;
         }
     } else {
-        if (Foffset) {
-            Lf->off = file->f_offset;
-            Lf->off_def = 1;
-        } else {
-            Lf->sz = file->va_size;
-            Lf->sz_def = 1;
-        }
+        Lf->off = file->f_offset;
+        Lf->off_def = 1;
+        Lf->sz = file->va_size;
+        Lf->sz_def = 1;
     }
 
     /* Fill inode */

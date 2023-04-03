@@ -64,8 +64,7 @@ void enter_file_info(
      * Save the offset / size
      */
     Lf->off = (SZOFFTYPE)pfi->fi_offset;
-    if (Foffset)
-        Lf->off_def = 1;
+    Lf->off_def = 1;
     /*
      * Save file structure information as requested.
      */
@@ -190,7 +189,6 @@ void enter_vnode_info(
     switch (Ntype) {
     case N_CHR:
     case N_FIFO:
-        Lf->off_def = 1;
         break;
     default:
         Lf->sz = (SZOFFTYPE)vip->vip_vi.vi_stat.vst_size;
@@ -399,12 +397,8 @@ static void process_pipe_common(pi) struct pipe_fdinfo *pi;
     /*
      * Enable offset or size reporting.
      */
-    if (Foffset)
-        Lf->off_def = 1;
-    else {
-        Lf->sz = (SZOFFTYPE)pi->pipeinfo.pipe_stat.vst_blksize;
-        Lf->sz_def = 1;
-    }
+    Lf->sz = (SZOFFTYPE)pi->pipeinfo.pipe_stat.vst_blksize;
+    Lf->sz_def = 1;
     /*
      * If there is a peer handle, enter it in as NAME column information.
      */
@@ -514,12 +508,6 @@ int32_t fd;                         /* FD */
         (void)snpf(Namech, Namechl, "%s", ps.pseminfo.psem_name);
         enter_nm(Namech);
     }
-    /*
-     * Unless file size has been specifically requested, enable the printing of
-     * file offset.
-     */
-    if (!Fsize)
-        Lf->off_def = 1;
 }
 
 /*
@@ -550,12 +538,8 @@ static void process_pshm_common(ps) struct pshm_fdinfo *ps;
     /*
      * Enable offset or size reporting.
      */
-    if (Foffset)
-        Lf->off_def = 1;
-    else {
-        Lf->sz = (SZOFFTYPE)ps->pshminfo.pshm_stat.vst_size;
-        Lf->sz_def = 1;
-    }
+    Lf->sz = (SZOFFTYPE)ps->pshminfo.pshm_stat.vst_size;
+    Lf->sz_def = 1;
 }
 
 void process_pshm(pid, fd) int pid; /* PID */

@@ -101,16 +101,13 @@ void process_socket(sa) KA_T sa; /* socket address in kernel */
     /*
      * Save size information.
      */
-    if (Fsize) {
-        if (Lf->access == 'r')
-            Lf->sz = (SZOFFTYPE)s.so_rcv.sb_cc;
-        else if (Lf->access == 'w')
-            Lf->sz = (SZOFFTYPE)s.so_snd.sb_cc;
-        else
-            Lf->sz = (SZOFFTYPE)(s.so_rcv.sb_cc + s.so_snd.sb_cc);
-        Lf->sz_def = 1;
-    } else
-        Lf->off_def = 1;
+    if (Lf->access == 'r')
+        Lf->sz = (SZOFFTYPE)s.so_rcv.sb_cc;
+    else if (Lf->access == 'w')
+        Lf->sz = (SZOFFTYPE)s.so_snd.sb_cc;
+    else
+        Lf->sz = (SZOFFTYPE)(s.so_rcv.sb_cc + s.so_snd.sb_cc);
+    Lf->sz_def = 1;
 
 #if defined(HASTCPTPIQ)
     Lf->lts.rq = s.so_rcv.sb_cc;
@@ -304,8 +301,6 @@ void process_socket(sa) KA_T sa; /* socket address in kernel */
             enter_dev_ch(print_kptr((KA_T)(s.so_pcb), (char *)NULL, 0));
         else
             (void)snpf(Namech, Namechl, "no protocol control block");
-        if (!Fsize)
-            Lf->off_def = 1;
         break;
         /*
          * Process a Unix domain socket.

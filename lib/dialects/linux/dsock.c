@@ -3536,11 +3536,9 @@ void process_proc_sock(char *p,        /* node's readlink() path */
     /*
      * Enter offset, if possible.
      */
-    if (Foffset || !Fsize) {
-        if (l && (lss & SB_SIZE) && OffType != OFFSET_UNKNOWN) {
-            Lf->off = (SZOFFTYPE)l->st_size;
-            Lf->off_def = 1;
-        }
+    if (l && (lss & SB_SIZE) && OffType != OFFSET_UNKNOWN) {
+        Lf->off = (SZOFFTYPE)l->st_size;
+        Lf->off_def = 1;
     }
 
     /*
