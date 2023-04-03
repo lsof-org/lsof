@@ -13,14 +13,13 @@
  * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
+#include "common.h"
 #include "machine.h"
 
 #if defined(HASNCACHE) && defined(USE_LIB_RNMT)
 #    include <sys/rbtree.h>
 #    include <sys/vnode_impl.h>
 #    include <err.h>
-
-#    include "common.h"
 
 /*
  * rnmt.c - read NetBSD=>10-style red-black tree kernel name cache

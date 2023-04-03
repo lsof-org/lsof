@@ -36,11 +36,10 @@
  *	HASBLKDEV	to activate the block device inode lookup
  */
 
+#include "common.h"
 #include "machine.h"
 
 #if defined(HASBLKDEV) || defined(USE_LIB_FIND_CH_INO)
-
-#    include "common.h"
 
 #else  /* !defined(HASBLKDEV) && !defined(USE_LIB_FIND_CH_INO) */
 char fino_d1[] = "d";

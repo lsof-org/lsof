@@ -28,11 +28,10 @@
  * 4. This notice may not be removed or altered.
  */
 
+#include "common.h"
 #include "machine.h"
 
 #if defined(HASNCACHE) && defined(USE_LIB_RNCH)
-
-#    include "common.h"
 
 /*
  * rnch.c - read Sun format (struct ncache) name cache

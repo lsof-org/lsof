@@ -29,11 +29,10 @@
  * 4. This notice may not be removed or altered.
  */
 
+#include "common.h"
 #include "machine.h"
 
 #if defined(HASNCACHE) && defined(USE_LIB_RNMH)
-
-#    include "common.h"
 
 /*
  * rnmh.c - read BSD format hashed kernel name cache

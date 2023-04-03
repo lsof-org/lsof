@@ -7,7 +7,7 @@ EXTRA_DIST += tests/00README tests/TestDB tests/CkTestDB tests/Makefile tests/Ls
 
 # Dialect neutral sources
 lsof_SOURCES = src/arg.c src/main.c lib/node.c src/print.c src/ptti.c src/store.c src/usage.c src/util.c src/cli.h \
-	lib/ckkv.c lib/dvch.c lib/fino.c lib/isfn.c lib/lkud.c lib/misc.c lib/pdvn.c lib/prfp.c lib/proc.c lib/ptti.c lib/rdev.c lib/rnmt.c lib/rmnt.c lib/rnam.c lib/rnch.c lib/rnmh.c
+	lib/ckkv.c lib/cvfs.c lib/dvch.c lib/fino.c lib/isfn.c lib/lkud.c lib/misc.c lib/pdvn.c lib/prfp.c lib/proc.c lib/ptti.c lib/rdev.c lib/rnmt.c lib/rmnt.c lib/rnam.c lib/rnch.c lib/rnmh.c
 lsof_SOURCES += lib/common.h include/lsof_fields.h lib/proto.h lib/hash.h
 include_HEADERS = include/lsof.h include/lsof_fields.h
 DIALECT_ROOT = $(top_srcdir)/lib/dialects
@@ -70,6 +70,19 @@ lsof_SOURCES += lib/dialects/openbsd/dfile.c \
 		lib/dialects/openbsd/dlsof.h \
 		lib/dialects/openbsd/dproto.h \
 		lib/dialects/openbsd/machine.h
+endif
+
+if SOLARIS
+lsof_SOURCES += lib/dialects/sun/ddev.c \
+		lib/dialects/sun/dfile.c \
+		lib/dialects/sun/dmnt.c \
+		lib/dialects/sun/dnode.c \
+		lib/dialects/sun/dproc.c \
+		lib/dialects/sun/dsock.c \
+		lib/dialects/sun/dstore.c \
+		lib/dialects/sun/dlsof.h \
+		lib/dialects/sun/dproto.h \
+		lib/dialects/sun/machine.h
 endif
 
 lsof_CPPFLAGS = -I$(DIALECT_PATH) -Iautotools -I$(top_srcdir)/lib -I$(top_srcdir)/include

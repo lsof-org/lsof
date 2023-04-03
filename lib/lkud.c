@@ -36,11 +36,10 @@
  *	HASBLKDEV	to activate block device lookup
  */
 
+#include "common.h"
 #include "machine.h"
 
 #if defined(HASBLKDEV) || defined(USE_LIB_LKUPDEV)
-
-#    include "common.h"
 
 #else  /* !defined(HASBLKDEV) && !defined(USE_LIB_LKUPDEV) */
 char lkud_d1[] = "d";

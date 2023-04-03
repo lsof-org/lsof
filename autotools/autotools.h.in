@@ -193,6 +193,58 @@
 #define HASFDLINK
 #endif
 
+#if HAVE_INET_IPCLASSIFIER_H
+#define HAS_IPCLASSIFIER_H
+#endif
+
+#if HAVE_SYS_ZONE_H
+#define HASZONES
+#endif
+
+#if HAVE_PAD_MUTEX_T
+#define HAS_PAD_MUTEX
+#endif
+
+#if HAVE_LIBCTF_H
+#define HAS_LIBCTF
+#endif
+
+#if HAVE_DECL_PC_DIRENTPERSEC
+#define HAS_PC_DIRENTPERSEC
+#endif
+
+#if HAVE_SYS_FS_ZFS_H
+#define HAS_ZFS
+#endif
+
+#if HAVE_SYS_CRED_IMPL_H
+#define HAS_CRED_IMPL_H
+#endif
+
+#if HAVE_STRUCT_CONN_S_CONN_IXA
+#define HAS_CONN_NEW
+#endif
+
+#if HAVE_STRUCT_VNODE_V_PATH
+#define HAS_V_PATH
+#endif
+
+#if HAVE_DECL_VSOCK
+#define HAS_VSOCK
+#endif
+
+#if HAVE_STRUCT_AIO_REQ
+#define HAS_AIO_REQ_STRUCT
+#endif
+
+#if HAVE_SYS_RGM_H
+#define HAS_SYS_RGM_H
+#endif
+
+#if HAVE_RPC_RPC_TAGS_H
+#define HAS_RPC_RPC_TAGS_H
+#endif
+
 #if HAVE_DECL_DUP2
 #define HAS_DUP2
 #endif

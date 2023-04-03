@@ -28,11 +28,10 @@
  * 4. This notice may not be removed or altered.
  */
 
+#include "common.h"
 #include "machine.h"
 
 #if defined(USE_LIB_PRINTDEVNAME)
-
-#    include "common.h"
 
 #else  /* !defined(USE_LIB_PRINTDEVNAME) */
 char pdvn_d1[] = "d";
