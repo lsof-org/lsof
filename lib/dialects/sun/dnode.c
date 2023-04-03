@@ -497,7 +497,7 @@ static KA_T Vvops[VXVOP_NUM]; /* addresses of:
 #    define GETVOPS(name, nl, ops)                                             \
         if (get_Nl_value(name, nl, &ops) < 0)                                  \
             ops = (KA_T)0;                                                     \
-        else if (kread(ctx, ops, (char *)&ops, sizeof(ops)))                        \
+        else if (kread(ctx, ops, (char *)&ops, sizeof(ops)))                   \
         ops = (KA_T)0
 #else /* !defined(VOPNAME_OPEN) || solaris<100000 */
 #    define GETVOPS(name, nl, ops)                                             \
@@ -868,11 +868,10 @@ void *arg;      /* member table */
  * ent_fa() - enter fattach addresses in NAME column addition
  */
 
-static char *ent_fa(a1, a2, d, len)
-KA_T *a1; /* first fattach address (NULL OK) */
-KA_T *a2; /* second fattach address */
-char *d;  /* direction ("->" or "<-") */
-int *len; /* returned description length */
+static char *ent_fa(KA_T *a1, /* first fattach address (NULL OK) */
+                    KA_T *a2, /* second fattach address */
+                    char *d,  /* direction ("->" or "<-") */
+                    int *len) /* returned description length */
 {
     static char buf[1024];
     size_t bufl = sizeof(buf);
@@ -908,8 +907,7 @@ int *len; /* returned description length */
  * is_socket() - is the stream a socket?
  */
 
-static int is_socket(v)
-struct vnode *v; /* vnode pointer */
+static int is_socket(struct vnode *v) /* vnode pointer */
 {
     char *cp, *ep, *pf;
     int i, j, len, n, pfl;
@@ -1000,8 +998,7 @@ struct vnode *v; /* vnode pointer */
  * isvlocked() - is Solaris vnode locked?
  */
 
-static char isvlocked(va)
-struct vnode *va; /* local vnode address */
+static char isvlocked(struct vnode *va) /* local vnode address */
 {
 
 #if solaris < 20500
@@ -1111,11 +1108,10 @@ struct vnode *va; /* local vnode address */
  * finddev() - look up device by device number
  */
 
-static struct l_dev *finddev(dev, rdev, flags)
-dev_t *dev;  /* device */
-dev_t *rdev; /* raw device */
-int flags;   /* look flags -- see LOOKDEV_* symbol
-              * definitions */
+static struct l_dev *finddev(dev_t *dev,  /* device */
+                             dev_t *rdev, /* raw device */
+                             int flags)   /* look flags -- see LOOKDEV_* symbol
+                                           * definitions */
 {
     struct clone *c;
     struct l_dev *dp;
@@ -1177,8 +1173,7 @@ finddev_again:
  * idoorkeep() -- identify door keeper process
  */
 
-static int idoorkeep(d)
-struct door_node *d; /* door's node */
+static int idoorkeep(struct door_node *d) /* door's node */
 {
     char buf[1024];
     size_t bufl = sizeof(buf);
@@ -1187,7 +1182,8 @@ struct door_node *d; /* door's node */
     /*
      * Get the proc structure and its pid structure for the door target.
      */
-    if (!d->door_target || kread(ctx, (KA_T)d->door_target, (char *)&dp, sizeof(dp)))
+    if (!d->door_target ||
+        kread(ctx, (KA_T)d->door_target, (char *)&dp, sizeof(dp)))
         return (0);
     if (!dp.p_pidp || kread(ctx, (KA_T)dp.p_pidp, (char *)&dpid, sizeof(dpid)))
         return (0);
@@ -1213,7 +1209,7 @@ struct door_node *d; /* door's node */
  * process_node() - process vnode
  */
 
-void process_node(va) KA_T va; /* vnode kernel space address */
+void process_node(KA_T va) /* vnode kernel space address */
 {
 
 #if defined(HASCACHEFS)
@@ -2649,7 +2645,8 @@ void process_node(va) KA_T va; /* vnode kernel space address */
                 devs = 0;
             }
             if (soso.laddr.buf && soso.laddr.len == sizeof(ua)) {
-                if (kread(ctx, (KA_T)soso.laddr.buf, (char *)&ua, sizeof(ua)) == 0) {
+                if (kread(ctx, (KA_T)soso.laddr.buf, (char *)&ua, sizeof(ua)) ==
+                    0) {
                     ua.sun_path[sizeof(ua.sun_path) - 1] = '\0';
                     if (ua.sun_path[0]) {
                         if (Sfile && is_file_named(ua.sun_path, Ntype, type, 0))
@@ -3766,14 +3763,13 @@ void process_node(va) KA_T va; /* vnode kernel space address */
  * read_cni() - read common snode information
  */
 
-static int read_cni(s, rv, v, rs, di, din, dinl)
-struct snode *s;     /* starting snode */
-struct vnode *rv;    /* "real" vnode receiver */
-struct vnode *v;     /* starting vnode */
-struct snode *rs;    /* "real" snode receiver */
-struct dev_info *di; /* dev_info structure receiver */
-char *din;           /* device info name receiver */
-int dinl;            /* sizeof(*din) */
+static int read_cni(struct snode *s,     /* starting snode */
+                    struct vnode *rv,    /* "real" vnode receiver */
+                    struct vnode *v,     /* starting vnode */
+                    struct snode *rs,    /* "real" snode receiver */
+                    struct dev_info *di, /* dev_info structure receiver */
+                    char *din,           /* device info name receiver */
+                    int dinl)            /* sizeof(*din) */
 {
     char tbuf[32];
 
@@ -3792,7 +3788,8 @@ int dinl;            /* sizeof(*din) */
             enter_nm(Namech);
             return (1);
         }
-        if (di->devi_name && kread(ctx, (KA_T)di->devi_name, din, dinl - 1) == 0)
+        if (di->devi_name &&
+            kread(ctx, (KA_T)di->devi_name, din, dinl - 1) == 0)
             din[dinl - 1] = '\0';
     }
     return (0);
@@ -3802,9 +3799,8 @@ int dinl;            /* sizeof(*din) */
  * readinode() - read inode
  */
 
-static int readinode(ia, i)
-KA_T ia;         /* inode kernel address */
-struct inode *i; /* inode buffer */
+static int readinode(KA_T ia,         /* inode kernel address */
+                     struct inode *i) /* inode buffer */
 {
     if (kread(ctx, (KA_T)ia, (char *)i, sizeof(struct inode))) {
         (void)snpf(Namech, Namechl - 1, "can't read inode at %s",
@@ -3821,10 +3817,9 @@ struct inode *i; /* inode buffer */
  * read_ndn() - read node's door node
  */
 
-static int read_ndn(na, da, dn)
-KA_T na;              /* containing vnode's address */
-KA_T da;              /* door node's address */
-struct door_node *dn; /* door node receiver */
+static int read_ndn(KA_T na,              /* containing vnode's address */
+                    KA_T da,              /* door node's address */
+                    struct door_node *dn) /* door node receiver */
 {
     char tbuf[32];
 
@@ -3844,13 +3839,12 @@ struct door_node *dn; /* door node receiver */
  * read_mi() - read stream's module information
  */
 
-static void read_mi(s, rdev, so, so_st, so_ad,
-                    sdp) KA_T s; /* kernel stream pointer address */
-dev_t *rdev;                     /* raw device pointer */
-caddr_t so;                      /* so_so return (Solaris) */
-int *so_st;                      /* so_so status */
-KA_T *so_ad;                     /* so_so addresses */
-struct l_dev **sdp;              /* returned device pointer */
+static void read_mi(KA_T s,             /* kernel stream pointer address */
+                    dev_t *rdev,        /* raw device pointer */
+                    caddr_t so,         /* so_so return (Solaris) */
+                    int *so_st,         /* so_so status */
+                    KA_T *so_ad,        /* so_so addresses */
+                    struct l_dev **sdp) /* returned device pointer */
 {
     struct l_dev *dp;
     int i, j, k, nl;
@@ -3954,15 +3948,14 @@ struct l_dev **sdp;              /* returned device pointer */
  * read_nan(na, ca, cn) - read node's autofs node
  */
 
-static int read_nan(na, aa, rn)
-KA_T na; /* containing node's address */
-KA_T aa; /* autofs node address */
+static int read_nan(KA_T na, /* containing node's address */
+                    KA_T aa, /* autofs node address */
 
 #    if solaris < 20600
-struct autonode *rn; /* autofs node receiver */
-#    else            /* solaris>=20600 */
-struct fnnode *rn; /* autofs node receiver */
-#    endif           /* solaris<20600 */
+                    struct autonode *rn) /* autofs node receiver */
+#    else                                /* solaris>=20600 */
+                    struct fnnode *rn) /* autofs node receiver */
+#    endif                               /* solaris<20600 */
 
 {
     char tbuf[32];
@@ -3997,10 +3990,9 @@ struct fnnode *rn; /* autofs node receiver */
  * read_ncn(na, ca, cn) - read node's cache node
  */
 
-static int read_ncn(na, ca, cn)
-KA_T na;          /* containing node's address */
-KA_T ca;          /* cache node address */
-struct cnode *cn; /* cache node receiver */
+static int read_ncn(KA_T na,          /* containing node's address */
+                    KA_T ca,          /* cache node address */
+                    struct cnode *cn) /* cache node receiver */
 {
     char tbuf[32];
 
@@ -4021,11 +4013,10 @@ struct cnode *cn; /* cache node receiver */
  * read_nctfsn(ty, na, ca, cn) - read node's cache node
  */
 
-static int read_nctfsn(ty, na, ca, cn)
-int ty;   /* node type -- i.e., N_CTFS* */
-KA_T na;  /* containing node's address */
-KA_T ca;  /* cache node address */
-char *cn; /* CTFS node receiver */
+static int read_nctfsn(int ty,   /* node type -- i.e., N_CTFS* */
+                       KA_T na,  /* containing node's address */
+                       KA_T ca,  /* cache node address */
+                       char *cn) /* CTFS node receiver */
 {
     char *cp, *nm, tbuf[32];
     READLEN_T sz;
@@ -4098,10 +4089,9 @@ char *cn; /* CTFS node receiver */
  * read_nfn() - read node's fifonode
  */
 
-static int read_nfn(na, fa, f)
-KA_T na;            /* containing node's address */
-KA_T fa;            /* fifonode address */
-struct fifonode *f; /* fifonode receiver */
+static int read_nfn(KA_T na,            /* containing node's address */
+                    KA_T fa,            /* fifonode address */
+                    struct fifonode *f) /* fifonode receiver */
 {
     char tbuf[32];
 
@@ -4120,10 +4110,9 @@ struct fifonode *f; /* fifonode receiver */
  * read_nhn() - read node's High Sierra node
  */
 
-static int read_nhn(na, ha, h)
-KA_T na;          /* containing node's address */
-KA_T ha;          /* hsnode address */
-struct hsnode *h; /* hsnode receiver */
+static int read_nhn(KA_T na,          /* containing node's address */
+                    KA_T ha,          /* hsnode address */
+                    struct hsnode *h) /* hsnode receiver */
 {
     char tbuf[32];
 
@@ -4142,10 +4131,9 @@ struct hsnode *h; /* hsnode receiver */
  * read_nin() - read node's inode
  */
 
-static int read_nin(na, ia, i)
-KA_T na;         /* containing node's address */
-KA_T ia;         /* kernel inode address */
-struct inode *i; /* inode receiver */
+static int read_nin(KA_T na,         /* containing node's address */
+                    KA_T ia,         /* kernel inode address */
+                    struct inode *i) /* inode receiver */
 {
     char tbuf[32];
 
@@ -4164,10 +4152,9 @@ struct inode *i; /* inode receiver */
  * read_nln(na, la, ln) - read node's loopback node
  */
 
-static int read_nln(na, la, ln)
-KA_T na;          /* containing node's address */
-KA_T la;          /* loopback node address */
-struct lnode *ln; /* loopback node receiver */
+static int read_nln(KA_T na,          /* containing node's address */
+                    KA_T la,          /* loopback node address */
+                    struct lnode *ln) /* loopback node receiver */
 {
     char tbuf[32];
 
@@ -4186,10 +4173,9 @@ struct lnode *ln; /* loopback node receiver */
  * read_nnn() - read node's namenode
  */
 
-static int read_nnn(na, nna, nn)
-KA_T na;             /* containing node's address */
-KA_T nna;            /* namenode address */
-struct namenode *nn; /* namenode receiver */
+static int read_nnn(KA_T na,             /* containing node's address */
+                    KA_T nna,            /* namenode address */
+                    struct namenode *nn) /* namenode receiver */
 {
     char tbuf[32];
 
@@ -4208,10 +4194,9 @@ struct namenode *nn; /* namenode receiver */
  * read_nmn() - read node's mvfsnode
  */
 
-static int read_nmn(na, ma, m)
-KA_T na;            /* containing node's address */
-KA_T ma;            /* kernel mvfsnode address */
-struct mvfsnode *m; /* mvfsnode receiver */
+static int read_nmn(KA_T na,            /* containing node's address */
+                    KA_T ma,            /* kernel mvfsnode address */
+                    struct mvfsnode *m) /* mvfsnode receiver */
 {
     char tbuf[32];
 
@@ -4231,10 +4216,9 @@ struct mvfsnode *m; /* mvfsnode receiver */
  * read_npi() - read node's /proc file system information
  */
 
-static int read_npi(na, v, pids)
-KA_T na;          /* containing node's address */
-struct vnode *v;  /* containing vnode */
-struct pid *pids; /* pid structure receiver */
+static int read_npi(KA_T na,          /* containing node's address */
+                    struct vnode *v,  /* containing vnode */
+                    struct pid *pids) /* pid structure receiver */
 {
     struct as as;
     struct proc p;
@@ -4295,7 +4279,8 @@ struct pid *pids; /* pid structure receiver */
         Lf->sz = (SZOFFTYPE)as.a_size;
         Lf->sz_def = 1;
     }
-    if (!p.p_pidp || kread(ctx, (KA_T)p.p_pidp, (char *)pids, sizeof(struct pid))) {
+    if (!p.p_pidp ||
+        kread(ctx, (KA_T)p.p_pidp, (char *)pids, sizeof(struct pid))) {
         (void)snpf(Namech, Namechl - 1, "proc struct at %s: can't read pid: %s",
                    print_kptr((KA_T)pr.pr_proc, tbuf, sizeof(tbuf)),
                    print_kptr((KA_T)p.p_pidp, (char *)NULL, 0));
@@ -4323,7 +4308,8 @@ struct pid *pids; /* pid structure receiver */
     if (pr.pr_common &&
         kread(ctx, (KA_T)pr.pr_common, (char *)&pc, sizeof(pc)) == 0) {
         pcs = 1;
-        if (pc.prc_proc && kread(ctx, (KA_T)pc.prc_proc, (char *)&p, sizeof(p)) == 0)
+        if (pc.prc_proc &&
+            kread(ctx, (KA_T)pc.prc_proc, (char *)&p, sizeof(p)) == 0)
             prpcs = 1;
         else
             prpcs = 0;
@@ -4348,11 +4334,12 @@ struct pid *pids; /* pid structure receiver */
     else
         pids->pid_id = prpid = (pid_t)0;
     if (pcs && pc.prc_thread &&
-        kread(ctx, (KA_T)pc.prc_thread, (char *)&thread, sizeof(kthread_t)) == 0)
+        kread(ctx, (KA_T)pc.prc_thread, (char *)&thread, sizeof(kthread_t)) ==
+            0)
         prtid = thread.t_tid;
     else if (ppcs && ppc.prc_thread &&
-             kread(ctx, (KA_T)ppc.prc_thread, (char *)&thread, sizeof(kthread_t)) ==
-                 0)
+             kread(ctx, (KA_T)ppc.prc_thread, (char *)&thread,
+                   sizeof(kthread_t)) == 0)
         prtid = thread.t_tid;
     else
         prtid = (id_t)0;
@@ -4372,7 +4359,8 @@ struct pid *pids; /* pid structure receiver */
     case PR_AS:
         (void)snpf(Namech, Namechl - 1, "/%s/%d/as", HASPROCFS, (int)prpid);
         ty = "PAS";
-        if (prpcs && kread(ctx, (KA_T)pc.prc_proc, (char *)&p, sizeof(p)) == 0 &&
+        if (prpcs &&
+            kread(ctx, (KA_T)pc.prc_proc, (char *)&p, sizeof(p)) == 0 &&
             p.p_as && kread(ctx, (KA_T)p.p_as, (char *)&as, sizeof(as)) == 0) {
             Lf->sz = (SZOFFTYPE)as.a_size;
             Lf->sz_def = 1;
@@ -4560,10 +4548,9 @@ struct pid *pids; /* pid structure receiver */
  * read_npn() - read node's pcnode
  */
 
-static int read_npn(na, pa, p)
-KA_T na;          /* containing node's address */
-KA_T pa;          /* pcnode address */
-struct pcnode *p; /* pcnode receiver */
+static int read_npn(KA_T na,          /* containing node's address */
+                    KA_T pa,          /* pcnode address */
+                    struct pcnode *p) /* pcnode receiver */
 {
     char tbuf[32];
 
@@ -4583,10 +4570,9 @@ struct pcnode *p; /* pcnode receiver */
  * read_nprtn() - read node's port node
  */
 
-static int read_nprtn(na, pa, p)
-KA_T na;   /* containing node's address */
-KA_T pa;   /* port node address */
-port_t *p; /* port node receiver */
+static int read_nprtn(KA_T na,   /* containing node's address */
+                      KA_T pa,   /* port node address */
+                      port_t *p) /* port node receiver */
 {
     char tbuf[32];
 
@@ -4606,10 +4592,9 @@ port_t *p; /* port node receiver */
  * read_nrn() - read node's rnode
  */
 
-static int read_nrn(na, ra, r)
-KA_T na;         /* containing node's address */
-KA_T ra;         /* rnode address */
-struct rnode *r; /* rnode receiver */
+static int read_nrn(KA_T na,         /* containing node's address */
+                    KA_T ra,         /* rnode address */
+                    struct rnode *r) /* rnode receiver */
 {
     char tbuf[32];
 
@@ -4629,10 +4614,9 @@ struct rnode *r; /* rnode receiver */
  * read_nrn4() - read node's rnode4
  */
 
-static int read_nrn4(na, ra, r)
-KA_T na;          /* containing node's address */
-KA_T ra;          /* rnode address */
-struct rnode4 *r; /* rnode receiver */
+static int read_nrn4(KA_T na,          /* containing node's address */
+                     KA_T ra,          /* rnode address */
+                     struct rnode4 *r) /* rnode receiver */
 {
     char tbuf[32];
 
@@ -4653,11 +4637,10 @@ struct rnode4 *r; /* rnode receiver */
  * read_nsdn() - read node's sdev_node
  */
 
-static int read_nsdn(na, sa, sdn, sdva)
-KA_T na;               /* containing node's adress */
-KA_T sa;               /* sdev_node address */
-struct sdev_node *sdn; /* sdev_node receiver */
-struct vattr *sdva;    /* sdev_node's vattr receiver */
+static int read_nsdn(KA_T na,               /* containing node's adress */
+                     KA_T sa,               /* sdev_node address */
+                     struct sdev_node *sdn, /* sdev_node receiver */
+                     struct vattr *sdva)    /* sdev_node's vattr receiver */
 {
     KA_T va;
     char tbuf[32], tbuf1[32];
@@ -4690,10 +4673,9 @@ struct vattr *sdva;    /* sdev_node's vattr receiver */
  * read_nson() - read node's sonode
  */
 
-static int read_nson(na, sa, sn)
-KA_T na;           /* containing node's address */
-KA_T sa;           /* sonode address */
-struct sonode *sn; /* sonode receiver */
+static int read_nson(KA_T na,           /* containing node's address */
+                     KA_T sa,           /* sonode address */
+                     struct sonode *sn) /* sonode receiver */
 
 {
     char tbuf[32];
@@ -4714,10 +4696,9 @@ struct sonode *sn; /* sonode receiver */
  * read_nsn() - read node's snode
  */
 
-static int read_nsn(na, sa, s)
-KA_T na;         /* containing node's address */
-KA_T sa;         /* snode address */
-struct snode *s; /* snode receiver */
+static int read_nsn(KA_T na,         /* containing node's address */
+                    KA_T sa,         /* snode address */
+                    struct snode *s) /* snode receiver */
 {
     char tbuf[32];
 
@@ -4737,9 +4718,8 @@ struct snode *s; /* snode receiver */
  * read_nsti() - read socket node's info
  */
 
-static int read_nsti(so, stpi)
-struct sonode *so;  /* socket's sonode */
-sotpi_info_t *stpi; /* local socket info receiver */
+static int read_nsti(struct sonode *so,  /* socket's sonode */
+                     sotpi_info_t *stpi) /* local socket info receiver */
 {
     char tbuf[32];
 
@@ -4766,10 +4746,9 @@ sotpi_info_t *stpi; /* local socket info receiver */
  * read_ntn() - read node's tmpnode
  */
 
-static int read_ntn(na, ta, t)
-KA_T na;           /* containing node's address */
-KA_T ta;           /* tmpnode address */
-struct tmpnode *t; /* tmpnode receiver */
+static int read_ntn(KA_T na,           /* containing node's address */
+                    KA_T ta,           /* tmpnode address */
+                    struct tmpnode *t) /* tmpnode receiver */
 {
     char tbuf[32];
 
@@ -4789,9 +4768,8 @@ struct tmpnode *t; /* tmpnode receiver */
  * read_nusa() - read sondode's UNIX socket address
  */
 
-static int read_nusa(so, ua)
-struct soaddr *so;      /* kernel socket info structure */
-struct sockaddr_un *ua; /* local sockaddr_un address */
+static int read_nusa(struct soaddr *so,      /* kernel socket info structure */
+                     struct sockaddr_un *ua) /* local sockaddr_un address */
 {
     KA_T a;
     int len;
@@ -4800,8 +4778,8 @@ struct sockaddr_un *ua; /* local sockaddr_un address */
     ua->sun_path[0] = '\0';
 
     if (!(a = (KA_T)so->soa_sa) || (len = so->soa_len) < (min + 2) ||
-        len > (int)sizeof(struct sockaddr_un) || kread(ctx, a, (char *)ua, len) ||
-        ua->sun_family != AF_UNIX)
+        len > (int)sizeof(struct sockaddr_un) ||
+        kread(ctx, a, (char *)ua, len) || ua->sun_family != AF_UNIX)
         return (0);
     len -= min;
     if (len >= sizeof(ua->sun_path))
@@ -4815,10 +4793,9 @@ struct sockaddr_un *ua; /* local sockaddr_un address */
  * read_nvn() - read node's vnode
  */
 
-static int read_nvn(na, va, v)
-KA_T na;         /* node's address */
-KA_T va;         /* vnode address */
-struct vnode *v; /* vnode receiver */
+static int read_nvn(KA_T na,         /* node's address */
+                    KA_T va,         /* vnode address */
+                    struct vnode *v) /* vnode receiver */
 {
     char tbuf[32];
 
@@ -4838,10 +4815,9 @@ struct vnode *v; /* vnode receiver */
  * read_nzn() - read node's ZFS node
  */
 
-static int read_nzn(na, nza, zn)
-KA_T na;     /* containing node's address */
-KA_T nza;    /* znode address */
-znode_t *zn; /* znode receiver */
+static int read_nzn(KA_T na,     /* containing node's address */
+                    KA_T nza,    /* znode address */
+                    znode_t *zn) /* znode receiver */
 {
     int err = 0;      /* error flag */
     CTF_member_t *mp; /* member pointer */
@@ -4902,10 +4878,9 @@ znode_t *zn; /* znode receiver */
  * read_nznp() - read znode's persistent znode
  */
 
-static int read_nznp(nza, nzpa, zp)
-KA_T nza;         /* containing znode's address */
-KA_T nzpa;        /* persistent znode address */
-znode_phys_t *zp; /* persistent znode receiver */
+static int read_nznp(KA_T nza,         /* containing znode's address */
+                     KA_T nzpa,        /* persistent znode address */
+                     znode_phys_t *zp) /* persistent znode receiver */
 {
     char tbuf[32];
 
@@ -4928,10 +4903,9 @@ znode_phys_t *zp; /* persistent znode receiver */
  * read_nzvfs() - read znode's associated vfs
  */
 
-static int read_nzvfs(nza, nzva, zv)
-KA_T nza;     /* containing znode's address */
-KA_T nzva;    /* associated vfs address */
-zfsvfs_t *zv; /* associated vfs receiver */
+static int read_nzvfs(KA_T nza,     /* containing znode's address */
+                      KA_T nzva,    /* associated vfs address */
+                      zfsvfs_t *zv) /* associated vfs receiver */
 {
     char tbuf[32];
 
@@ -4954,10 +4928,9 @@ zfsvfs_t *zv; /* associated vfs receiver */
  */
 
 static void
-    savesockmod(so, sop,
-                so_st) struct so_so *so; /* new so_so structure pointer */
-struct so_so *sop;                       /* previous so_so structure pointer */
-int *so_st;                              /* status of *sop (0 if not loaded) */
+savesockmod(struct so_so *so,  /* new so_so structure pointer */
+            struct so_so *sop, /* previous so_so structure pointer */
+            int *so_st)        /* status of *sop (0 if not loaded) */
 {
 
 #    if solaris < 20500
@@ -5114,9 +5087,8 @@ int *so_st;                              /* status of *sop (0 if not loaded) */
  * vop2ty() - convert vnode operation switch address to internal type
  */
 
-int vop2ty(vp, fx)
-struct vnode *vp; /* local vnode pointer */
-int fx;           /* file system index (-1 if none) */
+int vop2ty(struct vnode *vp, /* local vnode pointer */
+           int fx)           /* file system index (-1 if none) */
 {
     int h;
     register int i;
@@ -5201,13 +5173,12 @@ int fx;           /* file system index (-1 if none) */
  * read_ndvn() -- read node's dv_node
  */
 
-static int read_ndvn(na, da, dv, dev, devs)
-KA_T na;             /* containing vnode's address */
-KA_T da;             /* containing vnode's v_data */
-struct dv_node *dv;  /* dv_node receiver */
-dev_t *dev;          /* underlying file system device
-                      * number receptor */
-unsigned char *devs; /* status of *dev */
+static int read_ndvn(KA_T na,             /* containing vnode's address */
+                     KA_T da,             /* containing vnode's v_data */
+                     struct dv_node *dv,  /* dv_node receiver */
+                     dev_t *dev,          /* underlying file system device
+                                           * number receptor */
+                     unsigned char *devs) /* status of *dev */
 {
     struct vnode rv;
     struct snode s;

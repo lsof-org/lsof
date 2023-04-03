@@ -177,13 +177,11 @@ _PROTOTYPE(static int ncache_isroot,
 static struct l_nch *
 
 #    if defined(NCACHE_NODEID)
-ncache_addr(i, na)
-unsigned long i; /* node's capability ID */
-#    else        /* !defined(NCACHE_NODEID) */
-ncache_addr(na)
-#    endif       /* defined(NCACHE_NODEID) */
-
-KA_T na; /* node's address */
+ncache_addr(unsigned long i, /* node's capability ID */
+#    else                    /* !defined(NCACHE_NODEID) */
+ncache_addr(
+#    endif                   /* defined(NCACHE_NODEID) */
+            KA_T na)         /* node's address */
 {
     struct l_nch **hp;
 

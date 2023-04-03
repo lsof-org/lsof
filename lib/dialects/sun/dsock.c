@@ -350,7 +350,7 @@ void build_IPstates() {
  * print_tcptpi() - print TCP/TPI info
  */
 
-void print_tcptpi(nl) int nl; /* 1 == '\n' required */
+void print_tcptpi(int nl) /* 1 == '\n' required */
 {
     char *cp = (char *)NULL;
     char sbuf[128];
@@ -677,10 +677,9 @@ void print_tcptpi(nl) int nl; /* 1 == '\n' required */
 #        define conn_src V4_PART_OF_V6(connua_v6addr.connua_laddr)
 #    endif /* defined(HAS_CONN_NEW) */
 
-int process_VSOCK(va, v, so)
-KA_T va;           /* containing vnode address */
-struct vnode *v;   /* pointer to containing vnode */
-struct sonode *so; /* pointer to socket's sonode */
+int process_VSOCK(KA_T va,           /* containing vnode address */
+                  struct vnode *v,   /* pointer to containing vnode */
+                  struct sonode *so) /* pointer to socket's sonode */
 {
     int af;           /* address family */
     struct conn_s cs; /* connection info */
@@ -1116,8 +1115,8 @@ struct sonode *so; /* pointer to socket's sonode */
  * process_socket() - process Solaris socket
  */
 
-void process_socket(sa, ty) KA_T sa; /* stream's data address in kernel */
-char *ty;                            /* socket type name */
+void process_socket(KA_T sa,  /* stream's data address in kernel */
+                    char *ty) /* socket type name */
 {
     int af;
     unsigned char *fa = (unsigned char *)NULL;
@@ -1353,7 +1352,8 @@ char *ty;                            /* socket type name */
                 }
             }
 #    else  /* solaris<110000 */
-            if (!kread(ctx, (KA_T)pcb, (char *)&ic, sizeof(ic)) && ic.conn_tcp &&
+            if (!kread(ctx, (KA_T)pcb, (char *)&ic, sizeof(ic)) &&
+                ic.conn_tcp &&
                 !kread(ctx, (KA_T)ic.conn_tcp, (char *)&tc, sizeof(tc))) {
                 ics = tcs = 1;
             }
@@ -1593,7 +1593,8 @@ char *ty;                            /* socket type name */
 #    endif             /* solaris!=20400 && !defined(HASIPv6) */
 
                     if (tc.tcp_hdr_len && tc.tcp_tcph &&
-                        !kread(ctx, (KA_T)tc.tcp_tcph, (char *)&th, sizeof(th))) {
+                        !kread(ctx, (KA_T)tc.tcp_tcph, (char *)&th,
+                               sizeof(th))) {
                         tha = &th;
                         s = (u_short *)&th.th_lport[0];
                         p = *s;
@@ -1694,12 +1695,11 @@ char *ty;                            /* socket type name */
  * read_icmp_t() - read connections icmp_t info
  */
 
-static int read_icmp_t(va, ph, ia, ic)
-KA_T va;    /* containing vnode kernel address */
-KA_T ph;    /* containing protocol handle kernel
-             * address */
-KA_T ia;    /* icmp_t structure's kernel address */
-icmp_t *ic; /* local icmp_t receiver */
+static int read_icmp_t(KA_T va,    /* containing vnode kernel address */
+                       KA_T ph,    /* containing protocol handle kernel
+                                    * address */
+                       KA_T ia,    /* icmp_t structure's kernel address */
+                       icmp_t *ic) /* local icmp_t receiver */
 {
     char tbuf[32], tbuf1[32]; /* print_kptr() temporary buffers */
 
@@ -1733,7 +1733,8 @@ icmp_t *ic; /* local icmp_t receiver */
     }
 
 #    if defined(HAS_CONN_NEW)
-    if ((ka = (KA_T)ic->icmp_connp) && !kread(ctx, ka, (char *)&cs, sizeof(cs))) {
+    if ((ka = (KA_T)ic->icmp_connp) &&
+        !kread(ctx, ka, (char *)&cs, sizeof(cs))) {
         struct ip_xmit_attr_s xa;
 
         /*
@@ -1746,7 +1747,8 @@ icmp_t *ic; /* local icmp_t receiver */
         ic->icmp_debug.icmp_reuseaddr = cs.conn_reuseaddr;
         ic->icmp_debug.icmp_useloopback = cs.conn_useloopback;
         ic->icmp_debug.icmp_dgram_errind = cs.conn_dgram_errind;
-        if ((ka = (KA_T)cs.conn_ixa) && !kread(ctx, ka, (char *)&xa, sizeof(xa))) {
+        if ((ka = (KA_T)cs.conn_ixa) &&
+            !kread(ctx, ka, (char *)&xa, sizeof(xa))) {
             ic->icmp_debug.icmp_dontroute =
                 (xa.ixa_flags & IXAF_DONTROUTE) ? 1 : 0;
         }
@@ -1760,12 +1762,11 @@ icmp_t *ic; /* local icmp_t receiver */
  * read_rts_t() - read connections rts_t info
  */
 
-static int read_rts_t(va, ph, ra, rt)
-KA_T va;   /* containing vnode kernel address */
-KA_T ph;   /* containing protocol handle kernel
-            * address */
-KA_T ra;   /* rts_t structure's kernel address */
-rts_t *rt; /* local rts_t receiver */
+static int read_rts_t(KA_T va,   /* containing vnode kernel address */
+                      KA_T ph,   /* containing protocol handle kernel
+                                  * address */
+                      KA_T ra,   /* rts_t structure's kernel address */
+                      rts_t *rt) /* local rts_t receiver */
 {
     char tbuf[32], tbuf1[32]; /* print_kptr() temporary buffers */
 
@@ -1808,7 +1809,8 @@ rts_t *rt; /* local rts_t receiver */
         rt->rts_debug.rts_broadcast = cs.conn_broadcast;
         rt->rts_debug.rts_reuseaddr = cs.conn_reuseaddr;
         rt->rts_debug.rts_useloopback = cs.conn_useloopback;
-        if ((ka = (KA_T)cs.conn_ixa) && !kread(ctx, ka, (char *)&xa, sizeof(xa))) {
+        if ((ka = (KA_T)cs.conn_ixa) &&
+            !kread(ctx, ka, (char *)&xa, sizeof(xa))) {
             rt->rts_debug.rts_dontroute =
                 (xa.ixa_flags & IXAF_DONTROUTE) ? 1 : 0;
         }
@@ -1823,9 +1825,8 @@ rts_t *rt; /* local rts_t receiver */
  * read_udp_t() - read UDP control structure
  */
 
-static int read_udp_t(ua, uc)
-KA_T ua;   /* ucp_t kernel address */
-udp_t *uc; /* receiving udp_t structure */
+static int read_udp_t(KA_T ua,   /* ucp_t kernel address */
+                      udp_t *uc) /* receiving udp_t structure */
 {
     (void)CTF_init(&IRU_ctfs, IRU_MOD_FORMAT, IRU_requests);
     if (!ua || CTF_MEMBER_READ(ua, uc, udp_t_members, udp_state)
@@ -1856,9 +1857,7 @@ udp_t *uc; /* receiving udp_t structure */
  * save_TCP_size() -- save TCP size information
  */
 
-static void
-
-    save_TCP_size(tc) tcp_t *tc; /* pointer to TCP control structure */
+static void save_TCP_size(tcp_t *tc) /* pointer to TCP control structure */
 {
     int rq, sq;
 
@@ -1899,17 +1898,15 @@ static void
  * save_TCP_states() - save TCP states
  */
 
-static void
-    save_TCP_states(tc, fa, tb,
-                    xp) tcp_t *tc; /* pointer to TCP control structure */
-caddr_t *fa;                       /* flags address (may be NULL):
-                                    *   if HAS_CONN_NEW: conn_s *
-                                    *   if !CONN_HAS_NEW: tcph_t *
-                                    */
-tcpb_t *tb;                        /* pointer to TCP base structure (may
-                                    * be NULL) */
-caddr_t *xp;                       /* pointer to struct ip_xmit_attr_s if
-                                    * HAS_CONN_NEW (may be NULL) */
+static void save_TCP_states(tcp_t *tc,   /* pointer to TCP control structure */
+                            caddr_t *fa, /* flags address (may be NULL):
+                                          *   if HAS_CONN_NEW: conn_s *
+                                          *   if !CONN_HAS_NEW: tcph_t *
+                                          */
+                            tcpb_t *tb,  /* pointer to TCP base structure (may
+                                          * be NULL) */
+                            caddr_t *xp) /* pointer to struct ip_xmit_attr_s if
+                                          * HAS_CONN_NEW (may be NULL) */
 {
     if (!tc)
         return;

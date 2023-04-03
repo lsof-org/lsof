@@ -144,13 +144,12 @@ _PROTOTYPE(static int ncache_isroot, (KA_T na, char *cp));
 static struct l_nch *
 
 #    if defined(NCACHE_NODEID)
-ncache_addr(i, na)
-unsigned long i; /* node's capability ID */
-#    else        /* !defined(NCACHE_NODEID) */
-ncache_addr(na)
-#    endif       /* defined(NCACHE_NODEID) */
+ncache_addr(unsigned long i, /* node's capability ID */
+#    else                    /* !defined(NCACHE_NODEID) */
+ncache_addr(
+#    endif                   /* defined(NCACHE_NODEID) */
 
-KA_T na; /* node's address */
+            KA_T na) /* node's address */
 {
     struct l_nch **hp;
 
@@ -178,9 +177,8 @@ KA_T na; /* node's address */
  * ncache_isroot() - is head of name cache path a file system root?
  */
 
-static int ncache_isroot(na, cp)
-KA_T na;  /* kernel node address */
-char *cp; /* partial path */
+static int ncache_isroot(KA_T na,  /* kernel node address */
+                         char *cp) /* partial path */
 {
     char buf[MAXPATHLEN];
     int i;
@@ -549,10 +547,9 @@ void ncache_load() {
  * ncache_lookup() - look up a node's name in the kernel's name cache
  */
 
-char *ncache_lookup(buf, blen, fp)
-char *buf; /* receiving name buffer */
-int blen;  /* receiving buffer length */
-int *fp;   /* full path reply */
+char *ncache_lookup(char *buf, /* receiving name buffer */
+                    int blen,  /* receiving buffer length */
+                    int *fp)   /* full path reply */
 {
     char *cp = buf;
     struct l_nch *lc;

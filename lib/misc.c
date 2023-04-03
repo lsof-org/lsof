@@ -29,6 +29,7 @@
  */
 
 #include "common.h"
+#include "dlsof.h"
 
 #if defined(HASWIDECHAR)
 #    if defined(WIDECHARINCL)
@@ -198,9 +199,7 @@ static void closePipes() {
  * compdev() - compare Devtp[] entries
  */
 
-int compdev(a1, a2)
-COMP_P *a1, *a2;
-{
+int compdev(COMP_P *a1, COMP_P *a2) {
     struct l_dev **p1 = (struct l_dev **)a1;
     struct l_dev **p2 = (struct l_dev **)a2;
 
@@ -436,37 +435,40 @@ static int doinchild(struct lsof_context *ctx,
  * dolstat() - do an lstat() function
  */
 
-static int dolstat(path, rbuf, rbln)
-char *path; /* path */
-char *rbuf; /* response buffer */
-int rbln;   /* response buffer length */
+static int dolstat(char *path, /* path */
+                   char *rbuf, /* response buffer */
+                   int rbln)   /* response buffer length */
 
 /* ARGSUSED */
 
-{ return (lstat(path, (struct stat *)rbuf)); }
+{
+    return (lstat(path, (struct stat *)rbuf));
+}
 
 /*
  * doreadlink() -- do a readlink() function
  */
 
-static int doreadlink(path, rbuf, rbln)
-char *path; /* path */
-char *rbuf; /* response buffer */
-int rbln;   /* response buffer length */
-{ return (readlink(path, rbuf, rbln)); }
+static int doreadlink(char *path, /* path */
+                      char *rbuf, /* response buffer */
+                      int rbln)   /* response buffer length */
+{
+    return (readlink(path, rbuf, rbln));
+}
 
 /*
  * dostat() - do a stat() function
  */
 
-static int dostat(path, rbuf, rbln)
-char *path; /* path */
-char *rbuf; /* response buffer */
-int rbln;   /* response buffer length */
+static int dostat(char *path, /* path */
+                  char *rbuf, /* response buffer */
+                  int rbln)   /* response buffer length */
 
 /* ARGSUSED */
 
-{ return (stat(path, (struct stat *)rbuf)); }
+{
+    return (stat(path, (struct stat *)rbuf));
+}
 
 #if defined(WILLDROPGID)
 /*
@@ -762,12 +764,11 @@ void Error(struct lsof_context *ctx) { Exit(ctx, LSOF_ERROR); }
  * get_Nl_value() - get Nl value for nickname
  */
 
-int get_Nl_value(nn, d, v)
-char *nn;           /* nickname of requested entry */
-struct drive_Nl *d; /* drive_Nl table that built Nl
-                     * (if NULL, use Build_Nl) */
-KA_T *v;            /* returned value (if NULL,
-                     * return nothing) */
+int get_Nl_value(char *nn,           /* nickname of requested entry */
+                 struct drive_Nl *d, /* drive_Nl table that built Nl
+                                      * (if NULL, use Build_Nl) */
+                 KA_T *v)            /* returned value (if NULL,
+                                      * return nothing) */
 {
     int i;
 
@@ -798,17 +799,16 @@ static void
 
 /* ARGSUSED */
 
-handleint(sig)
-int sig;
-{ longjmp(Jmp_buf, 1); }
+handleint(int sig) {
+    longjmp(Jmp_buf, 1);
+}
 
 /*
  * hashbyname() - hash by name
  */
 
-int hashbyname(nm, mod)
-char *nm; /* pointer to NUL-terminated name */
-int mod;  /* hash modulus */
+int hashbyname(char *nm, /* pointer to NUL-terminated name */
+               int mod)  /* hash modulus */
 {
     int i, j;
 
@@ -824,11 +824,10 @@ int mod;  /* hash modulus */
  * is_nw_addr() - is this network address selected?
  */
 
-int is_nw_addr(ia, p, af)
-unsigned char *ia; /* Internet address */
-int p;             /* port */
-int af;            /* address family -- e.g., AF_INET,
-                    * AF_INET6 */
+int is_nw_addr(unsigned char *ia, /* Internet address */
+               int p,             /* port */
+               int af)            /* address family -- e.g., AF_INET,
+                                   * AF_INET6 */
 {
     struct nwad *n;
 
@@ -888,11 +887,10 @@ int af;            /* address family -- e.g., AF_INET,
  *	   copy length (optional)
  */
 
-char *mkstrcpy(src, rlp)
-char *src;     /* source */
-MALLOC_S *rlp; /* returned length pointer (optional)
-                * The returned length is an strlen()
-                * equivalent */
+char *mkstrcpy(char *src,     /* source */
+               MALLOC_S *rlp) /* returned length pointer (optional)
+                               * The returned length is an strlen()
+                               * equivalent */
 {
     MALLOC_S len;
     char *ns;
@@ -918,15 +916,14 @@ MALLOC_S *rlp; /* returned length pointer (optional)
  *	   copy string length (optional)
  */
 
-char *mkstrcat(s1, l1, s2, l2, s3, l3, clp)
-char *s1;      /* source string 1 */
-int l1;        /* length of string 1 (-1 if none) */
-char *s2;      /* source string 2 */
-int l2;        /* length of string 2 (-1 if none) */
-char *s3;      /* source string 3 (optional) */
-int l3;        /* length of string 3 (-1 if none) */
-MALLOC_S *clp; /* pointer to return of copy length
-                * (optional) */
+char *mkstrcat(char *s1,      /* source string 1 */
+               int l1,        /* length of string 1 (-1 if none) */
+               char *s2,      /* source string 2 */
+               int l2,        /* length of string 2 (-1 if none) */
+               char *s3,      /* source string 3 (optional) */
+               int l3,        /* length of string 3 (-1 if none) */
+               MALLOC_S *clp) /* pointer to return of copy length
+                               * (optional) */
 {
     MALLOC_S cl, len1, len2, len3;
     char *cp;
@@ -970,9 +967,8 @@ MALLOC_S *clp; /* pointer to return of copy length
  * is_readable() -- is file readable
  */
 
-int is_readable(path, msg)
-char *path; /* file path */
-int msg;    /* issue warning message if 1 */
+int is_readable(char *path, /* file path */
+                int msg)    /* issue warning message if 1 */
 {
     if (access(path, R_OK) < 0) {
         if (!Fwarn && msg == 1)
@@ -1190,9 +1186,8 @@ char *Readlink(struct lsof_context *ctx,
  * readstdata() - read stream's stdata structure
  */
 
-int readstdata(addr, buf)
-KA_T addr;          /* stdata address in kernel*/
-struct stdata *buf; /* buffer addess */
+int readstdata(KA_T addr,          /* stdata address in kernel*/
+               struct stdata *buf) /* buffer addess */
 {
     if (!addr || kread(ctx, addr, (char *)buf, sizeof(struct stdata))) {
         (void)snpf(Namech, Namechl, "no stream data in %s",
@@ -1206,9 +1201,8 @@ struct stdata *buf; /* buffer addess */
  * readsthead() - read stream head
  */
 
-int readsthead(addr, buf)
-KA_T addr;         /* starting queue pointer in kernel */
-struct queue *buf; /* buffer for queue head */
+int readsthead(KA_T addr,         /* starting queue pointer in kernel */
+               struct queue *buf) /* buffer for queue head */
 {
     KA_T qp;
 
@@ -1230,10 +1224,9 @@ struct queue *buf; /* buffer for queue head */
  * readstidnm() - read stream module ID name
  */
 
-int readstidnm(addr, buf, len)
-KA_T addr;     /* module ID name address in kernel */
-char *buf;     /* receiving buffer address */
-READLEN_T len; /* buffer length */
+int readstidnm(KA_T addr,     /* module ID name address in kernel */
+               char *buf,     /* receiving buffer address */
+               READLEN_T len) /* buffer length */
 {
     if (!addr || kread(ctx, addr, buf, len)) {
         (void)snpf(Namech, Namechl, "can't read module ID name from %s",
@@ -1247,9 +1240,8 @@ READLEN_T len; /* buffer length */
  * readstmin() - read stream's module info
  */
 
-int readstmin(addr, buf)
-KA_T addr;               /* module info address in kernel */
-struct module_info *buf; /* receiving buffer address */
+int readstmin(KA_T addr,               /* module info address in kernel */
+              struct module_info *buf) /* receiving buffer address */
 {
     if (!addr || kread(ctx, addr, (char *)buf, sizeof(struct module_info))) {
         (void)snpf(Namech, Namechl, "can't read module info from %s",
@@ -1263,9 +1255,8 @@ struct module_info *buf; /* receiving buffer address */
  * readstqinit() - read stream's queue information structure
  */
 
-int readstqinit(addr, buf)
-KA_T addr;         /* queue info address in kernel */
-struct qinit *buf; /* receiving buffer address */
+int readstqinit(KA_T addr,         /* queue info address in kernel */
+                struct qinit *buf) /* receiving buffer address */
 {
     if (!addr || kread(ctx, addr, (char *)buf, sizeof(struct qinit))) {
         (void)snpf(Namech, Namechl, "can't read queue info from %s",
@@ -1284,11 +1275,10 @@ struct qinit *buf; /* receiving buffer address */
  *	   cl = strlen(printable equivalent)
  */
 
-char *safepup(c, cl)
-unsigned int c; /* unprintable (i.e., !isprint())
-                 * character  and '\\' */
-int *cl;        /* returned printable strlen -- NULL if
-                 * no return needed */
+char *safepup(unsigned int c, /* unprintable (i.e., !isprint())
+                               * character  and '\\' */
+              int *cl)        /* returned printable strlen -- NULL if
+                               * no return needed */
 {
     int len;
     char *rp;
@@ -1337,14 +1327,13 @@ int *cl;        /* returned printable strlen -- NULL if
  *		  non-printable characters when printed in a printable form
  */
 
-int safestrlen(sp, flags)
-char *sp;  /* string pointer */
-int flags; /* flags:
-            *   bit 0: 0 (0) = no NL
-            *	    1 (1) = add trailing NL
-            *	 1: 0 (0) = ' ' printable
-            *	    1 (2) = ' ' not printable
-            */
+int safestrlen(char *sp,  /* string pointer */
+               int flags) /* flags:
+                           *   bit 0: 0 (0) = no NL
+                           *	    1 (1) = add trailing NL
+                           *	 1: 0 (0) = ' ' printable
+                           *	    1 (2) = ' ' not printable
+                           */
 {
     char c;
     int len = 0;
@@ -1369,21 +1358,21 @@ int flags; /* flags:
  * safestrprt() - print a string "safely" to the indicated stream -- i.e.,
  *		  print unprintable characters in a printable form
  */
-void safestrprt(sp, fs, flags) char *sp; /* string to print pointer pointer */
-FILE *fs;                                /* destination stream -- e.g., stderr
-                                          * or stdout */
-int flags;                               /* flags:
-                                          *   bit 0: 0 (0) = no NL
-                                          *	    1 (1) = add trailing NL
-                                          *	 1: 0 (0) = ' ' printable
-                                          *	    1 (2) = ' ' not printable
-                                          *	 2: 0 (0) = print string as is
-                                          *	    1 (4) = surround string
-                                          *		    with '"'
-                                          *	 4: 0 (0) = print ending '\n'
-                                          *	    1 (8) = don't print ending
-                                          *		    '\n'
-                                          */
+void safestrprt(char *sp,  /* string to print pointer pointer */
+                FILE *fs,  /* destination stream -- e.g., stderr
+                            * or stdout */
+                int flags) /* flags:
+                            *   bit 0: 0 (0) = no NL
+                            *	    1 (1) = add trailing NL
+                            *	 1: 0 (0) = ' ' printable
+                            *	    1 (2) = ' ' not printable
+                            *	 2: 0 (0) = print string as is
+                            *	    1 (4) = surround string
+                            *		    with '"'
+                            *	 4: 0 (0) = print ending '\n'
+                            *	    1 (8) = don't print ending
+                            *		    '\n'
+                            */
 {
     char c;
     int lnc, lnt, sl;
@@ -1445,24 +1434,23 @@ int flags;                               /* flags:
  *		   "safely" to the indicated stream
  */
 
-void safestrprtn(sp, len, fs,
-                 flags) char *sp; /* string to print pointer pointer */
-int len;                          /* safe number of characters to
-                                   * print */
-FILE *fs;                         /* destination stream -- e.g., stderr
-                                   * or stdout */
-int flags;                        /* flags:
-                                   *   bit 0: 0 (0) = no NL
-                                   *	    1 (1) = add trailing NL
-                                   *	 1: 0 (0) = ' ' printable
-                                   *	    1 (2) = ' ' not printable
-                                   *	 2: 0 (0) = print string as is
-                                   *	    1 (4) = surround string
-                                   *		    with '"'
-                                   *	 4: 0 (0) = print ending '\n'
-                                   *	    1 (8) = don't print ending
-                                   *		    '\n'
-                                   */
+void safestrprtn(char *sp,  /* string to print pointer pointer */
+                 int len,   /* safe number of characters to
+                             * print */
+                 FILE *fs,  /* destination stream -- e.g., stderr
+                             * or stdout */
+                 int flags) /* flags:
+                             *   bit 0: 0 (0) = no NL
+                             *	    1 (1) = add trailing NL
+                             *	 1: 0 (0) = ' ' printable
+                             *	    1 (2) = ' ' not printable
+                             *	 2: 0 (0) = print string as is
+                             *	    1 (4) = surround string
+                             *		    with '"'
+                             *	 4: 0 (0) = print ending '\n'
+                             *	    1 (8) = don't print ending
+                             *		    '\n'
+                             */
 {
     char c, *up;
     int cl, i;
@@ -1551,9 +1539,8 @@ void stkdir(struct lsof_context *ctx, char *p) /* directory path */
  * x2dev() - convert hexadecimal ASCII string to device number
  */
 
-char *x2dev(s, d)
-char *s;  /* ASCII string */
-dev_t *d; /* device receptacle */
+char *x2dev(char *s,  /* ASCII string */
+            dev_t *d) /* device receptacle */
 {
     char *cp, *cp1;
     int n;

@@ -790,8 +790,7 @@ static void get_kernel_access() {
  * enter_zone_arg() - enter zone name argument
  */
 
-int enter_zone_arg(zn)
-char *zn; /* zone name */
+int enter_zone_arg(char *zn) /* zone name */
 {
     int zh;
     znhash_t *zp, *zpn;
@@ -839,8 +838,7 @@ char *zn; /* zone name */
  * hash_zn() - hash zone name
  */
 
-static int hash_zn(zn)
-char *zn; /* zone name */
+static int hash_zn(char *zn) /* zone name */
 {
     register int i, h;
     size_t l;
@@ -1110,7 +1108,7 @@ static int get_next_seg(avl_tree_t *av, struct seg *s) {
     return -1;
 }
 
-static void process_text(pa) KA_T pa; /* address space description pointer */
+static void process_text(KA_T pa) /* address space description pointer */
 {
     struct as as;
     int i, j, k;
@@ -1180,7 +1178,7 @@ static void process_text(pa) KA_T pa; /* address space description pointer */
 #        define S_NEXT s_next
 #    endif /* solaris>=20400 */
 
-static void process_text(pa) KA_T pa; /* address space description pointer */
+static void process_text(KA_T pa) /* address space description pointer */
 {
     struct as as;
     int i, j, k;
@@ -1304,7 +1302,7 @@ static void readfsinfo() {
  * readkam() - read kernel's address map structure
  */
 
-static void readkam(addr) KA_T addr; /* kernel virtual address */
+static void readkam(KA_T addr) /* kernel virtual address */
 {
     register int i;
     register kvmhash_t *kp, *kpp;
@@ -1656,8 +1654,7 @@ _PROTOTYPE(static int ncache_isroot, (KA_T va, char *cp));
 
 static struct l_nch *
 
-ncache_addr(v)
-KA_T v; /* vnode's address */
+ncache_addr(KA_T v) /* vnode's address */
 {
     struct l_nch **hp;
 
@@ -1672,9 +1669,8 @@ KA_T v; /* vnode's address */
  * ncache_isroot() - is head of name cache path a file system root?
  */
 
-static int ncache_isroot(va, cp)
-KA_T va;  /* kernel vnode address */
-char *cp; /* partial path */
+static int ncache_isroot(KA_T va,  /* kernel vnode address */
+                         char *cp) /* partial path */
 {
     char buf[MAXPATHLEN];
     int i;
@@ -2058,10 +2054,9 @@ void ncache_load() {
  * ncache_lookup() - look up a node's name in the kernel's name cache
  */
 
-char *ncache_lookup(buf, blen, fp)
-char *buf; /* receiving name buffer */
-int blen;  /* receiving buffer length */
-int *fp;   /* full path reply */
+char *ncache_lookup(char *buf, /* receiving name buffer */
+                    int blen,  /* receiving buffer length */
+                    int *fp)   /* full path reply */
 {
     char *cp = buf;
     struct l_nch *lc;

@@ -119,10 +119,9 @@ extern int access_vxfs_ioffsets() {
  * add2em() - add to error message
  */
 
-static char *add2em(em, fmt, arg)
-char *em;  /* current error message */
-char *fmt; /* message format */
-char *arg; /* format's single string argument */
+static char *add2em(char *em,  /* current error message */
+                    char *fmt, /* message format */
+                    char *arg) /* format's single string argument */
 {
     MALLOC_S al, eml, nl;
     char msg[1024];
@@ -156,12 +155,11 @@ char *arg; /* format's single string argument */
  * ckptr() - check pointer and length
  */
 
-static char *ckptr(em, ptr, len, slen, nm)
-char *em;  /* pointer to previous error message */
-char *ptr; /* pointer to check */
-int len;   /* pointer's value length */
-int slen;  /* value's storage length */
-char *nm;  /* element name */
+static char *ckptr(char *em,  /* pointer to previous error message */
+                   char *ptr, /* pointer to check */
+                   int len,   /* pointer's value length */
+                   int slen,  /* value's storage length */
+                   char *nm)  /* element name */
 {
 
 #        if defined(_LP64)
@@ -192,17 +190,16 @@ char *nm;  /* element name */
  * getioffs() - get the vx_inode offsets
  */
 
-static char *getioffs(vx, vxl, dev, devl, ino, inol, nl, nll, sz, szl)
-char **vx;  /* pointer to allocated vx_inode space */
-int *vxl;   /* sizeof(*vx) */
-char **dev; /* pointer to device number element of *vx */
-int *devl;  /* sizeof(*dev) */
-char **ino; /* pointer to node number element of *vx */
-int *inol;  /* sizeof(*ino) */
-char **nl;  /* pointer to nlink element of *vx */
-int *nll;   /* sizeof(*nl) */
-char **sz;  /* pointer to size element of *vx */
-int *szl;   /* sizeof(*sz) */
+static char *getioffs(char **vx,  /* pointer to allocated vx_inode space */
+                      int *vxl,   /* sizeof(*vx) */
+                      char **dev, /* pointer to device number element of *vx */
+                      int *devl,  /* sizeof(*dev) */
+                      char **ino, /* pointer to node number element of *vx */
+                      int *inol,  /* sizeof(*ino) */
+                      char **nl,  /* pointer to nlink element of *vx */
+                      int *nll,   /* sizeof(*nl) */
+                      char **sz,  /* pointer to size element of *vx */
+                      int *szl)   /* sizeof(*sz) */
 {
     char *tv;
     int tvl;
@@ -244,8 +241,7 @@ int *szl;   /* sizeof(*sz) */
  * print_vxfs_rnl_path() -- print VxFS RNL path
  */
 
-int print_vxfs_rnl_path(lf)
-struct lfile *lf; /* file whose name is to be printed */
+int print_vxfs_rnl_path(struct lfile *lf) /* file whose name is to be printed */
 {
     char **bp = (char **)NULL;
     int i, j, n, p;
@@ -335,13 +331,12 @@ struct lfile *lf; /* file whose name is to be printed */
  * read_vxnode() - read Veritas file system inode information
  */
 
-int read_vxnode(va, v, vfs, fx, li, vnops)
-KA_T va;           /* containing vnode's address */
-struct vnode *v;   /* containing vnode */
-struct l_vfs *vfs; /* local vfs structure */
-int fx;            /* file system index (-1 if none) */
-struct l_ino *li;  /* local inode value receiver */
-KA_T *vnops;       /* table of VxFS v_op values */
+int read_vxnode(KA_T va,           /* containing vnode's address */
+                struct vnode *v,   /* containing vnode */
+                struct l_vfs *vfs, /* local vfs structure */
+                int fx,            /* file system index (-1 if none) */
+                struct l_ino *li,  /* local inode value receiver */
+                KA_T *vnops)       /* table of VxFS v_op values */
 {
     struct vnode cv;
     char tbuf[32];

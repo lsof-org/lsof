@@ -48,12 +48,11 @@ _PROTOTYPE(static char *getmntdev, (char *o, int l, struct stat *s, char *f));
  * getmntdev() - get mount entry's device number
  */
 
-static char *getmntdev(o, l, s, f)
-char *o;        /* start of device option */
-int l;          /* length of device keyword (not
-                 * including `=') */
-struct stat *s; /* pointer to stat buffer to create */
-char *f;        /* file system type */
+static char *getmntdev(char *o,        /* start of device option */
+                       int l,          /* length of device keyword (not
+                                        * including `=') */
+                       struct stat *s, /* pointer to stat buffer to create */
+                       char *f)        /* file system type */
 {
     char *opte;
 
@@ -335,12 +334,11 @@ struct mounts *readmnt() {
  * readvfs() - read vfs structure
  */
 
-struct l_vfs *readvfs(ka, la, lv)
-KA_T ka;          /* vfs structure kernel address, if
-                   * must be read from kernel */
-struct vfs *la;   /* local vfs structure address, non-
-                   * NULL if already read from kernel */
-struct vnode *lv; /* local vnode */
+struct l_vfs *readvfs(KA_T ka,          /* vfs structure kernel address, if
+                                         * must be read from kernel */
+                      struct vfs *la,   /* local vfs structure address, non-
+                                         * NULL if already read from kernel */
+                      struct vnode *lv) /* local vnode */
 {
     struct vfs *v, tv;
     struct l_vfs *vp;

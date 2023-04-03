@@ -71,12 +71,11 @@ static char copyright[] =
  * read_iso_node() -- read CD 9660 iso_node
  */
 
-int read_iso_node(v, d, ino, nl, sz)
-struct vnode *v; /* containing vnode */
-dev_t *d;        /* returned device number */
-INODETYPE *ino;  /* returned inode number */
-long *nl;        /* returned link count */
-SZOFFTYPE *sz;   /* returned size */
+int read_iso_node(struct vnode *v, /* containing vnode */
+                  dev_t *d,        /* returned device number */
+                  INODETYPE *ino,  /* returned inode number */
+                  long *nl,        /* returned link count */
+                  SZOFFTYPE *sz)   /* returned size */
 {
     struct iso_node i;
 

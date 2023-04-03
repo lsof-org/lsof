@@ -204,9 +204,9 @@ static void clr_sect() {
  * crc(b, l, s) - compute a crc for a block of bytes
  */
 
-void crc(b, l, s) char *b; /* block address */
-int l;                     /* length */
-unsigned *s;               /* sum */
+void crc(char *b,     /* block address */
+         int l,       /* length */
+         unsigned *s) /* sum */
 {
     char *cp;     /* character pointer */
     char *lm;     /* character limit pointer */
@@ -1082,8 +1082,7 @@ int read_dcache(struct lsof_context *ctx) {
  * rw_clone_sect() - read/write the device cache file clone section
  */
 
-static int rw_clone_sect(m)
-int m; /* mode: 1 = read; 2 = write */
+static int rw_clone_sect(int m) /* mode: 1 = read; 2 = write */
 {
     char buf[MAXPATHLEN * 2], *cp, *cp1;
     struct clone *c;
@@ -1322,9 +1321,8 @@ void write_dcache(struct lsof_context *ctx) {
  * wr2DCfd() - write to the DCfd file descriptor
  */
 
-int wr2DCfd(b, c)
-char *b;     /* buffer */
-unsigned *c; /* checksum receiver */
+int wr2DCfd(char *b,     /* buffer */
+            unsigned *c) /* checksum receiver */
 {
     int bl, bw;
 

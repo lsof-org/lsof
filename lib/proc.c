@@ -29,6 +29,7 @@
  */
 
 #include "common.h"
+#include "dlsof.h"
 
 #if defined(HASEPTOPTS)
 _PROTOTYPE(static void prt_pinfo,
@@ -391,9 +392,7 @@ extern int ck_fd_status(struct lsof_context *ctx,
  * comppid() - compare PIDs
  */
 
-int comppid(a1, a2)
-COMP_P *a1, *a2;
-{
+int comppid(COMP_P *a1, COMP_P *a2) {
     struct lproc **p1 = (struct lproc **)a1;
     struct lproc **p2 = (struct lproc **)a2;
 
@@ -516,8 +515,7 @@ int examine_lproc(struct lsof_context *ctx) {
  * free_lproc() - free lproc entry and its associated malloc'd space
  */
 
-void free_lproc(lp) struct lproc *lp;
-{
+void free_lproc(struct lproc *lp) {
     struct lfile *lf, *nf;
 
     for (lf = lp->file; lf; lf = nf) {
@@ -616,9 +614,8 @@ int is_cmd_excl(struct lsof_context *ctx, char *cmd, /* command name */
  * is_file_sel() - is file selected?
  */
 
-int is_file_sel(lp, lf)
-struct lproc *lp; /* lproc structure pointer */
-struct lfile *lf; /* lfile structure pointer */
+int is_file_sel(struct lproc *lp, /* lproc structure pointer */
+                struct lfile *lf) /* lfile structure pointer */
 {
     if (!lf || !lf->sf)
         return (0);

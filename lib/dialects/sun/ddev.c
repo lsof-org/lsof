@@ -59,8 +59,8 @@ _PROTOTYPE(static int rmdupdev, (struct l_dev * **dp, int n, int ty));
  * make_devtp() - make Devtp[] entry
  */
 
-static void make_devtp(s, p) struct stat *s; /* device lstat() buffer */
-char *p;                                     /* device path name */
+static void make_devtp(struct stat *s, /* device lstat() buffer */
+                       char *p)        /* device path name */
 {
 
     /*
@@ -97,11 +97,10 @@ char *p;                                     /* device path name */
  * printdevname() - print block or character device name
  */
 
-int printdevname(dev, rdev, f, nty)
-dev_t *dev;  /* device */
-dev_t *rdev; /* raw device */
-int f;       /* 1 = print trailing '\n' */
-int nty;     /* node type: N_BLK or N_CHR */
+int printdevname(dev_t *dev,  /* device */
+                 dev_t *rdev, /* raw device */
+                 int f,       /* 1 = print trailing '\n' */
+                 int nty)     /* node type: N_BLK or N_CHR */
 {
     struct clone *c;
     struct l_dev *dp;
@@ -378,7 +377,7 @@ void read_clone() {
  *	       or /device (Solaris)
  */
 
-void readdev(skip) int skip; /* skip device cache read if 1 */
+void readdev(int skip) /* skip device cache read if 1 */
 {
 
 #if defined(HASDCACHE)
@@ -1014,10 +1013,9 @@ struct l_dev *dp; /* device table pointer */
  * rmdupdev() - remove duplicate (major/minor/inode) devices
  */
 
-static int rmdupdev(dp, n, ty)
-struct l_dev ***dp; /* device table pointers address */
-int n;              /* number of pointers */
-int ty;             /* type: 0 = block, 1 = char */
+static int rmdupdev(struct l_dev ***dp, /* device table pointers address */
+                    int n,              /* number of pointers */
+                    int ty)             /* type: 0 = block, 1 = char */
 {
     struct clone *c, *cp;
     struct l_dev **d;
