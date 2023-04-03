@@ -28,12 +28,12 @@
  * 4. This notice may not be removed or altered.
  */
 
+#define TCPSTATES /* activate tcpstates[] */
+
 #include "common.h"
 #include "machine.h"
 
 #if defined(USE_LIB_PRINT_TCPTPI)
-
-#    define TCPSTATES /* activate tcpstates[] */
 
 /*
  * build_IPstates() -- build the TCP and UDP state tables
