@@ -38,12 +38,12 @@ static char copyright[] =
 /*
  * process_kqueue() -- process kqueue file
  */
-void process_kqueue_file(struct kinfo_file *file) {
+void process_kqueue_file(struct lsof_context *ctx, struct kinfo_file *file) {
     char buf[64];
     int flag;
 
     /* Alloc Lf and set fd */
-    alloc_lfile(NULL, file->fd_fd);
+    alloc_lfile(ctx, NULL, file->fd_fd);
 
     /* Fill type name*/
     (void)snpf(Lf->type, sizeof(Lf->type), "KQUEUE");
@@ -51,7 +51,7 @@ void process_kqueue_file(struct kinfo_file *file) {
     /* Fill dev with f_data if available */
     if (file->f_data) {
         (void)snpf(buf, sizeof(buf), "0x%" PRIx64, file->f_data);
-        enter_dev_ch(buf);
+        enter_dev_ch(ctx, buf);
     }
 
     /* Fill offset */
@@ -70,10 +70,10 @@ void process_kqueue_file(struct kinfo_file *file) {
 
     /* Finish */
     if (Lf->sf)
-        link_lfile();
+        link_lfile(ctx);
 }
 
 /*
  * process_pipe() - process a file structure whose type is DTYPE_PIPE
  */
-void process_pipe(struct kinfo_file *file) {}
+void process_pipe(struct lsof_context *ctx, struct kinfo_file *file) {}
