@@ -1073,7 +1073,7 @@ static void prt_uxs(uxsin_t *p, /* peer info */
                 break;
         }
         (void)snpf(nma, sizeof(nma) - 1, "%d,%.*s,%s%c", ep->pid, CmdLim,
-                   ep->cmd, &ef->fd[i], ef->access);
+                   ep->cmd, &ef->fd[i], print_access(ef->access));
         (void)add_nma(nma, strlen(nma));
         if (mk && FeptE == 2) {
 
@@ -1235,7 +1235,7 @@ static void prt_nets_common(void *p, /* peer info */
                 break;
         }
         (void)snpf(nma, sizeof(nma) - 1, "%d,%.*s,%s%c", ep->pid, CmdLim,
-                   ep->cmd, &ef->fd[i], ef->access);
+                   ep->cmd, &ef->fd[i], print_access(ef->access));
         (void)add_nma(nma, strlen(nma));
         if (mk && FeptE == 2) {
 

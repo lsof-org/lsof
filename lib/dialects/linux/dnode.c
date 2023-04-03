@@ -701,11 +701,11 @@ int ls;                             /* *l status -- i.e., SB_* values */
      */
     if (l && (ls & SB_MODE) && ((l->st_mode & S_IFMT) == S_IFLNK)) {
         if ((access = l->st_mode & (S_IRUSR | S_IWUSR)) == S_IRUSR)
-            Lf->access = 'r';
+            Lf->access = LSOF_FILE_ACCESS_READ;
         else if (access == S_IWUSR)
-            Lf->access = 'w';
+            Lf->access = LSOF_FILE_ACCESS_WRITE;
         else
-            Lf->access = 'u';
+            Lf->access = LSOF_FILE_ACCESS_READ_WRITE;
     }
     /*
      * Determine node type.

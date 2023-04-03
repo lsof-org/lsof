@@ -843,9 +843,9 @@ struct queue *q;                     /* queue at end of stream */
 #    define t_outqsize t_qsize
 #endif /* UNIXWAREV>=70000 */
 
-        if (Lf->access == 'r')
+        if (Lf->access == LSOF_FILE_ACCESS_READ)
             Lf->sz = (SZOFFTYPE)t.t_iqsize;
-        else if (Lf->access == 'w')
+        else if (Lf->access == LSOF_FILE_ACCESS_WRITE)
             Lf->sz = (SZOFFTYPE)t.t_outqsize;
         else
             Lf->sz = (SZOFFTYPE)(t.t_iqsize + t.t_outqsize);

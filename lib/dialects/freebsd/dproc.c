@@ -165,13 +165,13 @@ static void process_kinfo_file(struct kinfo_file *kf, struct xfile *xfile,
     Lf->off_def = 1;
     if (kf->kf_ref_count) {
         if ((kf->kf_flags & (KF_FLAG_READ | KF_FLAG_WRITE)) == KF_FLAG_READ)
-            Lf->access = 'r';
+            Lf->access = LSOF_FILE_ACCESS_READ;
         else if ((kf->kf_flags & (KF_FLAG_READ | KF_FLAG_WRITE)) ==
                  KF_FLAG_WRITE)
-            Lf->access = 'w';
+            Lf->access = LSOF_FILE_ACCESS_WRITE;
         else if ((kf->kf_flags & (KF_FLAG_READ | KF_FLAG_WRITE)) ==
                  (KF_FLAG_READ | KF_FLAG_WRITE))
-            Lf->access = 'u';
+            Lf->access = LSOF_FILE_ACCESS_READ_WRITE;
     }
 
     Lf->fct = (long)kf->kf_ref_count;

@@ -1065,9 +1065,9 @@ struct pst_socket *s; /* optional socket information
     /*
      * Save size information, as requested.
      */
-    if (Lf->access == 'r')
+    if (Lf->access == LSOF_FILE_ACCESS_READ)
         Lf->sz = (SZOFFTYPE)s->pst_idata;
-    else if (Lf->access == 'w')
+    else if (Lf->access == LSOF_FILE_ACCESS_WRITE)
         Lf->sz = (SZOFFTYPE)s->pst_odata;
     else
         Lf->sz = (SZOFFTYPE)(s->pst_idata + s->pst_odata);
@@ -1463,13 +1463,13 @@ int ckscko; /* socket file only checking
     /*
      * Enter size from stream head's structure, if requested.
      */
-    if (Lf->access == 'r') {
+    if (Lf->access == LSOF_FILE_ACCESS_READ) {
         Lf->sz = (SZOFFTYPE)s[hx].val.head.pst_rbytes;
         Lf->sz_def = 1;
-    } else if (Lf->access == 'w') {
+    } else if (Lf->access == LSOF_FILE_ACCESS_WRITE) {
         Lf->sz = (SZOFFTYPE)s[hx].val.head.pst_wbytes;
         Lf->sz_def = 1;
-    } else if (Lf->access == 'u') {
+    } else if (Lf->access == LSOF_FILE_ACCESS_READ_WRITE) {
         Lf->sz = (SZOFFTYPE)s[hx].val.head.pst_rbytes +
                  (SZOFFTYPE)s[hx].val.head.pst_wbytes;
         Lf->sz_def = 1;

@@ -101,9 +101,9 @@ void process_socket(sa) KA_T sa; /* socket address in kernel */
     /*
      * Save size information.
      */
-    if (Lf->access == 'r')
+    if (Lf->access == LSOF_FILE_ACCESS_READ)
         Lf->sz = (SZOFFTYPE)s.so_rcv.sb_cc;
-    else if (Lf->access == 'w')
+    else if (Lf->access == LSOF_FILE_ACCESS_WRITE)
         Lf->sz = (SZOFFTYPE)s.so_snd.sb_cc;
     else
         Lf->sz = (SZOFFTYPE)(s.so_rcv.sb_cc + s.so_snd.sb_cc);

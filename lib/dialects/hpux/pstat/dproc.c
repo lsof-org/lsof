@@ -325,11 +325,11 @@ void gather_proc_info() {
              * Construct access code.
              */
             if ((flag = (long)(f->psf_flag & ~PS_FEXCLOS)) == (long)PS_FRDONLY)
-                Lf->access = 'r';
+                Lf->access = LSOF_FILE_ACCESS_READ;
             else if (flag == (long)PS_FWRONLY)
-                Lf->access = 'w';
+                Lf->access = LSOF_FILE_ACCESS_WRITE;
             else
-                Lf->access = 'u';
+                Lf->access = LSOF_FILE_ACCESS_READ_WRITE;
 
 #if defined(HASFSTRUCT)
             /*

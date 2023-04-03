@@ -1866,9 +1866,9 @@ static void
     Lf->lts.rqs = Lf->lts.sqs = 1;
 #    endif /* defined(HASTCPTPIQ) */
 
-    if (Lf->access == 'r')
+    if (Lf->access == LSOF_FILE_ACCESS_READ)
         Lf->sz = (SZOFFTYPE)rq;
-    else if (Lf->access == 'w')
+    else if (Lf->access == LSOF_FILE_ACCESS_WRITE)
         Lf->sz = (SZOFFTYPE)sq;
     else
         Lf->sz = (SZOFFTYPE)(rq + sq);

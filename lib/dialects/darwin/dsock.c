@@ -68,9 +68,9 @@ static void process_socket_common(si) struct socket_fdinfo *si;
     /*
      * Enable size or offset display.
      */
-    if (Lf->access == 'r')
+    if (Lf->access == LSOF_FILE_ACCESS_READ)
         Lf->sz = (SZOFFTYPE)si->psi.soi_rcv.sbi_cc;
-    else if (Lf->access == 'w')
+    else if (Lf->access == LSOF_FILE_ACCESS_WRITE)
         Lf->sz = (SZOFFTYPE)si->psi.soi_snd.sbi_cc;
     else
         Lf->sz = (SZOFFTYPE)(si->psi.soi_rcv.sbi_cc + si->psi.soi_snd.sbi_cc);

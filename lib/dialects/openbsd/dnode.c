@@ -85,11 +85,11 @@ void process_vnode(struct kinfo_file *file) {
      */
     if (file->fd_fd >= 0) {
         if ((flag = (file->f_flag & (FREAD | FWRITE))) == FREAD)
-            Lf->access = 'r';
+            Lf->access = LSOF_FILE_ACCESS_READ;
         else if (flag == FWRITE)
-            Lf->access = 'w';
+            Lf->access = LSOF_FILE_ACCESS_WRITE;
         else if (flag == (FREAD | FWRITE))
-            Lf->access = 'u';
+            Lf->access = LSOF_FILE_ACCESS_READ_WRITE;
     }
 
     /* Fill file size/offset */

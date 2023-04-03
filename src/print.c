@@ -644,6 +644,7 @@ void print_file() {
     char *cp = (char *)NULL;
     dev_t dev;
     int devs, len;
+    char access;
 
     if (PrPass && !Hdr) {
 
@@ -845,19 +846,20 @@ void print_file() {
     /*
      * Size or print the file descriptor, access mode and lock status.
      */
+    access = print_access(Lf->access);
     if (!PrPass) {
         (void)snpf(buf, sizeof(buf), "%s%c%c", Lf->fd,
-                   (Lf->lock == ' ')     ? Lf->access
-                   : (Lf->access == ' ') ? '-'
-                                         : Lf->access,
+                   (Lf->lock == ' ') ? access
+                   : (access == ' ') ? '-'
+                                     : access,
                    Lf->lock);
         if ((len = strlen(buf)) > FdColW)
             FdColW = len;
     } else
         (void)printf(" %*.*s%c%c", FdColW - 2, FdColW - 2, Lf->fd,
-                     (Lf->lock == ' ')     ? Lf->access
-                     : (Lf->access == ' ') ? '-'
-                                           : Lf->access,
+                     (Lf->lock == ' ') ? access
+                     : (access == ' ') ? '-'
+                                       : access,
                      Lf->lock);
     /*
      * Size or print the type.

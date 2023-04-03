@@ -55,11 +55,11 @@ void enter_file_info(
      */
     f = pfi->fi_openflags & (FREAD | FWRITE);
     if (f == FREAD)
-        Lf->access = 'r';
+        Lf->access = LSOF_FILE_ACCESS_READ;
     else if (f == FWRITE)
-        Lf->access = 'w';
+        Lf->access = LSOF_FILE_ACCESS_WRITE;
     else if (f == (FREAD | FWRITE))
-        Lf->access = 'u';
+        Lf->access = LSOF_FILE_ACCESS_READ_WRITE;
     /*
      * Save the offset / size
      */

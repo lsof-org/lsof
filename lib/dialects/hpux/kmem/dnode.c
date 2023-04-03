@@ -799,7 +799,8 @@ void process_node(va) KA_T va; /* vnode kernel space address */
         }
 #    endif /* HPUXV<1000 */
 
-        if (Lf->access != 'r' && Lf->access != 'w') {
+        if (Lf->access != LSOF_FILE_ACCESS_READ &&
+            Lf->access != LSOF_FILE_ACCESS_WRITE) {
             if (fns || ins) {
                 (void)snpf(fb, sizeof(fb), "rd=%#x; wr=%#x", rp, wp);
                 (void)enter_nma(fb);
@@ -811,11 +812,13 @@ void process_node(va) KA_T va; /* vnode kernel space address */
             break;
         }
         if (fns || ins) {
-            Lf->off = (unsigned long)((Lf->access == 'r') ? rp : wp);
+            Lf->off =
+                (unsigned long)((Lf->access == LSOF_FILE_ACCESS_READ) ? rp
+                                                                      : wp);
             Lf->off_def = 1;
             (void)snpf(fb, sizeof(fb), "%s=%#x",
-                       (Lf->access == 'r') ? "rd" : "wr",
-                       (Lf->access == 'r') ? rp : wp);
+                       (Lf->access == LSOF_FILE_ACCESS_READ) ? "rd" : "wr",
+                       (Lf->access == LSOF_FILE_ACCESS_READ) ? rp : wp);
             (void)enter_nma(fb);
         }
         break;
