@@ -80,15 +80,15 @@ static struct porttab **Pth[4] = {NULL, NULL, NULL, NULL};
 #define HASHPORT(p) (((((int)(p)) * 31415) >> 3) & (PORTHASHBUCKETS - 1))
 
 #if !defined(HASNORPC_H)
-_PROTOTYPE(static void fill_portmap, (void));
-_PROTOTYPE(static void update_portmap, (struct porttab * pt, char *pn));
+static void fill_portmap(void);
+static void update_portmap(struct porttab *pt, char *pn);
 #endif /* !defined(HASNORPC_H) */
 
-_PROTOTYPE(static void fill_porttab, (void));
-_PROTOTYPE(static char *lkup_port, (int p, int pr, int src));
-_PROTOTYPE(static char *lkup_svcnam, (int h, int p, int pr, int ss));
-_PROTOTYPE(static int printinaddr, (void));
-_PROTOTYPE(static int human_readable_size, (SZOFFTYPE sz, int print, int col));
+static void fill_porttab(void);
+static char *lkup_port(int p, int pr, int src);
+static char *lkup_svcnam(int h, int p, int pr, int ss);
+static int printinaddr(void);
+static int human_readable_size(SZOFFTYPE sz, int print, int col);
 
 /*
  * endnm() - locate end of Namech

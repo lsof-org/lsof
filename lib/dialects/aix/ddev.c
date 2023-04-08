@@ -46,7 +46,7 @@ static char copyright[] =
  * Local function prototypes
  */
 
-_PROTOTYPE(static int rmdupdev, (struct l_dev * **dp, int n, char *nm));
+static int rmdupdev(struct l_dev ***dp, int n, char *nm);
 
 #if defined(HASDCACHE) && AIXV >= 4140
 

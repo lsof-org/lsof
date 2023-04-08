@@ -149,7 +149,7 @@ char *argv[]; /* arguments */
 #        define STATF stat        /* define stat function */
 #        define STATS struct stat /* define stat structure */
 
-_PROTOTYPE(static int ck_Linux_offset_support, (void));
+static int ck_Linux_offset_support(void);
 #    endif                        /* defined(LT_DIAL_linux) */
 
 #    if defined(LT_DIAL_hpux)
@@ -255,8 +255,8 @@ char *Pn = (char *)NULL;   /* program name */
  * Local function prototypes
  */
 
-_PROTOTYPE(static void cleanup, (void));
-_PROTOTYPE(static int tstwlsof, (int tt, char *opt, OFFSET_T sz));
+static void cleanup(void);
+static int tstwlsof(int tt, char *opt, OFFSET_T sz);
 
 /*
  * Main program for dialects that support large files

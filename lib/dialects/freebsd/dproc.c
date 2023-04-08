@@ -35,7 +35,7 @@ static char copyright[] =
 
 #include "common.h"
 
-_PROTOTYPE(static void get_kernel_access, (struct lsof_context * ctx));
+static void get_kernel_access(struct lsof_context *ctx);
 
 /*
  * Local static values

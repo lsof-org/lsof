@@ -33,8 +33,8 @@
 
 #if defined(USE_LIB_READDEV)
 
-_PROTOTYPE(static int rmdupdev,
-           (struct lsof_context * ctx, struct l_dev ***dp, int n, char *nm));
+static int rmdupdev(struct lsof_context *ctx, struct l_dev ***dp, int n,
+                    char *nm);
 
 /*
  * To use this source file:

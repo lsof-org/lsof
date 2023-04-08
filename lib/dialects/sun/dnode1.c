@@ -112,8 +112,8 @@ typedef struct afs_bozoLock afs_bozoLock_t;
  * Local function prototypes
  */
 
-_PROTOTYPE(static struct volume *getvolume, (struct VenusFid * f, int *vols));
-_PROTOTYPE(static int is_rootFid, (struct vcache * vc, int *rfid));
+static struct volume *getvolume(struct VenusFid *f, int *vols);
+static int is_rootFid(struct vcache *vc, int *rfid);
 
 /*
  * alloc_vcache() - allocate space for vcache structure

@@ -34,27 +34,27 @@
  * $Id: dproto.h,v 1.5 99/06/22 08:22:28 abe Exp $
  */
 
-_PROTOTYPE(extern int is_file_named, (char *p, int cd));
-_PROTOTYPE(extern void process_socket, (struct inode * i));
-_PROTOTYPE(extern int get_max_fd, (void));
+extern int is_file_named(char *p, int cd);
+extern void process_socket(struct inode *i);
+extern int get_max_fd(void);
 
 #if OSRV < 500
-_PROTOTYPE(extern int endservent, (void));
-_PROTOTYPE(extern int setservent, (int));
+extern int endservent(void);
+extern int setservent(int);
 
 #    if defined(HASSTATLSTAT)
-_PROTOTYPE(extern int statlstat, (const char *, struct stat *));
+extern int statlstat(const char *, struct stat *);
 #    endif /* defined(HASTSTATLSTAT) */
 
-_PROTOTYPE(extern int strcasecmp, (char *, char *));
-_PROTOTYPE(extern int strncasecmp, (char *, char *, unsigned int));
-_PROTOTYPE(extern pid_t wait, ());
+extern int strcasecmp(char *, char *);
+extern int strncasecmp(char *, char *, unsigned int);
+extern pid_t wait();
 #endif /* OSRV<500 */
 
-_PROTOTYPE(extern int sysi86, ());
-_PROTOTYPE(extern int sysfs, ());
-_PROTOTYPE(extern void udp_tm, (time_t tm));
+extern int sysi86();
+extern int sysfs();
+extern void udp_tm(time_t tm);
 
 #if !defined(N_UNIX)
-_PROTOTYPE(extern char *get_nlist_path, (int pd));
+extern char *get_nlist_path(int pd);
 #endif /* !defined(N_UNIX) */

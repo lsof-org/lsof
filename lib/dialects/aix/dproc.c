@@ -35,30 +35,30 @@ static char copyright[] =
 
 #include "common.h"
 
-_PROTOTYPE(static void get_kernel_access, (void));
+static void get_kernel_access(void);
 
 #if AIXA < 2
-_PROTOTYPE(static struct le *getle, (KA_T a, KA_T sid, char **err));
+static struct le *getle(KA_T a, KA_T sid, char **err);
 #endif /* AIXA<2 */
 
 #if AIXV >= 4110
-_PROTOTYPE(static void getlenm, (struct le * le, KA_T sid));
+static void getlenm(struct le *le, KA_T sid);
 #endif /* AIXV>=4110 */
 
-_PROTOTYPE(static int kreadx, (KA_T addr, char *buf, int len, KA_T sid));
+static int kreadx(KA_T addr, char *buf, int len, KA_T sid);
 
 #if AIXA < 2
-_PROTOTYPE(static void process_text, (KA_T sid));
+static void process_text(KA_T sid);
 #else  /* AIXA>=2 */
-_PROTOTYPE(static void getsoinfo, (void));
-_PROTOTYPE(static void process_text, (pid_t pid));
+static void getsoinfo(void);
+static void process_text(pid_t pid);
 #endif /* AIXA<2 */
 
 #if defined(SIGDANGER)
 #    if defined(HASINTSIGNAL)
-_PROTOTYPE(static int lowpgsp, (int sig));
+static int lowpgsp(int sig);
 #    else  /* !defined(HASINTSIGNAL) */
-_PROTOTYPE(static void lowpgsp, (int sig));
+static void lowpgsp(int sig);
 #    endif /* defined(HASINTSIGNAL) */
 #endif     /* defined(SIGDANGER) */
 

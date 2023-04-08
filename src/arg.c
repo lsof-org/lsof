@@ -48,13 +48,12 @@ static int NCmdRxA = 0; /* space allocated to CmdRx[] */
  * Local function prototypes
  */
 
-_PROTOTYPE(static int ckfd_range,
-           (char *first, char *dash, char *last, int *lo, int *hi));
-_PROTOTYPE(static int enter_fd_lst, (char *nm, int lo, int hi, int excl));
-_PROTOTYPE(static int enter_nwad,
-           (struct nwad * n, int sp, int ep, char *s, struct hostent *he));
-_PROTOTYPE(static struct hostent *lkup_hostnm, (char *hn, struct nwad *n));
-_PROTOTYPE(static char *isIPv4addr, (char *hn, unsigned char *a, int al));
+static int ckfd_range(char *first, char *dash, char *last, int *lo, int *hi);
+static int enter_fd_lst(char *nm, int lo, int hi, int excl);
+static int enter_nwad(struct nwad *n, int sp, int ep, char *s,
+                      struct hostent *he);
+static struct hostent *lkup_hostnm(char *hn, struct nwad *n);
+static char *isIPv4addr(char *hn, unsigned char *a, int al);
 
 /*
  * ckfd_range() - check fd range

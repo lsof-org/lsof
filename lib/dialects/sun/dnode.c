@@ -142,7 +142,7 @@ static CTF_request_t Sockfs_requests[] = {
  * Sockfs function prototypes
  */
 
-_PROTOTYPE(static int read_nsti, (struct sonode * so, sotpi_info_t *stpi));
+static int read_nsti(struct sonode *so, sotpi_info_t *stpi);
 #endif /* solaris>=110000 && defined(HAS_LIBCTF) */
 
 #if defined(HAS_ZFS) && defined(HAS_LIBCTF)
@@ -272,12 +272,12 @@ static CTF_exception_t CTF_exceptions[] = {{ZNODE_TYPE_NAME, "z_phys"},
  * ZFS function prototypes
  */
 
-_PROTOTYPE(static int read_nzn, (KA_T na, KA_T nza, znode_t *z));
-_PROTOTYPE(static int read_nznp, (KA_T nza, KA_T nzpa, znode_phys_t *zp));
-_PROTOTYPE(static int read_nzvfs, (KA_T nza, KA_T nzva, zfsvfs_t *zv));
+static int read_nzn(KA_T na, KA_T nza, znode_t *z);
+static int read_nznp(KA_T nza, KA_T nzpa, znode_phys_t *zp);
+static int read_nzvfs(KA_T nza, KA_T nzva, zfsvfs_t *zv);
 #endif /* defined(HAS_ZFS) && defined(HAS_LIBCTF) */
 
-_PROTOTYPE(static struct l_dev *finddev, (dev_t * dev, dev_t *rdev, int flags));
+static struct l_dev *finddev(dev_t *dev, dev_t *rdev, int flags);
 
 /*
  * Finddev() "look-in " flags
@@ -406,69 +406,67 @@ static v_optab_t **Voptab = (v_optab_t **)NULL;
  * Local function prototypes
  */
 
-_PROTOTYPE(static void build_Voptab, (void));
-_PROTOTYPE(static char isvlocked, (struct vnode * va));
-_PROTOTYPE(static int readinode, (KA_T ia, struct inode *i));
-_PROTOTYPE(static void read_mi, (KA_T s, dev_t *dev, caddr_t so, int *so_st,
-                                 KA_T *so_ad, struct l_dev **sdp));
+static void build_Voptab(void);
+static char isvlocked(struct vnode *va);
+static int readinode(KA_T ia, struct inode *i);
+static void read_mi(KA_T s, dev_t *dev, caddr_t so, int *so_st, KA_T *so_ad,
+                    struct l_dev **sdp);
 
 #if solaris >= 20500
 #    if solaris >= 20600
-_PROTOTYPE(static int read_nan, (KA_T na, KA_T aa, struct fnnode *rn));
-_PROTOTYPE(static int read_nson, (KA_T na, KA_T sa, struct sonode *sn));
-_PROTOTYPE(static int read_nusa, (struct soaddr * so, struct sockaddr_un *ua));
+static int read_nan(KA_T na, KA_T aa, struct fnnode *rn);
+static int read_nson(KA_T na, KA_T sa, struct sonode *sn);
+static int read_nusa(struct soaddr *so, struct sockaddr_un *ua);
 #    else  /* solaris<20600 */
-_PROTOTYPE(static int read_nan, (KA_T na, KA_T aa, struct autonode *a));
+static int read_nan(KA_T na, KA_T aa, struct autonode *a);
 #    endif /* solaris>=20600 */
-_PROTOTYPE(static int idoorkeep, (struct door_node * d));
-_PROTOTYPE(static int read_ndn, (KA_T na, KA_T da, struct door_node *d));
+static int idoorkeep(struct door_node *d);
+static int read_ndn(KA_T na, KA_T da, struct door_node *d);
 #endif /* solaris>=20500 */
 
 #if solaris >= 110000
-_PROTOTYPE(static int read_nsdn,
-           (KA_T na, KA_T sa, struct sdev_node *sdn, struct vattr *sdva));
+static int read_nsdn(KA_T na, KA_T sa, struct sdev_node *sdn,
+                     struct vattr *sdva);
 #endif /* solaris>=110000 */
 
-_PROTOTYPE(static int read_nfn, (KA_T na, KA_T fa, struct fifonode *f));
-_PROTOTYPE(static int read_nhn, (KA_T na, KA_T ha, struct hsnode *h));
-_PROTOTYPE(static int read_nin, (KA_T na, KA_T ia, struct inode *i));
-_PROTOTYPE(static int read_nmn, (KA_T na, KA_T ia, struct mvfsnode *m));
-_PROTOTYPE(static int read_npn, (KA_T na, KA_T pa, struct pcnode *p));
-_PROTOTYPE(static int read_nrn, (KA_T na, KA_T ra, struct rnode *r));
+static int read_nfn(KA_T na, KA_T fa, struct fifonode *f);
+static int read_nhn(KA_T na, KA_T ha, struct hsnode *h);
+static int read_nin(KA_T na, KA_T ia, struct inode *i);
+static int read_nmn(KA_T na, KA_T ia, struct mvfsnode *m);
+static int read_npn(KA_T na, KA_T pa, struct pcnode *p);
+static int read_nrn(KA_T na, KA_T ra, struct rnode *r);
 
 #if solaris >= 100000
-_PROTOTYPE(static int read_nctfsn, (int ty, KA_T na, KA_T ca, char *cn));
-_PROTOTYPE(static int read_nprtn, (KA_T na, KA_T ra, port_t *p));
-_PROTOTYPE(static int read_nrn4, (KA_T na, KA_T ra, struct rnode4 *r));
+static int read_nctfsn(int ty, KA_T na, KA_T ca, char *cn);
+static int read_nprtn(KA_T na, KA_T ra, port_t *p);
+static int read_nrn4(KA_T na, KA_T ra, struct rnode4 *r);
 #endif /* solaris>=100000 */
 
-_PROTOTYPE(static int read_nsn, (KA_T na, KA_T sa, struct snode *s));
-_PROTOTYPE(static int read_ntn, (KA_T na, KA_T ta, struct tmpnode *t));
-_PROTOTYPE(static int read_nvn, (KA_T na, KA_T va, struct vnode *v));
+static int read_nsn(KA_T na, KA_T sa, struct snode *s);
+static int read_ntn(KA_T na, KA_T ta, struct tmpnode *t);
+static int read_nvn(KA_T na, KA_T va, struct vnode *v);
 
 #if defined(HASPROCFS)
-_PROTOTYPE(static int read_npi, (KA_T na, struct vnode *v, struct pid *pids));
+static int read_npi(KA_T na, struct vnode *v, struct pid *pids);
 #endif /* defined(HASPROCFS) */
 
-_PROTOTYPE(static char *ent_fa, (KA_T * a1, KA_T *a2, char *d, int *len));
-_PROTOTYPE(static int is_socket, (struct vnode * v));
-_PROTOTYPE(static int read_cni,
-           (struct snode * s, struct vnode *rv, struct vnode *v,
-            struct snode *rs, struct dev_info *di, char *din, int dinl));
+static char *ent_fa(KA_T *a1, KA_T *a2, char *d, int *len);
+static int is_socket(struct vnode *v);
+static int read_cni(struct snode *s, struct vnode *rv, struct vnode *v,
+                    struct snode *rs, struct dev_info *di, char *din, int dinl);
 
 #if defined(HASCACHEFS)
-_PROTOTYPE(static int read_ncn, (KA_T na, KA_T ca, struct cnode *cn));
+static int read_ncn(KA_T na, KA_T ca, struct cnode *cn);
 #endif /* defined(HASCACHEFS) */
 
-_PROTOTYPE(static int read_nln, (KA_T na, KA_T la, struct lnode *ln));
-_PROTOTYPE(static int read_nnn, (KA_T na, KA_T nna, struct namenode *n));
+static int read_nln(KA_T na, KA_T la, struct lnode *ln);
+static int read_nnn(KA_T na, KA_T nna, struct namenode *n);
 
 #if solaris < 100000
-_PROTOTYPE(static void savesockmod,
-           (struct so_so * so, struct so_so *sop, int *so_st));
+static void savesockmod(struct so_so *so, struct so_so *sop, int *so_st);
 #else  /* solaris>=100000 */
-_PROTOTYPE(static int read_ndvn, (KA_T na, KA_T da, struct dv_node *dv,
-                                  dev_t *dev, unsigned char *devs));
+static int read_ndvn(KA_T na, KA_T da, struct dv_node *dv, dev_t *dev,
+                     unsigned char *devs);
 #endif /* solaris<100000 */
 
 /*

@@ -39,13 +39,12 @@ static char copyright[] =
  * Local function prototypes
  */
 
-_PROTOTYPE(static char *isnullstr, (char *s));
-_PROTOTYPE(static int print_in_col, (int col, char *cp));
-_PROTOTYPE(static void report_HASDCACHE, (int type, char *ttl, char *det));
-_PROTOTYPE(static void report_HASKERNIDCK, (char *pfx, char *verb));
-_PROTOTYPE(static void report_SECURITY, (char *pfx, char *punct));
-_PROTOTYPE(static void report_WARNDEVACCESS,
-           (char *pfx, char *verb, char *punct));
+static char *isnullstr(char *s);
+static int print_in_col(int col, char *cp);
+static void report_HASDCACHE(int type, char *ttl, char *det);
+static void report_HASKERNIDCK(char *pfx, char *verb);
+static void report_SECURITY(char *pfx, char *punct);
+static void report_WARNDEVACCESS(char *pfx, char *verb, char *punct);
 
 /*
  * isnullstr() - is it a null string?

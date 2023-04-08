@@ -42,7 +42,7 @@ static char copyright[] =
 static struct mounts *Lmi = (struct mounts *)NULL; /* local mount info */
 static int Lmist = 0;                              /* Lmi status */
 
-_PROTOTYPE(static char *getmntdev, (char *o, int l, struct stat *s, char *f));
+static char *getmntdev(char *o, int l, struct stat *s, char *f);
 
 /*
  * getmntdev() - get mount entry's device number

@@ -90,20 +90,18 @@ static int NVips = 0;               /* entries allocated to Vips */
 /*
  * Local function prototypes
  */
-_PROTOTYPE(static void enter_vn_text,
-           (struct lsof_context * ctx, struct vnode_info_path *vip, int *n));
-_PROTOTYPE(static void process_fds,
-           (struct lsof_context * ctx, int pid, uint32_t n, int ckscko));
-_PROTOTYPE(static void process_text, (struct lsof_context * ctx, int pid));
+static void enter_vn_text(struct lsof_context *ctx, struct vnode_info_path *vip,
+                          int *n);
+static void process_fds(struct lsof_context *ctx, int pid, uint32_t n,
+                        int ckscko);
+static void process_text(struct lsof_context *ctx, int pid);
 
 #if DARWINV >= 900
-_PROTOTYPE(static void process_threads,
-           (struct lsof_context * ctx, int pid, uint32_t n));
+static void process_threads(struct lsof_context *ctx, int pid, uint32_t n);
 #endif /* DARWINV>=900 */
 
 #if defined(PROC_PIDLISTFILEPORTS)
-_PROTOTYPE(static void process_fileports,
-           (struct lsof_context * ctx, int pid, int ckscko));
+static void process_fileports(struct lsof_context *ctx, int pid, int ckscko);
 #endif /* PROC_PIDLISTFILEPORTS */
 
 /*

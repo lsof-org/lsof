@@ -48,9 +48,9 @@
  * completevfs() - complete local vfs structure
  */
 
-void completevfs(struct lsof_context *ctx,
-                 struct l_vfs *vfs, /* local vfs structure pointer */
-                 dev_t *dev)        /* device */
+void completevfs(struct lsof_context *ctx, /* context */
+                 struct l_vfs *vfs,        /* local vfs structure pointer */
+                 dev_t *dev)               /* device */
 {
     struct mounts *mp;
     /*

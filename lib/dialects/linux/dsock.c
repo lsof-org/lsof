@@ -319,85 +319,67 @@ static uxsin_t **Uxsin = (uxsin_t **)NULL;
  * Local function prototypes
  */
 
-_PROTOTYPE(static struct ax25sin *check_ax25,
-           (struct lsof_context * ctx, INODETYPE i));
+static struct ax25sin *check_ax25(struct lsof_context *ctx, INODETYPE i);
 
 #if defined(HASEPTOPTS) && defined(HASUXSOCKEPT)
-_PROTOTYPE(static void enter_uxsinfo, (struct lsof_context * ctx, uxsin_t *up));
-_PROTOTYPE(static void fill_uxicino,
-           (struct lsof_context * ctx, INODETYPE si, INODETYPE sc));
-_PROTOTYPE(static void fill_uxpino,
-           (struct lsof_context * ctx, INODETYPE si, INODETYPE pi));
-_PROTOTYPE(static int get_diagmsg, (int sockfd));
-_PROTOTYPE(static void get_uxpeeri, (struct lsof_context * ctx));
-_PROTOTYPE(static void parse_diag,
-           (struct lsof_context * ctx, struct unix_diag_msg *dm, int len));
-_PROTOTYPE(static void prt_uxs,
-           (struct lsof_context * ctx, uxsin_t *p, int mk));
+static void enter_uxsinfo(struct lsof_context *ctx, uxsin_t *up);
+static void fill_uxicino(struct lsof_context *ctx, INODETYPE si, INODETYPE sc);
+static void fill_uxpino(struct lsof_context *ctx, INODETYPE si, INODETYPE pi);
+static int get_diagmsg(int sockfd);
+static void get_uxpeeri(struct lsof_context *ctx);
+static void parse_diag(struct lsof_context *ctx, struct unix_diag_msg *dm,
+                       int len);
+static void prt_uxs(struct lsof_context *ctx, uxsin_t *p, int mk);
 #endif /* defined(HASEPTOPTS) && defined(HASUXSOCKEPT) */
 
 #if defined(HASEPTOPTS)
-_PROTOTYPE(static void enter_netsinfo,
-           (struct lsof_context * ctx, struct tcp_udp *tp));
-_PROTOTYPE(static void get_netpeeri, (struct lsof_context * ctx));
+static void enter_netsinfo(struct lsof_context *ctx, struct tcp_udp *tp);
+static void get_netpeeri(struct lsof_context *ctx);
 #endif /* defined(HASEPTOPTS) */
 
 #if defined(HASIPv6)
 #    if defined(HASEPTOPTS)
-_PROTOTYPE(static void enter_nets6info,
-           (struct lsof_context * ctx, struct tcp_udp6 *tp));
-_PROTOTYPE(static void get_net6peeri, (struct lsof_context * ctx));
+static void enter_nets6info(struct lsof_context *ctx, struct tcp_udp6 *tp);
+static void get_net6peeri(struct lsof_context *ctx);
 #    endif /* defined(HASEPTOPTS) */
 #endif     /* defined(HASIPv6) */
 
-_PROTOTYPE(static struct icmpin *check_icmp,
-           (struct lsof_context * ctx, INODETYPE i));
-_PROTOTYPE(static struct ipxsin *check_ipx,
-           (struct lsof_context * ctx, INODETYPE i));
-_PROTOTYPE(static struct nlksin *check_netlink,
-           (struct lsof_context * ctx, INODETYPE i));
-_PROTOTYPE(static struct packin *check_pack,
-           (struct lsof_context * ctx, INODETYPE i));
-_PROTOTYPE(static struct rawsin *check_raw,
-           (struct lsof_context * ctx, INODETYPE i));
-_PROTOTYPE(static struct sctpsin *check_sctp,
-           (struct lsof_context * ctx, INODETYPE i));
-_PROTOTYPE(static struct tcp_udp *check_tcpudp,
-           (struct lsof_context * ctx, INODETYPE i, char **p));
-_PROTOTYPE(static uxsin_t *check_unix,
-           (struct lsof_context * ctx, INODETYPE i));
-_PROTOTYPE(static void get_ax25, (struct lsof_context * ctx, char *p));
-_PROTOTYPE(static void get_icmp, (struct lsof_context * ctx, char *p));
-_PROTOTYPE(static void get_ipx, (struct lsof_context * ctx, char *p));
-_PROTOTYPE(static void get_netlink, (struct lsof_context * ctx, char *p));
-_PROTOTYPE(static void get_pack, (struct lsof_context * ctx, char *p));
-_PROTOTYPE(static void get_raw, (struct lsof_context * ctx, char *p));
-_PROTOTYPE(static void get_sctp, (struct lsof_context * ctx));
-_PROTOTYPE(static char *get_sctpaddrs, (char **fp, int i, int nf, int *x));
-_PROTOTYPE(static void get_tcpudp,
-           (struct lsof_context * ctx, char *p, int pr, int clr));
-_PROTOTYPE(static void get_unix, (struct lsof_context * ctx, char *p));
-_PROTOTYPE(static int isainb, (char *a, char *b));
-_PROTOTYPE(static void print_ax25info,
-           (struct lsof_context * ctx, struct ax25sin *ap));
-_PROTOTYPE(static void print_ipxinfo,
-           (struct lsof_context * ctx, struct ipxsin *ip));
-_PROTOTYPE(static char *socket_type_to_str, (uint32_t ty, int *rf));
-_PROTOTYPE(static char *netlink_proto_to_str, (unsigned int pr));
+static struct icmpin *check_icmp(struct lsof_context *ctx, INODETYPE i);
+static struct ipxsin *check_ipx(struct lsof_context *ctx, INODETYPE i);
+static struct nlksin *check_netlink(struct lsof_context *ctx, INODETYPE i);
+static struct packin *check_pack(struct lsof_context *ctx, INODETYPE i);
+static struct rawsin *check_raw(struct lsof_context *ctx, INODETYPE i);
+static struct sctpsin *check_sctp(struct lsof_context *ctx, INODETYPE i);
+static struct tcp_udp *check_tcpudp(struct lsof_context *ctx, INODETYPE i,
+                                    char **p);
+static uxsin_t *check_unix(struct lsof_context *ctx, INODETYPE i);
+static void get_ax25(struct lsof_context *ctx, char *p);
+static void get_icmp(struct lsof_context *ctx, char *p);
+static void get_ipx(struct lsof_context *ctx, char *p);
+static void get_netlink(struct lsof_context *ctx, char *p);
+static void get_pack(struct lsof_context *ctx, char *p);
+static void get_raw(struct lsof_context *ctx, char *p);
+static void get_sctp(struct lsof_context *ctx);
+static char *get_sctpaddrs(char **fp, int i, int nf, int *x);
+static void get_tcpudp(struct lsof_context *ctx, char *p, int pr, int clr);
+static void get_unix(struct lsof_context *ctx, char *p);
+static int isainb(char *a, char *b);
+static void print_ax25info(struct lsof_context *ctx, struct ax25sin *ap);
+static void print_ipxinfo(struct lsof_context *ctx, struct ipxsin *ip);
+static char *socket_type_to_str(uint32_t ty, int *rf);
+static char *netlink_proto_to_str(unsigned int pr);
 #if defined(HASSOSTATE)
-_PROTOTYPE(static char *socket_state_to_str, (unsigned int ss));
+static char *socket_state_to_str(unsigned int ss);
 #endif /* defined(HASSOSTATE) */
-_PROTOTYPE(static char *ethernet_proto_to_str, (unsigned int pr));
+static char *ethernet_proto_to_str(unsigned int pr);
 
 #if defined(HASIPv6)
-_PROTOTYPE(static struct rawsin *check_raw6,
-           (struct lsof_context * ctx, INODETYPE i));
-_PROTOTYPE(static struct tcp_udp6 *check_tcpudp6,
-           (struct lsof_context * ctx, INODETYPE i, char **p));
-_PROTOTYPE(static void get_raw6, (struct lsof_context * ctx, char *p));
-_PROTOTYPE(static void get_tcpudp6,
-           (struct lsof_context * ctx, char *p, int pr, int clr));
-_PROTOTYPE(static int hex_ipv6_to_in6, (char *as, struct in6_addr *ad));
+static struct rawsin *check_raw6(struct lsof_context *ctx, INODETYPE i);
+static struct tcp_udp6 *check_tcpudp6(struct lsof_context *ctx, INODETYPE i,
+                                      char **p);
+static void get_raw6(struct lsof_context *ctx, char *p);
+static void get_tcpudp6(struct lsof_context *ctx, char *p, int pr, int clr);
+static int hex_ipv6_to_in6(char *as, struct in6_addr *ad);
 #endif /* defined(HASIPv6) */
 
 /*

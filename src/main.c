@@ -43,8 +43,8 @@ static char *GOv = (char *)NULL; /* option `:' value pointer */
 static int GOx1 = 1;             /* first opt[][] index */
 static int GOx2 = 0;             /* second opt[][] index */
 
-_PROTOTYPE(static int GetOpt, (int ct, char *opt[], char *rules, int *err));
-_PROTOTYPE(static char *sv_fmt_str, (char *f));
+static int GetOpt(int ct, char *opt[], char *rules, int *err);
+static char *sv_fmt_str(char *f);
 
 /*
  * main() - main function for lsof

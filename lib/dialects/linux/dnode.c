@@ -69,10 +69,10 @@ struct llock **LckH = (struct llock **)NULL; /* PID-hashed locks */
  * Local function prototypes
  */
 
-_PROTOTYPE(static void check_lock, (struct lsof_context * ctx));
+static void check_lock(struct lsof_context *ctx);
 
 #if defined(HASEPTOPTS)
-_PROTOTYPE(static void enter_pinfo, (struct lsof_context * ctx));
+static void enter_pinfo(struct lsof_context *ctx);
 #endif /* defined(HASEPTOPTS) */
 
 /*

@@ -40,12 +40,11 @@ static char copyright[] =
  */
 
 #if defined(PS_STR_XPORT_DATA)
-_PROTOTYPE(static void make_sock,
-           (struct pst_fileinfo2 * f, struct pst_stream *sh,
-            struct pst_socket *s));
+static void make_sock(struct pst_fileinfo2 *f, struct pst_stream *sh,
+                      struct pst_socket *s);
 #endif /* defined(PS_STR_XPORT_DATA) */
 
-_PROTOTYPE(static void printpsproto, (uint32_t p));
+static void printpsproto(uint32_t p);
 
 /*
  * Local macros

@@ -35,8 +35,7 @@ static char copyright[] =
 
 #include "common.h"
 
-_PROTOTYPE(static struct l_dev *finddev,
-           (dev_t * dev, dev_t *rdev, int stream));
+static struct l_dev *finddev(dev_t *dev, dev_t *rdev, int stream);
 
 /*
  * finddev() - look up device by device number

@@ -52,17 +52,17 @@
  * Local function prototypes
  */
 
-_PROTOTYPE(static void closePipes, (void));
-_PROTOTYPE(static int dolstat, (char *path, char *buf, int len));
-_PROTOTYPE(static int dostat, (char *path, char *buf, int len));
-_PROTOTYPE(static int doreadlink, (char *path, char *buf, int len));
-_PROTOTYPE(static int doinchild, (struct lsof_context * ctx, int (*fn)(),
-                                  char *fp, char *rbuf, int rbln));
+static void closePipes(void);
+static int dolstat(char *path, char *buf, int len);
+static int dostat(char *path, char *buf, int len);
+static int doreadlink(char *path, char *buf, int len);
+static int doinchild(struct lsof_context *ctx, int (*fn)(), char *fp,
+                     char *rbuf, int rbln);
 
 #if defined(HASINTSIGNAL)
-_PROTOTYPE(static int handleint, (int sig));
+static int handleint(int sig);
 #else  /* !defined(HASINTSIGNAL) */
-_PROTOTYPE(static void handleint, (int sig));
+static void handleint(int sig);
 #endif /* defined(HASINTSIGNAL) */
 
 /*

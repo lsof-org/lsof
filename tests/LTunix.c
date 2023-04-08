@@ -59,8 +59,8 @@ char *Path[2] = {(char *)NULL, (char *)NULL};
  * Local function prototypes
  */
 
-_PROTOTYPE(static void cleanup, (void));
-_PROTOTYPE(static char *FindUsocks, (void));
+static void cleanup(void);
+static char *FindUsocks(void);
 
 /*
  * Main program

@@ -110,13 +110,11 @@ static struct psfileid RtPsfid; /* "/" psfileid */
  * Local function prototypes
  */
 
-_PROTOTYPE(static void get_kernel_access, (void));
-_PROTOTYPE(static void process_text, (struct pst_status * p));
-_PROTOTYPE(static struct pst_fileinfo2 *read_files,
-           (struct pst_status * p, int *n));
-_PROTOTYPE(static struct pst_status *read_proc, (int *n));
-_PROTOTYPE(static struct pst_vm_status *read_vmreg,
-           (struct pst_status * p, int *n));
+static void get_kernel_access(void);
+static void process_text(struct pst_status *p);
+static struct pst_fileinfo2 *read_files(struct pst_status *p, int *n);
+static struct pst_status *read_proc(int *n);
+static struct pst_vm_status *read_vmreg(struct pst_status *p, int *n);
 
 /*
  * gather_proc_info() -- gather process information
