@@ -36,9 +36,9 @@
  */
 
 /*
- * print_access() - print enum lsof_file_access_mode
+ * access_to_char() - convert enum lsof_file_access_mode to char
  */
-char print_access(enum lsof_file_access_mode access) {
+char access_to_char(enum lsof_file_access_mode access) {
     switch (access) {
     default:
     case LSOF_FILE_ACCESS_NONE:

@@ -846,7 +846,7 @@ void print_file() {
     /*
      * Size or print the file descriptor, access mode and lock status.
      */
-    access = print_access(Lf->access);
+    access = access_to_char(Lf->access);
     if (!PrPass) {
         (void)snpf(buf, sizeof(buf), "%s%c%c", Lf->fd,
                    (Lf->lock == ' ') ? access
