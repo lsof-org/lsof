@@ -921,8 +921,6 @@ struct sonode *so; /* pointer to socket's sonode */
             /*
              * Save UDP state and size information.
              */
-            if (!Fsize)
-                Lf->off_def = 1;
             Lf->lts.type = 1;
             Lf->lts.state.ui = (unsigned int)uc.udp_state;
 
@@ -930,32 +928,30 @@ struct sonode *so; /* pointer to socket's sonode */
             /*
              * Save UDP flags.
              */
-            if (Ftcptpi & TCPTPI_FLAGS) {
-                union {
-                    uint_t flags;
-                    uint_t udpb_debug : 1,     /* SO_DEBUG option */
-                        udpb_dontroute : 1,    /* SO_DONTROUTE option */
-                        udpb_broadcast : 1,    /* SO_BROADCAST option */
-                        udpb_reuseaddr : 1,    /* SO_REUSEADDR option */
-                        udpb_useloopback : 1,  /* SO_USELOOPBACK option */
-                        udpb_dgram_errind : 1, /* SO_DGRAM_ERRIND option */
-                        udpb_pad : 26;         /* pad to bit 31 */
-                } ucf;
+            union {
+                uint_t flags;
+                uint_t udpb_debug : 1,     /* SO_DEBUG option */
+                    udpb_dontroute : 1,    /* SO_DONTROUTE option */
+                    udpb_broadcast : 1,    /* SO_BROADCAST option */
+                    udpb_reuseaddr : 1,    /* SO_REUSEADDR option */
+                    udpb_useloopback : 1,  /* SO_USELOOPBACK option */
+                    udpb_dgram_errind : 1, /* SO_DGRAM_ERRIND option */
+                    udpb_pad : 26;         /* pad to bit 31 */
+            } ucf;
 
-                ucf.flags = uc.udp_bits;
-                if (ucf.udpb_debug)
-                    Lf->lts.opt |= SO_DEBUG;
-                if (ucf.udpb_dontroute)
-                    Lf->lts.opt |= SO_DONTROUTE;
-                if (ucf.udpb_broadcast)
-                    Lf->lts.opt |= SO_BROADCAST;
-                if (ucf.udpb_reuseaddr)
-                    Lf->lts.opt |= SO_REUSEADDR;
-                if (ucf.udpb_useloopback)
-                    Lf->lts.opt |= SO_USELOOPBACK;
-                if (ucf.udpb_dgram_errind)
-                    Lf->lts.opt |= SO_DGRAM_ERRIND;
-            }
+            ucf.flags = uc.udp_bits;
+            if (ucf.udpb_debug)
+                Lf->lts.opt |= SO_DEBUG;
+            if (ucf.udpb_dontroute)
+                Lf->lts.opt |= SO_DONTROUTE;
+            if (ucf.udpb_broadcast)
+                Lf->lts.opt |= SO_BROADCAST;
+            if (ucf.udpb_reuseaddr)
+                Lf->lts.opt |= SO_REUSEADDR;
+            if (ucf.udpb_useloopback)
+                Lf->lts.opt |= SO_USELOOPBACK;
+            if (ucf.udpb_dgram_errind)
+                Lf->lts.opt |= SO_DGRAM_ERRIND;
 #    endif /* defined(HASSOOPT) */
 
             break;
@@ -982,8 +978,6 @@ struct sonode *so; /* pointer to socket's sonode */
             /*
              * Save ICMP size and state information.
              */
-            if (!Fsize)
-                Lf->off_def = 1;
             Lf->lts.type = 1;
             Lf->lts.state.ui = (unsigned int)ic.icmp_state;
             /*
@@ -1015,20 +1009,18 @@ struct sonode *so; /* pointer to socket's sonode */
             /*
              * Save ICMP flags.
              */
-            if (Ftcptpi & TCPTPI_FLAGS) {
-                if (ic.icmp_debug.icmp_Debug)
-                    Lf->lts.opt |= SO_DEBUG;
-                if (ic.icmp_debug.icmp_dontroute)
-                    Lf->lts.opt |= SO_DONTROUTE;
-                if (ic.icmp_debug.icmp_broadcast)
-                    Lf->lts.opt |= SO_BROADCAST;
-                if (ic.icmp_debug.icmp_reuseaddr)
-                    Lf->lts.opt |= SO_REUSEADDR;
-                if (ic.icmp_debug.icmp_useloopback)
-                    Lf->lts.opt |= SO_USELOOPBACK;
-                if (ic.icmp_debug.icmp_dgram_errind)
-                    Lf->lts.opt |= SO_DGRAM_ERRIND;
-            }
+            if (ic.icmp_debug.icmp_Debug)
+                Lf->lts.opt |= SO_DEBUG;
+            if (ic.icmp_debug.icmp_dontroute)
+                Lf->lts.opt |= SO_DONTROUTE;
+            if (ic.icmp_debug.icmp_broadcast)
+                Lf->lts.opt |= SO_BROADCAST;
+            if (ic.icmp_debug.icmp_reuseaddr)
+                Lf->lts.opt |= SO_REUSEADDR;
+            if (ic.icmp_debug.icmp_useloopback)
+                Lf->lts.opt |= SO_USELOOPBACK;
+            if (ic.icmp_debug.icmp_dgram_errind)
+                Lf->lts.opt |= SO_DGRAM_ERRIND;
 #    endif /* defined(HASSOOPT) */
 
             break;
@@ -1067,8 +1059,6 @@ struct sonode *so; /* pointer to socket's sonode */
         /*
          * Save AF_ROUTE size and state information.
          */
-        if (!Fsize)
-            Lf->off_def = 1;
         Lf->lts.type = 1;
         Lf->lts.state.i = (int)rt.rts_state;
         /*
@@ -1085,18 +1075,16 @@ struct sonode *so; /* pointer to socket's sonode */
         /*
          * Save ROUTE flags.
          */
-        if (Ftcptpi & TCPTPI_FLAGS) {
-            if (rt.rts_debug.rts_Debug)
-                Lf->lts.opt |= SO_DEBUG;
-            if (rt.rts_debug.rts_dontroute)
-                Lf->lts.opt |= SO_DONTROUTE;
-            if (rt.rts_debug.rts_broadcast)
-                Lf->lts.opt |= SO_BROADCAST;
-            if (rt.rts_debug.rts_reuseaddr)
-                Lf->lts.opt |= SO_REUSEADDR;
-            if (rt.rts_debug.rts_useloopback)
-                Lf->lts.opt |= SO_USELOOPBACK;
-        }
+        if (rt.rts_debug.rts_Debug)
+            Lf->lts.opt |= SO_DEBUG;
+        if (rt.rts_debug.rts_dontroute)
+            Lf->lts.opt |= SO_DONTROUTE;
+        if (rt.rts_debug.rts_broadcast)
+            Lf->lts.opt |= SO_BROADCAST;
+        if (rt.rts_debug.rts_reuseaddr)
+            Lf->lts.opt |= SO_REUSEADDR;
+        if (rt.rts_debug.rts_useloopback)
+            Lf->lts.opt |= SO_USELOOPBACK;
 #    endif /* defined(HASSOOPT) */
 
         break;
@@ -1521,8 +1509,6 @@ char *ty;                            /* socket type name */
 #endif     /* solaris<110000 */
 
             (void)ent_inaddr(la, (int)ntohs(p), (unsigned char *)NULL, -1, af);
-            if (!Fsize)
-                Lf->off_def = 1;
             if (ucs) {
                 Lf->lts.type = 1;
                 Lf->lts.state.ui = (unsigned int)uc.udp_state;
@@ -1880,18 +1866,13 @@ static void
     Lf->lts.rqs = Lf->lts.sqs = 1;
 #    endif /* defined(HASTCPTPIQ) */
 
-    if (Fsize) {
-        if (Lf->access == 'r')
-            Lf->sz = (SZOFFTYPE)rq;
-        else if (Lf->access == 'w')
-            Lf->sz = (SZOFFTYPE)sq;
-        else
-            Lf->sz = (SZOFFTYPE)(rq + sq);
-        Lf->sz_def = 1;
-    } else
-        Lf->off_def = 1;
-#else  /* !defined(HASTCPTPIQ) && !defined(HASTCPTPIW) */
-    Lf->off_def = 1;
+    if (Lf->access == LSOF_FILE_ACCESS_READ)
+        Lf->sz = (SZOFFTYPE)rq;
+    else if (Lf->access == LSOF_FILE_ACCESS_WRITE)
+        Lf->sz = (SZOFFTYPE)sq;
+    else
+        Lf->sz = (SZOFFTYPE)(rq + sq);
+    Lf->sz_def = 1;
 #endif /* defined(HASTCPTPIQ) || defined(HASTCPTPIW) */
 }
 
@@ -1899,24 +1880,22 @@ static void
  * save_TCP_states() - save TCP states
  */
 
-static void
-    save_TCP_states(tc, fa, tb,
-                    xp) tcp_t *tc; /* pointer to TCP control structure */
-caddr_t *fa;                       /* flags address (may be NULL):
-                                    *   if HAS_CONN_NEW: conn_s *
-                                    *   if !CONN_HAS_NEW: tcph_t *
-                                    */
-tcpb_t *tb;                        /* pointer to TCP base structure (may
-                                    * be NULL) */
-caddr_t *xp;                       /* pointer to struct ip_xmit_attr_s if
-                                    * HAS_CONN_NEW (may be NULL) */
+static void save_TCP_states(tcp_t *tc,   /* pointer to TCP control structure */
+                            caddr_t *fa, /* flags address (may be NULL):
+                                          *   if HAS_CONN_NEW: conn_s *
+                                          *   if !CONN_HAS_NEW: tcph_t *
+                                          */
+                            tcpb_t *tb,  /* pointer to TCP base structure (may
+                                          * be NULL) */
+                            caddr_t *xp) /* pointer to struct ip_xmit_attr_s if
+                                          * HAS_CONN_NEW (may be NULL) */
 {
     if (!tc)
         return;
 
 #if defined(HASSOOPT)
 #    if defined(HAS_CONN_NEW)
-    if (Ftcptpi & TCPTPI_FLAGS && fa) {
+    if (fa) {
         struct conn_s *cs = (struct conn_s *)fa;
 
         if (cs->conn_broadcast)
@@ -1946,7 +1925,7 @@ caddr_t *xp;                       /* pointer to struct ip_xmit_attr_s if
         if (cs->conn_useloopback)
             Lf->lts.opt |= SO_USELOOPBACK;
 #    else /* !defined(HAS_CONN_NEW) */
-    if (Ftcptpi & TCPTPI_FLAGS) {
+    if (1) {
         if (tc->tcp_broadcast)
             Lf->lts.opt |= SO_BROADCAST;
         if (tc->tcp_debug)

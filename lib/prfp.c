@@ -70,17 +70,18 @@ void process_file(fp) KA_T fp; /* kernel file structure address */
         return;
     }
     Lf->off = (SZOFFTYPE)f.f_offset;
+    Lf->off_def = 1;
     if (f.f_count) {
 
         /*
          * Construct access code.
          */
         if ((flag = (f.f_flag & (FREAD | FWRITE))) == FREAD)
-            Lf->access = 'r';
+            Lf->access = LSOF_FILE_ACCESS_READ;
         else if (flag == FWRITE)
-            Lf->access = 'w';
+            Lf->access = LSOF_FILE_ACCESS_WRITE;
         else if (flag == (FREAD | FWRITE))
-            Lf->access = 'u';
+            Lf->access = LSOF_FILE_ACCESS_READ_WRITE;
 
 #    if defined(HASFSTRUCT)
             /*
@@ -88,31 +89,23 @@ void process_file(fp) KA_T fp; /* kernel file structure address */
              */
 
 #        if !defined(HASNOFSCOUNT)
-        if (Fsv & FSV_CT) {
-            Lf->fct = (long)f.f_count;
-            Lf->fsv |= FSV_CT;
-        }
+        Lf->fct = (long)f.f_count;
+        Lf->fsv |= FSV_CT;
 #        endif /* !defined(HASNOFSCOUNT) */
 
 #        if !defined(HASNOFSADDR)
-        if (Fsv & FSV_FA) {
-            Lf->fsa = fp;
-            Lf->fsv |= FSV_FA;
-        }
+        Lf->fsa = fp;
+        Lf->fsv |= FSV_FA;
 #        endif /* !defined(HASNOFSADDR) */
 
 #        if !defined(HASNOFSFLAGS)
-        if (Fsv & FSV_FG) {
-            Lf->ffg = (long)f.f_flag;
-            Lf->fsv |= FSV_FG;
-        }
+        Lf->ffg = (long)f.f_flag;
+        Lf->fsv |= FSV_FG;
 #        endif /* !defined(HASNOFSFLAGS) */
 
 #        if !defined(HASNOFSNADDR)
-        if (Fsv & FSV_NI) {
-            Lf->fna = (KA_T)f.f_data;
-            Lf->fsv |= FSV_NI;
-        }
+        Lf->fna = (KA_T)f.f_data;
+        Lf->fsv |= FSV_NI;
 #        endif /* !defined(HASNOFSNADDR) */
 #    endif     /* defined(HASFSTRUCT) */
 

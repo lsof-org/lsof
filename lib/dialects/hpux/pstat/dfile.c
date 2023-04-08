@@ -617,7 +617,7 @@ KA_T na;                /* node address */
     /*
      * Save node ID.
      */
-    if (na && (Fsv & FSV_NI)) {
+    if (na) {
         Lf->fna = na;
         Lf->fsv |= FSV_NI;
     }
@@ -692,16 +692,14 @@ KA_T na;                /* node address */
     /*
      * Save link count.
      */
-    if (Fnlink) {
 
-        /*
-         * Ignore a zero link count only if the file is a FIFO.
-         */
-        if ((Lf->nlink = (long)pd->psfd_nlink) || (Ntype != N_FIFO))
-            Lf->nlink_def = 1;
-        if (Lf->nlink_def && Nlink && (Lf->nlink < Nlink))
-            Lf->sf |= SELNLINK;
-    }
+    /*
+     * Ignore a zero link count only if the file is a FIFO.
+     */
+    if ((Lf->nlink = (long)pd->psfd_nlink) || (Ntype != N_FIFO))
+        Lf->nlink_def = 1;
+    if (Lf->nlink_def && Nlink && (Lf->nlink < Nlink))
+        Lf->sf |= SELNLINK;
     /*
      * Save file system identity.
      */
@@ -724,19 +722,14 @@ KA_T na;                /* node address */
      * If no offset has been activated and no size saved, activate the offset or
      * save the size.
      */
-    if (!Lf->off_def && !Lf->sz_def) {
-        if (Foffset)
-            Lf->off_def = 1;
-        else {
-            switch (Ntype) {
-            case N_CHR:
-            case N_FIFO:
-                Lf->off_def = 1;
-                break;
-            default:
-                Lf->sz = (SZOFFTYPE)pd->psfd_size;
-                Lf->sz_def = 1;
-            }
+    if (!Lf->sz_def) {
+        switch (Ntype) {
+        case N_CHR:
+        case N_FIFO:
+            break;
+        default:
+            Lf->sz = (SZOFFTYPE)pd->psfd_size;
+            Lf->sz_def = 1;
         }
     }
     /*

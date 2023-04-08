@@ -466,59 +466,47 @@ process_overlaid_node:
     /*
      * Obtain the file size.
      */
-    if (Foffset)
-        Lf->off_def = 1;
-    else {
-        switch (Ntype) {
-        case N_FIFO:
-            if (!Fsize)
-                Lf->off_def = 1;
-            break;
-        case N_PROC:
-            Lf->sz = kf->kf_un.kf_file.kf_file_size;
-            Lf->sz_def = 1;
-            break;
+    switch (Ntype) {
+    case N_FIFO:
+        break;
+    case N_PROC:
+        Lf->sz = kf->kf_un.kf_file.kf_file_size;
+        Lf->sz_def = 1;
+        break;
 #if defined(HASPSEUDOFS)
-        case N_PSEU:
-            Lf->sz = 0;
-            Lf->sz_def = 1;
-            break;
+    case N_PSEU:
+        Lf->sz = 0;
+        Lf->sz_def = 1;
+        break;
 #endif /* defined(PSEUDOFS) */
-        case N_REGLR:
+    case N_REGLR:
 #if defined(HAS_TMPFS)
-        case N_TMP:
+    case N_TMP:
 #endif /* defined(HAS_TMPFS) */
-            if (kf_vtype == KF_VTYPE_VREG || kf_vtype == KF_VTYPE_VDIR) {
-                Lf->sz = kf->kf_un.kf_file.kf_file_size;
-                Lf->sz_def = 1;
-            } else if ((kf_vtype == KF_VTYPE_VCHR ||
-                        kf_vtype == KF_VTYPE_VBLK) &&
-                       !Fsize) {
-                Lf->off_def = 1;
-            }
-            break;
-        default:
+        if (kf_vtype == KF_VTYPE_VREG || kf_vtype == KF_VTYPE_VDIR) {
             Lf->sz = kf->kf_un.kf_file.kf_file_size;
             Lf->sz_def = 1;
         }
+        break;
+    default:
+        Lf->sz = kf->kf_un.kf_file.kf_file_size;
+        Lf->sz_def = 1;
     }
     /*
      * Record the link count.
      */
-    if (Fnlink) {
-        /* Read nlink from kernel if provided, otherwise call stat() */
-#if	defined(HAS_KF_FILE_NLINK)
-        Lf->nlink = kf->kf_un.kf_file.kf_file_nlink;
-        Lf->nlink_def = 1;
+    /* Read nlink from kernel if provided, otherwise call stat() */
+#if defined(HAS_KF_FILE_NLINK)
+    Lf->nlink = kf->kf_un.kf_file.kf_file_nlink;
+    Lf->nlink_def = 1;
 #else
-        if (kf->kf_path[0] && stat(kf->kf_path, &st) == 0) {
-            Lf->nlink = st.st_nlink;
-            Lf->nlink_def = 1;
-        }
-#endif
-        if (Lf->nlink_def && Nlink && (Lf->nlink < Nlink))
-            Lf->sf |= SELNLINK;
+    if (kf->kf_path[0] && stat(kf->kf_path, &st) == 0) {
+        Lf->nlink = st.st_nlink;
+        Lf->nlink_def = 1;
     }
+#endif
+    if (Lf->nlink_def && Nlink && (Lf->nlink < Nlink))
+        Lf->sf |= SELNLINK;
     /*
      * Record an NFS file selection.
      */
@@ -675,19 +663,15 @@ void process_pipe(struct kinfo_file *kf, KA_T pa) {
     (void)snpf(dev_ch, sizeof(dev_ch), "%s",
                print_kptr(kf->kf_un.kf_pipe.kf_pipe_addr, (char *)NULL, 0));
     enter_dev_ch(dev_ch);
-    if (Foffset)
-        Lf->off_def = 1;
-    else {
 #if __FreeBSD_version >= 1400062
-        Lf->sz = (SZOFFTYPE)kf->kf_un.kf_pipe.kf_pipe_buffer_size;
-        Lf->sz_def = 1;
+    Lf->sz = (SZOFFTYPE)kf->kf_un.kf_pipe.kf_pipe_buffer_size;
+    Lf->sz_def = 1;
 #else  /* __FreeBSD_version < 1400062 */
-        if (have_kpipe) {
-            Lf->sz = (SZOFFTYPE)p.pipe_buffer.size;
-            Lf->sz_def = 1;
-        }
-#endif /* __FreeBSD_version >= 1400062 */
+    if (have_kpipe) {
+        Lf->sz = (SZOFFTYPE)p.pipe_buffer.size;
+        Lf->sz_def = 1;
     }
+#endif /* __FreeBSD_version >= 1400062 */
     if (kf->kf_un.kf_pipe.kf_pipe_peer)
         (void)snpf(
             Namech, Namechl, "->%s",
@@ -752,7 +736,6 @@ void process_pts(struct kinfo_file *kf) {
     Lf->inode = (INODETYPE)kf->kf_un.kf_pts.kf_pts_dev;
     Lf->inp_ty = Lf->dev_def = Lf->rdev_def = 1;
     Lf->ntype = N_CHR;
-    Lf->off_def = 1;
     Lf->rdev = kf->kf_un.kf_pts.kf_pts_dev;
     DCunsafe = 1;
 }

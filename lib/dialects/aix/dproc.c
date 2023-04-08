@@ -722,12 +722,11 @@ void gather_proc_info() {
                 if (Lf->sf) {
 
 #if defined(HASFSTRUCT)
-                    if (Fsv & FSV_FG)
 
 #    if AIXV < 4300
-                        Lf->pof = (long)(Up->u_ufd[i].flags & 0x7f);
+                    Lf->pof = (long)(Up->u_ufd[i].flags & 0x7f);
 #    else  /* AIXV>=4300 */
-                        Lf->pof = (long)(fds->pi_ufd[i].flags & 0x7f);
+                    Lf->pof = (long)(fds->pi_ufd[i].flags & 0x7f);
 #    endif /* AIXV<4300 */
 #endif     /* defined(HASFSTRUCT) */
 
@@ -1363,7 +1362,7 @@ static void process_text(pid) pid_t pid; /* process PID */
          */
         (void)snpf(fd, sizeof(fd), "L%02d", i++);
         alloc_lfile(fd, -1);
-        Lf->dev_def = Lf->inp_ty = Lf->nlink_def = Lf->sz_def = 1;
+        Lf->dev_def = Lf->inp_ty = Lf->nlink_def = 1;
         Lf->dev = sb.st_dev;
         Lf->inode = (INODETYPE)sb.st_ino;
         (void)snpf(Lf->type, sizeof(Lf->type), "VREG");
@@ -1380,6 +1379,7 @@ static void process_text(pid) pid_t pid; /* process PID */
                 nm = sp->nm;
                 Lf->nlink = sp->nlink;
                 Lf->sz = sp->sz;
+                Lf->sz_def = 1;
                 break;
             }
         }
@@ -1392,6 +1392,7 @@ static void process_text(pid) pid_t pid; /* process PID */
             nm = pp;
             Lf->nlink_def = sb.st_nlink;
             Lf->sz = sb.st_size;
+            Lf->sz_def = 1;
         }
         /*
          * Do selection tests: NFS; link count; file name; and file system.

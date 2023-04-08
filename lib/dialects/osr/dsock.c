@@ -255,24 +255,17 @@ void process_socket(i) struct inode *i; /* inode pointer */
             Lf->lts.rqs = Lf->lts.sqs = 1;
 #endif /* defined(HASTCPTPIQ) */
 
-            if (Fsize) {
-                if (Lf->access == 'r')
-                    Lf->sz = (SZOFFTYPE)t.t_iqsize;
-                else if (Lf->access == 'w')
-                    Lf->sz = (SZOFFTYPE)t.t_qsize;
-                else
-                    Lf->sz = (SZOFFTYPE)(t.t_iqsize + t.t_qsize);
-                Lf->sz_def = 1;
-            } else
-                Lf->off_def = 1;
+            if (Lf->access == LSOF_FILE_ACCESS_READ)
+                Lf->sz = (SZOFFTYPE)t.t_iqsize;
+            else if (Lf->access == LSOF_FILE_ACCESS_WRITE)
+                Lf->sz = (SZOFFTYPE)t.t_qsize;
+            else
+                Lf->sz = (SZOFFTYPE)(t.t_iqsize + t.t_qsize);
+            Lf->sz_def = 1;
         } else if (shs) {
-            if (Fsize) {
-                Lf->sz = (SZOFFTYPE)sh.q_count;
-                Lf->sz_def = 1;
-            } else
-                Lf->off_def = 1;
-        } else
-            Lf->off_def = 1;
+            Lf->sz = (SZOFFTYPE)sh.q_count;
+            Lf->sz_def = 1;
+        }
         break;
 
 #if OSRV >= 500
@@ -284,7 +277,6 @@ void process_socket(i) struct inode *i; /* inode pointer */
          * Read Unix protocol control block and the Unix address structure.
          */
         enter_dev_ch(print_kptr(sa, (char *)NULL, 0));
-        Lf->off_def = 1;
         if (s.so_stp && !readstdata((KA_T)s.so_stp, &sd) &&
             !readsthead((KA_T)sd.sd_wrq, &sh)) {
             if (!sh.q_ptr || kread((KA_T)sh.q_ptr, (char *)&ud, sizeof(ud))) {

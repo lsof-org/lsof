@@ -55,30 +55,27 @@ void enter_file_info(
      */
     f = pfi->fi_openflags & (FREAD | FWRITE);
     if (f == FREAD)
-        Lf->access = 'r';
+        Lf->access = LSOF_FILE_ACCESS_READ;
     else if (f == FWRITE)
-        Lf->access = 'w';
+        Lf->access = LSOF_FILE_ACCESS_WRITE;
     else if (f == (FREAD | FWRITE))
-        Lf->access = 'u';
+        Lf->access = LSOF_FILE_ACCESS_READ_WRITE;
     /*
      * Save the offset / size
      */
     Lf->off = (SZOFFTYPE)pfi->fi_offset;
-    if (Foffset)
-        Lf->off_def = 1;
+    Lf->off_def = 1;
     /*
      * Save file structure information as requested.
      */
-    if (Fsv & FSV_FG) {
-        Lf->ffg = (long)pfi->fi_openflags;
-        Lf->fsv |= FSV_FG;
+    Lf->ffg = (long)pfi->fi_openflags;
+    Lf->fsv |= FSV_FG;
 
 #if defined(PROC_FP_GUARDED)
-        if (pfi->fi_status & PROC_FP_GUARDED) {
-            Lf->guardflags = pfi->fi_guardflags;
-        }
-#endif /* defined(PROC_FP_GUARDED) */
+    if (pfi->fi_status & PROC_FP_GUARDED) {
+        Lf->guardflags = pfi->fi_guardflags;
     }
+#endif /* defined(PROC_FP_GUARDED) */
     Lf->pof = (long)pfi->fi_status;
 }
 
@@ -164,12 +161,10 @@ void enter_vnode_info(
     /*
      * Save link count, as requested.
      */
-    if (Fnlink) {
-        Lf->nlink = vip->vip_vi.vi_stat.vst_nlink;
-        Lf->nlink_def = 1;
-        if (Nlink && (Lf->nlink < Nlink))
-            Lf->sf |= SELNLINK;
-    }
+    Lf->nlink = vip->vip_vi.vi_stat.vst_nlink;
+    Lf->nlink_def = 1;
+    if (Nlink && (Lf->nlink < Nlink))
+        Lf->sf |= SELNLINK;
     /*
      * If a device number is defined, locate file system and save its identity.
      */
@@ -190,7 +185,6 @@ void enter_vnode_info(
     switch (Ntype) {
     case N_CHR:
     case N_FIFO:
-        Lf->off_def = 1;
         break;
     default:
         Lf->sz = (SZOFFTYPE)vip->vip_vi.vi_stat.vst_size;
@@ -399,12 +393,8 @@ static void process_pipe_common(pi) struct pipe_fdinfo *pi;
     /*
      * Enable offset or size reporting.
      */
-    if (Foffset)
-        Lf->off_def = 1;
-    else {
-        Lf->sz = (SZOFFTYPE)pi->pipeinfo.pipe_stat.vst_blksize;
-        Lf->sz_def = 1;
-    }
+    Lf->sz = (SZOFFTYPE)pi->pipeinfo.pipe_stat.vst_blksize;
+    Lf->sz_def = 1;
     /*
      * If there is a peer handle, enter it in as NAME column information.
      */
@@ -514,12 +504,6 @@ int32_t fd;                         /* FD */
         (void)snpf(Namech, Namechl, "%s", ps.pseminfo.psem_name);
         enter_nm(Namech);
     }
-    /*
-     * Unless file size has been specifically requested, enable the printing of
-     * file offset.
-     */
-    if (!Fsize)
-        Lf->off_def = 1;
 }
 
 /*
@@ -550,12 +534,8 @@ static void process_pshm_common(ps) struct pshm_fdinfo *ps;
     /*
      * Enable offset or size reporting.
      */
-    if (Foffset)
-        Lf->off_def = 1;
-    else {
-        Lf->sz = (SZOFFTYPE)ps->pshminfo.pshm_stat.vst_size;
-        Lf->sz_def = 1;
-    }
+    Lf->sz = (SZOFFTYPE)ps->pshminfo.pshm_stat.vst_size;
+    Lf->sz_def = 1;
 }
 
 void process_pshm(pid, fd) int pid; /* PID */

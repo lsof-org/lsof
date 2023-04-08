@@ -1155,76 +1155,67 @@ get_lock_state:
     /*
      * Obtain the file size.
      */
-    if (Foffset)
-        Lf->off_def = 1;
-    else {
-        switch (Ntype) {
+    switch (Ntype) {
 
-        case N_FIFO:
-        case N_STREAM:
-            if (!Fsize)
-                Lf->off_def = 1;
-            break;
-        case N_NFS:
-            Lf->sz = (SZOFFTYPE)r.r_attr.va_size;
-            Lf->sz_def = sd;
-            break;
+    case N_FIFO:
+    case N_STREAM:
+        break;
+    case N_NFS:
+        Lf->sz = (SZOFFTYPE)r.r_attr.va_size;
+        Lf->sz_def = sd;
+        break;
 
 #if defined(HASPROCFS)
-        case N_PROC:
+    case N_PROC:
 
 #    if UNIXWAREV < 70103
-            Lf->sz = (SZOFFTYPE)i.size;
-            Lf->sz_def = sd;
+        Lf->sz = (SZOFFTYPE)i.size;
+        Lf->sz_def = sd;
 #    else  /* UNIXWAREV>=70103 */
-            Lf->sz = (SZOFFTYPE)0;
-            Lf->sz_def = 0;
+        Lf->sz = (SZOFFTYPE)0;
+        Lf->sz_def = 0;
 #    endif /* UNIXWAREV<70103 */
 
-            break;
+        break;
 #endif /* defined(HASPROCFS) */
 
-        case N_CFS:
-        case N_REGLR:
-            if ((type == VREG) || (type == VDIR)) {
-                if (!ni) {
-                    Lf->sz = (SZOFFTYPE)i.size;
-                    Lf->sz_def = (Ntype == N_CFS) ? i.size_def : sd;
-                }
-            } else if (((type == VBLK) || (type == VCHR)) && !Fsize)
-                Lf->off_def = 1;
-            break;
+    case N_CFS:
+    case N_REGLR:
+        if ((type == VREG) || (type == VDIR)) {
+            if (!ni) {
+                Lf->sz = (SZOFFTYPE)i.size;
+                Lf->sz_def = (Ntype == N_CFS) ? i.size_def : sd;
+            }
         }
+        break;
     }
     /*
      * Record link count.
      */
-    if (Fnlink) {
-        switch (Ntype) {
-        case N_FIFO:
-            Lf->nlink = (long)f.fn_open;
-            Lf->nlink_def = 1;
-            break;
-        case N_NFS:
-            Lf->nlink = (long)r.r_attr.va_nlink;
-            Lf->nlink_def = 1;
-            break;
+    switch (Ntype) {
+    case N_FIFO:
+        Lf->nlink = (long)f.fn_open;
+        Lf->nlink_def = 1;
+        break;
+    case N_NFS:
+        Lf->nlink = (long)r.r_attr.va_nlink;
+        Lf->nlink_def = 1;
+        break;
 
 #if defined(HASPROCFS)
-        case N_PROC:
+    case N_PROC:
 #endif /* defined(HASPROCFS) */
 
-        case N_CFS:
-        case N_REGLR:
-            if (!ni) {
-                Lf->nlink = (long)i.nlink;
-                Lf->nlink_def = i.nlink_def;
-            }
-            break;
+    case N_CFS:
+    case N_REGLR:
+        if (!ni) {
+            Lf->nlink = (long)i.nlink;
+            Lf->nlink_def = i.nlink_def;
         }
-        if (Nlink && Lf->nlink_def && (Lf->nlink < Nlink))
-            Lf->sf |= SELNLINK;
+        break;
     }
+    if (Nlink && Lf->nlink_def && (Lf->nlink < Nlink))
+        Lf->sf |= SELNLINK;
     /*
      * Record an NFS file selection.
      */

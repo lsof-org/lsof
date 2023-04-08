@@ -54,19 +54,15 @@ void process_kqueue_file(struct kinfo_file *file) {
         enter_dev_ch(buf);
     }
 
-    /* Fill offset */
-    Lf->off = 0;
-    Lf->off_def = 1;
-
     /*
      * Construct access code.
      */
     if ((flag = (file->f_flag & (FREAD | FWRITE))) == FREAD)
-        Lf->access = 'r';
+        Lf->access = LSOF_FILE_ACCESS_READ;
     else if (flag == FWRITE)
-        Lf->access = 'w';
+        Lf->access = LSOF_FILE_ACCESS_WRITE;
     else if (flag == (FREAD | FWRITE))
-        Lf->access = 'u';
+        Lf->access = LSOF_FILE_ACCESS_READ_WRITE;
 
     /* Finish */
     if (Lf->sf)

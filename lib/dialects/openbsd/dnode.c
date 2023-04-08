@@ -85,11 +85,11 @@ void process_vnode(struct kinfo_file *file) {
      */
     if (file->fd_fd >= 0) {
         if ((flag = (file->f_flag & (FREAD | FWRITE))) == FREAD)
-            Lf->access = 'r';
+            Lf->access = LSOF_FILE_ACCESS_READ;
         else if (flag == FWRITE)
-            Lf->access = 'w';
+            Lf->access = LSOF_FILE_ACCESS_WRITE;
         else if (flag == (FREAD | FWRITE))
-            Lf->access = 'u';
+            Lf->access = LSOF_FILE_ACCESS_READ_WRITE;
     }
 
     /* Fill file size/offset */
@@ -100,13 +100,10 @@ void process_vnode(struct kinfo_file *file) {
             Lf->off_def = 1;
         }
     } else {
-        if (Foffset) {
-            Lf->off = file->f_offset;
-            Lf->off_def = 1;
-        } else {
-            Lf->sz = file->va_size;
-            Lf->sz_def = 1;
-        }
+        Lf->off = file->f_offset;
+        Lf->off_def = 1;
+        Lf->sz = file->va_size;
+        Lf->sz_def = 1;
     }
 
     /* Fill inode */
@@ -146,14 +143,12 @@ void process_vnode(struct kinfo_file *file) {
     Lf->lmi_srch = 1;
 
     /* Fill number of links */
-    if (Fnlink) {
-        Lf->nlink = file->va_nlink;
-        Lf->nlink_def = 1;
+    Lf->nlink = file->va_nlink;
+    Lf->nlink_def = 1;
 
-        /* Handle link count filter */
-        if (Nlink && (Lf->nlink < Nlink))
-            Lf->sf |= SELNLINK;
-    }
+    /* Handle link count filter */
+    if (Nlink && (Lf->nlink < Nlink))
+        Lf->sf |= SELNLINK;
 
     /* Handle name match, must be done late, because if_file_named checks
      * Lf->dev etc. */

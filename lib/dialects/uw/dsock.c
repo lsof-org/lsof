@@ -838,22 +838,18 @@ struct queue *q;                     /* queue at end of stream */
      * Save size information.
      */
     if (ts) {
-        if (Fsize) {
 
 #if UNIXWAREV >= 70000
 #    define t_outqsize t_qsize
 #endif /* UNIXWAREV>=70000 */
 
-            if (Lf->access == 'r')
-                Lf->sz = (SZOFFTYPE)t.t_iqsize;
-            else if (Lf->access == 'w')
-                Lf->sz = (SZOFFTYPE)t.t_outqsize;
-            else
-                Lf->sz = (SZOFFTYPE)(t.t_iqsize + t.t_outqsize);
-            Lf->sz_def = 1;
-
-        } else
-            Lf->off_def = 1;
+        if (Lf->access == LSOF_FILE_ACCESS_READ)
+            Lf->sz = (SZOFFTYPE)t.t_iqsize;
+        else if (Lf->access == LSOF_FILE_ACCESS_WRITE)
+            Lf->sz = (SZOFFTYPE)t.t_outqsize;
+        else
+            Lf->sz = (SZOFFTYPE)(t.t_iqsize + t.t_outqsize);
+        Lf->sz_def = 1;
 
 #if defined(HASTCPTPIQ)
         Lf->lts.rq = (unsigned long)t.t_iqsize;
@@ -883,11 +879,10 @@ struct queue *q;                     /* queue at end of stream */
         Lf->lts.topt = (unsigned int)t.t_flags;
 #endif /* defined(HASTCPOPT) */
 
-    } else if (Fsize) {
+    } else {
         Lf->sz = (SZOFFTYPE)q->q_count;
         Lf->sz_def = 1;
-    } else
-        Lf->off_def = 1;
+    }
     enter_nm(Namech);
     return;
 }
@@ -963,8 +958,6 @@ KA_T na;         /* kernel vnode address */
     if (Funix)
         Lf->sf |= SELUNX;
     Lf->is_stream = 0;
-    if (!Fsize)
-        Lf->off_def = 1;
     enter_dev_ch(print_kptr(sa, (char *)NULL, 0));
     /*
      * Process the local address.

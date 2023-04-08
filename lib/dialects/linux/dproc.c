@@ -1279,10 +1279,8 @@ char *tcmd;  /* task command, if non-NULL) */
 
                 if ((av = get_fdinfo(pathi, fdinfo_mask, &fi)) & FDINFO_POS) {
                     if (efs) {
-                        if (Foffset) {
-                            lfr->off = (SZOFFTYPE)fi.pos;
-                            lfr->off_def = 1;
-                        }
+                        lfr->off = (SZOFFTYPE)fi.pos;
+                        lfr->off_def = 1;
                     } else {
                         ls |= SB_SIZE;
                         lsb.st_size = fi.pos;
@@ -1291,7 +1289,7 @@ char *tcmd;  /* task command, if non-NULL) */
                     ls &= ~SB_SIZE;
 
 #if !defined(HASNOFSFLAGS)
-                if ((av & FDINFO_FLAGS) && (Fsv & FSV_FG)) {
+                if (av & FDINFO_FLAGS) {
                     if (efs) {
                         lfr->ffg = (long)fi.flags;
                         lfr->fsv |= FSV_FG;
