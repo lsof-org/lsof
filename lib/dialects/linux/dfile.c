@@ -198,26 +198,28 @@ void hashSfile(struct lsof_context *ctx) {
 /*
  * is_file_named() - is this file named?
  */
-int is_file_named(struct lsof_context *ctx,
-                  /* search type:	0 = only by device
-                   *		    and inode
-                   *		1 = by device and
-                   *		    inode, or by file
-                   *		    system device and
-                   *		    path for NFS file
-                   *		    systems
-                   *		2 = only by path
-                   */
-                  int search_type,
-                  /* path name (device and inode are
-                   * identified via *Lf) */
-                  char *path,
-                  /* NFS file system (NULL if not) */
-                  struct mounts *nfs_mount,
-                  /* character or block type file --
-                   * VCHR or VBLK vnode, or S_IFCHR
-                   * or S_IFBLK inode */
-                  int cd) {
+int is_file_named(
+    /* context */
+    struct lsof_context *ctx,
+    /* search type:	0 = only by device
+     *		    and inode
+     *		1 = by device and
+     *		    inode, or by file
+     *		    system device and
+     *		    path for NFS file
+     *		    systems
+     *		2 = only by path
+     */
+    int search_type,
+    /* path name (device and inode are
+     * identified via *Lf) */
+    char *path,
+    /* NFS file system (NULL if not) */
+    struct mounts *nfs_mount,
+    /* character or block type file --
+     * VCHR or VBLK vnode, or S_IFCHR
+     * or S_IFBLK inode */
+    int cd) {
     char *ep;
     int f = 0;
     struct mounts *smp;
@@ -346,10 +348,11 @@ int is_file_named(struct lsof_context *ctx,
  *	 since it is called by printname() in print.c, an ersatz one
  *	 is provided here.
  */
-int printdevname(struct lsof_context *ctx, dev_t *dev, /* device */
-                 dev_t *rdev,                          /* raw device */
-                 int newline,   /* 1 = follow with '\n' */
-                 int node_type) /* node type: N_BLK or N_chr */
+int printdevname(struct lsof_context *ctx, /* context */
+                 dev_t *dev,               /* device */
+                 dev_t *rdev,              /* raw device */
+                 int newline,              /* 1 = follow with '\n' */
+                 int node_type)            /* node type: N_BLK or N_chr */
 {
     char buf[128];
 

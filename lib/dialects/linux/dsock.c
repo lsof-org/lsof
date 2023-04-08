@@ -1311,7 +1311,7 @@ static void enter_netsinfo(struct lsof_context *ctx, struct tcp_udp *tp) {
 /*
  * find_netsepti(lf) -- find locally used INET socket endpoint info
  */
-static struct tcp_udp *find_netsepti(struct lsof_context *ctx,
+static struct tcp_udp *find_netsepti(struct lsof_context *ctx, /* context */
                                      struct lfile *lf) /* socket's lfile */
 {
     struct tcp_udp *tp;
@@ -1349,9 +1349,9 @@ static void get_netpeeri(struct lsof_context *ctx) {
 /*
  * prt_nets() -- print locally used INET socket information
  */
-static void prt_nets(struct lsof_context *ctx,
-                     struct tcp_udp *p, /* peer info */
-                     int mk)            /* 1 == mark for later processing */
+static void prt_nets(struct lsof_context *ctx, /* context */
+                     struct tcp_udp *p,        /* peer info */
+                     int mk) /* 1 == mark for later processing */
 {
     prt_nets_common(ctx, p, mk, tcp_udp_get_pxinfo, CHEND_NETS, EPT_NETS_END);
 }
@@ -1361,11 +1361,11 @@ static void prt_nets(struct lsof_context *ctx,
  *			it to selected INET socket files and selecting INET
  *			socket end point files (if requested)
  */
-void process_netsinfo(struct lsof_context *ctx,
-                      int f) /* function:
-                              *     0 == process selected socket
-                              *     1 == process socket end point
-                              */
+void process_netsinfo(struct lsof_context *ctx, /* context */
+                      int f)                    /* function:
+                                                 *     0 == process selected socket
+                                                 *     1 == process socket end point
+                                                 */
 {
     struct tcp_udp *p; /* peer INET socket info pointer */
 
@@ -1439,7 +1439,7 @@ static void enter_nets6info(struct lsof_context *ctx, struct tcp_udp6 *tp) {
 /*
  * find_nets6epti(lf) -- find locally used INET6 socket endpoint info
  */
-static struct tcp_udp6 *find_nets6epti(struct lsof_context *ctx,
+static struct tcp_udp6 *find_nets6epti(struct lsof_context *ctx, /* context */
                                        struct lfile *lf) /* socket's lfile */
 {
     struct tcp_udp6 *tp;
@@ -1478,9 +1478,9 @@ static void get_net6peeri(struct lsof_context *ctx) {
 /*
  * prt_nets6() -- print locally used INET6 socket information
  */
-static void prt_nets6(struct lsof_context *ctx,
-                      struct tcp_udp6 *p, /* peer info */
-                      int mk)             /* 1 == mark for later processing */
+static void prt_nets6(struct lsof_context *ctx, /* context */
+                      struct tcp_udp6 *p,       /* peer info */
+                      int mk) /* 1 == mark for later processing */
 {
     prt_nets_common(ctx, p, mk, tcp_udp6_get_pxinfo, CHEND_NETS6,
                     EPT_NETS6_END);
@@ -1491,11 +1491,11 @@ static void prt_nets6(struct lsof_context *ctx,
  *			it to selected INET6 socket files and selecting INET6
  *			socket end point files (if requested)
  */
-void process_nets6info(struct lsof_context *ctx,
-                       int f) /* function:
-                               *     0 == process selected socket
-                               *     1 == process socket end point
-                               */
+void process_nets6info(struct lsof_context *ctx, /* context */
+                       int f)                    /* function:
+                                                  *     0 == process selected socket
+                                                  *     1 == process socket end point
+                                                  */
 {
     struct tcp_udp6 *p; /* peer INET6 socket info pointer */
 
@@ -1544,8 +1544,8 @@ void process_nets6info(struct lsof_context *ctx,
 /*
  * get_icmp() - get ICMP net info
  */
-static void get_icmp(struct lsof_context *ctx,
-                     char *p) /* /proc/net/icmp path */
+static void get_icmp(struct lsof_context *ctx, /* context */
+                     char *p)                  /* /proc/net/icmp path */
 {
     char buf[MAXPATHLEN], *ep, **fp, *la, *ra;
     int fl = 1;
@@ -1672,7 +1672,8 @@ static void get_icmp(struct lsof_context *ctx,
 /*
  * get_ipx() - get /proc/net/ipx info
  */
-static void get_ipx(struct lsof_context *ctx, char *p) /* /proc/net/ipx path */
+static void get_ipx(struct lsof_context *ctx, /* context */
+                    char *p)                  /* /proc/net/ipx path */
 {
     char buf[MAXPATHLEN], *ep, **fp, *la, *ra;
     int fl = 1;
@@ -1819,8 +1820,8 @@ static void get_ipx(struct lsof_context *ctx, char *p) /* /proc/net/ipx path */
 /*
  * get_netlink() - get /proc/net/netlink info
  */
-static void get_netlink(struct lsof_context *ctx,
-                        char *p) /* /proc/net/netlink path */
+static void get_netlink(struct lsof_context *ctx, /* context */
+                        char *p)                  /* /proc/net/netlink path */
 {
     char buf[MAXPATHLEN], *ep, **fp;
     int fr = 1;
@@ -1912,7 +1913,8 @@ static void get_netlink(struct lsof_context *ctx,
 /*
  * get_pack() - get /proc/net/packet info
  */
-static void get_pack(struct lsof_context *ctx, char *p) /* /proc/net/raw path */
+static void get_pack(struct lsof_context *ctx, /* context */
+                     char *p)                  /* /proc/net/raw path */
 {
     char buf[MAXPATHLEN], *ep, **fp;
     int fl = 1;
@@ -2010,7 +2012,8 @@ static void get_pack(struct lsof_context *ctx, char *p) /* /proc/net/raw path */
 /*
  * get_raw() - get /proc/net/raw info
  */
-static void get_raw(struct lsof_context *ctx, char *p) /* /proc/net/raw path */
+static void get_raw(struct lsof_context *ctx, /* context */
+                    char *p)                  /* /proc/net/raw path */
 {
     char buf[MAXPATHLEN], *ep, **fp, *la, *ra, *sp;
     int h;
@@ -2510,11 +2513,11 @@ static char *get_sctpaddrs(char **fp, /* field pointers */
 /*
  * get_tcpudp() - get IPv4 TCP, UDP or UDPLITE net info
  */
-static void get_tcpudp(struct lsof_context *ctx,
-                       char *p, /* /proc/net/{tcp,udp} path */
-                       int pr,  /* protocol: 0 = TCP, 1 = UDP,
-                                 *           2 = UDPLITE */
-                       int clr) /* 1 == clear the table */
+static void get_tcpudp(struct lsof_context *ctx, /* context */
+                       char *p,                  /* /proc/net/{tcp,udp} path */
+                       int pr,                   /* protocol: 0 = TCP, 1 = UDP,
+                                                  *           2 = UDPLITE */
+                       int clr)                  /* 1 == clear the table */
 {
     char buf[MAXPATHLEN], *ep, **fp;
     unsigned long faddr, fport, laddr, lport, rxq, state, txq;
@@ -2716,7 +2719,8 @@ static void get_tcpudp(struct lsof_context *ctx,
 /*
  * get_raw6() - get /proc/net/raw6 info
  */
-static void get_raw6(struct lsof_context *ctx, char *p) /* /proc/net/raw path */
+static void get_raw6(struct lsof_context *ctx, /* context */
+                     char *p)                  /* /proc/net/raw path */
 {
     char buf[MAXPATHLEN], *ep, **fp, *la, *ra, *sp;
     int h;
@@ -2858,8 +2862,8 @@ static void get_raw6(struct lsof_context *ctx, char *p) /* /proc/net/raw path */
 /*
  * get_tcpudp6() - get IPv6 TCP, UDP or UDPLITE net info
  */
-static void get_tcpudp6(struct lsof_context *ctx,
-                        char *p, /* /proc/net/{tcp,udp} path */
+static void get_tcpudp6(struct lsof_context *ctx, /* context */
+                        char *p,                  /* /proc/net/{tcp,udp} path */
                         int pr,  /* protocol: 0 = TCP, 1 = UDP */
                         int clr) /* 1 == clear the table */
 {
@@ -3070,8 +3074,8 @@ static void get_tcpudp6(struct lsof_context *ctx,
 /*
  * get_unix() - get UNIX net info
  */
-static void get_unix(struct lsof_context *ctx,
-                     char *p) /* /proc/net/unix path */
+static void get_unix(struct lsof_context *ctx, /* context */
+                     char *p)                  /* /proc/net/unix path */
 {
     char buf[MAXPATHLEN], *ep, **fp, *path, *pcb;
     int fl = 1; /* First line */
@@ -3358,8 +3362,8 @@ static int isainb(char *a, /*string a */
 /*
  * print_ax25info() - print AX25 socket info
  */
-static void print_ax25info(struct lsof_context *ctx,
-                           struct ax25sin *ap) /* AX25 socket info */
+static void print_ax25info(struct lsof_context *ctx, /* context */
+                           struct ax25sin *ap)       /* AX25 socket info */
 {
     char *cp, pbuf[1024];
     int ds;
@@ -3407,8 +3411,8 @@ static void print_ax25info(struct lsof_context *ctx,
 /*
  * print_ipxinfo() - print IPX socket info
  */
-static void print_ipxinfo(struct lsof_context *ctx,
-                          struct ipxsin *ip) /* IPX socket info */
+static void print_ipxinfo(struct lsof_context *ctx, /* context */
+                          struct ipxsin *ip)        /* IPX socket info */
 {
     char *cp, pbuf[256];
     MALLOC_S pl;
@@ -3454,7 +3458,8 @@ static void print_unix(int nl) {
 /*
  * print_tcptpi() - print TCP/TPI state e.g. ESTBALISHED
  */
-void print_tcptpi(struct lsof_context *ctx, int nl) /* 1 == '\n' required */
+void print_tcptpi(struct lsof_context *ctx, /* context */
+                  int nl)                   /* 1 == '\n' required */
 {
     char buf[128];
     char *cp = (char *)NULL;
@@ -3560,8 +3565,8 @@ void print_tcptpi(struct lsof_context *ctx, int nl) /* 1 == '\n' required */
 /*
  * process_proc_sock() - process /proc-based socket
  */
-void process_proc_sock(struct lsof_context *ctx,
-                       char *p,        /* node's readlink() path */
+void process_proc_sock(struct lsof_context *ctx, /* context */
+                       char *p,                  /* node's readlink() path */
                        char *pbr,      /* node's path before readlink() */
                        struct stat *s, /* stat() result for path */
                        int ss,         /* *s status -- i.e, SB_* values */
@@ -4323,8 +4328,9 @@ void process_proc_sock(struct lsof_context *ctx,
 /*
  * set_net_paths() - set /proc/net paths
  */
-void set_net_paths(struct lsof_context *ctx, char *p, /* path to /proc/net/ */
-                   int pl)                            /* strlen(p) */
+void set_net_paths(struct lsof_context *ctx, /* context */
+                   char *p,                  /* path to /proc/net/ */
+                   int pl)                   /* strlen(p) */
 {
     int i;
     int pathl;

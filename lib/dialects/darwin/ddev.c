@@ -83,8 +83,9 @@ _PROTOTYPE(static void saveADev, (struct lsof_context * ctx, struct stat *s));
  * exit: s->st_dev changed to DevDev, as required
  */
 
-void HASSPECDEVD(struct lsof_context *ctx, char *p, /* file path */
-                 struct stat *s) /* stat(2) result for file */
+void HASSPECDEVD(struct lsof_context *ctx, /* context */
+                 char *p,                  /* file path */
+                 struct stat *s)           /* stat(2) result for file */
 {
     int i;
 
@@ -110,10 +111,11 @@ void HASSPECDEVD(struct lsof_context *ctx, char *p, /* file path */
  * printdevname() -- print character device name
  */
 
-int printdevname(struct lsof_context *ctx, dev_t *dev, /* device */
-                 dev_t *rdev,                          /* raw device */
-                 int f,   /* 1 = follow with '\n' */
-                 int nty) /* node type: N_BLK or N_chr */
+int printdevname(struct lsof_context *ctx, /* context */
+                 dev_t *dev,               /* device */
+                 dev_t *rdev,              /* raw device */
+                 int f,                    /* 1 = follow with '\n' */
+                 int nty)                  /* node type: N_BLK or N_chr */
 {
     char *cp, *ttl;
     struct l_dev *dp;
@@ -169,9 +171,10 @@ int printdevname(struct lsof_context *ctx, dev_t *dev, /* device */
  * readdev() -- read device names, modes and types
  */
 
-void readdev(struct lsof_context *ctx, int skip) /* skip device cache read if 1
-                                                  * -- ignored since device
-                                                  * cache not used */
+void readdev(struct lsof_context *ctx, /* context */
+             int skip)                 /* skip device cache read if 1
+                                        * -- ignored since device
+                                        * cache not used */
 {
     DIR *dfp;
     int dnamlen;
@@ -448,7 +451,7 @@ void readdev(struct lsof_context *ctx, int skip) /* skip device cache read if 1
  * rmdupdev() - remove duplicate (major/minor/inode) devices
  */
 
-static int rmdupdev(struct lsof_context *ctx,
+static int rmdupdev(struct lsof_context *ctx, /* context */
                     struct l_dev ***dp, /* device table pointers address */
                     int n,              /* number of pointers */
                     char *nm) /* device table name for error message */
@@ -479,8 +482,8 @@ static int rmdupdev(struct lsof_context *ctx,
 /*
  * saveADev() - save additional device number appearing inside DDEV_DEVPATH
  */
-static void saveADev(struct lsof_context *ctx,
-                     struct stat *s) /* stat(2) buffer for file */
+static void saveADev(struct lsof_context *ctx, /* context */
+                     struct stat *s)           /* stat(2) buffer for file */
 {
     int i;
     MALLOC_S sz;

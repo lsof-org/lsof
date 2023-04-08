@@ -220,7 +220,7 @@ struct mounts *readmnt(struct lsof_context *ctx) {
  * readvfs() - read vfs structure
  */
 
-struct l_vfs *readvfs(struct lsof_context *ctx,
+struct l_vfs *readvfs(struct lsof_context *ctx, /* context */
                       KA_T vm) /* kernel mount address from vnode */
 {
     struct mount m;

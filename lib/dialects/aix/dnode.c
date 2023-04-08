@@ -117,8 +117,7 @@ struct rnode {
  * isglocked() - is a gnode locked
  */
 
-char isglocked(ga)
-struct gnode *ga; /* local gnode address */
+char isglocked(struct gnode *ga) /* local gnode address */
 {
 
     struct filock *cfp, f, *ffp;
@@ -173,7 +172,7 @@ struct gnode *ga; /* local gnode address */
  * process_node() - process vnode
  */
 
-void process_node(va) KA_T va; /* vnode kernel space address */
+void process_node(KA_T va) /* vnode kernel space address */
 {
     struct cdrnode c;
     dev_t dev, rdev;
@@ -348,7 +347,8 @@ void process_node(va) KA_T va; /* vnode kernel space address */
         /*
          * Read the special node.
          */
-        if (!g.gn_data || kread(ctx, (KA_T)g.gn_data, (char *)&sn, sizeof(sn))) {
+        if (!g.gn_data ||
+            kread(ctx, (KA_T)g.gn_data, (char *)&sn, sizeof(sn))) {
             if (Selinet) {
                 Lf->sf = SELEXCLF;
                 return;
@@ -1135,8 +1135,8 @@ void process_node(va) KA_T va; /* vnode kernel space address */
  * process_shmt() -- process shared memory transport file
  */
 
-void process_shmt(sa) KA_T sa; /* shared memory transport node struct
-                                * address ??? */
+void process_shmt(KA_T sa) /* shared memory transport node struct
+                            * address ??? */
 {
     struct shmtnode { /* shared memory transport node
                        * struct ??? */
@@ -1201,9 +1201,8 @@ void process_shmt(sa) KA_T sa; /* shared memory transport node struct
  * readlino() -- read local inode
  */
 
-int readlino(ga, li)
-struct gnode *ga; /* gnode address */
-struct l_ino *li; /* local inode receiver */
+int readlino(struct gnode *ga, /* gnode address */
+             struct l_ino *li) /* local inode receiver */
 {
     struct inode i; /* "regular" inode */
 

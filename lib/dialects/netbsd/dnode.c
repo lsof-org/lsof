@@ -96,7 +96,7 @@ static void getmemsz(pid) pid_t pid;
  * lkup_dev_tty() - look up /dev/tty
  */
 
-static int lkup_dev_tty(struct lsof_context *ctx,
+static int lkup_dev_tty(struct lsof_context *ctx, /* context */
                         dev_t *dr,     /* place to return device number */
                         INODETYPE *ir) /* place to return inode number */
 {
@@ -144,7 +144,7 @@ lkup_dev_tty_again:
  * require a dfile.c, so this is the next best location for the function.
  */
 
-void process_kqueue(struct lsof_context *ctx,
+void process_kqueue(struct lsof_context *ctx, /* context */
                     KA_T ka) /* kqueue file structure address */
 {
 
@@ -157,8 +157,8 @@ void process_kqueue(struct lsof_context *ctx,
  * process_node() - process vnode
  */
 
-void process_node(struct lsof_context *ctx,
-                  KA_T va) /* vnode kernel space address */
+void process_node(struct lsof_context *ctx, /* context */
+                  KA_T va)                  /* vnode kernel space address */
 {
     dev_t dev, rdev;
     unsigned char devs;
@@ -403,7 +403,8 @@ process_overlaid_node:
         /*
          * Read the kernfs_node.
          */
-        if (!v->v_data || kread(ctx, (KA_T)v->v_data, (char *)&kn, sizeof(kn))) {
+        if (!v->v_data ||
+            kread(ctx, (KA_T)v->v_data, (char *)&kn, sizeof(kn))) {
             if (v->v_type != VDIR || !(v->VNODE_VFLAG && NCACHE_VROOT)) {
                 (void)snpf(Namech, Namechl, "can't read kernfs_node at: %s",
                            print_kptr((KA_T)v->v_data, (char *)NULL, 0));
@@ -416,7 +417,8 @@ process_overlaid_node:
          * Generate the /kern file name by reading the kern_target to which
          * the kernfs_node points.
          */
-        if (kn.kf_kt && kread(ctx, (KA_T)kn.kf_kt, (char *)&kt, sizeof(kt)) == 0 &&
+        if (kn.kf_kt &&
+            kread(ctx, (KA_T)kn.kf_kt, (char *)&kt, sizeof(kt)) == 0 &&
             (ktnl = (int)kt.kt_namlen) > 0 && kt.kt_name) {
             if (ktnl > (sizeof(ktnm) - 1))
                 ktnl = sizeof(ktnm) - 1;
@@ -458,7 +460,8 @@ process_overlaid_node:
 
 #if defined(HASTMPFS)
     case VT_TMPFS:
-        if (!v->v_data || kread(ctx, (KA_T)v->v_data, (char *)&tmp, sizeof(tmp))) {
+        if (!v->v_data ||
+            kread(ctx, (KA_T)v->v_data, (char *)&tmp, sizeof(tmp))) {
             (void)snpf(Namech, Namechl, "can't read tmpfs_node at: %s",
                        print_kptr((KA_T)v->v_data, (char *)NULL, 0));
             enter_nm(ctx, Namech);
@@ -489,7 +492,8 @@ process_overlaid_node:
         }
 
 #if defined(HASNFSVATTRP)
-        if (!n.n_vattr || kread(ctx, (KA_T)n.n_vattr, (char *)&nv, sizeof(nv))) {
+        if (!n.n_vattr ||
+            kread(ctx, (KA_T)n.n_vattr, (char *)&nv, sizeof(nv))) {
             (void)snpf(Namech, Namechl, "can't read n_vattr at: %x",
                        print_kptr((KA_T)n.n_vattr, (char *)NULL, 0));
             enter_nm(ctx, Namech);
@@ -504,7 +508,8 @@ process_overlaid_node:
     case VT_NULL:
         if ((sc == 1) && vfs)
             nvfs = vfs;
-        if (!v->v_data || kread(ctx, (KA_T)v->v_data, (char *)&nu, sizeof(nu))) {
+        if (!v->v_data ||
+            kread(ctx, (KA_T)v->v_data, (char *)&nu, sizeof(nu))) {
             (void)snpf(Namech, Namechl, "can't read null_node at: %s",
                        print_kptr((KA_T)v->v_data, (char *)NULL, 0));
             enter_nm(ctx, Namech);
@@ -533,7 +538,8 @@ process_overlaid_node:
 
 #if defined(HASPTYFS)
     case VT_PTYFS:
-        if (!v->v_data || kread(ctx, (KA_T)v->v_data, (char *)&pt, sizeof(pt))) {
+        if (!v->v_data ||
+            kread(ctx, (KA_T)v->v_data, (char *)&pt, sizeof(pt))) {
             (void)snpf(Namech, Namechl, "can't read ptyfsnode at: %s",
                        print_kptr((KA_T)v->v_data, (char *)NULL, 0));
             enter_nm(ctx, Namech);
@@ -585,7 +591,8 @@ process_overlaid_node:
             /*
              * If there are multiple FFS's, read the relevant structures.
              */
-            if (i.i_ump && !kread(ctx, (KA_T)i.i_ump, (char *)&um, sizeof(um))) {
+            if (i.i_ump &&
+                !kread(ctx, (KA_T)i.i_ump, (char *)&um, sizeof(um))) {
                 if (um.um_fstype == UFS1) {
                     ffs = 1;
                     if (i.DINODE_U.ffs1_din &&
@@ -630,7 +637,8 @@ process_overlaid_node:
 
                         struct lwp lw;
 
-                        if (!kread(ctx, (KA_T)lf.lf_id, (char *)&lw, sizeof(lw)) &&
+                        if (!kread(ctx, (KA_T)lf.lf_id, (char *)&lw,
+                                   sizeof(lw)) &&
                             (KA_T)lw.l_proc == Kpa)
                             lt = 1;
                     }
@@ -1406,8 +1414,8 @@ process_overlaid_node:
  * process_pipe() - process a file structure whose type is DTYPE_PIPE
  */
 
-void process_pipe(struct lsof_context *ctx,
-                  KA_T pa) /* pipe structure kernel address */
+void process_pipe(struct lsof_context *ctx, /* context */
+                  KA_T pa)                  /* pipe structure kernel address */
 {
     char *ep;
     struct pipe p;

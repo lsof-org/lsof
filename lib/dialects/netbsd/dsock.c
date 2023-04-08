@@ -49,8 +49,8 @@ static char copyright[] =
  * process_socket() - process socket
  */
 
-void process_socket(struct lsof_context *ctx,
-                    KA_T sa) /* socket address in kernel */
+void process_socket(struct lsof_context *ctx, /* context */
+                    KA_T sa)                  /* socket address in kernel */
 {
 #if NETBSDV >= 9099104
 #    define NETBSD_MERGED_INPCB
@@ -233,7 +233,8 @@ void process_socket(struct lsof_context *ctx,
             /*
              * Read IPv4 or IPv6 (NetBSD) protocol control block.
              */
-            if (!s.so_pcb || kread(ctx, (KA_T)s.so_pcb, (char *)&inp, sizeof(inp))) {
+            if (!s.so_pcb ||
+                kread(ctx, (KA_T)s.so_pcb, (char *)&inp, sizeof(inp))) {
                 if (!s.so_pcb) {
                     (void)snpf(
                         Namech, Namechl, "no PCB%s%s",

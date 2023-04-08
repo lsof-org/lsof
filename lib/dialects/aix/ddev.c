@@ -73,8 +73,7 @@ void clr_sect() {
  * getchan() - get channel from file path name
  */
 
-int getchan(p)
-char *p; /* file path name */
+int getchan(char *p) /* file path name */
 {
     int ch;
     char *s;
@@ -101,11 +100,10 @@ char *p; /* file path name */
  * printdevname() - print device name
  */
 
-int printdevname(dev, rdev, f, nty)
-dev_t *dev;  /* device */
-dev_t *rdev; /* raw device */
-int f;       /* 1 = follow with '\n' */
-int nty;     /* node type: N_BLK or N_CHR */
+int printdevname(dev_t *dev,  /* device */
+                 dev_t *rdev, /* raw device */
+                 int f,       /* 1 = follow with '\n' */
+                 int nty)     /* node type: N_BLK or N_CHR */
 {
     struct l_dev *dp;
     /*
@@ -150,7 +148,7 @@ int nty;     /* node type: N_BLK or N_CHR */
  * readdev() - read device names, modes and types
  */
 
-void readdev(skip) int skip; /* skip device cache read if 1 */
+void readdev(int skip) /* skip device cache read if 1 */
 {
 
 #if defined(HASDCACHE)
@@ -471,10 +469,9 @@ void rereaddev() {
  * rmdupdev() - remove duplicate (major/minor/inode) devices
  */
 
-static int rmdupdev(dp, n, nm)
-struct l_dev ***dp; /* device table pointers address */
-int n;              /* number of pointers */
-char *nm;           /* device table name for error message */
+static int rmdupdev(struct l_dev ***dp, /* device table pointers address */
+                    int n,              /* number of pointers */
+                    char *nm) /* device table name for error message */
 {
 
 #if AIXV >= 4140
@@ -529,8 +526,7 @@ char *nm;           /* device table name for error message */
  * rw_clone_sect() - read/write the device cache file clone section
  */
 
-int rw_clone_sect(m)
-int m; /* mode: 1 = read; 2 = write */
+int rw_clone_sect(int m) /* mode: 1 = read; 2 = write */
 {
     char buf[MAXPATHLEN * 2], *cp;
     struct clone *c;
@@ -661,8 +657,7 @@ int m; /* mode: 1 = read; 2 = write */
  * Note: rereads entire device table when an entry can't be verified.
  */
 
-int vfy_dev(dp)
-struct l_dev *dp; /* device table pointer */
+int vfy_dev(struct l_dev *dp) /* device table pointer */
 {
     struct stat sb;
 

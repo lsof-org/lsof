@@ -449,7 +449,7 @@ static void get_kernel_access(struct lsof_context *ctx) {
  * get_nlist_path() - get kernel name list path
  */
 
-char *get_nlist_path(struct lsof_context *ctx,
+char *get_nlist_path(struct lsof_context *ctx, /* context */
                      int ap) /* on success, return an allocated path
                               * string pointer if 1; return a
                               * constant character pointer if 0;
@@ -488,9 +488,10 @@ void initialize(struct lsof_context *ctx) { get_kernel_access(ctx); }
  * kread() - read from kernel memory
  */
 
-int kread(struct lsof_context *ctx, KA_T addr, /* kernel memory address */
-          char *buf,                           /* buffer to receive data */
-          READLEN_T len)                       /* length to read */
+int kread(struct lsof_context *ctx, /* context */
+          KA_T addr,                /* kernel memory address */
+          char *buf,                /* buffer to receive data */
+          READLEN_T len)            /* length to read */
 {
     int br;
 
@@ -501,8 +502,8 @@ int kread(struct lsof_context *ctx, KA_T addr, /* kernel memory address */
 /*
  * process_text() - process text information
  */
-void process_text(struct lsof_context *ctx,
-                  KA_T vm) /* kernel vm space pointer */
+void process_text(struct lsof_context *ctx, /* context */
+                  KA_T vm)                  /* kernel vm space pointer */
 {
     int i, j;
     KA_T ka;

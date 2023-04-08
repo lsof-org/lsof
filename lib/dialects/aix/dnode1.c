@@ -78,9 +78,8 @@ struct vnode *alloc_vcache() {
  * getvolume() - get volume structure
  */
 
-static struct volume *getvolume(f, vols)
-struct VenusFid *f; /* file ID pointer */
-int *vols;          /* afs_volumes status return */
+static struct volume *getvolume(struct VenusFid *f, /* file ID pointer */
+                                int *vols) /* afs_volumes status return */
 {
     int i;
     static KA_T ka = 0;
@@ -123,8 +122,7 @@ int *vols;          /* afs_volumes status return */
  * hasAFS() - test for AFS presence via vfs structure
  */
 
-int hasAFS(vp)
-struct vnode *vp; /* vnode pointer */
+int hasAFS(struct vnode *vp) /* vnode pointer */
 {
     struct vmount vm;
     struct vfs v;
@@ -162,9 +160,8 @@ struct vnode *vp; /* vnode pointer */
  *		  1 if root file ID structure address available
  */
 
-static int is_rootFid(vc, rfid)
-struct vcache *vc; /* vcache entry */
-int *rfid;         /* root file ID pointer status return */
+static int is_rootFid(struct vcache *vc, /* vcache entry */
+                      int *rfid) /* root file ID pointer status return */
 {
     int err;
     static int f = 0; /* rootFID structure status:
@@ -227,10 +224,9 @@ int *rfid;         /* root file ID pointer status return */
  * readafsnode() - read AFS node
  */
 
-int readafsnode(va, v, an)
-KA_T va;            /* kernel vnode address */
-struct vnode *v;    /* vnode buffer pointer */
-struct afsnode *an; /* afsnode recipient */
+int readafsnode(KA_T va,            /* kernel vnode address */
+                struct vnode *v,    /* vnode buffer pointer */
+                struct afsnode *an) /* afsnode recipient */
 {
     char *cp, tbuf[32];
     KA_T ka;

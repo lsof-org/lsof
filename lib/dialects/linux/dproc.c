@@ -153,7 +153,8 @@ char *ucntx; /* user supplied context */
  * enter_cntx_arg() - enter name ecurity context argument
  */
 
-int enter_cntx_arg(struct lsof_context *ctx, char *cntx) /* context */
+int enter_cntx_arg(struct lsof_context *ctx, /* context */
+                   char *cntx)               /* context */
 {
     cntxlist_t *cntxp;
     /*
@@ -186,9 +187,9 @@ int enter_cntx_arg(struct lsof_context *ctx, char *cntx) /* context */
  * alloc_cbf() -- allocate a command buffer
  */
 
-static MALLOC_S alloc_cbf(struct lsof_context *ctx,
-                          MALLOC_S len,  /* required length */
-                          char **cbf,    /* current buffer */
+static MALLOC_S alloc_cbf(struct lsof_context *ctx, /* context */
+                          MALLOC_S len,             /* required length */
+                          char **cbf,               /* current buffer */
                           MALLOC_S cbfa) /* current buffer allocation */
 {
     if (*cbf)
@@ -441,8 +442,8 @@ void gather_proc_info(struct lsof_context *ctx) {
  * get_fdinfo() - get values from /proc/<PID>fdinfo/FD
  */
 
-static int get_fdinfo(struct lsof_context *ctx,
-                      char *p,             /* path to fdinfo file */
+static int get_fdinfo(struct lsof_context *ctx, /* context */
+                      char *p,                  /* path to fdinfo file */
                       int msk,             /* mask for information type: e.g.,
                                             * the FDINFO_* definition */
                       struct l_fdinfo *fi) /* pointer to local fdinfo values
@@ -690,7 +691,7 @@ void initialize(struct lsof_context *ctx) {
  *	np = updated with new path
  *	nl = updated with new buffer size
  */
-int make_proc_path(struct lsof_context *ctx,
+int make_proc_path(struct lsof_context *ctx, /* context */
                    char *pp,  /* path prefix -- e.g., /proc/<pid>/ */
                    int pl,    /* strlen(pp) */
                    char **np, /* malloc'd receiving buffer */
@@ -725,12 +726,13 @@ int make_proc_path(struct lsof_context *ctx,
  * Note: alloc_lfile() must have been called in advance.
  */
 
-static int isefsys(struct lsof_context *ctx, char *path, /* path to file */
-                   char *type,                           /* unknown file type */
-                   int l,              /* link request: 0 = report
-                                        *               1 = link */
-                   efsys_list_t **rep, /* returned Efsysl pointer, if not
-                                        * NULL */
+static int isefsys(struct lsof_context *ctx, /* context */
+                   char *path,               /* path to file */
+                   char *type,               /* unknown file type */
+                   int l,                    /* link request: 0 = report
+                                              *               1 = link */
+                   efsys_list_t **rep,       /* returned Efsysl pointer, if not
+                                              * NULL */
                    struct lfile **lfr) /* allocated struct lfile pointer */
 {
     efsys_list_t *ep;
@@ -825,8 +827,8 @@ int *idl; /* pointer to ID length receiver */
  * open_proc_stream() -- open a /proc stream
  */
 
-FILE *open_proc_stream(struct lsof_context *ctx,
-                       char *p,    /* pointer to path to open */
+FILE *open_proc_stream(struct lsof_context *ctx, /* context */
+                       char *p,                  /* pointer to path to open */
                        char *m,    /* pointer to mode -- e.g., "r" */
                        char **buf, /* pointer tp setvbuf() address
                                     * (NULL if none) */
@@ -894,8 +896,8 @@ FILE *open_proc_stream(struct lsof_context *ctx,
  *          1 == ID not processed
  */
 
-static int process_id(struct lsof_context *ctx,
-                      char *idp,   /* pointer to ID's path */
+static int process_id(struct lsof_context *ctx, /* context */
+                      char *idp,                /* pointer to ID's path */
                       int idpl,    /* pointer to ID's path length */
                       char *cmd,   /* pointer to ID's command */
                       UID_ARG uid, /* ID's UID */
@@ -1385,8 +1387,8 @@ int pid; /* pid of the target process */
  */
 
 static void
-process_proc_map(struct lsof_context *ctx,
-                 char *p,        /* path to process maps file */
+process_proc_map(struct lsof_context *ctx, /* context */
+                 char *p,                  /* path to process maps file */
                  struct stat *s, /* executing text file state buffer */
                  int ss)         /* *s status -- i.e., SB_* values */
 {
@@ -1648,13 +1650,13 @@ process_proc_map(struct lsof_context *ctx,
  *          1 == ID is a zombie
  *	    2 == ID is a thread
  */
-static int read_id_stat(struct lsof_context *ctx,
-                        char *p,    /* path to status file */
-                        int id,     /* ID: PID or LWP */
-                        char **cmd, /* malloc'd command name */
-                        int *ppid,  /* returned parent PID for PID type */
-                        int *pgid)  /* returned process group ID for PID
-                                     * type */
+static int read_id_stat(struct lsof_context *ctx, /* context */
+                        char *p,                  /* path to status file */
+                        int id,                   /* ID: PID or LWP */
+                        char **cmd,               /* malloc'd command name */
+                        int *ppid, /* returned parent PID for PID type */
+                        int *pgid) /* returned process group ID for PID
+                                    * type */
 {
     char buf[MAXPATHLEN], *cp, *cp1, **fp;
     int ch, cx, es, pc;
@@ -1791,10 +1793,11 @@ static int read_id_stat(struct lsof_context *ctx,
  *	 This function should be used only when links have been successfully
  *	 resolved in the /proc path by getlinksrc().
  */
-static int statEx(struct lsof_context *ctx, char *p, /* file path */
-                  struct stat *s, /* stat() result -- NULL if none
-                                   * wanted */
-                  int *ss)        /* stat() status --  SB_* values */
+static int statEx(struct lsof_context *ctx, /* context */
+                  char *p,                  /* file path */
+                  struct stat *s,           /* stat() result -- NULL if none
+                                             * wanted */
+                  int *ss)                  /* stat() status --  SB_* values */
 {
     static size_t ca = 0;
     static char *cb = NULL;

@@ -217,12 +217,11 @@ void hashSfile() {
  * is_file_named() - is file named?
  */
 
-int is_file_named(p, ty, ch, ic)
-char *p;       /* path name; NULL = search by device
-                * and inode (from *Lf) */
-enum vtype ty; /* vnode type */
-chan_t ch;     /* gnode channel */
-int ic;        /* is clone file (4.1.4 and above) */
+int is_file_named(char *p,       /* path name; NULL = search by device
+                                  * and inode (from *Lf) */
+                  enum vtype ty, /* vnode type */
+                  chan_t ch,     /* gnode channel */
+                  int ic)        /* is clone file (4.1.4 and above) */
 {
     int dmaj, dmin, maj, min, rmaj, rmin;
     static int dsplit = 0;
@@ -381,10 +380,8 @@ int ic;        /* is clone file (4.1.4 and above) */
  * print_dev() - print device
  */
 
-char *print_dev(lf, dev)
-struct lfile *lf; /* file whose device to be printed */
-dev_t *dev;       /* pointer to device to be printed */
-
+char *print_dev(struct lfile *lf, /* file whose device to be printed */
+                dev_t *dev)       /* pointer to device to be printed */
 {
     static char buf[128];
     int maj = GET_MAJ_DEV(*dev);
@@ -405,8 +402,7 @@ dev_t *dev;       /* pointer to device to be printed */
  * readvfs() - read vfs structure
  */
 
-struct l_vfs *readvfs(vn)
-struct vnode *vn; /* vnode */
+struct l_vfs *readvfs(struct vnode *vn) /* vnode */
 {
     struct gfs g;
     void *mp;
@@ -443,7 +439,8 @@ struct vnode *vn; /* vnode */
     if (!v.vfs_gfs || kread(ctx, (KA_T)v.vfs_gfs, (char *)&g, sizeof(g)))
         goto vfs_exit;
     if (!v.vfs_mdata ||
-        kread(ctx, (KA_T)((char *)v.vfs_mdata + offsetof(struct vmount, vmt_length)),
+        kread(ctx,
+              (KA_T)((char *)v.vfs_mdata + offsetof(struct vmount, vmt_length)),
               (char *)&ul, sizeof(ul)))
         goto vfs_exit;
     if (!(mp = (void *)malloc((MALLOC_S)ul))) {

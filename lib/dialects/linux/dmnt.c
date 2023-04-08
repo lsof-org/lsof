@@ -80,7 +80,7 @@ static mntsup_t **MSHash = (mntsup_t **)NULL;      /* mount supplement
 /*
  * convert_octal_escaped() -- convert octal-escaped characters in string
  */
-static char *convert_octal_escaped(struct lsof_context *ctx,
+static char *convert_octal_escaped(struct lsof_context *ctx, /* context */
                                    char *orig_str /* original string */) {
     int cur_ch, cvt_len, cvt_idx, orig_len, orig_idx, temp_idx;
     char *cvt_str;
@@ -171,12 +171,12 @@ static char *convert_octal_escaped(struct lsof_context *ctx,
  * getmntdev() - get mount device from mount supplement
  */
 static int
-getmntdev(struct lsof_context *ctx,
-	  char *dir_name,		/* mounted directory name */
-	  size_t dir_name_len,		/* strlen(dir_name) */
-	  struct stat *s,		/* stat(2) buffer receptor */
-	  int *ss			/* stat(2) status result -- i.e., SB_*
-					 * values */)
+getmntdev(struct lsof_context *ctx, /* context */
+      char *dir_name,               /* mounted directory name */
+      size_t dir_name_len,          /* strlen(dir_name) */
+      struct stat *s,               /* stat(2) buffer receptor */
+      int *ss                       /* stat(2) status result -- i.e., SB_*
+                                     * values */)
 {
     static int err = 0;
     int h;
@@ -427,8 +427,8 @@ struct mounts *readmnt(struct lsof_context *ctx) {
      * Read mount table entries.
      */
     while (fgets(buf, sizeof(buf), ms)) {
-        if (get_fields(ctx, buf, (char *)NULL, &fp, (int *)NULL, 0) < 3 || !fp[0] ||
-            !fp[1] || !fp[2])
+        if (get_fields(ctx, buf, (char *)NULL, &fp, (int *)NULL, 0) < 3 ||
+            !fp[0] || !fp[1] || !fp[2])
             continue;
         /*
          * Convert octal-escaped characters in the device name and mounted-on

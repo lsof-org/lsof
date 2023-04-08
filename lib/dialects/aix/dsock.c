@@ -49,7 +49,7 @@ static char copyright[] =
  * process_socket() - process socket file
  */
 
-void process_socket(sa) KA_T sa; /* socket address in kernel */
+void process_socket(KA_T sa) /* socket address in kernel */
 {
     struct domain d;
     unsigned char *fa = (unsigned char *)NULL;

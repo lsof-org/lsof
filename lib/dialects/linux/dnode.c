@@ -238,7 +238,7 @@ static void enter_pinfo(struct lsof_context *ctx) {
  * find_pepti() -- find pipe end point info
  */
 
-pxinfo_t *find_pepti(struct lsof_context *ctx,
+pxinfo_t *find_pepti(struct lsof_context *ctx, /* context */
                      int pid,          /* pid of the process owning lf */
                      struct lfile *lf, /* pipe's lfile */
                      pxinfo_t *pp)     /* previous pipe info (NULL == none) */
@@ -264,7 +264,8 @@ void clear_ptyinfo(struct lsof_context *ctx) {
  * 		Lp = local process structure pointer
  */
 
-void enter_ptmxi(struct lsof_context *ctx, int mn) /* minor number of device */
+void enter_ptmxi(struct lsof_context *ctx, /* context */
+                 int mn)                   /* minor number of device */
 {
     /*
      * Allocate pipe info hash buckets (but used for pty).
@@ -305,13 +306,14 @@ static int ptyepti_accept_slave(struct lsof_context *ctx, pxinfo_t *pi, int pid,
  * find_ptyepti() -- find pseudoterminal end point info
  */
 
-pxinfo_t *find_ptyepti(struct lsof_context *ctx, int pid,
-                       struct lfile *lf, /* pseudoterminal's lfile */
-                       int m,            /* minor number type:
-                                          *     0 == use tty_index
-                                          *     1 == use minor device */
-                       pxinfo_t *pp)     /* previous pseudoterminal info
-                                          * (NULL == none) */
+pxinfo_t *find_ptyepti(struct lsof_context *ctx, /* context */
+                       int pid,                  /* PID*/
+                       struct lfile *lf,         /* pseudoterminal's lfile */
+                       int m,                    /* minor number type:
+                                                  *     0 == use tty_index
+                                                  *     1 == use minor device */
+                       pxinfo_t *pp)             /* previous pseudoterminal info
+                                                  * (NULL == none) */
 {
     return endpoint_find(ctx, PtyInfo,
                          m ? ptyepti_accept_ptmx : ptyepti_accept_slave, pid,
@@ -393,10 +395,10 @@ void enter_psxmqinfo(struct lsof_context *ctx) {
  */
 
 pxinfo_t *
-find_psxmqinfo(struct lsof_context *ctx,
-               int pid,          /* pid of the process owning lf */
-               struct lfile *lf, /* posix mq's lfile */
-               pxinfo_t *pp)     /* previous posix mq info (NULL == none) */
+find_psxmqinfo(struct lsof_context *ctx, /* context */
+               int pid,                  /* pid of the process owning lf */
+               struct lfile *lf,         /* posix mq's lfile */
+               pxinfo_t *pp) /* previous posix mq info (NULL == none) */
 {
     return endpoint_find(ctx, PSXMQinfo, endpoint_accept_other_than_self, pid,
                          lf, lf->inode, pp);
@@ -437,10 +439,10 @@ void enter_evtfdinfo(struct lsof_context *ctx, int id) {
  */
 
 pxinfo_t *
-find_evtfdinfo(struct lsof_context *ctx,
-               int pid,          /* pid of the process owning lf */
-               struct lfile *lf, /* eventfd's lfile */
-               pxinfo_t *pp)     /* previous eventfd info (NULL == none) */
+find_evtfdinfo(struct lsof_context *ctx, /* context */
+               int pid,                  /* pid of the process owning lf */
+               struct lfile *lf,         /* eventfd's lfile */
+               pxinfo_t *pp) /* previous eventfd info (NULL == none) */
 {
     void *r = endpoint_find(ctx, EvtFDinfo, endpoint_accept_other_than_self,
                             pid, lf, lf->eventfd_id, pp);
@@ -452,15 +454,16 @@ find_evtfdinfo(struct lsof_context *ctx,
  * get_fields() - separate a line into fields
  */
 
-int get_fields(struct lsof_context *ctx, char *ln, /* input line */
-               char *sep,                          /* separator list */
-               char ***fr, /* field pointer return address */
-               int *eb,    /* indexes of fields where blank or an
-                            * entry from the separator list may be
-                            * embedded and are not separators
-                            * (may be NULL) */
-               int en)     /* number of entries in eb[] (may be
-                            * zero) */
+int get_fields(struct lsof_context *ctx, /* context */
+               char *ln,                 /* input line */
+               char *sep,                /* separator list */
+               char ***fr,               /* field pointer return address */
+               int *eb,                  /* indexes of fields where blank or an
+                                          * entry from the separator list may be
+                                          * embedded and are not separators
+                                          * (may be NULL) */
+               int en)                   /* number of entries in eb[] (may be
+                                          * zero) */
 {
     char *bp, *cp, *sp;
     int i, j, n;
@@ -554,7 +557,8 @@ int get_fields(struct lsof_context *ctx, char *ln, /* input line */
  * get_locks() - get lock information from /proc/locks
  */
 
-void get_locks(struct lsof_context *ctx, char *p) /* /proc lock path */
+void get_locks(struct lsof_context *ctx, /* context */
+               char *p)                  /* /proc lock path */
 {
     unsigned long bp, ep;
     char buf[MAXPATHLEN], *ec, **fp;
@@ -693,8 +697,8 @@ void get_locks(struct lsof_context *ctx, char *p) /* /proc lock path */
  * process_proc_node() - process file node
  */
 
-void process_proc_node(struct lsof_context *ctx,
-                       char *p,        /* node's readlink() path */
+void process_proc_node(struct lsof_context *ctx, /* context */
+                       char *p,                  /* node's readlink() path */
                        char *pbr,      /* node's path before readlink() */
                        struct stat *s, /* stat() result for path */
                        int ss,         /* *s status -- i.e., SB_* values */

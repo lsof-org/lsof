@@ -1097,9 +1097,10 @@ void initialize() {
  * kread() - read from kernel memory
  */
 
-int kread(struct lsof_context *ctx, KA_T addr, /* kernel memory address */
-          char *buf,                           /* buffer to receive data */
-          READLEN_T len)                       /* length to read */
+int kread(struct lsof_context *ctx, /* context */
+          KA_T addr,                /* kernel memory address */
+          char *buf,                /* buffer to receive data */
+          READLEN_T len)            /* length to read */
 {
     int br;
 
@@ -1118,11 +1119,10 @@ int kread(struct lsof_context *ctx, KA_T addr, /* kernel memory address */
  * kreadx() - read kernel segmented memory
  */
 
-int kreadx(addr, buf, len, sid)
-KA_T addr; /* kernel address */
-char *buf; /* destination buffer */
-int len;   /* length */
-KA_T sid;  /* segment ID */
+int kreadx(KA_T addr, /* kernel address */
+           char *buf, /* destination buffer */
+           int len,   /* length */
+           KA_T sid)  /* segment ID */
 {
     int br;
 
@@ -1148,9 +1148,7 @@ static int
 static void
 #    endif /* defined(HASINTSIGNAL) */
 
-lowpgsp(sig)
-int sig;
-{
+lowpgsp(int sig) {
     (void)fprintf(stderr, "%s: FATAL: system paging space is low.\n", Pn);
     Error(ctx);
 }
@@ -1161,7 +1159,7 @@ int sig;
  * process_text() - process text file information for non-ia64 AIX
  */
 
-static void process_text(sid) KA_T sid; /* user area segment ID */
+static void process_text(KA_T sid) /* user area segment ID */
 {
     char *err, fd[8];
     static struct file **f = (struct file **)NULL;
@@ -1282,7 +1280,7 @@ static void process_text(sid) KA_T sid; /* user area segment ID */
  * process_text() - process text file information for ia64 AIX >= 5
  */
 
-static void process_text(pid) pid_t pid; /* process PID */
+static void process_text(pid_t pid) /* process PID */
 {
     char buf[MAXPATHLEN + 1], fd[8], *nm, *pp;
     size_t bufl = sizeof(buf);

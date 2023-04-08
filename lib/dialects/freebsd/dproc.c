@@ -641,9 +641,10 @@ void initialize(struct lsof_context *ctx) {
  * kread() - read from kernel memory
  */
 
-int kread(struct lsof_context *ctx, KA_T addr, /* kernel memory address */
-          char *buf,                           /* buffer to receive data */
-          READLEN_T len)                       /* length to read */
+int kread(struct lsof_context *ctx, /* context */
+          KA_T addr,                /* kernel memory address */
+          char *buf,                /* buffer to receive data */
+          READLEN_T len)            /* length to read */
 {
     int br;
 

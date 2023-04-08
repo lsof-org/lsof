@@ -402,8 +402,9 @@ static void process_socket_common(struct lsof_context *ctx,
         enter_nm(ctx, Namech);
 }
 
-void process_socket(struct lsof_context *ctx, int pid, /* PID */
-                    int32_t fd)                        /* FD */
+void process_socket(struct lsof_context *ctx, /* context */
+                    int pid,                  /* PID */
+                    int32_t fd)               /* FD */
 {
     int nb;
     struct socket_fdinfo si;
@@ -428,8 +429,9 @@ void process_socket(struct lsof_context *ctx, int pid, /* PID */
 }
 
 #if defined(PROC_PIDLISTFILEPORTS)
-void process_fileport_socket(struct lsof_context *ctx, int pid, /* PID */
-                             uint32_t fp)                       /* FILEPORT */
+void process_fileport_socket(struct lsof_context *ctx, /* context */
+                             int pid,                  /* PID */
+                             uint32_t fp)              /* FILEPORT */
 {
     int nb;
     struct socket_fdinfo si;

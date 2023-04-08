@@ -47,7 +47,7 @@ extern struct pff_tab Pgf_tab[];
  */
 
 void enter_file_info(
-    struct lsof_context *ctx,
+    struct lsof_context *ctx,  /* context */
     struct proc_fileinfo *pfi) /* pointer to process file info */
 {
     int f;
@@ -85,7 +85,7 @@ void enter_file_info(
  */
 
 void enter_vnode_info(
-    struct lsof_context *ctx,
+    struct lsof_context *ctx,    /* context */
     struct vnode_info_path *vip) /* pointer to vnode info with path */
 {
     char buf[32], *cp;
@@ -210,7 +210,8 @@ void enter_vnode_info(
 /*
  * err2nm() -- convert errno to a message in Namech
  */
-void err2nm(struct lsof_context *ctx, char *pfx) /* Namech message prefix */
+void err2nm(struct lsof_context *ctx, /* context */
+            char *pfx)                /* Namech message prefix */
 {
     char *sfx;
 
@@ -317,8 +318,9 @@ int print_v_path(struct lsof_context *ctx, struct lfile *lf) {
 /*
  * process_atalk() -- process an Apple Talk file
  */
-void process_atalk(struct lsof_context *ctx, int pid, /* PID */
-                   int32_t fd)                        /* FD */
+void process_atalk(struct lsof_context *ctx, /* context */
+                   int pid,                  /* PID */
+                   int32_t fd)               /* FD */
 {
     (void)snpf(Lf->type, sizeof(Lf->type), "ATALK");
     return;
@@ -327,8 +329,9 @@ void process_atalk(struct lsof_context *ctx, int pid, /* PID */
 /*
  * process_fsevents() -- process a file system events file
  */
-void process_fsevents(struct lsof_context *ctx, int pid, /* PID */
-                      int32_t fd)                        /* FD */
+void process_fsevents(struct lsof_context *ctx, /* context */
+                      int pid,                  /* PID */
+                      int32_t fd)               /* FD */
 {
     (void)snpf(Lf->type, sizeof(Lf->type), "FSEVENTS");
 }
@@ -336,8 +339,9 @@ void process_fsevents(struct lsof_context *ctx, int pid, /* PID */
 /*
  * process_kqueue() -- process a kernel queue file
  */
-void process_kqueue(struct lsof_context *ctx, int pid, /* PID */
-                    int32_t fd)                        /* FD */
+void process_kqueue(struct lsof_context *ctx, /* context */
+                    int pid,                  /* PID */
+                    int32_t fd)               /* FD */
 {
     struct kqueue_fdinfo kq;
     int nb;
@@ -411,8 +415,9 @@ static void process_pipe_common(struct lsof_context *ctx,
     }
 }
 
-void process_pipe(struct lsof_context *ctx, int pid, /* PID */
-                  int32_t fd)                        /* FD */
+void process_pipe(struct lsof_context *ctx, /* context */
+                  int pid,                  /* PID */
+                  int32_t fd)               /* FD */
 {
     int nb;
     struct pipe_fdinfo pi;
@@ -436,8 +441,9 @@ void process_pipe(struct lsof_context *ctx, int pid, /* PID */
 }
 
 #if defined(PROC_PIDLISTFILEPORTS)
-void process_fileport_pipe(struct lsof_context *ctx, int pid, /* PID */
-                           uint32_t fp)                       /* FILEPORT */
+void process_fileport_pipe(struct lsof_context *ctx, /* context */
+                           int pid,                  /* PID */
+                           uint32_t fp)              /* FILEPORT */
 {
     int nb;
     struct pipe_fdinfo pi;
@@ -466,8 +472,9 @@ void process_fileport_pipe(struct lsof_context *ctx, int pid, /* PID */
 /*
  * process_psem() -- process a POSIX semaphore file
  */
-void process_psem(struct lsof_context *ctx, int pid, /* PID */
-                  int32_t fd)                        /* FD */
+void process_psem(struct lsof_context *ctx, /* context */
+                  int pid,                  /* PID */
+                  int32_t fd)               /* FD */
 {
     int nb;
     struct psem_fdinfo ps;
@@ -532,8 +539,9 @@ static void process_pshm_common(struct lsof_context *ctx,
     Lf->sz_def = 1;
 }
 
-void process_pshm(struct lsof_context *ctx, int pid, /* PID */
-                  int32_t fd)                        /* FD */
+void process_pshm(struct lsof_context *ctx, /* context */
+                  int pid,                  /* PID */
+                  int32_t fd)               /* FD */
 {
     int nb;
     struct pshm_fdinfo ps;
@@ -557,8 +565,9 @@ void process_pshm(struct lsof_context *ctx, int pid, /* PID */
 }
 
 #if defined(PROC_PIDLISTFILEPORTS)
-void process_fileport_pshm(struct lsof_context *ctx, int pid, /* PID */
-                           uint32_t fp)                       /* FILEPORT */
+void process_fileport_pshm(struct lsof_context *ctx, /* context */
+                           int pid,                  /* PID */
+                           uint32_t fp)              /* FILEPORT */
 {
     int nb;
     struct pshm_fdinfo ps;
@@ -596,8 +605,9 @@ static void process_vnode_common(struct lsof_context *ctx,
     enter_vnode_info(ctx, &vi->pvip);
 }
 
-void process_vnode(struct lsof_context *ctx, int pid, /* PID */
-                   int32_t fd)                        /* FD */
+void process_vnode(struct lsof_context *ctx, /* context */
+                   int pid,                  /* PID */
+                   int32_t fd)               /* FD */
 {
     int nb;
     struct vnode_fdinfowithpath vi;
@@ -630,8 +640,9 @@ void process_vnode(struct lsof_context *ctx, int pid, /* PID */
 }
 
 #if defined(PROC_PIDLISTFILEPORTS)
-void process_fileport_vnode(struct lsof_context *ctx, int pid, /* PID */
-                            uint32_t fp)                       /* FILEPORT */
+void process_fileport_vnode(struct lsof_context *ctx, /* context */
+                            int pid,                  /* PID */
+                            uint32_t fp)              /* FILEPORT */
 {
     int nb;
     struct vnode_fdinfowithpath vi;

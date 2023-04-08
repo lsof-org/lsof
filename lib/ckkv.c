@@ -39,11 +39,11 @@
  * ckkv() - check kernel version
  */
 
-void ckkv(struct lsof_context *ctx, char *d, /* dialect */
-          char *er, /* expected revision; NULL, no test */
-          char *ev, /* expected version; NULL, no test */
-          char *ea) /* expected architecture; NULL, no
-                     * test */
+void ckkv(struct lsof_context *ctx, /* context */
+          char *d,                  /* dialect */
+          char *er,                 /* expected revision; NULL, no test */
+          char *ev,                 /* expected version; NULL, no test */
+          char *ea)                 /* expected architecture; NULL, no test */
 {
 
 #    if defined(HASKERNIDCK)

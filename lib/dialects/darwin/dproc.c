@@ -109,7 +109,7 @@ _PROTOTYPE(static void process_fileports,
 /*
  * enter_vn_text() -- enter vnode information text reference
  */
-static void enter_vn_text(struct lsof_context *ctx,
+static void enter_vn_text(struct lsof_context *ctx,    /* context */
                           struct vnode_info_path *vip, /* vnode info */
                           int *n) /* number of vips[] entries in use */
 {
@@ -443,14 +443,15 @@ void gather_proc_info(struct lsof_context *ctx) {
  * initialize() -- perform all initialization
  */
 
-void initialize(struct lsof_context * ctx) {}
+void initialize(struct lsof_context *ctx) {}
 
 /*
  * process_fds() -- process file descriptors
  */
-static void process_fds(struct lsof_context *ctx, int pid, /* PID of interest */
-                        uint32_t n,                        /* max FDs */
-                        int ckscko) /* check socket files only */
+static void process_fds(struct lsof_context *ctx, /* context */
+                        int pid,                  /* PID of interest */
+                        uint32_t n,               /* max FDs */
+                        int ckscko)               /* check socket files only */
 {
     int i, isock, nb, nf;
     struct proc_fdinfo *fdp;
@@ -556,8 +557,8 @@ static void process_fds(struct lsof_context *ctx, int pid, /* PID of interest */
 /*
  * process_fileports() -- process fileports
  */
-static void process_fileports(struct lsof_context *ctx,
-                              int pid,    /* PID of interest */
+static void process_fileports(struct lsof_context *ctx, /* context */
+                              int pid,                  /* PID of interest */
                               int ckscko) /* check socket files only */
 {
     int ef, i, isock, nb = 0, nf;
@@ -671,7 +672,8 @@ static void process_fileports(struct lsof_context *ctx,
 /*
  * process_text() -- process text information
  */
-static void process_text(struct lsof_context *ctx, int pid) /* PID */
+static void process_text(struct lsof_context *ctx, /* context */
+                         int pid)                  /* PID */
 {
     uint64_t a;
     int i, n, nb;
@@ -723,8 +725,9 @@ static void process_text(struct lsof_context *ctx, int pid) /* PID */
         " twd" /* per-thread current working directory                         \
                 * fd name */
 
-static void process_threads(struct lsof_context *ctx, int pid, /* PID */
-                            uint32_t n) /* number of threads */
+static void process_threads(struct lsof_context *ctx, /* context */
+                            int pid,                  /* PID */
+                            uint32_t n)               /* number of threads */
 {
     int i, nb, nt;
     /*
