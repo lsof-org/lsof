@@ -334,7 +334,8 @@ struct mounts *readmnt() {
  * readvfs() - read vfs structure
  */
 
-struct l_vfs *readvfs(KA_T ka,          /* vfs structure kernel address, if
+struct l_vfs *readvfs(struct lsof_context *ctx, /* context */
+                      KA_T ka,          /* vfs structure kernel address, if
                                          * must be read from kernel */
                       struct vfs *la,   /* local vfs structure address, non-
                                          * NULL if already read from kernel */

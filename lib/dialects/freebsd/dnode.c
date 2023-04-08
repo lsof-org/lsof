@@ -156,9 +156,9 @@ static void get_lock_state_kvm(struct lsof_context *ctx, /* context */
  * a file processing function.  However, the Net and Open BSD sources don't
  * require a dfile.c, so this is the next best location for the function.
  */
-
-void process_kf_kqueue(struct lsof_context *ctx, struct kinfo_file *kf,
-                       KA_T ka) {
+void process_kf_kqueue(struct lsof_context *ctx, /* context */
+                       struct kinfo_file *kf,    /* kernel file*/
+                       KA_T ka /* kernel address */) {
 #    if __FreeBSD_version < 1400062
     struct kqueue kq; /* kqueue structure */
 #    endif            /* __FreeBSD_version < 1400062 */

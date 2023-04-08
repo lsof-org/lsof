@@ -373,7 +373,7 @@ process_overlaid_node:
 
 #if defined(HAS9660FS)
     case VT_ISOFS:
-        if (read_iso_node(v, &iso_dev, &iso_ino, &iso_nlink, &iso_sz)) {
+        if (read_iso_node(ctx, v, &iso_dev, &iso_ino, &iso_nlink, &iso_sz)) {
             (void)snpf(Namech, Namechl, "can't read iso_node at: %s",
                        print_kptr((KA_T)v->v_data, (char *)NULL, 0));
             enter_nm(ctx, Namech);
