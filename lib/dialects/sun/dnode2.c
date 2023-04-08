@@ -381,7 +381,7 @@ int read_vxnode(KA_T va,           /* containing vnode's address */
                        "node at %s: can't read real vx vnode: %s",
                        print_kptr(va, tbuf, sizeof(tbuf)),
                        print_kptr((KA_T)v->v_data, (char *)NULL, 0));
-            enter_nm(Namech);
+            enter_nm(ctx, Namech);
             return (1);
         }
 
@@ -418,7 +418,7 @@ int read_vxnode(KA_T va,           /* containing vnode's address */
     }
     if (em) {
         (void)snpf(Namech, Namechl, "%s", em);
-        (void)enter_nm(Namech);
+        (void)enter_nm(ctx, Namech);
         return (1);
     }
 #    endif /* !defined(HASVXFSUTIL) */
@@ -430,7 +430,7 @@ int read_vxnode(KA_T va,           /* containing vnode's address */
         (void)snpf(Namech, Namechl, "node at %s: can't read vx_inode: %s",
                    print_kptr(va, tbuf, sizeof(tbuf)),
                    print_kptr((KA_T)v->v_data, (char *)NULL, 0));
-        (void)enter_nm(Namech);
+        (void)enter_nm(ctx, Namech);
         return (1);
     }
     /*

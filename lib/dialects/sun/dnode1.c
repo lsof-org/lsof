@@ -363,7 +363,7 @@ int readafsnode(KA_T va,            /* kernel vnode address */
                    "vnode at %s: can't read vcache remainder from %s",
                    print_kptr(va, tbuf, sizeof(tbuf)),
                    print_kptr(ka, (char *)NULL, 0));
-        enter_nm(Namech);
+        enter_nm(ctx, Namech);
         return (1);
     }
     vc = (struct vcache *)v;

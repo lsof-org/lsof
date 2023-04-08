@@ -231,7 +231,7 @@ extern void write_dcache(struct lsof_context *ctx);
 #    endif /* defined(HASDCACHE) */
 
 #    if defined(HASFIFONODE)
-extern int readfifonode(KA_T fa, struct fifonode *f);
+extern int readfifonode(struct lsof_context *ctx, KA_T fa, struct fifonode *f);
 #    endif /* defined(HASFIFONODE) */
 
 #    if defined(HASFSTRUCT)
@@ -239,7 +239,7 @@ extern char *print_fflags(struct lsof_context *ctx, long ffg, long pof);
 #    endif /* defined(HASFSTRUCT) */
 
 #    if defined(HASGNODE)
-extern int readgnode(KA_T ga, struct gnode *g);
+extern int readgnode(struct lsof_context *ctx, KA_T ga, struct gnode *g);
 #    endif /* defined(HASGNODE) */
 
 #    if defined(HASKQUEUE)
@@ -247,7 +247,7 @@ extern void process_kqueue(struct lsof_context *ctx, KA_T ka);
 #    endif /* defined(HASKQUEUE) */
 
 #    if defined(HASHSNODE)
-extern int readhsnode(KA_T ha, struct hsnode *h);
+extern int readhsnode(struct lsof_context *ctx, KA_T ha, struct hsnode *h);
 #    endif /* defined(HASHSNODE) */
 
 #    if defined(HASINODE)
@@ -294,7 +294,7 @@ extern void printiproto(int p);
 #    endif /* !defined(HASPRIVPRIPP) */
 
 #    if defined(HASRNODE)
-extern int readrnode(KA_T ra, struct rnode *r);
+extern int readrnode(struct lsof_context *ctx, KA_T ra, struct rnode *r);
 #    endif /* defined(HASRNODE) */
 
 #    if defined(HASSPECDEVD)
@@ -302,19 +302,21 @@ extern void HASSPECDEVD(struct lsof_context *ctx, char *p, struct stat *s);
 #    endif /* defined(HASSPECDEVD) */
 
 #    if defined(HASSNODE)
-extern int readsnode(KA_T sa, struct snode *s);
+extern int readsnode(struct lsof_context *ctx, KA_T sa, struct snode *s);
 #    endif /* defined(HASSNODE) */
 
 #    if defined(HASSTREAMS)
-extern int readstdata(KA_T addr, struct stdata *buf);
-extern int readsthead(KA_T addr, struct queue *buf);
-extern int readstidnm(KA_T addr, char *buf, READLEN_T len);
-extern int readstmin(KA_T addr, struct module_info *buf);
-extern int readstqinit(KA_T addr, struct qinit *buf);
+extern int readstdata(struct lsof_context *ctx, KA_T addr, struct stdata *buf);
+extern int readsthead(struct lsof_context *ctx, KA_T addr, struct queue *buf);
+extern int readstidnm(struct lsof_context *ctx, KA_T addr, char *buf,
+                      READLEN_T len);
+extern int readstmin(struct lsof_context *ctx, KA_T addr,
+                     struct module_info *buf);
+extern int readstqinit(struct lsof_context *ctx, KA_T addr, struct qinit *buf);
 #    endif /* defined(HASSTREAMS) */
 
 #    if defined(HASTMPNODE)
-extern int readtnode(KA_T ta, struct tmpnode *t);
+extern int readtnode(struct lsof_context *ctx, KA_T ta, struct tmpnode *t);
 #    endif /* defined(HASTMPNODE) */
 
 #    if defined(HASVNODE)

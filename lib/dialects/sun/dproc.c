@@ -141,13 +141,13 @@ static znhash_t **ZoneNm = (znhash_t **)NULL;
  * Local function prototypes
  */
 
-static void get_kernel_access(void);
-static void process_text(KA_T pa);
-static void read_proc(void);
-static void readfsinfo(void);
+static void get_kernel_access(struct lsof_context *ctx);
+static void process_text(struct lsof_context *ctx, KA_T pa);
+static void read_proc(struct lsof_context *ctx);
+static void readfsinfo(struct lsof_context *ctx);
 
 #if solaris >= 20501
-static void readkam(KA_T addr);
+static void readkam(struct lsof_context *ctx, KA_T addr);
 #endif /* solaris>=20501 */
 
 #if solaris >= 20501 && solaris < 70000
@@ -162,7 +162,7 @@ static int hash_zn(char *zn);
  * close_kvm() - close kernel virtual memory access
  */
 
-void close_kvm() {
+void close_kvm(struct lsof_context *ctx) {
     if (!Kd)
         return;
     if (Kd) {
@@ -185,7 +185,7 @@ void close_kvm() {
  * gather_proc_info() - gather process information
  */
 
-void gather_proc_info() {
+void gather_proc_info(struct lsof_context *ctx) {
     short cckreg; /* conditional status of regular file
                    * checking:
                    *     0 = unconditionally check
@@ -248,15 +248,15 @@ void gather_proc_info() {
          * will acquire a fresh address for the head of the linked list process
          * table.
          */
-        close_kvm();
-        open_kvm();
+        close_kvm(ctx);
+        open_kvm(ctx);
 
 #if solaris >= 20501
         /*
          * If not the first time and the ALLKMEM device isn't available,
          * re-read the kernel's address space map.
          */
-        readkam((KA_T)NULL);
+        readkam(ctx, (KA_T)NULL);
 #endif /* solaris>=20501 */
     }
     /*
@@ -311,7 +311,7 @@ void gather_proc_info() {
     /*
      * Read the process table.
      */
-    read_proc();
+    read_proc(ctx);
     /*
      * Loop through processes.
      */
@@ -341,7 +341,7 @@ void gather_proc_info() {
         /*
          * See if the process is excluded.
          */
-        if (is_proc_excl(pid, pgid, (UID_ARG)uid, &pss, &sf))
+        if (is_proc_excl(ctx, pid, pgid, (UID_ARG)uid, &pss, &sf))
             continue;
 
 #if defined(HASZONES)
@@ -366,7 +366,7 @@ void gather_proc_info() {
         /*
          * Allocate a local process structure and start filling it.
          */
-        if (is_cmd_excl(u->u_comm, &pss, &sf))
+        if (is_cmd_excl(ctx, u->u_comm, &pss, &sf))
             continue;
         if (cckreg) {
 
@@ -377,7 +377,7 @@ void gather_proc_info() {
              */
             ckscko = (sf & SELPROC) ? 0 : 1;
         }
-        alloc_lproc(pid, pgid, (int)p->p_ppid, (UID_ARG)uid, u->u_comm,
+        alloc_lproc(ctx, pid, pgid, (int)p->p_ppid, (UID_ARG)uid, u->u_comm,
                     (int)pss, (int)sf);
         Plf = (struct lfile *)NULL;
 
@@ -453,29 +453,29 @@ void gather_proc_info() {
          * Save current working directory information.
          */
         if (!ckscko && u->u_cdir) {
-            alloc_lfile(CWD, -1);
+            alloc_lfile(ctx, CWD, -1);
 
 #if defined(FILEPTR)
             FILEPTR = (struct file *)NULL;
 #endif /* defined(FILEPTR) */
 
-            process_node((KA_T)u->u_cdir);
+            process_node(ctx, (KA_T)u->u_cdir);
             if (Lf->sf)
-                link_lfile();
+                link_lfile(ctx);
         }
         /*
          * Save root directory information.
          */
         if (!ckscko && u->u_rdir) {
-            alloc_lfile(RTD, -1);
+            alloc_lfile(ctx, RTD, -1);
 
 #if defined(FILEPTR)
             FILEPTR = (struct file *)NULL;
 #endif /* defined(FILEPTR) */
 
-            process_node((KA_T)u->u_rdir);
+            process_node(ctx, (KA_T)u->u_rdir);
             if (Lf->sf)
-                link_lfile();
+                link_lfile(ctx);
         }
         /*
          * Save information on text files.
@@ -486,7 +486,7 @@ void gather_proc_info() {
             FILEPTR = (struct file *)NULL;
 #endif /* defined(FILEPTR) */
 
-            process_text((KA_T)p->p_as);
+            process_text(ctx, (KA_T)p->p_as);
         }
         /*
          * Save information on file descriptors.
@@ -528,14 +528,14 @@ void gather_proc_info() {
 #endif /* solaris<20400 */
 
                 continue;
-            alloc_lfile((char *)NULL, i);
+            alloc_lfile(ctx, (char *)NULL, i);
 
 #if solaris < 20400
             pofv = (long)u->u_flist.uf_pofile[j - 1];
-            process_file((KA_T)u->u_flist.uf_ofile[j - 1]);
+            process_file(ctx, (KA_T)u->u_flist.uf_ofile[j - 1]);
 #else  /* solaris>=20400 */
             pofv = uf[j - 1].uf_pofile;
-            process_file((KA_T)uf[j - 1].uf_ofile);
+            process_file(ctx, (KA_T)uf[j - 1].uf_ofile);
 #endif /* solaris <20400 */
 
             if (Lf->sf) {
@@ -544,13 +544,13 @@ void gather_proc_info() {
                 Lf->pof = pofv;
 #endif /* defined(HASFSTRUCT) */
 
-                link_lfile();
+                link_lfile(ctx);
             }
         }
         /*
          * Examine results.
          */
-        if (examine_lproc())
+        if (examine_lproc(ctx))
             return;
     }
 }
@@ -559,7 +559,7 @@ void gather_proc_info() {
  * get_kernel_access() - access the required information in the kernel
  */
 
-static void get_kernel_access() {
+static void get_kernel_access(struct lsof_context *ctx) {
     int i;
     struct stat sb;
     KA_T v;
@@ -571,7 +571,7 @@ static void get_kernel_access() {
     /*
      * Check the Solaris or SunOS version number; check the SunOS architecture.
      */
-    (void)ckkv("Solaris", LSOF_VSTR, (char *)NULL, (char *)NULL);
+    (void)ckkv(ctx, "Solaris", LSOF_VSTR, (char *)NULL, (char *)NULL);
 
 #if solaris >= 70000
     /*
@@ -621,7 +621,7 @@ static void get_kernel_access() {
      */
     if (Nmlst && !is_readable(Nmlst, 1))
         Error(ctx);
-    (void)build_Nl(Drive_Nl);
+    (void)build_Nl(ctx, Drive_Nl);
 
 #if defined(HAS_AFS)
     if (!Nmlst) {
@@ -670,7 +670,7 @@ static void get_kernel_access() {
      * If ALLKMEM isn't available, the active processes will be gathered via the
      * kvm_*proc() functions.
      */
-    if (statsafely(ALLKMEM, &sb) == 0)
+    if (statsafely(ctx, ALLKMEM, &sb) == 0)
         HasALLKMEM = 1;
 
 #if defined(HASVXFSUTIL)
@@ -711,7 +711,7 @@ static void get_kernel_access() {
      * before attempting to open the (Memory) file.
      */
     if (Memory)
-        (void)dropgid();
+        (void)dropgid(ctx);
 #else  /* !defined(WILLDROPGID) */
     /*
      * See if the non-KMEM memory file is readable.
@@ -723,7 +723,7 @@ static void get_kernel_access() {
     /*
      * Open access to kernel memory.
      */
-    open_kvm();
+    open_kvm(ctx);
 
 #if solaris >= 20500
     /*
@@ -768,7 +768,7 @@ static void get_kernel_access() {
             PSMask = PageSz - 1;
             for (i = 1, PSShft = 0; i < PageSz; i <<= 1, PSShft++)
                 ;
-            (void)readkam(v);
+            (void)readkam(ctx, v);
         }
     }
 #endif /* solaris>=20501 */
@@ -780,7 +780,7 @@ static void get_kernel_access() {
      * drop setgid permission, do so.
      */
     if (HasALLKMEM)
-        (void)dropgid();
+        (void)dropgid(ctx);
 #endif /* defined(WILLDROPGID) */
 }
 
@@ -789,7 +789,8 @@ static void get_kernel_access() {
  * enter_zone_arg() - enter zone name argument
  */
 
-int enter_zone_arg(char *zn) /* zone name */
+int enter_zone_arg(struct lsof_context *ctx, /* context */
+                   char *zn)                 /* zone name */
 {
     int zh;
     znhash_t *zp, *zpn;
@@ -857,17 +858,17 @@ static int hash_zn(char *zn) /* zone name */
  * initialize() - perform all initialization
  */
 
-void initialize() {
-    get_kernel_access();
+void initialize(struct lsof_context *ctx) {
+    get_kernel_access(ctx);
     /*
      * Read Solaris file system information and construct the clone table.
      *
      * The clone table is needed to identify sockets.
      */
-    readfsinfo();
+    readfsinfo(ctx);
 
 #if defined(HASDCACHE)
-    readdev(0);
+    readdev(ctx, 0);
 #else  /* !defined(HASDCACHE) */
     read_clone();
 #endif /*defined(HASDCACHE) */
@@ -995,7 +996,7 @@ int kread(struct lsof_context *ctx, /* context */
  * open_kvm() - open kernel virtual memory access
  */
 
-void open_kvm() {
+void open_kvm(struct lsof_context *ctx) {
     if (Kd)
         return;
 
@@ -1004,7 +1005,7 @@ void open_kvm() {
      * If this Solaris process began with setgid permission and its been
      * surrendered, regain it.
      */
-    (void)restoregid();
+    (void)restoregid(ctx);
 #endif /* defined(WILLDROPGID) */
 
     if (!(Kd = kvm_open(Nmlst, Memory, NULL, O_RDONLY, Pn))) {
@@ -1027,7 +1028,7 @@ void open_kvm() {
      * If this process has setgid permission, and is willing to surrender it,
      * do so.
      */
-    (void)dropgid();
+    (void)dropgid(ctx);
     /*
      * If this Solaris process must switch GIDs, enable switching after the
      * first call to this function.
@@ -1058,7 +1059,8 @@ void open_kvm() {
         if (kread(ctx, (KA_T)AVL_NODE2DATA(n, o), (char *)s, sizeof(*s)))      \
         return -1
 
-static int get_first_seg(avl_tree_t *av, struct seg *s) {
+static int get_first_seg(struct lsof_context *ctx, avl_tree_t *av,
+                         struct seg *s) {
     avl_node_t *node = av->avl_root;
     size_t off = av->avl_offset;
     int count = 0;
@@ -1072,7 +1074,8 @@ static int get_first_seg(avl_tree_t *av, struct seg *s) {
     return -1;
 }
 
-static int get_next_seg(avl_tree_t *av, struct seg *s) {
+static int get_next_seg(struct lsof_context *ctx, avl_tree_t *av,
+                        struct seg *s) {
     avl_node_t *node = &s->s_tree;
     size_t off = av->avl_offset;
     int count = 0;
@@ -1108,7 +1111,8 @@ static int get_next_seg(avl_tree_t *av, struct seg *s) {
     return -1;
 }
 
-static void process_text(KA_T pa) /* address space description pointer */
+static void process_text(struct lsof_context *ctx, /* context */
+                         KA_T pa) /* address space description pointer */
 {
     struct as as;
     int i, j, k;
@@ -1120,12 +1124,12 @@ static void process_text(KA_T pa) /* address space description pointer */
      * Get address space description.
      */
     if (kread(ctx, (KA_T)pa, (char *)&as, sizeof(as))) {
-        alloc_lfile(" txt", -1);
+        alloc_lfile(ctx, " txt", -1);
         (void)snpf(Namech, Namechl, "can't read text segment list (%s)",
                    print_kptr(pa, (char *)NULL, 0));
-        enter_nm(Namech);
+        enter_nm(ctx, Namech);
         if (Lf->sf)
-            link_lfile();
+            link_lfile(ctx);
         return;
     }
     /*
@@ -1136,7 +1140,7 @@ static void process_text(KA_T pa) /* address space description pointer */
      */
     for (avtp = &as.a_segtree, i = j = 0; (i < MAXSEGS) && (j < 2 * MAXSEGS);
          j++) {
-        if (j ? get_next_seg(avtp, &s) : get_first_seg(avtp, &s))
+        if (j ? get_next_seg(ctx, avtp, &s) : get_first_seg(ctx, avtp, &s))
             break;
         if ((KA_T)s.s_ops == Sgvops && s.s_data) {
             if (kread(ctx, (KA_T)s.s_data, (char *)&vn, sizeof(vn)))
@@ -1155,15 +1159,15 @@ static void process_text(KA_T pa) /* address space description pointer */
                 }
                 if (k >= i) {
                     v[i++] = (KA_T)vn.vp;
-                    alloc_lfile(" txt", -1);
+                    alloc_lfile(ctx, " txt", -1);
 
 #    if defined(FILEPTR)
                     FILEPTR = (struct file *)NULL;
 #    endif /* defined(FILEPTR) */
 
-                    process_node((KA_T)vn.vp);
+                    process_node(ctx, (KA_T)vn.vp);
                     if (Lf->sf)
-                        link_lfile();
+                        link_lfile(ctx);
                 }
             }
         }
@@ -1178,7 +1182,8 @@ static void process_text(KA_T pa) /* address space description pointer */
 #        define S_NEXT s_next
 #    endif /* solaris>=20400 */
 
-static void process_text(KA_T pa) /* address space description pointer */
+static void process_text(struct lsof_context *ctx, /* context */
+                         KA_T pa) /* address space description pointer */
 {
     struct as as;
     int i, j, k;
@@ -1192,7 +1197,7 @@ static void process_text(KA_T pa) /* address space description pointer */
         alloc_lfile(" txt", -1);
         (void)snpf(Namech, Namechl, "can't read text segment list (%s)",
                    print_kptr(pa, (char *)NULL, 0));
-        enter_nm(Namech);
+        enter_nm(ctx, Namech);
         if (Lf->sf)
             link_lfile();
         return;
@@ -1229,7 +1234,7 @@ static void process_text(KA_T pa) /* address space description pointer */
                     FILEPTR = (struct file *)NULL;
 #    endif /* defined(FILEPTR) */
 
-                    process_node((KA_T)vn.vp);
+                    process_node(ctx, (KA_T)vn.vp);
                     if (Lf->sf)
                         link_lfile();
                 }
@@ -1256,7 +1261,7 @@ static void process_text(KA_T pa) /* address space description pointer */
  * readfsinfo() - read file system information
  */
 
-static void readfsinfo() {
+static void readfsinfo(struct lsof_context *ctx) {
     char buf[FSTYPSZ + 1];
     int i, len;
 
@@ -1302,7 +1307,8 @@ static void readfsinfo() {
  * readkam() - read kernel's address map structure
  */
 
-static void readkam(KA_T addr) /* kernel virtual address */
+static void readkam(struct lsof_context *ctx, /* context */
+                    KA_T addr)                /* kernel virtual address */
 {
     register int i;
     register kvmhash_t *kp, *kpp;
@@ -1350,7 +1356,7 @@ static void readkam(KA_T addr) /* kernel virtual address */
  * As a side-effect, Kd is set by a call to kvm_open().
  */
 
-static void read_proc() {
+static void read_proc(struct lsof_context *ctx) {
     int ct, ctl, knp, n, try;
     MALLOC_S len;
     struct proc *p;
@@ -1549,8 +1555,8 @@ static void read_proc() {
         if (Np >= PROCMIN)
             break;
         if (!HasALLKMEM) {
-            close_kvm();
-            open_kvm();
+            close_kvm(ctx);
+            open_kvm(ctx);
         }
     }
     /*
@@ -1597,7 +1603,7 @@ static void read_proc() {
  * restoregid() -- restore setgid permission, as required
  */
 
-void restoregid() {
+void restoregid(struct lsof_context *ctx) {
     if (Switchgid == 2 && !Setgid) {
         if (setgid(Savedgid) != 0) {
             (void)fprintf(stderr, "%s: can't set effective GID to %d: %s\n", Pn,

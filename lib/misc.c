@@ -1186,8 +1186,9 @@ char *Readlink(struct lsof_context *ctx,
  * readstdata() - read stream's stdata structure
  */
 
-int readstdata(KA_T addr,          /* stdata address in kernel*/
-               struct stdata *buf) /* buffer addess */
+int readstdata(struct lsof_context *ctx, /* context */
+               KA_T addr,                /* stdata address in kernel*/
+               struct stdata *buf)       /* buffer addess */
 {
     if (!addr || kread(ctx, addr, (char *)buf, sizeof(struct stdata))) {
         (void)snpf(Namech, Namechl, "no stream data in %s",
@@ -1201,8 +1202,9 @@ int readstdata(KA_T addr,          /* stdata address in kernel*/
  * readsthead() - read stream head
  */
 
-int readsthead(KA_T addr,         /* starting queue pointer in kernel */
-               struct queue *buf) /* buffer for queue head */
+int readsthead(struct lsof_context *ctx, /* context */
+               KA_T addr,                /* starting queue pointer in kernel */
+               struct queue *buf)        /* buffer for queue head */
 {
     KA_T qp;
 
@@ -1224,9 +1226,10 @@ int readsthead(KA_T addr,         /* starting queue pointer in kernel */
  * readstidnm() - read stream module ID name
  */
 
-int readstidnm(KA_T addr,     /* module ID name address in kernel */
-               char *buf,     /* receiving buffer address */
-               READLEN_T len) /* buffer length */
+int readstidnm(struct lsof_context *ctx, /* context */
+               KA_T addr,                /* module ID name address in kernel */
+               char *buf,                /* receiving buffer address */
+               READLEN_T len)            /* buffer length */
 {
     if (!addr || kread(ctx, addr, buf, len)) {
         (void)snpf(Namech, Namechl, "can't read module ID name from %s",
@@ -1240,8 +1243,9 @@ int readstidnm(KA_T addr,     /* module ID name address in kernel */
  * readstmin() - read stream's module info
  */
 
-int readstmin(KA_T addr,               /* module info address in kernel */
-              struct module_info *buf) /* receiving buffer address */
+int readstmin(struct lsof_context *ctx, /* context */
+              KA_T addr,                /* module info address in kernel */
+              struct module_info *buf)  /* receiving buffer address */
 {
     if (!addr || kread(ctx, addr, (char *)buf, sizeof(struct module_info))) {
         (void)snpf(Namech, Namechl, "can't read module info from %s",
@@ -1255,8 +1259,9 @@ int readstmin(KA_T addr,               /* module info address in kernel */
  * readstqinit() - read stream's queue information structure
  */
 
-int readstqinit(KA_T addr,         /* queue info address in kernel */
-                struct qinit *buf) /* receiving buffer address */
+int readstqinit(struct lsof_context *ctx, /* context */
+                KA_T addr,                /* queue info address in kernel */
+                struct qinit *buf)        /* receiving buffer address */
 {
     if (!addr || kread(ctx, addr, (char *)buf, sizeof(struct qinit))) {
         (void)snpf(Namech, Namechl, "can't read queue info from %s",

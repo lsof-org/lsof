@@ -42,13 +42,15 @@ static char copyright[] =
 static struct mounts *Lmi = (struct mounts *)NULL; /* local mount info */
 static int Lmist = 0;                              /* Lmi status */
 
-static char *getmntdev(char *o, int l, struct stat *s, char *f);
+static char *getmntdev(struct lsof_context *ctx, char *o, int l, struct stat *s,
+                       char *f);
 
 /*
  * getmntdev() - get mount entry's device number
  */
 
-static char *getmntdev(char *o,        /* start of device option */
+static char *getmntdev(struct lsof_context *ctx, /* context */
+                       char *o,                  /* start of device option */
                        int l,          /* length of device keyword (not
                                         * including `=') */
                        struct stat *s, /* pointer to stat buffer to create */
@@ -85,7 +87,7 @@ static char *getmntdev(char *o,        /* start of device option */
  * readmnt() - read mount table
  */
 
-struct mounts *readmnt() {
+struct mounts *readmnt(struct lsof_context *ctx) {
     int devl, ignore;
     char *cp, *dir, *fs;
     char *dn = (char *)NULL;
@@ -160,7 +162,7 @@ struct mounts *readmnt() {
             (void)fprintf(stderr, ")\n");
             Error(ctx);
         }
-        if (!(ln = Readlink(dn))) {
+        if (!(ln = Readlink(ctx, dn))) {
             if (!Fwarn) {
                 (void)fprintf(stderr,
                               "      Output information may be incomplete.\n");
@@ -181,7 +183,7 @@ struct mounts *readmnt() {
          */
         dopt = hasmntopt(mp, MNTOPT_DEV);
         if (ignore) {
-            if (!dopt || !(dopte = getmntdev(dopt, devl, &sb,
+            if (!dopt || !(dopte = getmntdev(ctx, dopt, devl, &sb,
 
 #if defined(HASFSTYPE)
                                              mp->mnt_fstype
@@ -192,9 +194,9 @@ struct mounts *readmnt() {
                                              )))
                 continue;
             stat = 1;
-        } else if (statsafely(dn, &sb)) {
+        } else if (statsafely(ctx, dn, &sb)) {
             if (dopt) {
-                if (!(dopte = getmntdev(dopt, devl, &sb,
+                if (!(dopte = getmntdev(ctx, dopt, devl, &sb,
 
 #if defined(HASFSTYPE)
                                         mp->mnt_fstype
@@ -284,13 +286,13 @@ struct mounts *readmnt() {
         if (!(dn = mkstrcpy(fs, (MALLOC_S *)NULL)))
             goto no_space_for_mount;
         mtp->fsname = dn;
-        ln = Readlink(dn);
+        ln = Readlink(ctx, dn);
         dn = (char *)NULL;
         /*
          * Stat() the file system (mounted-on) name and add file system
          * information to the local mount table entry.
          */
-        if (!ln || statsafely(ln, &sb))
+        if (!ln || statsafely(ctx, ln, &sb))
             sb.st_mode = 0;
         mtp->fsnmres = ln;
         mtp->fs_mode = sb.st_mode;
@@ -380,7 +382,7 @@ struct l_vfs *readvfs(struct lsof_context *ctx, /* context */
      */
     if (v->vfs_fstype == AFSfstype) {
         if (!AFSdevStat)
-            (void)readmnt();
+            (void)readmnt(ctx);
         v->vfs_dev = AFSdevStat ? AFSdev : 0;
     }
 #endif /* defined(HAS_AFS) */
@@ -389,7 +391,7 @@ struct l_vfs *readvfs(struct lsof_context *ctx, /* context */
      * Complete mount information.
      */
 
-    (void)completevfs(vp, (dev_t *)&v->vfs_dev);
+    (void)completevfs(ctx, vp, (dev_t *)&v->vfs_dev);
     vp->next = Lvfs;
     vp->addr = ka;
     Lvfs = vp;

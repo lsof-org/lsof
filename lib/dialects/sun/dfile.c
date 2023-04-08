@@ -115,7 +115,7 @@ int get_max_fd() {
  * hashSfile() - hash Sfile entries for use in is_file_named() searches
  */
 
-void hashSfile() {
+void hashSfile(struct lsof_context *ctx) {
     int cmaj, hvc, i;
     static int hs = 0;
     struct sfile *s;
@@ -237,7 +237,8 @@ void hashSfile() {
  * is_file_named() - is this file named?
  */
 
-int is_file_named(char *p,       /* path name; NULL = search by device
+int is_file_named(struct lsof_context *ctx, /* context */
+                  char *p,       /* path name; NULL = search by device
                                   * and inode (from *Lf) */
                   int nt,        /* node type -- e.g., N_* */
                   enum vtype vt, /* vnode type */
@@ -335,7 +336,7 @@ int is_file_named(char *p,       /* path name; NULL = search by device
                  */
                 (void)snpf(Namech, Namechl, "%s", s->name);
                 if (s->devnm) {
-                    ep = endnm(&sz);
+                    ep = endnm(ctx, &sz);
                     (void)snpf(ep, sz, " (%s)", s->devnm);
                 }
             }
@@ -390,8 +391,8 @@ dev_t *dev;       /* device to be printed */
  * print_v_path() - print path name from vnode's v_path pointer
  */
 
-extern int print_v_path(lf)
-struct lfile *lf; /* local file structure */
+extern int print_v_path(struct lsof_context *ctx,
+                        struct lfile *lf) /* local file structure */
 {
     char buf[MAXPATHLEN + 1];
     unsigned char del = 0;
@@ -408,7 +409,7 @@ struct lfile *lf; /* local file structure */
     }
 #    endif /* defined(HASVXFS) && defined(HASVXFSRNL) */
 
-    (void)read_v_path((KA_T)lf->V_path, buf, (size_t)sizeof(buf));
+    (void)read_v_path(ctx, (KA_T)lf->V_path, buf, (size_t)sizeof(buf));
     if (buf[0]) {
 
 #    if defined(HASMNTSTAT)
@@ -419,7 +420,7 @@ struct lfile *lf; /* local file structure */
              * If the device and inode for the file are known, it is probably
              * safe and worthwhile to apply stat(2) to the v_path.
              */
-            if (!statsafely(buf, &sb)) {
+            if (!statsafely(ctx, buf, &sb)) {
 
                 /*
                  * The stat(2) succeeded.  See if the device and inode match.
@@ -484,9 +485,10 @@ struct lfile *lf; /* local file structure */
  * read_v_path() - read path name from vnode's v_path pointer
  */
 
-extern void read_v_path(ka, rb, rbl) KA_T ka; /* kernel path address */
-char *rb;                                     /* receiving buffer */
-size_t rbl;                                   /* receiving buffer length */
+extern void read_v_path(struct lsof_context *ctx,
+                        KA_T ka,    /* kernel path address */
+                        char *rb,   /* receiving buffer */
+                        size_t rbl) /* receiving buffer length */
 {
     char *ba;
     size_t rl, tl;
@@ -536,7 +538,8 @@ size_t rbl;                                   /* receiving buffer length */
  * process_file() - process file
  */
 
-void process_file(fp) KA_T fp; /* kernel file structure address */
+void process_file(struct lsof_context *ctx, /* context */
+                  KA_T fp)                  /* kernel file structure address */
 {
     struct file f;
     int flag;
@@ -548,7 +551,7 @@ void process_file(fp) KA_T fp; /* kernel file structure address */
     if (kread(ctx, fp, (char *)&f, sizeof(f))) {
         (void)snpf(Namech, Namechl, "can't read file struct from %s",
                    print_kptr(fp, (char *)NULL, 0));
-        enter_nm(Namech);
+        enter_nm(ctx, Namech);
         return;
     }
     Lf->off = (SZOFFTYPE)f.f_offset;
@@ -583,10 +586,10 @@ void process_file(fp) KA_T fp; /* kernel file structure address */
         /*
          * Solaris file structures contain a vnode pointer.  Process it.
          */
-        process_node((KA_T)f.f_vnode);
+        process_node(ctx, (KA_T)f.f_vnode);
         return;
     }
-    enter_nm("no more information");
+    enter_nm(ctx, "no more information");
 }
 
 #if defined(HASIPv6)

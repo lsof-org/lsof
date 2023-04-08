@@ -66,8 +66,9 @@ int readcdrnode(KA_T ca,           /* cdrnode kernel address */
  * readfifonode() - read fifonode
  */
 
-int readfifonode(KA_T fa,            /* fifonode kernel address */
-                 struct fifonode *f) /* fifonode buffer */
+int readfifonode(struct lsof_context *ctx, /* context */
+                 KA_T fa,                  /* fifonode kernel address */
+                 struct fifonode *f)       /* fifonode buffer */
 {
     if (kread(ctx, (KA_T)fa, (char *)f, sizeof(struct fifonode))) {
         (void)snpf(Namech, Namechl, "can't read fifonode at %s",
@@ -100,8 +101,9 @@ int readgnode(KA_T ga,         /* gnode kernel address */
  * readhsnode() - read High Sierra file system node
  */
 
-int readhsnode(KA_T ha,          /* hsnode kernel address */
-               struct hsnode *h) /* hsnode buffer */
+int readhsnode(struct lsof_context *ctx, /* context */
+               KA_T ha,                  /* hsnode kernel address */
+               struct hsnode *h)         /* hsnode buffer */
 {
     if (kread(ctx, (KA_T)ha, (char *)h, sizeof(struct hsnode))) {
         (void)snpf(Namech, Namechl, "can't read hsnode at %s",
@@ -117,8 +119,9 @@ int readhsnode(KA_T ha,          /* hsnode kernel address */
  * readinode() - read inode
  */
 
-int readinode(struct lsof_context *ctx, KA_T ia, /* inode kernel address */
-              struct inode *i)                   /* inode buffer */
+int readinode(struct lsof_context *ctx, /* context */
+              KA_T ia,                  /* inode kernel address */
+              struct inode *i)          /* inode buffer */
 {
     if (kread(ctx, (KA_T)ia, (char *)i, sizeof(struct inode))) {
         (void)snpf(Namech, Namechl, "can't read inode at %s",
@@ -151,8 +154,9 @@ int readpipenode(KA_T pa,            /* pipe node kernel address */
  * readrnode() - read rnode
  */
 
-int readrnode(KA_T ra,         /* rnode kernel space address */
-              struct rnode *r) /* rnode buffer pointer */
+int readrnode(struct lsof_context *ctx, /* context */
+              KA_T ra,                  /* rnode kernel space address */
+              struct rnode *r)          /* rnode buffer pointer */
 {
     if (kread(ctx, (KA_T)ra, (char *)r, sizeof(struct rnode))) {
         (void)snpf(Namech, Namechl, "can't read rnode at %s",
@@ -168,8 +172,9 @@ int readrnode(KA_T ra,         /* rnode kernel space address */
  * readsnode() - read snode
  */
 
-int readsnode(KA_T sa,         /* snode kernel space address */
-              struct snode *s) /* snode buffer pointer */
+int readsnode(struct lsof_context *ctx, /* context */
+              KA_T sa,                  /* snode kernel space address */
+              struct snode *s)          /* snode buffer pointer */
 {
     if (kread(ctx, (KA_T)sa, (char *)s, sizeof(struct snode))) {
         (void)snpf(Namech, Namechl, "can't read snode at %s",
@@ -185,8 +190,9 @@ int readsnode(KA_T sa,         /* snode kernel space address */
  * readtnode() - read tmpnode
  */
 
-int readtnode(KA_T ta,           /* tmpnode kernel space address */
-              struct tmpnode *t) /* tmpnode buffer pointer */
+int readtnode(struct lsof_context *ctx, /* context */
+              KA_T ta,                  /* tmpnode kernel space address */
+              struct tmpnode *t)        /* tmpnode buffer pointer */
 {
     if (kread(ctx, (KA_T)ta, (char *)t, sizeof(struct tmpnode))) {
         (void)snpf(Namech, Namechl, "can't read tmpnode at %s",
@@ -202,9 +208,9 @@ int readtnode(KA_T ta,           /* tmpnode kernel space address */
  * readvnode() - read vnode
  */
 
-int readvnode(struct lsof_context *ctx,
-              KA_T va,         /* vnode kernel space address */
-              struct vnode *v) /* vnode buffer pointer */
+int readvnode(struct lsof_context *ctx, /* context */
+              KA_T va,                  /* vnode kernel space address */
+              struct vnode *v)          /* vnode buffer pointer */
 {
     if (kread(ctx, (KA_T)va, (char *)v, sizeof(struct vnode))) {
         (void)snpf(Namech, Namechl, "can't read vnode at %s",

@@ -227,9 +227,11 @@ static CTF_request_t IRU_requests[] = {{ICMP_T_TYPE_NAME, icmp_t_members},
  * Icmp_t, rts_t and udp_t function prototypes
  */
 
-static int read_icmp_t(KA_T va, KA_T ph, KA_T ia, icmp_t *ic);
-static int read_rts_t(KA_T va, KA_T ph, KA_T ra, rts_t *rt);
-static int read_udp_t(KA_T ua, udp_t *uc);
+static int read_icmp_t(struct lsof_context *ctx, KA_T va, KA_T ph, KA_T ia,
+                       icmp_t *ic);
+static int read_rts_t(struct lsof_context *ctx, KA_T va, KA_T ph, KA_T ra,
+                      rts_t *rt);
+static int read_udp_t(struct lsof_context *ctx, KA_T ua, udp_t *uc);
 #endif /* defined(HAS_LIBCTF) && solaris>=110000 */
 
 #if solaris < 80000 || defined(HAS_IPCLASSIFIER_H)
@@ -306,42 +308,42 @@ static void save_TCP_states(tcp_t *tc, caddr_t *fa, tcpb_t *tb, caddr_t *xp);
  * build_IPstates() -- build the TCP and UDP state tables
  */
 
-void build_IPstates() {
+void build_IPstates(struct lsof_context *ctx) {
     if (!TcpSt) {
-        (void)enter_IPstate("TCP", "CLOSED", TCPS_CLOSED);
-        (void)enter_IPstate("TCP", "IDLE", TCPS_IDLE);
-        (void)enter_IPstate("TCP", "BOUND", TCPS_BOUND);
-        (void)enter_IPstate("TCP", "LISTEN", TCPS_LISTEN);
-        (void)enter_IPstate("TCP", "SYN_SENT", TCPS_SYN_SENT);
-        (void)enter_IPstate("TCP", "SYN_RCVD", TCPS_SYN_RCVD);
-        (void)enter_IPstate("TCP", "ESTABLISHED", TCPS_ESTABLISHED);
-        (void)enter_IPstate("TCP", "CLOSE_WAIT", TCPS_CLOSE_WAIT);
-        (void)enter_IPstate("TCP", "FIN_WAIT_1", TCPS_FIN_WAIT_1);
-        (void)enter_IPstate("TCP", "CLOSING", TCPS_CLOSING);
-        (void)enter_IPstate("TCP", "LAST_ACK", TCPS_LAST_ACK);
-        (void)enter_IPstate("TCP", "FIN_WAIT_2", TCPS_FIN_WAIT_2);
-        (void)enter_IPstate("TCP", "TIME_WAIT", TCPS_TIME_WAIT);
-        (void)enter_IPstate("TCP", (char *)NULL, 0);
+        (void)enter_IPstate(ctx, "TCP", "CLOSED", TCPS_CLOSED);
+        (void)enter_IPstate(ctx, "TCP", "IDLE", TCPS_IDLE);
+        (void)enter_IPstate(ctx, "TCP", "BOUND", TCPS_BOUND);
+        (void)enter_IPstate(ctx, "TCP", "LISTEN", TCPS_LISTEN);
+        (void)enter_IPstate(ctx, "TCP", "SYN_SENT", TCPS_SYN_SENT);
+        (void)enter_IPstate(ctx, "TCP", "SYN_RCVD", TCPS_SYN_RCVD);
+        (void)enter_IPstate(ctx, "TCP", "ESTABLISHED", TCPS_ESTABLISHED);
+        (void)enter_IPstate(ctx, "TCP", "CLOSE_WAIT", TCPS_CLOSE_WAIT);
+        (void)enter_IPstate(ctx, "TCP", "FIN_WAIT_1", TCPS_FIN_WAIT_1);
+        (void)enter_IPstate(ctx, "TCP", "CLOSING", TCPS_CLOSING);
+        (void)enter_IPstate(ctx, "TCP", "LAST_ACK", TCPS_LAST_ACK);
+        (void)enter_IPstate(ctx, "TCP", "FIN_WAIT_2", TCPS_FIN_WAIT_2);
+        (void)enter_IPstate(ctx, "TCP", "TIME_WAIT", TCPS_TIME_WAIT);
+        (void)enter_IPstate(ctx, "TCP", (char *)NULL, 0);
     }
     if (!UdpSt) {
-        (void)enter_IPstate("UDP", "Unbound", TS_UNBND);
-        (void)enter_IPstate("UDP", "Wait_BIND_REQ_Ack", TS_WACK_BREQ);
-        (void)enter_IPstate("UDP", "Wait_UNBIND_REQ_Ack", TS_WACK_UREQ);
-        (void)enter_IPstate("UDP", "Idle", TS_IDLE);
-        (void)enter_IPstate("UDP", "Wait_OPT_REQ_Ack", TS_WACK_OPTREQ);
-        (void)enter_IPstate("UDP", "Wait_CONN_REQ_Ack", TS_WACK_CREQ);
-        (void)enter_IPstate("UDP", "Wait_CONN_REQ_Confirm", TS_WCON_CREQ);
-        (void)enter_IPstate("UDP", "Wait_CONN_IND_Response", TS_WRES_CIND);
-        (void)enter_IPstate("UDP", "Wait_CONN_RES_Ack", TS_WACK_CRES);
-        (void)enter_IPstate("UDP", "Wait_Data_Xfr", TS_DATA_XFER);
-        (void)enter_IPstate("UDP", "Wait_Read_Release", TS_WIND_ORDREL);
-        (void)enter_IPstate("UDP", "Wait_Write_Release", TS_WREQ_ORDREL);
-        (void)enter_IPstate("UDP", "Wait_DISCON_REQ_Ack", TS_WACK_DREQ6);
-        (void)enter_IPstate("UDP", "Wait_DISCON_REQ_Ack", TS_WACK_DREQ7);
-        (void)enter_IPstate("UDP", "Wait_DISCON_REQ_Ack", TS_WACK_DREQ9);
-        (void)enter_IPstate("UDP", "Wait_DISCON_REQ_Ack", TS_WACK_DREQ10);
-        (void)enter_IPstate("UDP", "Wait_DISCON_REQ_Ack", TS_WACK_DREQ11);
-        (void)enter_IPstate("UDP", (char *)NULL, 0);
+        (void)enter_IPstate(ctx, "UDP", "Unbound", TS_UNBND);
+        (void)enter_IPstate(ctx, "UDP", "Wait_BIND_REQ_Ack", TS_WACK_BREQ);
+        (void)enter_IPstate(ctx, "UDP", "Wait_UNBIND_REQ_Ack", TS_WACK_UREQ);
+        (void)enter_IPstate(ctx, "UDP", "Idle", TS_IDLE);
+        (void)enter_IPstate(ctx, "UDP", "Wait_OPT_REQ_Ack", TS_WACK_OPTREQ);
+        (void)enter_IPstate(ctx, "UDP", "Wait_CONN_REQ_Ack", TS_WACK_CREQ);
+        (void)enter_IPstate(ctx, "UDP", "Wait_CONN_REQ_Confirm", TS_WCON_CREQ);
+        (void)enter_IPstate(ctx, "UDP", "Wait_CONN_IND_Response", TS_WRES_CIND);
+        (void)enter_IPstate(ctx, "UDP", "Wait_CONN_RES_Ack", TS_WACK_CRES);
+        (void)enter_IPstate(ctx, "UDP", "Wait_Data_Xfr", TS_DATA_XFER);
+        (void)enter_IPstate(ctx, "UDP", "Wait_Read_Release", TS_WIND_ORDREL);
+        (void)enter_IPstate(ctx, "UDP", "Wait_Write_Release", TS_WREQ_ORDREL);
+        (void)enter_IPstate(ctx, "UDP", "Wait_DISCON_REQ_Ack", TS_WACK_DREQ6);
+        (void)enter_IPstate(ctx, "UDP", "Wait_DISCON_REQ_Ack", TS_WACK_DREQ7);
+        (void)enter_IPstate(ctx, "UDP", "Wait_DISCON_REQ_Ack", TS_WACK_DREQ9);
+        (void)enter_IPstate(ctx, "UDP", "Wait_DISCON_REQ_Ack", TS_WACK_DREQ10);
+        (void)enter_IPstate(ctx, "UDP", "Wait_DISCON_REQ_Ack", TS_WACK_DREQ11);
+        (void)enter_IPstate(ctx, "UDP", (char *)NULL, 0);
     }
 }
 
@@ -349,7 +351,8 @@ void build_IPstates() {
  * print_tcptpi() - print TCP/TPI info
  */
 
-void print_tcptpi(int nl) /* 1 == '\n' required */
+void print_tcptpi(struct lsof_context *ctx, /* context */
+                  int nl)                   /* 1 == '\n' required */
 {
     char *cp = (char *)NULL;
     char sbuf[128];
@@ -361,7 +364,7 @@ void print_tcptpi(int nl) /* 1 == '\n' required */
         switch (Lf->lts.type) {
         case 0: /* TCP */
             if (!TcpSt)
-                (void)build_IPstates();
+                (void)build_IPstates(ctx);
             if ((i = Lf->lts.state.i + TcpStOff) < 0 || i >= TcpNstates) {
                 (void)snpf(sbuf, sizeof(sbuf), "UNKNOWN_TCP_STATE_%d",
                            Lf->lts.state.i);
@@ -371,7 +374,7 @@ void print_tcptpi(int nl) /* 1 == '\n' required */
             break;
         case 1: /* TPI */
             if (!UdpSt)
-                (void)build_IPstates();
+                (void)build_IPstates(ctx);
             if ((u = Lf->lts.state.ui + UdpStOff) < 0 || u >= UdpNstates) {
                 (void)snpf(sbuf, sizeof(sbuf), "UNKNOWN_UDP_STATE_%u",
                            Lf->lts.state.ui);
@@ -676,9 +679,10 @@ void print_tcptpi(int nl) /* 1 == '\n' required */
 #        define conn_src V4_PART_OF_V6(connua_v6addr.connua_laddr)
 #    endif /* defined(HAS_CONN_NEW) */
 
-int process_VSOCK(KA_T va,           /* containing vnode address */
-                  struct vnode *v,   /* pointer to containing vnode */
-                  struct sonode *so) /* pointer to socket's sonode */
+int process_VSOCK(struct lsof_context *ctx, /* context */
+                  KA_T va,                  /* containing vnode address */
+                  struct vnode *v,          /* pointer to containing vnode */
+                  struct sonode *so)        /* pointer to socket's sonode */
 {
     int af;           /* address family */
     struct conn_s cs; /* connection info */
@@ -721,10 +725,10 @@ int process_VSOCK(KA_T va,           /* containing vnode address */
                    print_kptr((KA_T)v->v_data, tbuf1, sizeof(tbuf1)),
                    print_kptr(pha, (char *)NULL, 0));
         Namech[Namechl - 1] = '\0';
-        enter_nm(Namech);
+        enter_nm(ctx, Namech);
         return (1);
     }
-    enter_dev_ch(print_kptr(pha, (char *)NULL, 0));
+    enter_dev_ch(ctx, print_kptr(pha, (char *)NULL, 0));
     /*
      * Process connection info by protocol.
      */
@@ -753,7 +757,7 @@ int process_VSOCK(KA_T va,           /* containing vnode address */
                            "can't read TCP socket's control structure: %s",
                            print_kptr((KA_T)ka, (char *)NULL, 0));
                 Namech[Namechl - 1] = '\0';
-                enter_nm(Namech);
+                enter_nm(ctx, Namech);
                 return (1);
             }
             /*
@@ -822,7 +826,7 @@ int process_VSOCK(KA_T va,           /* containing vnode address */
                 af = AF_INET;
             }
             lp = (u_short)cs.conn_lport;
-            (void)ent_inaddr(la, (int)ntohs(lp), fa, (int)ntohs(fp), af);
+            (void)ent_inaddr(ctx, la, (int)ntohs(lp), fa, (int)ntohs(fp), af);
             /*
              * Save TCP state information.
              */
@@ -860,7 +864,7 @@ int process_VSOCK(KA_T va,           /* containing vnode address */
                            "can't read UDP socket's control structure: %s",
                            print_kptr((KA_T)ka, (char *)NULL, 0));
                 Namech[Namechl - 1] = '\0';
-                enter_nm(Namech);
+                enter_nm(ctx, Namech);
                 return (1);
             }
             /*
@@ -915,7 +919,7 @@ int process_VSOCK(KA_T va,           /* containing vnode address */
                 fp = (u_short)cs.conn_fport;
             }
             lp = (u_short)cs.conn_lport;
-            (void)ent_inaddr(la, (int)ntohs(lp), fa, (int)ntohs(fp), af);
+            (void)ent_inaddr(ctx, la, (int)ntohs(lp), fa, (int)ntohs(fp), af);
             /*
              * Save UDP state and size information.
              */
@@ -971,7 +975,8 @@ int process_VSOCK(KA_T va,           /* containing vnode address */
             /*
              * Read the ICMP control structure.
              */
-            if (read_icmp_t(va, pha, (KA_T)cs.conn_proto_priv.cp_icmp, &ic))
+            if (read_icmp_t(ctx, va, pha, (KA_T)cs.conn_proto_priv.cp_icmp,
+                            &ic))
                 return (1);
             /*
              * Save ICMP size and state information.
@@ -1001,7 +1006,7 @@ int process_VSOCK(KA_T va,           /* containing vnode address */
             if (!IPv_ADDR_UNSPEC(af, ta))
                 fa = ta;
             if (la || fa)
-                (void)ent_inaddr(la, 0, fa, 0, af);
+                (void)ent_inaddr(ctx, la, 0, fa, 0, af);
 
 #    if defined(HASSOOPT)
             /*
@@ -1027,7 +1032,7 @@ int process_VSOCK(KA_T va,           /* containing vnode address */
                        "unsupported conn_s AF_INET%s protocol: %u",
                        (af == AF_INET6) ? "6" : "", (unsigned int)cs.conn_ulp);
             Namech[Namechl - 1] = '\0';
-            enter_nm(Namech);
+            enter_nm(ctx, Namech);
             return (1);
         }
         break;
@@ -1051,7 +1056,7 @@ int process_VSOCK(KA_T va,           /* containing vnode address */
         /*
          * Read routing control structure.
          */
-        if (read_rts_t(va, pha, (KA_T)cs.conn_proto_priv.cp_rts, &rt))
+        if (read_rts_t(ctx, va, pha, (KA_T)cs.conn_proto_priv.cp_rts, &rt))
             return (1);
         /*
         /*
@@ -1091,7 +1096,7 @@ int process_VSOCK(KA_T va,           /* containing vnode address */
         (void)snpf(Namech, Namechl - 1, "unsupported socket family: %u",
                    so->so_family);
         Namech[Namechl - 1] = '\0';
-        enter_nm(Namech);
+        enter_nm(ctx, Namech);
         Lf->inp_ty = 2;
     }
     return (1);
@@ -1102,7 +1107,8 @@ int process_VSOCK(KA_T va,           /* containing vnode address */
  * process_socket() - process Solaris socket
  */
 
-void process_socket(KA_T sa,  /* stream's data address in kernel */
+void process_socket(struct lsof_context *ctx, /* context */
+                    KA_T sa,  /* stream's data address in kernel */
                     char *ty) /* socket type name */
 {
     int af;
@@ -1283,7 +1289,7 @@ void process_socket(KA_T sa,  /* stream's data address in kernel */
     /*
      * Read stream queue entries to obtain private IP, TCP, and UDP structures.
      */
-    if (!sa || readstdata(sa, &sd))
+    if (!sa || readstdata(ctx, sa, &sd))
         qp = (KA_T)NULL;
     else
         qp = (KA_T)sd.sd_wrq;
@@ -1398,7 +1404,7 @@ void process_socket(KA_T sa,  /* stream's data address in kernel */
                 (cs.conn_ulp == IPPROTO_UDP)) {
                 ics = 1;
                 if ((ka = (KA_T)cs.conn_proto_priv.cp_udp) &&
-                    !read_udp_t(ka, &uc)) {
+                    !read_udp_t(ctx, ka, &uc)) {
                     ucs = 1;
                 }
             }
@@ -1451,7 +1457,7 @@ void process_socket(KA_T sa,  /* stream's data address in kernel */
          * Print stream head's q_ptr address as protocol control block address.
          */
         if (pcb)
-            enter_dev_ch(print_kptr(pcb, (char *)NULL, 0));
+            enter_dev_ch(ctx, print_kptr(pcb, (char *)NULL, 0));
         if (strncmp(Lf->iproto, "UDP", 3) == 0) {
 
             /*
@@ -1507,7 +1513,8 @@ void process_socket(KA_T sa,  /* stream's data address in kernel */
 #    endif /* defined(HASIPv6) */
 #endif     /* solaris<110000 */
 
-            (void)ent_inaddr(la, (int)ntohs(p), (unsigned char *)NULL, -1, af);
+            (void)ent_inaddr(ctx, la, (int)ntohs(p), (unsigned char *)NULL, -1,
+                             af);
             if (ucs) {
                 Lf->lts.type = 1;
                 Lf->lts.state.ui = (unsigned int)uc.udp_state;
@@ -1648,7 +1655,7 @@ void process_socket(KA_T sa,  /* stream's data address in kernel */
 #endif /* defined(HASIPv6) */
 
                 if (fa || la)
-                    (void)ent_inaddr(la, lp, fa, fp, af);
+                    (void)ent_inaddr(ctx, la, lp, fa, fp, af);
             }
             /*
              * Save TCP state information.
@@ -1672,7 +1679,7 @@ void process_socket(KA_T sa,  /* stream's data address in kernel */
      * Enter name characters if there are some.
      */
     if (Namech[0])
-        enter_nm(Namech);
+        enter_nm(ctx, Namech);
 }
 
 #if solaris >= 110000
@@ -1680,7 +1687,8 @@ void process_socket(KA_T sa,  /* stream's data address in kernel */
  * read_icmp_t() - read connections icmp_t info
  */
 
-static int read_icmp_t(KA_T va,    /* containing vnode kernel address */
+static int read_icmp_t(struct lsof_context *ctx, /* context */
+                       KA_T va,    /* containing vnode kernel address */
                        KA_T ph,    /* containing protocol handle kernel
                                     * address */
                        KA_T ia,    /* icmp_t structure's kernel address */
@@ -1695,7 +1703,7 @@ static int read_icmp_t(KA_T va,    /* containing vnode kernel address */
     zeromem((char *)ic, sizeof(icmp_t));
 #    endif /* defined(HAS_CONN_NEW) */
 
-    (void)CTF_init(&IRU_ctfs, IRU_MOD_FORMAT, IRU_requests);
+    (void)CTF_init(ctx, &IRU_ctfs, IRU_MOD_FORMAT, IRU_requests);
     if (!ia || CTF_MEMBER_READ(ia, ic, icmp_t_members, icmp_state)
 
 #    if defined(HAS_CONN_NEW)
@@ -1713,7 +1721,7 @@ static int read_icmp_t(KA_T va,    /* containing vnode kernel address */
                    print_kptr(ph, tbuf1, sizeof(tbuf1)),
                    print_kptr(ia, (char *)NULL, 0));
         Namech[Namechl - 1] = '\0';
-        enter_nm(Namech);
+        enter_nm(ctx, Namech);
         return (1);
     }
 
@@ -1747,7 +1755,8 @@ static int read_icmp_t(KA_T va,    /* containing vnode kernel address */
  * read_rts_t() - read connections rts_t info
  */
 
-static int read_rts_t(KA_T va,   /* containing vnode kernel address */
+static int read_rts_t(struct lsof_context *ctx, /* context */
+                      KA_T va,   /* containing vnode kernel address */
                       KA_T ph,   /* containing protocol handle kernel
                                   * address */
                       KA_T ra,   /* rts_t structure's kernel address */
@@ -1762,7 +1771,7 @@ static int read_rts_t(KA_T va,   /* containing vnode kernel address */
     zeromem((char *)rt, sizeof(rts_t));
 #    endif /* defined(HAS_CONN_NEW) */
 
-    (void)CTF_init(&IRU_ctfs, IRU_MOD_FORMAT, IRU_requests);
+    (void)CTF_init(ctx, &IRU_ctfs, IRU_MOD_FORMAT, IRU_requests);
     if (!ra || CTF_MEMBER_READ(ra, rt, rts_t_members, rts_state)
 
 #    if defined(HAS_CONN_NEW)
@@ -1778,7 +1787,7 @@ static int read_rts_t(KA_T va,   /* containing vnode kernel address */
                    print_kptr(ph, tbuf1, sizeof(tbuf1)),
                    print_kptr(ra, (char *)NULL, 0));
         Namech[Namechl - 1] = '\0';
-        enter_nm(Namech);
+        enter_nm(ctx, Namech);
         return (1);
     }
 
@@ -1810,10 +1819,11 @@ static int read_rts_t(KA_T va,   /* containing vnode kernel address */
  * read_udp_t() - read UDP control structure
  */
 
-static int read_udp_t(KA_T ua,   /* ucp_t kernel address */
-                      udp_t *uc) /* receiving udp_t structure */
+static int read_udp_t(struct lsof_context *ctx, /* context */
+                      KA_T ua,                  /* ucp_t kernel address */
+                      udp_t *uc)                /* receiving udp_t structure */
 {
-    (void)CTF_init(&IRU_ctfs, IRU_MOD_FORMAT, IRU_requests);
+    (void)CTF_init(ctx, &IRU_ctfs, IRU_MOD_FORMAT, IRU_requests);
     if (!ua || CTF_MEMBER_READ(ua, uc, udp_t_members, udp_state)
 
 #    if defined(HAS_CONN_NEW)
@@ -1831,7 +1841,7 @@ static int read_udp_t(KA_T ua,   /* ucp_t kernel address */
         (void)snpf(Namech, Namechl, "can't read udp_t: %s",
                    print_kptr(ua, (char *)NULL, 0));
         Namech[Namechl - 1] = '\0';
-        enter_nm(Namech);
+        enter_nm(ctx, Namech);
         return (1);
     }
     return (0);
