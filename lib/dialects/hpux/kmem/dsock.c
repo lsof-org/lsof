@@ -429,11 +429,11 @@ void process_lla(la) KA_T la; /* link level CB address in kernel */
      * Determine access mode.
      */
     if ((lcb.lla_flags & LLA_FWRITE | LLA_FREAD) == LLA_FWRITE)
-        Lf->access = 'w';
+        Lf->access = LSOF_FILE_ACCESS_WRITE;
     else if ((lcb.lla_flags & LLA_FWRITE | LLA_FREAD) == LLA_FREAD)
-        Lf->access = 'r';
+        Lf->access = LSOF_FILE_ACCESS_READ;
     else if (lcb.lla_flags & LLA_FWRITE | LLA_FREAD)
-        Lf->access = 'u';
+        Lf->access = LSOF_FILE_ACCESS_READ_WRITE;
     /*
      * Determine the open mode, if possible.
      */
@@ -542,16 +542,13 @@ void process_socket(sa) KA_T sa; /* socket address in kernel */
     /*
      * Save size information for HP-UX < 10.30.
      */
-    if (Fsize) {
-        if (Lf->access == 'r')
-            Lf->sz = (SZOFFTYPE)s.so_rcv.sb_cc;
-        else if (Lf->access == 'w')
-            Lf->sz = (SZOFFTYPE)s.so_snd.sb_cc;
-        else
-            Lf->sz = (SZOFFTYPE)(s.so_rcv.sb_cc + s.so_snd.sb_cc);
-        Lf->sz_def = 1;
-    } else
-        Lf->off_def = 1;
+    if (Lf->access == LSOF_FILE_ACCESS_READ)
+        Lf->sz = (SZOFFTYPE)s.so_rcv.sb_cc;
+    else if (Lf->access == LSOF_FILE_ACCESS_WRITE)
+        Lf->sz = (SZOFFTYPE)s.so_snd.sb_cc;
+    else
+        Lf->sz = (SZOFFTYPE)(s.so_rcv.sb_cc + s.so_snd.sb_cc);
+    Lf->sz_def = 1;
 
 #    if defined(HASTCPTPIQ)
     Lf->lts.rq = s.so_rcv.sb_cc;
@@ -772,20 +769,17 @@ void process_socket(sa) KA_T sa; /* socket address in kernel */
         /*
          * Save size information for HP-UX 10.30 and above.
          */
-        if (Fsize) {
-            if (!s.so_rcv || kread(ctx, (KA_T)s.so_rcv, (char *)&rb, sizeof(rb)))
-                rb.sb_cc = 0;
-            if (!s.so_snd || kread(ctx, (KA_T)s.so_snd, (char *)&sb, sizeof(sb)))
-                sb.sb_cc = 0;
-            if (Lf->access == 'r')
-                Lf->sz = (SZOFFTYPE)rb.sb_cc;
-            else if (Lf->access == 'w')
-                Lf->sz = (SZOFFTYPE)sb.sb_cc;
-            else
-                Lf->sz = (SZOFFTYPE)(rb.sb_cc + sb.sb_cc);
-            Lf->sz_def = 1;
-        } else
-            Lf->off_def = 1;
+        if (!s.so_rcv || kread(ctx, (KA_T)s.so_rcv, (char *)&rb, sizeof(rb)))
+            rb.sb_cc = 0;
+        if (!s.so_snd || kread(ctx, (KA_T)s.so_snd, (char *)&sb, sizeof(sb)))
+            sb.sb_cc = 0;
+        if (Lf->access == LSOF_FILE_ACCESS_READ)
+            Lf->sz = (SZOFFTYPE)rb.sb_cc;
+        else if (Lf->access == LSOF_FILE_ACCESS_WRITE)
+            Lf->sz = (SZOFFTYPE)sb.sb_cc;
+        else
+            Lf->sz = (SZOFFTYPE)(rb.sb_cc + sb.sb_cc);
+        Lf->sz_def = 1;
 #endif /* HPUXV>=1030 */
 
         /*
@@ -1029,69 +1023,58 @@ enum vtype vt;                                     /* vnode type */
         Lf->lts.rqs = Lf->lts.sqs = 1;
 #        endif /* defined(HASTCPTPIQ) */
 
-        if (Fsize) {
-            if (Lf->access == 'r')
-                Lf->sz = (SZOFFTYPE)rq;
-            else if (Lf->access == 'w')
-                Lf->sz = (SZOFFTYPE)sq;
-            else
-                Lf->sz = (SZOFFTYPE)(rq + sq);
-            Lf->sz_def = 1;
-        } else
-            Lf->off_def = 1;
+        if (Lf->access == LSOF_FILE_ACCESS_READ)
+            Lf->sz = (SZOFFTYPE)rq;
+        else if (Lf->access == LSOF_FILE_ACCESS_WRITE)
+            Lf->sz = (SZOFFTYPE)sq;
+        else
+            Lf->sz = (SZOFFTYPE)(rq + sq);
+        Lf->sz_def = 1;
 
-#    else  /* !defined(HASTCPTPIQ) && !defined(HASTCPTPIW) */
-        if (!Fsize)
-            Lf->off_def = 1;
 #    endif /* defined(HASTCPTPIQ) || defined(HASTCPTPIW) */
 
 #    if defined(HASTCPOPT)
-        if (Ftcptpi & TCPTPI_FLAGS) {
 
-            /*
-             * Save TCP options and values..
-             */
-            if (tc.tcp_naglim == (uint)1)
-                Lf->lts.topt |= TF_NODELAY;
-            Lf->lts.mss = (unsigned long)tc.tcp_mss;
-            Lf->lts.msss = (unsigned char)1;
-        }
+        /*
+         * Save TCP options and values..
+         */
+        if (tc.tcp_naglim == (uint)1)
+            Lf->lts.topt |= TF_NODELAY;
+        Lf->lts.mss = (unsigned long)tc.tcp_mss;
+        Lf->lts.msss = (unsigned char)1;
 #    endif /* defined(HASTCPOPT) */
 
 #    if defined(HASSOOPT)
-        if (Ftcptpi & TCPTPI_FLAGS) {
 
-            /*
-             * Save socket options.
-             */
-            if (tc.tcp_broadcast)
-                Lf->lts.opt |= SO_BROADCAST;
-            if (tc.tcp_so_debug)
-                Lf->lts.opt |= SO_DEBUG;
-            if (tc.tcp_dontroute)
-                Lf->lts.opt |= SO_DONTROUTE;
-            if (tc.tcp_keepalive_intrvl &&
-                (tc.tcp_keepalive_intrvl != 7200000)) {
-                Lf->lts.opt |= SO_KEEPALIVE;
-                Lf->lts.kai = (unsigned int)tc.tcp_keepalive_intrvl;
-            }
-            if (tc.tcp_lingering) {
-                Lf->lts.opt |= SO_LINGER;
-                Lf->lts.ltm = (unsigned int)tc.tcp_linger;
-            }
-            if (tc.tcp_oobinline)
-                Lf->lts.opt |= SO_OOBINLINE;
-            if (tc.tcp_reuseaddr)
-                Lf->lts.opt |= SO_REUSEADDR;
-            if (tc.tcp_reuseport)
-                Lf->lts.opt |= SO_REUSEPORT;
-            if (tc.tcp_useloopback)
-                Lf->lts.opt |= SO_USELOOPBACK;
-            Lf->lts.qlen = (unsigned int)tc.tcp_conn_ind_cnt;
-            Lf->lts.qlim = (unsigned int)tc.tcp_conn_ind_max;
-            if (Lf->lts.qlen || Lf->lts.qlim)
-                Lf->lts.qlens = Lf->lts.qlims = (unsigned char)1;
+        /*
+         * Save socket options.
+         */
+        if (tc.tcp_broadcast)
+            Lf->lts.opt |= SO_BROADCAST;
+        if (tc.tcp_so_debug)
+            Lf->lts.opt |= SO_DEBUG;
+        if (tc.tcp_dontroute)
+            Lf->lts.opt |= SO_DONTROUTE;
+        if (tc.tcp_keepalive_intrvl && (tc.tcp_keepalive_intrvl != 7200000)) {
+            Lf->lts.opt |= SO_KEEPALIVE;
+            Lf->lts.kai = (unsigned int)tc.tcp_keepalive_intrvl;
         }
+        if (tc.tcp_lingering) {
+            Lf->lts.opt |= SO_LINGER;
+            Lf->lts.ltm = (unsigned int)tc.tcp_linger;
+        }
+        if (tc.tcp_oobinline)
+            Lf->lts.opt |= SO_OOBINLINE;
+        if (tc.tcp_reuseaddr)
+            Lf->lts.opt |= SO_REUSEADDR;
+        if (tc.tcp_reuseport)
+            Lf->lts.opt |= SO_REUSEPORT;
+        if (tc.tcp_useloopback)
+            Lf->lts.opt |= SO_USELOOPBACK;
+        Lf->lts.qlen = (unsigned int)tc.tcp_conn_ind_cnt;
+        Lf->lts.qlim = (unsigned int)tc.tcp_conn_ind_max;
+        if (Lf->lts.qlen || Lf->lts.qlim)
+            Lf->lts.qlens = Lf->lts.qlims = (unsigned char)1;
 #    endif /* defined(HASSOOPT) */
 
         Namech[0] = '\0';
@@ -1123,8 +1106,6 @@ enum vtype vt;                                     /* vnode type */
         }
         (void)ent_inaddr(la, (int)ntohs(pt), (unsigned char *)NULL, -1,
                          AF_INET);
-        if (!Fsize)
-            Lf->off_def = 1;
         Lf->lts.type = 1;
         Lf->lts.state.ui = (unsigned int)ud.udp_state;
         Namech[0] = '\0';

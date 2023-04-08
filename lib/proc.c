@@ -30,6 +30,7 @@
 
 #include "common.h"
 #include "dlsof.h"
+#include "lsof.h"
 
 #if defined(HASEPTOPTS)
 _PROTOTYPE(static void prt_pinfo,
@@ -147,7 +148,8 @@ void alloc_lfile(struct lsof_context *ctx,
     /*
      * Initialize the structure.
      */
-    Lf->access = Lf->lock = ' ';
+    Lf->access = LSOF_FILE_ACCESS_NONE;
+    Lf->lock = ' ';
     Lf->dev_def = Lf->inp_ty = Lf->is_com = Lf->is_nfs = Lf->is_stream =
         Lf->lmi_srch = Lf->nlink_def = Lf->off_def = Lf->sz_def = Lf->rdev_def =
             (unsigned char)0;
@@ -1040,7 +1042,7 @@ static void prt_pinfo(struct lsof_context *ctx, pxinfo_t *pp, /* peer info */
             break;
     }
     (void)snpf(nma, sizeof(nma) - 1, "%d,%.*s,%s%c", ep->pid, CmdLim, ep->cmd,
-               &ef->fd[i], ef->access);
+               &ef->fd[i], access_to_char(ef->access));
     (void)add_nma(ctx, nma, strlen(nma));
     if (ps) {
 
@@ -1141,7 +1143,7 @@ static void prt_psxmqinfo(struct lsof_context *ctx,
             break;
     }
     (void)snpf(nma, sizeof(nma) - 1, "%d,%.*s,%s%c", ep->pid, CmdLim, ep->cmd,
-               &ef->fd[i], ef->access);
+               &ef->fd[i], access_to_char(ef->access));
     (void)add_nma(ctx, nma, strlen(nma));
     if (ps) {
 
@@ -1242,7 +1244,7 @@ static void prt_evtfdinfo(struct lsof_context *ctx,
             break;
     }
     (void)snpf(nma, sizeof(nma) - 1, "%d,%.*s,%s%c", ep->pid, CmdLim, ep->cmd,
-               &ef->fd[i], ef->access);
+               &ef->fd[i], access_to_char(ef->access));
     (void)add_nma(ctx, nma, strlen(nma));
     if (ps) {
 
@@ -1446,7 +1448,8 @@ int print_proc(struct lsof_context *ctx) {
          * Print selected fields.
          */
         if (FieldSel[LSOF_FIX_ACCESS].st) {
-            (void)printf("%c%c%c", LSOF_FID_ACCESS, Lf->access, Terminator);
+            (void)printf("%c%c%c", LSOF_FID_ACCESS, access_to_char(Lf->access),
+                         Terminator);
             lc++;
         }
         if (FieldSel[LSOF_FIX_LOCK].st) {
@@ -1690,10 +1693,10 @@ static void prt_ptyinfo(struct lsof_context *ctx, pxinfo_t *pp, /* peer info */
     if (prt_edev) {
         (void)snpf(nma, sizeof(nma) - 1, "->/dev/pts/%d %d,%.*s,%s%c",
                    Lf->tty_index, ep->pid, CmdLim, ep->cmd, &ef->fd[i],
-                   ef->access);
+                   access_to_char(ef->access));
     } else {
         (void)snpf(nma, sizeof(nma) - 1, "%d,%.*s,%s%c", ep->pid, CmdLim,
-                   ep->cmd, &ef->fd[i], ef->access);
+                   ep->cmd, &ef->fd[i], access_to_char(ef->access));
     }
     (void)add_nma(ctx, nma, strlen(nma));
     if (ps) {

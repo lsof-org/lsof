@@ -713,11 +713,11 @@ void process_proc_node(struct lsof_context *ctx,
      */
     if (l && (ls & SB_MODE) && ((l->st_mode & S_IFMT) == S_IFLNK)) {
         if ((access = l->st_mode & (S_IRUSR | S_IWUSR)) == S_IRUSR)
-            Lf->access = 'r';
+            Lf->access = LSOF_FILE_ACCESS_READ;
         else if (access == S_IWUSR)
-            Lf->access = 'w';
+            Lf->access = LSOF_FILE_ACCESS_WRITE;
         else
-            Lf->access = 'u';
+            Lf->access = LSOF_FILE_ACCESS_READ_WRITE;
     }
     /*
      * Determine node type.
@@ -806,28 +806,25 @@ void process_proc_node(struct lsof_context *ctx,
     case N_BLK:
     case N_CHR:
     case N_FIFO:
-        if (!Fsize && l && (ls & SB_SIZE) && OffType != OFFSET_UNKNOWN) {
+        if (l && (ls & SB_SIZE) && OffType != OFFSET_UNKNOWN) {
             Lf->off = (SZOFFTYPE)l->st_size;
             Lf->off_def = 1;
         }
         break;
     default:
-        if (Foffset) {
-            if (l && (ls & SB_SIZE) && OffType != OFFSET_UNKNOWN) {
-                Lf->off = (SZOFFTYPE)l->st_size;
-                Lf->off_def = 1;
-            }
-        } else if (!Foffset || Fsize) {
-            if (ss & SB_SIZE) {
-                Lf->sz = (SZOFFTYPE)s->st_size;
-                Lf->sz_def = 1;
-            }
+        if (l && (ls & SB_SIZE) && OffType != OFFSET_UNKNOWN) {
+            Lf->off = (SZOFFTYPE)l->st_size;
+            Lf->off_def = 1;
+        }
+        if (ss & SB_SIZE) {
+            Lf->sz = (SZOFFTYPE)s->st_size;
+            Lf->sz_def = 1;
         }
     }
     /*
      * Record the link count.
      */
-    if (Fnlink && (ss & SB_NLINK)) {
+    if (ss & SB_NLINK) {
         Lf->nlink = (long)s->st_nlink;
         Lf->nlink_def = 1;
         if (Nlink && (Lf->nlink < Nlink))

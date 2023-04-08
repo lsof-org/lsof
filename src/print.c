@@ -644,6 +644,7 @@ void print_file(struct lsof_context *ctx) {
     char *cp = (char *)NULL;
     dev_t dev;
     int devs, len;
+    char access;
 
     if (PrPass && !Hdr) {
 
@@ -845,19 +846,20 @@ void print_file(struct lsof_context *ctx) {
     /*
      * Size or print the file descriptor, access mode and lock status.
      */
+    access = access_to_char(Lf->access);
     if (!PrPass) {
         (void)snpf(buf, sizeof(buf), "%s%c%c", Lf->fd,
-                   (Lf->lock == ' ')     ? Lf->access
-                   : (Lf->access == ' ') ? '-'
-                                         : Lf->access,
+                   (Lf->lock == ' ') ? access
+                   : (access == ' ') ? '-'
+                                     : access,
                    Lf->lock);
         if ((len = strlen(buf)) > FdColW)
             FdColW = len;
     } else
         (void)printf(" %*.*s%c%c", FdColW - 2, FdColW - 2, Lf->fd,
-                     (Lf->lock == ' ')     ? Lf->access
-                     : (Lf->access == ' ') ? '-'
-                                           : Lf->access,
+                     (Lf->lock == ' ') ? access
+                     : (access == ' ') ? '-'
+                                       : access,
                      Lf->lock);
     /*
      * Size or print the type.
@@ -977,14 +979,14 @@ void print_file(struct lsof_context *ctx) {
      * Size or print the size or offset.
      */
     if (!PrPass) {
-        if (Lf->sz_def) {
+        if (!Foffset && Lf->sz_def) {
             if (Fhuman) {
                 len = human_readable_size(Lf->sz, 0, 0);
             } else {
                 (void)snpf(buf, sizeof(buf), SzOffFmt_d, Lf->sz);
                 len = strlen(buf);
             }
-        } else if (Lf->off_def) {
+        } else if (!Fsize && Lf->off_def) {
 
 #if defined(HASPRINTOFF)
             cp = HASPRINTOFF(Lf, 0);
@@ -1011,7 +1013,7 @@ void print_file(struct lsof_context *ctx) {
             SzOffColW = len;
     } else {
         putchar(' ');
-        if (Lf->sz_def) {
+        if (!Foffset && Lf->sz_def) {
             if (Fhuman) {
                 human_readable_size(Lf->sz, 1, SzOffColW);
             } else {
@@ -1019,7 +1021,7 @@ void print_file(struct lsof_context *ctx) {
                 len = strlen(buf);
                 (void)printf(SzOffFmt_dv, SzOffColW, Lf->sz);
             }
-        } else if (Lf->off_def) {
+        } else if (!Fsize && Lf->off_def) {
 
 #if defined(HASPRINTOFF)
             cp = HASPRINTOFF(Lf, 0);

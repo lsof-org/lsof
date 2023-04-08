@@ -32,8 +32,9 @@
  * $Id: lsof.h,v 1.70 2018/03/26 21:50:45 abe Exp $
  */
 
-#if !defined(LSOF_H)
-#    define LSOF_H 1
+#include "lsof.h"
+#if !defined(COMMON_H)
+#    define COMMON_H 1
 
 #    if defined(AUTOTOOLS)
 #        include "autotools.h"
@@ -795,7 +796,7 @@ extern char *InodeFmt_x;
 extern int LastPid;
 
 struct lfile {
-    char access;
+    enum lsof_file_access_mode access;
     char lock;
     unsigned char dev_def;   /* device number definition status */
     unsigned char inp_ty;    /* inode/iproto type

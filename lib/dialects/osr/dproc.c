@@ -219,37 +219,35 @@ void gather_proc_info() {
 #endif /* OSRV<42 */
 
 #if defined(HASFSTRUCT)
-        if (Fsv & FSV_FG) {
+
+        /*
+         * If u_pofile is in the u block, set its address.
+         */
+        if (nf && u->u_pofile && ((unsigned)u->u_pofile >= UVUBLK) &&
+            ((MALLOC_S)((unsigned)u->u_pofile - UVUBLK + nf) <= ual)) {
+            pof = ua + (unsigned)u->u_pofile - UVUBLK;
+        } else if (nf && u->u_pofile) {
 
             /*
-             * If u_pofile is in the u block, set its address.
+             * Allocate space for u_pofile and read it from kernel memory.
              */
-            if (nf && u->u_pofile && ((unsigned)u->u_pofile >= UVUBLK) &&
-                ((MALLOC_S)((unsigned)u->u_pofile - UVUBLK + nf) <= ual)) {
-                pof = ua + (unsigned)u->u_pofile - UVUBLK;
-            } else if (nf && u->u_pofile) {
-
-                /*
-                 * Allocate space for u_pofile and read it from kernel memory.
-                 */
-                if (nf > npofb) {
-                    if (!pofb)
-                        pofb = (char *)malloc((MALLOC_S)nf);
-                    else
-                        pofb = (char *)realloc((MALLOC_P *)pofb, (MALLOC_S)nf);
-                    if (!pofb) {
-                        (void)fprintf(stderr, "%s: no pofile space\n", Pn);
-                        Error(ctx);
-                    }
-                    npofb = nf;
-                }
-                if (kread(ctx, (KA_T)u->u_pofile, pofb, nf))
-                    pof = (char *)NULL;
+            if (nf > npofb) {
+                if (!pofb)
+                    pofb = (char *)malloc((MALLOC_S)nf);
                 else
-                    pof = pofb;
-            } else
+                    pofb = (char *)realloc((MALLOC_P *)pofb, (MALLOC_S)nf);
+                if (!pofb) {
+                    (void)fprintf(stderr, "%s: no pofile space\n", Pn);
+                    Error();
+                }
+                npofb = nf;
+            }
+            if (kread(ctx, (KA_T)u->u_pofile, pofb, nf))
                 pof = (char *)NULL;
-        }
+            else
+                pof = pofb;
+        } else
+            pof = (char *)NULL;
 #endif /* defined(HASFSTRUCT) */
 
         for (i = 0; i < nf; i++) {
@@ -259,7 +257,7 @@ void gather_proc_info() {
                 if (Lf->sf) {
 
 #if defined(HASFSTRUCT)
-                    if (Fsv & FSV_FG && pof)
+                    if (pof)
                         Lf->pof = (long)pof[i];
 #endif /* defined(HASFSTRUCT) */
 

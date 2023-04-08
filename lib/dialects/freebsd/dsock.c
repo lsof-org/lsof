@@ -391,17 +391,14 @@ void process_socket(struct lsof_context *ctx, struct kinfo_file *kf,
  * Save size information.
  */
 #if defined(HAS_KF_SOCK_SENDQ)
-    if (Fsize) {
-        if (Lf->access == 'r')
-            Lf->sz = (SZOFFTYPE)kf->kf_un.kf_sock.kf_sock_recvq;
-        else if (Lf->access == 'w')
-            Lf->sz = (SZOFFTYPE)kf->kf_un.kf_sock.kf_sock_sendq;
-        else
-            Lf->sz = (SZOFFTYPE)kf->kf_un.kf_sock.kf_sock_recvq +
-                     (SZOFFTYPE)kf->kf_un.kf_sock.kf_sock_sendq;
-        Lf->sz_def = 1;
-    } else
-        Lf->off_def = 1;
+    if (Lf->access == LSOF_FILE_ACCESS_READ)
+        Lf->sz = (SZOFFTYPE)kf->kf_un.kf_sock.kf_sock_recvq;
+    else if (Lf->access == LSOF_FILE_ACCESS_WRITE)
+        Lf->sz = (SZOFFTYPE)kf->kf_un.kf_sock.kf_sock_sendq;
+    else
+        Lf->sz = (SZOFFTYPE)kf->kf_un.kf_sock.kf_sock_recvq +
+                 (SZOFFTYPE)kf->kf_un.kf_sock.kf_sock_sendq;
+    Lf->sz_def = 1;
 
 #    if defined(HASTCPTPIQ)
     Lf->lts.rq = kf->kf_un.kf_sock.kf_sock_recvq;
@@ -575,8 +572,6 @@ void process_socket(struct lsof_context *ctx, struct kinfo_file *kf,
             enter_dev_ch(ctx, print_kptr((KA_T)(s->so_pcb), (char *)NULL, 0));
         else
             (void)snpf(Namech, Namechl, "no protocol control block");
-        if (!Fsize)
-            Lf->off_def = 1;
         break;
         /*
          * Process a Unix domain socket.

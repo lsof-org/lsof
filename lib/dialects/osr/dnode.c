@@ -555,58 +555,45 @@ void process_node(na) KA_T na; /* inode kernel space address */
     /*
      * Determine the file size.
      */
-    if (Foffset)
-        Lf->off_def = 1;
-    else {
-        switch (Ntype) {
-        case N_BLK:
-            if (!Fsize)
-                Lf->off_def = 1;
-            break;
-        case N_CHR:
-        case N_COM:
-            if (!Fsize)
-                Lf->off_def = 1;
-            break;
-        case N_FIFO:
+    switch (Ntype) {
+    case N_BLK:
+        break;
+    case N_CHR:
+    case N_COM:
+        break;
+    case N_FIFO:
 
 #if OSRV >= 500
-            if (hpps == 2) {
-                Lf->sz = (SZOFFTYPE)pi.count;
-                Lf->sz_def = 1;
-                break;
-            }
-#endif /* OSRV>=500 */
-
-            if (!Fsize)
-                Lf->off_def = 1;
-            break;
-        case N_HSFS:
-
-#if defined(HAS_NFS)
-        case N_NFS:
-            Lf->sz = (SZOFFTYPE)i.i_size;
+        if (hpps == 2) {
+            Lf->sz = (SZOFFTYPE)pi.count;
             Lf->sz_def = 1;
             break;
+        }
+#endif /* OSRV>=500 */
+        break;
+    case N_HSFS:
+
+#if defined(HAS_NFS)
+    case N_NFS:
+        Lf->sz = (SZOFFTYPE)i.i_size;
+        Lf->sz_def = 1;
+        break;
 #endif /* defined(HAS_NFS) */
 
-        case N_REGLR:
-            if (type == IFREG || type == IFDIR) {
-                Lf->sz = (SZOFFTYPE)i.i_size;
-                Lf->sz_def = 1;
-            }
-            break;
+    case N_REGLR:
+        if (type == IFREG || type == IFDIR) {
+            Lf->sz = (SZOFFTYPE)i.i_size;
+            Lf->sz_def = 1;
         }
+        break;
     }
     /*
      * Record link count.
      */
-    if (Fnlink) {
-        Lf->nlink = (long)i.i_nlink;
-        Lf->nlink_def = 1;
-        if (Nlink && (Lf->nlink < Nlink))
-            Lf->sf |= SELNLINK;
-    }
+    Lf->nlink = (long)i.i_nlink;
+    Lf->nlink_def = 1;
+    if (Nlink && (Lf->nlink < Nlink))
+        Lf->sf |= SELNLINK;
     /*
      * Format the type name.
      */

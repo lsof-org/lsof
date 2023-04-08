@@ -1112,7 +1112,7 @@ static void prt_uxs(struct lsof_context *ctx, uxsin_t *p, /* peer info */
                 break;
         }
         (void)snpf(nma, sizeof(nma) - 1, "%d,%.*s,%s%c", ep->pid, CmdLim,
-                   ep->cmd, &ef->fd[i], ef->access);
+                   ep->cmd, &ef->fd[i], access_to_char(ef->access));
         (void)add_nma(ctx, nma, strlen(nma));
         if (mk && FeptE == 2) {
 
@@ -1276,7 +1276,7 @@ static void prt_nets_common(struct lsof_context *ctx, void *p, /* peer info */
                 break;
         }
         (void)snpf(nma, sizeof(nma) - 1, "%d,%.*s,%s%c", ep->pid, CmdLim,
-                   ep->cmd, &ef->fd[i], ef->access);
+                   ep->cmd, &ef->fd[i], access_to_char(ef->access));
         (void)add_nma(ctx, nma, strlen(nma));
         if (mk && FeptE == 2) {
 
@@ -3594,11 +3594,9 @@ void process_proc_sock(struct lsof_context *ctx,
     /*
      * Enter offset, if possible.
      */
-    if (Foffset || !Fsize) {
-        if (l && (lss & SB_SIZE) && OffType != OFFSET_UNKNOWN) {
-            Lf->off = (SZOFFTYPE)l->st_size;
-            Lf->off_def = 1;
-        }
+    if (l && (lss & SB_SIZE) && OffType != OFFSET_UNKNOWN) {
+        Lf->off = (SZOFFTYPE)l->st_size;
+        Lf->off_def = 1;
     }
 
     /*

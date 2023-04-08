@@ -214,6 +214,8 @@ _PROTOTYPE(extern void print_tcptpi, (struct lsof_context * ctx, int nl));
 _PROTOTYPE(extern char *printuid, (UID_ARG uid, int *ty));
 _PROTOTYPE(extern void printunkaf,
            (struct lsof_context * ctx, int fam, int ty));
+_PROTOTYPE(extern void printunkaf, (struct lsof_context * ctx, int fam, int ty));
+_PROTOTYPE(extern char access_to_char, (enum lsof_file_access_mode access));
 _PROTOTYPE(extern char *printsockty, (int ty));
 _PROTOTYPE(extern void process_file, (struct lsof_context * ctx, KA_T fp));
 _PROTOTYPE(extern void process_node, (struct lsof_context * ctx, KA_T f));

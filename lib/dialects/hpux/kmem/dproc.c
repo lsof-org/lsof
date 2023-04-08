@@ -466,8 +466,7 @@ void gather_proc_info() {
                 if (Lf->sf) {
 
 #if defined(USESPOFILE)
-                    if (Fsv & FSV_FG)
-                        Lf->pof = pof;
+                    Lf->pof = pof;
 #endif /* defined(USESPOFILE) */
 
                     link_lfile();

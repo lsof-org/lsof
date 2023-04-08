@@ -72,11 +72,11 @@ void process_socket(struct lsof_context *ctx, struct kinfo_file *file) {
      */
     if (file->fd_fd >= 0) {
         if ((flag = (file->f_flag & (FREAD | FWRITE))) == FREAD)
-            Lf->access = 'r';
+            Lf->access = LSOF_FILE_ACCESS_READ;
         else if (flag == FWRITE)
-            Lf->access = 'w';
+            Lf->access = LSOF_FILE_ACCESS_WRITE;
         else if (flag == (FREAD | FWRITE))
-            Lf->access = 'u';
+            Lf->access = LSOF_FILE_ACCESS_READ_WRITE;
     }
 
     /* Fill iproto */
@@ -95,10 +95,6 @@ void process_socket(struct lsof_context *ctx, struct kinfo_file *file) {
         (void)snpf(Lf->iproto, sizeof(Lf->iproto), "%s", proto);
         Lf->inp_ty = 2;
     }
-
-    /* Fill offset, always zero */
-    Lf->off = 0;
-    Lf->off_def = 1;
 
     if (file->so_family == AF_INET || file->so_family == AF_INET6) {
         /* Show this entry if -i */
