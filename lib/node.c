@@ -137,8 +137,9 @@ int readinode(struct lsof_context *ctx, /* context */
  * readpipenode() - read pipe node
  */
 
-int readpipenode(KA_T pa,            /* pipe node kernel address */
-                 struct pipenode *p) /* pipe node buffer */
+int readpipenode(struct lsof_context *ctx, /* context */
+                 KA_T pa,                  /* pipe node kernel address */
+                 struct pipenode *p)       /* pipe node buffer */
 {
     if (kread(ctx, (KA_T)pa, (char *)p, sizeof(struct pipenode))) {
         (void)snpf(Namech, Namechl, "can't read pipenode at %s",

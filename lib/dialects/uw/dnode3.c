@@ -108,9 +108,9 @@ static unsigned char Dos2Unix[] = {
  * readbfslino() - read bfs inode's local inode information
  */
 
-int readbfslino(v, i)
-struct vnode *v; /* containing vnode */
-struct l_ino *i; /* local inode information */
+int readbfslino(struct lsof_context *ctx, /* context */
+                struct vnode *v,          /* containing vnode */
+                struct l_ino *i)          /* local inode information */
 {
     struct inode b;
     struct vfs kv;
@@ -140,9 +140,9 @@ struct l_ino *i; /* local inode information */
  * Adapted from work by Eric Dumazet <edumazet@cosmosbay.com>.
  */
 
-int readcdfslino(v, i)
-struct vnode *v; /* containing vnode */
-struct l_ino *i; /* local inode information */
+int readcdfslino(struct lsof_context *ctx, /* context */
+                 struct vnode *v,          /* containing vnode */
+                 struct l_ino *i)          /* local inode information */
 {
     cdfs_inode_t ci;
     TYPELOGSECSHIFT lss;
@@ -192,9 +192,9 @@ struct l_ino *i; /* local inode information */
  * Adapted from work by Eric Dumazet <edumazet@cosmosbay.com>.
  */
 
-int readdosfslino(v, i)
-struct vnode *v; /* containing vnode */
-struct l_ino *i; /* local inode information */
+int readdosfslino(struct lsof_context *ctx, /* context */
+                  struct vnode *v,          /* containing vnode */
+                  struct l_ino *i)          /* local inode information */
 {
     struct dosfs_inode {
         int pad1[19];

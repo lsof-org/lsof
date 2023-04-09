@@ -76,9 +76,9 @@ struct vx_inode {
  * readvxfslino() - read vxfs inode's local inode information
  */
 
-int readvxfslino(v, i)
-struct vnode *v; /* containing vnode */
-struct l_ino *i; /* local inode information */
+int readvxfslino(struct lsof_context *ctx,
+                 struct vnode *v, /* containing vnode */
+                 struct l_ino *i) /* local inode information */
 {
 
 #if defined(HASVXFS)

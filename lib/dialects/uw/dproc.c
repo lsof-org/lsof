@@ -68,7 +68,7 @@ static void process_text(KA_T pa);
  * gather_proc_info() -- gather process information
  */
 
-void gather_proc_info() {
+void gather_proc_info(struct lsof_context *ctx) {
     struct cred cr;
     struct execinfo ex;
     static struct fd_entry *fe;
@@ -215,7 +215,7 @@ void gather_proc_info() {
  * get_clonemaj() - get clone major device number
  */
 
-static int get_clonemaj() {
+static int get_clonemaj(struct lsof_context *ctx) {
     KA_T v;
 
 #if UNIXWAREV < 70000
@@ -275,7 +275,7 @@ static int get_clonemaj() {
  * get_kernel_access() - get access to kernel memory
  */
 
-static void get_kernel_access() {
+static void get_kernel_access(struct lsof_context *ctx) {
     KA_T v;
     /*
      * Check kernel version.
@@ -358,9 +358,9 @@ static void get_kernel_access() {
  * initialize() - perform all initialization
  */
 
-void initialize() {
+void initialize(struct lsof_context *ctx) {
     get_kernel_access();
-    readfsinfo();
+    readfsinfo(struct lsof_context * ctx);
 }
 
 /*
@@ -471,7 +471,7 @@ static void process_text(pa) KA_T pa; /* kernel address space description
  * readfsinfo() - read file system information
  */
 
-static void readfsinfo() {
+static void readfsinfo(struct lsof_context *ctx) {
     char buf[FSTYPSZ + 1];
     int i, len;
 
@@ -507,7 +507,7 @@ static void readfsinfo() {
  * read_proc() - read the process table
  */
 
-static void read_proc() {
+static void read_proc(struct lsof_context *ctx) {
     MALLOC_S len;
     struct proc *p;
     KA_T pa;

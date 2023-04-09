@@ -46,7 +46,7 @@ static int Lmist = 0;                              /* Lmi status */
  * readmnt() - read mount table
  */
 
-struct mounts *readmnt() {
+struct mounts *readmnt(struct lsof_context *ctx) {
     char *dn = (char *)NULL;
     char *ln;
     struct mnttab me;

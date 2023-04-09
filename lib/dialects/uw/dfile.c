@@ -51,7 +51,8 @@ int get_max_fd() {
  * process_file() - process file
  */
 
-void process_file(fp) KA_T fp; /* kernel file structure address */
+void process_file(struct lsof_context *ctx, /* context */
+                  KA_T fp)                  /* kernel file structure address */
 {
     struct file f;
     int flag;

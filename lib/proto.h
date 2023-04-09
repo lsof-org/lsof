@@ -266,7 +266,7 @@ extern int get_Nl_value(char *nn, struct drive_Nl *d, KA_T *v);
 #    endif /* defined(HASNLIST) */
 
 #    if defined(HASPIPENODE)
-extern int readpipenode(KA_T pa, struct pipenode *p);
+extern int readpipenode(struct lsof_context *ctx, KA_T pa, struct pipenode *p);
 #    endif /* defined(HASPIPENODE) */
 
 #    if defined(HASPRINTDEV)

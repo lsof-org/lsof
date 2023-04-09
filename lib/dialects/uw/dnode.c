@@ -137,28 +137,21 @@ char *d;                                /* direction ("->" or "<-") */
  * examine_stream() - examine stream
  */
 
-static int
-
-#if UNIXWAREV < 70103
-examine_stream(vs, q, mn, sn, sqp)
-#else  /* UNIXWAREV>=70103 */
-examine_stream(vs, q, mch, mn, sn, sqp)
-#endif /* UNIXWAREV<70103 */
-
-KA_T vs;         /* stream head's stdata kernel
-                  * address */
-struct queue *q; /* queue structure buffer */
+static int examine_stream(struct lsof_context *ctx, /* context */
+                          KA_T vs,         /* stream head's stdata kernel
+                                            * address */
+                          struct queue *q, /* queue structure buffer */
 
 #if UNIXWAREV >= 70103
-char **mch; /* important stream module name chain,
-             * module names separated by "->" */
-char **mn;  /* pointer to module name receiver */
-#else       /* UNIXWAREV<70103 */
-char *mn; /* module name receiver */
-#endif      /* UNIXWAREV>=70103 */
+                          char **mch, /* important stream module name chain,
+                                       * module names separated by "->" */
+                          char **mn,  /* pointer to module name receiver */
+#else                                 /* UNIXWAREV<70103 */
+                          char *mn, /* module name receiver */
+#endif                                /* UNIXWAREV>=70103 */
 
-char *sn;  /* special module name */
-KA_T *sqp; /* special module's q_ptr */
+                          char *sn,  /* special module name */
+                          KA_T *sqp) /* special module's q_ptr */
 {
     struct module_info mi;
     KA_T qp;
@@ -424,11 +417,11 @@ static void getspdev() {
  *	   -3 if the vfs structure can't be read
  */
 
-static int get_vty(v, va, kv, fx)
-struct vnode *v; /* vnode to test */
-KA_T va;         /* vnode's kernel address */
-struct vfs *kv;  /* copy of vnode's kernel vfs struct */
-int *fx;         /* file system type index */
+static int get_vty(struct lsof_context *ctx, /* context */
+                   struct vnode *v,          /* vnode to test */
+                   KA_T va,                  /* vnode's kernel address */
+                   struct vfs *kv, /* copy of vnode's kernel vfs struct */
+                   int *fx)        /* file system type index */
 {
     int fxt;
     int nty = N_REGLR;
@@ -526,8 +519,8 @@ struct vfs *kv;   /* copy of kernel VFS structure */
  * isvlocked() - is a vnode locked
  */
 
-static char isvlocked(va)
-struct vnode *va; /* local vnode address */
+static char isvlocked(struct lsof_context *ctx, /* context */
+                      struct vnode *va)         /* local vnode address */
 {
     struct filock f;
     KA_T flf, flp;
@@ -578,7 +571,8 @@ struct vnode *va; /* local vnode address */
  * process_node() - process node
  */
 
-void process_node(na) KA_T na; /* vnode kernel space address */
+void process_node(struct lsof_context *ctx, /* context */
+                  KA_T na)                  /* vnode kernel space address */
 {
     char *cp, *ep;
     dev_t dev, rdev;
@@ -1388,10 +1382,9 @@ get_lock_state:
  * readlino() - read local inode information
  */
 
-static int readlino(fx, v, i)
-int fx;          /* file system index */
-struct vnode *v; /* vnode pointing to inode */
-struct l_ino *i; /* local inode */
+static int readlino(struct lsof_context *ctx, int fx, /* file system index */
+                    struct vnode *v, /* vnode pointing to inode */
+                    struct l_ino *i) /* local inode */
 {
 
 #if defined(HAS_UW_CFS)

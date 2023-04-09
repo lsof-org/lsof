@@ -749,8 +749,9 @@ void print_tcptpi(nl) int nl; /* 1 == '\n' required */
  * process_socket() - process socket
  */
 
-void process_socket(pr, q) char *pr; /* protocol name */
-struct queue *q;                     /* queue at end of stream */
+void process_socket(struct lsof_context *ctx, /* context */
+                    char *pr,                 /* protocol name */
+                    struct queue *q)          /* queue at end of stream */
 {
     unsigned char *fa = (unsigned char *)NULL;
     int fp, ipv, lp;
@@ -892,9 +893,9 @@ struct queue *q;                     /* queue at end of stream */
  * process_unix_sockstr() - process a UNIX socket stream, if applicable
  */
 
-int process_unix_sockstr(v, na)
-struct vnode *v; /* the stream's vnode */
-KA_T na;         /* kernel vnode address */
+int process_unix_sockstr(struct lsof_context *ctx,
+                         struct vnode *v, /* the stream's vnode */
+                         KA_T na)         /* kernel vnode address */
 {
     int as;
     char *ep, tbuf[32], tbuf1[32], *ty;

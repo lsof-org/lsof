@@ -1082,7 +1082,8 @@ int read_dcache(struct lsof_context *ctx) {
  * rw_clone_sect() - read/write the device cache file clone section
  */
 
-static int rw_clone_sect(int m) /* mode: 1 = read; 2 = write */
+static int rw_clone_sect(struct lsof_context *ctx,
+                         int m) /* mode: 1 = read; 2 = write */
 {
     char buf[MAXPATHLEN * 2], *cp, *cp1;
     struct clone *c;
