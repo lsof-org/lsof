@@ -116,7 +116,8 @@ static int sanity_check_namecache(const struct namecache *nc) {
     return 0;
 }
 
-static void ncache_walk(KA_T ncp, const struct lnc *plnc) {
+static void ncache_walk(struct lsof_context *ctx, KA_T ncp,
+                        const struct lnc *plnc) {
     struct l_nch *lc;
     static struct vnode_impl vi;
     static struct namecache nc;
@@ -145,7 +146,7 @@ static void ncache_walk(KA_T ncp, const struct lnc *plnc) {
         ncache_walk(right, plnc);
 }
 
-void ncache_load() {
+void ncache_load(struct lsof_context *ctx) {
     KA_T rootvnode_addr;
     struct vnode_impl vi;
 

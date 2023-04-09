@@ -286,10 +286,10 @@ char *punct;                                       /* punctuation */
  * usage() - display usage and exit
  */
 
-void usage(err, fh,
-           version) int err; /* it is called as part of error handlng? */
-int fh;                      /* ``-F ?'' status */
-int version;                 /* ``-v'' status */
+void usage(struct lsof_context *ctx, /* context */
+           int err,     /* it is called as part of error handlng? */
+           int fh,      /* ``-F ?'' status */
+           int version) /* ``-v'' status */
 {
     char buf[MAXPATHLEN + 1], *cp, *cp1, *cp2;
     int col, i;
@@ -647,7 +647,7 @@ int version;                 /* ``-v'' status */
                             : N_UNIX
 #    else  /* !defined(N_UNIX) */
                       : (Nmlst = get_nlist_path(ctx, 1)) ? Nmlst
-                                                    : "none found"
+                                                         : "none found"
 #    endif /* defined(N_UNIX) */
 
         );

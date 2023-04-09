@@ -71,17 +71,17 @@ extern void dropgid(struct lsof_context *ctx);
 #    endif /* defined(WILLDROPGID) */
 
 extern char *endnm(struct lsof_context *ctx, size_t *sz);
-extern int enter_cmd_rx(char *x);
+extern int enter_cmd_rx(struct lsof_context *ctx, char *x);
 extern void enter_dev_ch(struct lsof_context *ctx, char *m);
-extern int enter_dir(char *d, int descend);
+extern int enter_dir(struct lsof_context *ctx, char *d, int descend);
 
 #    if defined(HASEOPT)
-extern int enter_efsys(char *e, int rdlnk);
+extern int enter_efsys(struct lsof_context *ctx, char *e, int rdlnk);
 #    endif /* defined(HASEOPT) */
 
-extern int enter_fd(char *f);
-extern int enter_network_address(char *na);
-extern int enter_id(enum IDType ty, char *p);
+extern int enter_fd(struct lsof_context *ctx, char *f);
+extern int enter_network_address(struct lsof_context *ctx, char *na);
+extern int enter_id(struct lsof_context *ctx, enum IDType ty, char *p);
 extern void enter_IPstate(struct lsof_context *ctx, char *ty, char *nm, int nr);
 extern void enter_nm(struct lsof_context *ctx, char *m);
 
@@ -91,7 +91,7 @@ extern int enter_state_spec(struct lsof_context *ctx, char *ss);
 
 extern int enter_str_lst(char *opt, char *s, struct str_lst **lp, int *incl,
                          int *excl);
-extern int enter_uid(char *us);
+extern int enter_uid(struct lsof_context *ctx, char *us);
 extern void ent_inaddr(struct lsof_context *ctx, unsigned char *la, int lp,
                        unsigned char *fa, int fp, int af);
 extern int examine_lproc(struct lsof_context *ctx);
@@ -137,7 +137,7 @@ extern void process_nets6info(struct lsof_context *ctx, int f);
 
 extern void free_lproc(struct lproc *lp);
 extern void gather_proc_info(struct lsof_context *ctx);
-extern char *gethostnm(unsigned char *ia, int af);
+extern char *gethostnm(struct lsof_context *ctx, unsigned char *ia, int af);
 
 #    if !defined(GET_MAX_FD)
 /*
@@ -186,7 +186,7 @@ extern char *print_kptr(KA_T kp, char *buf, size_t bufl);
 extern int print_proc(struct lsof_context *ctx);
 extern void printrawaddr(struct lsof_context *ctx, struct sockaddr *sa);
 extern void print_tcptpi(struct lsof_context *ctx, int nl);
-extern char *printuid(UID_ARG uid, int *ty);
+extern char *printuid(struct lsof_context *ctx, UID_ARG uid, int *ty);
 extern void printunkaf(struct lsof_context *ctx, int fam, int ty);
 extern char access_to_char(enum lsof_file_access_mode access);
 extern char *printsockty(int ty);
@@ -202,7 +202,7 @@ extern void safestrprtn(char *sp, int len, FILE *fs, int flags);
 extern void safestrprt(char *sp, FILE *fs, int flags);
 extern int statsafely(struct lsof_context *ctx, char *path, struct stat *buf);
 extern void stkdir(struct lsof_context *ctx, char *p);
-extern void usage(int err, int fh, int version);
+extern void usage(struct lsof_context *ctx, int err, int fh, int version);
 extern int util_strftime(char *fmtr, int fmtl, char *fmt);
 extern int vfy_dev(struct lsof_context *ctx, struct l_dev *dp);
 extern char *x2dev(char *s, dev_t *d);

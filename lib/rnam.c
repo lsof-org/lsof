@@ -177,8 +177,9 @@ ncache_addr(
  * ncache_isroot() - is head of name cache path a file system root?
  */
 
-static int ncache_isroot(KA_T na,  /* kernel node address */
-                         char *cp) /* partial path */
+static int ncache_isroot(struct lsof_context *ctx, /* context */
+                         KA_T na,                  /* kernel node address */
+                         char *cp)                 /* partial path */
 {
     char buf[MAXPATHLEN];
     int i;

@@ -80,14 +80,16 @@ static struct porttab **Pth[4] = {NULL, NULL, NULL, NULL};
 #define HASHPORT(p) (((((int)(p)) * 31415) >> 3) & (PORTHASHBUCKETS - 1))
 
 #if !defined(HASNORPC_H)
-static void fill_portmap(void);
-static void update_portmap(struct porttab *pt, char *pn);
+static void fill_portmap(struct lsof_context *ctx);
+static void update_portmap(struct lsof_context *ctx, struct porttab *pt,
+                           char *pn);
 #endif /* !defined(HASNORPC_H) */
 
-static void fill_porttab(void);
-static char *lkup_port(int p, int pr, int src);
-static char *lkup_svcnam(int h, int p, int pr, int ss);
-static int printinaddr(void);
+static void fill_porttab(struct lsof_context *ctx);
+static char *lkup_port(struct lsof_context *ctx, int p, int pr, int src);
+static char *lkup_svcnam(struct lsof_context *ctx, int h, int p, int pr,
+                         int ss);
+static int printinaddr(struct lsof_context *ctx);
 static int human_readable_size(SZOFFTYPE sz, int print, int col);
 
 /*
@@ -147,7 +149,7 @@ char *endnm(struct lsof_context *ctx, size_t *sz) /* returned remaining size */
  * SUCH DAMAGE.
  */
 
-static void fill_portmap() {
+static void fill_portmap(struct lsof_context *ctx) {
     static int already_run = 0;
     char buf[128], *cp, *nm;
     CLIENT *c;
@@ -281,7 +283,7 @@ static void fill_portmap() {
  *		     getservent() scan
  */
 
-static void fill_porttab() {
+static void fill_porttab(struct lsof_context *ctx) {
     int h, p, pr;
     MALLOC_S nl;
     char *nm;
@@ -350,10 +352,10 @@ static void fill_porttab() {
  * gethostnm() - get host name
  */
 
-char *gethostnm(ia, af)
-unsigned char *ia; /* Internet address */
-int af;            /* address family -- e.g., AF_INET
-                    * or AF_INET6 */
+char *gethostnm(struct lsof_context *ctx, /* context */
+                unsigned char *ia,        /* Internet address */
+                int af)                   /* address family -- e.g., AF_INET
+                                           * or AF_INET6 */
 {
     int al = MIN_AF_ADDR;
     char hbuf[256];
@@ -453,11 +455,11 @@ int af;            /* address family -- e.g., AF_INET
  * lkup_port() - look up port for protocol
  */
 
-static char *lkup_port(p, pr, src)
-int p;   /* port number */
-int pr;  /* protocol index: 0 = tcp, 1 = udp */
-int src; /* port source: 0 = local
-          *		1 = foreign */
+static char *lkup_port(struct lsof_context *ctx, /* context */
+                       int p,                    /* port number */
+                       int pr,  /* protocol index: 0 = tcp, 1 = udp */
+                       int src) /* port source: 0 = local
+                                 *		1 = foreign */
 {
     int h, nh;
     MALLOC_S nl;
@@ -494,7 +496,7 @@ int src; /* port source: 0 = local
      * portmap table has been loaded.
      */
     if (FportMap)
-        (void)fill_portmap();
+        (void)fill_portmap(ctx);
 #endif /* !defined(HASNORPC_H) */
 
     /*
@@ -509,12 +511,12 @@ int src; /* port source: 0 = local
             if (pt->port != p)
                 continue;
             if (!pt->ss) {
-                pn = Fport ? lkup_svcnam(h, p, pr, 0) : (char *)NULL;
+                pn = Fport ? lkup_svcnam(ctx, h, p, pr, 0) : (char *)NULL;
                 if (!pn) {
                     (void)snpf(pb, sizeof(pb), "%d", p);
                     pn = pb;
                 }
-                (void)update_portmap(pt, pn);
+                (void)update_portmap(ctx, pt, pn);
             }
             return (pt->name);
         }
@@ -534,7 +536,7 @@ int src; /* port source: 0 = local
      * Don't cache %d conversions; a zero port number is a %d conversion that
      * is represented by "*".
      */
-    pn = Fport ? lkup_svcnam(h, p, pr, 1) : (char *)NULL;
+    pn = Fport ? lkup_svcnam(ctx, h, p, pr, 1) : (char *)NULL;
     if (!pn || !strlen(pn)) {
         if (p) {
             (void)snpf(pb, sizeof(pb), "%d", p);
@@ -574,12 +576,12 @@ int src; /* port source: 0 = local
  * lkup_svcnam() - look up service name for port
  */
 
-static char *lkup_svcnam(h, p, pr, ss)
-int h;  /* porttab hash index */
-int p;  /* port number */
-int pr; /* protocol: 0 = TCP, 1 = UDP */
-int ss; /* search status: 1 = Pth[pr][h]
-         *		  already searched */
+static char *lkup_svcnam(struct lsof_context *ctx, /* context */
+                         int h,                    /* porttab hash index */
+                         int p,                    /* port number */
+                         int pr, /* protocol: 0 = TCP, 1 = UDP */
+                         int ss) /* search status: 1 = Pth[pr][h]
+                                  *		  already searched */
 {
     static int fl[PORTTABTHRESH];
     static int fln = 0;
@@ -628,7 +630,7 @@ int ss; /* search status: 1 = Pth[pr][h]
                 fl[fln++] = p;
             return ((char *)NULL);
         }
-        (void)fill_porttab();
+        (void)fill_porttab(ctx);
         ptf++;
         ss = 0;
     }
@@ -838,11 +840,11 @@ void print_file(struct lsof_context *ctx) {
      * Size or print the user ID or login name.
      */
     if (!PrPass) {
-        if ((len = strlen(printuid((UID_ARG)Lp->uid, NULL))) > UserColW)
+        if ((len = strlen(printuid(ctx, (UID_ARG)Lp->uid, NULL))) > UserColW)
             UserColW = len;
     } else
         (void)printf(" %*.*s", UserColW, UserColW,
-                     printuid((UID_ARG)Lp->uid, NULL));
+                     printuid(ctx, (UID_ARG)Lp->uid, NULL));
     /*
      * Size or print the file descriptor, access mode and lock status.
      */
@@ -1110,7 +1112,7 @@ void print_file(struct lsof_context *ctx) {
  * printinaddr() - print Internet addresses
  */
 
-static int printinaddr() {
+static int printinaddr(struct lsof_context *ctx) {
     int i, len, src;
     char *host, *port;
     int nl = Namechl - 1;
@@ -1151,7 +1153,7 @@ static int printinaddr() {
             (Lf->li[i].af == AF_INET && Lf->li[i].ia.a4.s_addr == INADDR_ANY))
             host = "*";
         else
-            host = gethostnm((unsigned char *)&Lf->li[i].ia, Lf->li[i].af);
+            host = gethostnm(ctx, (unsigned char *)&Lf->li[i].ia, Lf->li[i].af);
 #else  /* !defined(HASIPv6) */
         if (Lf->li[i].ia.a4.s_addr == INADDR_ANY)
             host = "*";
@@ -1216,9 +1218,9 @@ static int printinaddr() {
 #endif /* !defined(HASNORPC_H) */
 
                 if (strcasecmp(Lf->iproto, "TCP") == 0)
-                    port = lkup_port(Lf->li[i].p, 0, src);
+                    port = lkup_port(ctx, Lf->li[i].p, 0, src);
                 else if (strcasecmp(Lf->iproto, "UDP") == 0)
-                    port = lkup_port(Lf->li[i].p, 1, src);
+                    port = lkup_port(ctx, Lf->li[i].p, 1, src);
             }
             if (!port) {
                 (void)snpf(pbuf, sizeof(pbuf), "%d", Lf->li[i].p);
@@ -2010,7 +2012,7 @@ void printname(struct lsof_context *ctx, int nl) /* NL status */
         /*
          * If the file has Internet addresses, print them.
          */
-        if (printinaddr())
+        if (printinaddr(ctx))
             ps++;
         goto print_nma;
     }
@@ -2273,12 +2275,12 @@ int ty; /* socket type -- e.g., from so_type */
  * printuid() - print User ID or login name
  */
 
-char *printuid(uid, ty)
-UID_ARG uid; /* User IDentification number */
-int *ty;     /* returned UID type pointer (NULL
-              * (if none wanted).  If non-NULL
-              * then: *ty = 0 = login name
-              *	     = 1 = UID number */
+char *printuid(struct lsof_context *ctx, /* context */
+               UID_ARG uid,              /* User IDentification number */
+               int *ty)                  /* returned UID type pointer (NULL
+                                          * (if none wanted).  If non-NULL
+                                          * then: *ty = 0 = login name
+                                          *	     = 1 = UID number */
 {
     int i;
     struct passwd *pw;
@@ -2760,8 +2762,9 @@ void printunkaf(struct lsof_context *ctx, int fam, /* unknown address family */
  *		      name
  */
 
-static void update_portmap(pt, pn) struct porttab *pt; /* porttab entry */
-char *pn;                                              /* port name */
+static void update_portmap(struct lsof_context *ctx, /* context */
+                           struct porttab *pt,       /* porttab entry */
+                           char *pn)                 /* port name */
 {
     MALLOC_S al, nl;
     char *cp;

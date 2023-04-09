@@ -34,7 +34,4 @@
 #    include "lsof.h"
 #    include "proto.h"
 
-/* Global ctx in cli */
-extern struct lsof_context *ctx;
-
 #endif

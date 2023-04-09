@@ -292,7 +292,7 @@ static int ncache_isroot(KA_T va,  /* kernel vnode address */
  * ncache_load() - load the kernel's name cache
  */
 
-void ncache_load() {
+void ncache_load(struct lsof_context *ctx) {
     char *cp, *np;
     struct l_nch **hp, *lc;
     int i, len, n;

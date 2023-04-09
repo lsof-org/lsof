@@ -49,9 +49,10 @@ static int NCmdRxA = 0; /* space allocated to CmdRx[] */
  */
 
 static int ckfd_range(char *first, char *dash, char *last, int *lo, int *hi);
-static int enter_fd_lst(char *nm, int lo, int hi, int excl);
-static int enter_nwad(struct nwad *n, int sp, int ep, char *s,
-                      struct hostent *he);
+static int enter_fd_lst(struct lsof_context *ctx, char *nm, int lo, int hi,
+                        int excl);
+static int enter_nwad(struct lsof_context *ctx, struct nwad *n, int sp, int ep,
+                      char *s, struct hostent *he);
 static struct hostent *lkup_hostnm(char *hn, struct nwad *n);
 static char *isIPv4addr(char *hn, unsigned char *a, int al);
 
@@ -564,7 +565,7 @@ char *c; /* control string */
  * enter_cmd_rx() - enter command regular expression
  */
 
-int enter_cmd_rx(char *x) /* regular expression */
+int enter_cmd_rx(struct lsof_context *ctx, char *x) /* regular expression */
 {
     int bmod = 0;
     int bxmod = 0;
@@ -719,8 +720,9 @@ int enter_cmd_rx(char *x) /* regular expression */
  *		    eliminated
  */
 
-int enter_efsys(char *e,   /* file system path */
-                int rdlnk) /* avoid readlink(2) if non-zero */
+int enter_efsys(struct lsof_context *ctx, /* context */
+                char *e,                  /* file system path */
+                int rdlnk)                /* avoid readlink(2) if non-zero */
 {
     char *ec;         /* pointer to copy of path */
     efsys_list_t *ep; /* file system path list pointer */
@@ -778,7 +780,8 @@ int enter_efsys(char *e,   /* file system path */
  * enter_fd() - enter file descriptor list for searching
  */
 
-int enter_fd(char *f) /* file descriptor list pointer */
+int enter_fd(struct lsof_context *ctx, /* context */
+             char *f)                  /* file descriptor list pointer */
 {
     char c, *cp1, *cp2, *dash;
     int err, excl, hi, lo;
@@ -822,11 +825,11 @@ int enter_fd(char *f) /* file descriptor list pointer */
                 if (ckfd_range(cp1, dash, cp2, &lo, &hi))
                     err = 1;
                 else {
-                    if (enter_fd_lst((char *)NULL, lo, hi, excl))
+                    if (enter_fd_lst(ctx, (char *)NULL, lo, hi, excl))
                         err = 1;
                 }
             } else {
-                if (enter_fd_lst(cp1, 0, 0, excl))
+                if (enter_fd_lst(ctx, cp1, 0, 0, excl))
                     err = 1;
             }
         }
@@ -842,11 +845,11 @@ int enter_fd(char *f) /* file descriptor list pointer */
  * enter_fd_lst() - make an entry in the FD list, Fdl
  */
 
-static int enter_fd_lst(nm, lo, hi, excl)
-char *nm; /* FD name (none if NULL) */
-int lo;   /* FD low boundary (if nm NULL) */
-int hi;   /* FD high boundary (if nm NULL) */
-int excl; /* exclusion on match */
+static int enter_fd_lst(struct lsof_context *ctx, /* context */
+                        char *nm,                 /* FD name (none if NULL) */
+                        int lo,   /* FD low boundary (if nm NULL) */
+                        int hi,   /* FD high boundary (if nm NULL) */
+                        int excl) /* exclusion on match */
 {
     char buf[256], *cp;
     int n;
@@ -951,10 +954,11 @@ int excl; /* exclusion on match */
 
 #define EDDEFFNL 128 /* default file name length */
 
-int enter_dir(char *d,     /* directory path name pointer */
-              int descend) /* subdirectory descend flag:
-                            *	0 = don't descend
-                            *	1 = descend */
+int enter_dir(struct lsof_context *ctx, /* context */
+              char *d,                  /* directory path name pointer */
+              int descend)              /* subdirectory descend flag:
+                                         *	0 = don't descend
+                                         *	1 = descend */
 {
     char *av[2];
     dev_t ddev;
@@ -1230,8 +1234,9 @@ int enter_dir(char *d,     /* directory path name pointer */
  * enter_id() - enter PGID or PID for searching
  */
 
-int enter_id(ty, p) enum IDType ty; /* type: PGID or PID */
-char *p;                            /* process group ID string pointer */
+int enter_id(struct lsof_context *ctx, /* context */
+             enum IDType ty,           /* type: PGID or PID */
+             char *p)                  /* process group ID string pointer */
 {
     char *cp;
     int err, i, id, j, mx, n, ni, nx, x;
@@ -1365,8 +1370,8 @@ char *p;                            /* process group ID string pointer */
  * enter_network_address() - enter Internet address for searching
  */
 
-int enter_network_address(na)
-char *na; /* Internet address string pointer */
+int enter_network_address(struct lsof_context *ctx, /* context */
+                          char *na) /* Internet address string pointer */
 {
     int ae, i, pr;
     int ep = -1;
@@ -1759,7 +1764,7 @@ char *na; /* Internet address string pointer */
     nwad_enter:
 
         for (i = 1; i;) {
-            if (enter_nwad(&n, sp, ep, na, he))
+            if (enter_nwad(ctx, &n, sp, ep, na, he))
                 goto nwad_exit;
 
 #if defined(HASIPv6)
@@ -1790,14 +1795,14 @@ char *na; /* Internet address string pointer */
  * enter_nwad() - enter nwad structure
  */
 
-static int enter_nwad(n, sp, ep, s, he)
-struct nwad *n;     /* pointer to partially completed
-                     * nwad (less port) */
-int sp;             /* starting port number */
-int ep;             /* ending port number */
-char *s;            /* string that states the address */
-struct hostent *he; /* pointer to hostent struct from which
-                     * network address came */
+static int enter_nwad(struct lsof_context *ctx, /* context */
+                      struct nwad *n,     /* pointer to partially completed
+                                           * nwad (less port) */
+                      int sp,             /* starting port number */
+                      int ep,             /* ending port number */
+                      char *s,            /* string that states the address */
+                      struct hostent *he) /* pointer to hostent struct from
+                                           * which network address came */
 {
     int ac;
     unsigned char *ap;
@@ -2170,8 +2175,8 @@ int *excl;           /* excluded count */
  * enter_uid() - enter User Identifier for searching
  */
 
-int enter_uid(us)
-char *us; /* User IDentifier string pointer */
+int enter_uid(struct lsof_context *ctx, /* context */
+              char *us)                 /* User IDentifier string pointer */
 {
     int err, i, j, lnml, nn;
     unsigned char excl;

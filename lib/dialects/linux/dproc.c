@@ -620,7 +620,7 @@ void initialize(struct lsof_context *ctx) {
      */
     if (Fxopt && (Fnet || Nwad)) {
         (void)fprintf(stderr, "%s: -i is useless when -X is specified.\n", Pn);
-        usage(1, 0, 0);
+        usage(ctx, 1, 0, 0);
     }
     /*
      * Open LSTAT_TEST_FILE and seek to byte LSTAT_TEST_SEEK, then lstat the

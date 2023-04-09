@@ -1405,7 +1405,7 @@ int print_proc(struct lsof_context *ctx) {
         if (FieldSel[LSOF_FIX_UID].st)
             (void)printf("%c%d%c", LSOF_FID_UID, (int)Lp->uid, Terminator);
         if (FieldSel[LSOF_FIX_LOGIN].st) {
-            cp = printuid((UID_ARG)Lp->uid, &ty);
+            cp = printuid(ctx, (UID_ARG)Lp->uid, &ty);
             if (ty == 0)
                 (void)printf("%c%s%c", LSOF_FID_LOGIN, cp, Terminator);
         }

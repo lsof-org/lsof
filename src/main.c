@@ -44,7 +44,7 @@ static int GOx1 = 1;             /* first opt[][] index */
 static int GOx2 = 0;             /* second opt[][] index */
 
 static int GetOpt(int ct, char *opt[], char *rules, int *err);
-static char *sv_fmt_str(char *f);
+static char *sv_fmt_str(struct lsof_context *ctx, char *f);
 
 /*
  * main() - main function for lsof
@@ -76,6 +76,8 @@ char *argv[];
     int version = 0;
     int xover = 0;
     int pr_count = 0;
+    /** liblsof context */
+    struct lsof_context *ctx = NULL;
 
 #if defined(HAS_STRFTIME)
     char *fmt = (char *)NULL;
@@ -287,7 +289,7 @@ char *argv[];
                 break;
             }
             if (GOv && (*GOv == '/')) {
-                if (enter_cmd_rx(GOv))
+                if (enter_cmd_rx(ctx, GOv))
                     err = 1;
             } else {
                 if (enter_str_lst("-c", GOv, &Cmdl, &Cmdni, &Cmdnx))
@@ -315,20 +317,20 @@ char *argv[];
 #endif /* defined(HASNCACHE) */
         case 'd':
             if (GOp == '+') {
-                if (enter_dir(GOv, 0))
+                if (enter_dir(ctx, GOv, 0))
                     err = 1;
                 else {
                     Selflags |= SELNM;
                     xover = 1;
                 }
             } else {
-                if (enter_fd(GOv))
+                if (enter_fd(ctx, GOv))
                     err = 1;
             }
             break;
         case 'D':
             if (GOp == '+') {
-                if (enter_dir(GOv, 1))
+                if (enter_dir(ctx, GOv, 1))
                     err = 1;
                 else {
                     Selflags |= SELNM;
@@ -348,7 +350,7 @@ char *argv[];
 
 #if defined(HASEOPT)
         case 'e':
-            if (enter_efsys(GOv, ((GOp == '+') ? 1 : 0)))
+            if (enter_efsys(ctx, GOv, ((GOp == '+') ? 1 : 0)))
                 err = 1;
             break;
 #endif /* defined(HASEOPT) */
@@ -556,7 +558,7 @@ char *argv[];
                 if (*GOv == '-' || *GOv == '+') {
                     GOx1 = GObk[0];
                     GOx2 = GObk[1];
-                } else if (enter_id(PGID, GOv))
+                } else if (enter_id(ctx, PGID, GOv))
                     err = 1;
             }
             Fpgid = 1;
@@ -578,7 +580,7 @@ char *argv[];
                 }
                 break;
             }
-            if (enter_network_address(GOv))
+            if (enter_network_address(ctx, GOv))
                 err = 1;
             break;
 
@@ -740,7 +742,7 @@ char *argv[];
             Fovhd = (GOp == '-') ? 1 : 0;
             break;
         case 'p':
-            if (enter_id(PID, GOv))
+            if (enter_id(ctx, PID, GOv))
                 err = 1;
             break;
         case 'Q':
@@ -922,7 +924,7 @@ char *argv[];
             }
             break;
         case 'u':
-            if (enter_uid(GOv))
+            if (enter_uid(ctx, GOv))
                 err = 1;
             break;
         case 'U':
@@ -1139,7 +1141,7 @@ char *argv[];
 #endif /* defined(HASEOPT) */
 
     if (DChelp || err || Fhelp || fh || version)
-        usage(err ? 1 : 0, fh, version);
+        usage(ctx, err ? 1 : 0, fh, version);
     /*
      * Reduce the size of Suid[], if necessary.
      */
@@ -1190,7 +1192,7 @@ char *argv[];
     if (Selflags == 0) {
         if (Fand) {
             (void)fprintf(stderr, "%s: no select options to AND via -a\n", Pn);
-            usage(1, 0, 0);
+            usage(ctx, 1, 0, 0);
         }
         Selflags = SelAll;
     } else {
@@ -1259,17 +1261,17 @@ char *argv[];
      * Define the size and offset print formats.
      */
     (void)snpf(options, sizeof(options), "%%%su", INODEPSPEC);
-    InodeFmt_d = sv_fmt_str(options);
+    InodeFmt_d = sv_fmt_str(ctx, options);
     (void)snpf(options, sizeof(options), "%%#%sx", INODEPSPEC);
-    InodeFmt_x = sv_fmt_str(options);
+    InodeFmt_x = sv_fmt_str(ctx, options);
     (void)snpf(options, sizeof(options), "0t%%%su", SZOFFPSPEC);
-    SzOffFmt_0t = sv_fmt_str(options);
+    SzOffFmt_0t = sv_fmt_str(ctx, options);
     (void)snpf(options, sizeof(options), "%%%su", SZOFFPSPEC);
-    SzOffFmt_d = sv_fmt_str(options);
+    SzOffFmt_d = sv_fmt_str(ctx, options);
     (void)snpf(options, sizeof(options), "%%*%su", SZOFFPSPEC);
-    SzOffFmt_dv = sv_fmt_str(options);
+    SzOffFmt_dv = sv_fmt_str(ctx, options);
     (void)snpf(options, sizeof(options), "%%#%sx", SZOFFPSPEC);
-    SzOffFmt_x = sv_fmt_str(options);
+    SzOffFmt_x = sv_fmt_str(ctx, options);
 
 #if defined(HASMNTSUP)
     /*
@@ -1943,8 +1945,7 @@ int *err;    /* error return */
  * sv_fmt_str() - save format string
  */
 
-static char *sv_fmt_str(f)
-char *f; /* format string */
+static char *sv_fmt_str(struct lsof_context *ctx, char *f) /* format string */
 {
     char *cp;
     MALLOC_S l;
