@@ -106,7 +106,8 @@
 #define HAS_FILEDESCENT
 #endif
 
-#if HAVE_WCTYPE_H
+/* Do not include wctype.h in AIX to avoid duplicate time error */
+#if HAVE_WCTYPE_H && !defined(AIXV)
 #define HASWCTYPE_H
 #endif
 
