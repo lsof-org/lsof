@@ -46,7 +46,7 @@ static char copyright[] =
  * Local function prototypes
  */
 
-static int rmdupdev(struct l_dev ***dp, int n, char *nm);
+static int rmdupdev(struct lsof_context *ctx, struct l_dev ***dp, int n, char *nm);
 
 #if defined(HASDCACHE) && AIXV >= 4140
 
@@ -54,7 +54,7 @@ static int rmdupdev(struct l_dev ***dp, int n, char *nm);
  * clr_sect() - clear cached clone and pseudo sections
  */
 
-void clr_sect() {
+void clr_sect(struct lsof_context *ctx) {
     struct clone *c, *c1;
 
     if (Clone) {
@@ -100,7 +100,8 @@ int getchan(char *p) /* file path name */
  * printdevname() - print device name
  */
 
-int printdevname(dev_t *dev,  /* device */
+int printdevname(struct lsof_context *ctx, /* context */
+                 dev_t *dev,  /* device */
                  dev_t *rdev, /* raw device */
                  int f,       /* 1 = follow with '\n' */
                  int nty)     /* node type: N_BLK or N_CHR */
@@ -109,7 +110,7 @@ int printdevname(dev_t *dev,  /* device */
     /*
      * Search device table for a full match.
      */
-    if ((dp = lkupdev(dev, rdev, 1, 1))) {
+    if ((dp = lkupdev(ctx, dev, rdev, 1, 1))) {
         if (Lf->ch < 0)
             safestrprt(dp->name, stdout, f);
         else {
@@ -121,7 +122,7 @@ int printdevname(dev_t *dev,  /* device */
     /*
      * Search device table for a match without inode number and dev.
      */
-    if ((dp = lkupdev(&DevDev, rdev, 0, 1))) {
+    if ((dp = lkupdev(ctx, &DevDev, rdev, 0, 1))) {
 
         /*
          * A raw device match was found.  Record it as a name column addition.
@@ -137,7 +138,7 @@ int printdevname(dev_t *dev,  /* device */
             Error(ctx);
         }
         (void)snpf(cp, len + 1, "(%s %s)", ttl, dp->name);
-        (void)add_nma(cp, len);
+        (void)add_nma(ctx, cp, len);
         (void)free((MALLOC_P *)cp);
         return (0);
     }
@@ -148,7 +149,8 @@ int printdevname(dev_t *dev,  /* device */
  * readdev() - read device names, modes and types
  */
 
-void readdev(int skip) /* skip device cache read if 1 */
+void readdev(struct lsof_context *ctx, /* context */
+             int skip) /* skip device cache read if 1 */
 {
 
 #if defined(HASDCACHE)
@@ -182,7 +184,7 @@ void readdev(int skip) /* skip device cache read if 1 */
      */
     if (!skip) {
         if (DCstate == 2 || DCstate == 3) {
-            if ((dcrd = read_dcache()) == 0)
+            if ((dcrd = read_dcache(ctx)) == 0)
                 return;
         }
     } else
@@ -201,7 +203,7 @@ void readdev(int skip) /* skip device cache read if 1 */
 
     Dstk = (char **)NULL;
     Dstkn = Dstkx = 0;
-    (void)stkdir("/dev");
+    (void)stkdir(ctx, "/dev");
     /*
      * Unstack the next /dev or /dev/<subdirectory> directory.
      */
@@ -278,7 +280,7 @@ void readdev(int skip) /* skip device cache read if 1 */
              * If it's a subdirectory, stack its name for later processing.
              */
             if ((sb.st_mode & S_IFMT) == S_IFDIR) {
-                (void)stkdir(fp);
+                (void)stkdir(ctx, fp);
                 continue;
             }
             if ((sb.st_mode & S_IFMT) == S_IFCHR) {
@@ -408,7 +410,7 @@ void readdev(int skip) /* skip device cache read if 1 */
         }
         (void)qsort((QSORT_P *)BSdev, (size_t)BNdev,
                     (size_t)sizeof(struct l_dev *), compdev);
-        BNdev = rmdupdev(&BSdev, BNdev, "block");
+        BNdev = rmdupdev(ctx, &BSdev, BNdev, "block");
     } else {
         if (!Fwarn)
             (void)fprintf(stderr, "%s: WARNING: no block devices found\n", Pn);
@@ -433,7 +435,7 @@ void readdev(int skip) /* skip device cache read if 1 */
         }
         (void)qsort((QSORT_P *)Sdev, (size_t)Ndev,
                     (size_t)sizeof(struct l_dev *), compdev);
-        Ndev = rmdupdev(&Sdev, Ndev, "char");
+        Ndev = rmdupdev(ctx, &Sdev, Ndev, "char");
     } else {
         (void)fprintf(stderr, "%s: no character devices found\n", Pn);
         Error(ctx);
@@ -444,7 +446,7 @@ void readdev(int skip) /* skip device cache read if 1 */
      * Write device cache file, as required.
      */
     if (DCstate == 1 || (DCstate == 3 && dcrd))
-        write_dcache();
+        write_dcache(ctx);
 #endif /* defined(HASDCACHE) */
 }
 
@@ -453,14 +455,14 @@ void readdev(int skip) /* skip device cache read if 1 */
  * rereaddev() - reread device names, modes and types
  */
 
-void rereaddev() {
-    (void)clr_devtab();
+void rereaddev(struct lsof_context *ctx) {
+    (void)clr_devtab(ctx);
 
 #    if defined(DCACHE_CLR)
-    (void)DCACHE_CLR();
+    (void)DCACHE_CLR(ctx);
 #    endif /* defined(DCACHE_CLR) */
 
-    readdev(1);
+    readdev(ctx, 1);
     DCunsafe = 0;
 }
 #endif /* defined(HASDCACHE) */
@@ -469,7 +471,8 @@ void rereaddev() {
  * rmdupdev() - remove duplicate (major/minor/inode) devices
  */
 
-static int rmdupdev(struct l_dev ***dp, /* device table pointers address */
+static int rmdupdev(struct lsof_context *ctx, /* context */
+                    struct l_dev ***dp, /* device table pointers address */
                     int n,              /* number of pointers */
                     char *nm) /* device table name for error message */
 {
@@ -526,7 +529,8 @@ static int rmdupdev(struct l_dev ***dp, /* device table pointers address */
  * rw_clone_sect() - read/write the device cache file clone section
  */
 
-int rw_clone_sect(int m) /* mode: 1 = read; 2 = write */
+int rw_clone_sect(struct lsof_context *ctx, /* context */
+                  int m) /* mode: 1 = read; 2 = write */
 {
     char buf[MAXPATHLEN * 2], *cp;
     struct clone *c;
@@ -657,7 +661,8 @@ int rw_clone_sect(int m) /* mode: 1 = read; 2 = write */
  * Note: rereads entire device table when an entry can't be verified.
  */
 
-int vfy_dev(struct l_dev *dp) /* device table pointer */
+int vfy_dev(struct lsof_context *ctx, /* context */
+            struct l_dev *dp) /* device table pointer */
 {
     struct stat sb;
 
@@ -671,7 +676,7 @@ int vfy_dev(struct l_dev *dp) /* device table pointer */
 #    endif /* defined(USE_STAT) */
 
         || dp->rdev != sb.st_rdev || dp->inode != (INODETYPE)sb.st_ino) {
-        (void)rereaddev();
+        (void)rereaddev(ctx);
         return (0);
     }
     dp->v = 1;

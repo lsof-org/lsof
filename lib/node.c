@@ -49,7 +49,8 @@ char *print_kptr(KA_T kp,     /* kernel pointer address */
  * readcdrnode() - read CD-ROM node
  */
 
-int readcdrnode(KA_T ca,           /* cdrnode kernel address */
+int readcdrnode(struct lsof_context *ctx, /* context */
+                KA_T ca,           /* cdrnode kernel address */
                 struct cdrnode *c) /* cdrnode buffer */
 {
     if (kread(ctx, (KA_T)ca, (char *)c, sizeof(struct cdrnode))) {
@@ -84,7 +85,8 @@ int readfifonode(struct lsof_context *ctx, /* context */
  * readgnode() - read gnode
  */
 
-int readgnode(KA_T ga,         /* gnode kernel address */
+int readgnode(struct lsof_context *ctx, /* context */
+              KA_T ga,         /* gnode kernel address */
               struct gnode *g) /* gnode buffer */
 {
     if (kread(ctx, (KA_T)ga, (char *)g, sizeof(struct gnode))) {

@@ -46,7 +46,7 @@ static int Lmist = 0;                              /* Lmi status */
  * readmnt() - read mount table
  */
 
-struct mounts *readmnt() {
+struct mounts *readmnt(struct lsof_context *ctx) {
     char *dir, *fs, *h, *ln, *ty;
     char *dn = (char *)NULL;
     struct mounts *mtp;
@@ -91,7 +91,7 @@ struct mounts *readmnt() {
         dir = (char *)vmt2dataptr(v, VMT_STUB);
         fs = (char *)vmt2dataptr(v, VMT_OBJECT);
         h = (char *)vmt2dataptr(v, VMT_HOST);
-        if (statsafely(dir, &sb)) {
+        if (statsafely(ctx, dir, &sb)) {
             if (!Fwarn) {
 
                 /*
@@ -223,7 +223,7 @@ struct mounts *readmnt() {
                           dir);
             Error(ctx);
         }
-        if (!(ln = Readlink(dn))) {
+        if (!(ln = Readlink(ctx, dn))) {
             if (!Fwarn) {
                 (void)fprintf(stderr,
                               "      Output information may be incomplete.\n");
@@ -267,14 +267,14 @@ struct mounts *readmnt() {
                 goto no_space_for_mount;
         }
         mtp->fsname = dn;
-        ln = Readlink(dn);
+        ln = Readlink(ctx, dn);
         dn = (char *)NULL;
         /*
          * Stat the file system (mounted-on) device name to get its modes.
          * Set the modes to zero if the stat fails.  Add file system
          * (mounted-on) device information to the local mountsstructure.
          */
-        if (!ln || statsafely(ln, &sb))
+        if (!ln || statsafely(ctx, ln, &sb))
             sb.st_mode = 0;
         mtp->fsnmres = ln;
         mtp->fs_mode = sb.st_mode;

@@ -215,7 +215,7 @@ extern int printbdevname(dev_t *dev, dev_t *rdev, int f);
 #    endif /* defined(HASBLKDEV) */
 
 #    if defined(HASCDRNODE)
-extern int readcdrnode(KA_T ca, struct cdrnode *c);
+extern int readcdrnode(struct lsof_context *ctx, KA_T ca, struct cdrnode *c);
 #    endif /* defined(HASCDRNODE) */
 
 #    if defined(HASDCACHE)

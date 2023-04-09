@@ -101,7 +101,7 @@ static int HbyNmCt = 0; /* HbyNm entry count */
  * hashSfile() - hash Sfile entries for use in is_file_named() searches
  */
 
-void hashSfile() {
+void hashSfile(struct lsof_context *ctx) {
     static int hs = 0;
     int i;
     struct sfile *s;
@@ -217,7 +217,8 @@ void hashSfile() {
  * is_file_named() - is file named?
  */
 
-int is_file_named(char *p,       /* path name; NULL = search by device
+int is_file_named(struct lsof_context *ctx, /* context */
+                  char *p,       /* path name; NULL = search by device
                                   * and inode (from *Lf) */
                   enum vtype ty, /* vnode type */
                   chan_t ch,     /* gnode channel */
@@ -238,7 +239,7 @@ int is_file_named(char *p,       /* path name; NULL = search by device
      * be compared directly, but must be compared by extracting their major and
      * minor numbers and comparing them.
      */
-    readdev(0);
+    readdev(ctx, 0);
     if (!dsplit) {
         dmaj = GET_MAJ_DEV(DevDev);
         dmin = GET_MIN_DEV(DevDev);
@@ -362,11 +363,11 @@ int is_file_named(char *p,       /* path name; NULL = search by device
              */
             (void)snpf(Namech, Namechl, "%s", s->name);
             if (ty == VMPC && s->ch < 0) {
-                ep = endnm(&sz);
+                ep = endnm(ctx, &sz);
                 (void)snpf(ep, sz, "/%d", ch);
             }
             if (s->devnm) {
-                ep = endnm(&sz);
+                ep = endnm(ctx, &sz);
                 (void)snpf(ep, sz, " (%s)", s->devnm);
             }
         }
@@ -402,7 +403,8 @@ char *print_dev(struct lfile *lf, /* file whose device to be printed */
  * readvfs() - read vfs structure
  */
 
-struct l_vfs *readvfs(struct vnode *vn) /* vnode */
+struct l_vfs *readvfs(struct lsof_context *ctx, /* context */
+                      struct vnode *vn) /* vnode */
 {
     struct gfs g;
     void *mp;

@@ -117,7 +117,8 @@ struct rnode {
  * isglocked() - is a gnode locked
  */
 
-char isglocked(struct gnode *ga) /* local gnode address */
+char isglocked(struct lsof_context *ctx, /* context */
+               struct gnode *ga) /* local gnode address */
 {
 
     struct filock *cfp, f, *ffp;
@@ -172,7 +173,8 @@ char isglocked(struct gnode *ga) /* local gnode address */
  * process_node() - process vnode
  */
 
-void process_node(KA_T va) /* vnode kernel space address */
+void process_node(struct lsof_context *ctx, /* context */
+                  KA_T va) /* vnode kernel space address */
 {
     struct cdrnode c;
     dev_t dev, rdev;
@@ -262,7 +264,7 @@ void process_node(KA_T va) /* vnode kernel space address */
      * Read the vnode.
      */
     if (!va) {
-        enter_nm("no vnode address");
+        enter_nm(ctx, "no vnode address");
         return;
     }
     if (!v) {
@@ -293,8 +295,8 @@ void process_node(KA_T va) /* vnode kernel space address */
     /*
      * Read the vnode.
      */
-    if (readvnode(va, v)) {
-        enter_nm(Namech);
+    if (readvnode(ctx, va, v)) {
+        enter_nm(ctx, Namech);
         return;
     }
 
@@ -306,14 +308,14 @@ void process_node(KA_T va) /* vnode kernel space address */
     /*
      * Read the gnode.
      */
-    if (!v->v_gnode || readgnode((KA_T)v->v_gnode, &g)) {
+    if (!v->v_gnode || readgnode(ctx, (KA_T)v->v_gnode, &g)) {
         if (Selinet) {
             Lf->sf = SELEXCLF;
             return;
         }
         (void)snpf(Namech, Namechl, "vnode at %s has no gnode\n",
                    print_kptr(va, (char *)NULL, 0));
-        enter_nm(Namech);
+        enter_nm(ctx, Namech);
         return;
     }
 
@@ -341,7 +343,7 @@ void process_node(KA_T va) /* vnode kernel space address */
         default:
             (void)snpf(Namech, Namechl, "vnode at %s: unknown ISVDEV(%#x)",
                        print_kptr(va, (char *)NULL, 0), g.gn_type);
-            enter_nm(Namech);
+            enter_nm(ctx, Namech);
             return;
         }
         /*
@@ -356,7 +358,7 @@ void process_node(KA_T va) /* vnode kernel space address */
             (void)snpf(Namech, Namechl, "vnode at %s: can't read specnode (%s)",
                        print_kptr(va, tbuf, sizeof(tbuf)),
                        print_kptr((KA_T)g.gn_data, (char *)NULL, 0));
-            enter_nm(Namech);
+            enter_nm(ctx, Namech);
             return;
         }
         /*
@@ -367,29 +369,29 @@ void process_node(KA_T va) /* vnode kernel space address */
                 Lf->sf = SELEXCLF;
                 return;
             }
-            if (readgnode((KA_T)sn.sn_pfsgnode, &g)) {
+            if (readgnode(ctx, (KA_T)sn.sn_pfsgnode, &g)) {
                 (void)snpf(Namech, Namechl,
                            "vnode at %s: can't read pfsgnode (%s)",
                            print_kptr(va, tbuf, sizeof(tbuf)),
                            print_kptr((KA_T)sn.sn_pfsgnode, (char *)NULL, 0));
-                enter_nm(Namech);
+                enter_nm(ctx, Namech);
                 return;
             }
-            if (!g.gn_data || readlino(&g, &i)) {
+            if (!g.gn_data || readlino(ctx, &g, &i)) {
                 (void)snpf(Namech, Namechl,
                            "pfsgnode at %s: can't read inode (%s)",
                            print_kptr((KA_T)sn.sn_pfsgnode, tbuf, sizeof(tbuf)),
                            print_kptr((KA_T)g.gn_data, (char *)NULL, 0));
-                enter_nm(Namech);
+                enter_nm(ctx, Namech);
                 return;
             }
             ins = 1;
-            if (!g.gn_vnode || readvnode((KA_T)g.gn_vnode, v)) {
+            if (!g.gn_vnode || readvnode(ctx, (KA_T)g.gn_vnode, v)) {
                 (void)snpf(Namech, Namechl,
                            "pfsgnode at %s: can't read vnode (%s)",
                            print_kptr((KA_T)sn.sn_pfsgnode, tbuf, sizeof(tbuf)),
                            print_kptr((KA_T)g.gn_vnode, (char *)NULL, 0));
-                enter_nm(Namech);
+                enter_nm(ctx, Namech);
                 return;
             }
         } else {
@@ -417,7 +419,7 @@ void process_node(KA_T va) /* vnode kernel space address */
                     if (GET_MAJ_DEV(g.gn_rdev) == GET_MIN_DEV(cl->cd.rdev)) {
 
 #        if defined(HASDCACHE)
-                        if (DCunsafe && !cl->cd.v && !vfy_dev(&cl->cd))
+                        if (DCunsafe && !cl->cd.v && !vfy_dev(ctx, &cl->cd))
                             goto process_clone_again;
 #        endif /* defined(HASDCACHE) */
 
@@ -520,12 +522,12 @@ void process_node(KA_T va) /* vnode kernel space address */
          * If it's a FIFO, read its fifonode.
          */
         if (Ntype == N_FIFO) {
-            if (!sn.sn_fifonode || readfifonode((KA_T)sn.sn_fifonode, &f)) {
+            if (!sn.sn_fifonode || readfifonode(ctx, (KA_T)sn.sn_fifonode, &f)) {
                 (void)snpf(Namech, Namechl,
                            "vnode at %s: can't read fifonode (%s)",
                            print_kptr(va, tbuf, sizeof(tbuf)),
                            print_kptr((KA_T)sn.sn_fifonode, (char *)NULL, 0));
-                enter_nm(Namech);
+                enter_nm(ctx, Namech);
                 return;
             }
             /*
@@ -538,7 +540,7 @@ void process_node(KA_T va) /* vnode kernel space address */
                            "vnode at %s: can't read devnode (%s)",
                            print_kptr(va, tbuf, sizeof(tbuf)),
                            print_kptr((KA_T)sn.sn_devnode, (char *)NULL, 0));
-                enter_nm(Namech);
+                enter_nm(ctx, Namech);
                 return;
             }
             g = dn.dv_gnode;
@@ -551,13 +553,13 @@ void process_node(KA_T va) /* vnode kernel space address */
      */
     if (Ntype != N_AFS && g.gn_rdev == NODEVICE) {
         vfs = (struct l_vfs *)NULL;
-        enter_dev_ch(print_kptr(va, (char *)NULL, 0));
+        enter_dev_ch(ctx, print_kptr(va, (char *)NULL, 0));
     } else {
-        if (!(vfs = readvfs(v))) {
+        if (!(vfs = readvfs(ctx, v))) {
             (void)snpf(Namech, Namechl, "can't read vfs for %s at %s",
                        print_kptr(va, tbuf, sizeof(tbuf)),
                        print_kptr((KA_T)v->v_vfsp, (char *)NULL, 0));
-            enter_nm(Namech);
+            enter_nm(ctx, Namech);
             return;
         }
     }
@@ -605,7 +607,7 @@ void process_node(KA_T va) /* vnode kernel space address */
     /*
      * Get the lock status.
      */
-    Lf->lock = isglocked(&g);
+    Lf->lock = isglocked(ctx, &g);
     switch (Ntype) {
 
 #if defined(HAS_NFS)
@@ -645,7 +647,7 @@ void process_node(KA_T va) /* vnode kernel space address */
             if (!g.gn_data || kread(ctx, (KA_T)g.gn_data, rp, rsz)) {
                 (void)snpf(Namech, Namechl, "remote gnode at %s has no rnode",
                            print_kptr((KA_T)v->v_gnode, (char *)NULL, 0));
-                enter_nm(Namech);
+                enter_nm(ctx, Namech);
                 return;
             }
 
@@ -676,7 +678,7 @@ void process_node(KA_T va) /* vnode kernel space address */
         if (!g.gn_data || kread(ctx, (KA_T)g.gn_data, &san, sizeof(san))) {
             (void)snpf(Namech, Namechl, "gnode at %s has no SANFS node",
                        print_kptr((KA_T)v->v_gnode, (char *)NULL, 0));
-            enter_nm(Namech);
+            enter_nm(ctx, Namech);
             return;
         }
         /*
@@ -698,10 +700,10 @@ void process_node(KA_T va) /* vnode kernel space address */
             /*
              * Read a CD-ROM cdrnode.
              */
-            if (!g.gn_data || readcdrnode((KA_T)g.gn_data, &c)) {
+            if (!g.gn_data || readcdrnode(ctx, (KA_T)g.gn_data, &c)) {
                 (void)snpf(Namech, Namechl, "gnode at %s has no cdrnode",
                            print_kptr((KA_T)v->v_gnode, (char *)NULL, 0));
-                enter_nm(Namech);
+                enter_nm(ctx, Namech);
                 return;
             }
             (void)zeromem((char *)&i, sizeof(i));
@@ -713,11 +715,11 @@ void process_node(KA_T va) /* vnode kernel space address */
              */
 
         } else if (g.gn_data) {
-            if (readlino(&g, &i)) {
+            if (readlino(ctx, &g, &i)) {
                 (void)snpf(Namech, Namechl, "gnode at %s can't read inode: %s",
                            print_kptr((KA_T)v->v_gnode, tbuf, sizeof(tbuf)),
                            print_kptr((KA_T)g.gn_data, (char *)NULL, 0));
-                enter_nm(Namech);
+                enter_nm(ctx, Namech);
                 return;
             }
             ins = 1;
@@ -757,7 +759,7 @@ void process_node(KA_T va) /* vnode kernel space address */
             } else {
                 (void)snpf(Namech, Namechl, "gnode at %s has no inode",
                            print_kptr((KA_T)v->v_gnode, (char *)NULL, 0));
-                enter_nm(Namech);
+                enter_nm(ctx, Namech);
                 return;
             }
         }
@@ -766,7 +768,7 @@ void process_node(KA_T va) /* vnode kernel space address */
         else {
             (void)snpf(Namech, Namechl, "gnode at %s has no inode",
                        print_kptr((KA_T)v->v_gnode, (char *)NULL, 0));
-            enter_nm(Namech);
+            enter_nm(ctx, Namech);
             return;
         }
 #endif /* defined(HAS_AFS) */
@@ -1109,7 +1111,7 @@ void process_node(KA_T va) /* vnode kernel space address */
      * supply one.
      */
     if ((Lf->inp_ty == 0) && (type == VBLK))
-        find_bl_ino();
+        find_bl_ino(ctx);
 #endif /* defined(HASBLKDEV) */
 
     /*
@@ -1117,17 +1119,17 @@ void process_node(KA_T va) /* vnode kernel space address */
      * supply one.
      */
     if ((Lf->inp_ty == 0) && (type == VCHR))
-        find_ch_ino();
+        find_ch_ino(ctx);
     /*
      * Test for specified file.
      */
-    if (Sfile && is_file_named(NULL, type, g.gn_chan, ic))
+    if (Sfile && is_file_named(ctx, NULL, type, g.gn_chan, ic))
         Lf->sf |= SELNM;
     /*
      * Enter name characters.
      */
     if (Namech[0])
-        enter_nm(Namech);
+        enter_nm(ctx, Namech);
 }
 
 #if defined(HASPRIVFILETYPE)
@@ -1135,7 +1137,8 @@ void process_node(KA_T va) /* vnode kernel space address */
  * process_shmt() -- process shared memory transport file
  */
 
-void process_shmt(KA_T sa) /* shared memory transport node struct
+void process_shmt(struct lsof_context *ctx, /* context */
+                  KA_T sa) /* shared memory transport node struct
                             * address ??? */
 {
     struct shmtnode { /* shared memory transport node
@@ -1163,10 +1166,10 @@ void process_shmt(KA_T sa) /* shared memory transport node struct
     if (!sa || kread(ctx, (KA_T)sa, (char *)&mn, sizeof(mn))) {
         (void)snpf(Namech, Namechl, "can't read shmtnode: %s",
                    print_kptr(sa, (char *)NULL, 0));
-        enter_nm(Namech);
+        enter_nm(ctx, Namech);
         return;
     }
-    enter_dev_ch(print_kptr(sa, (char *)NULL, 0));
+    enter_dev_ch(ctx, print_kptr(sa, (char *)NULL, 0));
     /*
      * If buffer size is less than free bytes, enable offset display. Otherwise
      * set the file size as buffer size less free bytes.
@@ -1193,7 +1196,7 @@ void process_shmt(KA_T sa) /* shared memory transport node struct
                            print_kptr((KA_T)mn.peer, (char *)NULL, 0));
         }
     }
-    enter_nm(Namech);
+    enter_nm(ctx, Namech);
 }
 #endif /* AIXV>=4200 */
 
@@ -1201,7 +1204,8 @@ void process_shmt(KA_T sa) /* shared memory transport node struct
  * readlino() -- read local inode
  */
 
-int readlino(struct gnode *ga, /* gnode address */
+int readlino(struct lsof_context *ctx, /* context */
+             struct gnode *ga, /* gnode address */
              struct l_ino *li) /* local inode receiver */
 {
     struct inode i; /* "regular" inode */
@@ -1237,13 +1241,13 @@ int readlino(struct gnode *ga, /* gnode address */
      * references j2_vnops.
      */
     if (ga->gn_ops && j2va && (ga->gn_ops == j2va))
-        return (readj2lino(ga, li));
+        return (readj2lino(ctx, ga, li));
 #endif /* defined(HAS_JFS2) */
 
     /*
      * Read a "standard" inode.
      */
-    if (readinode((KA_T)ga->gn_data, &i))
+    if (readinode(ctx, (KA_T)ga->gn_data, &i))
         return (1);
     li->dev = i.i_dev;
     li->nlink = i.i_nlink;

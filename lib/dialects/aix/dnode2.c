@@ -52,7 +52,8 @@ static char copyright[] =
 #    include "proto.h"
 #    include "dproto.h"
 
-int readj2lino(struct gnode *ga, /* gnode address */
+int readj2lino(struct lsof_context *ctx, /* context */
+               struct gnode *ga, /* gnode address */
                struct l_ino *li) /* local inode receiver */
 {
     struct inode i; /* jfs2 inode */
