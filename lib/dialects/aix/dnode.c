@@ -118,7 +118,7 @@ struct rnode {
  */
 
 char isglocked(struct lsof_context *ctx, /* context */
-               struct gnode *ga) /* local gnode address */
+               struct gnode *ga)         /* local gnode address */
 {
 
     struct filock *cfp, f, *ffp;
@@ -174,7 +174,7 @@ char isglocked(struct lsof_context *ctx, /* context */
  */
 
 void process_node(struct lsof_context *ctx, /* context */
-                  KA_T va) /* vnode kernel space address */
+                  KA_T va)                  /* vnode kernel space address */
 {
     struct cdrnode c;
     dev_t dev, rdev;
@@ -522,7 +522,8 @@ void process_node(struct lsof_context *ctx, /* context */
          * If it's a FIFO, read its fifonode.
          */
         if (Ntype == N_FIFO) {
-            if (!sn.sn_fifonode || readfifonode(ctx, (KA_T)sn.sn_fifonode, &f)) {
+            if (!sn.sn_fifonode ||
+                readfifonode(ctx, (KA_T)sn.sn_fifonode, &f)) {
                 (void)snpf(Namech, Namechl,
                            "vnode at %s: can't read fifonode (%s)",
                            print_kptr(va, tbuf, sizeof(tbuf)),
@@ -738,7 +739,7 @@ void process_node(struct lsof_context *ctx, /* context */
                 case -1:
                     break;
                 case 0:
-                    if (!hasAFS(v)) {
+                    if (!hasAFS(ctx, v)) {
                         afs = 1;
                         break;
                     }
@@ -754,7 +755,7 @@ void process_node(struct lsof_context *ctx, /* context */
              * If this is an AFS node, read the afsnode.
              */
             if (Ntype == N_AFS) {
-                if (readafsnode(va, v, &an))
+                if (readafsnode(ctx, va, v, &an))
                     return;
             } else {
                 (void)snpf(Namech, Namechl, "gnode at %s has no inode",
@@ -1205,8 +1206,8 @@ void process_shmt(struct lsof_context *ctx, /* context */
  */
 
 int readlino(struct lsof_context *ctx, /* context */
-             struct gnode *ga, /* gnode address */
-             struct l_ino *li) /* local inode receiver */
+             struct gnode *ga,         /* gnode address */
+             struct l_ino *li)         /* local inode receiver */
 {
     struct inode i; /* "regular" inode */
 

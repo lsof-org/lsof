@@ -39,8 +39,9 @@
 
 #    if defined(HAS_AFS)
 extern struct vnode *alloc_vcache(void);
-extern int hasAFS(struct vnode *vp);
-extern int readafsnode(KA_T va, struct vnode *v, struct afsnode *an);
+extern int hasAFS(struct lsof_context *ctx, struct vnode *vp);
+extern int readafsnode(struct lsof_context *ctx, KA_T va, struct vnode *v,
+                       struct afsnode *an);
 #    endif /* defined(HAS_AFS) */
 
 #    if defined(HAS_JFS2)

@@ -222,10 +222,10 @@ static KA_T Uo;    /* user area VM offset */
  */
 
 void ckkv(struct lsof_context *ctx, /* context */
-          char *d, /* dialect */
-          char *er,                         /* expected release */
-          char *ev,                         /* expected version */
-          char *ea)                         /* expected architecture */
+          char *d,                  /* dialect */
+          char *er,                 /* expected release */
+          char *ev,                 /* expected version */
+          char *ea)                 /* expected architecture */
 {
 
 #if defined(HASKERNIDCK)
@@ -636,8 +636,8 @@ void gather_proc_info(struct lsof_context *ctx) {
         /*
          * Allocate a local process structure and start filling it.
          */
-        alloc_lproc(ctx, p->p_pid, (int)p->p_pgid, (int)p->p_ppid, (UID_ARG)p->p_uid,
-                    cmd, (int)pss, (int)sf);
+        alloc_lproc(ctx, p->p_pid, (int)p->p_pgid, (int)p->p_ppid,
+                    (UID_ARG)p->p_uid, cmd, (int)pss, (int)sf);
         Plf = (struct lfile *)NULL;
         /*
          * Save current working directory information.
@@ -936,8 +936,8 @@ getle_err:
  */
 
 static void getlenm(struct lsof_context *ctx, /* context */
-                    struct le *le, /* loader entry structure */
-                    KA_T sid)                                   /* segment ID */
+                    struct le *le,            /* loader entry structure */
+                    KA_T sid)                 /* segment ID */
 {
     char buf[LIBNMLN];
     int i;
@@ -1162,7 +1162,7 @@ lowpgsp(struct lsof_context *ctx, int sig) {
  */
 
 static void process_text(struct lsof_context *ctx, /* context */
-                         KA_T sid) /* user area segment ID */
+                         KA_T sid)                 /* user area segment ID */
 {
     char *err, fd[8];
     static struct file **f = (struct file **)NULL;

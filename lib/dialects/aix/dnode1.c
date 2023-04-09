@@ -63,8 +63,9 @@ typedef struct afs_lock afs_rwlock_t;
  * Local function prototypes
  */
 
-static struct volume *getvolume(struct VenusFid *f, int *vols);
-static int is_rootFid(struct vcache *vc, int *rfid);
+static struct volume *getvolume(struct lsof_context *ctx, struct VenusFid *f,
+                                int *vols);
+static int is_rootFid(struct lsof_context *ctx, struct vcache *vc, int *rfid);
 
 /*
  * alloc_vcache() - allocate space for vcache structure
@@ -78,7 +79,8 @@ struct vnode *alloc_vcache() {
  * getvolume() - get volume structure
  */
 
-static struct volume *getvolume(struct VenusFid *f, /* file ID pointer */
+static struct volume *getvolume(struct lsof_context *ctx, /* context */
+                                struct VenusFid *f,       /* file ID pointer */
                                 int *vols) /* afs_volumes status return */
 {
     int i;
@@ -122,7 +124,8 @@ static struct volume *getvolume(struct VenusFid *f, /* file ID pointer */
  * hasAFS() - test for AFS presence via vfs structure
  */
 
-int hasAFS(struct vnode *vp) /* vnode pointer */
+int hasAFS(struct lsof_context *ctx, /* context */
+           struct vnode *vp)         /* vnode pointer */
 {
     struct vmount vm;
     struct vfs v;
@@ -160,7 +163,8 @@ int hasAFS(struct vnode *vp) /* vnode pointer */
  *		  1 if root file ID structure address available
  */
 
-static int is_rootFid(struct vcache *vc, /* vcache entry */
+static int is_rootFid(struct lsof_context *ctx, /* context */
+                      struct vcache *vc,        /* vcache entry */
                       int *rfid) /* root file ID pointer status return */
 {
     int err;
@@ -224,9 +228,10 @@ static int is_rootFid(struct vcache *vc, /* vcache entry */
  * readafsnode() - read AFS node
  */
 
-int readafsnode(KA_T va,            /* kernel vnode address */
-                struct vnode *v,    /* vnode buffer pointer */
-                struct afsnode *an) /* afsnode recipient */
+int readafsnode(struct lsof_context *ctx, /* context */
+                KA_T va,                  /* kernel vnode address */
+                struct vnode *v,          /* vnode buffer pointer */
+                struct afsnode *an)       /* afsnode recipient */
 {
     char *cp, tbuf[32];
     KA_T ka;
@@ -254,12 +259,12 @@ int readafsnode(KA_T va,            /* kernel vnode address */
      * Manufacture the "inode" number.
      */
     if (vc->mvstat == 2) {
-        if ((vp = getvolume(&vc->fid, &vols))) {
+        if ((vp = getvolume(ctx, &vc->fid, &vols))) {
             an->inode = (INODETYPE)((vp->mtpoint.Fid.Vnode +
                                      (vp->mtpoint.Fid.Volume << 16)) &
                                     0x7fffffff);
             if (an->inode == (INODETYPE)0) {
-                if (is_rootFid(vc, &rfid))
+                if (is_rootFid(ctx, vc, &rfid))
                     an->ino_st = 1;
                 else if (rfid) {
                     an->inode = (INODETYPE)2;

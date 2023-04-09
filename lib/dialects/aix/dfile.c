@@ -404,7 +404,7 @@ char *print_dev(struct lfile *lf, /* file whose device to be printed */
  */
 
 struct l_vfs *readvfs(struct lsof_context *ctx, /* context */
-                      struct vnode *vn) /* vnode */
+                      struct vnode *vn)         /* vnode */
 {
     struct gfs g;
     void *mp;

@@ -50,7 +50,7 @@ static char copyright[] =
  */
 
 void process_socket(struct lsof_context *ctx, /* context */
-                    KA_T sa) /* socket address in kernel */
+                    KA_T sa)                  /* socket address in kernel */
 {
     struct domain d;
     unsigned char *fa = (unsigned char *)NULL;
@@ -154,7 +154,8 @@ void process_socket(struct lsof_context *ctx, /* context */
         /*
          * Read protocol control block.
          */
-        if (!s.so_pcb || kread(ctx, (KA_T)s.so_pcb, (char *)&inp, sizeof(inp))) {
+        if (!s.so_pcb ||
+            kread(ctx, (KA_T)s.so_pcb, (char *)&inp, sizeof(inp))) {
             if (!s.so_pcb) {
                 (void)snpf(
                     Namech, Namechl, "no PCB%s%s",
@@ -225,7 +226,8 @@ void process_socket(struct lsof_context *ctx, /* context */
         /*
          * Save Internet socket information.
          */
-        enter_dev_ch(ctx, print_kptr((KA_T)(inp.inp_ppcb ? inp.inp_ppcb : s.so_pcb),
+        enter_dev_ch(ctx,
+                     print_kptr((KA_T)(inp.inp_ppcb ? inp.inp_ppcb : s.so_pcb),
                                 (char *)NULL, 0));
 
 #if defined(HASIPv6)
@@ -336,8 +338,8 @@ void process_socket(struct lsof_context *ctx, /* context */
             if ((uo + sizeof(struct sockaddr)) <= sizeof(mb))
                 ua = (struct sockaddr_un *)((char *)&mb + uo);
             else {
-                if (mb.m_hdr.mh_data &&
-                    !kread(ctx, (KA_T)mb.m_hdr.mh_data, (char *)&un, sizeof(un))) {
+                if (mb.m_hdr.mh_data && !kread(ctx, (KA_T)mb.m_hdr.mh_data,
+                                               (char *)&un, sizeof(un))) {
                     ua = &un;
                 }
             }

@@ -46,7 +46,8 @@ static char copyright[] =
  * Local function prototypes
  */
 
-static int rmdupdev(struct lsof_context *ctx, struct l_dev ***dp, int n, char *nm);
+static int rmdupdev(struct lsof_context *ctx, struct l_dev ***dp, int n,
+                    char *nm);
 
 #if defined(HASDCACHE) && AIXV >= 4140
 
@@ -101,10 +102,10 @@ int getchan(char *p) /* file path name */
  */
 
 int printdevname(struct lsof_context *ctx, /* context */
-                 dev_t *dev,  /* device */
-                 dev_t *rdev, /* raw device */
-                 int f,       /* 1 = follow with '\n' */
-                 int nty)     /* node type: N_BLK or N_CHR */
+                 dev_t *dev,               /* device */
+                 dev_t *rdev,              /* raw device */
+                 int f,                    /* 1 = follow with '\n' */
+                 int nty)                  /* node type: N_BLK or N_CHR */
 {
     struct l_dev *dp;
     /*
@@ -150,7 +151,7 @@ int printdevname(struct lsof_context *ctx, /* context */
  */
 
 void readdev(struct lsof_context *ctx, /* context */
-             int skip) /* skip device cache read if 1 */
+             int skip)                 /* skip device cache read if 1 */
 {
 
 #if defined(HASDCACHE)
@@ -530,7 +531,7 @@ static int rmdupdev(struct lsof_context *ctx, /* context */
  */
 
 int rw_clone_sect(struct lsof_context *ctx, /* context */
-                  int m) /* mode: 1 = read; 2 = write */
+                  int m)                    /* mode: 1 = read; 2 = write */
 {
     char buf[MAXPATHLEN * 2], *cp;
     struct clone *c;
@@ -662,7 +663,7 @@ int rw_clone_sect(struct lsof_context *ctx, /* context */
  */
 
 int vfy_dev(struct lsof_context *ctx, /* context */
-            struct l_dev *dp) /* device table pointer */
+            struct l_dev *dp)         /* device table pointer */
 {
     struct stat sb;
 
