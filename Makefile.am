@@ -85,6 +85,20 @@ lsof_SOURCES += lib/dialects/sun/ddev.c \
 		lib/dialects/sun/machine.h
 endif
 
+if AIX
+lsof_SOURCES += lib/dialects/aix/ddev.c \
+		lib/dialects/aix/dfile.c \
+		lib/dialects/aix/dmnt.c \
+		lib/dialects/aix/dnode.c \
+		lib/dialects/aix/dnode2.c \
+		lib/dialects/aix/dproc.c \
+		lib/dialects/aix/dsock.c \
+		lib/dialects/aix/dstore.c \
+		lib/dialects/aix/dlsof.h \
+		lib/dialects/aix/dproto.h \
+		lib/dialects/aix/machine.h
+endif
+
 lsof_CPPFLAGS = -I$(DIALECT_PATH) -Iautotools -I$(top_srcdir)/lib -I$(top_srcdir)/include
 lsof_CPPFLAGS += -DAUTOTOOLS
 
