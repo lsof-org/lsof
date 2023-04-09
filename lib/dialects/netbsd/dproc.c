@@ -78,10 +78,11 @@ static KA_T *Vp = NULL; /* vnode address cache */
  * ckkv - check kernel version
  */
 
-void ckkv(struct lsof_context *ctx, char *d, /* dialect */
-          char *er,                          /* expected release */
-          char *ev,                          /* expected version */
-          char *ea)                          /* expected architecture */
+void ckkv(struct lsof_context *ctx, /* context */
+          char *d,                  /* dialect */
+          char *er,                 /* expected release */
+          char *ev,                 /* expected version */
+          char *ea)                 /* expected architecture */
 {
 
 #if defined(HASKERNIDCK)
@@ -116,8 +117,9 @@ void ckkv(struct lsof_context *ctx, char *d, /* dialect */
  * enter_vn_text() - enter a vnode text reference
  */
 
-static void enter_vn_text(struct lsof_context *ctx, KA_T va, /* vnode address */
-                          int *n) /* Vp[] entries in use */
+static void enter_vn_text(struct lsof_context *ctx, /* context */
+                          KA_T va,                  /* vnode address */
+                          int *n)                   /* Vp[] entries in use */
 {
     int i;
     /*
