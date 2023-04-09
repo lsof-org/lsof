@@ -222,7 +222,7 @@ extern int readcdrnode(KA_T ca, struct cdrnode *c);
 extern void alloc_dcache(struct lsof_context *ctx);
 extern void crc(char *b, int l, unsigned *s);
 extern void crdbld(void);
-extern int ctrl_dcache(char *p);
+extern int ctrl_dcache(struct lsof_context *ctx, char *p);
 extern int dcpath(struct lsof_context *ctx, int rw, int npw);
 extern int open_dcache(struct lsof_context *ctx, int m, int r, struct stat *sb);
 extern int read_dcache(struct lsof_context *ctx);

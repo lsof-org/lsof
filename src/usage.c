@@ -41,7 +41,8 @@ static char copyright[] =
 
 static char *isnullstr(char *s);
 static int print_in_col(int col, char *cp);
-static void report_HASDCACHE(int type, char *ttl, char *det);
+static void report_HASDCACHE(struct lsof_context *ctx, int type, char *ttl,
+                             char *det);
 static void report_HASKERNIDCK(char *pfx, char *verb);
 static void report_SECURITY(char *pfx, char *punct);
 static void report_WARNDEVACCESS(char *pfx, char *verb, char *punct);
@@ -92,13 +93,13 @@ char *cp; /* what to print */
  * report_HASDCACHE() -- report device cache file state
  */
 
-static void report_HASDCACHE(type, ttl,
-                             det) int type; /* type: 0 == read path report
-                                             *       1 == full report */
-char *ttl;                                  /* title lines prefix
-                                             * (NULL if none) */
-char *det;                                  /* detail lines prefix
-                                             * (NULL if none) */
+static void report_HASDCACHE(struct lsof_context *ctx, /* context */
+                             int type,  /* type: 0 == read path report
+                                         *       1 == full report */
+                             char *ttl, /* title lines prefix
+                                         * (NULL if none) */
+                             char *det) /* detail lines prefix
+                                         * (NULL if none) */
 {
 
 #if defined(HASDCACHE)
@@ -798,7 +799,7 @@ void usage(struct lsof_context *ctx, /* context */
         (void)report_SECURITY(NULL, "; ");
         (void)report_WARNDEVACCESS(NULL, NULL, ";");
         (void)report_HASKERNIDCK(" k", NULL);
-        (void)report_HASDCACHE(0, NULL, NULL);
+        (void)report_HASDCACHE(ctx, 0, NULL, NULL);
 
 #if defined(DIALECT_WARNING)
         (void)fprintf(stderr, "WARNING: %s\n", DIALECT_WARNING);
@@ -860,7 +861,7 @@ void usage(struct lsof_context *ctx, /* context */
 
 #if defined(HASDCACHE)
     if (DChelp)
-        report_HASDCACHE(1, NULL, "    ");
+        report_HASDCACHE(ctx, 1, NULL, "    ");
 #endif /* defined(HASDCACHE) */
 
     if (version) {
@@ -992,7 +993,7 @@ void usage(struct lsof_context *ctx, /* context */
         (void)fprintf(stderr, "    WARNING: %s\n", DIALECT_WARNING);
 #endif /* defined(DIALECT_WARNING) */
 
-        (void)report_HASDCACHE(1, "    ", "\t");
+        (void)report_HASDCACHE(ctx, 1, "    ", "\t");
     }
     Exit(ctx, err ? LSOF_ERROR : LSOF_SUCCESS);
 }

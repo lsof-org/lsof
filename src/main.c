@@ -339,7 +339,7 @@ char *argv[];
             } else {
 
 #if defined(HASDCACHE)
-                if (ctrl_dcache(GOv))
+                if (ctrl_dcache(ctx, GOv))
                     err = 1;
 #else  /* !defined(HASDCACHE) */
                 (void)fprintf(stderr, "%s: unsupported option: -D\n", Pn);

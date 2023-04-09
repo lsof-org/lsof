@@ -474,8 +474,8 @@ int ck_file_arg(struct lsof_context *ctx, int i, /* first file argument index */
  * ctrl_dcache() - enter device cache control
  */
 
-int ctrl_dcache(c)
-char *c; /* control string */
+int ctrl_dcache(struct lsof_context *ctx, /* context */
+                char *c)                  /* control string */
 {
     int rc = 0;
 
