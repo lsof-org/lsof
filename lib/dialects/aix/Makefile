@@ -16,19 +16,19 @@ P=
 
 CDEF=
 CDEFS=  ${CDEF} ${CFGF}
-INCL=	${DINC}
+INCL=	${DINC} -Iinclude -Ilib -Isrc -I.
 CFLAGS=	${CDEFS} ${INCL} ${DEBUG}
 
 GRP=
 
-HDR=    lsof.h lsof_fields.h dlsof.h machine.h proto.h dproto.h
+HDR=    lib/common.h include/lsof_fields.h dlsof.h machine.h lib/proto.h dproto.h
 
 SRC=    ddev.c dfile.c dmnt.c dnode.c dnode1.c dnode2.c dproc.c dsock.c \
-	dstore.c arg.c main.c misc.c node.c print.c proc.c store.c usage.c \
+	dstore.c arg.c main.c print.c ptti.c store.c usage.c \
 	util.o
 
 OBJ=	ddev.o dfile.o dmnt.o dnode.o dnode1.o dnode2.o dproc.o dsock.o \
-	dstore.o arg.o main.o misc.o node.o print.o proc.o store.o usage.o \
+	dstore.o arg.o main.o print.o ptti.o store.o usage.o \
 	util.o
 
 MAN=	lsof.8

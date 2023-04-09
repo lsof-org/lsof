@@ -44,7 +44,7 @@ static char copyright[] =
                           * inode is available from                            \
                           * <j2/j2_inode.h> */
 #    define DPROTO_H
-#    include "lsof.h"
+#    include "common.h"
 #    define _KERNEL
 #    include <j2/j2_inode.h>
 #    undef PROTO_H  /* enable "proto.h" */
