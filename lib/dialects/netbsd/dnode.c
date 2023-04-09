@@ -55,7 +55,7 @@ static int lkup_dev_tty(struct lsof_context *ctx, dev_t *dr, INODETYPE *ir);
 #endif /* defined(HAS_UM_UFS) */
 
 #if defined(HASPROCFS)
-static void getmemsz(pid_t pid);
+static void getmemsz(struct lsof_context *ctx, pid_t pid);
 
 #    if !defined(PGSHIFT)
 #        define PGSHIFT pgshift
@@ -65,7 +65,7 @@ static void getmemsz(pid_t pid);
  * getmemsz() - get memory size of a /proc/<n>/mem entry
  */
 
-static void getmemsz(pid) pid_t pid;
+static void getmemsz(struct lsof_context *ctx, pid_t pid)
 {
     int n;
     struct vmspace vm;
@@ -958,7 +958,7 @@ process_overlaid_node:
                 Lf->sz_def = 1;
                 break;
             case Pmem:
-                (void)getmemsz(p.pfs_pid);
+                (void)getmemsz(ctx, p.pfs_pid);
                 break;
             case Pregs:
                 Lf->sz = (SZOFFTYPE)sizeof(struct reg);
