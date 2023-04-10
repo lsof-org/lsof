@@ -3636,6 +3636,10 @@ LOCKF4
 	LSOF_TSTBIGF=" "
 	LSOF_VERS=7020
 	;;
+      7.3*)
+	LSOF_TSTBIGF=" "
+	LSOF_VERS=7030
+	;;
       *)
 	echo "Unknown OpenBSD release: $LSOF_VSTR"
 	echo Assuming OpenBSD 3.9
@@ -3647,7 +3651,7 @@ LOCKF4
     # Test for legal OpenBSD version.
 
     case $LSOF_VERS in	# {
-    1020|2050|2060|2070|2080|2090|3000|3010|3020|3030|3040|3050|3060|3070|3080|3090|7020)
+    1020|2050|2060|2070|2080|2090|3000|3010|3020|3030|3040|3050|3060|3070|3080|3090|7020|7030)
       ;;
     *)
       echo "Unknown OpenBSD version: $LSOF_VERS"
