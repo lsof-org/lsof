@@ -164,10 +164,11 @@ AS_CASE([${host_os}],
 
 	AS_CASE([$LSOF_VSTR],
 	[7.2],	[LSOF_VERS=7020],
+	[7.3],	[LSOF_VERS=7030],
 	[
 		AC_MSG_NOTICE([Unknown OpenBSD release: $(uname -r)])
-		AC_MSG_NOTICE([Assuming OpenBSD 7.2])
-		LSOF_VERS=7020
+		AC_MSG_NOTICE([Assuming OpenBSD 7.3])
+		LSOF_VERS=7030
 	])
 ], [solaris*], [
 	LSOF_DIALECT=solaris
