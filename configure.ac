@@ -164,10 +164,11 @@ AS_CASE([${host_os}],
 
 	AS_CASE([$LSOF_VSTR],
 	[7.2],	[LSOF_VERS=7020],
+	[7.3],	[LSOF_VERS=7030],
 	[
 		AC_MSG_NOTICE([Unknown OpenBSD release: $(uname -r)])
-		AC_MSG_NOTICE([Assuming OpenBSD 7.2])
-		LSOF_VERS=7020
+		AC_MSG_NOTICE([Assuming OpenBSD 7.3])
+		LSOF_VERS=7030
 	])
 ], [solaris*], [
 	LSOF_DIALECT=solaris
@@ -219,6 +220,7 @@ AS_CASE([${host_os}],
 
 	# Assuming recent AIX on PowerPC64
 	CFLAGS="$CFLAGS -maix64 -DAIXA=1 -DAIX_KERNBITS=64 -DHASSTAT64"
+	LSOF_TEST_CFLAGS="$LSOF_TEST_CFLAGS -DLT_AIXA=1"
 
 	# JFS2 support
 	# Add -fms-extensions to handle use of i_dev from the wInode anonymous

@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 source tests/common.bash
+# need gnu grep for -e in solaris
+export PATH=/usr/gnu/bin:$PATH
 base=$(pwd)
 
 output=$(${lsof} -r 1c1 -p $$)

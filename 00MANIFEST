@@ -30,7 +30,6 @@ node.c
 print.c
 proc.c
 proto.h
-regex.h
 scripts/
 store.c
 tests/
@@ -302,7 +301,6 @@ pdvn.c
 prfp.c
 ptti.c
 rdev.c
-regex.c
 rmnt.c
 rnam.c
 rnch.c

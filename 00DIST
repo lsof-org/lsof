@@ -5544,6 +5544,26 @@ Supplement	Regenerated the 4.04 distribution to correct a non-
 		https://reviews.freebsd.org/D38169. It brings back the ability
 		to list deleted files via `lsof +L1`. Closes #264.
 
+
+		[linux] Add --with-selinux configure option.
+
+
+		[solaris] Re-introduce support for recent Solaris & OpenIndiana
+		releases.
+
+
+		[darwin] Display kern ctl info, learned from apple lsof version.
+
+
+		[linux] Improve performance by using closefrom(). Closes #281.
+
+
+		[aix] Fix compilation on AIX 7.2 and add autotools build system
+		support for AIX.
+
+		[aix] Suppress warnings properly on AIX version greater than
+		5.0. Closes #187.
+
 4.9?.?		????????? ??, ????
 
 Vic Abell <abe@purdue.edu>
