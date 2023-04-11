@@ -576,7 +576,6 @@ typedef _Bool bool;
 #    define USE_LIB_PRINT_TCPTPI 1                           /* ptti.c */
 #    define USE_LIB_READDEV 1                                /* rdev.c */
 /* #define	USE_LIB_READMNT			1	   rmnt.c */
-/* #define	USE_LIB_REGEX			1	   regex.c */
 
 #    define USE_LIB_RNMH 1 /* rnmh.c */
 

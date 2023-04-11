@@ -13,10 +13,10 @@ INCL=	${DINC} -I.. -I../include -Idialects/${DIALECT_DIR}
 HDR=	common.h proto.h proto.h
 
 SRC=	ckkv.c cvfs.c dvch.c fino.c isfn.c lkud.c lsof.c misc.c node.c pdvn.c prfp.c \
-	print.c proc.c ptti.c rdev.c regex.c rmnt.c rnam.c rnch.c rnmh.c rnmt.c
+	print.c proc.c ptti.c rdev.c rmnt.c rnam.c rnch.c rnmh.c rnmt.c
 
 OBJ=	ckkv.o cvfs.o dvch.o fino.o isfn.o lkud.o lsof.o misc.o node.o pdvn.o prfp.o \
-	print.o proc.o ptti.o rdev.o regex.o rmnt.o rnam.o rnch.o rnmh.o rnmt.o
+	print.o proc.o ptti.o rdev.o rmnt.o rnam.o rnch.o rnmh.o rnmt.o
 
 all:	${LIB}
 
@@ -48,8 +48,6 @@ prfp.o: ${HDR} prfp.c
 ptti.o:	${HDR} ptti.c
 
 rdev.o: ${HDR} rdev.c
-
-regex.o: ${HDR} regex.h regex.c
 
 rmnt.o: ${HDR} rmnt.c
 
