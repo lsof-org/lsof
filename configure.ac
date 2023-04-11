@@ -220,6 +220,7 @@ AS_CASE([${host_os}],
 
 	# Assuming recent AIX on PowerPC64
 	CFLAGS="$CFLAGS -maix64 -DAIXA=1 -DAIX_KERNBITS=64 -DHASSTAT64"
+	LSOF_TEST_CFLAGS="$LSOF_TEST_CFLAGS -DLT_AIXA=1"
 
 	# JFS2 support
 	# Add -fms-extensions to handle use of i_dev from the wInode anonymous
