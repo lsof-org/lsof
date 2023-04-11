@@ -308,6 +308,9 @@ char *ea;                         /* expected architecture */
     char buf[64];
     struct utsname u;
 
+    if (Fwarn)
+        return;
+
     (void)memset((void *)&u, 0, sizeof(u));
     (void)uname(&u);
     (void)snpf(buf, sizeof(buf) - 1, "%s.%s.0.0", u.version, u.release);
