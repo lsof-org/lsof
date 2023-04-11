@@ -3542,6 +3542,7 @@ LOCKF4
 # numbering.
 
   openbsd)
+    LSOF_TSTKMEM=0
     if test "X$LSOF_CC" = "X"	# {
     then
       LSOF_CC=cc

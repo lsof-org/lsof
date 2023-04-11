@@ -6,6 +6,12 @@ packages:
   - libtool
   - groff
 tasks:
+  - legacy: |
+      cd lsof
+      ./Configure -n openbsd
+      make
+      bash ./check.bash openbsd
+      git clean -fdx .
   - setup: |
       cd lsof
       export AUTOCONF_VERSION=2.71
