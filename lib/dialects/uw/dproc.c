@@ -437,7 +437,7 @@ static void process_text(pa) KA_T pa; /* kernel address space description
             if (kread(ctx, (KA_T)s.s_data, (char *)&dv, sizeof(dv)))
                 break;
             if ((vp = (KA_T)dv.vp))
-                fd = LSOF_FD_MMAP_SPECIAL;
+                fd = LSOF_FD_MMAP_DEVICE;
         }
         if (fd != LSOF_FD_UNKNOWN && vp) {
 

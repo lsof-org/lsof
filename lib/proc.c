@@ -1734,8 +1734,17 @@ void fd_to_string(enum lsof_fd_type fd_type, int fd_num, char *buf) {
     case LSOF_FD_MERGE_386:
         (void)snpf(buf, FDLEN, "m86");
         break;
-    case LSOF_FD_MMAP_SPECIAL:
+    case LSOF_FD_MMAP_DEVICE:
         (void)snpf(buf, FDLEN, "mmap");
+        break;
+    case LSOF_FD_LIBRARY_REF:
+        (void)snpf(buf, FDLEN, "L%02d", fd_num);
+        break;
+    case LSOF_FD_MMAP_UNKNOWN:
+        (void)snpf(buf, FDLEN, "M%02x", fd_num);
+        break;
+    case LSOF_FD_PREGION_UNKNOWN:
+        (void)snpf(buf, FDLEN, "R%02d", fd_num);
         break;
     default:
         fprintf(stderr, "Unknown fd type: %d\n", (int)fd_type);

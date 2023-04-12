@@ -792,7 +792,7 @@ static void process_text(vasp) KA_T vasp; /* kernel's virtual address space
             alloc_lfile(ctx, LSOF_FD_MEMORY, -1);
             break;
         default:
-            alloc_lfile(ctx, LSOF_FD_UNKNOWN, -1);
+            alloc_lfile(ctx, LSOF_FD_PREGION_UNKNOWN, p.p_type);
         }
         /*
          * Save vnode information.

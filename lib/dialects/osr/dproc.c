@@ -733,6 +733,7 @@ static void process_text(prp) KA_T prp; /* process region pointer */
     struct region r;
     KA_T na;
     enum lsof_fd_type ty;
+    int fd_num;
     char tyb[8];
 
 #if OSRV >= 500
@@ -808,6 +809,7 @@ static void process_text(prp) KA_T prp; /* process region pointer */
         /*
          * Save text node and mapped region information.
          */
+        fd_num = -1;
         switch (p->p_type) {
         case PT_DATA: /* data and text of */
         case PT_TEXT: /* executing binaries */
@@ -827,10 +829,11 @@ static void process_text(prp) KA_T prp; /* process region pointer */
             ty = LSOF_FD_MERGE_386;
             break;
         default:
-            ty = LSOF_FD_UNKNOWN;
+            ty = LSOF_FD_MMAP_UNKNOWN;
+            fd_num = p->p_type & 0xff;
             break;
         }
-        alloc_lfile(ctx, ty, -1);
+        alloc_lfile(ctx, ty, fd_num);
         process_node(na);
         if (Lf->sf)
             link_lfile();

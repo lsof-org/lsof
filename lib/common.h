@@ -843,8 +843,10 @@ struct lfile {
 
     /* FD column */
     enum lsof_fd_type fd_type;
-    int fd_num; /* stores fd number when fd_type == LSOF_FD_NUMERIC, otherwise
-                   -1 */
+    int fd_num; /* stores fd number when fd_type is LSOF_FD_NUMERIC,
+                   stores raw number when fd_type is one of
+                   {LSOF_FD_LIBRARY_REF, LSOF_FD_MMAP_UNKNOWN,
+                   LSOF_FD_PREGION_UNKNOWN}, otherwise -1 */
 
     char iproto[IPROTOL];
     char type[TYPEL];

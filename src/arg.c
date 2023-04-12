@@ -940,7 +940,7 @@ static int enter_fd_lst(struct lsof_context *ctx, /* context */
             } else if (strcmp(nm, "m86") == 0) {
                 f->fd_type = LSOF_FD_MERGE_386;
             } else if (strcmp(nm, "mmap") == 0) {
-                f->fd_type = LSOF_FD_MMAP_SPECIAL;
+                f->fd_type = LSOF_FD_MMAP_DEVICE;
             } else if (strcmp(nm, "fd") == 0) {
                 /* pseudo fd type meaning whole range of fd */
                 f->fd_type = LSOF_FD_NUMERIC;
