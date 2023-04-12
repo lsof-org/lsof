@@ -150,9 +150,7 @@ static short CIMap[] = {
  * strcasecmp() - case insentitive character compare (from BSD)
  */
 
-int strcasecmp(s1, s2)
-char *s1, *s2;
-{
+int strcasecmp(char *s1, char *s2) {
     short *mp = CIMap;
     unsigned char *cp1 = (unsigned char *)s1;
     unsigned char *cp2 = (unsigned char *)s2;
@@ -170,10 +168,7 @@ char *s1, *s2;
  *		   (from BSD)
  */
 
-int strncasecmp(s1, s2, n)
-char *s1, *s2;
-int n;
-{
+int strncasecmp(char *s1, char *s2, int n) {
     short *mp = CIMap;
     unsigned char *cp1, *cp2;
 

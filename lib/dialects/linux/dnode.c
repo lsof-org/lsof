@@ -324,8 +324,7 @@ pxinfo_t *find_ptyepti(struct lsof_context *ctx, /* context */
  * is_pty_slave() -- is a pseudoterminal a slave device
  */
 
-int is_pty_slave(sm)
-int sm; /* slave major device number */
+int is_pty_slave(int sm) /* slave major device number */
 {
     /* linux/Documentation/admin-guide/devices.txt
        -------------------------------------------
@@ -351,8 +350,7 @@ int sm; /* slave major device number */
  * is_pty_ptmx() -- is a pseudoterminal a master clone device
  */
 
-int is_pty_ptmx(dev)
-dev_t dev; /* device number */
+int is_pty_ptmx(dev_t dev) /* device number */
 {
     if ((GET_MAJ_DEV(dev) == TTYAUX_MAJOR) && (GET_MIN_DEV(dev) == 2))
         return 1;

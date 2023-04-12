@@ -140,9 +140,8 @@ void ckAFSsym(nl) struct nlist *nl; /* copy of Nl[] when empty */
  * getvolume() - get volume structure
  */
 
-static struct volume *getvolume(f, vols)
-struct VenusFid *f; /* file ID pointer */
-int *vols;          /* afs_volumes status return */
+static struct volume *getvolume(struct VenusFid *f, /* file ID pointer */
+                                int *vols) /* afs_volumes status return */
 {
     int i;
     static KA_T ka = 0;
@@ -184,8 +183,7 @@ int *vols;          /* afs_volumes status return */
  * hasAFS() - test for AFS presence via vfs structure
  */
 
-int hasAFS(vp)
-struct vnode *vp; /* vnode pointer */
+int hasAFS(struct vnode *vp) /* vnode pointer */
 {
     struct vfs v;
     /*
@@ -218,9 +216,8 @@ struct vnode *vp; /* vnode pointer */
  *		  1 if root file ID structure address available
  */
 
-static int is_rootFid(vc, rfid)
-struct vcache *vc; /* vcache structure */
-int *rfid;         /* root file ID pointer status return */
+static int is_rootFid(struct vcache *vc, /* vcache structure */
+                      int *rfid) /* root file ID pointer status return */
 {
     char *err;
     static int f = 0; /* rootFID structure status:

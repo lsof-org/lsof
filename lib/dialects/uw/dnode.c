@@ -305,9 +305,8 @@ static int examine_stream(struct lsof_context *ctx, /* context */
  * findspdev() - find special device by raw major device number
  */
 
-static struct l_dev *findspdev(dev, rdev)
-dev_t *dev;  /* containing device */
-dev_t *rdev; /* raw device */
+static struct l_dev *findspdev(dev_t *dev,  /* containing device */
+                               dev_t *rdev) /* raw device */
 {
     int i;
     struct l_dev *dp;
@@ -330,9 +329,8 @@ dev_t *rdev; /* raw device */
  * findstrdev() - look up stream device by device number
  */
 
-static struct l_dev *findstrdev(dev, rdev)
-dev_t *dev;  /* device */
-dev_t *rdev; /* raw device */
+static struct l_dev *findstrdev(dev_t *dev,  /* device */
+                                dev_t *rdev) /* raw device */
 {
     struct clone *c;
     struct l_dev *dp;
@@ -486,11 +484,10 @@ static int get_vty(struct lsof_context *ctx, /* context */
  * ismouse() - is vnode attached to /dev/mouse
  */
 
-static struct l_dev *ismouse(va, i, fx, kv)
-struct vnode *va; /* local vnode address */
-struct l_ino *i;  /* local inode structure */
-int fx;           /* file system index */
-struct vfs *kv;   /* copy of kernel VFS structure */
+static struct l_dev *ismouse(struct vnode *va, /* local vnode address */
+                             struct l_ino *i,  /* local inode structure */
+                             int fx,           /* file system index */
+                             struct vfs *kv) /* copy of kernel VFS structure */
 {
     struct l_dev *dp;
     int j;

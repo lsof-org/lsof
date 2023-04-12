@@ -512,11 +512,10 @@ static void get_kernel_access() {
  * boot path's name list will have been loaded into Nl[].
  */
 
-char *get_nlist_path(ap)
-int ap; /* on success, return an allocated path
-         * string pointer if 1; return a
-         * constant character pointer if 0;
-         * return NULL if failure */
+char *get_nlist_path(int ap) /* on success, return an allocated path
+                              * string pointer if 1; return a
+                              * constant character pointer if 0;
+                              * return NULL if failure */
 {
     FILE *bf;
     char *bfp, b1[MAXPATHLEN + 1], b2[MAXPATHLEN + 1], *pp, *tp;
@@ -697,8 +696,7 @@ int kread(struct lsof_context *ctx, /* context */
  * open_kmem() - open kernel memory access
  */
 
-static int open_kmem(nx)
-int nx; /* no Error(ctx) if 1 */
+static int open_kmem(int nx) /* no Error(ctx) if 1 */
 {
     if (Kd >= 0)
         return (0);
@@ -1016,9 +1014,8 @@ static void SYSV_load();
  * DIN_addr() - look up a node's local device-inode address
  */
 
-static struct lnch *DIN_addr(d, i)
-dev_t *d;        /* device number */
-unsigned long i; /* inode number */
+static struct lnch *DIN_addr(dev_t *d,        /* device number */
+                             unsigned long i) /* inode number */
 {
     struct lnch_hh *hh = DIN_hash(*d, i);
     struct lnch *lc = hh->hp[0];
@@ -1308,11 +1305,10 @@ static void HTFS_load() {
  * LNC_enter() - make a local name cache entry
  */
 
-static int LNC_enter(le, nm, nl, fs)
-struct lnch *le; /* skeleton local entry */
-char *nm;        /* name */
-int nl;          /* name length */
-char *fs;        /* file system name */
+static int LNC_enter(struct lnch *le, /* skeleton local entry */
+                     char *nm,        /* name */
+                     int nl,          /* name length */
+                     char *fs)        /* file system name */
 {
     struct lnch *lc;
     MALLOC_S len;
@@ -1544,10 +1540,9 @@ void ncache_load() {
  * ncache_lookup() - look up a node's name in the kernel's name caches
  */
 
-char *ncache_lookup(buf, blen, fp)
-char *buf; /* receiving name buffer */
-int blen;  /* receiving buffer length */
-int *fp;   /* full path reply */
+char *ncache_lookup(char *buf, /* receiving name buffer */
+                    int blen,  /* receiving buffer length */
+                    int *fp)   /* full path reply */
 {
     char *cp = buf;
     int nl, rlen;

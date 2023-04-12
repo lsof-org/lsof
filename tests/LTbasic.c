@@ -58,9 +58,8 @@ static char *tstlsof(char **texec, char **tkmem, char **tproc);
  * Main program for dialects that support locking tests.
  */
 
-int main(argc, argv)
-int argc;     /* argument count */
-char *argv[]; /* arguments */
+int main(int argc,     /* argument count */
+         char *argv[]) /* arguments */
 {
     char buf[2048];             /* temporary buffer */
     char *em;                   /* error message pointer */
@@ -136,10 +135,9 @@ static void cleanup() {}
  * tstlsof() -- test for the lsof process
  */
 
-static char *tstlsof(texec, tkmem, tproc)
-char **texec; /* result of the executable test */
-char **tkmem; /* result of the /dev/kmem test */
-char **tproc; /* result of the lsof process test */
+static char *tstlsof(char **texec, /* result of the executable test */
+                     char **tkmem, /* result of the /dev/kmem test */
+                     char **tproc) /* result of the lsof process test */
 {
     char buf[2048];           /* temporary buffer */
     char *cem;                /* current error message pointer */

@@ -140,8 +140,7 @@ dev_t *dev;                                  /* device */
  * readvfs() - read vfs structure
  */
 
-struct l_vfs *readvfs(lv)
-struct vnode *lv; /* local vnode */
+struct l_vfs *readvfs(struct vnode *lv) /* local vnode */
 {
     struct mount m;
     struct mntinfo mi;

@@ -51,8 +51,7 @@ static void report_WARNDEVACCESS(char *pfx, char *verb, char *punct);
  * isnullstr() - is it a null string?
  */
 
-static char *isnullstr(s)
-char *s; /* string pointer */
+static char *isnullstr(char *s) /* string pointer */
 {
     if (!s)
         return ((char *)NULL);
@@ -68,9 +67,8 @@ char *s; /* string pointer */
  * print_in_col() -- print character string in help column
  */
 
-static int print_in_col(col, cp)
-int col;  /* column number */
-char *cp; /* what to print */
+static int print_in_col(int col,  /* column number */
+                        char *cp) /* what to print */
 {
     if (cp && *cp) {
         switch (col) {

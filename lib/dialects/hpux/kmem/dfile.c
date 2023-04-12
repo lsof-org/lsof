@@ -69,9 +69,8 @@ int get_max_fd() {
  * print_dev() - print device
  */
 
-char *print_dev(lf, dev)
-struct lfile *lf; /* file whose device is to be printed */
-dev_t *dev;       /* device to be printed */
+char *print_dev(struct lfile *lf, /* file whose device is to be printed */
+                dev_t *dev)       /* device to be printed */
 {
     static char buf[128];
 
@@ -214,7 +213,8 @@ char **pn; /* returned protocol name */
             break;
         if (!(ka = (KA_T)q.q_qinfo) || kread(ctx, ka, (char *)&qi, sizeof(qi)))
             continue;
-        if (!(ka = (KA_T)qi.qi_minfo) || kread(ctx, ka, (char *)&mi, sizeof(mi)))
+        if (!(ka = (KA_T)qi.qi_minfo) ||
+            kread(ctx, ka, (char *)&mi, sizeof(mi)))
             continue;
         if (!(ka = (KA_T)mi.mi_idname) || kread(ctx, ka, mn, ml))
             continue;

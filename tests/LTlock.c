@@ -167,9 +167,8 @@
  * Main program for dialects that don't support flock() of fcntl() locking.
  */
 
-int main(argc, argv)
-int argc;     /* argument count */
-char *argv[]; /* arguments */
+int main(int argc,     /* argument count */
+         char *argv[]) /* arguments */
 {
     char *pn; /* program name */
               /*
@@ -215,9 +214,8 @@ static char *unlkfile(int ty);
  * Main program for dialects that support locking tests.
  */
 
-int main(argc, argv)
-int argc;     /* argument count */
-char *argv[]; /* arguments */
+int main(int argc,     /* argument count */
+         char *argv[]) /* arguments */
 {
     char buf[2048];            /* temporary buffer */
     char *em;                  /* error message pointer */
@@ -414,8 +412,7 @@ static void cleanup() {
  * lkfile() -- lock the test file
  */
 
-static char *lkfile(ty)
-int ty; /* a *_*_LOCK requested */
+static char *lkfile(int ty) /* a *_*_LOCK requested */
 {
     char buf[2048];  /* temporary buffer */
     int ti;          /* temporary integer */
@@ -499,9 +496,8 @@ int ty; /* a *_*_LOCK requested */
  * tstwlsof() -- test the open file with lsof
  */
 
-static char *tstwlsof(opt, xlk)
-char *opt; /* extra lsof options */
-char *xlk; /* expected lock value */
+static char *tstwlsof(char *opt, /* extra lsof options */
+                      char *xlk) /* expected lock value */
 {
     char buf[2048];           /* temporary buffer */
     LTfldo_t *cmdp;           /* command pointer */
@@ -679,8 +675,7 @@ char *xlk; /* expected lock value */
  * unlkfile() -- unlock the test file
  */
 
-static char *unlkfile(ty)
-int ty; /* current *_*_LOCK lock typ */
+static char *unlkfile(int ty) /* current *_*_LOCK lock typ */
 {
     char buf[2048];  /* temporary buffer */
     int ti;          /* temporary integer */

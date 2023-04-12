@@ -44,9 +44,8 @@
  * Main program for dialects that don't support large files
  */
 
-int main(argc, argv)
-int argc;     /* argument count */
-char *argv[]; /* arguments */
+int main(int argc,     /* argument count */
+         char *argv[]) /* arguments */
 {
     char *pn; /* program name */
               /*
@@ -262,9 +261,8 @@ static int tstwlsof(int tt, char *opt, OFFSET_T sz);
  * Main program for dialects that support large files
  */
 
-int main(argc, argv)
-int argc;     /* argument count */
-char *argv[]; /* arguments */
+int main(int argc,     /* argument count */
+         char *argv[]) /* arguments */
 {
     char buf[2048];              /* temporary buffer */
     int do_offt = OFFTST_STAT;   /* do offset tests if == 1 */
@@ -511,10 +509,9 @@ static void cleanup() {
  * tstwlsof() -- test the open file with lsof
  */
 
-static int tstwlsof(tt, opt, sz)
-int tt;      /* test type -- i.e., TST_* */
-char *opt;   /* additional lsof options */
-OFFSET_T sz; /* expected size (and offset) */
+static int tstwlsof(int tt,      /* test type -- i.e., TST_* */
+                    char *opt,   /* additional lsof options */
+                    OFFSET_T sz) /* expected size (and offset) */
 {
     char buf[2048], buf1[2048]; /* temporary buffers */
     LTfldo_t *cmdp;             /* command pointer */

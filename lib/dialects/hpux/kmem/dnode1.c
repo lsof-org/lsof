@@ -98,13 +98,12 @@ typedef int time_t;
  * read_vxnode() - read Veritas file system inode information
  */
 
-int read_vxnode(v, vfs, dev, devs, rdev, rdevs)
-struct vnode *v;   /* local containing vnode */
-struct l_vfs *vfs; /* local vfs structure */
-dev_t *dev;        /* device number receiver */
-int *devs;         /* device status receiver */
-dev_t *rdev;       /* raw device number receiver */
-int *rdevs;        /* raw device status receiver */
+int read_vxnode(struct vnode *v,   /* local containing vnode */
+                struct l_vfs *vfs, /* local vfs structure */
+                dev_t *dev,        /* device number receiver */
+                int *devs,         /* device status receiver */
+                dev_t *rdev,       /* raw device number receiver */
+                int *rdevs)        /* raw device status receiver */
 {
     struct vx_inode i;
 

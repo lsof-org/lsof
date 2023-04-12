@@ -41,10 +41,9 @@ static struct l_dev *finddev(dev_t *dev, dev_t *rdev, int stream);
  * finddev() - look up device by device number
  */
 
-static struct l_dev *finddev(dev, rdev, stream)
-dev_t *dev;  /* device */
-dev_t *rdev; /* raw device */
-int stream;  /* stream if 1 */
+static struct l_dev *finddev(dev_t *dev,  /* device */
+                             dev_t *rdev, /* raw device */
+                             int stream)  /* stream if 1 */
 {
     struct clone *c;
     struct l_dev *dp;
@@ -399,8 +398,8 @@ void process_node(na) KA_T na; /* inode kernel space address */
                      * If this is a UDP stream, get the udpdev structure at the
                      * PCB's per-protocol address.  It may contain addresses.
                      */
-                    if (kread(ctx, (KA_T)pcb.inp_ppcb, (char *)&udp, sizeof(udp)) ==
-                        0) {
+                    if (kread(ctx, (KA_T)pcb.inp_ppcb, (char *)&udp,
+                              sizeof(udp)) == 0) {
 
 #if OSRV >= 500
                         if (udp.ud_lsin.sin_addr.s_addr != INADDR_ANY ||

@@ -1581,8 +1581,7 @@ int ckscko; /* socket file only checking
  * read_sock() -- read pst_socket info for file
  */
 
-struct pst_socket *read_sock(f)
-struct pst_fileinfo2 *f; /* file information */
+struct pst_socket *read_sock(struct pst_fileinfo2 *f) /* file information */
 {
     static struct pst_socket s;
 

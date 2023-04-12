@@ -352,9 +352,8 @@ int is_file_named(struct lsof_context *ctx, /* context */
  * print_dev() - print device
  */
 
-char *print_dev(lf, dev)
-struct lfile *lf; /* file whose device is to be printed */
-dev_t *dev;       /* device to be printed */
+char *print_dev(struct lfile *lf, /* file whose device is to be printed */
+                dev_t *dev)       /* device to be printed */
 {
     static char buf[128];
     /*

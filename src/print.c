@@ -2225,8 +2225,7 @@ void printrawaddr(struct lsof_context *ctx,
  * printsockty() - print socket type
  */
 
-char *printsockty(ty)
-int ty; /* socket type -- e.g., from so_type */
+char *printsockty(int ty) /* socket type -- e.g., from so_type */
 {
     static char buf[64];
     char *cp;

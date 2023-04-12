@@ -88,9 +88,8 @@ static char *FindLsofCwd(int *ff, LTdev_t *cwddc, char *ibuf);
  * Main program
  */
 
-int main(argc, argv)
-int argc;     /* argument count */
-char *argv[]; /* arguments */
+int main(int argc,     /* argument count */
+         char *argv[]) /* arguments */
 {
     char buf[2048];                    /* temporary buffer */
     char cwd[MAXPATHLEN + 1];          /* CWD */
@@ -253,10 +252,9 @@ static void cleanup() {}
  * FindLsofCwd() -- find the lsof CWD
  */
 
-static char *FindLsofCwd(ff, cwddc, ibuf)
-int *ff;        /* file-found response receptor */
-LTdev_t *cwddc; /* CWD device components */
-char *ibuf;     /* CWD inode number in ASCII */
+static char *FindLsofCwd(int *ff,        /* file-found response receptor */
+                         LTdev_t *cwddc, /* CWD device components */
+                         char *ibuf)     /* CWD inode number in ASCII */
 {
     char *cp;                 /* temporary character pointer */
     char *cem;                /* current error message pointer */

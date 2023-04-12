@@ -155,8 +155,7 @@ KA_T lp; /* local locklist struct pointer */
  * getnodety() - get node type
  */
 
-static int getnodety(v)
-struct vnode *v; /* local vnode copy */
+static int getnodety(struct vnode *v) /* local vnode copy */
 {
 
 #if defined(HAS_AFS)
@@ -455,7 +454,8 @@ void process_node(va) KA_T va; /* vnode kernel space address */
             return;
         }
         fns = 1;
-        if (f.fn_vap && kread(ctx, (KA_T)f.fn_vap, (char *)&vat, sizeof(vat)) == 0)
+        if (f.fn_vap &&
+            kread(ctx, (KA_T)f.fn_vap, (char *)&vat, sizeof(vat)) == 0)
             vats = 1;
         break;
 #endif /* HPUXV>=1000 */

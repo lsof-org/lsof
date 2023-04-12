@@ -628,13 +628,12 @@ static void process_text(p) struct pst_status *p; /* pst_status for process */
  * read_det() -- read the pst_filedetails structure
  */
 
-KA_T read_det(ki, hf, lf, hn, ln, pd)
-struct pst_fid *ki;         /* kernel file ID */
-uint32_t hf;                /* high file ID bits */
-uint32_t lf;                /* low file ID bits */
-uint32_t hn;                /* high node ID bits */
-uint32_t ln;                /* low node ID bits */
-struct pst_filedetails *pd; /* details receiver */
+KA_T read_det(struct pst_fid *ki,         /* kernel file ID */
+              uint32_t hf,                /* high file ID bits */
+              uint32_t lf,                /* low file ID bits */
+              uint32_t hn,                /* high node ID bits */
+              uint32_t ln,                /* low node ID bits */
+              struct pst_filedetails *pd) /* details receiver */
 {
     KA_T na;
 
@@ -651,9 +650,9 @@ struct pst_filedetails *pd; /* details receiver */
  * read_files() -- read the file descriptor information for a process
  */
 
-static struct pst_fileinfo2 *read_files(p, n)
-struct pst_status *p; /* pst_status for the process */
-int *n;               /* returned fi[] entry count */
+static struct pst_fileinfo2 *
+read_files(struct pst_status *p, /* pst_status for the process */
+           int *n)               /* returned fi[] entry count */
 {
     size_t ec;
     static struct pst_fileinfo2 *fi = (struct pst_fileinfo2 *)NULL;
@@ -703,8 +702,7 @@ int *n;               /* returned fi[] entry count */
  * read_proc() -- read process table status information
  */
 
-static struct pst_status *read_proc(n)
-int *n; /* returned ps[] entry count */
+static struct pst_status *read_proc(int *n) /* returned ps[] entry count */
 {
     size_t el;
     int i = 0;
@@ -766,9 +764,9 @@ int *n; /* returned ps[] entry count */
  * read_vmreg() -- read info about the VM regions of a process
  */
 
-static struct pst_vm_status *read_vmreg(p, n)
-struct pst_status *p; /* pst_status for process */
-int *n;               /* returned region count */
+static struct pst_vm_status *
+read_vmreg(struct pst_status *p, /* pst_status for process */
+           int *n)               /* returned region count */
 {
     size_t ec = (size_t)p->pst_pid;
     MALLOC_S nb;

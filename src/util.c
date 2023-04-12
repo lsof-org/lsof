@@ -43,10 +43,9 @@
  *		      file distractions
  */
 
-int util_strftime(fmtr, fmtl, fmt)
-char *fmtr; /* format output receiver */
-int fmtl;   /* sizeof(*fmtr) */
-char *fmt;  /* format */
+int util_strftime(char *fmtr, /* format output receiver */
+                  int fmtl,   /* sizeof(*fmtr) */
+                  char *fmt)  /* format */
 {
 
 #if defined(HAS_STRFTIME)

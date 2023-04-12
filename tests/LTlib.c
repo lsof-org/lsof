@@ -155,8 +155,7 @@
 #    define major_X(dp, em) (major_S(x2dev(dp, em)))
 #    define minor_X(dp, em) (minor_S(x2dev(dp, em)))
 
-
-#endif     /* defined(LT_DIAL_solaris) */
+#endif /* defined(LT_DIAL_solaris) */
 
 #if defined(LT_DIAL_uw)
 /*
@@ -319,11 +318,10 @@ static void closepipe() {
  * Note: this function is dialect-specific.
  */
 
-char *ConvLsofDev(dev, ldev)
-char *dev;     /* lsof device string -- the value to the
-                * LSOF_FID_DEVN field of a LSOF_FID_FD block
-                * (see lsof_fields.h) */
-LTdev_t *ldev; /* results are returned to this structure */
+char *ConvLsofDev(char *dev,     /* lsof device string -- the value to the
+                                  * LSOF_FID_DEVN field of a LSOF_FID_FD block
+                                  * (see lsof_fields.h) */
+                  LTdev_t *ldev) /* results are returned to this structure */
 {
     char *dp; /* device pointer */
     char *em; /* error message pointer */
@@ -361,9 +359,8 @@ LTdev_t *ldev; /* results are returned to this structure */
  * Note: this function is dialect-specific.
  */
 
-char *ConvStatDev(dev, ldev)
-dev_t *dev;    /* device number to be converted */
-LTdev_t *ldev; /* results are returned to this structure */
+char *ConvStatDev(dev_t *dev,    /* device number to be converted */
+                  LTdev_t *ldev) /* results are returned to this structure */
 {
 
     /*
@@ -387,10 +384,9 @@ LTdev_t *ldev; /* results are returned to this structure */
  *		 in a child process
  */
 
-char *ExecLsof(opt)
-char **opt; /* lsof options -- a pointer to an
-             * array of character pointers,
-             * terminated by a NULL pointer */
+char *ExecLsof(char **opt) /* lsof options -- a pointer to an
+                            * array of character pointers,
+                            * terminated by a NULL pointer */
 {
     static char **av = (char **)NULL; /* lsof argument vector, dynamically
                                        * allocated */
@@ -560,13 +556,11 @@ static void getlsofpath() {
  * value doesn't have one -- e.g., has a default instead.
  */
 
-static int GetOpt(ct, opt, rules, em, pn)
-int ct;      /* option count */
-char *opt[]; /* options */
-char *rules; /* option rules */
-char **em;   /* error message return */
-char *pn;
-{
+static int GetOpt(int ct,      /* option count */
+                  char *opt[], /* options */
+                  char *rules, /* option rules */
+                  char **em,   /* error message return */
+                  char *pn) {
     register int c;                   /* character value */
     register char *cp = (char *)NULL; /* character pointer */
     char embf[2048];                  /* error message buffer */
@@ -697,9 +691,8 @@ void LTlibClean() { (void)StopLsof(); }
  * MkStrCpy() -- make string copy
  */
 
-char *MkStrCpy(src, len)
-char *src; /* string source to copy */
-int *len;  /* returned length allocation */
+char *MkStrCpy(char *src, /* string source to copy */
+               int *len)  /* returned length allocation */
 {
     char *rp;   /* return pointer */
     int srclen; /* source string length */
@@ -787,9 +780,8 @@ int xv;                               /* exit value */
  * RdFrLsof() -- read from lsof
  */
 
-LTfldo_t *RdFrLsof(nf, em)
-int *nf;   /* number of fields receiver */
-char **em; /* error message pointer receiver */
+LTfldo_t *RdFrLsof(int *nf,   /* number of fields receiver */
+                   char **em) /* error message pointer receiver */
 {
     char buf[2048];              /* temporary buffer */
     int bufl = (int)sizeof(buf); /* size of buf[] */
@@ -930,11 +922,10 @@ char **em; /* error message pointer receiver */
  * ScanArg() -- scan arguments
  */
 
-int ScanArg(ac, av, opt, pn)
-int ac;     /* argument count */
-char *av[]; /* argument pointers */
-char *opt;  /* option string */
-char *pn;   /* program name */
+int ScanArg(int ac,     /* argument count */
+            char *av[], /* argument pointers */
+            char *opt,  /* option string */
+            char *pn)   /* program name */
 {
     char *em;        /* pointer to error message returned by
                       * GetOpt() */
@@ -1016,9 +1007,8 @@ void StopLsof() {
  * x2dev() -- convert hex string to device number
  */
 
-static X2DEV_T x2dev(x, em)
-char *x;   /* hex string */
-char **em; /* error message receiver */
+static X2DEV_T x2dev(char *x,   /* hex string */
+                     char **em) /* error message receiver */
 {
     char buf[2048]; /* temporary message buffer */
     int c;          /* character holder */

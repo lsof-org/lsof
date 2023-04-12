@@ -60,12 +60,11 @@ static char *isIPv4addr(char *hn, unsigned char *a, int al);
  * ckfd_range() - check fd range
  */
 
-static int ckfd_range(first, dash, last, lo, hi)
-char *first; /* starting character */
-char *dash;  /* '-' location */
-char *last;  /* '\0' location */
-int *lo;     /* returned low value */
-int *hi;     /* returned high value */
+static int ckfd_range(char *first, /* starting character */
+                      char *dash,  /* '-' location */
+                      char *last,  /* '\0' location */
+                      int *lo,     /* returned low value */
+                      int *hi)     /* returned high value */
 {
     char *cp;
     /*
@@ -2123,12 +2122,11 @@ int enter_state_spec(struct lsof_context *ctx,
  * enter_str_lst() - enter a string on a list
  */
 
-int enter_str_lst(opt, s, lp, incl, excl)
-char *opt;           /* option name */
-char *s;             /* string to enter */
-struct str_lst **lp; /* string's list */
-int *incl;           /* included count */
-int *excl;           /* excluded count */
+int enter_str_lst(char *opt,           /* option name */
+                  char *s,             /* string to enter */
+                  struct str_lst **lp, /* string's list */
+                  int *incl,           /* included count */
+                  int *excl)           /* excluded count */
 {
     char *cp;
     short i, x;
@@ -2314,10 +2312,9 @@ int enter_uid(struct lsof_context *ctx, /* context */
  * isIPv4addr() - is host name an IPv4 address
  */
 
-static char *isIPv4addr(hn, a, al)
-char *hn;         /* host name */
-unsigned char *a; /* address receptor */
-int al;           /* address receptor length */
+static char *isIPv4addr(char *hn,         /* host name */
+                        unsigned char *a, /* address receptor */
+                        int al)           /* address receptor length */
 {
     int dc = 0;          /* dot count */
     int i;               /* temorary index */
@@ -2387,9 +2384,9 @@ int al;           /* address receptor length */
  * lkup_hostnm() - look up host name
  */
 
-static struct hostent *lkup_hostnm(hn, n)
-char *hn;       /* host name */
-struct nwad *n; /* network address destination */
+static struct hostent *
+lkup_hostnm(char *hn,       /* host name */
+            struct nwad *n) /* network address destination */
 {
     unsigned char *ap;
     struct hostent *he;

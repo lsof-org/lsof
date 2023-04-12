@@ -141,10 +141,11 @@ static int cmp_cntx_eq(char *pcntx, char *ucntx);
  * cmp_cntx_eq -- compare program and user security contexts
  */
 
-static int cmp_cntx_eq(pcntx, ucntx)
-char *pcntx; /* program context */
-char *ucntx; /* user supplied context */
-{ return !fnmatch(ucntx, pcntx, 0); }
+static int cmp_cntx_eq(char *pcntx, /* program context */
+                       char *ucntx) /* user supplied context */
+{
+    return !fnmatch(ucntx, pcntx, 0);
+}
 
 /*
  * enter_cntx_arg() - enter name ecurity context argument
@@ -579,13 +580,12 @@ static int get_fdinfo(struct lsof_context *ctx, /* context */
  * getlinksrc() - get the source path name for the /proc/<PID>/fd/<FD> link
  */
 
-static int getlinksrc(ln, src, srcl, rest)
-char *ln;    /* link path */
-char *src;   /* link source path return address */
-int srcl;    /* length of src[] */
-char **rest; /* pointer to what follows the ':' in
-              * the link source path (NULL if no
-              * return requested) */
+static int getlinksrc(char *ln,    /* link path */
+                      char *src,   /* link source path return address */
+                      int srcl,    /* length of src[] */
+                      char **rest) /* pointer to what follows the ':' in
+                                    * the link source path (NULL if no
+                                    * return requested) */
 {
     char *cp;
     int ll;
@@ -794,10 +794,9 @@ static int isefsys(struct lsof_context *ctx, /* context */
  * nm2id() - convert a name to an integer ID
  */
 
-static int nm2id(nm, id, idl)
-char *nm; /* pointer to name */
-int *id;  /* pointer to ID receiver */
-int *idl; /* pointer to ID length receiver */
+static int nm2id(char *nm, /* pointer to name */
+                 int *id,  /* pointer to ID receiver */
+                 int *idl) /* pointer to ID length receiver */
 {
     int tid, tidl;
     int invalid;
@@ -1356,8 +1355,7 @@ static int process_id(struct lsof_context *ctx, /* context */
 
 /* compare mount namespace of this lsof process and the target process */
 
-static int compare_mntns(pid)
-int pid; /* pid of the target process */
+static int compare_mntns(int pid) /* pid of the target process */
 {
     char nspath[NS_PATH_LENGTH];
     struct stat sb_self, sb_target;

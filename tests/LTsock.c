@@ -182,9 +182,8 @@ static void StartClnt(struct sockaddr_in *cad);
  * Main program
  */
 
-int main(argc, argv)
-int argc;     /* argument count */
-char *argv[]; /* arguments */
+int main(int argc,     /* argument count */
+         char *argv[]) /* arguments */
 {
     struct sockaddr_in aa;        /* accept address */
     struct sockaddr_in ba;        /* bind address */
@@ -562,8 +561,7 @@ static void CleanupSrvr() {
  * FindSock() -- find sockets with lsof
  */
 
-static char *FindSock(fn)
-int fn; /* function -- an LT_FBY* value */
+static char *FindSock(int fn) /* function -- an LT_FBY* value */
 {
     char buf[2048];           /* temporary buffer */
     int bufl = sizeof(buf);   /* size of buf[] */
@@ -766,8 +764,7 @@ int fn; /* function -- an LT_FBY* value */
  * HandleClntAlarm() -- handle client alarm
  */
 
-static SIGHANDLER_T HandleClntAlarm(sig)
-int sig; /* the signal (SIGALRM) */
+static SIGHANDLER_T HandleClntAlarm(int sig) /* the signal (SIGALRM) */
 {
     (void)PrtMsgX("ERROR!!!  client caught an alarm signal", Pn, CleanupClnt,
                   1);
@@ -777,8 +774,7 @@ int sig; /* the signal (SIGALRM) */
  * Handle SrvrAlarm() -- handle server alarm
  */
 
-static SIGHANDLER_T HandleSrvrAlarm(sig)
-int sig; /* the signal (SIGALRM) */
+static SIGHANDLER_T HandleSrvrAlarm(int sig) /* the signal (SIGALRM) */
 {
     (void)PrtMsgX("ERROR!!!  server caught an alarm signal.", Pn, CleanupSrvr,
                   1);

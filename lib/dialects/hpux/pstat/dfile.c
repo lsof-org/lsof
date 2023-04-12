@@ -133,9 +133,9 @@ static void ncache_size(void);
  *		       getipnodebyname() functions
  */
 
-extern struct hostent *gethostbyname2(nm, prot)
-char *nm; /* host name */
-int prot; /* protocol -- AF_INET or AF_INET6 */
+extern struct hostent *
+gethostbyname2(char *nm, /* host name */
+               int prot) /* protocol -- AF_INET or AF_INET6 */
 {
     int err;
 
@@ -170,8 +170,7 @@ int get_max_fd() {
  * ncache_addr() -- get ncache entry address
  */
 
-static struct l_nc *ncache_addr(ps)
-struct psfileid *ps; /* parent's psfileid */
+static struct l_nc *ncache_addr(struct psfileid *ps) /* parent's psfileid */
 {
     struct l_nc **hp, *lc;
 
@@ -250,8 +249,7 @@ static void ncache_free() {
  * ncache_isroot() -- does psfileid represent the root of a file system?
  */
 
-static int ncache_isroot(ps)
-struct psfileid *ps; /* psfileid */
+static int ncache_isroot(struct psfileid *ps) /* psfileid */
 {
     if (!ps->psf_fsid.psfs_id && !ps->psf_fsid.psfs_type &&
         ps->psf_fileid == -1)
@@ -290,9 +288,8 @@ void ncache_load() {
  * ncache_loadfs() -- load the name cache for a file system
  */
 
-struct l_fic *ncache_loadfs(fsid, fh)
-struct psfsid *fsid; /* ID of file system to add */
-struct l_fic **fh;   /* Ncfsid hash bucket */
+struct l_fic *ncache_loadfs(struct psfsid *fsid, /* ID of file system to add */
+                            struct l_fic **fh)   /* Ncfsid hash bucket */
 {
     char *cp;
     struct l_fic *f;
@@ -393,10 +390,9 @@ struct l_fic **fh;   /* Ncfsid hash bucket */
  * ncache_lookup() -- look up a node's name in the kernel's name cache
  */
 
-char *ncache_lookup(buf, blen, fp)
-char *buf; /* receiving name buffer */
-int blen;  /* receiving buffer length */
-int *fp;   /* full path reply */
+char *ncache_lookup(char *buf, /* receiving name buffer */
+                    int blen,  /* receiving buffer length */
+                    int *fp)   /* full path reply */
 {
     char *cp = buf;
     int ef;
@@ -581,9 +577,8 @@ static void ncache_size() {
  * print_dev() -- print device
  */
 
-char *print_dev(lf, dev)
-struct lfile *lf; /* file whose device is to be printed */
-dev_t *dev;       /* device to be printed */
+char *print_dev(struct lfile *lf, /* file whose device is to be printed */
+                dev_t *dev)       /* device to be printed */
 {
     static char buf[128];
 
