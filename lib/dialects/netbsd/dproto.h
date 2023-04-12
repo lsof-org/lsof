@@ -35,11 +35,11 @@
  */
 
 #if !defined(N_UNIX)
-extern char *get_nlist_path, (struct lsof_context * ctx int ap);
+extern char *get_nlist_path(struct lsof_context * ctx, int ap);
 #endif /* !defined(N_UNIX) */
 
 extern int is_file_named(struct lsof_context *ctx, char *p, int cd);
-extern struct l_vfs *readvfs, (struct lsof_context * ctx KA_T vm);
+extern struct l_vfs *readvfs(struct lsof_context * ctx, KA_T vm);
 
 #if defined(HAS_SYS_PIPEH)
 extern void process_pipe(struct lsof_context *ctx, KA_T pa);
