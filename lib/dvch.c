@@ -91,7 +91,7 @@ static int crctbl[CRC_TBLL]; /* crc partial results table */
 #        if defined(HAS_STD_CLONE) && HAS_STD_CLONE == 1
 #            define DCACHE_CLR clr_sect
 #            define DCACHE_CLR_LOCAL 1
-_PROTOTYPE(static void clr_sect, (void));
+static void clr_sect(void);
 #        endif /* defined(HAS_STD_CLONE) && HAS_STD_CLONE==1 */
 #    endif     /* !defined(DCACHE_CLR) */
 
@@ -100,7 +100,7 @@ _PROTOTYPE(static void clr_sect, (void));
 #        if defined(HAS_STD_CLONE) && HAS_STD_CLONE == 1
 #            define DCACHE_CLONE rw_clone_sect
 #            define DCACHE_CLONE_LOCAL 1
-_PROTOTYPE(static int rw_clone_sect, (int m));
+static int rw_clone_sect(int m);
 #        endif /* defined(HAS_STD_CLONE) && HAS_STD_CLONE==1 */
 #    endif     /*!defined(DCACHE_CLONE) */
 

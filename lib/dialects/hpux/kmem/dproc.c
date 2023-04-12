@@ -128,10 +128,10 @@ static MALLOC_S Nva = 0;        /* number of entries allocated to
 static KA_T *Vp = (KA_T *)NULL; /* vnode address cache */
 #endif                          /* HPUXV>=800 */
 
-_PROTOTYPE(static void get_kernel_access, (void));
+static void get_kernel_access (void);
 
 #if HPUXV >= 800
-_PROTOTYPE(static void process_text, (KA_T vasp));
+static void process_text (KA_T vasp);
 #endif /* HPUXV>=800 */
 
 /*

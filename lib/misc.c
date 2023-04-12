@@ -52,17 +52,17 @@
  * Local function prototypes
  */
 
-_PROTOTYPE(static void closePipes, (void));
-_PROTOTYPE(static int dolstat, (char *path, char *buf, int len));
-_PROTOTYPE(static int dostat, (char *path, char *buf, int len));
-_PROTOTYPE(static int doreadlink, (char *path, char *buf, int len));
-_PROTOTYPE(static int doinchild, (struct lsof_context * ctx, int (*fn)(),
-                                  char *fp, char *rbuf, int rbln));
+static void closePipes(void);
+static int dolstat(char *path, char *buf, int len);
+static int dostat(char *path, char *buf, int len);
+static int doreadlink(char *path, char *buf, int len);
+static int doinchild(struct lsof_context *ctx, int (*fn)(), char *fp,
+                     char *rbuf, int rbln);
 
 #if defined(HASINTSIGNAL)
-_PROTOTYPE(static int handleint, (int sig));
+static int handleint(int sig);
 #else  /* !defined(HASINTSIGNAL) */
-_PROTOTYPE(static void handleint, (int sig));
+static void handleint(int sig);
 #endif /* defined(HASINTSIGNAL) */
 
 /*
@@ -202,9 +202,7 @@ static void closePipes() {
  * compdev() - compare Devtp[] entries
  */
 
-int compdev(a1, a2)
-COMP_P *a1, *a2;
-{
+int compdev(COMP_P *a1, COMP_P *a2) {
     struct l_dev **p1 = (struct l_dev **)a1;
     struct l_dev **p2 = (struct l_dev **)a2;
 
@@ -443,37 +441,40 @@ int doinchild(struct lsof_context *ctx, int (*fn)(), /* function to perform */
  * dolstat() - do an lstat() function
  */
 
-static int dolstat(path, rbuf, rbln)
-char *path; /* path */
-char *rbuf; /* response buffer */
-int rbln;   /* response buffer length */
+static int dolstat(char *path, /* path */
+                   char *rbuf, /* response buffer */
+                   int rbln)   /* response buffer length */
 
 /* ARGSUSED */
 
-{ return (lstat(path, (struct stat *)rbuf)); }
+{
+    return (lstat(path, (struct stat *)rbuf));
+}
 
 /*
  * doreadlink() -- do a readlink() function
  */
 
-static int doreadlink(path, rbuf, rbln)
-char *path; /* path */
-char *rbuf; /* response buffer */
-int rbln;   /* response buffer length */
-{ return (readlink(path, rbuf, rbln)); }
+static int doreadlink(char *path, /* path */
+                      char *rbuf, /* response buffer */
+                      int rbln)   /* response buffer length */
+{
+    return (readlink(path, rbuf, rbln));
+}
 
 /*
  * dostat() - do a stat() function
  */
 
-static int dostat(path, rbuf, rbln)
-char *path; /* path */
-char *rbuf; /* response buffer */
-int rbln;   /* response buffer length */
+static int dostat(char *path, /* path */
+                  char *rbuf, /* response buffer */
+                  int rbln)   /* response buffer length */
 
 /* ARGSUSED */
 
-{ return (stat(path, (struct stat *)rbuf)); }
+{
+    return (stat(path, (struct stat *)rbuf));
+}
 
 /*
  * enter_dev_ch() - enter device characters in file structure
@@ -801,17 +802,16 @@ static void
 
 /* ARGSUSED */
 
-handleint(sig)
-int sig;
-{ longjmp(Jmp_buf, 1); }
+handleint(int sig) {
+    longjmp(Jmp_buf, 1);
+}
 
 /*
  * hashbyname() - hash by name
  */
 
-int hashbyname(nm, mod)
-char *nm; /* pointer to NUL-terminated name */
-int mod;  /* hash modulus */
+int hashbyname(char *nm, /* pointer to NUL-terminated name */
+               int mod)  /* hash modulus */
 {
     int i, j;
 
@@ -891,11 +891,10 @@ int is_nw_addr(struct lsof_context *ctx,
  *	   copy length (optional)
  */
 
-char *mkstrcpy(src, rlp)
-char *src;     /* source */
-MALLOC_S *rlp; /* returned length pointer (optional)
-                * The returned length is an strlen()
-                * equivalent */
+char *mkstrcpy(char *src,     /* source */
+               MALLOC_S *rlp) /* returned length pointer (optional)
+                               * The returned length is an strlen()
+                               * equivalent */
 {
     MALLOC_S len;
     char *ns;
@@ -921,15 +920,14 @@ MALLOC_S *rlp; /* returned length pointer (optional)
  *	   copy string length (optional)
  */
 
-char *mkstrcat(s1, l1, s2, l2, s3, l3, clp)
-char *s1;      /* source string 1 */
-int l1;        /* length of string 1 (-1 if none) */
-char *s2;      /* source string 2 */
-int l2;        /* length of string 2 (-1 if none) */
-char *s3;      /* source string 3 (optional) */
-int l3;        /* length of string 3 (-1 if none) */
-MALLOC_S *clp; /* pointer to return of copy length
-                * (optional) */
+char *mkstrcat(char *s1,      /* source string 1 */
+               int l1,        /* length of string 1 (-1 if none) */
+               char *s2,      /* source string 2 */
+               int l2,        /* length of string 2 (-1 if none) */
+               char *s3,      /* source string 3 (optional) */
+               int l3,        /* length of string 3 (-1 if none) */
+               MALLOC_S *clp) /* pointer to return of copy length
+                               * (optional) */
 {
     MALLOC_S cl, len1, len2, len3;
     char *cp;
@@ -1247,11 +1245,10 @@ int readstqinit(struct lsof_context *ctx,
  *	   cl = strlen(printable equivalent)
  */
 
-char *safepup(c, cl)
-unsigned int c; /* unprintable (i.e., !isprint())
-                 * character  and '\\' */
-int *cl;        /* returned printable strlen -- NULL if
-                 * no return needed */
+char *safepup(unsigned int c, /* unprintable (i.e., !isprint())
+                               * character  and '\\' */
+              int *cl)        /* returned printable strlen -- NULL if
+                               * no return needed */
 {
     int len;
     char *rp;
@@ -1300,14 +1297,13 @@ int *cl;        /* returned printable strlen -- NULL if
  *		  non-printable characters when printed in a printable form
  */
 
-int safestrlen(sp, flags)
-char *sp;  /* string pointer */
-int flags; /* flags:
-            *   bit 0: 0 (0) = no NL
-            *	    1 (1) = add trailing NL
-            *	 1: 0 (0) = ' ' printable
-            *	    1 (2) = ' ' not printable
-            */
+int safestrlen(char *sp,  /* string pointer */
+               int flags) /* flags:
+                           *   bit 0: 0 (0) = no NL
+                           *	    1 (1) = add trailing NL
+                           *	 1: 0 (0) = ' ' printable
+                           *	    1 (2) = ' ' not printable
+                           */
 {
     char c;
     int len = 0;
@@ -1332,21 +1328,21 @@ int flags; /* flags:
  * safestrprt() - print a string "safely" to the indicated stream -- i.e.,
  *		  print unprintable characters in a printable form
  */
-void safestrprt(sp, fs, flags) char *sp; /* string to print pointer pointer */
-FILE *fs;                                /* destination stream -- e.g., stderr
-                                          * or stdout */
-int flags;                               /* flags:
-                                          *   bit 0: 0 (0) = no NL
-                                          *	    1 (1) = add trailing NL
-                                          *	 1: 0 (0) = ' ' printable
-                                          *	    1 (2) = ' ' not printable
-                                          *	 2: 0 (0) = print string as is
-                                          *	    1 (4) = surround string
-                                          *		    with '"'
-                                          *	 4: 0 (0) = print ending '\n'
-                                          *	    1 (8) = don't print ending
-                                          *		    '\n'
-                                          */
+void safestrprt(char *sp,  /* string to print pointer pointer */
+                FILE *fs,  /* destination stream -- e.g., stderr
+                            * or stdout */
+                int flags) /* flags:
+                            *   bit 0: 0 (0) = no NL
+                            *	    1 (1) = add trailing NL
+                            *	 1: 0 (0) = ' ' printable
+                            *	    1 (2) = ' ' not printable
+                            *	 2: 0 (0) = print string as is
+                            *	    1 (4) = surround string
+                            *		    with '"'
+                            *	 4: 0 (0) = print ending '\n'
+                            *	    1 (8) = don't print ending
+                            *		    '\n'
+                            */
 {
     char c;
     int lnc, lnt, sl;
@@ -1408,24 +1404,23 @@ int flags;                               /* flags:
  *		   "safely" to the indicated stream
  */
 
-void safestrprtn(sp, len, fs,
-                 flags) char *sp; /* string to print pointer pointer */
-int len;                          /* safe number of characters to
-                                   * print */
-FILE *fs;                         /* destination stream -- e.g., stderr
-                                   * or stdout */
-int flags;                        /* flags:
-                                   *   bit 0: 0 (0) = no NL
-                                   *	    1 (1) = add trailing NL
-                                   *	 1: 0 (0) = ' ' printable
-                                   *	    1 (2) = ' ' not printable
-                                   *	 2: 0 (0) = print string as is
-                                   *	    1 (4) = surround string
-                                   *		    with '"'
-                                   *	 4: 0 (0) = print ending '\n'
-                                   *	    1 (8) = don't print ending
-                                   *		    '\n'
-                                   */
+void safestrprtn(char *sp,  /* string to print pointer pointer */
+                 int len,   /* safe number of characters to
+                             * print */
+                 FILE *fs,  /* destination stream -- e.g., stderr
+                             * or stdout */
+                 int flags) /* flags:
+                             *   bit 0: 0 (0) = no NL
+                             *	    1 (1) = add trailing NL
+                             *	 1: 0 (0) = ' ' printable
+                             *	    1 (2) = ' ' not printable
+                             *	 2: 0 (0) = print string as is
+                             *	    1 (4) = surround string
+                             *		    with '"'
+                             *	 4: 0 (0) = print ending '\n'
+                             *	    1 (8) = don't print ending
+                             *		    '\n'
+                             */
 {
     char c, *up;
     int cl, i;
@@ -1520,9 +1515,8 @@ void stkdir(struct lsof_context *ctx, char *p) /* directory path */
  * x2dev() - convert hexadecimal ASCII string to device number
  */
 
-char *x2dev(s, d)
-char *s;  /* ASCII string */
-dev_t *d; /* device receptacle */
+char *x2dev(char *s,  /* ASCII string */
+            dev_t *d) /* device receptacle */
 {
     char *cp, *cp1;
     int n;

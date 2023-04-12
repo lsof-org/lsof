@@ -44,13 +44,13 @@ typedef int time_t;
 #include <sys/inode.h>
 
 #if HPUXV >= 900
-_PROTOTYPE(static void enter_nma, (char *b));
-_PROTOTYPE(static int islocked, (KA_T lp));
+static void enter_nma(char *b);
+static int islocked(KA_T lp);
 #endif /* HPUXV>=900 */
 
-_PROTOTYPE(static int getnodety, (struct vnode * v));
-_PROTOTYPE(static int readinode, (KA_T ia, struct inode *i));
-_PROTOTYPE(static int read_nmn, (KA_T na, KA_T ia, struct mvfsnode *m));
+static int getnodety(struct vnode *v);
+static int readinode(KA_T ia, struct inode *i);
+static int read_nmn(KA_T na, KA_T ia, struct mvfsnode *m);
 
 #if HPUXV >= 900
 /*

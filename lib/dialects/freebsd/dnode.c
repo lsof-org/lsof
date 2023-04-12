@@ -43,7 +43,7 @@ static char copyright[] =
 #    include <sys/tty.h>
 #endif /* defined(HASPTSFN) && defined(DTYPE_PTS) */
 
-_PROTOTYPE(static void get_lock_state_kvm, (struct lsof_context * ctx, KA_T f));
+static void get_lock_state_kvm(struct lsof_context *ctx, KA_T f);
 
 /*
  * get_lock_state_*() - get the lock state

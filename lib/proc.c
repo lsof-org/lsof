@@ -32,16 +32,13 @@
 #include "lsof.h"
 
 #if defined(HASEPTOPTS)
-_PROTOTYPE(static void prt_pinfo,
-           (struct lsof_context * ctx, pxinfo_t *pp, int ps));
-_PROTOTYPE(static void prt_psxmqinfo,
-           (struct lsof_context * ctx, pxinfo_t *pp, int ps));
-_PROTOTYPE(static void prt_evtfdinfo,
-           (struct lsof_context * ctx, pxinfo_t *pp, int ps));
+static void prt_pinfo(struct lsof_context *ctx, pxinfo_t *pp, int ps);
+static void prt_psxmqinfo(struct lsof_context *ctx, pxinfo_t *pp, int ps);
+static void prt_evtfdinfo(struct lsof_context *ctx, pxinfo_t *pp, int ps);
 #endif /* defined(HASEPTOPTS) */
 #if defined(HASPTYEPT)
-_PROTOTYPE(static void prt_ptyinfo,
-           (struct lsof_context * ctx, pxinfo_t *pp, int prt_edev, int ps));
+static void prt_ptyinfo(struct lsof_context *ctx, pxinfo_t *pp, int prt_edev,
+                        int ps);
 #endif /* defined(HASPTYEPT) */
 
 /*

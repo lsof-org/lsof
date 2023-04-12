@@ -206,10 +206,10 @@ char *Pn = (char *)NULL;   /* program name */
  * Local function prototypes
  */
 
-_PROTOTYPE(static void cleanup, (void));
-_PROTOTYPE(static char *lkfile, (int ty));
-_PROTOTYPE(static char *tstwlsof, (char *opt, char *xlk));
-_PROTOTYPE(static char *unlkfile, (int ty));
+static void cleanup (void);
+static char *lkfile (int ty);
+static char *tstwlsof, (char *opt char *xlk);
+static char *unlkfile (int ty);
 
 /*
  * Main program for dialects that support locking tests.

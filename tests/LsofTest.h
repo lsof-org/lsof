@@ -330,17 +330,17 @@ extern int errno; /* error number */
  *	these functions may be found in LTlib.c.
  */
 
-_PROTOTYPE(extern char *CanRdKmem, (void));
-_PROTOTYPE(extern char *ConvStatDev, (dev_t * dev, LTdev_t *ldev));
-_PROTOTYPE(extern char *ConvLsofDev, (char *dev, LTdev_t *ldev));
-_PROTOTYPE(extern char *ExecLsof, (char **opt));
-_PROTOTYPE(extern char *IsLsofExec, (void));
-_PROTOTYPE(extern void LTlibClean, (void));
-_PROTOTYPE(extern char *MkStrCpy, (char *src, int *len));
-_PROTOTYPE(extern LTfldo_t *RdFrLsof, (int *nf, char **em));
-_PROTOTYPE(extern void PrtMsg, (char *mp, char *pn));
-_PROTOTYPE(extern void PrtMsgX, (char *mp, char *pn, void (*f)(), int xv));
-_PROTOTYPE(extern int ScanArg, (int ac, char *av[], char *opt, char *pn));
-_PROTOTYPE(extern void StopLsof, (void));
+extern char *CanRdKmem (void);
+extern char *ConvStatDev, (dev_t * dev LTdev_t *ldev);
+extern char *ConvLsofDev, (char *dev LTdev_t *ldev);
+extern char *ExecLsof (char **opt);
+extern char *IsLsofExec (void);
+extern void LTlibClean (void);
+extern char *MkStrCpy, (char *src int *len);
+extern LTfldo_t *RdFrLsof, (int *nf char **em);
+extern void PrtMsg, (char *mp char *pn);
+extern void PrtMsgX, (char *mp, char *pn, void (*f)() int xv);
+extern int ScanArg, (int ac, char *av[], char *opt char *pn);
+extern void StopLsof (void);
 
 #endif /* LSOF_TEST_H */

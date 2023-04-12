@@ -52,10 +52,8 @@ static int Devx = 0; /* current Devtp[] index */
  * Local function prototypes
  */
 
-_PROTOTYPE(static void make_devtp,
-           (struct lsof_context * ctx, struct stat *s, char *p));
-_PROTOTYPE(static int rmdupdev,
-           (struct lsof_context * ctx, struct l_dev ***dp, int n, int ty));
+static void make_devtp           (struct lsof_context * ctx, struct stat *s, char *p);
+static int rmdupdev           (struct lsof_context * ctx, struct l_dev ***dp, int n, int ty);
 
 /*
  * make_devtp() - make Devtp[] entry

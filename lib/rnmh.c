@@ -81,7 +81,7 @@
  *
  *	Define this prototype for ncache_load():
  *
- *		_PROTOTYPE(static void ncache_load,(void));
+ *		static void ncache_load(void);
  *
  *	Define NCACHE_VROOT to be the value of the flag that signifies that
  *	the vnode is the root of its file system.
@@ -159,15 +159,14 @@ static struct l_nch **Nchash = (struct l_nch **)NULL;
 #    if defined(NCACHE_NODEID)
 #        define ncachehash(i, n)                                               \
             Nchash + (((((int)(n) >> 2) + ((int)(i))) * 31415) & Mch)
-_PROTOTYPE(static struct l_nch *ncache_addr, (unsigned long i, KA_T na));
+static struct l_nch *ncache_addr(unsigned long i, KA_T na);
 #    else /* !defined(NCACHE_NODEID) */
 #        define ncachehash(n) Nchash + ((((int)(n) >> 2) * 31415) & Mch)
-_PROTOTYPE(static struct l_nch *ncache_addr, (KA_T na));
+static struct l_nch *ncache_addr(KA_T na);
 #    endif /* defined(NCACHE_NODEID) */
 
 #    if !defined(NCACHE_NO_ROOT)
-_PROTOTYPE(static int ncache_isroot,
-           (struct lsof_context * ctx, KA_T na, char *cp));
+static int ncache_isroot(struct lsof_context *ctx, KA_T na, char *cp);
 #    endif /* !defined(NCACHE_NO_ROOT) */
 
 /*

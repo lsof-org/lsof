@@ -34,14 +34,9 @@
  * $Id: dproto.h,v 1.11 2005/08/08 19:53:24 abe Exp $
  */
 
-_PROTOTYPE(extern int is_file_named,
-           (struct lsof_context * ctx, char *p, int cd));
+extern int is_file_named           (struct lsof_context * ctx, char *p, int cd);
 
-_PROTOTYPE(extern void process_vnode,
-           (struct lsof_context * ctx, struct kinfo_file *file));
-_PROTOTYPE(extern void process_socket,
-           (struct lsof_context * ctx, struct kinfo_file *file));
-_PROTOTYPE(extern void process_pipe,
-           (struct lsof_context * ctx, struct kinfo_file *file));
-_PROTOTYPE(extern void process_kqueue_file,
-           (struct lsof_context * ctx, struct kinfo_file *file));
+extern void process_vnode           (struct lsof_context * ctx, struct kinfo_file *file);
+extern void process_socket           (struct lsof_context * ctx, struct kinfo_file *file);
+extern void process_pipe           (struct lsof_context * ctx, struct kinfo_file *file);
+extern void process_kqueue_file           (struct lsof_context * ctx, struct kinfo_file *file);

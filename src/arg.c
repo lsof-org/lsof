@@ -45,20 +45,18 @@
  * Local function prototypes
  */
 
-_PROTOTYPE(static int ckfd_range,
-           (char *first, char *dash, char *last, int *lo, int *hi));
-_PROTOTYPE(static int enter_fd_lst, (char *nm, int lo, int hi, int excl));
+static int ckfd_range(char *first, char *dash, char *last, int *lo, int *hi);
+static int enter_fd_lst(char *nm, int lo, int hi, int excl);
 
 /*
  * ckfd_range() - check fd range
  */
 
-static int ckfd_range(first, dash, last, lo, hi)
-char *first; /* starting character */
-char *dash;  /* '-' location */
-char *last;  /* '\0' location */
-int *lo;     /* returned low value */
-int *hi;     /* returned high value */
+static int ckfd_range(char *first, /* starting character */
+                      char *dash,  /* '-' location */
+                      char *last,  /* '\0' location */
+                      int *lo,     /* returned low value */
+                      int *hi)     /* returned high value */
 {
     char *cp;
     /*
@@ -193,8 +191,7 @@ char *c; /* control string */
  * enter_fd() - enter file descriptor list for searching
  */
 
-int enter_fd(f)
-char *f; /* file descriptor list pointer */
+int enter_fd(char *f) /* file descriptor list pointer */
 {
     char c, *cp1, *cp2, *dash;
     int err, excl, hi, lo;
@@ -259,11 +256,10 @@ char *f; /* file descriptor list pointer */
  * enter_fd_lst() - make an entry in the FD list, Fdl
  */
 
-static int enter_fd_lst(nm, lo, hi, excl)
-char *nm; /* FD name (none if NULL) */
-int lo;   /* FD low boundary (if nm NULL) */
-int hi;   /* FD high boundary (if nm NULL) */
-int excl; /* exclusion on match */
+static int enter_fd_lst(char *nm, /* FD name (none if NULL) */
+                        int lo,   /* FD low boundary (if nm NULL) */
+                        int hi,   /* FD high boundary (if nm NULL) */
+                        int excl) /* exclusion on match */
 {
     char buf[256], *cp;
     int n;
@@ -618,8 +614,8 @@ int enter_dir(char *d,     /* directory path name pointer */
  * enter_id() - enter PGID or PID for searching
  */
 
-int enter_id(ty, p) enum IDType ty; /* type: PGID or PID */
-char *p;                            /* process group ID string pointer */
+int enter_id(enum IDType ty, /* type: PGID or PID */
+             char *p)        /* process group ID string pointer */
 {
     char *cp;
     int err, i, id, j, mx, n, ni, nx, x;
@@ -681,8 +677,7 @@ char *p;                            /* process group ID string pointer */
  * enter_state_spec() -- enter TCP and UDP state specifications
  */
 
-int enter_state_spec(ss)
-char *ss; /* state specification string */
+int enter_state_spec(char *ss) /* state specification string */
 {
     char *cp, *ne, *ns, *pr;
     int err, d, f, i, tcp, x;
@@ -804,8 +799,7 @@ int enter_cmd(char *opt, /* option name */
  * enter_uid() - enter User Identifier for searching
  */
 
-int enter_uid(us)
-char *us; /* User IDentifier string pointer */
+int enter_uid(char *us) /* User IDentifier string pointer */
 {
     int err, i, j, lnml, nn;
     unsigned char excl;

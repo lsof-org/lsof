@@ -82,8 +82,7 @@ static char copyright[] =
  * Local function prototypes
  */
 
-_PROTOTYPE(static int ckstate,
-           (struct lsof_context * ctx, struct xtcpcb *pcb, int fam));
+static int ckstate           (struct lsof_context * ctx, struct xtcpcb *pcb, int fam);
 
 static int cmp_xunpcb_sock_pcb(const void *a, const void *b) {
     const struct xunpcb *pcb1 = (const struct xunpcb *)a;

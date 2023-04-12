@@ -105,7 +105,7 @@
  *
  *	Define this prototype for ncache_load():
  *
- *		_PROTOTYPE(void ncache_load,(void));
+ *		void ncache_load(void);
  */
 
 /*
@@ -147,15 +147,15 @@ static int NegVNSt = 0;         /* NegVN status: 0 = not loaded */
 #    endif                      /* defined(NCACHE_NEGVN) */
 
 #    if defined(NCACHE_NODEID)
-_PROTOTYPE(static struct l_nch *ncache_addr, (unsigned long i, KA_T v));
+static struct l_nch *ncache_addr(unsigned long i, KA_T v);
 #        define ncachehash(i, v)                                               \
             Nchash + (((((int)(v) >> 2) + ((int)(i))) * 31415) & Mch)
 #    else /* !defined(NCACHE_NODEID) */
-_PROTOTYPE(static struct l_nch *ncache_addr, (KA_T v));
+static struct l_nch *ncache_addr(KA_T v);
 #        define ncachehash(v) Nchash + ((((int)(v) >> 2) * 31415) & Mch)
 #    endif /* defined(NCACHE_NODEID) */
 
-_PROTOTYPE(static int ncache_isroot, (KA_T va, char *cp));
+static int ncache_isroot(KA_T va, char *cp);
 
 #    define DEFNCACHESZ 1024 /* local size if X_NCSIZE kernel value < 1 */
 #    define LNCHINCRSZ 64    /* local size increment */

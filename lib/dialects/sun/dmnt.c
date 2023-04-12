@@ -39,7 +39,7 @@ static char copyright[] =
  * Local static definitions
  */
 
-_PROTOTYPE(static char *getmntdev, (char *o, int l, struct stat *s, char *f));
+static char *getmntdev, (char *o, int l, struct stat *s char *f);
 
 /*
  * getmntdev() - get mount entry's device number

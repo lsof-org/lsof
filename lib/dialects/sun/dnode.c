@@ -142,8 +142,8 @@ static CTF_request_t Sockfs_requests[] = {
  * Sockfs function prototypes
  */
 
-_PROTOTYPE(static int read_nsti,
-           (struct lsof_context * ctx, struct sonode *so, sotpi_info_t *stpi));
+static int read_nsti(struct lsof_context *ctx, struct sonode *so,
+                     sotpi_info_t *stpi);
 #endif /* solaris>=110000 && defined(HAS_LIBCTF) */
 
 #if defined(HAS_ZFS) && defined(HAS_LIBCTF)
@@ -273,16 +273,15 @@ static CTF_exception_t CTF_exceptions[] = {{ZNODE_TYPE_NAME, "z_phys"},
  * ZFS function prototypes
  */
 
-_PROTOTYPE(static int read_nzn,
-           (struct lsof_context * ctx, KA_T na, KA_T nza, znode_t *z));
-_PROTOTYPE(static int read_nznp,
-           (struct lsof_context * ctx, KA_T nza, KA_T nzpa, znode_phys_t *zp));
-_PROTOTYPE(static int read_nzvfs,
-           (struct lsof_context * ctx, KA_T nza, KA_T nzva, zfsvfs_t *zv));
+static int read_nzn(struct lsof_context *ctx, KA_T na, KA_T nza, znode_t *z);
+static int read_nznp(struct lsof_context *ctx, KA_T nza, KA_T nzpa,
+                     znode_phys_t *zp);
+static int read_nzvfs(struct lsof_context *ctx, KA_T nza, KA_T nzva,
+                      zfsvfs_t *zv);
 #endif /* defined(HAS_ZFS) && defined(HAS_LIBCTF) */
 
-_PROTOTYPE(static struct l_dev *finddev,
-           (struct lsof_context * ctx, dev_t *dev, dev_t *rdev, int flags));
+static struct l_dev *finddev(struct lsof_context *ctx, dev_t *dev, dev_t *rdev,
+                             int flags);
 
 /*
  * Finddev() "look-in " flags
@@ -411,95 +410,88 @@ static v_optab_t **Voptab = (v_optab_t **)NULL;
  * Local function prototypes
  */
 
-_PROTOTYPE(static void build_Voptab, (struct lsof_context * ctx));
-_PROTOTYPE(static enum lsof_lock_mode isvlocked,
-           (struct lsof_context * ctx, struct vnode *va));
-_PROTOTYPE(static int readinode,
-           (struct lsof_context * ctx, KA_T ia, struct inode *i));
-_PROTOTYPE(static void read_mi,
-           (struct lsof_context * ctx, KA_T s, dev_t *dev, caddr_t so,
-            int *so_st, KA_T *so_ad, struct l_dev **sdp));
+static void build_Voptab(struct lsof_context *ctx);
+static enum lsof_lock_mode isvlocked(struct lsof_context *ctx,
+                                     struct vnode *va);
+static int readinode(struct lsof_context *ctx, KA_T ia, struct inode *i);
+static void read_mi(struct lsof_context *ctx, KA_T s, dev_t *dev, caddr_t so,
+                    int *so_st, KA_T *so_ad, struct l_dev **sdp);
 
 #if solaris >= 20500
 #    if solaris >= 20600
-_PROTOTYPE(static int read_nan,
-           (struct lsof_context * ctx, KA_T na, KA_T aa, struct fnnode *rn));
-_PROTOTYPE(static int read_nson,
-           (struct lsof_context * ctx, KA_T na, KA_T sa, struct sonode *sn));
-_PROTOTYPE(static int read_nusa, (struct lsof_context * ctx, struct soaddr *so,
-                                  struct sockaddr_un *ua));
+static int read_nan(struct lsof_context *ctx, KA_T na, KA_T aa,
+                    struct fnnode *rn);
+static int read_nson(struct lsof_context *ctx, KA_T na, KA_T sa,
+                     struct sonode *sn);
+static int read_nusa(struct lsof_context *ctx,
+                     struct soaddr *so struct sockaddr_un *ua);
 #    else  /* solaris<20600 */
-_PROTOTYPE(static int read_nan,
-           (struct lsof_context * ctxKA_T na, KA_T aa, struct autonode *a));
+static int read_nan(struct lsof_context *ctxKA_T na, KA_T aa,
+                    struct autonode *a);
 #    endif /* solaris>=20600 */
-_PROTOTYPE(static int idoorkeep,
-           (struct lsof_context * ctx, struct door_node *d));
-_PROTOTYPE(static int read_ndn,
-           (struct lsof_context * ctx, KA_T na, KA_T da, struct door_node *d));
+static int idoorkeep(struct lsof_context *ctx, struct door_node *d);
+static int read_ndn(struct lsof_context *ctx, KA_T na, KA_T da,
+                    struct door_node *d);
 #endif /* solaris>=20500 */
 
 #if solaris >= 110000
-_PROTOTYPE(static int read_nsdn, (struct lsof_context * ctx, KA_T na, KA_T sa,
-                                  struct sdev_node *sdn, struct vattr *sdva));
+static int read_nsdn(struct lsof_context *ctx, KA_T na, KA_T sa,
+                     struct sdev_node *sdn, struct vattr *sdva);
 #endif /* solaris>=110000 */
 
-_PROTOTYPE(static int read_nfn,
-           (struct lsof_context * ctx, KA_T na, KA_T fa, struct fifonode *f));
-_PROTOTYPE(static int read_nhn,
-           (struct lsof_context * ctx, KA_T na, KA_T ha, struct hsnode *h));
-_PROTOTYPE(static int read_nin,
-           (struct lsof_context * ctx, KA_T na, KA_T ia, struct inode *i));
-_PROTOTYPE(static int read_nmn,
-           (struct lsof_context * ctx, KA_T na, KA_T ia, struct mvfsnode *m));
-_PROTOTYPE(static int read_npn,
-           (struct lsof_context * ctx, KA_T na, KA_T pa, struct pcnode *p));
-_PROTOTYPE(static int read_nrn,
-           (struct lsof_context * ctx, KA_T na, KA_T ra, struct rnode *r));
+static int read_nfn(struct lsof_context *ctx, KA_T na, KA_T fa,
+                    struct fifonode *f);
+static int read_nhn(struct lsof_context *ctx, KA_T na, KA_T ha,
+                    struct hsnode *h);
+static int read_nin(struct lsof_context *ctx, KA_T na, KA_T ia,
+                    struct inode *i);
+static int read_nmn(struct lsof_context *ctx, KA_T na, KA_T ia,
+                    struct mvfsnode *m);
+static int read_npn(struct lsof_context *ctx, KA_T na, KA_T pa,
+                    struct pcnode *p);
+static int read_nrn(struct lsof_context *ctx, KA_T na, KA_T ra,
+                    struct rnode *r);
 
 #if solaris >= 100000
-_PROTOTYPE(static int read_nctfsn,
-           (struct lsof_context * ctx, int ty, KA_T na, KA_T ca, char *cn));
-_PROTOTYPE(static int read_nprtn,
-           (struct lsof_context * ctx, KA_T na, KA_T ra, port_t *p));
-_PROTOTYPE(static int read_nrn4,
-           (struct lsof_context * ctx, KA_T na, KA_T ra, struct rnode4 *r));
+static int read_nctfsn(struct lsof_context *ctx, int ty, KA_T na, KA_T ca,
+                       char *cn);
+static int read_nprtn(struct lsof_context *ctx, KA_T na, KA_T ra, port_t *p);
+static int read_nrn4(struct lsof_context *ctx, KA_T na, KA_T ra,
+                     struct rnode4 *r);
 #endif /* solaris>=100000 */
 
-_PROTOTYPE(static int read_nsn,
-           (struct lsof_context * ctx, KA_T na, KA_T sa, struct snode *s));
-_PROTOTYPE(static int read_ntn,
-           (struct lsof_context * ctx, KA_T na, KA_T ta, struct tmpnode *t));
-_PROTOTYPE(static int read_nvn,
-           (struct lsof_context * ctx, KA_T na, KA_T va, struct vnode *v));
+static int read_nsn(struct lsof_context *ctx, KA_T na, KA_T sa,
+                    struct snode *s);
+static int read_ntn(struct lsof_context *ctx, KA_T na, KA_T ta,
+                    struct tmpnode *t);
+static int read_nvn(struct lsof_context *ctx, KA_T na, KA_T va,
+                    struct vnode *v);
 
 #if defined(HASPROCFS)
-_PROTOTYPE(static int read_npi, (struct lsof_context * ctx, KA_T na,
-                                 struct vnode *v, struct pid *pids));
+static int read_npi(struct lsof_context *ctx, KA_T na, struct vnode *v,
+                    struct pid *pids);
 #endif /* defined(HASPROCFS) */
 
-_PROTOTYPE(static char *ent_fa, (KA_T * a1, KA_T *a2, char *d, int *len));
-_PROTOTYPE(static int is_socket, (struct lsof_context * ctx, struct vnode *v));
-_PROTOTYPE(static int read_cni,
-           (struct lsof_context * ctx, struct snode *s, struct vnode *rv,
-            struct vnode *v, struct snode *rs, struct dev_info *di, char *din,
-            int dinl));
+static char *ent_fa, (KA_T * a1, KA_T *a2, char *d int *len);
+static int is_socket(struct lsof_context *ctx, struct vnode *v);
+static int read_cni(struct lsof_context *ctx, struct snode *s, struct vnode *rv,
+                    struct vnode *v, struct snode *rs, struct dev_info *di,
+                    char *din, int dinl);
 
 #if defined(HASCACHEFS)
-_PROTOTYPE(static int read_ncn, (KA_T na, KA_T ca, struct cnode *cn));
+static int read_ncn(KA_T na, KA_T ca, struct cnode *cn);
 #endif /* defined(HASCACHEFS) */
 
-_PROTOTYPE(static int read_nln,
-           (struct lsof_context * ctx, KA_T na, KA_T la, struct lnode *ln));
-_PROTOTYPE(static int read_nnn,
-           (struct lsof_context * ctx, KA_T na, KA_T nna, struct namenode *n));
+static int read_nln(struct lsof_context *ctx, KA_T na, KA_T la,
+                    struct lnode *ln);
+static int read_nnn(struct lsof_context *ctx, KA_T na, KA_T nna,
+                    struct namenode *n);
 
 #if solaris < 100000
-_PROTOTYPE(static void savesockmod,
-           (struct so_so * so, struct so_so *sop, int *so_st));
+static void savesockmod(struct so_so *so, struct so_so *sop, int *so_st);
 #else  /* solaris>=100000 */
-_PROTOTYPE(static int read_ndvn,
-           (struct lsof_context * ctx, KA_T na, KA_T da, struct dv_node *dv,
-            dev_t *dev, unsigned char *devs));
+static int read_ndvn(struct lsof_context *ctx, KA_T na, KA_T da,
+                     struct dv_node *dv, dev_t *dev, unsigned char *devs);
 #endif /* solaris<100000 */
 
 /*
@@ -1320,7 +1312,7 @@ void process_node(struct lsof_context *ctx,
     struct pairaddr {
         short f;
         unsigned short p;
-    } *pa;
+    } * pa;
     KA_T peer;
     struct sonode so;
     KA_T soa, sona;

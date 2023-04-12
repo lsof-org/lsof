@@ -141,21 +141,21 @@ static znhash_t **ZoneNm = (znhash_t **)NULL;
  * Local function prototypes
  */
 
-_PROTOTYPE(static void get_kernel_access, (struct lsof_context * ctx));
-_PROTOTYPE(static void process_text, (struct lsof_context * ctx, KA_T pa));
-_PROTOTYPE(static void read_proc, (struct lsof_context * ctx));
-_PROTOTYPE(static void readfsinfo, (struct lsof_context * ctx));
+static void get_kernel_access(struct lsof_context *ctx);
+static void process_text(struct lsof_context *ctx, KA_T pa);
+static void read_proc(struct lsof_context *ctx);
+static void readfsinfo(struct lsof_context *ctx);
 
 #if solaris >= 20501
-_PROTOTYPE(static void readkam, (struct lsof_context * ctx, KA_T addr));
+static void readkam(struct lsof_context *ctx, KA_T addr);
 #endif /* solaris>=20501 */
 
 #if solaris >= 20501 && solaris < 70000
-_PROTOTYPE(extern u_longlong_t kvm_physaddr, (kvm_t *, struct as *, u_int));
+extern u_longlong_t kvm_physaddr(kvm_t *, struct as *u_int);
 #endif /* solaris>=20501 && solaris<70000 */
 
 #if defined(HASZONES)
-_PROTOTYPE(extern int hash_zn, (char *zn));
+extern int hash_zn(char *zn);
 #endif /* defined(HASZONES) */
 
 /*
@@ -1558,12 +1558,11 @@ static KA_T NegVN = (KA_T)NULL; /* negative vnode address */
 static int Nla = 0;             /* entries allocated to Ncache[] */
 static int Nlu = 0;             /* entries used in Ncache[] */
 
-_PROTOTYPE(static struct l_nch *ncache_addr, (KA_T v));
+static struct l_nch *ncache_addr(KA_T v);
 
 #    define ncachehash(v) Nchash + ((((int)(v) >> 2) * 31415) & Mhl)
 
-_PROTOTYPE(static int ncache_isroot,
-           (struct lsof_context * ctx, KA_T va, char *cp));
+static int ncache_isroot(struct lsof_context *ctx, KA_T va, char *cp);
 
 #    define LNCHINCRSZ 64 /* local size increment */
 #    define XNC                                                                \

@@ -46,8 +46,7 @@ static char copyright[] =
 #endif /* defined(HAS_DINODE_U) */
 
 #if defined(HASFDESCFS) && HASFDESCFS == 1
-_PROTOTYPE(static int lkup_dev_tty,
-           (struct lsof_context * ctx, dev_t *dr, INODETYPE *ir));
+static int lkup_dev_tty(struct lsof_context *ctx, dev_t *dr, INODETYPE *ir);
 #endif /* defined(HASFDESCFS) && HASFDESCFS==1 */
 
 #if defined(HAS_UM_UFS)
@@ -56,7 +55,7 @@ _PROTOTYPE(static int lkup_dev_tty,
 #endif /* defined(HAS_UM_UFS) */
 
 #if defined(HASPROCFS)
-_PROTOTYPE(static void getmemsz, (struct lsof_context * ctx, pid_t pid));
+static void getmemsz(struct lsof_context *ctx, pid_t pid);
 
 #    if !defined(PGSHIFT)
 #        define PGSHIFT pgshift

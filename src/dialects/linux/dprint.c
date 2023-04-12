@@ -36,8 +36,7 @@
 #endif                     /* defined(HASSOSTATE) */
 
 #if defined(HASSOSTATE)
-_PROTOTYPE(static char *socket_state_to_str,
-           (struct lsof_context * ctx, unsigned int ss));
+static char *socket_state_to_str           (struct lsof_context * ctx, unsigned int ss);
 #endif /* defined(HASSOSTATE) */
 
 /*

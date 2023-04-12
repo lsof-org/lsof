@@ -71,9 +71,9 @@ static int ADevU = 0;               /* entries used in ADev[] */
  * Local function prototypes
  */
 
-_PROTOTYPE(static int rmdupdev,
-           (struct lsof_context * ctx, struct l_dev ***dp, int n, char *nm));
-_PROTOTYPE(static void saveADev, (struct lsof_context * ctx, struct stat *s));
+static int rmdupdev(struct lsof_context *ctx, struct l_dev ***dp, int n,
+                    char *nm);
+static void saveADev(struct lsof_context *ctx, struct stat *s);
 
 #if defined(HASSPECDEVD)
 /*

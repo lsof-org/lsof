@@ -41,7 +41,7 @@ static char copyright[] =
  */
 
 #if UNIXWAREV >= 70101 && UNIXWAREV < 70103
-_PROTOTYPE(static struct sockaddr_un *find_unix_sockaddr_un, (KA_T ka));
+static struct sockaddr_un *find_unix_sockaddr_un (KA_T ka);
 #endif /* UNIXWAREV>=70101 && UNIXWAREV<70103 */
 
 /*

@@ -82,7 +82,7 @@
  *
  *	Define this prototype for ncache_load():
  *
- *		_PROTOTYPE(static void ncache_load,(void));
+ *		static void ncache_load(void);
  */
 
 /*
@@ -124,17 +124,17 @@ static int Ncfirst = 1; /* first-call status */
 #    if defined(NCACHE_NODEID)
 #        define ncachehash(i, n)                                               \
             Nchash + (((((int)(n) >> 2) + ((int)(i))) * 31415) & Mch)
-_PROTOTYPE(static struct l_nch *ncache_addr, (unsigned long i, KA_T na));
+static struct l_nch *ncache_addr(unsigned long i, KA_T na);
 #    else /* !defined(NCACHE_NODEID) */
 #        define ncachehash(n) Nchash + ((((int)(n) >> 2) * 31415) & Mch)
-_PROTOTYPE(static struct l_nch *ncache_addr, (KA_T na));
+static struct l_nch *ncache_addr(KA_T na);
 #    endif /* defined(NCACHE_NODEID) */
 
 #    define DEFNCACHESZ 1024 /* local size if X_NCSIZE kernel value < 1 */
 #    define LNCHINCRSZ 64    /* local size increment */
 
 #    if !defined(NCACHE_NO_ROOT)
-_PROTOTYPE(static int ncache_isroot, (KA_T na, char *cp));
+static int ncache_isroot(KA_T na, char *cp);
 #    endif /* !defined(NCACHE_NO_ROOT) */
 
 /*

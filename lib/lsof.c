@@ -2349,7 +2349,7 @@ enum lsof_error lsof_select_solaris_zone(struct lsof_context *ctx, char *zn) {
 }
 
 #if defined(HASSELINUX)
-_PROTOTYPE(extern int cmp_cntx_eq, (char *pcntx, char *ucntx));
+extern int cmp_cntx_eq(char *pcntx, char *ucntx);
 
 #    include <fnmatch.h>
 

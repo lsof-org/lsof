@@ -119,10 +119,10 @@ static int Nzpss = 0;        /* Nzps status: 1 = zeroed */
  * Local function prototypes
  */
 
-_PROTOTYPE(static struct l_nc *ncache_addr, (struct psfileid * ps));
-_PROTOTYPE(static void ncache_free, (void));
-_PROTOTYPE(static int ncache_isroot, (struct psfileid * ps));
-_PROTOTYPE(static void ncache_size, (void));
+static struct l_nc *ncache_addr (struct psfileid * ps);
+static void ncache_free (void);
+static int ncache_isroot (struct psfileid * ps);
+static void ncache_size (void);
 #endif /* defined(HASNCACHE) */
 
 #if defined(HASIPv6)

@@ -52,27 +52,25 @@ static char copyright[] =
 #    include <sys/fs/xnamnode.h>
 #endif /* defined(HASXNAMNODE) */
 
-_PROTOTYPE(static void ent_fa, (KA_T * a1, KA_T *a2, char *d));
-_PROTOTYPE(static int get_vty,
-           (struct vnode * v, KA_T va, struct vfs *kv, int *fx));
+static void ent_fa(KA_T *a1, KA_T *a2, char *d);
+static int get_vty(struct vnode *v, KA_T va, struct vfs *kv, int *fx);
 
 #if UNIXWAREV < 70103
-_PROTOTYPE(static int examine_stream,
-           (KA_T vs, struct queue *q, char *mn, char *sn, KA_T *sqp));
+static int examine_stream(KA_T vs, struct queue *q, char *mn, char *sn,
+                          KA_T *sqp);
 #else  /* UNIXWAREV>=70103 */
-_PROTOTYPE(static int examine_stream, (KA_T vs, struct queue *q, char **mch,
-                                       char **mn, char *sn, KA_T *sqp));
-_PROTOTYPE(static struct l_dev *findspdev, (dev_t * dev, dev_t *rdev));
-_PROTOTYPE(static void getspdev, (void));
-_PROTOTYPE(static int get_vty,
-           (struct vnode * v, KA_T va, struct vfs *kv, int *fx));
-_PROTOTYPE(static struct l_dev *ismouse,
-           (struct vnode * va, struct l_ino *i, int fx, struct vfs *kv));
+static int examine_stream(KA_T vs, struct queue *q, char **mch char **mn,
+                          char *sn, KA_T *sqp);
+static struct l_dev *findspdev(dev_t *dev, dev_t *rdev);
+static void getspdev(void);
+static int get_vty(struct vnode *v, KA_T va, struct vfs *kv, int *fx);
+static struct l_dev *ismouse(struct vnode *va, struct l_ino *i, int fx,
+                             struct vfs *kv);
 #endif /* UNIXWAREV<70103 */
 
-_PROTOTYPE(static struct l_dev *findstrdev, (dev_t * dev, dev_t *rdev));
-_PROTOTYPE(static char isvlocked, (struct vnode * va));
-_PROTOTYPE(static int readlino, (int fx, struct vnode *v, struct l_ino *i));
+static struct l_dev *findstrdev(dev_t *dev, dev_t *rdev);
+static char isvlocked(struct vnode *va);
+static int readlino(int fx, struct vnode *v, struct l_ino *i);
 
 /*
  * Local variables and definitions

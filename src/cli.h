@@ -87,6 +87,6 @@ extern int OffDecDig;
 extern int FportMap;
 #    endif /* !defined(HASNORPC_H) */
 
-_PROTOTYPE(extern void print_tcptpi, (struct lsof_context * ctx, int nl));
+extern void print_tcptpi(struct lsof_context *ctx, int nl);
 
 #endif

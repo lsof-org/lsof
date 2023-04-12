@@ -44,9 +44,8 @@ static char copyright[] =
 #        include <vxfsutil.h>
 #        define EMSGPFX "vx_inode: "
 
-_PROTOTYPE(static char *add2em, (char *em, char *fmt, char *arg));
-_PROTOTYPE(static char *ckptr,
-           (char *em, char *ptr, int len, int slen, char *nm));
+static char *add2em, (char *em, char *fmt char *arg);
+static char *ckptr           (char *em, char *ptr, int len, int slen, char *nm);
 _PROTOTYPE(static char *getioffs,
            (char **vx, int *vxl, char **dev, int *devl, char **ino, int *inol,
             char **nl, int *nll, char **sz, int *szl));

@@ -34,7 +34,7 @@
 #include "lsof.h"
 #include "cli.h"
 
-_PROTOTYPE(extern int enter_dir, (char *d, int descend));
+extern int enter_dir(char *d, int descend);
 
 /*
  * Local definitions
@@ -46,16 +46,13 @@ static char *GOv = (char *)NULL; /* option `:' value pointer */
 static int GOx1 = 1;             /* first opt[][] index */
 static int GOx2 = 0;             /* second opt[][] index */
 
-_PROTOTYPE(static int GetOpt, (int ct, char *opt[], char *rules, int *err));
+static int GetOpt(int ct, char *opt[], char *rules, int *err);
 
 /*
  * main() - main function for lsof
  */
 
-int main(argc, argv)
-int argc;
-char *argv[];
-{
+int main(int argc, char *argv[]) {
     enum ExitStatus rv;
     int gopt_rv;
     int ad, c, i, n, se1, se2, ss;
@@ -1496,11 +1493,10 @@ char *argv[];
  * value doesn't have one -- e.g., has a default instead.
  */
 
-static int GetOpt(ct, opt, rules, err)
-int ct;      /* option count */
-char *opt[]; /* options */
-char *rules; /* option rules */
-int *err;    /* error return */
+static int GetOpt(int ct,      /* option count */
+                  char *opt[], /* options */
+                  char *rules, /* option rules */
+                  int *err)    /* error return */
 {
     register int c;
     register char *cp = (char *)NULL;

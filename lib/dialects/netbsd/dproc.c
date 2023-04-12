@@ -63,10 +63,9 @@ static char copyright[] =
 #    define OFILES(fd, dt) ((fd).fd_ofiles)
 #endif
 
-_PROTOTYPE(static void enter_vn_text,
-           (struct lsof_context * ctx, KA_T va, int *n));
-_PROTOTYPE(static void get_kernel_access, (struct lsof_context * ctx));
-_PROTOTYPE(static void process_text, (struct lsof_context * ctx, KA_T vm));
+static void enter_vn_text(struct lsof_context *ctx, KA_T va, int *n);
+static void get_kernel_access(struct lsof_context *ctx);
+static void process_text(struct lsof_context *ctx, KA_T vm);
 
 /*
  * Local static values

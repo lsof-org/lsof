@@ -105,28 +105,26 @@ struct l_fdinfo {
  * Local function prototypes
  */
 
-_PROTOTYPE(static int get_fdinfo,
-           (struct lsof_context * ctx, char *p, int msk, struct l_fdinfo *fi));
-_PROTOTYPE(static int getlinksrc, (char *ln, char *src, int srcl, char **rest));
-_PROTOTYPE(static int isefsys,
-           (struct lsof_context * ctx, char *path, enum lsof_file_type type,
-            int l, efsys_list_t **rep, struct lfile **lfr));
-_PROTOTYPE(static int nm2id, (char *nm, int *id, int *idl));
-_PROTOTYPE(static int read_id_stat, (struct lsof_context * ctx, char *p, int id,
-                                     char **cmd, int *ppid, int *pgid));
-_PROTOTYPE(static void process_proc_map,
-           (struct lsof_context * ctx, char *p, struct stat *s, int ss));
-_PROTOTYPE(static int process_id,
-           (struct lsof_context * ctx, char *idp, int idpl, char *cmd,
-            UID_ARG uid, int pid, int ppid, int pgid, int tid, char *tcmd));
-_PROTOTYPE(static int statEx,
-           (struct lsof_context * ctx, char *p, struct stat *s, int *ss));
+static int get_fdinfo(struct lsof_context *ctx, char *p, int msk,
+                      struct l_fdinfo *fi);
+static int getlinksrc(char *ln, char *src, int srcl, char **rest);
+static int isefsys(struct lsof_context *ctx, char *path,
+                   enum lsof_file_type type, int l, efsys_list_t **rep,
+                   struct lfile **lfr);
+static int nm2id(char *nm, int *id, int *idl);
+static int read_id_stat(struct lsof_context *ctx, char *p, int id, char **cmd,
+                        int *ppid, int *pgid);
+static void process_proc_map(struct lsof_context *ctx, char *p, struct stat *s,
+                             int ss);
+static int process_id(struct lsof_context *ctx, char *idp, int idpl, char *cmd,
+                      UID_ARG uid, int pid, int ppid, int pgid, int tid,
+                      char *tcmd);
+static int statEx(struct lsof_context *ctx, char *p, struct stat *s, int *ss);
 
-_PROTOTYPE(static void snp_eventpoll,
-           (char *p, int len, int *tfds, int tfd_count));
+static void snp_eventpoll(char *p, int len, int *tfds, int tfd_count);
 
 #if defined(HASSELINUX)
-_PROTOTYPE(extern int cmp_cntx_eq, (char *pcntx, char *ucntx));
+extern int cmp_cntx_eq(char *pcntx, char *ucntx);
 #endif /* defined(HASSELINUX) */
 
 /*

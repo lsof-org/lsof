@@ -199,11 +199,10 @@ static int Ufo = 0;                     /* Fo[] structures used */
  * Local function prototypes
  */
 
-_PROTOTYPE(static void closepipe, (void));
-_PROTOTYPE(static void getlsofpath, (void));
-_PROTOTYPE(static int GetOpt,
-           (int ct, char *opt[], char *rules, char **em, char *pn));
-_PROTOTYPE(static X2DEV_T x2dev, (char *x, char **em));
+static void closepipe (void);
+static void getlsofpath (void);
+static int GetOpt           (int ct, char *opt[], char *rules, char **em, char *pn);
+static X2DEV_T x2dev, (char *x char **em);
 
 /*
  * Default major, minor, and unit macros.

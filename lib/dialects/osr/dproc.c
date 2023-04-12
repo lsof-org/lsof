@@ -52,16 +52,16 @@ static int Prsz = 0; /* size of Pr */
 
 static struct var Var; /* kernel variables */
 
-_PROTOTYPE(static void get_cdevsw, (void));
-_PROTOTYPE(static void get_kernel_access, (void));
+static void get_cdevsw (void);
+static void get_kernel_access (void);
 
 #if !defined(N_UNIX)
-_PROTOTYPE(static int is_boot, (char *p));
+static int is_boot (char *p);
 #endif /* !defined(N_UNIX) */
 
-_PROTOTYPE(static int open_kmem, (int nx));
-_PROTOTYPE(static void process_text, (KA_T prp));
-_PROTOTYPE(static void readfsinfo, (void));
+static int open_kmem (int nx);
+static void process_text (KA_T prp);
+static void readfsinfo (void);
 
 /*
  * Ckkv - check kernel version
@@ -987,29 +987,28 @@ static struct lnch *LNC_nc = (struct lnch *)NULL;
  * Local function prototypes
  */
 
-_PROTOTYPE(static struct lnch *DIN_addr, (dev_t * d, unsigned long i));
+static struct lnch *DIN_addr, (dev_t * d unsigned long i);
 
 #    if OSRV >= 500
 #        if OSRV >= 504
-_PROTOTYPE(static void DNLC_load, ());
+static void DNLC_load ();
 #        else  /* OSRV<504 */
-_PROTOTYPE(static void DTFS_load, ());
-_PROTOTYPE(static void HTFS_load, ());
+static void DTFS_load ();
+static void HTFS_load ();
 #        endif /* OSRV>=504 */
 #    endif     /* OSRV>=500 */
 
-_PROTOTYPE(static int LNC_enter,
-           (struct lnch * le, char *nm, int nl, char *fs));
-_PROTOTYPE(static void LNC_nosp, (int len));
+static int LNC_enter           (struct lnch * le, char *nm, int nl, char *fs);
+static void LNC_nosp (int len);
 
 #    if defined(HAS_NFS)
-_PROTOTYPE(static struct lnch *NFS_addr, (KA_T r));
-_PROTOTYPE(static void NFS_load, (void));
-_PROTOTYPE(static int NFS_root, (KA_T r));
+static struct lnch *NFS_addr (KA_T r);
+static void NFS_load (void);
+static int NFS_root (KA_T r);
 #    endif /* defined(HAS_NFS) */
 
 #    if OSRV < 504
-_PROTOTYPE(static void SYSV_load, ());
+static void SYSV_load ();
 #    endif /* OSRV<504 */
 
 /*

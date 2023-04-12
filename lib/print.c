@@ -54,10 +54,9 @@ char *endnm(struct lsof_context *ctx, size_t *sz) /* returned remaining size */
  * print_kptr() - print kernel pointer
  */
 
-char *print_kptr(kp, buf, bufl)
-KA_T kp;     /* kernel pointer address */
-char *buf;   /* optional destination buffer */
-size_t bufl; /* size of buf[] */
+char *print_kptr(KA_T kp,     /* kernel pointer address */
+                 char *buf,   /* optional destination buffer */
+                 size_t bufl) /* size of buf[] */
 {
     static char dbuf[32];
 

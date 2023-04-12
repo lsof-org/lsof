@@ -44,14 +44,12 @@
  * Local function prototypes
  */
 
-_PROTOTYPE(static char *convert_octal_escaped,
-           (struct lsof_context * ctx, char *orig_str));
+static char *convert_octal_escaped(struct lsof_context *ctx, char *orig_str);
 
 #if defined(HASMNTSUP)
-_PROTOTYPE(static int getmntdev,
-           (struct lsof_context * ctx, char *dir_name, size_t dir_name_len,
-            struct stat *s, int *ss));
-_PROTOTYPE(static int hash_mnt, (char *dir_name));
+static int getmntdev(struct lsof_context *ctx, char *dir_name,
+                     size_t dir_name_len, struct stat *s, int *ss);
+static int hash_mnt(char *dir_name);
 #endif /* defined(HASMNTSUP) */
 
 /*

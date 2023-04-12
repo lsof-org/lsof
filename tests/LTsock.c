@@ -171,12 +171,12 @@ int Ssock = -1; /* server socket */
  * Local function prototypes
  */
 
-_PROTOTYPE(static void CleanupClnt, (void));
-_PROTOTYPE(static void CleanupSrvr, (void));
-_PROTOTYPE(static SIGHANDLER_T HandleClntAlarm, (int sig));
-_PROTOTYPE(static SIGHANDLER_T HandleSrvrAlarm, (int sig));
-_PROTOTYPE(static char *FindSock, (int fn));
-_PROTOTYPE(static void StartClnt, (struct sockaddr_in * cad));
+static void CleanupClnt (void);
+static void CleanupSrvr (void);
+static SIGHANDLER_T HandleClntAlarm (int sig);
+static SIGHANDLER_T HandleSrvrAlarm (int sig);
+static char *FindSock (int fn);
+static void StartClnt (struct sockaddr_in * cad);
 
 /*
  * Main program

@@ -35,10 +35,8 @@ static char copyright[] =
 
 #include "common.h"
 
-_PROTOTYPE(static void process_kinfo_file,
-           (struct lsof_context * ctx, struct kinfo_file *file));
-_PROTOTYPE(static void process_tty,
-           (struct lsof_context * ctx, struct kinfo_proc *proc));
+static void process_kinfo_file           (struct lsof_context * ctx, struct kinfo_file *file);
+static void process_tty           (struct lsof_context * ctx, struct kinfo_proc *proc);
 
 /*
  * Local static values

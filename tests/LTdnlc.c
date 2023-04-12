@@ -81,8 +81,8 @@ char *Pn = (char *)NULL; /* program name */
  * Local function prototypes
  */
 
-_PROTOTYPE(static void cleanup, (void));
-_PROTOTYPE(static char *FindLsofCwd, (int *ff, LTdev_t *cwddc, char *ibuf));
+static void cleanup (void);
+static char *FindLsofCwd, (int *ff, LTdev_t *cwddc char *ibuf);
 
 /*
  * Main program
