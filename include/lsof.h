@@ -44,4 +44,18 @@ enum lsof_file_access_mode {
         LSOF_FILE_ACCESS_READ | LSOF_FILE_ACCESS_WRITE, /**< Read and write */
 };
 
+/** File lock mode */
+enum lsof_lock_mode {
+    LSOF_LOCK_NONE,          /**< None */
+    LSOF_LOCK_UNKNOWN,       /**< Unknown */
+    LSOF_LOCK_READ_PARTIAL,  /**< Read lock on part of the file */
+    LSOF_LOCK_READ_FULL,     /**< Read lock on the entire file */
+    LSOF_LOCK_WRITE_PARTIAL, /**< Write lock on part of the file */
+    LSOF_LOCK_WRITE_FULL,    /**< Write lock on the entire file */
+    LSOF_LOCK_READ_WRITE,    /**< Read and write lock */
+    LSOF_LOCK_SOLARIS_NFS,   /**< Solaris NFS lock */
+    LSOF_LOCK_SCO_PARTIAL, /**< SCO OpenServer Xenix lock on part of the file */
+    LSOF_LOCK_SCO_FULL,    /**< SCO OpenServer Xenix lock on the entire file */
+};
+
 #endif

@@ -189,6 +189,7 @@ extern void print_tcptpi(struct lsof_context *ctx, int nl);
 extern char *printuid(struct lsof_context *ctx, UID_ARG uid, int *ty);
 extern void printunkaf(struct lsof_context *ctx, int fam, int ty);
 extern char access_to_char(enum lsof_file_access_mode access);
+extern char lock_to_char(enum lsof_lock_mode access);
 extern char *printsockty(int ty);
 extern void process_file(struct lsof_context *ctx, KA_T fp);
 extern void process_node(struct lsof_context *ctx, KA_T f);

@@ -45,7 +45,7 @@ typedef int time_t;
 
 #if HPUXV >= 900
 static void enter_nma(char *b);
-static int islocked(KA_T lp);
+static enum lsof_lock_mode islocked(KA_T lp);
 #endif /* HPUXV>=900 */
 
 static int getnodety(struct vnode *v);
@@ -70,8 +70,7 @@ static void enter_nma(b) char *b; /* addition buffer */
  * islocked() - is node locked?
  */
 
-static int islocked(lp)
-KA_T lp; /* local locklist struct pointer */
+static enum lsof_lock_mode islocked(KA_T lp) /* local locklist struct pointer */
 {
     static int ety = -1;
     static unsigned int ei = 0;
@@ -81,7 +80,7 @@ KA_T lp; /* local locklist struct pointer */
     KA_T llf, llp;
 
     if (!(llf = (KA_T)lp))
-        return ((int)' ');
+        return LSOF_LOCK_NONE;
     llp = llf;
     /*
      * Compute the end test value the first time through.
@@ -108,7 +107,7 @@ KA_T lp; /* local locklist struct pointer */
      */
     do {
         if (kread(ctx, llp, (char *)&ll, sizeof(ll)))
-            return ((int)' ');
+            return LSOF_LOCK_NONE;
 
 #    if !defined(L_REMOTE)
 #        define L_REMOTE 0x1 /* from HP-UX 9.01 */
@@ -135,10 +134,10 @@ KA_T lp; /* local locklist struct pointer */
             }
         }
         if (ll.ll_type == F_WRLCK)
-            return ((int)(l ? 'W' : 'w'));
+            return l ? LSOF_LOCK_WRITE_FULL : LSOF_LOCK_WRITE_PARTIAL;
         else if (ll.ll_type == F_RDLCK)
-            return ((int)(l ? 'R' : 'r'));
-        return ((int)' ');
+            return l ? LSOF_LOCK_READ_FULL : LSOF_LOCK_READ_PARTIAL;
+        return LSOF_LOCK_NONE;
     }
 
 #    if HPUXV < 1010
@@ -147,7 +146,7 @@ KA_T lp; /* local locklist struct pointer */
     while ((llp = (KA_T)ll.ll_fwd) && llp != llf);
 #    endif /* HPUXV<1010 */
 
-    return ((int)' ');
+    return LSOF_LOCK_NONE;
 }
 #endif /* HPUXV>=900 */
 
@@ -386,15 +385,15 @@ void process_node(va) KA_T va; /* vnode kernel space address */
 #if HPUXV < 900
     if (v->v_shlockc || v->v_exlockc) {
         if (v->v_shlockc && v->v_exlockc)
-            Lf->lock = 'u';
+            Lf->lock = LSOF_LOCK_READ_WRITE;
         else if (v->v_shlockc)
-            Lf->lock = 'R';
+            Lf->lock = LSOF_LOCK_READ_FULL;
         else
-            Lf->lock = 'W';
+            Lf->lock = LSOF_LOCK_WRITE_FULL;
     }
 #else /* HPUXV>900 */
 #    if HPUXV >= 1000
-    Lf->lock = (char)islocked((KA_T)v->v_locklist);
+    Lf->lock = islocked((KA_T)v->v_locklist);
 #    endif /* HPUXV>=1000 */
 #endif     /* HPUXV<900 */
 
@@ -583,7 +582,7 @@ void process_node(va) KA_T va; /* vnode kernel space address */
     }
 
 #if HPUXV >= 900 && HPUXV < 1000
-    Lf->lock = (char)islocked((KA_T)i.i_locklist);
+    Lf->lock = islocked((KA_T)i.i_locklist);
 #endif /* HPUXV>=900 && HPUXV<1000 */
 
     /*

@@ -145,7 +145,7 @@ void alloc_lfile(struct lsof_context *ctx,
      * Initialize the structure.
      */
     Lf->access = LSOF_FILE_ACCESS_NONE;
-    Lf->lock = ' ';
+    Lf->lock = LSOF_LOCK_NONE;
     Lf->dev_def = Lf->inp_ty = Lf->is_com = Lf->is_nfs = Lf->is_stream =
         Lf->lmi_srch = Lf->nlink_def = Lf->off_def = Lf->sz_def = Lf->rdev_def =
             (unsigned char)0;
@@ -1449,7 +1449,8 @@ int print_proc(struct lsof_context *ctx) {
             lc++;
         }
         if (FieldSel[LSOF_FIX_LOCK].st) {
-            (void)printf("%c%c%c", LSOF_FID_LOCK, Lf->lock, Terminator);
+            (void)printf("%c%c%c", LSOF_FID_LOCK, lock_to_char(Lf->lock),
+                         Terminator);
             lc++;
         }
         if (FieldSel[LSOF_FIX_TYPE].st) {

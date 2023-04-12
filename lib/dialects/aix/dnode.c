@@ -117,15 +117,15 @@ struct rnode {
  * isglocked() - is a gnode locked
  */
 
-char isglocked(struct lsof_context *ctx, /* context */
-               struct gnode *ga)         /* local gnode address */
+enum lsof_lock_mode isglocked(struct lsof_context *ctx, /* context */
+                              struct gnode *ga) /* local gnode address */
 {
 
     struct filock *cfp, f, *ffp;
     int l;
 
     if (!(ffp = ga->gn_filocks))
-        return (' ');
+        return LSOF_LOCK_NONE;
     cfp = ffp;
 
 #if AIXV >= 4140
@@ -133,7 +133,7 @@ char isglocked(struct lsof_context *ctx, /* context */
 #endif /* AIXV>=4140 */
 
         if (kread(ctx, (KA_T)cfp, (char *)&f, sizeof(f)))
-            return (' ');
+            return LSOF_LOCK_NONE;
 
 #if AIXV >= 4140
         if (f.set.l_sysid || f.set.l_pid != (pid_t)Lp->pid)
@@ -155,17 +155,17 @@ char isglocked(struct lsof_context *ctx, /* context */
         switch (f.set.l_type & (F_RDLCK | F_WRLCK)) {
 
         case F_RDLCK:
-            return ((l) ? 'R' : 'r');
+            return l ? LSOF_LOCK_READ_FULL : LSOF_LOCK_READ_PARTIAL;
         case F_WRLCK:
-            return ((l) ? 'W' : 'w');
+            return (l) ? LSOF_LOCK_WRITE_FULL : LSOF_LOCK_WRITE_PARTIAL;
         case (F_RDLCK + F_WRLCK):
-            return ('u');
+            return LSOF_LOCK_READ_WRITE;
         }
-        return (' ');
+        return LSOF_LOCK_NONE;
 
 #if AIXV >= 4140
     } while ((cfp = f.FL_NEXT) && cfp != ffp);
-    return (' ');
+    return LSOF_LOCK_NONE;
 #endif /* AIXV>=4140 */
 }
 

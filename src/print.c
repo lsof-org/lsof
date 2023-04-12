@@ -647,6 +647,7 @@ void print_file(struct lsof_context *ctx) {
     dev_t dev;
     int devs, len;
     char access;
+    char lock;
 
     if (PrPass && !Hdr) {
 
@@ -849,20 +850,21 @@ void print_file(struct lsof_context *ctx) {
      * Size or print the file descriptor, access mode and lock status.
      */
     access = access_to_char(Lf->access);
+    lock = lock_to_char(Lf->lock);
     if (!PrPass) {
         (void)snpf(buf, sizeof(buf), "%s%c%c", Lf->fd,
-                   (Lf->lock == ' ') ? access
+                   (lock == ' ')     ? access
                    : (access == ' ') ? '-'
                                      : access,
-                   Lf->lock);
+                   lock);
         if ((len = strlen(buf)) > FdColW)
             FdColW = len;
     } else
         (void)printf(" %*.*s%c%c", FdColW - 2, FdColW - 2, Lf->fd,
-                     (Lf->lock == ' ') ? access
+                     (lock == ' ')     ? access
                      : (access == ' ') ? '-'
                                        : access,
-                     Lf->lock);
+                     lock);
     /*
      * Size or print the type.
      */

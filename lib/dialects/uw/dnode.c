@@ -69,7 +69,7 @@ static struct l_dev *ismouse(struct vnode *va, struct l_ino *i, int fx,
 #endif /* UNIXWAREV<70103 */
 
 static struct l_dev *findstrdev(dev_t *dev, dev_t *rdev);
-static char isvlocked(struct vnode *va);
+static enum lsof_lock_mode isvlocked(struct vnode *va);
 static int readlino(int fx, struct vnode *v, struct l_ino *i);
 
 /*
@@ -516,15 +516,15 @@ static struct l_dev *ismouse(struct vnode *va, /* local vnode address */
  * isvlocked() - is a vnode locked
  */
 
-static char isvlocked(struct lsof_context *ctx, /* context */
-                      struct vnode *va)         /* local vnode address */
+static enum lsof_lock_mode isvlocked(struct lsof_context *ctx, /* context */
+                                     struct vnode *va) /* local vnode address */
 {
     struct filock f;
     KA_T flf, flp;
     int i, l;
 
     if (!(flf = (KA_T)va->v_filocks))
-        return (' ');
+        return LSOF_LOCK_NONE;
     flp = flf;
     i = 0;
     do {
@@ -552,16 +552,16 @@ static char isvlocked(struct lsof_context *ctx, /* context */
             l = 0;
         switch (f.set.l_type & (F_RDLCK | F_WRLCK)) {
         case F_RDLCK:
-            return ((l) ? 'R' : 'r');
+            return l ? LSOF_LOCK_READ_FULL : LSOF_LOCK_READ_PARTIAL;
         case F_WRLCK:
-            return ((l) ? 'W' : 'w');
+            return l ? LSOF_LOCK_WRITE_FULL : LSOF_LOCK_WRITE_PARTIAL;
         case (F_RDLCK + F_WRLCK):
-            return ('u');
+            return LSOF_LOCK_READ_WRITE;
         default:
-            return (' ');
+            return LSOF_LOCK_NONE;
         }
     } while (flp != (KA_T)f.next && (flp = (KA_T)f.next) && flp != flf);
-    return (' ');
+    return LSOF_LOCK_NONE;
 }
 
 /*

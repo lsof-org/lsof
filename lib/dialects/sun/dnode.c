@@ -28,6 +28,7 @@
  * 4. This notice may not be removed or altered.
  */
 
+#include "lsof.h"
 #ifndef lint
 static char copyright[] =
     "@(#) Copyright 1994 Purdue Research Foundation.\nAll rights reserved.\n";
@@ -411,7 +412,8 @@ static v_optab_t **Voptab = (v_optab_t **)NULL;
  */
 
 static void build_Voptab(struct lsof_context *ctx);
-static char isvlocked(struct lsof_context *ctx, struct vnode *va);
+static enum lsof_lock_mode isvlocked(struct lsof_context *ctx,
+                                     struct vnode *va);
 static int readinode(struct lsof_context *ctx, KA_T ia, struct inode *i);
 static void read_mi(struct lsof_context *ctx, KA_T s, dev_t *dev, caddr_t so,
                     int *so_st, KA_T *so_ad, struct l_dev **sdp);
@@ -1022,8 +1024,8 @@ static int is_socket(struct lsof_context *ctx, /* context */
  * isvlocked() - is Solaris vnode locked?
  */
 
-static char isvlocked(struct lsof_context *ctx, /* context */
-                      struct vnode *va)         /* local vnode address */
+static enum lsof_lock_mode isvlocked(struct lsof_context *ctx, /* context */
+                                     struct vnode *va) /* local vnode address */
 {
 
 #if solaris < 20500
@@ -1056,7 +1058,7 @@ static char isvlocked(struct lsof_context *ctx, /* context */
 #endif     /* solaris>=20300 */
 
     if (va->v_filocks == NULL)
-        return (' ');
+        return LSOF_LOCK_NONE;
 
 #if solaris < 20500
 #    if solaris > 20300 ||                                                     \
@@ -1070,7 +1072,7 @@ static char isvlocked(struct lsof_context *ctx, /* context */
         i = 0;
         do {
             if (kread(ctx, fp, (char *)&f, sizeof(f)))
-                return (' ');
+                return LSOF_LOCK_NONE;
             i++;
             if (f.set.l_pid != (pid_t)Lp->pid)
                 continue;
@@ -1081,13 +1083,13 @@ static char isvlocked(struct lsof_context *ctx, /* context */
                 l = 0;
             switch (f.set.l_type & (F_RDLCK | F_WRLCK)) {
             case F_RDLCK:
-                return (l ? 'R' : 'r');
+                return l ? LSOF_LOCK_READ_FULL : LSOF_LOCK_READ_PARTIAL;
             case F_WRLCK:
-                return (l ? 'W' : 'w');
+                return l ? LSOF_LOCK_WRITE_FULL : LSOF_LOCK_WRITE_PARTIAL;
             case F_RDLCK | F_WRLCK:
-                return ('u');
+                return LSOF_LOCK_READ_WRITE;
             default:
-                return ('N');
+                return LSOF_LOCK_SOLARIS_NFS;
             }
         } while ((fp = (KA_T)f.next) && (fp != ff) && (i < 10000));
     }
@@ -1098,7 +1100,7 @@ static char isvlocked(struct lsof_context *ctx, /* context */
     i = 0;
     do {
         if (kread(ctx, lp, (char *)&ld, sizeof(ld)))
-            return (' ');
+            return LSOF_LOCK_NONE;
         i++;
         if (!(LOCK_FLAGS & ACTIVE_LOCK) || LOCK_OWNER != (pid_t)Lp->pid)
             continue;
@@ -1116,16 +1118,17 @@ static char isvlocked(struct lsof_context *ctx, /* context */
             l = 0;
         switch (LOCK_TYPE) {
         case F_RDLCK:
-            return (l ? 'R' : 'r');
+            return l ? LSOF_LOCK_READ_FULL : LSOF_LOCK_READ_PARTIAL;
         case F_WRLCK:
-            return (l ? 'W' : 'w');
+            return l ? LSOF_LOCK_WRITE_FULL : LSOF_LOCK_WRITE_PARTIAL;
         case (F_RDLCK | F_WRLCK):
-            return ('u');
+            return LSOF_LOCK_READ_WRITE;
         default:
-            return ('L');
+            /* It was 'L' since 1997, dunno what is it */
+            return LSOF_LOCK_UNKNOWN;
         }
     } while ((lp = (KA_T)LOCK_NEXT) && (lp != lf) && (i < 10000));
-    return (' ');
+    return LSOF_LOCK_NONE;
 #endif /* solaris>=20300 */
 }
 

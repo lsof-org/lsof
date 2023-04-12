@@ -29,6 +29,7 @@
  */
 
 #include "common.h"
+#include "lsof.h"
 
 #if defined(HASEPTOPTS) && defined(HASPTYEPT)
 #    include <linux/major.h>
@@ -55,7 +56,7 @@ struct llock {
     int pid;
     dev_t dev;
     INODETYPE inode;
-    char type;
+    enum lsof_lock_mode type;
     struct llock *next;
 };
 
@@ -566,7 +567,7 @@ void get_locks(struct lsof_context *ctx, /* context */
     struct llock *lp, *np;
     FILE *ls;
     long maj, min;
-    char type;
+    enum lsof_lock_mode type;
     static char *vbuf = (char *)NULL;
     static size_t vsz = (size_t)0;
     /*
@@ -657,9 +658,9 @@ void get_locks(struct lsof_context *ctx, /* context */
         }
         ex = ((off_t)bp == (off_t)0 && (off_t)ep == OFFSET_MAX) ? 1 : 0;
         if (mode)
-            type = ex ? 'W' : 'w';
+            type = ex ? LSOF_LOCK_WRITE_FULL : LSOF_LOCK_WRITE_PARTIAL;
         else
-            type = ex ? 'R' : 'r';
+            type = ex ? LSOF_LOCK_READ_FULL : LSOF_LOCK_READ_PARTIAL;
         /*
          * Look for this lock via the hash buckets.
          */
