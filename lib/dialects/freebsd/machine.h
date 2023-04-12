@@ -325,7 +325,6 @@ typedef _Bool bool;
 /* #define	HASPRINTDEV	print_dev?	*/
 /* #define	HASPRINTINO	print_ino?	*/
 /* #define	HASPRINTNM	print_nm?	*/
-/* #define	HASPRINTOFF	print_off?	*/
 
 /*
  * HASPRIVFILETYPE and PRIVFILETYPE are defined for dialects that have a

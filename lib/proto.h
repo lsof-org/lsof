@@ -281,10 +281,6 @@ extern char *HASPRINTINO(struct lfile *lf);
 extern void HASPRINTNM(struct lsof_context *ctx, struct lfile *lf);
 #    endif /* defined(HASPRINTNM) */
 
-#    if defined(HASPRINTOFF)
-extern char *HASPRINTOFF(struct lfile *lf, int ty);
-#    endif /* defined(HASPRINTOFF) */
-
 #    if defined(HASPRIVNMCACHE)
 extern int HASPRIVNMCACHE(struct lsof_context *ctx, struct lfile *lf);
 #    endif /* defined(HASPRIVNMCACHE) */

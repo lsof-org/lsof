@@ -673,7 +673,7 @@ possibilities
 
     FSV_DEFAULT		defines the default file structure values to
 			list.  It may be composed of or'd FSV_*
-			(See lsof.h) values.  The default is none (0).
+			(See common.h) values.  The default is none (0).
 
     GET_MAJ_DEV         is a macro to get major portion from device
 			number instead of via the standard major()
@@ -1048,15 +1048,6 @@ possibilities
 			print.c/print_file().  Takes one argument:
 
 			void HASPRINTNM(struct lfile *)
-
-    HASPRINTOFF         this value names a private function for
-			printing the dialect's file offset.  Used
-			by print.c/print_file().  Takes two arguments:
-
-			char *HASPRINTOFF(struct lfile *, int ty)
-
-			Where ty == 0 if the offset is to be printed
-			in 0t<decimal> format; 1, 0x<hexadecimal>.
 
     HASPRIVFILETYPE     enables processing of the private file
 			type, whose number (from f_type of the file

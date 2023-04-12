@@ -990,22 +990,14 @@ void print_file(struct lsof_context *ctx) {
             }
         } else if (!Fsize && Lf->off_def) {
 
-#if defined(HASPRINTOFF)
-            cp = HASPRINTOFF(Lf, 0);
-#else  /* !defined(HASPRINTOFF) */
             (void)snpf(buf, sizeof(buf), SzOffFmt_0t, Lf->off);
             cp = buf;
-#endif /* defined(HASPRINTOFF) */
 
             len = strlen(cp);
             if (OffDecDig && len > (OffDecDig + 2)) {
 
-#if defined(HASPRINTOFF)
-                cp = HASPRINTOFF(Lf, 1);
-#else  /* !defined(HASPRINTOFF) */
                 (void)snpf(buf, sizeof(buf), SzOffFmt_x, Lf->off);
                 cp = buf;
-#endif /* defined(HASPRINTOFF) */
 
                 len = strlen(cp);
             }
@@ -1025,21 +1017,13 @@ void print_file(struct lsof_context *ctx) {
             }
         } else if (!Fsize && Lf->off_def) {
 
-#if defined(HASPRINTOFF)
-            cp = HASPRINTOFF(Lf, 0);
-#else  /* !defined(HASPRINTOFF) */
             (void)snpf(buf, sizeof(buf), SzOffFmt_0t, Lf->off);
             cp = buf;
-#endif /* defined(HASPRINTOFF) */
 
             if (OffDecDig && (int)strlen(cp) > (OffDecDig + 2)) {
 
-#if defined(HASPRINTOFF)
-                cp = HASPRINTOFF(Lf, 1);
-#else  /* !defined(HASPRINTOFF) */
                 (void)snpf(buf, sizeof(buf), SzOffFmt_x, Lf->off);
                 cp = buf;
-#endif /* defined(HASPRINTOFF) */
             }
             (void)printf("%*.*s", SzOffColW, SzOffColW, cp);
         } else
