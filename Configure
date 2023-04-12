@@ -290,8 +290,8 @@ do
       echo "rm -f ${LSOF_HLP_BASE}* cd9660_node.h lockf_owner.h fbsd_minor.h"
       rm -f opt_kdtrace.h opt_random.h
       echo "rm -f opt_kdtrace.h opt_random.h"
-      rm -f dialects/aix/aix5/j2/j2_snapshot.h
-      echo "rm -f dialects/aix/aix5/j2/j2_snapshot.h"
+      rm -f lib/dialects/aix/aix5/j2/j2_snapshot.h
+      echo "rm -f lib/dialects/aix/aix5/j2/j2_snapshot.h"
       rm -f dialects/sun/solaris10	# DEBUG -- for s10_44
       echo "rm -f dialects/sun/solaris10"	# DEBUG -- for s10_44
       rm -f dialects/hpux/kmem/hpux_mount.h
@@ -579,10 +579,10 @@ case $LSOF_TGT in	# {
       # The AIX > 5.0 system has jfs2 support.  Make the necesssary definitions
       # and adjustments.
 
-	rm -f dialects/aix/aix5/j2/j2_snapshot.h
-	(cd dialects/aix/aix5/j2; ln -s private_j2_snapshot.h j2_snapshot.h)
+	rm -f lib/dialects/aix/aix5/j2/j2_snapshot.h
+	(cd lib/dialects/aix/aix5/j2; ln -s private_j2_snapshot.h j2_snapshot.h)
 	LSOF_CFGF="$LSOF_CFGF -DHAS_JFS2"
-	LSOF_CFGF="$LSOF_CFGF -I`pwd`/dialects/aix/aix5"
+	LSOF_CFGF="$LSOF_CFGF -I`pwd`/lib/dialects/aix/aix5"
 	if test $LSOF_VERS -ge 5200	# {
 	then
 	  if test -r ${LSOF_INCLUDE}/j2/j2_snapshot.h	# {
@@ -591,7 +591,7 @@ case $LSOF_TGT in	# {
 	  # The system has its own j2_snapshot.h, so make sure the
 	  # private lsof copy is discarded.
 
-	    rm -f dialects/aix/aix5/j2/j2_snapshot.h
+	    rm -f lib/dialects/aix/aix5/j2/j2_snapshot.h
 	  fi	# }
 	  echo $LSOF_CC | grep gcc > /dev/null
 	  if test $? -eq 0	# {
@@ -3542,6 +3542,7 @@ LOCKF4
 # numbering.
 
   openbsd)
+    LSOF_TSTKMEM=0
     if test "X$LSOF_CC" = "X"	# {
     then
       LSOF_CC=cc
@@ -3636,6 +3637,10 @@ LOCKF4
 	LSOF_TSTBIGF=" "
 	LSOF_VERS=7020
 	;;
+      7.3*)
+	LSOF_TSTBIGF=" "
+	LSOF_VERS=7030
+	;;
       *)
 	echo "Unknown OpenBSD release: $LSOF_VSTR"
 	echo Assuming OpenBSD 3.9
@@ -3647,7 +3652,7 @@ LOCKF4
     # Test for legal OpenBSD version.
 
     case $LSOF_VERS in	# {
-    1020|2050|2060|2070|2080|2090|3000|3010|3020|3030|3040|3050|3060|3070|3080|3090|7020)
+    1020|2050|2060|2070|2080|2090|3000|3010|3020|3030|3040|3050|3060|3070|3080|3090|7020|7030)
       ;;
     *)
       echo "Unknown OpenBSD version: $LSOF_VERS"

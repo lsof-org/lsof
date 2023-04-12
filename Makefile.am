@@ -3,7 +3,7 @@ lib_LTLIBRARIES = liblsof.la
 
 # Dialect neutral sources
 liblsof_la_SOURCES = lib/ckkv.c lib/cvfs.c lib/dvch.c lib/fino.c lib/isfn.c lib/lkud.c lib/lsof.c lib/misc.c lib/node.c lib/pdvn.c lib/prfp.c lib/print.c lib/proc.c lib/ptti.c lib/rdev.c lib/rnmt.c lib/rmnt.c lib/rnam.c lib/rnch.c lib/rnmh.c
-liblsof_la_SOURCES += lib/common.h lib/regex.h lib/proto.h lib/hash.h
+liblsof_la_SOURCES += lib/common.h lib/proto.h lib/hash.h
 include_HEADERS = include/lsof.h include/lsof_fields.h
 
 # Hide internal functions
@@ -82,6 +82,20 @@ liblsof_la_SOURCES += lib/dialects/sun/ddev.c \
 		lib/dialects/sun/dlsof.h \
 		lib/dialects/sun/dproto.h \
 		lib/dialects/sun/machine.h
+endif
+
+if AIX
+liblsof_la_SOURCES += lib/dialects/aix/ddev.c \
+		lib/dialects/aix/dfile.c \
+		lib/dialects/aix/dmnt.c \
+		lib/dialects/aix/dnode.c \
+		lib/dialects/aix/dnode2.c \
+		lib/dialects/aix/dproc.c \
+		lib/dialects/aix/dsock.c \
+		lib/dialects/aix/dstore.c \
+		lib/dialects/aix/dlsof.h \
+		lib/dialects/aix/dproto.h \
+		lib/dialects/aix/machine.h
 endif
 
 # Binary

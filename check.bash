@@ -86,7 +86,7 @@ done
 echo
 echo STARTING TEST '(' $dialect specific ')'
 echo =============================================================================
-for x in  lib/dialects/${dialect}/tests/case-*.bash; do
+for x in lib/dialects/${dialect}/tests/case-*.bash; do
     run_one $x $tdir
 done
 

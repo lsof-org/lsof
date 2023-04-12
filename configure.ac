@@ -12,11 +12,7 @@ AM_PROG_CC_C_O
 # Detect OS
 AC_CANONICAL_HOST
 
-# Pass OS version
 LSOF_VSTR=$(uname -r)
-LSOF_TMP=$(echo $LSOF_VSTR | sed 's/(/\\\\(/g' | sed 's/)/\\\\)/g')
-CFLAGS="$CFLAGS -DLSOF_VSTR=\\\"$LSOF_TMP\\\""
-
 LSOF_DIALECT=unknown
 LSOF_DIALECT_DIR=unknown
 LSOF_TGT=unknown
@@ -169,10 +165,11 @@ AS_CASE([${host_os}],
 
 	AS_CASE([$LSOF_VSTR],
 	[7.2],	[LSOF_VERS=7020],
+	[7.3],	[LSOF_VERS=7030],
 	[
 		AC_MSG_NOTICE([Unknown OpenBSD release: $(uname -r)])
-		AC_MSG_NOTICE([Assuming OpenBSD 7.2])
-		LSOF_VERS=7020
+		AC_MSG_NOTICE([Assuming OpenBSD 7.3])
+		LSOF_VERS=7030
 	])
 ], [solaris*], [
 	LSOF_DIALECT=solaris
@@ -197,6 +194,39 @@ AS_CASE([${host_os}],
 	mkdir -p ./solaris11/sys
 	touch ./solaris11/sys/extdirent.h
 	CFLAGS="$CFLAGS -Isolaris11"
+], [aix*], [
+	LSOF_DIALECT=aix
+	LSOF_DIALECT_DIR=aix
+	LSOF_TGT=aix
+
+	LSOF_TMP1=/usr/bin/oslevel
+	AS_IF([test -x $LSOF_TMP1], [
+		echo "Determining AIX version with $LSOF_TMP1."
+		echo "This may take a while, depending on your maintenance level."
+		LSOF_VSTR=`$LSOF_TMP1 | sed 's/[^0-9]*\([0-9\.]*\).*/\1/'`
+		echo "$LSOF_TMP1 reports the version is $LSOF_VSTR."
+	], [
+		# If oslevel can't be used, build the version string with
+		# `uname -rv` and issue a warning.
+
+		LSOF_VSTR=`uname -rv | awk '{printf "%d.%d.0.0\n",\$2,\$1}'`
+		echo "WARNING: can't execute $LSOF_TMP1; uname -rv reports"
+		echo "         the version is $LSOF_VSTR;"
+	])
+
+	LSOF_VERS=`echo $LSOF_VSTR | sed 's/\.//g'`
+
+	# Add AIXV to cflags
+	CFLAGS="$CFLAGS -DAIXV=$LSOF_VERS"
+
+	# Assuming recent AIX on PowerPC64
+	CFLAGS="$CFLAGS -maix64 -DAIXA=1 -DAIX_KERNBITS=64 -DHASSTAT64"
+	LSOF_TEST_CFLAGS="$LSOF_TEST_CFLAGS -DLT_AIXA=1"
+
+	# JFS2 support
+	# Add -fms-extensions to handle use of i_dev from the wInode anonymous
+	# structure reference in the JFS2 inode structure of <j2/j2_inode.h>.
+	CFLAGS="$CFLAGS -DHAS_JFS2 -I./lib/dialects/aix/aix5 -fms-extensions"
 ], [
 	AC_MSG_ERROR(["Host $host_os not supported"])
 ])
@@ -208,6 +238,11 @@ AM_CONDITIONAL([FREEBSD], [test x$LSOF_DIALECT_DIR = xfreebsd])
 AM_CONDITIONAL([NETBSD], [test x$LSOF_DIALECT_DIR = xnetbsd])
 AM_CONDITIONAL([OPENBSD], [test x$LSOF_DIALECT_DIR = xopenbsd])
 AM_CONDITIONAL([SOLARIS], [test x$LSOF_DIALECT_DIR = xsun])
+AM_CONDITIONAL([AIX], [test x$LSOF_DIALECT_DIR = xaix])
+
+# Pass OS version
+LSOF_TMP=$(echo $LSOF_VSTR | sed 's/(/\\\\(/g' | sed 's/)/\\\\)/g')
+CFLAGS="$CFLAGS -DLSOF_VSTR=\\\"$LSOF_TMP\\\""
 
 # Pass LSOF_DIALECT/LSOF_DIALECT_DIR to Makefile.am
 AC_SUBST([LSOF_DIALECT])
@@ -308,9 +343,12 @@ AC_CHECK_DECLS([doadump], [], [], [[#define _KERNEL 1
 		#include <sys/conf.h>]])
 
 # Detect struct vnode definition for HAS_KVM_VNODE
-AC_EGREP_CPP([struct vnode], [#define _KVM_VNODE 1
-		#include <sys/vnode.h>], [AC_DEFINE([HAVE_KVM_VNODE], [1], ["Define to 1 if struct vnode exists"])
-		LIBS="$LIBS -lkvm"])
+# Linking libkvm is not required in AIX
+AS_IF([test x$LSOF_DIALECT_DIR != xaix], [
+	AC_EGREP_CPP([struct vnode], [#define _KVM_VNODE 1
+			#include <sys/vnode.h>], [AC_DEFINE([HAVE_KVM_VNODE], [1], ["Define to 1 if struct vnode exists"])
+			LIBS="$LIBS -lkvm"])
+])
 
 # Detect SBS_CANTSENDMORE definition for HASSBSTATE
 AC_CHECK_DECLS([SBS_CANTSENDMORE], [], [], [[#include <sys/types.h>
@@ -546,7 +584,6 @@ AC_CONFIG_LINKS([tests/common.bash:tests/common.bash
 LSOF_TEST_CFLAGS="$LSOF_TEST_CFLAGS -DLT_DIAL_$LSOF_TGT -DLT_VERS=$LSOF_VERS"
 # Override default lsof path
 LSOF_TEST_CFLAGS="$LSOF_TEST_CFLAGS -DLT_DEF_LSOF_PATH=\\\"$PWD/lsof\\\""
-LSOF_TEST_CFLAGS="$LSOF_TEST_CFLAGS"
 AC_SUBST([LSOF_TEST_CFLAGS])
 
 # Finish
