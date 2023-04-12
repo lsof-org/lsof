@@ -31,6 +31,7 @@
 #include "common.h"
 #include <sys/xattr.h>
 #include "hash.h"
+#include "proto.h"
 
 #if defined(HASEPTOPTS) && defined(HASUXSOCKEPT)
 /*
@@ -859,7 +860,8 @@ static void enter_uxsinfo(struct lsof_context *ctx, uxsin_t *up) {
         lf = pi->lf;
         lp = &Lproc[pi->lpx];
         if (pi->ino == Lf->inode) {
-            if ((lp->pid == Lp->pid) && !strcmp(lf->fd, Lf->fd))
+            if ((lp->pid == Lp->pid) && (lf->fd_type == Lf->fd_type) &&
+                (lf->fd_num == Lf->fd_num))
                 return;
         }
     }
@@ -1076,6 +1078,7 @@ static void prt_uxs(struct lsof_context *ctx, uxsin_t *p, /* peer info */
     int len;          /* string length */
     char nma[1024];   /* character buffer */
     pxinfo_t *pp;     /* previous pipe info of socket */
+    char fd[FDLEN];
 
     (void)strcpy(nma, "->INO=");
     len = (int)strlen(nma);
@@ -1089,12 +1092,9 @@ static void prt_uxs(struct lsof_context *ctx, uxsin_t *p, /* peer info */
          */
         ep = &Lproc[pp->lpx];
         ef = pp->lf;
-        for (i = 0; i < (FDLEN - 1); i++) {
-            if (ef->fd[i] != ' ')
-                break;
-        }
+        fd_to_string(ef->fd_type, ef->fd_num, fd);
         (void)snpf(nma, sizeof(nma) - 1, "%d,%.*s,%s%c", ep->pid, CmdLim,
-                   ep->cmd, &ef->fd[i], access_to_char(ef->access));
+                   ep->cmd, fd, access_to_char(ef->access));
         (void)add_nma(ctx, nma, strlen(nma));
         if (mk && FeptE == 2) {
 
@@ -1215,7 +1215,8 @@ static void enter_netsinfo_common(struct lsof_context *ctx, void *tp,
         lf = pi->lf;
         lp = &Lproc[pi->lpx];
         if (pi->ino == Lf->inode) {
-            if ((lp->pid == Lp->pid) && !strcmp(lf->fd, Lf->fd))
+            if ((lp->pid == Lp->pid) && (lf->fd_type == Lf->fd_type) &&
+                (lf->fd_num == Lf->fd_num))
                 return;
         }
     }
@@ -1244,6 +1245,7 @@ static void prt_nets_common(struct lsof_context *ctx, void *p, /* peer info */
     int i;            /* temporary index */
     char nma[1024];   /* character buffer */
     pxinfo_t *pp;     /* previous pipe info of socket */
+    char fd[FDLEN];
 
     for (pp = (*get_pxinfo)(p); pp; pp = pp->next) {
 
@@ -1253,12 +1255,9 @@ static void prt_nets_common(struct lsof_context *ctx, void *p, /* peer info */
          */
         ep = &Lproc[pp->lpx];
         ef = pp->lf;
-        for (i = 0; i < (FDLEN - 1); i++) {
-            if (ef->fd[i] != ' ')
-                break;
-        }
+        fd_to_string(ef->fd_type, ef->fd_num, fd);
         (void)snpf(nma, sizeof(nma) - 1, "%d,%.*s,%s%c", ep->pid, CmdLim,
-                   ep->cmd, &ef->fd[i], access_to_char(ef->access));
+                   ep->cmd, fd, access_to_char(ef->access));
         (void)add_nma(ctx, nma, strlen(nma));
         if (mk && FeptE == 2) {
 

@@ -31,6 +31,7 @@
 #include "common.h"
 #include "dlsof.h"
 #include "lsof.h"
+#include "proto.h"
 
 #if defined(HASEPTOPTS)
 static void prt_pinfo(struct lsof_context *ctx, pxinfo_t *pp, int ps);
@@ -50,6 +51,7 @@ void add_nma(struct lsof_context *ctx, char *cp, /* string to add */
              int len)                            /* string length */
 {
     int nl;
+    char fd[FDLEN];
 
     if (!cp || !len)
         return;
@@ -62,8 +64,9 @@ void add_nma(struct lsof_context *ctx, char *cp, /* string to add */
         Lf->nma = (char *)malloc((MALLOC_S)(len + 1));
     }
     if (!Lf->nma) {
+        fd_to_string(Lf->fd_type, Lf->fd_num, fd);
         (void)fprintf(stderr, "%s: no name addition space: PID %ld, FD %s", Pn,
-                      (long)Lp->pid, Lf->fd);
+                      (long)Lp->pid, fd);
         Error(ctx);
     }
     if (nl) {
@@ -111,9 +114,9 @@ static char *alloc_fflbuf(struct lsof_context *ctx,
  */
 
 void alloc_lfile(struct lsof_context *ctx,
-                 char *nm, /* file descriptor name (may be NULL) */
-                 int num)  /* file descriptor number -- -1 if
-                            * none */
+                 enum lsof_fd_type fd_type, /* file descriptor type */
+                 int num)                   /* file descriptor number -- -1 if
+                                             * none */
 {
     int fds;
 
@@ -206,16 +209,8 @@ void alloc_lfile(struct lsof_context *ctx,
     else
         Lf->sf = 0;
     Lf->iproto[0] = Lf->type[0] = '\0';
-    if (nm) {
-        (void)strncpy(Lf->fd, nm, FDLEN - 1);
-        Lf->fd[FDLEN - 1] = '\0';
-    } else if (num >= 0) {
-        if (num < 10000)
-            (void)snpf(Lf->fd, sizeof(Lf->fd), "%4d", num);
-        else
-            (void)snpf(Lf->fd, sizeof(Lf->fd), "*%03d", num % 1000);
-    } else
-        Lf->fd[0] = '\0';
+    Lf->fd_type = fd_type;
+    Lf->fd_num = num;
     Lf->dev_ch = Lf->fsdir = Lf->fsdev = Lf->nm = Lf->nma = (char *)NULL;
     Lf->ch = -1;
 
@@ -243,9 +238,9 @@ void alloc_lfile(struct lsof_context *ctx,
     /*
      * See if the file descriptor has been selected.
      */
-    if (!Fdl || (!nm && num < 0))
+    if (!Fdl || (fd_type == LSOF_FD_NUMERIC && num < 0))
         return;
-    fds = ck_fd_status(ctx, nm, num);
+    fds = ck_fd_status(ctx, fd_type, num);
     switch (FdlTy) {
     case 0: /* inclusion list */
         if (fds == 2)
@@ -343,31 +338,27 @@ void alloc_lproc(struct lsof_context *ctx, int pid, /* Process ID */
  */
 
 extern int ck_fd_status(struct lsof_context *ctx,
-                        char *nm, /* file descriptor name (may be NULL) */
-                        int num)  /* file descriptor number -- -1 if
-                                   * none */
+                        enum lsof_fd_type fd_type, /* file descriptor type */
+                        int num) /* file descriptor number -- -1 if
+                                  * none */
 {
-    char *cp;
     struct fd_lst *fp;
 
-    if (!(fp = Fdl) || (!nm && num < 0))
+    if (!(fp = Fdl) || (fd_type == LSOF_FD_NUMERIC && num < 0))
         return (0);
-    if ((cp = nm)) {
-        while (*cp && *cp == ' ')
-            cp++;
-    }
     /*
      * Check for an exclusion match.
      */
     if (FdlTy == 1) {
         for (; fp; fp = fp->next) {
-            if (cp) {
-                if (fp->nm && strcmp(fp->nm, cp) == 0)
-                    return (1);
+            if (fp->fd_type != fd_type)
                 continue;
-            }
-            if (num >= fp->lo && num <= fp->hi)
+            if (fp->fd_type == LSOF_FD_NUMERIC) {
+                if (num >= fp->lo && num <= fp->hi)
+                    return (1);
+            } else {
                 return (1);
+            }
         }
         return (0);
     }
@@ -375,13 +366,14 @@ extern int ck_fd_status(struct lsof_context *ctx,
      * If Fdl isn't an exclusion list, check for an inclusion match.
      */
     for (; fp; fp = fp->next) {
-        if (cp) {
-            if (fp->nm && strcmp(fp->nm, cp) == 0)
-                return (2);
+        if (fp->fd_type != fd_type)
             continue;
-        }
-        if (num >= fp->lo && num <= fp->hi)
+        if (fp->fd_type == LSOF_FD_NUMERIC) {
+            if (num >= fp->lo && num <= fp->hi)
+                return (2);
+        } else {
             return (2);
+        }
     }
     return (0);
 }
@@ -1030,15 +1022,13 @@ static void prt_pinfo(struct lsof_context *ctx, pxinfo_t *pp, /* peer info */
     struct lfile *ef; /* pipe endpoint file */
     int i;            /* temporary index */
     char nma[1024];   /* name addition buffer */
+    char fd[FDLEN];
 
     ep = &Lproc[pp->lpx];
     ef = pp->lf;
-    for (i = 0; i < (FDLEN - 1); i++) {
-        if (ef->fd[i] != ' ')
-            break;
-    }
+    fd_to_string(ef->fd_type, ef->fd_num, fd);
     (void)snpf(nma, sizeof(nma) - 1, "%d,%.*s,%s%c", ep->pid, CmdLim, ep->cmd,
-               &ef->fd[i], access_to_char(ef->access));
+               fd, access_to_char(ef->access));
     (void)add_nma(ctx, nma, strlen(nma));
     if (ps) {
 
@@ -1131,15 +1121,13 @@ static void prt_psxmqinfo(struct lsof_context *ctx,
     struct lfile *ef; /* posix mq endpoint file */
     int i;            /* temporary index */
     char nma[1024];   /* name addition buffer */
+    char fd[FDLEN];
 
     ep = &Lproc[pp->lpx];
     ef = pp->lf;
-    for (i = 0; i < (FDLEN - 1); i++) {
-        if (ef->fd[i] != ' ')
-            break;
-    }
+    fd_to_string(ef->fd_type, ef->fd_num, fd);
     (void)snpf(nma, sizeof(nma) - 1, "%d,%.*s,%s%c", ep->pid, CmdLim, ep->cmd,
-               &ef->fd[i], access_to_char(ef->access));
+               fd, access_to_char(ef->access));
     (void)add_nma(ctx, nma, strlen(nma));
     if (ps) {
 
@@ -1232,15 +1220,13 @@ static void prt_evtfdinfo(struct lsof_context *ctx,
     struct lfile *ef; /* eventfd endpoint file */
     int i;            /* temporary index */
     char nma[1024];   /* name addition buffer */
+    char fd[FDLEN];
 
     ep = &Lproc[pp->lpx];
     ef = pp->lf;
-    for (i = 0; i < (FDLEN - 1); i++) {
-        if (ef->fd[i] != ' ')
-            break;
-    }
+    fd_to_string(ef->fd_type, ef->fd_num, fd);
     (void)snpf(nma, sizeof(nma) - 1, "%d,%.*s,%s%c", ep->pid, CmdLim, ep->cmd,
-               &ef->fd[i], access_to_char(ef->access));
+               fd, access_to_char(ef->access));
     (void)add_nma(ctx, nma, strlen(nma));
     if (ps) {
 
@@ -1335,6 +1321,7 @@ int print_proc(struct lsof_context *ctx) {
     int lc, len, st, ty;
     int rv = 0;
     unsigned long ul;
+    char fd[FDLEN];
     /*
      * If nothing in the process has been selected, skip it.
      */
@@ -1430,14 +1417,8 @@ int print_proc(struct lsof_context *ctx) {
         lc = st = 0;
         if (FieldSel[LSOF_FIX_FD].st) {
 
-            /*
-             * Skip leading spaces in the file descriptor.  Print the field
-             * identifier even if there are no characters after leading
-             * spaces.
-             */
-            for (cp = Lf->fd; *cp == ' '; cp++)
-                ;
-            (void)printf("%c%s%c", LSOF_FID_FD, cp, Terminator);
+            fd_to_string(Lf->fd_type, Lf->fd_num, fd);
+            (void)printf("%c%s%c", LSOF_FID_FD, fd, Terminator);
             lc++;
         }
         /*
@@ -1672,20 +1653,18 @@ static void prt_ptyinfo(struct lsof_context *ctx, pxinfo_t *pp, /* peer info */
     struct lfile *ef; /* pseudoterminal endpoint file */
     int i;            /* temporary index */
     char nma[1024];   /* name addition buffer */
+    char fd[FDLEN];
 
     ep = &Lproc[pp->lpx];
     ef = pp->lf;
-    for (i = 0; i < (FDLEN - 1); i++) {
-        if (ef->fd[i] != ' ')
-            break;
-    }
+    fd_to_string(ef->fd_type, ef->fd_num, fd);
     if (prt_edev) {
         (void)snpf(nma, sizeof(nma) - 1, "->/dev/pts/%d %d,%.*s,%s%c",
-                   Lf->tty_index, ep->pid, CmdLim, ep->cmd, &ef->fd[i],
+                   Lf->tty_index, ep->pid, CmdLim, ep->cmd, fd,
                    access_to_char(ef->access));
     } else {
         (void)snpf(nma, sizeof(nma) - 1, "%d,%.*s,%s%c", ep->pid, CmdLim,
-                   ep->cmd, &ef->fd[i], access_to_char(ef->access));
+                   ep->cmd, fd, access_to_char(ef->access));
     }
     (void)add_nma(ctx, nma, strlen(nma));
     if (ps) {
@@ -1699,3 +1678,68 @@ static void prt_ptyinfo(struct lsof_context *ctx, pxinfo_t *pp, /* peer info */
     }
 }
 #endif /* defined(HASPTYEPT) */
+
+/* Convert lsof_fd_type and fd_num to string, sizeof(buf) should >= FDLEN */
+void fd_to_string(enum lsof_fd_type fd_type, int fd_num, char *buf) {
+    switch (fd_type) {
+    case LSOF_FD_NUMERIC:
+        /* strlen("TYPE") == 4, try to match width */
+        if (fd_num < 10000)
+            (void)snpf(buf, FDLEN, "%d", fd_num);
+        else
+            (void)snpf(buf, FDLEN, "*%03d", fd_num % 1000);
+        break;
+    case LSOF_FD_UNKNOWN:
+        (void)snpf(buf, FDLEN, "unk");
+        break;
+    case LSOF_FD_CWD:
+        (void)snpf(buf, FDLEN, "cwd");
+        break;
+    case LSOF_FD_ERROR:
+        (void)snpf(buf, FDLEN, "err");
+        break;
+    case LSOF_FD_ROOT_DIR:
+        (void)snpf(buf, FDLEN, "rtd");
+        break;
+    case LSOF_FD_PARENT_DIR:
+        (void)snpf(buf, FDLEN, "pd");
+        break;
+    case LSOF_FD_PROGRAM_TEXT:
+        (void)snpf(buf, FDLEN, "txt");
+        break;
+    case LSOF_FD_LIBRARY_TEXT:
+        (void)snpf(buf, FDLEN, "ltx");
+        break;
+    case LSOF_FD_MEMORY:
+        (void)snpf(buf, FDLEN, "mem");
+        break;
+    case LSOF_FD_DELETED:
+        (void)snpf(buf, FDLEN, "del");
+        break;
+    case LSOF_FD_FILEPORT:
+        (void)snpf(buf, FDLEN, "fp.");
+        break;
+    case LSOF_FD_TASK_CWD:
+        (void)snpf(buf, FDLEN, "twd");
+        break;
+    case LSOF_FD_CTTY:
+        (void)snpf(buf, FDLEN, "ctty");
+        break;
+    case LSOF_FD_JAIL_DIR:
+        (void)snpf(buf, FDLEN, "jld");
+        break;
+    case LSOF_FD_VIRTUAL_8086:
+        (void)snpf(buf, FDLEN, "v86");
+        break;
+    case LSOF_FD_MERGE_386:
+        (void)snpf(buf, FDLEN, "m86");
+        break;
+    case LSOF_FD_MMAP_SPECIAL:
+        (void)snpf(buf, FDLEN, "mmap");
+        break;
+    default:
+        fprintf(stderr, "Unknown fd type: %d\n", (int)fd_type);
+        buf[0] = '\0';
+        break;
+    }
+}

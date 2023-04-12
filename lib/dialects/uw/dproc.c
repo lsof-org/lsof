@@ -28,6 +28,7 @@
  * 4. This notice may not be removed or altered.
  */
 
+#include "lsof.h"
 #ifndef lint
 static char copyright[] =
     "@(#) Copyright 1996 Purdue Research Foundation.\nAll rights reserved.\n";
@@ -140,7 +141,7 @@ void gather_proc_info(struct lsof_context *ctx) {
          * Save current working directory information.
          */
         if (p->p_cdir) {
-            alloc_lfile(CWD, -1);
+            alloc_lfile(ctx, LSOF_FD_CWD, -1);
             process_node((KA_T)p->p_cdir);
             if (Lf->sf)
                 link_lfile();
@@ -149,7 +150,7 @@ void gather_proc_info(struct lsof_context *ctx) {
          * Save root directory information.
          */
         if (p->p_rdir) {
-            alloc_lfile(RTD, -1);
+            alloc_lfile(ctx, LSOF_FD_ROOT_DIR, -1);
             process_node((KA_T)p->p_rdir);
             if (Lf->sf)
                 link_lfile();
@@ -191,7 +192,7 @@ void gather_proc_info(struct lsof_context *ctx) {
                 }
 #endif /* UNIXWAREV>=70103 */
 
-                alloc_lfile(NULL, i);
+                alloc_lfile(ctx, LSOF_FD_NUMERIC, i);
                 process_file(fa);
                 if (Lf->sf) {
 
@@ -393,7 +394,7 @@ static void process_text(pa) KA_T pa; /* kernel address space description
 {
     struct as as;
     struct segdev_data dv;
-    char *fd;
+    enum lsof_fd_type fd;
     int i, j, k, l;
     struct seg s;
     KA_T v[MAXSEGS];
@@ -413,7 +414,7 @@ static void process_text(pa) KA_T pa; /* kernel address space description
     for (i = j = k = 0; i < MAXSEGS && j < 2 * MAXSEGS; j++) {
         if (!s.s_next || kread(ctx, (KA_T)s.s_next, (char *)&s, sizeof(s)))
             break;
-        fd = (char *)NULL;
+        fd = LSOF_FD_UNKNOWN;
         vp = (KA_T)NULL;
         if (Sgvnops == (KA_T)s.s_ops && s.s_data) {
 
@@ -424,9 +425,9 @@ static void process_text(pa) KA_T pa; /* kernel address space description
                 break;
             if ((vp = (KA_T)vn.svd_vp)) {
                 if ((vn.svd_flags & SEGVN_PGPROT) || (vn.svd_prot & PROT_EXEC))
-                    fd = " txt";
+                    fd = LSOF_FD_PROGRAM_TEXT;
                 else
-                    fd = " mem";
+                    fd = LSOF_FD_MEMORY;
             }
         } else if (Sgdnops == (KA_T)s.s_ops && s.s_data) {
 
@@ -436,9 +437,9 @@ static void process_text(pa) KA_T pa; /* kernel address space description
             if (kread(ctx, (KA_T)s.s_data, (char *)&dv, sizeof(dv)))
                 break;
             if ((vp = (KA_T)dv.vp))
-                fd = "mmap";
+                fd = LSOF_FD_MMAP_SPECIAL;
         }
-        if (fd && vp) {
+        if (fd != LSOF_FD_UNKNOWN && vp) {
 
             /*
              * Process the vnode pointer.  First make sure it's unique.
@@ -448,7 +449,7 @@ static void process_text(pa) KA_T pa; /* kernel address space description
                     break;
             }
             if (l >= k) {
-                alloc_lfile(fd, -1);
+                alloc_lfile(ctx, fd, -1);
                 process_node(vp);
                 if (Lf->sf) {
                     link_lfile();

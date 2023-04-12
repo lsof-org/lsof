@@ -29,6 +29,7 @@
  */
 
 #include "lsof.h"
+#include "proto.h"
 #ifndef lint
 static char copyright[] =
     "@(#) Copyright 1994 Purdue Research Foundation.\nAll rights reserved.\n";
@@ -1286,6 +1287,7 @@ void process_node(struct lsof_context *ctx, /* context */
     KA_T realvp = (KA_T)NULL;
     struct snode rs;
     struct snode s;
+    char fd[FDLEN];
 
 #if solaris >= 110000
     char *nm, *sep;
@@ -3698,10 +3700,11 @@ void process_node(struct lsof_context *ctx, /* context */
                 if (Lf->is_com && !Lf->nma) {
                     len = (int)strlen("(COMMON)") + 1;
                     if (!(Lf->nma = (char *)malloc(len))) {
+                        fd_to_string(Lf->fd_type, Lf->fd_num, fd);
                         (void)fprintf(
                             stderr,
                             "%s: no space for (COMMON): PID %d; FD %s\n", Pn,
-                            Lp->pid, Lf->fd);
+                            Lp->pid, fd);
                         Error(ctx);
                     }
                     (void)snpf(Lf->nma, len, "(COMMON)");

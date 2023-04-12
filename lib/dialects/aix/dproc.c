@@ -28,6 +28,7 @@
  * 4. This notice may not be removed or altered.
  */
 
+#include "lsof.h"
 #ifndef lint
 static char copyright[] =
     "@(#) Copyright 1994 Purdue Research Foundation.\nAll rights reserved.\n";
@@ -646,7 +647,7 @@ void gather_proc_info(struct lsof_context *ctx) {
          * Save current working directory information.
          */
         if (!ckscko && cdir) {
-            alloc_lfile(ctx, CWD, -1);
+            alloc_lfile(ctx, LSOF_FD_CWD, -1);
             process_node(ctx, cdir);
             if (Lf->sf)
                 link_lfile(ctx);
@@ -655,7 +656,7 @@ void gather_proc_info(struct lsof_context *ctx) {
          * Save root directory information.
          */
         if (!ckscko && rdir) {
-            alloc_lfile(ctx, RTD, -1);
+            alloc_lfile(ctx, LSOF_FD_ROOT_DIR, -1);
             process_node(ctx, rdir);
             if (Lf->sf)
                 link_lfile(ctx);
@@ -666,7 +667,7 @@ void gather_proc_info(struct lsof_context *ctx) {
          * Save parent directory information.
          */
         if (!ckscko && pdir) {
-            alloc_lfile(ctx, "  pd", -1);
+            alloc_lfile(ctx, LSOF_FD_PARENT_DIR, -1);
             process_node(ctx, pdir);
             if (Lf->sf)
                 link_lfile(ctx);
@@ -721,7 +722,7 @@ void gather_proc_info(struct lsof_context *ctx) {
 #endif /* AIXV<4300 */
 
             if (fp) {
-                alloc_lfile(ctx, (char *)NULL, i);
+                alloc_lfile(ctx, LSOF_FD_NUMERIC, i);
                 process_file(ctx, fp);
                 if (Lf->sf) {
 
@@ -1191,7 +1192,7 @@ static void process_text(struct lsof_context *ctx, /* context */
 #    endif /* AIXV<4300 */
 
     {
-        alloc_lfile(ctx, " txt", -1);
+        alloc_lfile(ctx, LSOF_FD_PROGRAM_TEXT, -1);
         if ((le = getle(ctx, ll, sid, &err))) {
             if ((xf = le->fp)) {
                 process_file(ctx, (KA_T)xf);
@@ -1307,7 +1308,7 @@ static void process_text(pid_t pid) /* process PID */
      */
     if (la->exec && !kread(ctx, (KA_T)la->exec, (char *)&le, sizeof(le)) &&
         le.fp) {
-        alloc_lfile(ctx, " txt", -1);
+        alloc_lfile(ctx, LSOF_FD_PROGRAM_TEXT, -1);
         process_file(ctx, (KA_T)le.fp);
         if (Lf->dev_def && (Lf->inp_ty == 1)) {
             xdev = Lf->dev;

@@ -58,4 +58,25 @@ enum lsof_lock_mode {
     LSOF_LOCK_SCO_FULL,    /**< SCO OpenServer Xenix lock on the entire file */
 };
 
+/** File descriptor type */
+enum lsof_fd_type {
+    LSOF_FD_NUMERIC,    /**< Numeric fd, e.g fd returned by open() in process */
+    LSOF_FD_UNKNOWN,    /**< Unknown fd type */
+    LSOF_FD_CWD,        /**< Current working directory */
+    LSOF_FD_ERROR,      /**< Failed to get fd information */
+    LSOF_FD_ROOT_DIR,   /**< Root directory */
+    LSOF_FD_PARENT_DIR, /**< Parent directory */
+    LSOF_FD_PROGRAM_TEXT, /**< Program text */
+    LSOF_FD_LIBRARY_TEXT, /**< Library text */
+    LSOF_FD_MEMORY,       /**< Memory */
+    LSOF_FD_DELETED,      /**< Deleted file */
+    LSOF_FD_FILEPORT,     /**< Darwin fileport */
+    LSOF_FD_TASK_CWD,     /**< Per task/thread cwd */
+    LSOF_FD_CTTY,         /**< Character TTY */
+    LSOF_FD_JAIL_DIR,     /**< Jail directory */
+    LSOF_FD_VIRTUAL_8086, /**< Virtual 8086 */
+    LSOF_FD_MERGE_386,    /**< MERGE386 vm86 region */
+    LSOF_FD_MMAP_SPECIAL, /**< mmap-ed special device segment */
+};
+
 #endif

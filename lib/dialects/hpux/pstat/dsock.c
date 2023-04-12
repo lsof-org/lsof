@@ -28,6 +28,7 @@
  * 4. This notice may not be removed or altered.
  */
 
+#include "proto.h"
 #ifndef lint
 static char copyright[] =
     "@(#) Copyright 1999 Purdue Research Foundation.\nAll rights reserved.\n";
@@ -928,9 +929,9 @@ void print_tcptpi(nl) int nl; /* 1 == '\n' required */
  * process_socket() -- process socket
  */
 
-void process_socket(f, s) struct pst_fileinfo2 *f; /* file information */
-struct pst_socket *s; /* optional socket information
-                       * NULL == none */
+void process_socket(struct pst_fileinfo2 *f, /* file information */
+                    struct pst_socket *s)    /* optional socket information
+                                              * NULL == none */
 {
     int af, err, fp, lp, tx;
     char buf[1024], tbuf[32];
@@ -942,6 +943,7 @@ struct pst_socket *s; /* optional socket information
     struct pst_filedetails pd;
     struct sockaddr_in *sa;
     int sx;
+    char fd[FDLEN];
 
 #if defined(HASIPv6)
     struct sockaddr_in6 *sa6;
@@ -1239,9 +1241,10 @@ struct pst_socket *s; /* optional socket information
                             : "");
                     len = strlen(buf) + 1;
                     if (!(nma = (char *)malloc((MALLOC_S)len))) {
+                        fd_to_string(Lf->fd_type, Lf->fd_num, fd);
                         (void)fprintf(
                             stderr, "%s: no unix nma space(1): PID %ld, FD %s",
-                            Pn, (long)Lp->pid, Lf->fd);
+                            Pn, (long)Lp->pid, fd);
                     }
                     (void)snpf(nma, len, "%s", buf);
                     Lf->nma = nma;
@@ -1292,10 +1295,11 @@ struct pst_socket *s; /* optional socket information
                                    s->pst_peer_lo_nodeid ? ")" : "");
                         len = strlen(buf) + 1;
                         if (!(nma = (char *)malloc((MALLOC_S)len))) {
+                            fd_to_string(Lf->fd_type, Lf->fd_num, fd);
                             (void)fprintf(
                                 stderr,
                                 "%s: no unix nma space(2): PID %ld, FD %s", Pn,
-                                (long)Lp->pid, Lf->fd);
+                                (long)Lp->pid, fd);
                         }
                         (void)snpf(nma, len, "%s", buf);
                         Lf->nma = nma;

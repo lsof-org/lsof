@@ -28,6 +28,7 @@
  * 4. This notice may not be removed or altered.
  */
 
+#include "lsof.h"
 #ifndef lint
 static char copyright[] =
     "@(#) Copyright 1999 Purdue Research Foundation.\nAll rights reserved.\n";
@@ -145,8 +146,8 @@ void gather_proc_info() {
      * the first FDS_ALLOC_INIT FDs.
      */
     if (Fand && Fdl) {
-        cwds = (ck_fd_status(CWD, -1) != 2) ? 0 : 1;
-        rtds = (ck_fd_status(RTD, -1) != 2) ? 0 : 1;
+        cwds = (ck_fd_status(LSOF_FD_CWD, -1) != 2) ? 0 : 1;
+        rtds = (ck_fd_status(LSOF_FD_ROOT_DIR, -1) != 2) ? 0 : 1;
         nb = (MALLOC_S)(sizeof(int) * FDS_ALLOC_INIT);
         if (!(fds = (int *)malloc(nb))) {
             (void)fprintf(stderr, "%s: can't allocate %d FD status entries\n",
@@ -155,7 +156,7 @@ void gather_proc_info() {
         }
         for (fdsa = 0; fdsa < FDS_ALLOC_INIT; fdsa++) {
             if (Fand && Fdl)
-                fds[fdsa] = (ck_fd_status(NULL, fdsa) == 2) ? 1 : 0;
+                fds[fdsa] = (ck_fd_status(LSOF_FD_NUMERIC, fdsa) == 2) ? 1 : 0;
             else
                 fds[fdsa] = 1;
         }
@@ -242,7 +243,7 @@ void gather_proc_info() {
          */
         if (!ckscko && cwds && IS_PSFILEID(&p->pst_cdir) &&
             (p->pst_cdir.psf_fileid > 0)) {
-            alloc_lfile(CWD, -1);
+            alloc_lfile(ctx, LSOF_FD_CWD, -1);
             if ((na = read_det(&p->pst_fid_cdir, p->pst_hi_fileid_cdir,
                                p->pst_lo_fileid_cdir, p->pst_hi_nodeid_cdir,
                                p->pst_lo_nodeid_cdir, &pd)))
@@ -265,7 +266,7 @@ void gather_proc_info() {
                 (void)scanmnttab();
             if (!HvRtPsfid || memcmp((void *)&RtPsfid, (void *)&p->pst_rdir,
                                      sizeof(RtPsfid))) {
-                alloc_lfile(RTD, -1);
+                alloc_lfile(ctx, LSOF_FD_ROOT_DIR, -1);
                 if ((na = read_det(&p->pst_fid_rdir, p->pst_hi_fileid_rdir,
                                    p->pst_lo_fileid_rdir, p->pst_hi_nodeid_rdir,
                                    p->pst_lo_nodeid_rdir, &pd)))
@@ -311,14 +312,15 @@ void gather_proc_info() {
                         Error(ctx);
                     }
                     while (fdsa < l) {
-                        fds[fdsa] = (ck_fd_status(NULL, fdsa) == 2) ? 1 : 0;
+                        fds[fdsa] =
+                            (ck_fd_status(LSOF_FD_NUMERIC, fdsa) == 2) ? 1 : 0;
                         fdsa++;
                     }
                 }
                 if (!fds[fd])
                     continue;
             }
-            alloc_lfile(NULL, (int)f->psf_fd);
+            alloc_lfile(ctx, LSOF_FD_NUMERIC, (int)f->psf_fd);
             /*
              * Construct access code.
              */
@@ -502,7 +504,7 @@ static void process_text(p) struct pst_status *p; /* pst_status for process */
     struct pst_vm_status *rp;
     static int txts = -1;
     struct txtvm {
-        char *fd;
+        enum lsof_fd_type fd;
         struct pst_fid opfid;
         struct psfileid psfid;
         KA_T na;
@@ -514,13 +516,13 @@ static void process_text(p) struct pst_status *p; /* pst_status for process */
      */
     if (mems < 0) {
         if (Fand && Fdl)
-            mems = (ck_fd_status("mem", -1) == 2) ? 1 : 0;
+            mems = (ck_fd_status(LSOF_FD_MEMORY, -1) == 2) ? 1 : 0;
         else
             mems = 1;
     }
     if (txts < 0) {
         if (Fand && Fdl)
-            txts = (ck_fd_status("txt", -1) == 2) ? 1 : 0;
+            txts = (ck_fd_status(LSOF_FD_PROGRAM_TEXT, -1) == 2) ? 1 : 0;
         else
             txts = 1;
     }
@@ -549,13 +551,13 @@ static void process_text(p) struct pst_status *p; /* pst_status for process */
         if ((na = read_det(&p->pst_fid_text, p->pst_hi_fileid_text,
                            p->pst_lo_fileid_text, p->pst_hi_nodeid_text,
                            p->pst_lo_nodeid_text, &tv[0].pd))) {
-            tv[0].fd = "txt";
+            tv[0].fd = LSOF_FD_PROGRAM_TEXT;
             tv[0].na = na;
             tv[0].opfid = p->pst_fid_text;
             tv[0].psfid = p->pst_text;
             ntvu = 1;
         } else {
-            alloc_lfile("txt", -1);
+            alloc_lfile(ctx, LSOF_FD_PROGRAM_TEXT, -1);
             (void)snpf(Namech, Namechl, "can't read txt pst_filedetails%s%s",
                        errno ? ": " : "", errno ? strerror(errno) : "");
             enter_nm(Namech);
@@ -596,13 +598,13 @@ static void process_text(p) struct pst_status *p; /* pst_status for process */
             if ((na = read_det(&rp->pst_fid, rp->pst_hi_fileid,
                                rp->pst_lo_fileid, rp->pst_hi_nodeid,
                                rp->pst_lo_nodeid, &tv[ntvu].pd))) {
-                tv[ntvu].fd = "mem";
+                tv[ntvu].fd = LSOF_FD_MEMORY;
                 tv[ntvu].na = na;
                 tv[ntvu].opfid = rp->pst_fid;
                 tv[ntvu].psfid = rp->pst_id;
                 ntvu++;
             } else if (!meme) {
-                alloc_lfile("mem", -1);
+                alloc_lfile(ctx, LSOF_FD_MEMORY, -1);
                 (void)snpf(Namech, Namechl,
                            "can't read mem pst_filedetails%s%s",
                            errno ? ": " : "", errno ? strerror(errno) : "");
@@ -617,7 +619,7 @@ static void process_text(p) struct pst_status *p; /* pst_status for process */
      * Process information for unique regions.
      */
     for (i = 0; i < ntvu; i++) {
-        alloc_lfile(tv[i].fd, -1);
+        alloc_lfile(ctx, tv[i].fd, -1);
         (void)process_finfo(&tv[i].pd, &tv[i].opfid, &tv[i].psfid, tv[i].na);
         if (Lf->sf)
             link_lfile();

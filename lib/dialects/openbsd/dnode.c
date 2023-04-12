@@ -39,7 +39,7 @@ static char copyright[] =
  * process_vnode() - process vnode
  */
 void process_vnode(struct lsof_context *ctx, struct kinfo_file *file) {
-    char *nm = NULL;
+    enum lsof_fd_type fd_type;
     int num = -1;
     uint32_t flag;
     char *type_name = NULL;
@@ -50,20 +50,20 @@ void process_vnode(struct lsof_context *ctx, struct kinfo_file *file) {
     /* Alloc Lf and set fd */
     switch (file->fd_fd) {
     case KERN_FILE_TEXT:
-        nm = "txt";
+        fd_type = LSOF_FD_PROGRAM_TEXT;
         break;
     case KERN_FILE_CDIR:
-        nm = "cwd";
-
+        fd_type = LSOF_FD_CWD;
         break;
     case KERN_FILE_RDIR:
-        nm = "rtd";
+        fd_type = LSOF_FD_CWD;
         break;
     default:
+        fd_type = LSOF_FD_NUMERIC;
         num = file->fd_fd;
         break;
     }
-    alloc_lfile(ctx, nm, num);
+    alloc_lfile(ctx, fd_type, num);
 
     if (file->fd_fd == KERN_FILE_CDIR) {
         /*

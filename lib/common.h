@@ -767,10 +767,10 @@ extern int Fxover;
 extern int Fzone;
 
 struct fd_lst {
-    char *nm; /* file descriptor name -- range if
-               * NULL */
-    int lo;   /* range start (if nm NULL) */
-    int hi;   /* range end (if nm NULL) */
+    enum lsof_fd_type fd_type; /* file descriptor type -- range if
+                                * LSOF_FD_NUMERIC */
+    int lo;                    /* range start (if nm NULL) */
+    int hi;                    /* range end (if nm NULL) */
     struct fd_lst *next;
 };
 extern struct fd_lst *Fdl;
@@ -841,7 +841,11 @@ struct lfile {
     unsigned char fsv; /* file struct value status */
 #    endif             /* defined(HASFSTRUCT) */
 
-    char fd[FDLEN];
+    /* FD column */
+    enum lsof_fd_type fd_type;
+    int fd_num; /* stores fd number when fd_type == LSOF_FD_NUMERIC, otherwise
+                   -1 */
+
     char iproto[IPROTOL];
     char type[TYPEL];
     unsigned int sf; /* select flags -- SEL* symbols */
@@ -1120,8 +1124,7 @@ typedef struct znhash {
 extern znhash_t **ZoneArg;
 #    endif /* defined(HASZONES) */
 
-struct lsof_context {
-};
+struct lsof_context {};
 
 #    include "proto.h"
 #    include "dproto.h"

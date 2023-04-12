@@ -28,6 +28,7 @@
  * 4. This notice may not be removed or altered.
  */
 
+#include "lsof.h"
 #ifndef lint
 static char copyright[] =
     "@(#) Copyright 1994 Purdue Research Foundation.\nAll rights reserved.\n";
@@ -47,7 +48,7 @@ void process_socket(struct lsof_context *ctx, struct kinfo_file *file) {
     uint32_t lport, fport;
 
     /* Alloc Lf and set fd */
-    alloc_lfile(ctx, NULL, file->fd_fd);
+    alloc_lfile(ctx, LSOF_FD_NUMERIC, file->fd_fd);
 
     /* Type name */
     switch (file->so_family) {

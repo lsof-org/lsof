@@ -30,6 +30,7 @@
 
 #include "common.h"
 #include "lsof.h"
+#include "proto.h"
 
 #if defined(HASEPTOPTS) && defined(HASPTYEPT)
 #    include <linux/major.h>
@@ -136,6 +137,7 @@ static void endpoint_enter(struct lsof_context *ctx, pxinfo_t **pinfo_hash,
     struct lfile *lf;       /* local file structure pointer */
     struct lproc *lp;       /* local proc structure pointer */
     pxinfo_t *np, *pi, *pe; /* inode hash pointers */
+    char fd[FDLEN];
 
     /*
      * Make sure this is a unique entry.
@@ -145,7 +147,8 @@ static void endpoint_enter(struct lsof_context *ctx, pxinfo_t **pinfo_hash,
         lf = pi->lf;
         lp = &Lproc[pi->lpx];
         if (pi->ino == id) {
-            if ((lp->pid == Lp->pid) && !strcmp(lf->fd, Lf->fd))
+            if ((lp->pid == Lp->pid) && (lf->fd_type == Lf->fd_type) &&
+                (lf->fd_num == Lf->fd_num))
                 return;
         }
     }
@@ -154,9 +157,10 @@ static void endpoint_enter(struct lsof_context *ctx, pxinfo_t **pinfo_hash,
      * to the end of the pty device hash chain.
      */
     if (!(np = (pxinfo_t *)malloc(sizeof(pxinfo_t)))) {
+        fd_to_string(Lf->fd_type, Lf->fd_num, fd);
         (void)fprintf(stderr,
                       "%s: no space for pipeinfo for %s, PID %d, FD %s\n",
-                      table_name, Pn, Lp->pid, Lf->fd);
+                      table_name, Pn, Lp->pid, fd);
         Error(ctx);
     }
     np->ino = id;
@@ -203,7 +207,8 @@ static int endpoint_accept_other_than_self(struct lsof_context *ctx,
                                            struct lfile *lf) {
     struct lfile *ef = pi->lf;
     struct lproc *ep = &Lproc[pi->lpx];
-    return (strcmp(lf->fd, ef->fd)) || (pid != ep->pid);
+    return (lf->fd_type != ef->fd_type) || (lf->fd_num != ef->fd_num) ||
+           (pid != ep->pid);
 }
 
 /*

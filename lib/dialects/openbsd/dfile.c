@@ -28,6 +28,7 @@
  * 4. This notice may not be removed or altered.
  */
 
+#include "lsof.h"
 #ifndef lint
 static char copyright[] =
     "@(#) Copyright 1994 Purdue Research Foundation.\nAll rights reserved.\n";
@@ -43,7 +44,7 @@ void process_kqueue_file(struct lsof_context *ctx, struct kinfo_file *file) {
     int flag;
 
     /* Alloc Lf and set fd */
-    alloc_lfile(ctx, NULL, file->fd_fd);
+    alloc_lfile(ctx, LSOF_FD_NUMERIC, file->fd_fd);
 
     /* Fill type name*/
     (void)snpf(Lf->type, sizeof(Lf->type), "KQUEUE");

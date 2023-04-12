@@ -106,12 +106,13 @@ static int SpDevX = -1; /* SpDev[] maximum index */
  * ent_fa() - enter fattach addresses in NAME column addition
  */
 
-static void ent_fa(a1, a2, d) KA_T *a1; /* first fattach address (NULL OK) */
-KA_T *a2;                               /* second fattach address */
-char *d;                                /* direction ("->" or "<-") */
+static void ent_fa(KA_T *a1, /* first fattach address (NULL OK) */
+                   KA_T *a2, /* second fattach address */
+                   char *d)  /* direction ("->" or "<-") */
 {
     char buf[64], *cp, tbuf[32];
     MALLOC_S len;
+    char fd[FDLEN];
 
     if (Lf->nma)
         return;
@@ -124,9 +125,10 @@ char *d;                                /* direction ("->" or "<-") */
                    print_kptr(*a2, (char *)NULL, 0));
     len = strlen(buf) + 1;
     if ((cp = (char *)malloc(len)) == NULL) {
+        fd_to_string(Lf->fd_type, Lf->fd_num, fd);
         (void)fprintf(stderr,
                       "%s: no space for fattach addresses at PID %d, FD %s\n",
-                      Pn, Lp->pid, Lf->fd);
+                      Pn, Lp->pid, fd);
         Error(ctx);
     }
     (void)snpf(cp, len, "%s", buf);
