@@ -168,13 +168,13 @@ static void get_netlink(struct lsof_context *ctx, char *p);
 static void get_pack(struct lsof_context *ctx, char *p);
 static void get_raw(struct lsof_context *ctx, char *p);
 static void get_sctp(struct lsof_context *ctx);
-static char *get_sctpaddrs, (char **fp, int i, int nf int *x);
+static char *get_sctpaddrs(char **fp, int i, int nf, int *x);
 static void get_tcpudp(struct lsof_context *ctx, char *p, int pr, int clr);
 static void get_unix(struct lsof_context *ctx, char *p);
 static int isainb(char *a, char *b);
 static void print_ax25info(struct lsof_context *ctx, struct ax25sin *ap);
 static void print_ipxinfo(struct lsof_context *ctx, struct ipxsin *ip);
-static char *socket_type_to_str, (uint32_t ty int *rf);
+static char *socket_type_to_str(uint32_t ty, int *rf);
 static char *netlink_proto_to_str(unsigned int pr);
 static enum lsof_protocol ethernet_proto_convert(unsigned int pr);
 
@@ -182,9 +182,9 @@ static enum lsof_protocol ethernet_proto_convert(unsigned int pr);
 static struct rawsin *check_raw6(struct lsof_context *ctx, INODETYPE i);
 static struct tcp_udp6 *check_tcpudp6(struct lsof_context *ctx, INODETYPE i,
                                       enum lsof_protocol *p);
-static void get_raw6, (struct lsof_context * ctx char *p);
+static void get_raw6(struct lsof_context *ctx, char *p);
 static void get_tcpudp6(struct lsof_context *ctx, char *p, int pr, int clr);
-static int hex_ipv6_to_in6, (char *as struct in6_addr *ad);
+static int hex_ipv6_to_in6(char *as, struct in6_addr *ad);
 #endif /* defined(HASIPv6) */
 
 /*

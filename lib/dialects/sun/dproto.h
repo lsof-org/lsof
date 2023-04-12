@@ -42,9 +42,8 @@ extern void completevfs(struct lsof_context *ctx, struct l_vfs *vfs,
                         dev_t *dev);
 
 #if defined(HAS_LIBCTF)
-_PROTOTYPE(extern int CTF_getmem,
-           (struct lsof_context * ctx, ctf_file_t *f, const char *mod,
-            const char *ty, CTF_member_t *mem));
+extern int CTF_getmem(struct lsof_context *ctx, ctf_file_t *f, const char *mod,
+                      const char *ty, CTF_member_t *mem);
 extern void CTF_init(struct lsof_context *ctx, int *i, char *t,
                      CTF_request_t *r);
 extern int CTF_memCB(const char *name, ctf_id_t id, ulong_t offset, void *arg);

@@ -101,8 +101,8 @@ extern void find_ch_ino(struct lsof_context *ctx);
 
 #    if defined(HASEPTOPTS)
 extern void clear_pinfo(struct lsof_context *ctx);
-extern pxinfo_t *find_pepti,
-    (struct lsof_context * ctx, int pid, struct lfile *lf, pxinfo_t *pp);
+extern pxinfo_t *find_pepti(struct lsof_context *ctx, int pid, struct lfile *lf,
+                            pxinfo_t *pp);
 extern void process_pinfo(struct lsof_context *ctx, int f);
 extern void clear_psxmqinfo(struct lsof_context *ctx);
 extern pxinfo_t *find_psxmqinfo(struct lsof_context *ctx, int pid,
