@@ -58,11 +58,11 @@ static struct var Var; /* kernel variables */
  * Local function prototypes.
  */
 
-static int get_clonemaj (void);
-static void read_proc (void);
-static void get_kernel_access (void);
-static void readfsinfo (void);
-static void process_text (KA_T pa);
+static int get_clonemaj(void);
+static void read_proc(void);
+static void get_kernel_access(void);
+static void readfsinfo(void);
+static void process_text(KA_T pa);
 
 /*
  * gather_proc_info() -- gather process information

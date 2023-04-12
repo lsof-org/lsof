@@ -227,9 +227,11 @@ static CTF_request_t IRU_requests[] = {{ICMP_T_TYPE_NAME, icmp_t_members},
  * Icmp_t, rts_t and udp_t function prototypes
  */
 
-static int read_icmp_t           (struct lsof_context * ctx, KA_T va, KA_T ph, KA_T ia, icmp_t *ic);
-static int read_rts_t           (struct lsof_context * ctx, KA_T va, KA_T ph, KA_T ra, rts_t *rt);
-static int read_udp_t           (struct lsof_context * ctx, KA_T ua, udp_t *uc);
+static int read_icmp_t(struct lsof_context *ctx, KA_T va, KA_T ph, KA_T ia,
+                       icmp_t *ic);
+static int read_rts_t(struct lsof_context *ctx, KA_T va, KA_T ph, KA_T ra,
+                      rts_t *rt);
+static int read_udp_t(struct lsof_context *ctx, KA_T ua, udp_t *uc);
 #endif /* defined(HAS_LIBCTF) && solaris>=110000 */
 
 #if solaris < 80000 || defined(HAS_IPCLASSIFIER_H)
@@ -299,8 +301,9 @@ typedef struct tcpb {
  * Local function prototypes
  */
 
-static void save_TCP_size, (struct lsof_context * ctx tcp_t *tc);
-static void save_TCP_states, (struct lsof_context * ctx, tcp_t *tc                                         caddr_t *fa, tcpb_t *tb, caddr_t *xp);
+static void save_TCP_size, (struct lsof_context * ctx tcp_t * tc);
+static void save_TCP_states,
+    (struct lsof_context * ctx, tcp_t *tc caddr_t *fa, tcpb_t *tb, caddr_t *xp);
 
 /*
  * build_IPstates() -- build the TCP and UDP state tables

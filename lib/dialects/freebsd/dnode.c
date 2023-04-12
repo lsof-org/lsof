@@ -73,7 +73,7 @@ static void get_lock_state_sysctl(struct lsof_context *ctx,
 }
 #endif /* KERN_LOCKF */
 
-static void get_lock_state_kvm(struct lsof_context *ctx,
+static void get_lock_state_kvm(struct lsof_context *ctx, /* context */
                                KA_T f) /* inode's lock pointer */
 {
     struct lockf lf; /* lockf structure */

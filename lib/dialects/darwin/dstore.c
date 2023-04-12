@@ -85,4 +85,3 @@ struct pff_tab Pof_tab[] = {
 
     {(long)0, NULL}};
 #endif /* defined(HASFSTRUCT) */
-

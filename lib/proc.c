@@ -255,7 +255,7 @@ void alloc_lproc(struct lsof_context *ctx, int pid, /* Process ID */
             if (ctx->err)
                 (void)fprintf(
                     ctx->err,
-                    "%s: no realloc space for %d local proc structures\n", Pn,
+                    "%s: no realloc space for %zu local proc structures\n", Pn,
                     ctx->procs_cap);
             Error(ctx);
             return;

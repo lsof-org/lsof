@@ -35,7 +35,7 @@ static char copyright[] =
 
 #include "common.h"
 
-static void get_kernel_access (struct lsof_context * ctx);
+static void get_kernel_access(struct lsof_context *ctx);
 
 /*
  * Local static values
@@ -606,7 +606,7 @@ static void get_kernel_access(struct lsof_context *ctx) {
  * get_nlist_path() - get kernel name list path
  */
 
-char *get_nlist_path(struct lsof_context *ctx,
+char *get_nlist_path(struct lsof_context *ctx, /* context */
                      int ap) /* on success, return an allocated path
                               * string pointer if 1; return a
                               * constant character pointer if 0;
@@ -675,9 +675,10 @@ void deinitialize(struct lsof_context *ctx) {
  * kread() - read from kernel memory
  */
 
-int kread(struct lsof_context *ctx, KA_T addr, /* kernel memory address */
-          char *buf,                           /* buffer to receive data */
-          READLEN_T len)                       /* length to read */
+int kread(struct lsof_context *ctx, /* context */
+          KA_T addr,                /* kernel memory address */
+          char *buf,                /* buffer to receive data */
+          READLEN_T len)            /* length to read */
 {
     int br;
 
