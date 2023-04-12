@@ -70,8 +70,8 @@ char *Pn = (char *)NULL;   /* program name */
  * Local function prototypes
  */
 
-static void cleanup (void);
-static char *FindNFSfile, (int *ff char *szbuf);
+static void cleanup(void);
+static char *FindNFSfile(int *ff, char *szbuf);
 
 /*
  * Main program

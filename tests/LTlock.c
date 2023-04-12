@@ -206,10 +206,10 @@ char *Pn = (char *)NULL;   /* program name */
  * Local function prototypes
  */
 
-static void cleanup (void);
-static char *lkfile (int ty);
-static char *tstwlsof, (char *opt char *xlk);
-static char *unlkfile (int ty);
+static void cleanup(void);
+static char *lkfile(int ty);
+static char *tstwlsof(char *opt, char *xlk);
+static char *unlkfile(int ty);
 
 /*
  * Main program for dialects that support locking tests.
@@ -219,21 +219,21 @@ int main(argc, argv)
 int argc;     /* argument count */
 char *argv[]; /* arguments */
 {
-    char buf[2048];            /* temporary buffer */
-    char *em;                  /* error message pointer */
-    int ti;                    /* temporary index */
-    char *tcp;                 /* temporary character pointer */
-    int tlen;                  /* temporary length -- e.g., as
-                                * returned by MkStrCpy() */
-    char *tstR = (char *)NULL; /* "R" lock test result */
-    char *tstr = (char *)NULL; /* "r" lock test result */
-    char *tstW = (char *)NULL; /* "W" lock test result */
-    char *tstw = (char *)NULL; /* "w" lock test result */
+    char buf[2048];              /* temporary buffer */
+    char *em;                    /* error message pointer */
+    int ti;                      /* temporary index */
+    char *tcp;                   /* temporary character pointer */
+    int tlen;                    /* temporary length -- e.g., as
+                                  * returned by MkStrCpy() */
+    char *tstR = (char *)NULL;   /* "R" lock test result */
+    char *tstr = (char *)NULL;   /* "r" lock test result */
+    char *tstW = (char *)NULL;   /* "W" lock test result */
+    char *tstw = (char *)NULL;   /* "w" lock test result */
     char *tstNFS = (char *)NULL; /* NFS test result */
-    int xv = 0;                /* exit value */
-                               /*
-                                * Get program name and PID, issue start message, and build space prefix.
-                                */
+    int xv = 0;                  /* exit value */
+                                 /*
+                                  * Get program name and PID, issue start message, and build space prefix.
+                                  */
     if ((Pn = strrchr(argv[0], '/')))
         Pn++;
     else

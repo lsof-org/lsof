@@ -51,8 +51,8 @@ char *Pn = (char *)NULL; /* program name */
  * Local function prototypes
  */
 
-static void cleanup (void);
-static char *tstlsof, (char **texec, char **tkmem char **tproc);
+static void cleanup(void);
+static char *tstlsof(char **texec, char **tkmem, char **tproc);
 
 /*
  * Main program for dialects that support locking tests.

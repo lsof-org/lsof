@@ -51,7 +51,7 @@
            * offsets -- see the function                                       \
            * ck_Linux_offset_support() */
 
-static int ck_Linux_offset_support (void);
+static int ck_Linux_offset_support(void);
 #endif /* defined(LT_DIAL_linux) */
 
 /*
@@ -76,8 +76,8 @@ char *Pn = (char *)NULL;   /* program name */
  * Local function prototypes
  */
 
-static void cleanup (void);
-static char *testlsof, (int tt, char *opt char *xval);
+static void cleanup(void);
+static char *testlsof(int tt, char *opt, char *xval);
 
 /*
  * Main program

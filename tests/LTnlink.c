@@ -68,8 +68,9 @@ char *Pn = (char *)NULL;   /* program name */
  * Local function prototypes
  */
 
-static void cleanup (void);
-static char *FindFile, (char *opt, int *ff, int ie, LTdev_t *tfdc                                   char *ibuf, char *xlnk, char *szbuf);
+static void cleanup(void);
+static char *FindFile(char *opt, int *ff, int ie, LTdev_t *tfdc, char *ibuf,
+                      char *xlnk, char *szbuf);
 
 /*
  * Main program

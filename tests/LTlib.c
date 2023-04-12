@@ -199,10 +199,10 @@ static int Ufo = 0;                     /* Fo[] structures used */
  * Local function prototypes
  */
 
-static void closepipe (void);
-static void getlsofpath (void);
-static int GetOpt           (int ct, char *opt[], char *rules, char **em, char *pn);
-static X2DEV_T x2dev, (char *x char **em);
+static void closepipe(void);
+static void getlsofpath(void);
+static int GetOpt(int ct, char *opt[], char *rules, char **em, char *pn);
+static X2DEV_T x2dev(char *x, char **em);
 
 /*
  * Default major, minor, and unit macros.
@@ -694,9 +694,8 @@ void LTlibClean() { (void)StopLsof(); }
  * MkStrCpy() -- make string copy
  */
 
-char *MkStrCpy(src, len)
-char *src; /* string source to copy */
-int *len;  /* returned length allocation */
+char *MkStrCpy(char *src, /* string source to copy */
+               int *len)  /* returned length allocation */
 {
     char *rp;   /* return pointer */
     int srclen; /* source string length */
