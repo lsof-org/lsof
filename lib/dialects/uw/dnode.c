@@ -52,27 +52,25 @@ static char copyright[] =
 #    include <sys/fs/xnamnode.h>
 #endif /* defined(HASXNAMNODE) */
 
-_PROTOTYPE(static void ent_fa, (KA_T * a1, KA_T *a2, char *d));
-_PROTOTYPE(static int get_vty,
-           (struct vnode * v, KA_T va, struct vfs *kv, int *fx));
+static void ent_fa(KA_T *a1, KA_T *a2, char *d);
+static int get_vty(struct vnode *v, KA_T va, struct vfs *kv, int *fx);
 
 #if UNIXWAREV < 70103
-_PROTOTYPE(static int examine_stream,
-           (KA_T vs, struct queue *q, char *mn, char *sn, KA_T *sqp));
+static int examine_stream(KA_T vs, struct queue *q, char *mn, char *sn,
+                          KA_T *sqp);
 #else  /* UNIXWAREV>=70103 */
-_PROTOTYPE(static int examine_stream, (KA_T vs, struct queue *q, char **mch,
-                                       char **mn, char *sn, KA_T *sqp));
-_PROTOTYPE(static struct l_dev *findspdev, (dev_t * dev, dev_t *rdev));
-_PROTOTYPE(static void getspdev, (void));
-_PROTOTYPE(static int get_vty,
-           (struct vnode * v, KA_T va, struct vfs *kv, int *fx));
-_PROTOTYPE(static struct l_dev *ismouse,
-           (struct vnode * va, struct l_ino *i, int fx, struct vfs *kv));
+static int examine_stream(KA_T vs, struct queue *q, char **mch, char **mn,
+                          char *sn, KA_T *sqp);
+static struct l_dev *findspdev(dev_t *dev, dev_t *rdev);
+static void getspdev(void);
+static int get_vty(struct vnode *v, KA_T va, struct vfs *kv, int *fx);
+static struct l_dev *ismouse(struct vnode *va, struct l_ino *i, int fx,
+                             struct vfs *kv);
 #endif /* UNIXWAREV<70103 */
 
-_PROTOTYPE(static struct l_dev *findstrdev, (dev_t * dev, dev_t *rdev));
-_PROTOTYPE(static char isvlocked, (struct vnode * va));
-_PROTOTYPE(static int readlino, (int fx, struct vnode *v, struct l_ino *i));
+static struct l_dev *findstrdev(dev_t *dev, dev_t *rdev);
+static char isvlocked(struct vnode *va);
+static int readlino(int fx, struct vnode *v, struct l_ino *i);
 
 /*
  * Local variables and definitions
@@ -129,7 +127,7 @@ char *d;                                /* direction ("->" or "<-") */
         (void)fprintf(stderr,
                       "%s: no space for fattach addresses at PID %d, FD %s\n",
                       Pn, Lp->pid, Lf->fd);
-        Error();
+        Error(ctx);
     }
     (void)snpf(cp, len, "%s", buf);
     Lf->nma = cp;
@@ -139,28 +137,21 @@ char *d;                                /* direction ("->" or "<-") */
  * examine_stream() - examine stream
  */
 
-static int
-
-#if UNIXWAREV < 70103
-examine_stream(vs, q, mn, sn, sqp)
-#else  /* UNIXWAREV>=70103 */
-examine_stream(vs, q, mch, mn, sn, sqp)
-#endif /* UNIXWAREV<70103 */
-
-KA_T vs;         /* stream head's stdata kernel
-                  * address */
-struct queue *q; /* queue structure buffer */
+static int examine_stream(struct lsof_context *ctx, /* context */
+                          KA_T vs,         /* stream head's stdata kernel
+                                            * address */
+                          struct queue *q, /* queue structure buffer */
 
 #if UNIXWAREV >= 70103
-char **mch; /* important stream module name chain,
-             * module names separated by "->" */
-char **mn;  /* pointer to module name receiver */
-#else       /* UNIXWAREV<70103 */
-char *mn; /* module name receiver */
-#endif      /* UNIXWAREV>=70103 */
+                          char **mch, /* important stream module name chain,
+                                       * module names separated by "->" */
+                          char **mn,  /* pointer to module name receiver */
+#else                                 /* UNIXWAREV<70103 */
+                          char *mn, /* module name receiver */
+#endif                                /* UNIXWAREV>=70103 */
 
-char *sn;  /* special module name */
-KA_T *sqp; /* special module's q_ptr */
+                          char *sn,  /* special module name */
+                          KA_T *sqp) /* special module's q_ptr */
 {
     struct module_info mi;
     KA_T qp;
@@ -206,7 +197,7 @@ KA_T *sqp; /* special module's q_ptr */
         /*
          * Read stream queue entry.
          */
-        if (kread(qp, (char *)q, sizeof(struct queue))) {
+        if (kread(ctx, qp, (char *)q, sizeof(struct queue))) {
             (void)snpf(Namech, Namechl, "can't read stream queue from %s",
                        print_kptr(qp, (char *)NULL, 0));
             enter_nm(Namech);
@@ -237,9 +228,9 @@ KA_T *sqp; /* special module's q_ptr */
          */
 
 #if UNIXWAREV < 70103
-        if (!mi.mi_idname || kread((KA_T)mi.mi_idname, mn, STRNML - 1))
+        if (!mi.mi_idname || kread(ctx, (KA_T)mi.mi_idname, mn, STRNML - 1))
 #else  /* UNIXWAREV>=70103 */
-        if (!mi.mi_idname || kread((KA_T)mi.mi_idname, tmnb, STRNML))
+        if (!mi.mi_idname || kread(ctx, (KA_T)mi.mi_idname, tmnb, STRNML))
 #endif /* UNIXWAREV<70103 */
 
         {
@@ -288,7 +279,7 @@ KA_T *sqp; /* special module's q_ptr */
                 }
                 if (!ab) {
                     (void)fprintf(stderr, "%s: no space for stream chain", Pn);
-                    Error();
+                    Error(ctx);
                 }
             }
             (void)snpf(ap, aba - (al - 1), "%s%s", (ap == ab) ? "" : "->",
@@ -314,9 +305,8 @@ KA_T *sqp; /* special module's q_ptr */
  * findspdev() - find special device by raw major device number
  */
 
-static struct l_dev *findspdev(dev, rdev)
-dev_t *dev;  /* containing device */
-dev_t *rdev; /* raw device */
+static struct l_dev *findspdev(dev_t *dev,  /* containing device */
+                               dev_t *rdev) /* raw device */
 {
     int i;
     struct l_dev *dp;
@@ -339,9 +329,8 @@ dev_t *rdev; /* raw device */
  * findstrdev() - look up stream device by device number
  */
 
-static struct l_dev *findstrdev(dev, rdev)
-dev_t *dev;  /* device */
-dev_t *rdev; /* raw device */
+static struct l_dev *findstrdev(dev_t *dev,  /* device */
+                                dev_t *rdev) /* raw device */
 {
     struct clone *c;
     struct l_dev *dp;
@@ -426,11 +415,11 @@ static void getspdev() {
  *	   -3 if the vfs structure can't be read
  */
 
-static int get_vty(v, va, kv, fx)
-struct vnode *v; /* vnode to test */
-KA_T va;         /* vnode's kernel address */
-struct vfs *kv;  /* copy of vnode's kernel vfs struct */
-int *fx;         /* file system type index */
+static int get_vty(struct lsof_context *ctx, /* context */
+                   struct vnode *v,          /* vnode to test */
+                   KA_T va,                  /* vnode's kernel address */
+                   struct vfs *kv, /* copy of vnode's kernel vfs struct */
+                   int *fx)        /* file system type index */
 {
     int fxt;
     int nty = N_REGLR;
@@ -446,7 +435,7 @@ int *fx;         /* file system type index */
             return (N_STREAM);
         return (N_REGLR);
     }
-    if (!kread((KA_T)v->v_vfsp, (char *)kv, sizeof(struct vfs))) {
+    if (!kread(ctx, (KA_T)v->v_vfsp, (char *)kv, sizeof(struct vfs))) {
 
         /*
          * Check the file system type.
@@ -495,11 +484,10 @@ int *fx;         /* file system type index */
  * ismouse() - is vnode attached to /dev/mouse
  */
 
-static struct l_dev *ismouse(va, i, fx, kv)
-struct vnode *va; /* local vnode address */
-struct l_ino *i;  /* local inode structure */
-int fx;           /* file system index */
-struct vfs *kv;   /* copy of kernel VFS structure */
+static struct l_dev *ismouse(struct vnode *va, /* local vnode address */
+                             struct l_ino *i,  /* local inode structure */
+                             int fx,           /* file system index */
+                             struct vfs *kv) /* copy of kernel VFS structure */
 {
     struct l_dev *dp;
     int j;
@@ -528,8 +516,8 @@ struct vfs *kv;   /* copy of kernel VFS structure */
  * isvlocked() - is a vnode locked
  */
 
-static char isvlocked(va)
-struct vnode *va; /* local vnode address */
+static char isvlocked(struct lsof_context *ctx, /* context */
+                      struct vnode *va)         /* local vnode address */
 {
     struct filock f;
     KA_T flf, flp;
@@ -542,7 +530,7 @@ struct vnode *va; /* local vnode address */
     do {
         if (i++ > 1000)
             break;
-        if (kread(flp, (char *)&f, sizeof(f)))
+        if (kread(ctx, flp, (char *)&f, sizeof(f)))
             break;
         if (f.set.l_sysid || f.set.l_pid != (pid_t)Lp->pid)
             continue;
@@ -580,7 +568,8 @@ struct vnode *va; /* local vnode address */
  * process_node() - process node
  */
 
-void process_node(na) KA_T na; /* vnode kernel space address */
+void process_node(struct lsof_context *ctx, /* context */
+                  KA_T na)                  /* vnode kernel space address */
 {
     char *cp, *ep;
     dev_t dev, rdev;
@@ -716,7 +705,7 @@ get_lock_state:
         }
         break;
     case N_NM:
-        if (!v.v_data || kread((KA_T)v.v_data, (char *)&nn, sizeof(nn))) {
+        if (!v.v_data || kread(ctx, (KA_T)v.v_data, (char *)&nn, sizeof(nn))) {
             (void)snpf(Namech, Namechl, "vnode@%s: no namenode (%s)",
                        print_kptr(na, tbuf, sizeof(tbuf)),
                        print_kptr((KA_T)v.v_data, (char *)NULL, 0));
@@ -733,7 +722,7 @@ get_lock_state:
          * The name node is mounted over/to another vnode.  Process that node.
          */
         (void)ent_fa(&na, (KA_T *)&nn.nm_mountpt, "->");
-        if (kread((KA_T)nn.nm_mountpt, (char *)&rv, sizeof(rv))) {
+        if (kread(ctx, (KA_T)nn.nm_mountpt, (char *)&rv, sizeof(rv))) {
             (void)snpf(Namech, Namechl,
                        "vnode@%s: can't read namenode's mounted vnode (%s)",
                        print_kptr(na, tbuf, sizeof(tbuf)),
@@ -759,7 +748,7 @@ get_lock_state:
 #if defined(HASPROCFS)
     case N_PROC:
         ni = 1;
-        if (!v.v_data || kread((KA_T)v.v_data, (char *)&pr, sizeof(pr))) {
+        if (!v.v_data || kread(ctx, (KA_T)v.v_data, (char *)&pr, sizeof(pr))) {
             (void)snpf(Namech, Namechl, "vnode@%s: can't read prnode (%s)",
                        print_kptr(na, tbuf, sizeof(tbuf)),
                        print_kptr((KA_T)v.v_data, (char *)NULL, 0));
@@ -771,7 +760,7 @@ get_lock_state:
         i.number = (INODETYPE)pr.pr_ino;
         sd = 0;
         if (pr.pr_common &&
-            !kread((KA_T)pr.pr_common, (char *)&prc, sizeof(prc))) {
+            !kread(ctx, (KA_T)pr.pr_common, (char *)&prc, sizeof(prc))) {
             pid = (long)prc.prc_pid;
             switch (pr.pr_type) {
             case PR_PIDDIR:
@@ -831,14 +820,15 @@ get_lock_state:
                 i.number = (INODETYPE)0;
             break;
         }
-        if (kread((KA_T)pr.pr_proc, (char *)&p, sizeof(p))) {
+        if (kread(ctx, (KA_T)pr.pr_proc, (char *)&p, sizeof(p))) {
             (void)snpf(Namech, Namechl, "prnode@%s: can't read proc (%s)",
                        print_kptr((KA_T)v.v_data, tbuf, sizeof(tbuf)),
                        print_kptr((KA_T)pr.pr_proc, (char *)NULL, 0));
             enter_nm(Namech);
             return;
         }
-        if (!p.p_pidp || kread((KA_T)p.p_pidp, (char *)&pids, sizeof(pids))) {
+        if (!p.p_pidp ||
+            kread(ctx, (KA_T)p.p_pidp, (char *)&pids, sizeof(pids))) {
             (void)snpf(Namech, Namechl,
                        "proc struct at %s: can't read pid (%s)",
                        print_kptr((KA_T)pr.pr_proc, tbuf, sizeof(tbuf)),
@@ -849,7 +839,7 @@ get_lock_state:
         pid = (long)pids.pid_id;
         (void)snpf(Namech, Namechl, "/%s/%ld", HASPROCFS, pid);
         i.number = (INODETYPE)(pid + PR_INOBIAS);
-        if (!p.p_as || kread((KA_T)p.p_as, (char *)&as, sizeof(as)))
+        if (!p.p_as || kread(ctx, (KA_T)p.p_as, (char *)&as, sizeof(as)))
             sd = 0;
         else
             i.size = as.a_size;
@@ -896,7 +886,7 @@ get_lock_state:
              * If this stream has a "sockmod" module with a non-NULL q_ptr,
              * try to use it to read an so_so structure.
              */
-            if (sqp && kread(sqp, (char *)&so, sizeof(so)) == 0)
+            if (sqp && kread(ctx, sqp, (char *)&so, sizeof(so)) == 0)
                 break;
             sqp = (KA_T)NULL;
             (void)snpf(Namech, Namechl, "STR");
@@ -1309,7 +1299,7 @@ get_lock_state:
             Lf->sf |= SELUNX;
         (void)snpf(Lf->type, sizeof(Lf->type), "unix");
         if (!Namech[0] && so.laddr.buf && so.laddr.len == sizeof(ua) &&
-            !kread((KA_T)so.laddr.buf, (char *)&ua, sizeof(ua))) {
+            !kread(ctx, (KA_T)so.laddr.buf, (char *)&ua, sizeof(ua))) {
             ua.sun_path[sizeof(ua.sun_path) - 1] = '\0';
             (void)snpf(Namech, Namechl, "%s", ua.sun_path);
             if (Sfile && is_file_named(Namech, 0))
@@ -1375,7 +1365,7 @@ get_lock_state:
                     stderr,
                     "%s: can't allocate %d bytes for l_ino name addition\n",
                     msz, Pn);
-                Error();
+                Error(ctx);
             }
             (void)snpf(cp, msz + 1, "%s", i.nm);
             Lf->nma = cp;
@@ -1389,10 +1379,9 @@ get_lock_state:
  * readlino() - read local inode information
  */
 
-static int readlino(fx, v, i)
-int fx;          /* file system index */
-struct vnode *v; /* vnode pointing to inode */
-struct l_ino *i; /* local inode */
+static int readlino(struct lsof_context *ctx, int fx, /* file system index */
+                    struct vnode *v, /* vnode pointing to inode */
+                    struct l_ino *i) /* local inode */
 {
 
 #if defined(HAS_UW_CFS)
@@ -1412,7 +1401,7 @@ struct l_ino *i; /* local inode */
         return (1);
     if (!strcmp(Fsinfo[fx - 1], "fifofs") || !strcmp(Fsinfo[fx - 1], "sfs") ||
         !strcmp(Fsinfo[fx - 1], "ufs")) {
-        if (kread((KA_T)v->v_data, (char *)&sn, sizeof(sn)))
+        if (kread(ctx, (KA_T)v->v_data, (char *)&sn, sizeof(sn)))
             return (1);
         i->dev = sn.i_dev;
         i->dev_def = 1;
@@ -1429,7 +1418,7 @@ struct l_ino *i; /* local inode */
 
 #if defined(HAS_UW_CFS)
     else if (!strcmp(Fsinfo[fx - 1], "nsc_cfs")) {
-        if (kread((KA_T)v->v_data, (char *)&cn, sizeof(cn)))
+        if (kread(ctx, (KA_T)v->v_data, (char *)&cn, sizeof(cn)))
             return (1);
         if (cn.c_attr.va_mask & AT_FSID) {
             i->dev = cn.c_attr.va_fsid;
@@ -1468,7 +1457,7 @@ struct l_ino *i; /* local inode */
 #if defined(HASXNAMNODE)
     else if (!strcmp(Fsinfo[fx - 1], "xnamfs") ||
              !strcmp(Fsinfo[fx - 1], "XENIX")) {
-        if (kread((KA_T)v->v_data, (char *)&xn, sizeof(xn)))
+        if (kread(ctx, (KA_T)v->v_data, (char *)&xn, sizeof(xn)))
             return (1);
         i->dev = xn.x_dev;
         i->nlink = (long)xn.x_count;
@@ -1481,7 +1470,7 @@ struct l_ino *i; /* local inode */
 #endif /* defined(HASXNAMNODE) */
 
     else if (!strcmp(Fsinfo[fx - 1], "memfs")) {
-        if (kread((KA_T)v->v_data, (char *)&mn, sizeof(mn)))
+        if (kread(ctx, (KA_T)v->v_data, (char *)&mn, sizeof(mn)))
             return (1);
         i->dev = mn.mno_fsid;
         i->dev_def = 1;

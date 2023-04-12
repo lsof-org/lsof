@@ -41,7 +41,7 @@ static char copyright[] =
  */
 
 #if UNIXWAREV >= 70101 && UNIXWAREV < 70103
-_PROTOTYPE(static struct sockaddr_un *find_unix_sockaddr_un, (KA_T ka));
+static struct sockaddr_un *find_unix_sockaddr_un(KA_T ka);
 #endif /* UNIXWAREV>=70101 && UNIXWAREV<70103 */
 
 /*
@@ -749,8 +749,9 @@ void print_tcptpi(nl) int nl; /* 1 == '\n' required */
  * process_socket() - process socket
  */
 
-void process_socket(pr, q) char *pr; /* protocol name */
-struct queue *q;                     /* queue at end of stream */
+void process_socket(struct lsof_context *ctx, /* context */
+                    char *pr,                 /* protocol name */
+                    struct queue *q)          /* queue at end of stream */
 {
     unsigned char *fa = (unsigned char *)NULL;
     int fp, ipv, lp;
@@ -805,7 +806,7 @@ struct queue *q;                     /* queue at end of stream */
     if (q->q_ptr) {
         enter_dev_ch(print_kptr((KA_T)q->q_ptr, (char *)NULL, 0));
         if (tcp || udp) {
-            if (kread((KA_T)q->q_ptr, (char *)&inp, sizeof(inp))) {
+            if (kread(ctx, (KA_T)q->q_ptr, (char *)&inp, sizeof(inp))) {
                 (void)snpf(Namech, Namechl, "can't read inpcb from %s",
                            print_kptr((KA_T)q->q_ptr, (char *)NULL, 0));
                 enter_nm(Namech);
@@ -821,7 +822,7 @@ struct queue *q;                     /* queue at end of stream */
                 (void)ent_inaddr(la, lp, fa, fp, AF_INET);
             if (tcp) {
                 if (inp.inp_ppcb &&
-                    !kread((KA_T)inp.inp_ppcb, (char *)&t, sizeof(t))) {
+                    !kread(ctx, (KA_T)inp.inp_ppcb, (char *)&t, sizeof(t))) {
                     ts = 1;
                     Lf->lts.type = 0;
                     Lf->lts.state.i = (int)t.t_state;
@@ -892,9 +893,9 @@ struct queue *q;                     /* queue at end of stream */
  * process_unix_sockstr() - process a UNIX socket stream, if applicable
  */
 
-int process_unix_sockstr(v, na)
-struct vnode *v; /* the stream's vnode */
-KA_T na;         /* kernel vnode address */
+int process_unix_sockstr(struct lsof_context *ctx,
+                         struct vnode *v, /* the stream's vnode */
+                         KA_T na)         /* kernel vnode address */
 {
     int as;
     char *ep, tbuf[32], tbuf1[32], *ty;
@@ -938,7 +939,7 @@ KA_T na;         /* kernel vnode address */
      */
     if (!(sa = (KA_T)sd.sd_socket))
         return (0);
-    if (kread(sa, (char *)&ss, sizeof(ss))) {
+    if (kread(ctx, sa, (char *)&ss, sizeof(ss))) {
         (void)snpf(Namech, Namechl,
                    "vnode at %s; stream head at %s; can't read socket at %s",
                    print_kptr(na, (char *)NULL, 0),
@@ -972,7 +973,7 @@ KA_T na;         /* kernel vnode address */
     if (((as = (KA_T)ss.local_addrsz) > 0) && (ka = (KA_T)ss.local_addr)) {
         if (as > sizeof(la))
             as = (int)sizeof(la);
-        if (!kread(ka, (char *)&la, as)) {
+        if (!kread(ctx, ka, (char *)&la, as)) {
             la.sun_path[up] = '\0';
             if (la.sun_path[0]) {
                 las = 1;
@@ -996,7 +997,7 @@ KA_T na;         /* kernel vnode address */
     if (((as = (KA_T)ss.remote_addrsz) > 0) && (ka = (KA_T)ss.remote_addr)) {
         if (as > sizeof(la))
             as = (int)sizeof(ra);
-        if (!kread(ka, (char *)&ra, as)) {
+        if (!kread(ctx, ka, (char *)&ra, as)) {
             ra.sun_path[up] = '\0';
             if (ra.sun_path[0]) {
                 ras = 1;

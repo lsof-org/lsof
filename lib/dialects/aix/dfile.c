@@ -101,7 +101,7 @@ static int HbyNmCt = 0; /* HbyNm entry count */
  * hashSfile() - hash Sfile entries for use in is_file_named() searches
  */
 
-void hashSfile() {
+void hashSfile(struct lsof_context *ctx) {
     static int hs = 0;
     int i;
     struct sfile *s;
@@ -121,35 +121,35 @@ void hashSfile() {
         (void)fprintf(
             stderr, "%s: can't allocate space for %d (dev,ino) hash buckets\n",
             Pn, SFDIHASH);
-        Error();
+        Error(ctx);
     }
     if (!(HbyFrd = (struct hsfile *)calloc((MALLOC_S)SFRDHASH,
                                            sizeof(struct hsfile)))) {
         (void)fprintf(stderr,
                       "%s: can't allocate space for %d rdev hash buckets\n", Pn,
                       SFRDHASH);
-        Error();
+        Error(ctx);
     }
     if (!(HbyFsd = (struct hsfile *)calloc((MALLOC_S)SFFSHASH,
                                            sizeof(struct hsfile)))) {
         (void)fprintf(stderr,
                       "%s: can't allocate space for %d file sys hash buckets\n",
                       Pn, SFFSHASH);
-        Error();
+        Error(ctx);
     }
     if (!(HbyMPC = (struct hsfile *)calloc((MALLOC_S)SFMPCHASH,
                                            sizeof(struct hsfile)))) {
         (void)fprintf(stderr,
                       "%s: can't allocate space for %d MPC file hash buckets\n",
                       Pn, SFMPCHASH);
-        Error();
+        Error(ctx);
     }
     if (!(HbyNm = (struct hsfile *)calloc((MALLOC_S)SFNMHASH,
                                           sizeof(struct hsfile)))) {
         (void)fprintf(stderr,
                       "%s: can't allocate space for %d name hash buckets\n", Pn,
                       SFNMHASH);
-        Error();
+        Error(ctx);
     }
     hs++;
     /*
@@ -203,7 +203,7 @@ void hashSfile() {
                     (void)fprintf(stderr,
                                   "%s: can't allocate hsfile bucket for: %s\n",
                                   Pn, s->aname);
-                    Error();
+                    Error(ctx);
                 }
                 sn->s = s;
                 sn->next = sh->next;
@@ -217,12 +217,12 @@ void hashSfile() {
  * is_file_named() - is file named?
  */
 
-int is_file_named(p, ty, ch, ic)
-char *p;       /* path name; NULL = search by device
-                * and inode (from *Lf) */
-enum vtype ty; /* vnode type */
-chan_t ch;     /* gnode channel */
-int ic;        /* is clone file (4.1.4 and above) */
+int is_file_named(struct lsof_context *ctx, /* context */
+                  char *p,       /* path name; NULL = search by device
+                                  * and inode (from *Lf) */
+                  enum vtype ty, /* vnode type */
+                  chan_t ch,     /* gnode channel */
+                  int ic)        /* is clone file (4.1.4 and above) */
 {
     int dmaj, dmin, maj, min, rmaj, rmin;
     static int dsplit = 0;
@@ -239,7 +239,7 @@ int ic;        /* is clone file (4.1.4 and above) */
      * be compared directly, but must be compared by extracting their major and
      * minor numbers and comparing them.
      */
-    readdev(0);
+    readdev(ctx, 0);
     if (!dsplit) {
         dmaj = GET_MAJ_DEV(DevDev);
         dmin = GET_MIN_DEV(DevDev);
@@ -363,11 +363,11 @@ int ic;        /* is clone file (4.1.4 and above) */
              */
             (void)snpf(Namech, Namechl, "%s", s->name);
             if (ty == VMPC && s->ch < 0) {
-                ep = endnm(&sz);
+                ep = endnm(ctx, &sz);
                 (void)snpf(ep, sz, "/%d", ch);
             }
             if (s->devnm) {
-                ep = endnm(&sz);
+                ep = endnm(ctx, &sz);
                 (void)snpf(ep, sz, " (%s)", s->devnm);
             }
         }
@@ -381,10 +381,8 @@ int ic;        /* is clone file (4.1.4 and above) */
  * print_dev() - print device
  */
 
-char *print_dev(lf, dev)
-struct lfile *lf; /* file whose device to be printed */
-dev_t *dev;       /* pointer to device to be printed */
-
+char *print_dev(struct lfile *lf, /* file whose device to be printed */
+                dev_t *dev)       /* pointer to device to be printed */
 {
     static char buf[128];
     int maj = GET_MAJ_DEV(*dev);
@@ -405,8 +403,8 @@ dev_t *dev;       /* pointer to device to be printed */
  * readvfs() - read vfs structure
  */
 
-struct l_vfs *readvfs(vn)
-struct vnode *vn; /* vnode */
+struct l_vfs *readvfs(struct lsof_context *ctx, /* context */
+                      struct vnode *vn)         /* vnode */
 {
     struct gfs g;
     void *mp;
@@ -424,14 +422,14 @@ struct vnode *vn; /* vnode */
     }
     if (!(vp = (struct l_vfs *)malloc((MALLOC_S)sizeof(struct l_vfs)))) {
         (void)fprintf(stderr, "%s: PID %d, no space for vfs\n", Pn, Lp->pid);
-        Error();
+        Error(ctx);
     }
     vp->dir = (char *)NULL;
     vp->fsname = (char *)NULL;
     /*
      * Read the vfs structure.
      */
-    if (kread((KA_T)vn->v_vfsp, (char *)&v, sizeof(v))) {
+    if (kread(ctx, (KA_T)vn->v_vfsp, (char *)&v, sizeof(v))) {
 
     vfs_exit:
         (void)free((FREE_P *)vp);
@@ -440,18 +438,19 @@ struct vnode *vn; /* vnode */
     /*
      * Locate AIX mount information.
      */
-    if (!v.vfs_gfs || kread((KA_T)v.vfs_gfs, (char *)&g, sizeof(g)))
+    if (!v.vfs_gfs || kread(ctx, (KA_T)v.vfs_gfs, (char *)&g, sizeof(g)))
         goto vfs_exit;
     if (!v.vfs_mdata ||
-        kread((KA_T)((char *)v.vfs_mdata + offsetof(struct vmount, vmt_length)),
+        kread(ctx,
+              (KA_T)((char *)v.vfs_mdata + offsetof(struct vmount, vmt_length)),
               (char *)&ul, sizeof(ul)))
         goto vfs_exit;
     if (!(mp = (void *)malloc((MALLOC_S)ul))) {
         (void)fprintf(stderr, "%s: PID %d, no space for mount data\n", Pn,
                       Lp->pid);
-        Error();
+        Error(ctx);
     }
-    if (kread((KA_T)v.vfs_mdata, (char *)mp, (int)ul)) {
+    if (kread(ctx, (KA_T)v.vfs_mdata, (char *)mp, (int)ul)) {
         (void)free((FREE_P *)mp);
         goto vfs_exit;
     }
@@ -507,7 +506,7 @@ struct vnode *vn; /* vnode */
         readvfs_aix1:
             (void)fprintf(stderr, "%s: PID %d, readvfs, no space\n", Pn,
                           Lp->pid);
-            Error();
+            Error(ctx);
         }
     } else
         vp->dir = (char *)NULL;

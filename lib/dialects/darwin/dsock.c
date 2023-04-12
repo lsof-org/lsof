@@ -50,8 +50,8 @@ static char copyright[] = "@(#) Copyright 2005 Apple Computer, Inc. and Purdue "
  * process_socket() -- process socket file
  */
 
-static void process_socket_common(si) struct socket_fdinfo *si;
-{
+static void process_socket_common(struct lsof_context *ctx,
+                                  struct socket_fdinfo *si) {
     unsigned char *fa = (unsigned char *)NULL;
     int fam, fp, lp, unl;
     unsigned char *la = (unsigned char *)NULL;
@@ -64,7 +64,7 @@ static void process_socket_common(si) struct socket_fdinfo *si;
     /*
      * Enter basic file information.
      */
-    enter_file_info(&si->pfi);
+    enter_file_info(ctx, &si->pfi);
     /*
      * Enable size or offset display.
      */
@@ -157,10 +157,12 @@ static void process_socket_common(si) struct socket_fdinfo *si;
         printiproto(si->psi.soi_protocol);
         if ((si->psi.soi_kind == SOCKINFO_TCP) &&
             si->psi.soi_proto.pri_tcp.tcpsi_tp) {
-            enter_dev_ch(print_kptr((KA_T)si->psi.soi_proto.pri_tcp.tcpsi_tp,
+            enter_dev_ch(ctx,
+                         print_kptr((KA_T)si->psi.soi_proto.pri_tcp.tcpsi_tp,
                                     (char *)NULL, 0));
         } else
-            enter_dev_ch(print_kptr((KA_T)si->psi.soi_pcb, (char *)NULL, 0));
+            enter_dev_ch(ctx,
+                         print_kptr((KA_T)si->psi.soi_pcb, (char *)NULL, 0));
         if (fam == AF_INET) {
 
             /*
@@ -248,7 +250,7 @@ static void process_socket_common(si) struct socket_fdinfo *si;
          * Enter local and remote addresses by address family.
          */
         if (fa || la)
-            (void)ent_inaddr(la, lp, fa, fp, fam);
+            (void)ent_inaddr(ctx, la, lp, fa, fp, fam);
         if (si->psi.soi_kind == SOCKINFO_TCP) {
 
             /*
@@ -282,7 +284,7 @@ static void process_socket_common(si) struct socket_fdinfo *si;
             break;
         if (Funix)
             Lf->sf |= SELUNX;
-        enter_dev_ch(print_kptr((KA_T)si->psi.soi_pcb, (char *)NULL, 0));
+        enter_dev_ch(ctx, print_kptr((KA_T)si->psi.soi_pcb, (char *)NULL, 0));
         /*
          * Enter information on a UNIX domain socket that has no address bound
          * to it, although it may be connected to another UNIX domain socket
@@ -317,7 +319,7 @@ static void process_socket_common(si) struct socket_fdinfo *si;
             if (si->psi.soi_proto.pri_un.unsi_addr.ua_sun.sun_path[0] &&
                 Sfile &&
                 is_file_named(
-                    si->psi.soi_proto.pri_un.unsi_addr.ua_sun.sun_path, 0))
+                    ctx, si->psi.soi_proto.pri_un.unsi_addr.ua_sun.sun_path, 0))
                 Lf->sf |= SELNM;
             if (si->psi.soi_proto.pri_un.unsi_addr.ua_sun.sun_path[0] &&
                 !Namech[0])
@@ -341,7 +343,7 @@ static void process_socket_common(si) struct socket_fdinfo *si;
         (void)snpf(Lf->type, sizeof(Lf->type), "ndrv");
         if (si->psi.soi_kind != SOCKINFO_NDRV)
             break;
-        enter_dev_ch(print_kptr((KA_T)si->psi.soi_pcb, (char *)NULL, 0));
+        enter_dev_ch(ctx, print_kptr((KA_T)si->psi.soi_pcb, (char *)NULL, 0));
         si->psi.soi_proto.pri_ndrv
             .ndrvsi_if_name[sizeof(si->psi.soi_proto.pri_ndrv.ndrvsi_if_name) -
                             1] = '\0';
@@ -355,7 +357,7 @@ static void process_socket_common(si) struct socket_fdinfo *si;
          * Process an [internal] key-management function socket.
          */
         (void)snpf(Lf->type, sizeof(Lf->type), "key");
-        enter_dev_ch(print_kptr((KA_T)si->psi.soi_pcb, (char *)NULL, 0));
+        enter_dev_ch(ctx, print_kptr((KA_T)si->psi.soi_pcb, (char *)NULL, 0));
         break;
     case AF_SYSTEM:
 
@@ -365,14 +367,16 @@ static void process_socket_common(si) struct socket_fdinfo *si;
         (void)snpf(Lf->type, sizeof(Lf->type), "systm");
         switch (si->psi.soi_kind) {
         case SOCKINFO_KERN_EVENT:
-            enter_dev_ch(print_kptr((KA_T)si->psi.soi_pcb, (char *)NULL, 0));
+            enter_dev_ch(ctx,
+                         print_kptr((KA_T)si->psi.soi_pcb, (char *)NULL, 0));
             (void)snpf(Namech, Namechl, "[event %x:%x:%x]",
                        si->psi.soi_proto.pri_kern_event.kesi_vendor_code_filter,
                        si->psi.soi_proto.pri_kern_event.kesi_class_filter,
                        si->psi.soi_proto.pri_kern_event.kesi_subclass_filter);
             break;
         case SOCKINFO_KERN_CTL:
-            enter_dev_ch(print_kptr((KA_T)si->psi.soi_pcb, (char *)NULL, 0));
+            enter_dev_ch(ctx,
+                         print_kptr((KA_T)si->psi.soi_pcb, (char *)NULL, 0));
             (void)snpf(Namech, Namechl, "[ctl %s id %d unit %d]",
                        si->psi.soi_proto.pri_kern_ctl.kcsi_name,
                        si->psi.soi_proto.pri_kern_ctl.kcsi_id,
@@ -386,20 +390,21 @@ static void process_socket_common(si) struct socket_fdinfo *si;
          * Process a PPP domain socket.
          */
         (void)snpf(Lf->type, sizeof(Lf->type), "ppp");
-        enter_dev_ch(print_kptr((KA_T)si->psi.soi_pcb, (char *)NULL, 0));
+        enter_dev_ch(ctx, print_kptr((KA_T)si->psi.soi_pcb, (char *)NULL, 0));
         break;
     default:
-        printunkaf(fam, 1);
+        printunkaf(ctx, fam, 1);
     }
     /*
      * If there are NAME column characters, enter them.
      */
     if (Namech[0])
-        enter_nm(Namech);
+        enter_nm(ctx, Namech);
 }
 
-void process_socket(pid, fd) int pid; /* PID */
-int32_t fd;                           /* FD */
+void process_socket(struct lsof_context *ctx, /* context */
+                    int pid,                  /* PID */
+                    int32_t fd)               /* FD */
 {
     int nb;
     struct socket_fdinfo si;
@@ -408,7 +413,7 @@ int32_t fd;                           /* FD */
      */
     nb = proc_pidfdinfo(pid, fd, PROC_PIDFDSOCKETINFO, &si, sizeof(si));
     if (nb <= 0) {
-        (void)err2nm("socket");
+        (void)err2nm(ctx, "socket");
         return;
     } else if (nb < sizeof(si)) {
         (void)fprintf(
@@ -417,15 +422,16 @@ int32_t fd;                           /* FD */
             pid, fd);
         (void)fprintf(stderr, "      too few bytes; expected %ld, got %d\n",
                       sizeof(si), nb);
-        Error();
+        Error(ctx);
     }
 
-    process_socket_common(&si);
+    process_socket_common(ctx, &si);
 }
 
 #if defined(PROC_PIDLISTFILEPORTS)
-void process_fileport_socket(pid, fp) int pid; /* PID */
-uint32_t fp;                                   /* FILEPORT */
+void process_fileport_socket(struct lsof_context *ctx, /* context */
+                             int pid,                  /* PID */
+                             uint32_t fp)              /* FILEPORT */
 {
     int nb;
     struct socket_fdinfo si;
@@ -435,7 +441,7 @@ uint32_t fp;                                   /* FILEPORT */
     nb = proc_pidfileportinfo(pid, fp, PROC_PIDFILEPORTSOCKETINFO, &si,
                               sizeof(si));
     if (nb <= 0) {
-        (void)err2nm("socket");
+        (void)err2nm(ctx, "socket");
         return;
     } else if (nb < sizeof(si)) {
         (void)fprintf(stderr,
@@ -444,9 +450,9 @@ uint32_t fp;                                   /* FILEPORT */
                       Pn, pid, fp);
         (void)fprintf(stderr, "      too few bytes; expected %ld, got %d\n",
                       sizeof(si), nb);
-        Error();
+        Error(ctx);
     }
 
-    process_socket_common(&si);
+    process_socket_common(ctx, &si);
 }
 #endif /* PROC_PIDLISTFILEPORTS */

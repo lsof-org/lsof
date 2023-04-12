@@ -72,7 +72,7 @@ static int Lmist = 0;                              /* Lmi status */
  * readmnt() - read mount table
  */
 
-struct mounts *readmnt() {
+struct mounts *readmnt(struct lsof_context *ctx) {
     char *dn = (char *)NULL;
     char *ln;
     FILE *mfp;
@@ -88,7 +88,7 @@ struct mounts *readmnt() {
      */
     if (!(mfp = setmntent(MOUNTED, "r"))) {
         (void)fprintf(stderr, "%s: can't access %s\n", Pn, MOUNTED);
-        Error();
+        Error(ctx);
     }
     /*
      * Read mount table entries.
@@ -165,7 +165,7 @@ struct mounts *readmnt() {
             (void)fprintf(stderr, " (");
             safestrprt(mp->mnt_dir, stderr, 0);
             (void)fprintf(stderr, ")\n");
-            Error();
+            Error(ctx);
         }
         mtp->dir = dn;
         dn = (char *)NULL;
@@ -183,7 +183,7 @@ struct mounts *readmnt() {
                   mkstrcpy(mp->RMNT_FSTYPE, (MALLOC_S *)NULL))) {
             (void)fprintf(stderr, "%s: no space for fstype (%s): %s\n", Pn,
                           mtp->dir, mp->RMNT_FSTYPE);
-            Error();
+            Error(ctx);
         }
         (void)strcpy(mtp->MOUNTS_FSTYPE, mp->RMNT_FSTYPE);
 #    endif /* defined(RMNT_FSTYP) && defined(MOUNTS_FSTYP) */

@@ -53,7 +53,7 @@ static char *mnt_names[] = INITMOUNTNAMES;
  * readmnt() - read mount table
  */
 
-struct mounts *readmnt() {
+struct mounts *readmnt(struct lsof_context *ctx) {
     char *dn = (char *)NULL;
     char *ln;
     struct statfs *mb;
@@ -97,9 +97,9 @@ struct mounts *readmnt() {
             (void)fprintf(stderr, " (");
             safestrprt(mb->f_mntfromname, stderr, 0);
             (void)fprintf(stderr, ")\n");
-            Error();
+            Error(ctx);
         }
-        if (!(ln = Readlink(dn))) {
+        if (!(ln = Readlink(ctx, dn))) {
             if (!Fwarn) {
                 (void)fprintf(stderr,
                               "      Output information may be incomplete.\n");
@@ -115,7 +115,7 @@ struct mounts *readmnt() {
         /*
          * Stat() the directory.
          */
-        if (statsafely(dn, &sb)) {
+        if (statsafely(ctx, dn, &sb)) {
             if (!Fwarn) {
                 (void)fprintf(stderr, "%s: WARNING: can't stat() ", Pn);
 
@@ -170,13 +170,13 @@ struct mounts *readmnt() {
         if (!(dn = mkstrcpy(mb->f_mntfromname, (MALLOC_S *)NULL)))
             goto no_space_for_mount;
         mtp->fsname = dn;
-        ln = Readlink(dn);
+        ln = Readlink(ctx, dn);
         dn = (char *)NULL;
         /*
          * Stat() the file system (mounted-on) name and add file system
          * information to the local mount table entry.
          */
-        if (!ln || statsafely(ln, &sb))
+        if (!ln || statsafely(ctx, ln, &sb))
             sb.st_mode = 0;
         mtp->fsnmres = ln;
         mtp->fs_mode = sb.st_mode;
@@ -195,7 +195,8 @@ struct mounts *readmnt() {
  * readvfs() - read vfs structure
  */
 
-struct l_vfs *readvfs(uint64_t fsid, const char *path) {
+struct l_vfs *readvfs(struct lsof_context *ctx, uint64_t fsid,
+                      const char *path) {
     struct statfs m;
     struct l_vfs *vp;
     /*
@@ -226,13 +227,13 @@ struct l_vfs *readvfs(uint64_t fsid, const char *path) {
     }
     if (!(vp = (struct l_vfs *)malloc(sizeof(struct l_vfs)))) {
         (void)fprintf(stderr, "%s: PID %d, no space for vfs\n", Pn, Lp->pid);
-        Error();
+        Error(ctx);
     }
     if (!(vp->dir = mkstrcpy(m.f_mntonname, (MALLOC_S *)NULL)) ||
         !(vp->fsname = mkstrcpy(m.f_mntfromname, (MALLOC_S *)NULL))) {
         (void)fprintf(stderr, "%s: PID %d, no space for mount names\n", Pn,
                       Lp->pid);
-        Error();
+        Error(ctx);
     }
     vp->fsid = fsid;
 
@@ -249,7 +250,7 @@ struct l_vfs *readvfs(uint64_t fsid, const char *path) {
                                        (char *)NULL, -1, (MALLOC_S *)NULL))) {
                 (void)fprintf(stderr, "%s: no space for fs type name: ", Pn);
                 safestrprt(m.f_fstypename, stderr, 1);
-                Error();
+                Error(ctx);
             }
         } else
             vp->typnm = "";

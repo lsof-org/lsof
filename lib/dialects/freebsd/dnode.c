@@ -43,7 +43,7 @@ static char copyright[] =
 #    include <sys/tty.h>
 #endif /* defined(HASPTSFN) && defined(DTYPE_PTS) */
 
-_PROTOTYPE(static void get_lock_state_kvm, (KA_T f));
+static void get_lock_state_kvm(struct lsof_context *ctx, KA_T f);
 
 /*
  * get_lock_state_*() - get the lock state
@@ -70,7 +70,8 @@ static void get_lock_state_sysctl(struct kinfo_file *kf,
 }
 #endif /* KERN_LOCKF */
 
-static void get_lock_state_kvm(f) KA_T f; /* inode's lock pointer */
+static void get_lock_state_kvm(struct lsof_context *ctx, /* context */
+                               KA_T f) /* inode's lock pointer */
 {
     struct lockf lf; /* lockf structure */
     int lt;          /* lock type */
@@ -80,15 +81,16 @@ static void get_lock_state_kvm(f) KA_T f; /* inode's lock pointer */
     KA_T lef, lep;         /* lock_entry pointers */
     struct lock_owner lo;  /* lock owner structure */
 
-    if (!f || kread(f, (char *)&lf, sizeof(lf)))
+    if (!f || kread(ctx, f, (char *)&lf, sizeof(lf)))
         return;
     if (!(lef = (KA_T)lf.ls_active.lh_first))
         return;
     lep = lef;
     do {
-        if (kread(lep, (char *)&le, sizeof(le)))
+        if (kread(ctx, lep, (char *)&le, sizeof(le)))
             return;
-        if (!le.lf_owner || kread((KA_T)le.lf_owner, (char *)&lo, sizeof(lo)))
+        if (!le.lf_owner ||
+            kread(ctx, (KA_T)le.lf_owner, (char *)&lo, sizeof(lo)))
             continue;
         if (lo.lo_pid == (pid_t)Lp->pid) {
             if (le.lf_start == (off_t)0 && le.lf_end == 0x7fffffffffffffffLL)
@@ -113,7 +115,7 @@ static void get_lock_state_kvm(f) KA_T f; /* inode's lock pointer */
          * Determine the lock state.
          */
         do {
-            if (kread(lfp, (char *)&lf, sizeof(lf)))
+            if (kread(ctx, lfp, (char *)&lf, sizeof(lf)))
                 break;
             l = 0;
             switch (lf.lf_flags & (F_FLOCK | F_POSIX)) {
@@ -154,43 +156,44 @@ static void get_lock_state_kvm(f) KA_T f; /* inode's lock pointer */
  * a file processing function.  However, the Net and Open BSD sources don't
  * require a dfile.c, so this is the next best location for the function.
  */
-
-void process_kf_kqueue(struct kinfo_file *kf, KA_T ka) {
+void process_kf_kqueue(struct lsof_context *ctx, /* context */
+                       struct kinfo_file *kf,    /* kernel file*/
+                       KA_T ka /* kernel address */) {
 #    if __FreeBSD_version < 1400062
     struct kqueue kq; /* kqueue structure */
 #    endif            /* __FreeBSD_version < 1400062 */
 
     (void)snpf(Lf->type, sizeof(Lf->type), "KQUEUE");
-    enter_dev_ch(print_kptr(ka, (char *)NULL, 0));
+    enter_dev_ch(ctx, print_kptr(ka, (char *)NULL, 0));
 #    if __FreeBSD_version >= 1400062
     (void)snpf(Namech, Namechl, "count=%d, state=%#x",
                kf->kf_un.kf_kqueue.kf_kqueue_count,
                kf->kf_un.kf_kqueue.kf_kqueue_state);
 #    else  /* __FreeBSD_version < 1400062 */
-    if (!ka || kread(ka, (char *)&kq, sizeof(kq)))
+    if (!ka || kread(ctx, ka, (char *)&kq, sizeof(kq)))
         return;
     (void)snpf(Namech, Namechl, "count=%d, state=%#x", kq.kq_count,
                kq.kq_state);
 #    endif /* __FreeBSD_version >= 1400062 */
-    enter_nm(Namech);
+    enter_nm(ctx, Namech);
 }
 #endif /* defined(HASKQUEUE) */
 
 #if defined(KF_TYPE_EVENTFD)
-void process_eventfd(struct kinfo_file *kf) {
+void process_eventfd(struct lsof_context *ctx, struct kinfo_file *kf) {
     (void)snpf(Lf->type, sizeof(Lf->type), "EVENTFD");
 #    if __FreeBSD_version >= 1400062
     enter_dev_ch(
-        print_kptr(kf->kf_un.kf_eventfd.kf_eventfd_addr, (char *)NULL, 0));
+        ctx, print_kptr(kf->kf_un.kf_eventfd.kf_eventfd_addr, (char *)NULL, 0));
 #    endif /* __FreeBSD_version >= 1400062 */
     (void)snpf(Namech, Namechl, "value=%ju, flags=0x%x",
                kf->kf_un.kf_eventfd.kf_eventfd_value,
                kf->kf_un.kf_eventfd.kf_eventfd_flags);
-    enter_nm(Namech);
+    enter_nm(ctx, Namech);
 }
 #endif /* defined(KF_TYPE_EVENTFD) */
 
-void process_shm(struct kinfo_file *kf) {
+void process_shm(struct lsof_context *ctx, struct kinfo_file *kf) {
     (void)snpf(Lf->type, sizeof(Lf->type), "SHM");
     Lf->sz = kf->kf_un.kf_file.kf_file_size;
     Lf->sz_def = 1;
@@ -201,19 +204,19 @@ void process_shm(struct kinfo_file *kf) {
     }
     if (kf->kf_path[0]) {
         snpf(Namech, Namechl, "%s", kf->kf_path);
-        enter_nm(Namech);
+        enter_nm(ctx, Namech);
     }
 }
 
-void process_procdesc(struct kinfo_file *kf) {
+void process_procdesc(struct lsof_context *ctx, struct kinfo_file *kf) {
     char pidstr[50];
 
     snpf(Lf->type, sizeof(Lf->type), "PROCDSC");
     snpf(pidstr, sizeof(pidstr), "pid=%d", kf->kf_un.kf_proc.kf_pid);
-    add_nma(pidstr, strlen(pidstr));
+    add_nma(ctx, pidstr, strlen(pidstr));
     if (kf->kf_path[0]) {
         snpf(Namech, Namechl, "%s", kf->kf_path);
-        enter_nm(Namech);
+        enter_nm(ctx, Namech);
     }
 }
 
@@ -269,8 +272,8 @@ static const char *parse_proc_path(struct kinfo_file *kf, int *proc_pid) {
  * process_vnode() - process vnode
  */
 
-void process_vnode(struct kinfo_file *kf, struct xfile *xfile,
-                   struct lock_list *locks) {
+void process_vnode(struct lsof_context *ctx, struct kinfo_file *kf,
+                   struct xfile *xfile, struct lock_list *locks) {
     dev_t dev = 0, rdev = 0;
     unsigned char devs;
     unsigned char rdevs;
@@ -306,7 +309,7 @@ process_overlaid_node:
 
     if (++sc > 1024) {
         (void)snpf(Namech, Namechl, "too many overlaid nodes");
-        enter_nm(Namech);
+        enter_nm(ctx, Namech);
         return;
     }
 #endif /* defined(HASNULLFS) */
@@ -324,7 +327,7 @@ process_overlaid_node:
     v = NULL;
     if (va) {
         v = &vb;
-        if (kread((KA_T)va, (char *)v, sizeof(struct vnode)))
+        if (kread(ctx, (KA_T)va, (char *)v, sizeof(struct vnode)))
             v = NULL;
     }
 
@@ -339,7 +342,7 @@ process_overlaid_node:
     /*
      * Get the vnode type.
      */
-    vfs = readvfs(fsid, vfs_path);
+    vfs = readvfs(ctx, fsid, vfs_path);
     if (vfs) {
         fsid = vfs->fsid;
 
@@ -385,7 +388,7 @@ process_overlaid_node:
     get_lock_state_sysctl(kf, locks);
 #elif defined(HAS_V_LOCKF)
     if (v && v->v_lockf)
-        (void)get_lock_state_kvm((KA_T)v->v_lockf);
+        (void)get_lock_state_kvm(ctx, (KA_T)v->v_lockf);
 #endif /* KERN_LOCKF */
 
     /*
@@ -427,7 +430,7 @@ process_overlaid_node:
                 np = tbuf;
             } else
                 np = "(nullfs)";
-            (void)add_nma(np, (int)strlen(np));
+            (void)add_nma(ctx, np, (int)strlen(np));
         }
         fsid = VNOVAL;
         /* -------dir--------
@@ -594,7 +597,7 @@ process_overlaid_node:
      * supply one.
      */
     if ((Lf->inp_ty == 0) && (kf_vtype == KF_VTYPE_VCHR))
-        find_ch_ino();
+        find_ch_ino(ctx);
     /*
      * Test for specified file.
      */
@@ -623,26 +626,27 @@ process_overlaid_node:
             }
         }
     } else {
-        if (Sfile && is_file_named((char *)NULL, ((kf_vtype == KF_VTYPE_VCHR) ||
-                                                  (kf_vtype == KF_VTYPE_VBLK))
-                                                     ? 1
-                                                     : 0))
+        if (Sfile && is_file_named(ctx, (char *)NULL,
+                                   ((kf_vtype == KF_VTYPE_VCHR) ||
+                                    (kf_vtype == KF_VTYPE_VBLK))
+                                       ? 1
+                                       : 0))
             Lf->sf |= SELNM;
     }
     /*
      * Enter name characters.
      */
     if (Namech[0])
-        enter_nm(Namech);
+        enter_nm(ctx, Namech);
     else if (kf->kf_path[0]) {
         snpf(Namech, Namechl, "%s", kf->kf_path);
         if (vfs && vfs->fsname) {
             char *cp;
             size_t sz;
-            cp = endnm(&sz);
+            cp = endnm(ctx, &sz);
             snpf(cp, sz, " (%s)", vfs->fsname);
         }
-        enter_nm(Namech);
+        enter_nm(ctx, Namech);
     }
 }
 
@@ -650,19 +654,19 @@ process_overlaid_node:
  * process_pipe() - process a file structure whose type is DTYPE_PIPE
  */
 
-void process_pipe(struct kinfo_file *kf, KA_T pa) {
+void process_pipe(struct lsof_context *ctx, struct kinfo_file *kf, KA_T pa) {
     char dev_ch[32], *ep;
     size_t sz;
 
 #if __FreeBSD_version < 1400062
     struct pipe p;
-    int have_kpipe = (pa && kread(pa, (char *)&p, sizeof(p)) == 0);
+    int have_kpipe = (pa && kread(ctx, pa, (char *)&p, sizeof(p)) == 0);
 #endif
 
     (void)snpf(Lf->type, sizeof(Lf->type), "PIPE");
     (void)snpf(dev_ch, sizeof(dev_ch), "%s",
                print_kptr(kf->kf_un.kf_pipe.kf_pipe_addr, (char *)NULL, 0));
-    enter_dev_ch(dev_ch);
+    enter_dev_ch(ctx, dev_ch);
 #if __FreeBSD_version >= 1400062
     Lf->sz = (SZOFFTYPE)kf->kf_un.kf_pipe.kf_pipe_buffer_size;
     Lf->sz_def = 1;
@@ -679,25 +683,25 @@ void process_pipe(struct kinfo_file *kf, KA_T pa) {
     else
         Namech[0] = '\0';
     if (kf->kf_un.kf_pipe.kf_pipe_buffer_cnt) {
-        ep = endnm(&sz);
+        ep = endnm(ctx, &sz);
         (void)snpf(ep, sz, ", cnt=%d", kf->kf_un.kf_pipe.kf_pipe_buffer_cnt);
     }
 #if __FreeBSD_version >= 1400062
     if (kf->kf_un.kf_pipe.kf_pipe_buffer_in) {
-        ep = endnm(&sz);
+        ep = endnm(ctx, &sz);
         (void)snpf(ep, sz, ", in=%d", kf->kf_un.kf_pipe.kf_pipe_buffer_in);
     }
     if (kf->kf_un.kf_pipe.kf_pipe_buffer_out) {
-        ep = endnm(&sz);
+        ep = endnm(ctx, &sz);
         (void)snpf(ep, sz, ", out=%d", kf->kf_un.kf_pipe.kf_pipe_buffer_out);
     }
 #else  /* __FreeBSD_version < 1400062 */
     if (have_kpipe && p.pipe_buffer.in) {
-        ep = endnm(&sz);
+        ep = endnm(ctx, &sz);
         (void)snpf(ep, sz, ", in=%d", p.pipe_buffer.in);
     }
     if (have_kpipe && p.pipe_buffer.out) {
-        ep = endnm(&sz);
+        ep = endnm(ctx, &sz);
         (void)snpf(ep, sz, ", out=%d", p.pipe_buffer.out);
     }
 #endif /* __FreeBSD_version >= 1400062 */
@@ -705,7 +709,7 @@ void process_pipe(struct kinfo_file *kf, KA_T pa) {
         * Enter name characters.
         */
     if (Namech[0])
-        enter_nm(Namech);
+        enter_nm(ctx, Namech);
 }
 
 #if defined(DTYPE_PTS)
@@ -713,7 +717,7 @@ void process_pipe(struct kinfo_file *kf, KA_T pa) {
  * process_pts - process a file structure whose type is DTYPE_PTS
  */
 
-void process_pts(struct kinfo_file *kf) {
+void process_pts(struct lsof_context *ctx, struct kinfo_file *kf) {
     (void)snpf(Lf->type, sizeof(Lf->type), "PTS");
     /*
      * Convert the tty's cdev from kernel to user form.

@@ -35,30 +35,30 @@ static char copyright[] =
 
 #include "common.h"
 
-_PROTOTYPE(static void get_kernel_access, (void));
+static void get_kernel_access(struct lsof_context *ctx);
 
 #if AIXA < 2
-_PROTOTYPE(static struct le *getle, (KA_T a, KA_T sid, char **err));
+static struct le *getle(struct lsof_context *ctx, KA_T a, KA_T sid, char **err);
 #endif /* AIXA<2 */
 
 #if AIXV >= 4110
-_PROTOTYPE(static void getlenm, (struct le * le, KA_T sid));
+static void getlenm(struct lsof_context *ctx, struct le *le, KA_T sid);
 #endif /* AIXV>=4110 */
 
-_PROTOTYPE(static int kreadx, (KA_T addr, char *buf, int len, KA_T sid));
+static int kreadx(KA_T addr, char *buf, int len, KA_T sid);
 
 #if AIXA < 2
-_PROTOTYPE(static void process_text, (KA_T sid));
+static void process_text(struct lsof_context *ctx, KA_T sid);
 #else  /* AIXA>=2 */
-_PROTOTYPE(static void getsoinfo, (void));
-_PROTOTYPE(static void process_text, (pid_t pid));
+static void getsoinfo(void);
+static void process_text(struct lsof_context *ctx, pid_t pid);
 #endif /* AIXA<2 */
 
 #if defined(SIGDANGER)
 #    if defined(HASINTSIGNAL)
-_PROTOTYPE(static int lowpgsp, (int sig));
+static int lowpgsp(struct lsof_context *ctx, int sig);
 #    else  /* !defined(HASINTSIGNAL) */
-_PROTOTYPE(static void lowpgsp, (int sig));
+static void lowpgsp(struct lsof_context *ctx, int sig);
 #    endif /* defined(HASINTSIGNAL) */
 #endif     /* defined(SIGDANGER) */
 
@@ -221,10 +221,11 @@ static KA_T Uo;    /* user area VM offset */
  * ckkv() - check kernel version
  */
 
-void ckkv(d, er, ev, ea) char *d; /* dialect */
-char *er;                         /* expected release */
-char *ev;                         /* expected version */
-char *ea;                         /* expected architecture */
+void ckkv(struct lsof_context *ctx, /* context */
+          char *d,                  /* dialect */
+          char *er,                 /* expected release */
+          char *ev,                 /* expected version */
+          char *ea)                 /* expected architecture */
 {
 
 #if defined(HASKERNIDCK)
@@ -256,12 +257,12 @@ char *ea;                         /* expected architecture */
 
         (void)fprintf(stderr, "%s: can't execute %s: %s\n", Pn, OSLEVELPATH,
                       strerror(errno));
-        Error();
+        Error(ctx);
     }
     if ((sb.st_mode & (S_IROTH | S_IXOTH)) != (S_IROTH | S_IXOTH)) {
         (void)fprintf(stderr, "%s: can't execute %s, modes: %o\n", Pn,
                       OSLEVELPATH, sb.st_mode);
-        Error();
+        Error(ctx);
     }
     /*
      * Open a pipe for receiving the version number from OSLEVEL.  Fork a
@@ -270,7 +271,7 @@ char *ea;                         /* expected architecture */
     if (pipe(p)) {
         (void)fprintf(stderr, "%s: can't create pipe to: %s\n", Pn,
                       OSLEVELPATH);
-        Error();
+        Error(ctx);
     }
     if ((pid = fork()) == 0) {
         (void)close(1);
@@ -285,7 +286,7 @@ char *ea;                         /* expected architecture */
     if (pid < 0) {
         (void)fprintf(stderr, "%s: can't fork a child for %s: %s\n", Pn,
                       OSLEVELPATH, strerror(errno));
-        Error();
+        Error(ctx);
     }
     (void)close(p[1]);
     br = read(p[0], buf, sizeof(buf) - 1);
@@ -327,7 +328,7 @@ char *ea;                         /* expected architecture */
  * gather_proc_info() - gather process information
  */
 
-void gather_proc_info() {
+void gather_proc_info(struct lsof_context *ctx) {
     short cckreg; /* conditional status of regular file
                    * checking:
                    *     0 = unconditionally check
@@ -423,7 +424,7 @@ void gather_proc_info() {
     if (!P) {
         if (!(P = (struct PROCINFO *)malloc((MALLOC_S)PROCSIZE))) {
             (void)fprintf(stderr, "%s: can't allocate space for 1 proc\n", Pn);
-            Error();
+            Error(ctx);
         }
         Np = 1;
     }
@@ -432,7 +433,7 @@ void gather_proc_info() {
         if (!(P = (struct PROCINFO *)realloc((MALLOC_P *)P,
                                              (size_t)(Np * PROCSIZE)))) {
             (void)fprintf(stderr, "%s: no space for %d procinfo's\n", Pn, Np);
-            Error();
+            Error(ctx);
         }
     }
 #else  /* AIXV>=4300 */
@@ -441,7 +442,7 @@ void gather_proc_info() {
         if (!(P = (struct PROCINFO *)malloc(msz))) {
             (void)fprintf(stderr, "%s: can't allocate space for %d procs\n", Pn,
                           PROCINFO_INCR);
-            Error();
+            Error(ctx);
         }
         Np = PROCINFO_INCR;
     }
@@ -455,7 +456,7 @@ void gather_proc_info() {
             if (!(P = (struct PROCINFO *)realloc((MALLOC_P *)P, msz))) {
                 (void)fprintf(stderr, "%s: no more space for proc storage\n",
                               Pn);
-                Error();
+                Error(ctx);
             }
             Np += PROCINFO_INCR;
         }
@@ -471,7 +472,7 @@ void gather_proc_info() {
     for (p = P, Up = &us; np > 0; np--, p++) {
         if (p->p_stat == 0 || p->p_stat == SZOMB)
             continue;
-        if (is_proc_excl(p->p_pid, (int)p->p_pgid, (UID_ARG)p->p_uid, &pss,
+        if (is_proc_excl(ctx, p->p_pid, (int)p->p_pgid, (UID_ARG)p->p_uid, &pss,
                          &sf))
             continue;
 
@@ -515,7 +516,7 @@ void gather_proc_info() {
         rdir = (KA_T)Up->u_rdir;
         cmd = Up->u_comm;
         nf = Up->u_maxofile;
-        if (is_cmd_excl(cmd, &pss, &sf))
+        if (is_cmd_excl(ctx, cmd, &pss, &sf))
             continue;
         if (cckreg) {
 
@@ -535,7 +536,7 @@ void gather_proc_info() {
          *
          * If readx is enabled (-X), use it to get the loader_anchor structure.
          */
-        if (is_cmd_excl(p->pi_comm, &pss, &sf))
+        if (is_cmd_excl(ctx, p->pi_comm, &pss, &sf))
             continue;
         if (cckreg) {
 
@@ -551,7 +552,7 @@ void gather_proc_info() {
                 (void)fprintf(stderr,
                               "%s: can't allocate fdsinfo struct for PID %d\n",
                               Pn, pid);
-                Error();
+                Error(ctx);
             }
         }
         pid = p->p_pid;
@@ -638,26 +639,26 @@ void gather_proc_info() {
         /*
          * Allocate a local process structure and start filling it.
          */
-        alloc_lproc(p->p_pid, (int)p->p_pgid, (int)p->p_ppid, (UID_ARG)p->p_uid,
-                    cmd, (int)pss, (int)sf);
+        alloc_lproc(ctx, p->p_pid, (int)p->p_pgid, (int)p->p_ppid,
+                    (UID_ARG)p->p_uid, cmd, (int)pss, (int)sf);
         Plf = (struct lfile *)NULL;
         /*
          * Save current working directory information.
          */
         if (!ckscko && cdir) {
-            alloc_lfile(CWD, -1);
-            process_node(cdir);
+            alloc_lfile(ctx, CWD, -1);
+            process_node(ctx, cdir);
             if (Lf->sf)
-                link_lfile();
+                link_lfile(ctx);
         }
         /*
          * Save root directory information.
          */
         if (!ckscko && rdir) {
-            alloc_lfile(RTD, -1);
-            process_node(rdir);
+            alloc_lfile(ctx, RTD, -1);
+            process_node(ctx, rdir);
             if (Lf->sf)
-                link_lfile();
+                link_lfile(ctx);
         }
 
 #if AIXV < 4100
@@ -665,10 +666,10 @@ void gather_proc_info() {
          * Save parent directory information.
          */
         if (!ckscko && pdir) {
-            alloc_lfile("  pd", -1);
-            process_node(pdir);
+            alloc_lfile(ctx, "  pd", -1);
+            process_node(ctx, pdir);
             if (Lf->sf)
-                link_lfile();
+                link_lfile(ctx);
         }
 #endif /* AIXV<4100 */
 
@@ -701,11 +702,11 @@ void gather_proc_info() {
                         ck = 0;
                 }
                 if (ck)
-                    process_text(sid);
+                    process_text(ctx, sid);
             }
 #    endif /* AIXA<1 */
 #else      /* AIXA>=2 */
-            process_text(p->p_pid);
+            process_text(ctx, p->p_pid);
 #endif     /* AIXA<2 */
         }
         /*
@@ -720,8 +721,8 @@ void gather_proc_info() {
 #endif /* AIXV<4300 */
 
             if (fp) {
-                alloc_lfile((char *)NULL, i);
-                process_file(fp);
+                alloc_lfile(ctx, (char *)NULL, i);
+                process_file(ctx, fp);
                 if (Lf->sf) {
 
 #if defined(HASFSTRUCT)
@@ -733,14 +734,14 @@ void gather_proc_info() {
 #    endif /* AIXV<4300 */
 #endif     /* defined(HASFSTRUCT) */
 
-                    link_lfile();
+                    link_lfile(ctx);
                 }
             }
         }
         /*
          * Examine results.
          */
-        if (examine_lproc())
+        if (examine_lproc(ctx))
             return;
     }
 }
@@ -749,7 +750,7 @@ void gather_proc_info() {
  * get_kernel_access() - get access to kernel memory
  */
 
-static void get_kernel_access() {
+static void get_kernel_access(struct lsof_context *ctx) {
     int oe = 0;
 
 #if defined(AIX_KERNBITS)
@@ -781,7 +782,7 @@ static void get_kernel_access() {
                       kbb);
         (void)fprintf(stderr, "      The bit size of this kernel is %s.\n",
                       kbr);
-        Error();
+        Error(ctx);
     }
 #endif /* defined(AIX_KERNBITS) */
 
@@ -800,13 +801,13 @@ static void get_kernel_access() {
      * before attempting to open the (Memory) file.
      */
     if (Memory)
-        (void)dropgid();
+        (void)dropgid(ctx);
 #else  /* !defined(WILLDROPGID) */
     /*
      * See if the non-KMEM memory file is readable.
      */
-    if (Memory && !is_readable(Memory, 1))
-        Error();
+    if (Memory && !is_readable(ctx, Memory, 1))
+        Error(ctx);
 #endif /* defined(WILLDROPGID) */
 
     /*
@@ -818,14 +819,14 @@ static void get_kernel_access() {
         oe++;
     }
     if (oe)
-        Error();
+        Error(ctx);
 
 #if defined(WILLDROPGID)
     /*
      * Drop setgid permission, if necessary.
      */
     if (!Memory)
-        (void)dropgid();
+        (void)dropgid(ctx);
 #endif /* defined(WILLDROPGID) */
 
     /*
@@ -834,7 +835,7 @@ static void get_kernel_access() {
     if (knlist(Nl, X_NL_NUM, sizeof(struct nlist)) || !Nl[X_UADDR].n_value) {
         (void)fprintf(stderr, "%s: can't get kernel's %s address\n", Pn,
                       Nl[X_UADDR].n_name);
-        Error();
+        Error(ctx);
     }
 
 #if defined(HAS_AFS)
@@ -876,7 +877,7 @@ static void get_kernel_access() {
     /*
      * Check the kernel version number.
      */
-    (void)ckkv("AIX", (char *)NULL, LSOF_VSTR, (char *)NULL);
+    (void)ckkv(ctx, "AIX", (char *)NULL, LSOF_VSTR, (char *)NULL);
 
 #if defined(SIGDANGER)
     /*
@@ -891,10 +892,10 @@ static void get_kernel_access() {
  * getle() - get loader entry structure
  */
 
-static struct le *getle(a, sid, err)
-KA_T a;     /* loader entry kernel address */
-KA_T sid;   /* user structure segment ID */
-char **err; /* error message (if return is NULL) */
+static struct le *getle(struct lsof_context *ctx, /* context */
+                        KA_T a,     /* loader entry kernel address */
+                        KA_T sid,   /* user structure segment ID */
+                        char **err) /* error message (if return is NULL) */
 {
     static struct le le;
 
@@ -914,7 +915,7 @@ char **err; /* error message (if return is NULL) */
 
 #    if AIXV >= 4110
     if (!sid) {
-        if (!kread(a, (char *)&le, sizeof(le)))
+        if (!kread(ctx, a, (char *)&le, sizeof(le)))
             return (&le);
     } else {
         if (!kreadx((KA_T)(a & RDXMASK), (char *)&le, sizeof(le), (KA_T)sid))
@@ -937,8 +938,9 @@ getle_err:
  * getlenm() - get loader entry file name for AIX >= 4.1.1
  */
 
-static void getlenm(le, sid) struct le *le; /* loader entry structure */
-KA_T sid;                                   /* segment ID */
+static void getlenm(struct lsof_context *ctx, /* context */
+                    struct le *le,            /* loader entry structure */
+                    KA_T sid)                 /* segment ID */
 {
     char buf[LIBNMLN];
     int i;
@@ -949,7 +951,7 @@ KA_T sid;                                   /* segment ID */
 #    else /* AIXV>=4300 */
 #        if AIXA < 2
     if (!sid) {
-        if (kread((KA_T)le->nm, buf, LIBNMLN))
+        if (kread(ctx, (KA_T)le->nm, buf, LIBNMLN))
             return;
     } else {
         if (!Soff_stat || !le->nm ||
@@ -959,16 +961,16 @@ KA_T sid;                                   /* segment ID */
     buf[LIBNMLN - 1] = '\0';
     i = strlen(buf);
     if (i < (LIBNMLN - 3) && buf[i + 1])
-        enter_nm(&buf[i + 1]);
+        enter_nm(ctx, &buf[i + 1]);
     else if (buf[0])
-        enter_nm(buf);
+        enter_nm(ctx, buf);
 #        else  /* AIXA>=2 */
-    if (!le->nm || kread(le->nm, buf, sizeof(buf)))
+    if (!le->nm || kread(ctx, le->nm, buf, sizeof(buf)))
         return;
     buf[LIBNMLN - 1] = '\0';
     if (!strlen(buf))
         return;
-    enter_nm(buf);
+    enter_nm(ctx, buf);
 #        endif /* AIXA<2 */
 #    endif     /* AIXV<4300 */
 }
@@ -1010,7 +1012,7 @@ static void getsoinfo() {
     if (!(SoHash = (so_hash_t **)calloc((MALLOC_S)SOHASHBUCKS,
                                         sizeof(so_hash_t *)))) {
         (void)fprintf(stderr, "%s: no space for *.so hash buckets\n", Pn);
-        Error();
+        Error(ctx);
     }
     /*
      * Cache the loader module information, complete with stat(2) results.
@@ -1034,7 +1036,7 @@ static void getsoinfo() {
         if (!(rn = mkstrcpy(lp->mi_name, (MALLOC_S *)NULL))) {
             (void)fprintf(stderr, "%s: no space for name: %s\n", Pn,
                           lp->mi_name);
-            Error();
+            Error(ctx);
         }
         /*
          * Resolve symbolic links.
@@ -1056,7 +1058,7 @@ static void getsoinfo() {
         if (!(sp = (so_hash_t *)malloc((MALLOC_S)sizeof(so_hash_t)))) {
             (void)fprintf(stderr, "%s: no space for *.so hash entry: %s\n", Pn,
                           ln);
-            Error();
+            Error(ctx);
         }
         sp->dev = sb.st_dev;
         sp->nlink = (int)sb.st_nlink;
@@ -1088,8 +1090,8 @@ static void getsoinfo() {
  * initialize() - perform all initialization
  */
 
-void initialize() {
-    get_kernel_access();
+void initialize(struct lsof_context *ctx) {
+    get_kernel_access(ctx);
 
 #if AIXA > 1
     (void)getsoinfo();
@@ -1100,10 +1102,10 @@ void initialize() {
  * kread() - read from kernel memory
  */
 
-int kread(addr, buf, len)
-KA_T addr;     /* kernel memory address */
-char *buf;     /* buffer to receive data */
-READLEN_T len; /* length to read */
+int kread(struct lsof_context *ctx, /* context */
+          KA_T addr,                /* kernel memory address */
+          char *buf,                /* buffer to receive data */
+          READLEN_T len)            /* length to read */
 {
     int br;
 
@@ -1122,11 +1124,10 @@ READLEN_T len; /* length to read */
  * kreadx() - read kernel segmented memory
  */
 
-int kreadx(addr, buf, len, sid)
-KA_T addr; /* kernel address */
-char *buf; /* destination buffer */
-int len;   /* length */
-KA_T sid;  /* segment ID */
+int kreadx(KA_T addr, /* kernel address */
+           char *buf, /* destination buffer */
+           int len,   /* length */
+           KA_T sid)  /* segment ID */
 {
     int br;
 
@@ -1152,11 +1153,9 @@ static int
 static void
 #    endif /* defined(HASINTSIGNAL) */
 
-lowpgsp(sig)
-int sig;
-{
+lowpgsp(struct lsof_context *ctx, int sig) {
     (void)fprintf(stderr, "%s: FATAL: system paging space is low.\n", Pn);
-    Error();
+    Error(ctx);
 }
 #endif /* defined(SIGDANGER) */
 
@@ -1165,7 +1164,8 @@ int sig;
  * process_text() - process text file information for non-ia64 AIX
  */
 
-static void process_text(sid) KA_T sid; /* user area segment ID */
+static void process_text(struct lsof_context *ctx, /* context */
+                         KA_T sid)                 /* user area segment ID */
 {
     char *err, fd[8];
     static struct file **f = (struct file **)NULL;
@@ -1191,10 +1191,10 @@ static void process_text(sid) KA_T sid; /* user area segment ID */
 #    endif /* AIXV<4300 */
 
     {
-        alloc_lfile(" txt", -1);
-        if ((le = getle(ll, sid, &err))) {
+        alloc_lfile(ctx, " txt", -1);
+        if ((le = getle(ctx, ll, sid, &err))) {
             if ((xf = le->fp)) {
-                process_file((KA_T)xf);
+                process_file(ctx, (KA_T)xf);
                 if (Lf->sf) {
 
 #    if AIXV >= 4110 && AIXV < 4300
@@ -1202,15 +1202,15 @@ static void process_text(sid) KA_T sid; /* user area segment ID */
                         getlenm(le, sid);
 #    endif /* AIXV>=4110 && AIXV<4300 */
 
-                    link_lfile();
+                    link_lfile(ctx);
                 }
             }
         } else {
             (void)snpf(Namech, Namechl, "text entry at %s: %s",
                        print_kptr((KA_T)ll, (char *)NULL, 0), err);
-            enter_nm(Namech);
+            enter_nm(ctx, Namech);
             if (Lf->sf)
-                link_lfile();
+                link_lfile(ctx);
         }
     }
     /*
@@ -1226,13 +1226,13 @@ static void process_text(sid) KA_T sid; /* user area segment ID */
 
          ll; ll = (KA_T)le->next) {
         (void)snpf(fd, sizeof(fd), " L%02d", i);
-        alloc_lfile(fd, -1);
-        if (!(le = getle(ll, sid, &err))) {
+        alloc_lfile(ctx, fd, -1);
+        if (!(le = getle(ctx, ll, sid, &err))) {
             (void)snpf(Namech, Namechl, "loader entry at %s: %s",
                        print_kptr((KA_T)ll, (char *)NULL, 0), err);
-            enter_nm(Namech);
+            enter_nm(ctx, Namech);
             if (Lf->sf)
-                link_lfile();
+                link_lfile(ctx);
             return;
         }
         /*
@@ -1261,22 +1261,22 @@ static void process_text(sid) KA_T sid; /* user area segment ID */
             if (!f) {
                 (void)fprintf(stderr, "%s: no space for text file pointers\n",
                               Pn);
-                Error();
+                Error(ctx);
             }
         }
         f[n++] = le->fp;
         /*
          * Save the loader entry.
          */
-        process_file((KA_T)le->fp);
+        process_file(ctx, (KA_T)le->fp);
         if (Lf->sf) {
 
 #    if AIXV >= 4110
             if (!Lf->nm || !Lf->nm[0])
-                getlenm(le, sid);
+                getlenm(ctx, le, sid);
 #    endif /* AIXV>=4110 */
 
-            link_lfile();
+            link_lfile(ctx);
             i++;
         }
     }
@@ -1286,7 +1286,7 @@ static void process_text(sid) KA_T sid; /* user area segment ID */
  * process_text() - process text file information for ia64 AIX >= 5
  */
 
-static void process_text(pid) pid_t pid; /* process PID */
+static void process_text(pid_t pid) /* process PID */
 {
     char buf[MAXPATHLEN + 1], fd[8], *nm, *pp;
     size_t bufl = sizeof(buf);
@@ -1305,9 +1305,10 @@ static void process_text(pid) pid_t pid; /* process PID */
     /*
      * Display information on the exec'd entry.
      */
-    if (la->exec && !kread((KA_T)la->exec, (char *)&le, sizeof(le)) && le.fp) {
-        alloc_lfile(" txt", -1);
-        process_file((KA_T)le.fp);
+    if (la->exec && !kread(ctx, (KA_T)la->exec, (char *)&le, sizeof(le)) &&
+        le.fp) {
+        alloc_lfile(ctx, " txt", -1);
+        process_file(ctx, (KA_T)le.fp);
         if (Lf->dev_def && (Lf->inp_ty == 1)) {
             xdev = Lf->dev;
             xnode = Lf->inode;
@@ -1316,7 +1317,7 @@ static void process_text(pid) pid_t pid; /* process PID */
         if (Lf->sf) {
             if (!Lf->nm || !Lf->nm[0])
                 getlenm(&le, (KA_T)0);
-            link_lfile();
+            link_lfile(ctx);
         }
     }
     /*
@@ -1364,7 +1365,7 @@ static void process_text(pid) pid_t pid; /* process PID */
          * Allocate space for a file entry.  Set its basic characteristics.
          */
         (void)snpf(fd, sizeof(fd), "L%02d", i++);
-        alloc_lfile(fd, -1);
+        alloc_lfile(ctx, fd, -1);
         Lf->dev_def = Lf->inp_ty = Lf->nlink_def = 1;
         Lf->dev = sb.st_dev;
         Lf->inode = (INODETYPE)sb.st_ino;
@@ -1416,8 +1417,8 @@ static void process_text(pid) pid_t pid; /* process PID */
              * If the file was selected, enter its name and link it to the
              * other files of the process.
              */
-            enter_nm(nm);
-            link_lfile();
+            enter_nm(ctx, nm);
+            link_lfile(ctx);
         }
     }
     (void)closedir(dfp);

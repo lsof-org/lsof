@@ -69,9 +69,8 @@ int get_max_fd() {
  * print_dev() - print device
  */
 
-char *print_dev(lf, dev)
-struct lfile *lf; /* file whose device is to be printed */
-dev_t *dev;       /* device to be printed */
+char *print_dev(struct lfile *lf, /* file whose device is to be printed */
+                dev_t *dev)       /* device to be printed */
 {
     static char buf[128];
 
@@ -89,7 +88,7 @@ void process_file(fp) KA_T fp; /* kernel file structure address */
     struct file f;
     int flag;
 
-    if (kread((KA_T)fp, (char *)&f, sizeof(f))) {
+    if (kread(ctx, (KA_T)fp, (char *)&f, sizeof(f))) {
         (void)snpf(Namech, Namechl, "can't read file struct from %s",
                    print_kptr(fp, (char *)NULL, 0));
         enter_nm(Namech);
@@ -180,7 +179,7 @@ char **pn; /* returned protocol name */
     struct qinit qi;
     size_t sz = Namechl;
 
-    if (!sh || kread(sh, (char *)&hd, sizeof(hd))) {
+    if (!sh || kread(ctx, sh, (char *)&hd, sizeof(hd))) {
         (void)snpf(Namech, Namechl, "can't read stream head: %s",
                    print_kptr(sh, (char *)NULL, 0));
         return (1);
@@ -210,13 +209,14 @@ char **pn; /* returned protocol name */
     *ip = *pcb = (KA_T)NULL;
     qa = (KA_T)hd.sth_wq;
     for (i = 0; i < 20; i++, qa = (KA_T)q.q_next) {
-        if (!qa || kread(qa, (char *)&q, sizeof(q)))
+        if (!qa || kread(ctx, qa, (char *)&q, sizeof(q)))
             break;
-        if (!(ka = (KA_T)q.q_qinfo) || kread(ka, (char *)&qi, sizeof(qi)))
+        if (!(ka = (KA_T)q.q_qinfo) || kread(ctx, ka, (char *)&qi, sizeof(qi)))
             continue;
-        if (!(ka = (KA_T)qi.qi_minfo) || kread(ka, (char *)&mi, sizeof(mi)))
+        if (!(ka = (KA_T)qi.qi_minfo) ||
+            kread(ctx, ka, (char *)&mi, sizeof(mi)))
             continue;
-        if (!(ka = (KA_T)mi.mi_idname) || kread(ka, mn, ml))
+        if (!(ka = (KA_T)mi.mi_idname) || kread(ctx, ka, mn, ml))
             continue;
         if ((len = strlen(mn)) < 1)
             continue;

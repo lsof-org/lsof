@@ -51,7 +51,7 @@
            * offsets -- see the function                                       \
            * ck_Linux_offset_support() */
 
-_PROTOTYPE(static int ck_Linux_offset_support, (void));
+static int ck_Linux_offset_support(void);
 #endif /* defined(LT_DIAL_linux) */
 
 /*
@@ -76,16 +76,15 @@ char *Pn = (char *)NULL;   /* program name */
  * Local function prototypes
  */
 
-_PROTOTYPE(static void cleanup, (void));
-_PROTOTYPE(static char *testlsof, (int tt, char *opt, char *xval));
+static void cleanup(void);
+static char *testlsof(int tt, char *opt, char *xval);
 
 /*
  * Main program
  */
 
-int main(argc, argv)
-int argc;     /* argument count */
-char *argv[]; /* arguments */
+int main(int argc,     /* argument count */
+         char *argv[]) /* arguments */
 {
     char buf[2048];              /* temporary buffer */
     int do_offt = OFFTST_STAT;   /* do offset tests if == 1 */
@@ -274,10 +273,9 @@ static void cleanup() {
  * testlsof() -- test the open file with lsof
  */
 
-static char *testlsof(tt, opt, xval)
-int tt;     /* test type -- TYTST_* symbol */
-char *opt;  /* extra lsof options */
-char *xval; /* expected value */
+static char *testlsof(int tt,     /* test type -- TYTST_* symbol */
+                      char *opt,  /* extra lsof options */
+                      char *xval) /* expected value */
 {
     char buf[2048];           /* temporary buffer */
     char *cem;                /* current error message pointer */

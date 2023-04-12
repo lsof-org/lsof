@@ -62,9 +62,8 @@ int get_max_fd() {
  * print_dev() - print dev
  */
 
-char *print_dev(lf, dev)
-struct lfile *lf; /* file whose device is to be printed */
-dev_t *dev;       /* device to be printed */
+char *print_dev(struct lfile *lf, /* file whose device is to be printed */
+                dev_t *dev)       /* device to be printed */
 {
     static char buf[128];
 
@@ -78,8 +77,7 @@ dev_t *dev;       /* device to be printed */
  * print_ino() - print inode
  */
 
-char *print_ino(lf)
-struct lfile *lf; /* file whose device is to be printed */
+char *print_ino(struct lfile *lf) /* file whose device is to be printed */
 {
     static char buf[128];
 
@@ -97,7 +95,7 @@ void process_file(fp) KA_T fp; /* kernel file structure address */
     struct file f;
     int flag;
 
-    if (kread(fp, (char *)&f, sizeof(f))) {
+    if (kread(ctx, fp, (char *)&f, sizeof(f))) {
         (void)snpf(Namech, Namechl, "can't read file struct from %s",
                    print_kptr(fp, (char *)NULL, 0));
         enter_nm(Namech);

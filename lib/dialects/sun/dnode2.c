@@ -44,12 +44,10 @@ static char copyright[] =
 #        include <vxfsutil.h>
 #        define EMSGPFX "vx_inode: "
 
-_PROTOTYPE(static char *add2em, (char *em, char *fmt, char *arg));
-_PROTOTYPE(static char *ckptr,
-           (char *em, char *ptr, int len, int slen, char *nm));
-_PROTOTYPE(static char *getioffs,
-           (char **vx, int *vxl, char **dev, int *devl, char **ino, int *inol,
-            char **nl, int *nll, char **sz, int *szl));
+static char *add2em(char *em, char *fmt, char *arg);
+static char *ckptr(char *em, char *ptr, int len, int slen, char *nm);
+static char *getioffs(char **vx, int *vxl, char **dev, int *devl, char **ino,
+                      int *inol, char **nl, int *nll, char **sz, int *szl);
 #    else /* !defined(HASVXFSUTIL) */
 #        if defined(HASVXFS_FS_H) && !defined(HASVXFS_VX_INODE)
 #            undef fs_bsize
@@ -119,10 +117,9 @@ extern int access_vxfs_ioffsets() {
  * add2em() - add to error message
  */
 
-static char *add2em(em, fmt, arg)
-char *em;  /* current error message */
-char *fmt; /* message format */
-char *arg; /* format's single string argument */
+static char *add2em(char *em,  /* current error message */
+                    char *fmt, /* message format */
+                    char *arg) /* format's single string argument */
 {
     MALLOC_S al, eml, nl;
     char msg[1024];
@@ -138,14 +135,14 @@ char *arg; /* format's single string argument */
     } else {
         if (!(eml = (MALLOC_S)strlen(em))) {
             (void)fprintf(stderr, "%s: add2em: previous message empty\n", Pn);
-            Error();
+            Error(ctx);
         }
         al = eml + nl + 3;
         em = (char *)realloc((MALLOC_P *)em, al);
     }
     if (!em) {
         (void)fprintf(stderr, "%s: no VxFS error message space\n", Pn);
-        Error();
+        Error(ctx);
     }
     (void)snpf(em + eml, al - eml, "%s%s%s", eml ? "" : EMSGPFX,
                eml ? "; " : "", msg);
@@ -156,12 +153,11 @@ char *arg; /* format's single string argument */
  * ckptr() - check pointer and length
  */
 
-static char *ckptr(em, ptr, len, slen, nm)
-char *em;  /* pointer to previous error message */
-char *ptr; /* pointer to check */
-int len;   /* pointer's value length */
-int slen;  /* value's storage length */
-char *nm;  /* element name */
+static char *ckptr(char *em,  /* pointer to previous error message */
+                   char *ptr, /* pointer to check */
+                   int len,   /* pointer's value length */
+                   int slen,  /* value's storage length */
+                   char *nm)  /* element name */
 {
 
 #        if defined(_LP64)
@@ -192,17 +188,16 @@ char *nm;  /* element name */
  * getioffs() - get the vx_inode offsets
  */
 
-static char *getioffs(vx, vxl, dev, devl, ino, inol, nl, nll, sz, szl)
-char **vx;  /* pointer to allocated vx_inode space */
-int *vxl;   /* sizeof(*vx) */
-char **dev; /* pointer to device number element of *vx */
-int *devl;  /* sizeof(*dev) */
-char **ino; /* pointer to node number element of *vx */
-int *inol;  /* sizeof(*ino) */
-char **nl;  /* pointer to nlink element of *vx */
-int *nll;   /* sizeof(*nl) */
-char **sz;  /* pointer to size element of *vx */
-int *szl;   /* sizeof(*sz) */
+static char *getioffs(char **vx,  /* pointer to allocated vx_inode space */
+                      int *vxl,   /* sizeof(*vx) */
+                      char **dev, /* pointer to device number element of *vx */
+                      int *devl,  /* sizeof(*dev) */
+                      char **ino, /* pointer to node number element of *vx */
+                      int *inol,  /* sizeof(*ino) */
+                      char **nl,  /* pointer to nlink element of *vx */
+                      int *nll,   /* sizeof(*nl) */
+                      char **sz,  /* pointer to size element of *vx */
+                      int *szl)   /* sizeof(*sz) */
 {
     char *tv;
     int tvl;
@@ -220,7 +215,7 @@ int *szl;   /* sizeof(*sz) */
         return (add2em((char *)NULL, "zero length %s", "vx_inode"));
     if (!(tv = (char *)malloc((MALLOC_S)tvl))) {
         (void)fprintf(stderr, "%s: no vx_inode space\n", Pn);
-        Error();
+        Error(ctx);
     }
     *vx = tv;
     *vxl = tvl;
@@ -244,8 +239,7 @@ int *szl;   /* sizeof(*sz) */
  * print_vxfs_rnl_path() -- print VxFS RNL path
  */
 
-int print_vxfs_rnl_path(lf)
-struct lfile *lf; /* file whose name is to be printed */
+int print_vxfs_rnl_path(struct lfile *lf) /* file whose name is to be printed */
 {
     char **bp = (char **)NULL;
     int i, j, n, p;
@@ -291,7 +285,7 @@ struct lfile *lf; /* file whose name is to be printed */
             if (!rm) {
                 (void)fprintf(stderr, "%s: no RNL mount point cache space\n",
                               Pn);
-                Error();
+                Error(ctx);
             }
         }
         i = rmu;
@@ -335,13 +329,12 @@ struct lfile *lf; /* file whose name is to be printed */
  * read_vxnode() - read Veritas file system inode information
  */
 
-int read_vxnode(va, v, vfs, fx, li, vnops)
-KA_T va;           /* containing vnode's address */
-struct vnode *v;   /* containing vnode */
-struct l_vfs *vfs; /* local vfs structure */
-int fx;            /* file system index (-1 if none) */
-struct l_ino *li;  /* local inode value receiver */
-KA_T *vnops;       /* table of VxFS v_op values */
+int read_vxnode(KA_T va,           /* containing vnode's address */
+                struct vnode *v,   /* containing vnode */
+                struct l_vfs *vfs, /* local vfs structure */
+                int fx,            /* file system index (-1 if none) */
+                struct l_ino *li,  /* local inode value receiver */
+                KA_T *vnops)       /* table of VxFS v_op values */
 {
     struct vnode cv;
     char tbuf[32];
@@ -383,12 +376,12 @@ KA_T *vnops;       /* table of VxFS v_op values */
      */
     if (v->v_data && v->v_op && (VXVOP_FDDCH < VXVOP_NUM) &&
         vnops[VXVOP_FDDCH] && ((KA_T)v->v_op == vnops[VXVOP_FDDCH])) {
-        if (kread((KA_T)v->v_data, (char *)&cv, sizeof(cv))) {
+        if (kread(ctx, (KA_T)v->v_data, (char *)&cv, sizeof(cv))) {
             (void)snpf(Namech, Namechl,
                        "node at %s: can't read real vx vnode: %s",
                        print_kptr(va, tbuf, sizeof(tbuf)),
                        print_kptr((KA_T)v->v_data, (char *)NULL, 0));
-            enter_nm(Namech);
+            enter_nm(ctx, Namech);
             return (1);
         }
 
@@ -425,7 +418,7 @@ KA_T *vnops;       /* table of VxFS v_op values */
     }
     if (em) {
         (void)snpf(Namech, Namechl, "%s", em);
-        (void)enter_nm(Namech);
+        (void)enter_nm(ctx, Namech);
         return (1);
     }
 #    endif /* !defined(HASVXFSUTIL) */
@@ -433,11 +426,11 @@ KA_T *vnops;       /* table of VxFS v_op values */
     /*
      * Read vnode's vx_inode.
      */
-    if (!v->v_data || kread((KA_T)v->v_data, vxp, vxl)) {
+    if (!v->v_data || kread(ctx, (KA_T)v->v_data, vxp, vxl)) {
         (void)snpf(Namech, Namechl, "node at %s: can't read vx_inode: %s",
                    print_kptr(va, tbuf, sizeof(tbuf)),
                    print_kptr((KA_T)v->v_data, (char *)NULL, 0));
-        (void)enter_nm(Namech);
+        (void)enter_nm(ctx, Namech);
         return (1);
     }
     /*

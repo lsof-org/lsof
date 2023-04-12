@@ -44,12 +44,12 @@
  * Local function prototypes
  */
 
-_PROTOTYPE(static char *convert_octal_escaped, (char *orig_str));
+static char *convert_octal_escaped(struct lsof_context *ctx, char *orig_str);
 
 #if defined(HASMNTSUP)
-_PROTOTYPE(static int getmntdev,
-           (char *dir_name, size_t dir_name_len, struct stat *s, int *ss));
-_PROTOTYPE(static int hash_mnt, (char *dir_name));
+static int getmntdev(struct lsof_context *ctx, char *dir_name,
+                     size_t dir_name_len, struct stat *s, int *ss);
+static int hash_mnt(char *dir_name);
 #endif /* defined(HASMNTSUP) */
 
 /*
@@ -78,7 +78,8 @@ static mntsup_t **MSHash = (mntsup_t **)NULL;      /* mount supplement
 /*
  * convert_octal_escaped() -- convert octal-escaped characters in string
  */
-static char *convert_octal_escaped(char *orig_str /* original string */) {
+static char *convert_octal_escaped(struct lsof_context *ctx, /* context */
+                                   char *orig_str /* original string */) {
     int cur_ch, cvt_len, cvt_idx, orig_len, orig_idx, temp_idx;
     char *cvt_str;
     int temp_ch;
@@ -93,7 +94,7 @@ static char *convert_octal_escaped(char *orig_str /* original string */) {
         (void)fprintf(stderr,
                       "%s: can't allocate %d bytes for octal-escaping.\n", Pn,
                       orig_len + 1);
-        Error();
+        Error(ctx);
     }
     /*
      * Copy the string, replacing octal-escaped characters as they are found.
@@ -146,7 +147,7 @@ static char *convert_octal_escaped(char *orig_str /* original string */) {
                 (void)fprintf(
                     stderr, "%s: can't realloc %d bytes for octal-escaping.\n",
                     Pn, cvt_len + 1);
-                Error();
+                Error(ctx);
             }
         }
 
@@ -168,12 +169,12 @@ static char *convert_octal_escaped(char *orig_str /* original string */) {
  * getmntdev() - get mount device from mount supplement
  */
 static int
-getmntdev(
-	  char *dir_name,		/* mounted directory name */
-	  size_t dir_name_len,		/* strlen(dir_name) */
-	  struct stat *s,		/* stat(2) buffer receptor */
-	  int *ss			/* stat(2) status result -- i.e., SB_*
-					 * values */)
+getmntdev(struct lsof_context *ctx, /* context */
+      char *dir_name,               /* mounted directory name */
+      size_t dir_name_len,          /* strlen(dir_name) */
+      struct stat *s,               /* stat(2) buffer receptor */
+      int *ss                       /* stat(2) status result -- i.e., SB_*
+                                     * values */)
 {
     static int err = 0;
     int h;
@@ -205,7 +206,7 @@ getmntdev(
             err = 1;
             return (0);
         }
-        if (!(fs = open_proc_stream(MntSupP, "r", &vbuf, &vsz, 0))) {
+        if (!(fs = open_proc_stream(ctx, MntSupP, "r", &vbuf, &vsz, 0))) {
 
             /*
              * The mount supplement file can't be opened for reading.
@@ -285,7 +286,7 @@ getmntdev(
                     (void)fprintf(
                         stderr,
                         "%s: no space for mount supplement hash buckets\n", Pn);
-                    Error();
+                    Error(ctx);
                 }
             }
             h = hash_mnt(path);
@@ -317,14 +318,14 @@ getmntdev(
                     stderr,
                     "%s: no space for mount supplement entry: %d \"%s\"\n", Pn,
                     ln, buf);
-                Error();
+                Error(ctx);
             }
             if (!(mpn->dir_name = (char *)malloc(sz + 1))) {
                 (void)fprintf(
                     stderr,
                     "%s: no space for mount supplement path: %d \"%s\"\n", Pn,
                     ln, buf);
-                Error();
+                Error(ctx);
             }
             (void)strcpy(mpn->dir_name, path);
             mpn->dir_name_len = sz;
@@ -396,7 +397,7 @@ static int hash_mnt(char *dir_name /* mount point directory name */) {
 /*
  * readmnt() - read mount table
  */
-struct mounts *readmnt() {
+struct mounts *readmnt(struct lsof_context *ctx) {
     char buf[MAXPATHLEN], *cp, **fp;
     char *dn = (char *)NULL;
     size_t dnl;
@@ -419,13 +420,13 @@ struct mounts *readmnt() {
      * Open access to /proc/mounts, assigning a page size buffer to its stream.
      */
     (void)snpf(buf, sizeof(buf), "%s/mounts", PROCFS);
-    ms = open_proc_stream(buf, "r", &vbuf, &vsz, 1);
+    ms = open_proc_stream(ctx, buf, "r", &vbuf, &vsz, 1);
     /*
      * Read mount table entries.
      */
     while (fgets(buf, sizeof(buf), ms)) {
-        if (get_fields(buf, (char *)NULL, &fp, (int *)NULL, 0) < 3 || !fp[0] ||
-            !fp[1] || !fp[2])
+        if (get_fields(ctx, buf, (char *)NULL, &fp, (int *)NULL, 0) < 3 ||
+            !fp[0] || !fp[1] || !fp[2])
             continue;
         /*
          * Convert octal-escaped characters in the device name and mounted-on
@@ -439,8 +440,8 @@ struct mounts *readmnt() {
             (void)free((FREE_P *)fp1);
             fp1 = (char *)NULL;
         }
-        if (!(fp0 = convert_octal_escaped(fp[0])) ||
-            !(fp1 = convert_octal_escaped(fp[1])))
+        if (!(fp0 = convert_octal_escaped(ctx, fp[0])) ||
+            !(fp1 = convert_octal_escaped(ctx, fp[1])))
             continue;
         /*
          * Locate any colon (':') in the device name.
@@ -491,7 +492,7 @@ struct mounts *readmnt() {
          * Avoid Readlink() when requested.
          */
         if (!ignrdl) {
-            if (!(ln = Readlink(dn))) {
+            if (!(ln = Readlink(ctx, dn))) {
                 if (!Fwarn) {
                     (void)fprintf(
                         stderr,
@@ -547,7 +548,7 @@ struct mounts *readmnt() {
         if (ignstat)
             fr = 1;
         else {
-            if ((fr = statsafely(dn, &sb))) {
+            if ((fr = statsafely(ctx, dn, &sb))) {
                 if (!Fwarn) {
                     (void)fprintf(stderr, "%s: WARNING: can't stat() ", Pn);
                     safestrprt(fp[2], stderr, 0);
@@ -570,7 +571,7 @@ struct mounts *readmnt() {
              */
             if ((MntSup == 2) && MntSupP) {
                 ds = 0;
-                if (getmntdev(dn, dnl, &sb, &ds) || !(ds & SB_DEV)) {
+                if (getmntdev(ctx, dn, dnl, &sb, &ds) || !(ds & SB_DEV)) {
                     (void)fprintf(stderr,
                                   "%s: assuming dev=%#lx for %s from %s\n", Pn,
                                   (long)sb.st_dev, dn, MntSupP);
@@ -609,7 +610,7 @@ struct mounts *readmnt() {
                 (void)fprintf(stderr,
                               "%s: can't allocate mounts struct for: ", Pn);
                 safestrprt(dn, stderr, 1);
-                Error();
+                Error(ctx);
             }
         }
         mp->dir = dn;
@@ -662,18 +663,18 @@ struct mounts *readmnt() {
             if (!(ln = mkstrcpy(dn, (MALLOC_S *)NULL))) {
                 (void)fprintf(stderr, "%s: can't allocate space for: ", Pn);
                 safestrprt(dn, stderr, 1);
-                Error();
+                Error(ctx);
             }
             ignstat = 1;
         } else
-            ln = Readlink(dn);
+            ln = Readlink(ctx, dn);
         dn = (char *)NULL;
 
         /*
          * Stat() the file system (mounted-on) name and add file system
          * information to the local mount table entry.
          */
-        if (ignstat || !ln || statsafely(ln, &sb))
+        if (ignstat || !ln || statsafely(ctx, ln, &sb))
             sb.st_mode = 0;
         mp->fsnmres = ln;
         mp->fs_mode = sb.st_mode;

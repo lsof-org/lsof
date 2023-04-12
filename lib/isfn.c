@@ -131,7 +131,7 @@ static int HbyNmCt = 0; /* HbyNm entry count */
  * hashSfile() - hash Sfile entries for use in is_file_named() searches
  */
 
-void hashSfile() {
+void hashSfile(struct lsof_context *ctx) {
     static int hs = 0;
     int i;
     int sfplm = 3;
@@ -155,7 +155,7 @@ void hashSfile() {
             (void)fprintf(
                 stderr, "%s: can't allocate space for %d clone hash buckets\n",
                 Pn, SFCDHASH);
-            Error();
+            Error(ctx);
         }
         sfplm++;
     }
@@ -166,28 +166,28 @@ void hashSfile() {
         (void)fprintf(
             stderr, "%s: can't allocate space for %d (dev,ino) hash buckets\n",
             Pn, SFDIHASH);
-        Error();
+        Error(ctx);
     }
     if (!(HbyFrd = (struct hsfile *)calloc((MALLOC_S)SFRDHASH,
                                            sizeof(struct hsfile)))) {
         (void)fprintf(stderr,
                       "%s: can't allocate space for %d rdev hash buckets\n", Pn,
                       SFRDHASH);
-        Error();
+        Error(ctx);
     }
     if (!(HbyFsd = (struct hsfile *)calloc((MALLOC_S)SFFSHASH,
                                            sizeof(struct hsfile)))) {
         (void)fprintf(stderr,
                       "%s: can't allocate space for %d file sys hash buckets\n",
                       Pn, SFFSHASH);
-        Error();
+        Error(ctx);
     }
     if (!(HbyNm = (struct hsfile *)calloc((MALLOC_S)SFNMHASH,
                                           sizeof(struct hsfile)))) {
         (void)fprintf(stderr,
                       "%s: can't allocate space for %d name hash buckets\n", Pn,
                       SFNMHASH);
-        Error();
+        Error(ctx);
     }
     hs++;
     /*
@@ -245,7 +245,7 @@ void hashSfile() {
                     (void)fprintf(stderr,
                                   "%s: can't allocate hsfile bucket for: %s\n",
                                   Pn, s->aname);
-                    Error();
+                    Error(ctx);
                 }
                 sn->s = s;
                 sn->next = sh->next;
@@ -259,12 +259,12 @@ void hashSfile() {
  * is_file_named() - is this file named?
  */
 
-int is_file_named(p, cd)
-char *p; /* path name; NULL = search by device
-          * and inode (from *Lf) */
-int cd;  /* character or block type file --
-          * VCHR or VBLK vnode, or S_IFCHR
-          * or S_IFBLK inode */
+int is_file_named(struct lsof_context *ctx,
+                  char *p, /* path name; NULL = search by device
+                            * and inode (from *Lf) */
+                  int cd)  /* character or block type file --
+                            * VCHR or VBLK vnode, or S_IFCHR
+                            * or S_IFBLK inode */
 {
     char *ep;
     int f = 0;
@@ -359,7 +359,7 @@ int cd;  /* character or block type file --
              */
             (void)snpf(Namech, Namechl, "%s", s->name);
             if (s->devnm) {
-                ep = endnm(&sz);
+                ep = endnm(ctx, &sz);
                 (void)snpf(ep, sz, " (%s)", s->devnm);
             }
         }

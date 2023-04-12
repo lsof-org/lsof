@@ -66,13 +66,12 @@ static char copyright[] =
  * reads5lino() - read s5 inode's local inode information
  */
 
-int reads5lino(v, i)
-struct vnode *v; /* containing vnode */
-struct l_ino *i; /* local inode information */
+int reads5lino(struct lsof_context *ctx, struct vnode *v, /* containing vnode */
+               struct l_ino *i) /* local inode information */
 {
     struct inode s5i;
 
-    if (kread((KA_T)v->v_data, (char *)&s5i, sizeof(s5i)))
+    if (kread(ctx, (KA_T)v->v_data, (char *)&s5i, sizeof(s5i)))
         return (1);
     i->dev = s5i.i_dev;
     i->dev_def = 1;

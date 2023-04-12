@@ -124,17 +124,17 @@ static int Ncfirst = 1; /* first-call status */
 #    if defined(NCACHE_NODEID)
 #        define ncachehash(i, n)                                               \
             Nchash + (((((int)(n) >> 2) + ((int)(i))) * 31415) & Mch)
-_PROTOTYPE(static struct l_nch *ncache_addr, (unsigned long i, KA_T na));
+static struct l_nch *ncache_addr(unsigned long i, KA_T na);
 #    else /* !defined(NCACHE_NODEID) */
 #        define ncachehash(n) Nchash + ((((int)(n) >> 2) * 31415) & Mch)
-_PROTOTYPE(static struct l_nch *ncache_addr, (KA_T na));
+static struct l_nch *ncache_addr(KA_T na);
 #    endif /* defined(NCACHE_NODEID) */
 
 #    define DEFNCACHESZ 1024 /* local size if X_NCSIZE kernel value < 1 */
 #    define LNCHINCRSZ 64    /* local size increment */
 
 #    if !defined(NCACHE_NO_ROOT)
-_PROTOTYPE(static int ncache_isroot, (KA_T na, char *cp));
+static int ncache_isroot(KA_T na, char *cp);
 #    endif /* !defined(NCACHE_NO_ROOT) */
 
 /*
@@ -144,13 +144,12 @@ _PROTOTYPE(static int ncache_isroot, (KA_T na, char *cp));
 static struct l_nch *
 
 #    if defined(NCACHE_NODEID)
-ncache_addr(i, na)
-unsigned long i; /* node's capability ID */
-#    else        /* !defined(NCACHE_NODEID) */
-ncache_addr(na)
-#    endif       /* defined(NCACHE_NODEID) */
+ncache_addr(unsigned long i, /* node's capability ID */
+#    else                    /* !defined(NCACHE_NODEID) */
+ncache_addr(
+#    endif                   /* defined(NCACHE_NODEID) */
 
-KA_T na; /* node's address */
+            KA_T na) /* node's address */
 {
     struct l_nch **hp;
 
@@ -178,9 +177,9 @@ KA_T na; /* node's address */
  * ncache_isroot() - is head of name cache path a file system root?
  */
 
-static int ncache_isroot(na, cp)
-KA_T na;  /* kernel node address */
-char *cp; /* partial path */
+static int ncache_isroot(struct lsof_context *ctx, /* context */
+                         KA_T na,                  /* kernel node address */
+                         char *cp)                 /* partial path */
 {
     char buf[MAXPATHLEN];
     int i;
@@ -211,7 +210,7 @@ char *cp; /* partial path */
      * matches the one we have for this file.  If it does, then the path is
      * complete.
      */
-    if (kread((KA_T)na, (char *)&v, sizeof(v)) || v.v_type != VDIR ||
+    if (kread(ctx, (KA_T)na, (char *)&v, sizeof(v)) || v.v_type != VDIR ||
         !(v.v_flag & VROOT)) {
 
         /*
@@ -250,7 +249,7 @@ char *cp; /* partial path */
         }
         if (!nc) {
             (void)fprintf(stderr, "%s: no space for root node table\n", Pn);
-            Error();
+            Error(ctx);
         }
         nca += 10;
     }
@@ -291,7 +290,7 @@ void ncache_load() {
          */
         v = (KA_T)0;
         if (get_Nl_value(X_NCSIZE, (struct drive_Nl *)NULL, &v) < 0 || !v ||
-            kread((KA_T)v, (char *)&Nc, sizeof(Nc))) {
+            kread(ctx, (KA_T)v, (char *)&Nc, sizeof(Nc))) {
             if (!Fwarn)
                 (void)fprintf(stderr,
                               "%s: WARNING: can't read name cache size: %s\n",
@@ -315,7 +314,7 @@ void ncache_load() {
          */
         v = (KA_T)0;
         if (get_Nl_value(X_NCACHE, (struct drive_Nl *)NULL, &v) < 0 || !v ||
-            kread((KA_T)v, (char *)&kp, sizeof(kp))) {
+            kread(ctx, (KA_T)v, (char *)&kp, sizeof(kp))) {
             if (!Fwarn)
                 (void)fprintf(
                     stderr, "%s: WARNING: can't read name cache address: %s\n",
@@ -337,7 +336,7 @@ void ncache_load() {
                 (void)fprintf(stderr,
                               "%s: can't allocate name cache space: %d\n", Pn,
                               len);
-            Error();
+            Error(ctx);
         }
 #    endif /* defined(NCACHE_NXT) */
 
@@ -353,7 +352,7 @@ void ncache_load() {
                 (void)fprintf(stderr,
                               "%s: no space for %d byte local name cache\n", Pn,
                               len);
-            Error();
+            Error(ctx);
         }
     } else {
 
@@ -377,7 +376,7 @@ void ncache_load() {
     /*
      * Read the kernel's name cache.
      */
-    if (kread(kp, (char *)kca, (Nc * sizeof(struct NCACHE)))) {
+    if (kread(ctx, kp, (char *)kca, (Nc * sizeof(struct NCACHE)))) {
         if (!Fwarn)
             (void)fprintf(stderr,
                           "%s: WARNING: can't read kernel's name cache: %s\n",
@@ -400,7 +399,7 @@ void ncache_load() {
     {
 
 #    if defined(NCACHE_NXT)
-        if (kread(kp, (char *)kc, sizeof(nc)))
+        if (kread(ctx, kp, (char *)kc, sizeof(nc)))
             break;
         if ((kp = (KA_T)kc->NCACHE_NXT) == kf)
             kp = (KA_T)NULL;
@@ -423,7 +422,7 @@ void ncache_load() {
                 (void)fprintf(
                     stderr, "%s: no more space for %d entry local name cache\n",
                     Pn, Nc);
-                Error();
+                Error(ctx);
             }
             lc = &Ncache[n];
         }
@@ -499,7 +498,7 @@ void ncache_load() {
             (void)fprintf(stderr,
                           "%s: no space for %d name cache hash pointers\n", Pn,
                           Nch + Nc);
-        Error();
+        Error(ctx);
     }
     for (i = 0, lc = Ncache; i < Nc; i++, lc++) {
 
@@ -549,10 +548,9 @@ void ncache_load() {
  * ncache_lookup() - look up a node's name in the kernel's name cache
  */
 
-char *ncache_lookup(buf, blen, fp)
-char *buf; /* receiving name buffer */
-int blen;  /* receiving buffer length */
-int *fp;   /* full path reply */
+char *ncache_lookup(char *buf, /* receiving name buffer */
+                    int blen,  /* receiving buffer length */
+                    int *fp)   /* full path reply */
 {
     char *cp = buf;
     struct l_nch *lc;

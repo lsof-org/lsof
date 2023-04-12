@@ -35,7 +35,8 @@ static char copyright[] =
 
 #include "common.h"
 
-_PROTOTYPE(static void process_kinfo_file, (struct kinfo_file * file));
+static void process_kinfo_file(struct lsof_context *ctx,
+                               struct kinfo_file *file);
 
 /*
  * Local static values
@@ -44,7 +45,7 @@ _PROTOTYPE(static void process_kinfo_file, (struct kinfo_file * file));
 /*
  * gather_proc_info() -- gather process information
  */
-void gather_proc_info() {
+void gather_proc_info(struct lsof_context *ctx) {
     short pss, sf;
     uid_t uid;
     struct stat st;
@@ -85,7 +86,7 @@ void gather_proc_info() {
         if (sysctl(mib, 6, NULL, &size, NULL, 0) < 0) {
             (void)fprintf(stderr, "%s: can't read process table: %d\n", Pn,
                           errno);
-            Error();
+            Error(ctx);
         }
 
         /* Alloc more to handle new processes in the meantime */
@@ -99,7 +100,7 @@ void gather_proc_info() {
         }
         if (!procs) {
             (void)fprintf(stderr, "%s: no kinfo_proc * space\n", Pn);
-            Error();
+            Error(ctx);
         }
 
         mib[5] = size / sizeof(struct kinfo_proc); /* elem_count */
@@ -110,7 +111,7 @@ void gather_proc_info() {
         } else if (res < 0 && errno != ENOMEM) {
             (void)fprintf(stderr, "%s: can't read process table: %d\n", Pn,
                           errno);
-            Error();
+            Error(ctx);
         }
     };
 
@@ -130,18 +131,19 @@ void gather_proc_info() {
          * Read file structure pointers.
          */
         uid = proc->p_uid;
-        if (is_proc_excl((int)proc->p_pid, (int)proc->p__pgid, (UID_ARG)uid,
-                         &pss, &sf)) {
+        if (is_proc_excl(ctx, (int)proc->p_pid, (int)proc->p__pgid,
+                         (UID_ARG)uid, &pss, &sf)) {
             continue;
         }
 
         /*
          * Allocate a local process structure.
          */
-        if (is_cmd_excl(proc->p_comm, &pss, &sf))
+        if (is_cmd_excl(ctx, proc->p_comm, &pss, &sf))
             continue;
-        alloc_lproc((int)proc->p_pid, (int)proc->p__pgid, (int)proc->p_ppid,
-                    (UID_ARG)uid, proc->p_comm, (int)pss, (int)sf);
+        alloc_lproc(ctx, (int)proc->p_pid, (int)proc->p__pgid,
+                    (int)proc->p_ppid, (UID_ARG)uid, proc->p_comm, (int)pss,
+                    (int)sf);
         Plf = (struct lfile *)NULL; /* Empty list head */
 
         /*
@@ -164,7 +166,7 @@ void gather_proc_info() {
             if (sysctl(mib, 6, NULL, &size, NULL, 0) < 0) {
                 (void)fprintf(stderr, "%s: can't read file table: %d\n", Pn,
                               errno);
-                Error();
+                Error(ctx);
             }
 
             /* Alloc more to handle new processes in the meantime */
@@ -178,7 +180,7 @@ void gather_proc_info() {
             }
             if (!files) {
                 (void)fprintf(stderr, "%s: no kinfo_file * space\n", Pn);
-                Error();
+                Error(ctx);
             }
 
             mib[5] = size / sizeof(struct kinfo_file); /* elem_count */
@@ -189,18 +191,18 @@ void gather_proc_info() {
             } else if (res < 0 && errno != ENOMEM) {
                 (void)fprintf(stderr, "%s: can't read file table: %d\n", Pn,
                               errno);
-                Error();
+                Error(ctx);
             }
         };
 
         for (file = files, fx = 0; fx < num_files; fx++, file++) {
-            process_kinfo_file(file);
+            process_kinfo_file(ctx, file);
         }
 
         /*
          * Examine results.
          */
-        if (examine_lproc())
+        if (examine_lproc(ctx))
             return;
     }
 }
@@ -208,24 +210,24 @@ void gather_proc_info() {
 /*
  * initialize() - perform all initialization
  */
-void initialize() {}
+void initialize(struct lsof_context *ctx) {}
 
 /*
  * process_kinfo_file() - process kinfo_file
  */
-void process_kinfo_file(struct kinfo_file *file) {
+void process_kinfo_file(struct lsof_context *ctx, struct kinfo_file *file) {
     switch (file->f_type) {
     case DTYPE_VNODE: /* file */
-        process_vnode(file);
+        process_vnode(ctx, file);
         break;
     case DTYPE_SOCKET:
-        process_socket(file);
+        process_socket(ctx, file);
         break;
     case DTYPE_PIPE:
-        process_pipe(file);
+        process_pipe(ctx, file);
         break;
     case DTYPE_KQUEUE:
-        process_kqueue_file(file);
+        process_kqueue_file(ctx, file);
         break;
     }
 }

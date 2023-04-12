@@ -41,7 +41,7 @@
  * Note: this module does not support a UDP state table.
  */
 
-void build_IPstates() {
+void build_IPstates(struct lsof_context *ctx) {
 
     /*
      * Set the TcpNstates global variable.
@@ -54,7 +54,7 @@ void build_IPstates() {
  * print_tcptpi() - print TCP/TPI info
  */
 
-void print_tcptpi(nl) int nl; /* 1 == '\n' required */
+void print_tcptpi(struct lsof_context *ctx, int nl) /* 1 == '\n' required */
 {
     int ps = 0;
     int s;
@@ -65,7 +65,7 @@ void print_tcptpi(nl) int nl; /* 1 == '\n' required */
         else
             putchar('(');
         if (!TcpNstates)
-            (void)build_IPstates();
+            (void)build_IPstates(ctx);
         if ((s = Lf->lts.state.i) < 0 || s >= TcpNstates)
             (void)printf("UNKNOWN_TCP_STATE_%d", s);
         else

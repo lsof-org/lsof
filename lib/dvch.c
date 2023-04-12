@@ -91,7 +91,7 @@ static int crctbl[CRC_TBLL]; /* crc partial results table */
 #        if defined(HAS_STD_CLONE) && HAS_STD_CLONE == 1
 #            define DCACHE_CLR clr_sect
 #            define DCACHE_CLR_LOCAL 1
-_PROTOTYPE(static void clr_sect, (void));
+static void clr_sect(void);
 #        endif /* defined(HAS_STD_CLONE) && HAS_STD_CLONE==1 */
 #    endif     /* !defined(DCACHE_CLR) */
 
@@ -100,7 +100,7 @@ _PROTOTYPE(static void clr_sect, (void));
 #        if defined(HAS_STD_CLONE) && HAS_STD_CLONE == 1
 #            define DCACHE_CLONE rw_clone_sect
 #            define DCACHE_CLONE_LOCAL 1
-_PROTOTYPE(static int rw_clone_sect, (int m));
+static int rw_clone_sect(int m);
 #        endif /* defined(HAS_STD_CLONE) && HAS_STD_CLONE==1 */
 #    endif     /*!defined(DCACHE_CLONE) */
 
@@ -109,16 +109,16 @@ _PROTOTYPE(static int rw_clone_sect, (int m));
  * alloc_bdcache() - allocate block device cache
  */
 
-void alloc_bdcache() {
+void alloc_bdcache(struct lsof_context *ctx) {
     if (!(BDevtp =
               (struct l_dev *)calloc((MALLOC_S)BNdev, sizeof(struct l_dev)))) {
         (void)fprintf(stderr, "%s: no space for block devices\n", Pn);
-        Error();
+        Error(ctx);
     }
     if (!(BSdev = (struct l_dev **)malloc(
               (MALLOC_S)(sizeof(struct l_dev *) * BNdev)))) {
         (void)fprintf(stderr, "%s: no space for block device pointers\n", Pn);
-        Error();
+        Error(ctx);
     }
 }
 #    endif /* defined(HASBLKDEV) */
@@ -127,16 +127,16 @@ void alloc_bdcache() {
  * alloc_dcache() - allocate device cache
  */
 
-void alloc_dcache() {
+void alloc_dcache(struct lsof_context *ctx) {
     if (!(Devtp =
               (struct l_dev *)calloc((MALLOC_S)Ndev, sizeof(struct l_dev)))) {
         (void)fprintf(stderr, "%s: no space for devices\n", Pn);
-        Error();
+        Error(ctx);
     }
     if (!(Sdev = (struct l_dev **)malloc(
               (MALLOC_S)(sizeof(struct l_dev *) * Ndev)))) {
         (void)fprintf(stderr, "%s: no space for device pointers\n", Pn);
-        Error();
+        Error(ctx);
     }
 }
 
@@ -144,7 +144,7 @@ void alloc_dcache() {
  * clr_devtab() - clear the device tables and free their space
  */
 
-void clr_devtab() {
+void clr_devtab(struct lsof_context *ctx) {
     int i;
 
     if (Devtp) {
@@ -204,9 +204,9 @@ static void clr_sect() {
  * crc(b, l, s) - compute a crc for a block of bytes
  */
 
-void crc(b, l, s) char *b; /* block address */
-int l;                     /* length */
-unsigned *s;               /* sum */
+void crc(char *b,     /* block address */
+         int l,       /* length */
+         unsigned *s) /* sum */
 {
     char *cp;     /* character pointer */
     char *lm;     /* character limit pointer */
@@ -248,10 +248,9 @@ void crcbld() {
  * dcpath() - define device cache file paths
  */
 
-int dcpath(rw, npw)
-int rw;  /* read (1) or write (2) mode */
-int npw; /* inhibit (0) or enable (1) no
-          * path warning message */
+int dcpath(struct lsof_context *ctx, int rw, /* read (1) or write (2) mode */
+           int npw)                          /* inhibit (0) or enable (1) no
+                                              * path warning message */
 {
     char buf[MAXPATHLEN + 1], *cp1, *cp2, hn[MAXPATHLEN + 1];
     int endf;
@@ -575,7 +574,7 @@ int npw; /* inhibit (0) or enable (1) no
      * will have been issued to stderr.
      */
     if (merr)
-        Error();
+        Error(ctx);
     /*
      * Return the index of the first defined path.  Since DCpath[] is arranged
      * in priority order, searching it beginning to end follows priority.
@@ -595,10 +594,9 @@ int npw; /* inhibit (0) or enable (1) no
  * open_dcache() - open device cache file
  */
 
-int open_dcache(m, r, s)
-int m;          /* mode: 1 = read; 2 = write */
-int r;          /* create DCpath[] if 0, reuse if 1 */
-struct stat *s; /* stat() receiver */
+int open_dcache(struct lsof_context *ctx, int m, /* mode: 1 = read; 2 = write */
+                int r,          /* create DCpath[] if 0, reuse if 1 */
+                struct stat *s) /* stat() receiver */
 {
     char buf[128];
     char *w = (char *)NULL;
@@ -606,7 +604,7 @@ struct stat *s; /* stat() receiver */
      * Get the device cache file paths.
      */
     if (!r) {
-        if ((DCpathX = dcpath(m, 1)) < 0)
+        if ((DCpathX = dcpath(ctx, m, 1)) < 0)
             return (1);
     }
     /*
@@ -715,7 +713,7 @@ struct stat *s; /* stat() receiver */
          * Oops!
          */
         (void)fprintf(stderr, "%s: internal error: open_dcache=%d\n", Pn, m);
-        Error();
+        Error(ctx);
     }
     return (1);
 }
@@ -724,7 +722,7 @@ struct stat *s; /* stat() receiver */
  * read_dcache() - read device cache file
  */
 
-int read_dcache() {
+int read_dcache(struct lsof_context *ctx) {
     char buf[MAXPATHLEN * 2], cbuf[64], *cp;
     int i, len, ov;
     struct stat sb, devsb;
@@ -735,11 +733,11 @@ int read_dcache() {
      * the real UID of this process is not zero, try to open a device cache
      * file at HASPERSDC.
      */
-    if ((ov = open_dcache(1, 0, &sb)) != 0) {
+    if ((ov = open_dcache(ctx, 1, 0, &sb)) != 0) {
         if (DCpathX == 2) {
             if (ov == 2 && DCpath[3]) {
                 DCpathX = 3;
-                if (open_dcache(1, 1, &sb) != 0)
+                if (open_dcache(ctx, 1, 1, &sb) != 0)
                     return (1);
             } else
                 return (1);
@@ -780,10 +778,10 @@ int read_dcache() {
         (void)fclose(DCfs);
         DCfd = -1;
         DCfs = (FILE *)NULL;
-        (void)clr_devtab();
+        (void)clr_devtab(ctx);
 
 #    if defined(DCACHE_CLR)
-        (void)DCACHE_CLR();
+        (void)DCACHE_CLR(ctx);
 #    endif /* defined(DCACHE_CLR) */
 
         return (1);
@@ -852,7 +850,7 @@ int read_dcache() {
      */
     if ((Ndev = atoi(&buf[len])) < 1)
         goto read_dhdr;
-    alloc_dcache();
+    alloc_dcache(ctx);
     /*
      * Read the device lines and store their information in Devtp[].
      * Construct the Sdev[] pointers to Devtp[].
@@ -913,7 +911,7 @@ int read_dcache() {
             (void)fprintf(stderr, "%s: device %d: no space for path: line ", Pn,
                           i + 1);
             safestrprt(buf, stderr, 1 + 4 + 8);
-            Error();
+            Error(ctx);
         }
         Devtp[i].v = 0;
         Sdev[i] = &Devtp[i];
@@ -941,7 +939,7 @@ int read_dcache() {
      * Compute the block device count; allocate BSdev[] and BDevtp[] space.
      */
     if ((BNdev = atoi(&buf[len])) > 0) {
-        alloc_bdcache();
+        alloc_bdcache(ctx);
         /*
          * Read the block device lines and store their information in BDevtp[].
          * Construct the BSdev[] pointers to BDevtp[].
@@ -1006,7 +1004,7 @@ int read_dcache() {
                               "%s: block dev %d: no space for path: line", Pn,
                               i + 1);
                 safestrprt(buf, stderr, 1 + 4 + 8);
-                Error();
+                Error(ctx);
             }
             BDevtp[i].v = 0;
             BSdev[i] = &BDevtp[i];
@@ -1018,7 +1016,7 @@ int read_dcache() {
     /*
      * Read the clone section.
      */
-    if (DCACHE_CLONE(1))
+    if (DCACHE_CLONE(ctx, 1))
         goto read_close;
 #    endif /* defined(DCACHE_CLONE) */
 
@@ -1026,7 +1024,7 @@ int read_dcache() {
     /*
      * Read the pseudo section.
      */
-    if (DCACHE_PSEUDO(1))
+    if (DCACHE_PSEUDO(ctx, 1))
         goto read_close;
 #    endif /* defined(DCACHE_PSEUDO) */
 
@@ -1084,8 +1082,8 @@ int read_dcache() {
  * rw_clone_sect() - read/write the device cache file clone section
  */
 
-static int rw_clone_sect(m)
-int m; /* mode: 1 = read; 2 = write */
+static int rw_clone_sect(struct lsof_context *ctx,
+                         int m) /* mode: 1 = read; 2 = write */
 {
     char buf[MAXPATHLEN * 2], *cp, *cp1;
     struct clone *c;
@@ -1157,7 +1155,7 @@ int m; /* mode: 1 = read; 2 = write */
                               "%s: clone %d: no space for cached clone: line ",
                               Pn, i + 1);
                 safestrprt(buf, stderr, 1 + 4 + 8);
-                Error();
+                Error(ctx);
             }
             c->dx = j;
             c->next = Clone;
@@ -1203,7 +1201,7 @@ int m; /* mode: 1 = read; 2 = write */
      * A shouldn't-happen case: mode neither 1 nor 2.
      */
     (void)fprintf(stderr, "%s: internal rw_clone_sect error: %d\n", Pn, m);
-    Error();
+    Error(ctx);
     return (1); /* This useless return(1) keeps some
                  * compilers happy. */
 }
@@ -1213,7 +1211,7 @@ int m; /* mode: 1 = read; 2 = write */
  * write_dcache() - write device cache file
  */
 
-void write_dcache() {
+void write_dcache(struct lsof_context *ctx) {
     char buf[MAXPATHLEN * 2], *cp;
     struct l_dev *dp;
     int i;
@@ -1221,7 +1219,7 @@ void write_dcache() {
     /*
      * Open the cache file; set up the CRC table; write the section count.
      */
-    if (open_dcache(2, 0, &sb))
+    if (open_dcache(ctx, 2, 0, &sb))
         return;
     i = 1;
     cp = "";
@@ -1283,7 +1281,7 @@ void write_dcache() {
     /*
      * Write the clone section.
      */
-    if (DCACHE_CLONE(2))
+    if (DCACHE_CLONE(ctx, 2))
         return;
 #    endif /* defined(DCACHE_CLONE) */
 
@@ -1291,7 +1289,7 @@ void write_dcache() {
     /*
      * Write the pseudo section.
      */
-    if (DCACHE_PSEUDO(2))
+    if (DCACHE_PSEUDO(ctx, 2))
         return;
 #    endif /* defined(DCACHE_PSEUDO) */
 
@@ -1324,9 +1322,8 @@ void write_dcache() {
  * wr2DCfd() - write to the DCfd file descriptor
  */
 
-int wr2DCfd(b, c)
-char *b;     /* buffer */
-unsigned *c; /* checksum receiver */
+int wr2DCfd(char *b,     /* buffer */
+            unsigned *c) /* checksum receiver */
 {
     int bl, bw;
 

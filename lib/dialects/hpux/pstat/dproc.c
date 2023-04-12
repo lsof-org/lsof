@@ -110,13 +110,11 @@ static struct psfileid RtPsfid; /* "/" psfileid */
  * Local function prototypes
  */
 
-_PROTOTYPE(static void get_kernel_access, (void));
-_PROTOTYPE(static void process_text, (struct pst_status * p));
-_PROTOTYPE(static struct pst_fileinfo2 *read_files,
-           (struct pst_status * p, int *n));
-_PROTOTYPE(static struct pst_status *read_proc, (int *n));
-_PROTOTYPE(static struct pst_vm_status *read_vmreg,
-           (struct pst_status * p, int *n));
+static void get_kernel_access(void);
+static void process_text(struct pst_status *p);
+static struct pst_fileinfo2 *read_files(struct pst_status *p, int *n);
+static struct pst_status *read_proc(int *n);
+static struct pst_vm_status *read_vmreg(struct pst_status *p, int *n);
 
 /*
  * gather_proc_info() -- gather process information
@@ -153,7 +151,7 @@ void gather_proc_info() {
         if (!(fds = (int *)malloc(nb))) {
             (void)fprintf(stderr, "%s: can't allocate %d FD status entries\n",
                           Pn, FDS_ALLOC_INIT);
-            Error();
+            Error(ctx);
         }
         for (fdsa = 0; fdsa < FDS_ALLOC_INIT; fdsa++) {
             if (Fand && Fdl)
@@ -310,7 +308,7 @@ void gather_proc_info() {
                             stderr,
                             "%s: can't reallocate %d FD status entries\n", Pn,
                             l);
-                        Error();
+                        Error(ctx);
                     }
                     while (fdsa < l) {
                         fds[fdsa] = (ck_fd_status(NULL, fdsa) == 2) ? 1 : 0;
@@ -443,12 +441,12 @@ static void get_kernel_access() {
         (void)fprintf(stderr,
                       "%s: FATAL: can't determine PSTAT static size: %s\n", Pn,
                       strerror(errno));
-        Error();
+        Error(ctx);
     }
     if (pstat_getstatic(&pst, (size_t)pst.pst_static_size, 1, 0) != 1) {
         (void)fprintf(stderr, "%s: FATAL: can't read %ld bytes of pst_static\n",
                       Pn, (long)pst.pst_static_size);
-        Error();
+        Error(ctx);
     }
     /*
      * Check all the pst_static members defined in PstatCk[].
@@ -480,7 +478,7 @@ static void get_kernel_access() {
     }
     if (!err)
         return;
-    Error();
+    Error(ctx);
 }
 
 /*
@@ -541,7 +539,7 @@ static void process_text(p) struct pst_status *p; /* pst_status for process */
             (void)fprintf(stderr,
                           "%s: no memory for text and VM info array; PID: %d\n",
                           Pn, (int)p->pst_pid);
-            Error();
+            Error(ctx);
         }
     }
     /*
@@ -630,13 +628,12 @@ static void process_text(p) struct pst_status *p; /* pst_status for process */
  * read_det() -- read the pst_filedetails structure
  */
 
-KA_T read_det(ki, hf, lf, hn, ln, pd)
-struct pst_fid *ki;         /* kernel file ID */
-uint32_t hf;                /* high file ID bits */
-uint32_t lf;                /* low file ID bits */
-uint32_t hn;                /* high node ID bits */
-uint32_t ln;                /* low node ID bits */
-struct pst_filedetails *pd; /* details receiver */
+KA_T read_det(struct pst_fid *ki,         /* kernel file ID */
+              uint32_t hf,                /* high file ID bits */
+              uint32_t lf,                /* low file ID bits */
+              uint32_t hn,                /* high node ID bits */
+              uint32_t ln,                /* low node ID bits */
+              struct pst_filedetails *pd) /* details receiver */
 {
     KA_T na;
 
@@ -653,9 +650,9 @@ struct pst_filedetails *pd; /* details receiver */
  * read_files() -- read the file descriptor information for a process
  */
 
-static struct pst_fileinfo2 *read_files(p, n)
-struct pst_status *p; /* pst_status for the process */
-int *n;               /* returned fi[] entry count */
+static struct pst_fileinfo2 *
+read_files(struct pst_status *p, /* pst_status for the process */
+           int *n)               /* returned fi[] entry count */
 {
     size_t ec;
     static struct pst_fileinfo2 *fi = (struct pst_fileinfo2 *)NULL;
@@ -684,7 +681,7 @@ int *n;               /* returned fi[] entry count */
                 (void)fprintf(stderr,
                               "%s: can't allocate %d bytes for pst_filinfo\n",
                               Pn, nb);
-                Error();
+                Error(ctx);
             }
         }
         /*
@@ -705,8 +702,7 @@ int *n;               /* returned fi[] entry count */
  * read_proc() -- read process table status information
  */
 
-static struct pst_status *read_proc(n)
-int *n; /* returned ps[] entry count */
+static struct pst_status *read_proc(int *n) /* returned ps[] entry count */
 {
     size_t el;
     int i = 0;
@@ -738,7 +734,7 @@ int *n; /* returned ps[] entry count */
                     stderr,
                     "%s: can't allocate %d bytes for pst_status table\n", Pn,
                     nb);
-                Error();
+                Error(ctx);
             }
         }
         /*
@@ -768,9 +764,9 @@ int *n; /* returned ps[] entry count */
  * read_vmreg() -- read info about the VM regions of a process
  */
 
-static struct pst_vm_status *read_vmreg(p, n)
-struct pst_status *p; /* pst_status for process */
-int *n;               /* returned region count */
+static struct pst_vm_status *
+read_vmreg(struct pst_status *p, /* pst_status for process */
+           int *n)               /* returned region count */
 {
     size_t ec = (size_t)p->pst_pid;
     MALLOC_S nb;
@@ -798,7 +794,7 @@ int *n;               /* returned region count */
                 (void)fprintf(stderr,
                               "%s: can't allocate %d bytes for pst_vm_status\n",
                               Pn, nb);
-                Error();
+                Error(ctx);
             }
         }
         /*

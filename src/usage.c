@@ -32,26 +32,26 @@ static char copyright[] =
     "Copyright 1998 Purdue Research Foundation. All rights reserved.";
 
 #include "common.h"
+#include "cli.h"
 #include "version.h"
 
 /*
  * Local function prototypes
  */
 
-_PROTOTYPE(static char *isnullstr, (char *s));
-_PROTOTYPE(static int print_in_col, (int col, char *cp));
-_PROTOTYPE(static void report_HASDCACHE, (int type, char *ttl, char *det));
-_PROTOTYPE(static void report_HASKERNIDCK, (char *pfx, char *verb));
-_PROTOTYPE(static void report_SECURITY, (char *pfx, char *punct));
-_PROTOTYPE(static void report_WARNDEVACCESS,
-           (char *pfx, char *verb, char *punct));
+static char *isnullstr(char *s);
+static int print_in_col(int col, char *cp);
+static void report_HASDCACHE(struct lsof_context *ctx, int type, char *ttl,
+                             char *det);
+static void report_HASKERNIDCK(char *pfx, char *verb);
+static void report_SECURITY(char *pfx, char *punct);
+static void report_WARNDEVACCESS(char *pfx, char *verb, char *punct);
 
 /*
  * isnullstr() - is it a null string?
  */
 
-static char *isnullstr(s)
-char *s; /* string pointer */
+static char *isnullstr(char *s) /* string pointer */
 {
     if (!s)
         return ((char *)NULL);
@@ -67,9 +67,8 @@ char *s; /* string pointer */
  * print_in_col() -- print character string in help column
  */
 
-static int print_in_col(col, cp)
-int col;  /* column number */
-char *cp; /* what to print */
+static int print_in_col(int col,  /* column number */
+                        char *cp) /* what to print */
 {
     if (cp && *cp) {
         switch (col) {
@@ -92,13 +91,13 @@ char *cp; /* what to print */
  * report_HASDCACHE() -- report device cache file state
  */
 
-static void report_HASDCACHE(type, ttl,
-                             det) int type; /* type: 0 == read path report
-                                             *       1 == full report */
-char *ttl;                                  /* title lines prefix
-                                             * (NULL if none) */
-char *det;                                  /* detail lines prefix
-                                             * (NULL if none) */
+static void report_HASDCACHE(struct lsof_context *ctx, /* context */
+                             int type,  /* type: 0 == read path report
+                                         *       1 == full report */
+                             char *ttl, /* title lines prefix
+                                         * (NULL if none) */
+                             char *det) /* detail lines prefix
+                                         * (NULL if none) */
 {
 
 #if defined(HASDCACHE)
@@ -118,7 +117,7 @@ char *det;                                  /* detail lines prefix
          */
         (void)fprintf(stderr, "%sDevice cache file read-only paths:\n",
                       ttl ? ttl : "");
-        if ((dx = dcpath(1, 0)) < 0)
+        if ((dx = dcpath(ctx, 1, 0)) < 0)
             (void)fprintf(stderr, "%snone\n", det ? det : "");
         else {
             (void)fprintf(stderr, "%sNamed via -D: %s\n", det ? det : "",
@@ -154,7 +153,7 @@ char *det;                                  /* detail lines prefix
         }
         (void)fprintf(stderr, "%sDevice cache file write paths:\n",
                       ttl ? ttl : "");
-        if ((dx = dcpath(2, 0)) < 0)
+        if ((dx = dcpath(ctx, 2, 0)) < 0)
             (void)fprintf(stderr, "%snone\n", det ? det : "");
         else {
             (void)fprintf(stderr, "%sNamed via -D: %s\n", det ? det : "",
@@ -193,7 +192,7 @@ char *det;                                  /* detail lines prefix
 #    if defined(HASENVDC) || defined(HASPERSDC) || defined(HASSYSDC)
         cp = NULL;
 #        if defined(HASENVDC)
-        if ((dx = dcpath(1, 0)) >= 0)
+        if ((dx = dcpath(ctx, 1, 0)) >= 0)
             cp = DCpath[1];
 #        endif /* defined(HASENVDC) */
 #        if defined(HASSYSDC)
@@ -201,7 +200,7 @@ char *det;                                  /* detail lines prefix
             cp = HASSYSDC;
 #        endif /* defined(HASSYSDC) */
 #        if defined(HASPERSDC)
-        if (!cp && dx != -1 && (dx = dcpath(1, 0)) >= 0)
+        if (!cp && dx != -1 && (dx = dcpath(ctx, 1, 0)) >= 0)
             cp = DCpath[3];
 #        endif /* defined(HASPERSDC) */
         if (cp)
@@ -286,10 +285,10 @@ char *punct;                                       /* punctuation */
  * usage() - display usage and exit
  */
 
-void usage(err, fh,
-           version) int err; /* it is called as part of error handlng? */
-int fh;                      /* ``-F ?'' status */
-int version;                 /* ``-v'' status */
+void usage(struct lsof_context *ctx, /* context */
+           int err,     /* it is called as part of error handlng? */
+           int fh,      /* ``-F ?'' status */
+           int version) /* ``-v'' status */
 {
     char buf[MAXPATHLEN + 1], *cp, *cp1, *cp2;
     int col, i;
@@ -451,7 +450,7 @@ int version;                 /* ``-v'' status */
         (void)fprintf(stderr,
                       "Use the ``-h'' option to get more help information.\n");
         if (!fh)
-            Exit(err ? LSOF_ERROR : LSOF_SUCCESS);
+            Exit(ctx, err ? LSOF_ERROR : LSOF_SUCCESS);
     }
     if (Fhelp) {
         (void)fprintf(
@@ -646,8 +645,8 @@ int version;                 /* ``-v'' status */
 #    if defined(N_UNIX)
                             : N_UNIX
 #    else  /* !defined(N_UNIX) */
-                      : (Nmlst = get_nlist_path(1)) ? Nmlst
-                                                    : "none found"
+                      : (Nmlst = get_nlist_path(ctx, 1)) ? Nmlst
+                                                         : "none found"
 #    endif /* defined(N_UNIX) */
 
         );
@@ -798,7 +797,7 @@ int version;                 /* ``-v'' status */
         (void)report_SECURITY(NULL, "; ");
         (void)report_WARNDEVACCESS(NULL, NULL, ";");
         (void)report_HASKERNIDCK(" k", NULL);
-        (void)report_HASDCACHE(0, NULL, NULL);
+        (void)report_HASDCACHE(ctx, 0, NULL, NULL);
 
 #if defined(DIALECT_WARNING)
         (void)fprintf(stderr, "WARNING: %s\n", DIALECT_WARNING);
@@ -860,7 +859,7 @@ int version;                 /* ``-v'' status */
 
 #if defined(HASDCACHE)
     if (DChelp)
-        report_HASDCACHE(1, NULL, "    ");
+        report_HASDCACHE(ctx, 1, NULL, "    ");
 #endif /* defined(HASDCACHE) */
 
     if (version) {
@@ -992,7 +991,7 @@ int version;                 /* ``-v'' status */
         (void)fprintf(stderr, "    WARNING: %s\n", DIALECT_WARNING);
 #endif /* defined(DIALECT_WARNING) */
 
-        (void)report_HASDCACHE(1, "    ", "\t");
+        (void)report_HASDCACHE(ctx, 1, "    ", "\t");
     }
-    Exit(err ? LSOF_ERROR : LSOF_SUCCESS);
+    Exit(ctx, err ? LSOF_ERROR : LSOF_SUCCESS);
 }

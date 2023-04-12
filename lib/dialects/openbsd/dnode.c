@@ -38,7 +38,7 @@ static char copyright[] =
 /*
  * process_vnode() - process vnode
  */
-void process_vnode(struct kinfo_file *file) {
+void process_vnode(struct lsof_context *ctx, struct kinfo_file *file) {
     char *nm = NULL;
     int num = -1;
     uint32_t flag;
@@ -63,7 +63,7 @@ void process_vnode(struct kinfo_file *file) {
         num = file->fd_fd;
         break;
     }
-    alloc_lfile(nm, num);
+    alloc_lfile(ctx, nm, num);
 
     if (file->fd_fd == KERN_FILE_CDIR) {
         /*
@@ -76,7 +76,7 @@ void process_vnode(struct kinfo_file *file) {
         size = sizeof(path);
         if (sysctl(mib, 3, path, &size, NULL, 0) >= 0) {
             (void)snpf(Namech, Namechl, "%s", path);
-            enter_nm(Namech);
+            enter_nm(ctx, Namech);
         }
     }
 
@@ -152,11 +152,11 @@ void process_vnode(struct kinfo_file *file) {
 
     /* Handle name match, must be done late, because if_file_named checks
      * Lf->dev etc. */
-    if (is_file_named(nm, 0)) {
+    if (is_file_named(ctx, nm, 0)) {
         Lf->sf |= SELNM;
     }
 
     /* Finish */
     if (Lf->sf)
-        link_lfile();
+        link_lfile(ctx);
 }

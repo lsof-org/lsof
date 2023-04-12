@@ -46,7 +46,7 @@ static int Lmist = 0;                              /* Lmi status */
  * readmnt() - read mount table
  */
 
-struct mounts *readmnt() {
+struct mounts *readmnt(struct lsof_context *ctx) {
     char *dn = (char *)NULL;
     char *ln;
     struct mnttab me;
@@ -97,7 +97,7 @@ struct mounts *readmnt() {
             (void)fprintf(stderr, " (");
             safestrprt(me.mnt_mountp, stderr, 0);
             (void)fprintf(stderr, ")\n");
-            Error();
+            Error(ctx);
         }
         if (!(ln = Readlink(dn))) {
             if (!Fwarn) {

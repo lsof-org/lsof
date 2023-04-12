@@ -1120,6 +1120,9 @@ typedef struct znhash {
 extern znhash_t **ZoneArg;
 #    endif /* defined(HASZONES) */
 
+struct lsof_context {
+};
+
 #    include "proto.h"
 #    include "dproto.h"
 

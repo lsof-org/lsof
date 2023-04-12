@@ -48,8 +48,9 @@
  * completevfs() - complete local vfs structure
  */
 
-void completevfs(vfs, dev) struct l_vfs *vfs; /* local vfs structure pointer */
-dev_t *dev;                                   /* device */
+void completevfs(struct lsof_context *ctx, /* context */
+                 struct l_vfs *vfs,        /* local vfs structure pointer */
+                 dev_t *dev)               /* device */
 {
     struct mounts *mp;
     /*
@@ -61,7 +62,7 @@ dev_t *dev;                                   /* device */
     /*
      * Search for a match on device number.
      */
-    for (mp = readmnt(); mp; mp = mp->next) {
+    for (mp = readmnt(ctx); mp; mp = mp->next) {
         if (mp->dev == *dev) {
 
 #    if defined(CVFS_DEVSAVE)

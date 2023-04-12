@@ -34,26 +34,22 @@
  * $Id: dproto.h,v 1.5 2008/10/21 16:17:50 abe Exp $
  */
 
-_PROTOTYPE(extern int get_max_fd, (void));
-_PROTOTYPE(extern int is_file_named, (char *p, int cd));
-_PROTOTYPE(extern void process_finfo,
-           (struct pst_filedetails * pd, struct pst_fid *opfid,
-            struct psfileid *psfid, KA_T na));
-_PROTOTYPE(extern void process_socket,
-           (struct pst_fileinfo2 * f, struct pst_socket *s));
-_PROTOTYPE(extern void process_stream, (struct pst_fileinfo2 * f, int ckscko));
-_PROTOTYPE(extern KA_T read_det,
-           (struct pst_fid * ki, uint32_t hf, uint32_t lf, uint32_t hn,
-            uint32_t ln, struct pst_filedetails *pd));
-_PROTOTYPE(extern struct pst_socket *read_sock, (struct pst_fileinfo2 * f));
+extern int get_max_fd(void);
+extern int is_file_named(char *p, int cd);
+extern void process_finfo(struct pst_filedetails *pd, struct pst_fid *opfid,
+                          struct psfileid *psfid, KA_T na);
+extern void process_socket(struct pst_fileinfo2 *f, struct pst_socket *s);
+extern void process_stream(struct pst_fileinfo2 *f, int ckscko);
+extern KA_T read_det(struct pst_fid *ki, uint32_t hf, uint32_t lf, uint32_t hn,
+                     uint32_t ln, struct pst_filedetails *pd);
+extern struct pst_socket *read_sock(struct pst_fileinfo2 *f);
 
 #if defined(HASIPv6)
-_PROTOTYPE(extern struct hostent *gethostbyname2, (char *nm, int proto));
+extern struct hostent *gethostbyname2(char *nm, int proto);
 #endif /* defined(HASIPv6) */
 
 #if defined(HASVXFS)
-_PROTOTYPE(extern int read_vxnode,
-           (struct vnode * v, struct l_vfs *vfs, dev_t *dev));
+extern int read_vxnode(struct vnode *v, struct l_vfs *vfs, dev_t *dev);
 #endif /* defined(HASVXFS) */
 
-_PROTOTYPE(extern void scanmnttab, (void));
+extern void scanmnttab(void);

@@ -51,7 +51,8 @@ int get_max_fd() {
  * process_file() - process file
  */
 
-void process_file(fp) KA_T fp; /* kernel file structure address */
+void process_file(struct lsof_context *ctx, /* context */
+                  KA_T fp)                  /* kernel file structure address */
 {
     struct file f;
     int flag;
@@ -60,7 +61,7 @@ void process_file(fp) KA_T fp; /* kernel file structure address */
     FILEPTR = &f;
 #endif /* defined(FILEPTR) */
 
-    if (kread(fp, (char *)&f, sizeof(f))) {
+    if (kread(ctx, fp, (char *)&f, sizeof(f))) {
         (void)snpf(Namech, Namechl, "can't read file struct from %s",
                    print_kptr(fp, (char *)NULL, 0));
         enter_nm(Namech);
@@ -149,9 +150,7 @@ static short CIMap[] = {
  * strcasecmp() - case insentitive character compare (from BSD)
  */
 
-int strcasecmp(s1, s2)
-char *s1, *s2;
-{
+int strcasecmp(char *s1, char *s2) {
     short *mp = CIMap;
     unsigned char *cp1 = (unsigned char *)s1;
     unsigned char *cp2 = (unsigned char *)s2;
@@ -169,10 +168,7 @@ char *s1, *s2;
  *		   (from BSD)
  */
 
-int strncasecmp(s1, s2, n)
-char *s1, *s2;
-int n;
-{
+int strncasecmp(char *s1, char *s2, int n) {
     short *mp = CIMap;
     unsigned char *cp1, *cp2;
 

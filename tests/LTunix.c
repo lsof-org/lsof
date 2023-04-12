@@ -59,16 +59,15 @@ char *Path[2] = {(char *)NULL, (char *)NULL};
  * Local function prototypes
  */
 
-_PROTOTYPE(static void cleanup, (void));
-_PROTOTYPE(static char *FindUsocks, (void));
+static void cleanup(void);
+static char *FindUsocks(void);
 
 /*
  * Main program
  */
 
-int main(argc, argv)
-int argc;     /* argument count */
-char *argv[]; /* arguments */
+int main(int argc,     /* argument count */
+         char *argv[]) /* arguments */
 {
     char buf[2048];           /* temporary buffer */
     char cwd[MAXPATHLEN + 1]; /* CWD buffer */

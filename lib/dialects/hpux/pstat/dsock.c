@@ -40,12 +40,11 @@ static char copyright[] =
  */
 
 #if defined(PS_STR_XPORT_DATA)
-_PROTOTYPE(static void make_sock,
-           (struct pst_fileinfo2 * f, struct pst_stream *sh,
-            struct pst_socket *s));
+static void make_sock(struct pst_fileinfo2 *f, struct pst_stream *sh,
+                      struct pst_socket *s);
 #endif /* defined(PS_STR_XPORT_DATA) */
 
-_PROTOTYPE(static void printpsproto, (uint32_t p));
+static void printpsproto(uint32_t p);
 
 /*
  * Local macros
@@ -1399,7 +1398,7 @@ int ckscko; /* socket file only checking
         if (!s) {
             (void)fprintf(stderr, "%s: no space for %ld pst_stream bytes\n", Pn,
                           (long)nb);
-            Error();
+            Error(ctx);
         }
         nsa = nsn;
     }
@@ -1582,8 +1581,7 @@ int ckscko; /* socket file only checking
  * read_sock() -- read pst_socket info for file
  */
 
-struct pst_socket *read_sock(f)
-struct pst_fileinfo2 *f; /* file information */
+struct pst_socket *read_sock(struct pst_fileinfo2 *f) /* file information */
 {
     static struct pst_socket s;
 

@@ -58,17 +58,17 @@ static struct var Var; /* kernel variables */
  * Local function prototypes.
  */
 
-_PROTOTYPE(static int get_clonemaj, (void));
-_PROTOTYPE(static void read_proc, (void));
-_PROTOTYPE(static void get_kernel_access, (void));
-_PROTOTYPE(static void readfsinfo, (void));
-_PROTOTYPE(static void process_text, (KA_T pa));
+static int get_clonemaj(void);
+static void read_proc(void);
+static void get_kernel_access(void);
+static void readfsinfo(void);
+static void process_text(KA_T pa);
 
 /*
  * gather_proc_info() -- gather process information
  */
 
-void gather_proc_info() {
+void gather_proc_info(struct lsof_context *ctx) {
     struct cred cr;
     struct execinfo ex;
     static struct fd_entry *fe;
@@ -103,19 +103,21 @@ void gather_proc_info() {
         /*
          * Get Process ID, Process group ID, and User ID.
          */
-        if (!p->p_pidp || kread((KA_T)p->p_pidp, (char *)&pids, sizeof(pids)))
+        if (!p->p_pidp ||
+            kread(ctx, (KA_T)p->p_pidp, (char *)&pids, sizeof(pids)))
             continue;
         pid = (int)pids.pid_id;
 
 #if defined(HAS_P_PGID)
         pgid = (int)p->p_pgid;
 #else  /* !defined(HAS_P_PGID) */
-        if (!p->p_pgidp || kread((KA_T)p->p_pgidp, (char *)&pids, sizeof(pids)))
+        if (!p->p_pgidp ||
+            kread(ctx, (KA_T)p->p_pgidp, (char *)&pids, sizeof(pids)))
             continue;
         pgid = (int)pids.pid_id;
 #endif /* defined(HAS_P_PGID) */
 
-        if (!p->p_cred || kread((KA_T)p->p_cred, (char *)&cr, sizeof(cr)))
+        if (!p->p_cred || kread(ctx, (KA_T)p->p_cred, (char *)&cr, sizeof(cr)))
             continue;
         uid = cr.cr_uid;
         if (is_proc_excl(pid, pgid, (UID_ARG)uid, &pss, &sf))
@@ -124,7 +126,7 @@ void gather_proc_info() {
          * Get the execution information -- for the command name.
          */
         if (!p->p_execinfo ||
-            kread((KA_T)p->p_execinfo, (char *)&ex, sizeof(ex)))
+            kread(ctx, (KA_T)p->p_execinfo, (char *)&ex, sizeof(ex)))
             continue;
         /*
          * Allocate a local process structure.
@@ -172,18 +174,18 @@ void gather_proc_info() {
                 (void)fprintf(stderr,
                               "%s: PID %d; no space for %d file descriptors\n",
                               Pn, pid, nf);
-                Error();
+                Error(ctx);
             }
             nfea = nf;
         }
-        if (kread((KA_T)p->p_fdtab.fdt_entrytab, (char *)fe, len))
+        if (kread(ctx, (KA_T)p->p_fdtab.fdt_entrytab, (char *)fe, len))
             continue;
         for (f = fe, i = 0; i < nf; f++, i++) {
             if ((fa = (KA_T)f->fd_file) && (f->fd_status & FD_INUSE)) {
 
 #if UNIXWAREV >= 70103
                 if (f->fd_flag & FPOLLED) {
-                    if (kread(fa, (char *)&plx, sizeof(plx)) ||
+                    if (kread(ctx, fa, (char *)&plx, sizeof(plx)) ||
                         !(fa = (KA_T)plx.px_fp))
                         continue;
                 }
@@ -213,7 +215,7 @@ void gather_proc_info() {
  * get_clonemaj() - get clone major device number
  */
 
-static int get_clonemaj() {
+static int get_clonemaj(struct lsof_context *ctx) {
     KA_T v;
 
 #if UNIXWAREV < 70000
@@ -226,18 +228,18 @@ static int get_clonemaj() {
      * Read the cdevsw[] size and allocate temporary space for it.
      */
     if (get_Nl_value("ncdev", Drive_Nl, &v) < 0 || !v ||
-        kread((KA_T)v, (char *)&sz, sizeof(sz)) || !sz)
+        kread(ctx, (KA_T)v, (char *)&sz, sizeof(sz)) || !sz)
         return (rv);
     len = (MALLOC_S)(sz * sizeof(struct cdevsw));
     if (!(cd = (struct cdevsw *)malloc(len))) {
         (void)fprintf(stderr, "%s: can't allocate %d bytes for cdevsw\n", Pn);
-        Error();
+        Error(ctx);
     }
     /*
      * Read the cdevsw[] from kernel memory.
      */
     if (get_Nl_value("cdev", Drive_Nl, &v) < 0 || !v ||
-        kread((KA_T)v, (char *)cd, (int)len)) {
+        kread(ctx, (KA_T)v, (char *)cd, (int)len)) {
         (void)free((MALLOC_P *)cd);
         return (rv);
     }
@@ -248,7 +250,7 @@ static int get_clonemaj() {
     len = sizeof(buf) - 1;
     buf[len] = '\0';
     for (c = cd, i = 0; i < sz; c++, i++) {
-        if (!c->d_name || kread((KA_T)c->d_name, buf, len) ||
+        if (!c->d_name || kread(ctx, (KA_T)c->d_name, buf, len) ||
             strcmp(buf, "clone") != 0)
             continue;
         CloneMaj = i;
@@ -263,7 +265,7 @@ static int get_clonemaj() {
      * clonemajor variable.
      */
     if (get_Nl_value("cmaj", Drive_Nl, &v) < 0 || !v ||
-        kread((KA_T)v, (char *)&CloneMaj, sizeof(CloneMaj)))
+        kread(ctx, (KA_T)v, (char *)&CloneMaj, sizeof(CloneMaj)))
         return (0);
     return ((HaveCloneMaj = 1));
 #endif /* UNIXWAREV<70000 */
@@ -273,7 +275,7 @@ static int get_clonemaj() {
  * get_kernel_access() - get access to kernel memory
  */
 
-static void get_kernel_access() {
+static void get_kernel_access(struct lsof_context *ctx) {
     KA_T v;
     /*
      * Check kernel version.
@@ -292,7 +294,7 @@ static void get_kernel_access() {
      * See if the non-KMEM memory file is readable.
      */
     if (Memory && !is_readable(Memory, 1))
-        Error();
+        Error(ctx);
 #endif /* defined(WILLDROPGID) */
 
     /*
@@ -301,7 +303,7 @@ static void get_kernel_access() {
     if ((Kd = open(Memory ? Memory : KMEM, O_RDONLY, 0)) < 0) {
         (void)fprintf(stderr, "%s: can't open %s: %s\n", Pn,
                       Memory ? Memory : KMEM, strerror(errno));
-        Error();
+        Error(ctx);
     }
 
 #if defined(WILLDROPGID)
@@ -315,7 +317,7 @@ static void get_kernel_access() {
      * See if the name list file is readable.
      */
     if (Nmlst && !is_readable(Nmlst, 1))
-        Error();
+        Error(ctx);
 #endif /* defined(WILLDROPGID) */
 
     /*
@@ -325,17 +327,17 @@ static void get_kernel_access() {
     if (nlist(Nmlst ? Nmlst : N_UNIX, Nl) < 0) {
         (void)fprintf(stderr, "%s: can't read kernel name list from %s\n", Pn,
                       Nmlst ? Nmlst : N_UNIX);
-        Error();
+        Error(ctx);
     }
     if (get_Nl_value("var", Drive_Nl, &v) < 0 || !v ||
-        kread((KA_T)v, (char *)&Var, sizeof(Var))) {
+        kread(ctx, (KA_T)v, (char *)&Var, sizeof(Var))) {
         (void)fprintf(stderr, "%s: can't read system configuration info\n", Pn);
-        Error();
+        Error(ctx);
     }
     if (get_Nl_value("proc", Drive_Nl, &Pract) < 0 || !Pract) {
         (void)fprintf(stderr, "%s: can't find active process chain pointer\n",
                       Pn);
-        Error();
+        Error(ctx);
     }
     if (get_Nl_value("sgdnops", Drive_Nl, &Sgdnops) < 0 || !Sgdnops)
         Sgdnops = (unsigned long)0;
@@ -356,19 +358,18 @@ static void get_kernel_access() {
  * initialize() - perform all initialization
  */
 
-void initialize() {
+void initialize(struct lsof_context *ctx) {
     get_kernel_access();
-    readfsinfo();
+    readfsinfo(struct lsof_context * ctx);
 }
 
 /*
  * kread() - read from kernel memory
  */
 
-int kread(addr, buf, len)
-KA_T addr;     /* kernel memory address */
-char *buf;     /* buffer to receive data */
-READLEN_T len; /* length to read */
+int kread(struct lsof_context *ctx, KA_T addr, /* kernel memory address */
+          char *buf,                           /* buffer to receive data */
+          READLEN_T len)                       /* length to read */
 {
     READLEN_T br;
 
@@ -401,7 +402,7 @@ static void process_text(pa) KA_T pa; /* kernel address space description
     /*
      * Get address space description.
      */
-    if (kread(pa, (char *)&as, sizeof(as)))
+    if (kread(ctx, pa, (char *)&as, sizeof(as)))
         return;
     /*
      * Loop through the segments.  The loop should stop when the segment
@@ -410,7 +411,7 @@ static void process_text(pa) KA_T pa; /* kernel address space description
      */
     s.s_next = as.a_segs;
     for (i = j = k = 0; i < MAXSEGS && j < 2 * MAXSEGS; j++) {
-        if (!s.s_next || kread((KA_T)s.s_next, (char *)&s, sizeof(s)))
+        if (!s.s_next || kread(ctx, (KA_T)s.s_next, (char *)&s, sizeof(s)))
             break;
         fd = (char *)NULL;
         vp = (KA_T)NULL;
@@ -419,7 +420,7 @@ static void process_text(pa) KA_T pa; /* kernel address space description
             /*
              * Process a virtual node segment.
              */
-            if (kread((KA_T)s.s_data, (char *)&vn, sizeof(vn)))
+            if (kread(ctx, (KA_T)s.s_data, (char *)&vn, sizeof(vn)))
                 break;
             if ((vp = (KA_T)vn.svd_vp)) {
                 if ((vn.svd_flags & SEGVN_PGPROT) || (vn.svd_prot & PROT_EXEC))
@@ -432,7 +433,7 @@ static void process_text(pa) KA_T pa; /* kernel address space description
             /*
              * Process a special device segment.
              */
-            if (kread((KA_T)s.s_data, (char *)&dv, sizeof(dv)))
+            if (kread(ctx, (KA_T)s.s_data, (char *)&dv, sizeof(dv)))
                 break;
             if ((vp = (KA_T)dv.vp))
                 fd = "mmap";
@@ -470,33 +471,33 @@ static void process_text(pa) KA_T pa; /* kernel address space description
  * readfsinfo() - read file system information
  */
 
-static void readfsinfo() {
+static void readfsinfo(struct lsof_context *ctx) {
     char buf[FSTYPSZ + 1];
     int i, len;
 
     if ((Fsinfomax = sysfs(GETNFSTYP)) == -1) {
         (void)fprintf(stderr, "%s: sysfs(GETNFSTYP) error: %s\n", Pn,
                       strerror(errno));
-        Error();
+        Error(ctx);
     }
     if (Fsinfomax == 0)
         return;
     if (!(Fsinfo = (char **)malloc((MALLOC_S)(Fsinfomax * sizeof(char *))))) {
         (void)fprintf(stderr, "%s: no space for sysfs info\n", Pn);
-        Error();
+        Error(ctx);
     }
     for (i = 1; i <= Fsinfomax; i++) {
         if (sysfs(GETFSTYP, i, buf) == -1) {
             (void)fprintf(stderr, "%s: sysfs(GETFSTYP) error: %s\n", Pn,
                           strerror(errno));
-            Error();
+            Error(ctx);
         }
         buf[FSTYPSZ] = '\0';
         len = strlen(buf) + 1;
         if (!(Fsinfo[i - 1] = (char *)malloc((MALLOC_S)len))) {
             (void)fprintf(stderr, "%s: no space for file system entry %s\n", Pn,
                           buf);
-            Error();
+            Error(ctx);
         }
         (void)snpf(Fsinfo[i - 1], len, "%s", buf);
     }
@@ -506,7 +507,7 @@ static void readfsinfo() {
  * read_proc() - read the process table
  */
 
-static void read_proc() {
+static void read_proc(struct lsof_context *ctx) {
     MALLOC_S len;
     struct proc *p;
     KA_T pa;
@@ -521,14 +522,14 @@ static void read_proc() {
         if ((Npa = Var.v_proc) < 1) {
             (void)fprintf(stderr, "%s: bad proc table size: %d\n", Pn,
                           Var.v_proc);
-            Error();
+            Error(ctx);
         }
         Npa += PROCINCR;
         len = (MALLOC_S)(Npa * sizeof(struct proc));
         if (!(P = (struct proc *)malloc(len))) {
             (void)fprintf(stderr, "%s: no space for %d proc structures\n", Pn,
                           Npa);
-            Error();
+            Error(ctx);
         }
     }
     /*
@@ -540,7 +541,7 @@ static void read_proc() {
          * Read the active process chain head.
          */
         pa = (KA_T)NULL;
-        if (!Pract || kread((KA_T)Pract, (char *)&pa, sizeof(pa)) || !pa) {
+        if (!Pract || kread(ctx, (KA_T)Pract, (char *)&pa, sizeof(pa)) || !pa) {
             if (!Fwarn)
                 (void)fprintf(
                     stderr, "%s: active proc chain ptr err; addr=%s, val=%s\n",
@@ -564,11 +565,11 @@ static void read_proc() {
                         stderr,
                         "%s: can't realloc %d proc table entries (%d)\n", Pn,
                         Npa, len);
-                    Error();
+                    Error(ctx);
                 }
                 p = &P[Np];
             }
-            if (kread(pa, (char *)p, sizeof(struct proc)))
+            if (kread(ctx, pa, (char *)p, sizeof(struct proc)))
                 break;
             pa = (KA_T)p->p_next;
             if ((p->p_flag & P_DESTROY) || (p->p_flag & P_GONE) || !p->p_pidp
@@ -593,7 +594,7 @@ static void read_proc() {
      */
     if (try >= PROCTRYLM) {
         (void)fprintf(stderr, "%s: can't read proc table\n", Pn);
-        Error();
+        Error(ctx);
     }
     if (Np < Npa && !RptTm) {
 
@@ -604,7 +605,7 @@ static void read_proc() {
         if (!(P = (struct proc *)realloc((MALLOC_P *)P, len))) {
             (void)fprintf(stderr, "%s: can't reduce proc table to %d entries\n",
                           Pn, Np);
-            Error();
+            Error(ctx);
         }
         Npa = Np;
     }

@@ -44,13 +44,13 @@ typedef int time_t;
 #include <sys/inode.h>
 
 #if HPUXV >= 900
-_PROTOTYPE(static void enter_nma, (char *b));
-_PROTOTYPE(static int islocked, (KA_T lp));
+static void enter_nma(char *b);
+static int islocked(KA_T lp);
 #endif /* HPUXV>=900 */
 
-_PROTOTYPE(static int getnodety, (struct vnode * v));
-_PROTOTYPE(static int readinode, (KA_T ia, struct inode *i));
-_PROTOTYPE(static int read_nmn, (KA_T na, KA_T ia, struct mvfsnode *m));
+static int getnodety(struct vnode *v);
+static int readinode(KA_T ia, struct inode *i);
+static int read_nmn(KA_T na, KA_T ia, struct mvfsnode *m);
 
 #if HPUXV >= 900
 /*
@@ -107,7 +107,7 @@ KA_T lp; /* local locklist struct pointer */
      * Search the locklist chain for this process.
      */
     do {
-        if (kread(llp, (char *)&ll, sizeof(ll)))
+        if (kread(ctx, llp, (char *)&ll, sizeof(ll)))
             return ((int)' ');
 
 #    if !defined(L_REMOTE)
@@ -155,8 +155,7 @@ KA_T lp; /* local locklist struct pointer */
  * getnodety() - get node type
  */
 
-static int getnodety(v)
-struct vnode *v; /* local vnode copy */
+static int getnodety(struct vnode *v) /* local vnode copy */
 {
 
 #if defined(HAS_AFS)
@@ -356,7 +355,7 @@ void process_node(va) KA_T va; /* vnode kernel space address */
 #endif /* defined(HAS_AFS) */
 
             );
-            Error();
+            Error(ctx);
         }
     }
     if (readvnode(va, v)) {
@@ -437,7 +436,7 @@ void process_node(va) KA_T va; /* vnode kernel space address */
 
 #if HPUXV >= 1000
     case N_CDFS:
-        if (!v->v_data || kread((KA_T)v->v_data, (char *)&c, sizeof(c))) {
+        if (!v->v_data || kread(ctx, (KA_T)v->v_data, (char *)&c, sizeof(c))) {
             (void)snpf(Namech, Namechl, "vnode at %s: can't read cdnode (%s)",
                        print_kptr(va, tbuf, sizeof(tbuf)),
                        print_kptr((KA_T)v->v_data, (char *)NULL, 0));
@@ -447,7 +446,7 @@ void process_node(va) KA_T va; /* vnode kernel space address */
         break;
     case N_FIFO:
     case N_PIPE:
-        if (!v->v_data || kread((KA_T)v->v_data, (char *)&f, sizeof(f))) {
+        if (!v->v_data || kread(ctx, (KA_T)v->v_data, (char *)&f, sizeof(f))) {
             (void)snpf(Namech, Namechl, "vnode at %s: can't read fifonode (%s)",
                        print_kptr(va, tbuf, sizeof(tbuf)),
                        print_kptr((KA_T)v->v_data, (char *)NULL, 0));
@@ -455,7 +454,8 @@ void process_node(va) KA_T va; /* vnode kernel space address */
             return;
         }
         fns = 1;
-        if (f.fn_vap && kread((KA_T)f.fn_vap, (char *)&vat, sizeof(vat)) == 0)
+        if (f.fn_vap &&
+            kread(ctx, (KA_T)f.fn_vap, (char *)&vat, sizeof(vat)) == 0)
             vats = 1;
         break;
 #endif /* HPUXV>=1000 */
@@ -1025,7 +1025,7 @@ static int readinode(ia, i)
 KA_T ia;         /* inode kernel address */
 struct inode *i; /* inode buffer */
 {
-    if (kread((KA_T)ia, (char *)i, sizeof(struct inode))) {
+    if (kread(ctx, (KA_T)ia, (char *)i, sizeof(struct inode))) {
         (void)snpf(Namech, Namechl, "can't read inode at %s",
                    print_kptr(ia, (char *)NULL, 0));
         return (1);
@@ -1044,7 +1044,7 @@ struct mvfsnode *m; /* mvfsnode receiver */
 {
     char tbuf[32];
 
-    if (!ma || kread((KA_T)ma, (char *)m, sizeof(struct mvfsnode))) {
+    if (!ma || kread(ctx, (KA_T)ma, (char *)m, sizeof(struct mvfsnode))) {
         (void)snpf(Namech, Namechl, "node at %s: can't read mvfsnode: %s",
                    print_kptr(na, tbuf, sizeof(tbuf)),
                    print_kptr(ma, (char *)NULL, 0));

@@ -77,12 +77,12 @@ void process_socket(i) struct inode *i; /* inode pointer */
         return;
     }
     spa = Socktab + (GET_MIN_DEV(i->i_rdev) * sizeof(struct socket *));
-    if (kread(spa, (char *)&sa, sizeof(sa))) {
+    if (kread(ctx, spa, (char *)&sa, sizeof(sa))) {
         (void)snpf(Namech, Namechl, "can't read socket pointer at %s",
                    print_kptr(spa, (char *)NULL, 0));
         enter_nm(Namech);
     }
-    if (kread(sa, (char *)&s, sizeof(s))) {
+    if (kread(ctx, sa, (char *)&s, sizeof(s))) {
         (void)snpf(Namech, Namechl, "can't read socket structure at %s",
                    print_kptr(sa, (char *)NULL, 0));
         enter_nm(Namech);
@@ -92,7 +92,7 @@ void process_socket(i) struct inode *i; /* inode pointer */
      * Read domain structure.
      */
     if (!s.so_proto.pr_domain ||
-        kread((KA_T)s.so_proto.pr_domain, (char *)&d, sizeof(d))) {
+        kread(ctx, (KA_T)s.so_proto.pr_domain, (char *)&d, sizeof(d))) {
         (void)snpf(Namech, Namechl, "can't read protocol domain from %s",
                    print_kptr((KA_T)s.so_proto.pr_domain, (char *)NULL, 0));
         enter_nm(Namech);
@@ -116,7 +116,7 @@ void process_socket(i) struct inode *i; /* inode pointer */
             shs = 1;
         if (shs && sh.q_ptr) {
             enter_dev_ch(print_kptr((KA_T)sh.q_ptr, (char *)NULL, 0));
-            if (kread((KA_T)sh.q_ptr, (char *)&pcb, sizeof(pcb)) == 0)
+            if (kread(ctx, (KA_T)sh.q_ptr, (char *)&pcb, sizeof(pcb)) == 0)
                 pcbs = 1;
         }
         /*
@@ -130,7 +130,7 @@ void process_socket(i) struct inode *i; /* inode pointer */
                  * at the PCB's per-protocol control block address.  It
                  * may contain a foreign address.
                  */
-                if (!kread((KA_T)pcb.inp_ppcb, (char *)&udp, sizeof(udp))) {
+                if (!kread(ctx, (KA_T)pcb.inp_ppcb, (char *)&udp, sizeof(udp))) {
 
 #if OSRV >= 500
                     if (udp.ud_lsin.sin_addr.s_addr != INADDR_ANY ||
@@ -184,7 +184,7 @@ void process_socket(i) struct inode *i; /* inode pointer */
                     (void)udp_tm(udp.ud_ftime);
             }
             if (pcb.inp_ppcb && strcasecmp(Lf->iproto, "tcp") == 0 &&
-                kread((KA_T)pcb.inp_ppcb, (char *)&t, sizeof(t)) == 0) {
+                kread(ctx, (KA_T)pcb.inp_ppcb, (char *)&t, sizeof(t)) == 0) {
                 ts = 1;
                 /*
                  * Save the TCP state from its control block.
@@ -206,11 +206,11 @@ void process_socket(i) struct inode *i; /* inode pointer */
                 }
             }
 #else  /* OSRV>=500 */
-            if (s.so_name && !kread((KA_T)s.so_name, (char *)&si, sizeof(si))) {
+            if (s.so_name && !kread(ctx, (KA_T)s.so_name, (char *)&si, sizeof(si))) {
                 la = (unsigned char *)&si.sin_addr;
                 lp = (int)ntohs(si.sin_port);
             }
-            if (s.so_peer && !kread((KA_T)s.so_peer, (char *)&si, sizeof(si))) {
+            if (s.so_peer && !kread(ctx, (KA_T)s.so_peer, (char *)&si, sizeof(si))) {
                 if (si.sin_addr.s_addr != INADDR_ANY || si.sin_port != 0) {
                     fa = (unsigned char *)&si.sin_addr;
                     fp = (int)ntohs(si.sin_port);
@@ -279,7 +279,7 @@ void process_socket(i) struct inode *i; /* inode pointer */
         enter_dev_ch(print_kptr(sa, (char *)NULL, 0));
         if (s.so_stp && !readstdata((KA_T)s.so_stp, &sd) &&
             !readsthead((KA_T)sd.sd_wrq, &sh)) {
-            if (!sh.q_ptr || kread((KA_T)sh.q_ptr, (char *)&ud, sizeof(ud))) {
+            if (!sh.q_ptr || kread(ctx, (KA_T)sh.q_ptr, (char *)&ud, sizeof(ud))) {
                 (void)snpf(Namech, Namechl, "can't read un_dev from %s",
                            print_kptr((KA_T)sh.q_ptr, (char *)NULL, 0));
                 break;
@@ -337,7 +337,7 @@ void udp_tm(tm) time_t tm; /* time when packet was sent */
      */
     if (!Lbolt)
         return;
-    if (Hz < 0 || kread((KA_T)Lbolt, (char *)&lbolt, sizeof(lbolt)) ||
+    if (Hz < 0 || kread(ctx, (KA_T)Lbolt, (char *)&lbolt, sizeof(lbolt)) ||
         tm >= lbolt || (et = (time_t)((lbolt - tm) / Hz)) == 0)
         return;
     /*
@@ -387,7 +387,7 @@ void udp_tm(tm) time_t tm; /* time when packet was sent */
     if (!(cp = (char *)malloc(len))) {
         (void)fprintf(stderr, "%s: no space for %d character UDP time\n", Pn,
                       len);
-        Error();
+        Error(ctx);
     }
     (void)snpf(cp, len, "%s", buf);
     Lf->nma = cp;

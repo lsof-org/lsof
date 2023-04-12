@@ -29,6 +29,7 @@
  */
 
 #include "common.h"
+#include "dlsof.h"
 
 #if defined(HASWIDECHAR)
 #    if defined(WIDECHARINCL)
@@ -51,16 +52,17 @@
  * Local function prototypes
  */
 
-_PROTOTYPE(static void closePipes, (void));
-_PROTOTYPE(static int dolstat, (char *path, char *buf, int len));
-_PROTOTYPE(static int dostat, (char *path, char *buf, int len));
-_PROTOTYPE(static int doreadlink, (char *path, char *buf, int len));
-_PROTOTYPE(static int doinchild, (int (*fn)(), char *fp, char *rbuf, int rbln));
+static void closePipes(void);
+static int dolstat(char *path, char *buf, int len);
+static int dostat(char *path, char *buf, int len);
+static int doreadlink(char *path, char *buf, int len);
+static int doinchild(struct lsof_context *ctx, int (*fn)(), char *fp,
+                     char *rbuf, int rbln);
 
 #if defined(HASINTSIGNAL)
-_PROTOTYPE(static int handleint, (int sig));
+static int handleint(int sig);
 #else  /* !defined(HASINTSIGNAL) */
-_PROTOTYPE(static void handleint, (int sig));
+static void handleint(int sig);
 #endif /* defined(HASINTSIGNAL) */
 
 /*
@@ -86,7 +88,8 @@ static int CtSigs[] = {0, SIGINT, SIGKILL};
 static struct drive_Nl *Build_Nl = (struct drive_Nl *)NULL;
 /* the default Drive_Nl address */
 
-void build_Nl(d) struct drive_Nl *d; /* data to drive the construction */
+void build_Nl(struct lsof_context *ctx,
+              struct drive_Nl *d) /* data to drive the construction */
 {
     struct drive_Nl *dp;
     int i, n;
@@ -96,7 +99,7 @@ void build_Nl(d) struct drive_Nl *d; /* data to drive the construction */
     if (n < 1) {
         (void)fprintf(stderr, "%s: can't calculate kernel name list length\n",
                       Pn);
-        Error();
+        Error(ctx);
     }
     if (!(Nl = (struct NLIST_TYPE *)calloc((n + 1),
                                            sizeof(struct NLIST_TYPE)))) {
@@ -104,7 +107,7 @@ void build_Nl(d) struct drive_Nl *d; /* data to drive the construction */
             stderr,
             "%s: can't allocate %d bytes to kernel name list structure\n", Pn,
             (int)((n + 1) * sizeof(struct NLIST_TYPE)));
-        Error();
+        Error(ctx);
     }
     for (dp = d, i = 0; i < n; dp++, i++) {
         Nl[i].NL_NAME = dp->knm;
@@ -118,7 +121,7 @@ void build_Nl(d) struct drive_Nl *d; /* data to drive the construction */
  * childx() - make child process exit (if possible)
  */
 
-void childx() {
+void childx(struct lsof_context *ctx) {
     static int at, sx;
     pid_t wpid;
 
@@ -196,9 +199,7 @@ static void closePipes() {
  * compdev() - compare Devtp[] entries
  */
 
-int compdev(a1, a2)
-COMP_P *a1, *a2;
-{
+int compdev(COMP_P *a1, COMP_P *a2) {
     struct l_dev **p1 = (struct l_dev **)a1;
     struct l_dev **p2 = (struct l_dev **)a2;
 
@@ -236,10 +237,11 @@ void closefrom_shim(int low) {
  * doinchild() -- do a function in a child process
  */
 
-static int doinchild(fn, fp, rbuf, rbln) int (*fn)(); /* function to perform */
-char *fp;                                             /* function parameter */
-char *rbuf;                                           /* response buffer */
-int rbln; /* response buffer length */
+static int doinchild(struct lsof_context *ctx,
+                     int (*fn)(), /* function to perform */
+                     char *fp,    /* function parameter */
+                     char *rbuf,  /* response buffer */
+                     int rbln)    /* response buffer length */
 {
     int en, rv;
 
@@ -250,7 +252,7 @@ int rbln; /* response buffer length */
         (void)fprintf(stderr,
                       "%s: doinchild error; response buffer too large: %d\n",
                       Pn, rbln);
-        Error();
+        Error(ctx);
     }
     /*
      * Set up to handle an alarm signal; handle an alarm signal; build
@@ -265,7 +267,7 @@ int rbln; /* response buffer length */
              */
             (void)alarm(0);
             (void)signal(SIGALRM, SIG_DFL);
-            (void)childx();
+            (void)childx(ctx);
             errno = ETIMEDOUT;
             return (1);
         } else if (!Cpid) {
@@ -277,7 +279,7 @@ int rbln; /* response buffer length */
             if (pipe(Pipes) < 0 || pipe(&Pipes[2]) < 0) {
                 (void)fprintf(stderr, "%s: can't open pipes: %s\n", Pn,
                               strerror(errno));
-                Error();
+                Error(ctx);
             }
             /*
              * Fork a child to execute functions.
@@ -312,7 +314,7 @@ int rbln; /* response buffer length */
                     (void)fprintf(stderr,
                                   "%s: can't dup Pipes[0] to fd 0: %s\n", Pn,
                                   strerror(errno));
-                    Error();
+                    Error(ctx);
                 }
                 Pipes[0] = 0;
                 rc = dup2(Pipes[3], 1);
@@ -320,7 +322,7 @@ int rbln; /* response buffer length */
                     (void)fprintf(stderr,
                                   "%s: can't dup Pipes.[3] to fd 1: %s\n", Pn,
                                   strerror(errno));
-                    Error();
+                    Error(ctx);
                 }
                 Pipes[3] = 1;
                 (void)closefrom_shim(2);
@@ -381,7 +383,7 @@ int rbln; /* response buffer length */
             if (Cpid < 0) {
                 (void)fprintf(stderr, "%s: can't fork: %s\n", Pn,
                               strerror(errno));
-                Error();
+                Error(ctx);
             }
             (void)close(Pipes[0]);
             (void)close(Pipes[3]);
@@ -406,7 +408,7 @@ int rbln; /* response buffer length */
             read(Pipes[2], rbuf, rbln) != rbln) {
             (void)alarm(0);
             (void)signal(SIGALRM, SIG_DFL);
-            (void)childx();
+            (void)childx(ctx);
             errno = ECHILD;
             return (-1);
         }
@@ -433,49 +435,52 @@ int rbln; /* response buffer length */
  * dolstat() - do an lstat() function
  */
 
-static int dolstat(path, rbuf, rbln)
-char *path; /* path */
-char *rbuf; /* response buffer */
-int rbln;   /* response buffer length */
+static int dolstat(char *path, /* path */
+                   char *rbuf, /* response buffer */
+                   int rbln)   /* response buffer length */
 
 /* ARGSUSED */
 
-{ return (lstat(path, (struct stat *)rbuf)); }
+{
+    return (lstat(path, (struct stat *)rbuf));
+}
 
 /*
  * doreadlink() -- do a readlink() function
  */
 
-static int doreadlink(path, rbuf, rbln)
-char *path; /* path */
-char *rbuf; /* response buffer */
-int rbln;   /* response buffer length */
-{ return (readlink(path, rbuf, rbln)); }
+static int doreadlink(char *path, /* path */
+                      char *rbuf, /* response buffer */
+                      int rbln)   /* response buffer length */
+{
+    return (readlink(path, rbuf, rbln));
+}
 
 /*
  * dostat() - do a stat() function
  */
 
-static int dostat(path, rbuf, rbln)
-char *path; /* path */
-char *rbuf; /* response buffer */
-int rbln;   /* response buffer length */
+static int dostat(char *path, /* path */
+                  char *rbuf, /* response buffer */
+                  int rbln)   /* response buffer length */
 
 /* ARGSUSED */
 
-{ return (stat(path, (struct stat *)rbuf)); }
+{
+    return (stat(path, (struct stat *)rbuf));
+}
 
 #if defined(WILLDROPGID)
 /*
  * dropgid() - drop setgid permission
  */
 
-void dropgid() {
+void dropgid(struct lsof_context *ctx) {
     if (!Setuidroot && Setgid) {
         if (setgid(Mygid) < 0) {
             (void)fprintf(stderr, "%s: can't setgid(%d): %s\n", Pn, (int)Mygid,
                           strerror(errno));
-            Error();
+            Error(ctx);
         }
         Setgid = 0;
     }
@@ -486,8 +491,7 @@ void dropgid() {
  * enter_dev_ch() - enter device characters in file structure
  */
 
-void enter_dev_ch(m) char *m;
-{
+void enter_dev_ch(struct lsof_context *ctx, char *m) {
     char *mp;
 
     if (!m || *m == '\0')
@@ -496,7 +500,7 @@ void enter_dev_ch(m) char *m;
         (void)fprintf(stderr, "%s: no more dev_ch space at PID %d: \n", Pn,
                       Lp->pid);
         safestrprt(m, stderr, 1);
-        Error();
+        Error(ctx);
     }
     if (Lf->dev_ch)
         (void)free((FREE_P *)Lf->dev_ch);
@@ -507,9 +511,9 @@ void enter_dev_ch(m) char *m;
  * enter_IPstate() -- enter a TCP or UDP state
  */
 
-void enter_IPstate(ty, nm, nr) char *ty; /* type -- TCP or UDP */
-char *nm;                                /* state name (may be NULL) */
-int nr;                                  /* state number */
+void enter_IPstate(struct lsof_context *ctx, char *ty, /* type -- TCP or UDP */
+                   char *nm, /* state name (may be NULL) */
+                   int nr)   /* state number */
 {
 
 #if defined(USE_LIB_PRINT_TCPTPI)
@@ -524,7 +528,7 @@ int nr;                                  /* state number */
      */
     if (!ty) {
         (void)fprintf(stderr, "%s: no type specified to enter_IPstate()\n", Pn);
-        Error();
+        Error(ctx);
     }
     if (!strcmp(ty, "TCP"))
         tx = 0;
@@ -533,7 +537,7 @@ int nr;                                  /* state number */
     else {
         (void)fprintf(stderr, "%s: unknown type for enter_IPstate: %s\n", Pn,
                       ty);
-        Error();
+        Error(ctx);
     }
     /*
      * If the name argument is NULL, reduce the allocated table to its minimum
@@ -550,7 +554,7 @@ int nr;                                  /* state number */
                     len = (MALLOC_S)(UdpNstates * sizeof(char *));
                     if (!(UdpSt = (char **)realloc((MALLOC_P *)UdpSt, len))) {
                         (void)fprintf(stderr, "%s: can't reduce UdpSt[]\n", Pn);
-                        Error();
+                        Error(ctx);
                     }
                 }
                 UdpStAlloc = UdpNstates;
@@ -565,7 +569,7 @@ int nr;                                  /* state number */
                     len = (MALLOC_S)(TcpNstates * sizeof(char *));
                     if (!(TcpSt = (char **)realloc((MALLOC_P *)TcpSt, len))) {
                         (void)fprintf(stderr, "%s: can't reduce TcpSt[]\n", Pn);
-                        Error();
+                        Error(ctx);
                     }
                 }
                 TcpStAlloc = TcpNstates;
@@ -579,7 +583,7 @@ int nr;                                  /* state number */
     if (strlen(nm) < 1) {
         (void)fprintf(stderr, "%s: bad %s name (\"%s\"), number=%d\n", Pn, ty,
                       nm, nr);
-        Error();
+        Error(ctx);
     }
     /*
      * Make a copy of the name.
@@ -587,7 +591,7 @@ int nr;                                  /* state number */
     if (!(cp = mkstrcpy(nm, (MALLOC_S *)NULL))) {
         (void)fprintf(stderr, "%s: enter_IPstate(): no %s space for %s\n", Pn,
                       ty, nm);
-        Error();
+        Error(ctx);
     }
     /*
      * Set the necessary offset for using nr as an index.  If it is
@@ -664,7 +668,7 @@ int nr;                                  /* state number */
             no_IP_space:
 
                 (void)fprintf(stderr, "%s: no %s state space\n", Pn, ty);
-                Error();
+                Error(ctx);
             }
             UdpNstates = nn;
             UdpStAlloc = al;
@@ -702,7 +706,7 @@ int nr;                                  /* state number */
             (void)fprintf(
                 stderr, "%s: duplicate %s state %d (already %s): %s\n", Pn, ty,
                 nr, tx ? UdpSt[nr + UdpStOff] : TcpSt[nr + TcpStOff], nm);
-            Error();
+            Error(ctx);
         }
         UdpSt[nr + UdpStOff] = cp;
     } else {
@@ -717,8 +721,7 @@ int nr;                                  /* state number */
  * enter_nm() - enter name in local file structure
  */
 
-void enter_nm(m) char *m;
-{
+void enter_nm(struct lsof_context *ctx, char *m) {
     char *mp;
 
     if (!m || *m == '\0')
@@ -727,7 +730,7 @@ void enter_nm(m) char *m;
         (void)fprintf(stderr, "%s: no more nm space at PID %d for: ", Pn,
                       Lp->pid);
         safestrprt(m, stderr, 1);
-        Error();
+        Error(ctx);
     }
     if (Lf->nm)
         (void)free((FREE_P *)Lf->nm);
@@ -738,9 +741,9 @@ void enter_nm(m) char *m;
  * Exit() - do a clean exit()
  */
 
-void Exit(xv) enum ExitStatus xv; /* exit() value */
+void Exit(struct lsof_context *ctx, enum ExitStatus xv) /* exit() value */
 {
-    (void)childx();
+    (void)childx(ctx);
 
 #if defined(HASDCACHE)
     if (DCrebuilt && !Fwarn)
@@ -754,19 +757,18 @@ void Exit(xv) enum ExitStatus xv; /* exit() value */
 /*
  * Error() - exit with an error status
  */
-void Error(void) { Exit(LSOF_ERROR); }
+void Error(struct lsof_context *ctx) { Exit(ctx, LSOF_ERROR); }
 
 #if defined(HASNLIST)
 /*
  * get_Nl_value() - get Nl value for nickname
  */
 
-int get_Nl_value(nn, d, v)
-char *nn;           /* nickname of requested entry */
-struct drive_Nl *d; /* drive_Nl table that built Nl
-                     * (if NULL, use Build_Nl) */
-KA_T *v;            /* returned value (if NULL,
-                     * return nothing) */
+int get_Nl_value(char *nn,           /* nickname of requested entry */
+                 struct drive_Nl *d, /* drive_Nl table that built Nl
+                                      * (if NULL, use Build_Nl) */
+                 KA_T *v)            /* returned value (if NULL,
+                                      * return nothing) */
 {
     int i;
 
@@ -797,17 +799,16 @@ static void
 
 /* ARGSUSED */
 
-handleint(sig)
-int sig;
-{ longjmp(Jmp_buf, 1); }
+handleint(int sig) {
+    longjmp(Jmp_buf, 1);
+}
 
 /*
  * hashbyname() - hash by name
  */
 
-int hashbyname(nm, mod)
-char *nm; /* pointer to NUL-terminated name */
-int mod;  /* hash modulus */
+int hashbyname(char *nm, /* pointer to NUL-terminated name */
+               int mod)  /* hash modulus */
 {
     int i, j;
 
@@ -823,11 +824,10 @@ int mod;  /* hash modulus */
  * is_nw_addr() - is this network address selected?
  */
 
-int is_nw_addr(ia, p, af)
-unsigned char *ia; /* Internet address */
-int p;             /* port */
-int af;            /* address family -- e.g., AF_INET,
-                    * AF_INET6 */
+int is_nw_addr(unsigned char *ia, /* Internet address */
+               int p,             /* port */
+               int af)            /* address family -- e.g., AF_INET,
+                                   * AF_INET6 */
 {
     struct nwad *n;
 
@@ -887,11 +887,10 @@ int af;            /* address family -- e.g., AF_INET,
  *	   copy length (optional)
  */
 
-char *mkstrcpy(src, rlp)
-char *src;     /* source */
-MALLOC_S *rlp; /* returned length pointer (optional)
-                * The returned length is an strlen()
-                * equivalent */
+char *mkstrcpy(char *src,     /* source */
+               MALLOC_S *rlp) /* returned length pointer (optional)
+                               * The returned length is an strlen()
+                               * equivalent */
 {
     MALLOC_S len;
     char *ns;
@@ -917,15 +916,14 @@ MALLOC_S *rlp; /* returned length pointer (optional)
  *	   copy string length (optional)
  */
 
-char *mkstrcat(s1, l1, s2, l2, s3, l3, clp)
-char *s1;      /* source string 1 */
-int l1;        /* length of string 1 (-1 if none) */
-char *s2;      /* source string 2 */
-int l2;        /* length of string 2 (-1 if none) */
-char *s3;      /* source string 3 (optional) */
-int l3;        /* length of string 3 (-1 if none) */
-MALLOC_S *clp; /* pointer to return of copy length
-                * (optional) */
+char *mkstrcat(char *s1,      /* source string 1 */
+               int l1,        /* length of string 1 (-1 if none) */
+               char *s2,      /* source string 2 */
+               int l2,        /* length of string 2 (-1 if none) */
+               char *s3,      /* source string 3 (optional) */
+               int l3,        /* length of string 3 (-1 if none) */
+               MALLOC_S *clp) /* pointer to return of copy length
+                               * (optional) */
 {
     MALLOC_S cl, len1, len2, len3;
     char *cp;
@@ -969,9 +967,8 @@ MALLOC_S *clp; /* pointer to return of copy length
  * is_readable() -- is file readable
  */
 
-int is_readable(path, msg)
-char *path; /* file path */
-int msg;    /* issue warning message if 1 */
+int is_readable(char *path, /* file path */
+                int msg)    /* issue warning message if 1 */
 {
     if (access(path, R_OK) < 0) {
         if (!Fwarn && msg == 1)
@@ -985,9 +982,8 @@ int msg;    /* issue warning message if 1 */
  * lstatsafely() - lstat path safely (i. e., with timeout)
  */
 
-int lstatsafely(path, buf)
-char *path;       /* file path */
-struct stat *buf; /* stat buffer address */
+int lstatsafely(struct lsof_context *ctx, char *path, /* file path */
+                struct stat *buf)                     /* stat buffer address */
 {
     if (Fblock) {
         if (!Fwarn)
@@ -996,15 +992,15 @@ struct stat *buf; /* stat buffer address */
         errno = EWOULDBLOCK;
         return (1);
     }
-    return (doinchild(dolstat, path, (char *)buf, sizeof(struct stat)));
+    return (doinchild(ctx, dolstat, path, (char *)buf, sizeof(struct stat)));
 }
 
 /*
  * Readlink() - read and interpret file system symbolic links
  */
 
-char *Readlink(arg)
-char *arg; /* argument to be interpreted */
+char *Readlink(struct lsof_context *ctx,
+               char *arg) /* argument to be interpreted */
 {
     char abuf[MAXPATHLEN + 1];
     int alen;
@@ -1056,7 +1052,8 @@ char *arg; /* argument to be interpreted */
         /*
          * Dereference a symbolic link.
          */
-        if ((llen = doinchild(doreadlink, tbuf, lbuf, sizeof(lbuf) - 1)) >= 0) {
+        if ((llen = doinchild(ctx, doreadlink, tbuf, lbuf, sizeof(lbuf) - 1)) >=
+            0) {
 
             /*
              * If the link is a new absolute path, replace
@@ -1143,7 +1140,7 @@ char *arg; /* argument to be interpreted */
 
         (void)fprintf(stderr, "%s: no Readlink string space for ", Pn);
         safestrprt(abuf, stderr, 1);
-        Error();
+        Error(ctx);
     }
     if (sx >= MAXSYMLINKS) {
 
@@ -1181,7 +1178,7 @@ char *arg; /* argument to be interpreted */
         ss = sx;
     }
     stk[sx - 1] = s1;
-    return (Readlink(s1));
+    return (Readlink(ctx, s1));
 }
 
 #if defined(HASSTREAMS)
@@ -1189,11 +1186,11 @@ char *arg; /* argument to be interpreted */
  * readstdata() - read stream's stdata structure
  */
 
-int readstdata(addr, buf)
-KA_T addr;          /* stdata address in kernel*/
-struct stdata *buf; /* buffer addess */
+int readstdata(struct lsof_context *ctx, /* context */
+               KA_T addr,                /* stdata address in kernel*/
+               struct stdata *buf)       /* buffer addess */
 {
-    if (!addr || kread(addr, (char *)buf, sizeof(struct stdata))) {
+    if (!addr || kread(ctx, addr, (char *)buf, sizeof(struct stdata))) {
         (void)snpf(Namech, Namechl, "no stream data in %s",
                    print_kptr(addr, (char *)NULL, 0));
         return (1);
@@ -1205,9 +1202,9 @@ struct stdata *buf; /* buffer addess */
  * readsthead() - read stream head
  */
 
-int readsthead(addr, buf)
-KA_T addr;         /* starting queue pointer in kernel */
-struct queue *buf; /* buffer for queue head */
+int readsthead(struct lsof_context *ctx, /* context */
+               KA_T addr,                /* starting queue pointer in kernel */
+               struct queue *buf)        /* buffer for queue head */
 {
     KA_T qp;
 
@@ -1216,7 +1213,7 @@ struct queue *buf; /* buffer for queue head */
         return (1);
     }
     for (qp = addr; qp; qp = (KA_T)buf->q_next) {
-        if (kread(qp, (char *)buf, sizeof(struct queue))) {
+        if (kread(ctx, qp, (char *)buf, sizeof(struct queue))) {
             (void)snpf(Namech, Namechl, "bad stream queue link at %s",
                        print_kptr(qp, (char *)NULL, 0));
             return (1);
@@ -1229,12 +1226,12 @@ struct queue *buf; /* buffer for queue head */
  * readstidnm() - read stream module ID name
  */
 
-int readstidnm(addr, buf, len)
-KA_T addr;     /* module ID name address in kernel */
-char *buf;     /* receiving buffer address */
-READLEN_T len; /* buffer length */
+int readstidnm(struct lsof_context *ctx, /* context */
+               KA_T addr,                /* module ID name address in kernel */
+               char *buf,                /* receiving buffer address */
+               READLEN_T len)            /* buffer length */
 {
-    if (!addr || kread(addr, buf, len)) {
+    if (!addr || kread(ctx, addr, buf, len)) {
         (void)snpf(Namech, Namechl, "can't read module ID name from %s",
                    print_kptr(addr, (char *)NULL, 0));
         return (1);
@@ -1246,11 +1243,11 @@ READLEN_T len; /* buffer length */
  * readstmin() - read stream's module info
  */
 
-int readstmin(addr, buf)
-KA_T addr;               /* module info address in kernel */
-struct module_info *buf; /* receiving buffer address */
+int readstmin(struct lsof_context *ctx, /* context */
+              KA_T addr,                /* module info address in kernel */
+              struct module_info *buf)  /* receiving buffer address */
 {
-    if (!addr || kread(addr, (char *)buf, sizeof(struct module_info))) {
+    if (!addr || kread(ctx, addr, (char *)buf, sizeof(struct module_info))) {
         (void)snpf(Namech, Namechl, "can't read module info from %s",
                    print_kptr(addr, (char *)NULL, 0));
         return (1);
@@ -1262,11 +1259,11 @@ struct module_info *buf; /* receiving buffer address */
  * readstqinit() - read stream's queue information structure
  */
 
-int readstqinit(addr, buf)
-KA_T addr;         /* queue info address in kernel */
-struct qinit *buf; /* receiving buffer address */
+int readstqinit(struct lsof_context *ctx, /* context */
+                KA_T addr,                /* queue info address in kernel */
+                struct qinit *buf)        /* receiving buffer address */
 {
-    if (!addr || kread(addr, (char *)buf, sizeof(struct qinit))) {
+    if (!addr || kread(ctx, addr, (char *)buf, sizeof(struct qinit))) {
         (void)snpf(Namech, Namechl, "can't read queue info from %s",
                    print_kptr(addr, (char *)NULL, 0));
         return (1);
@@ -1283,11 +1280,10 @@ struct qinit *buf; /* receiving buffer address */
  *	   cl = strlen(printable equivalent)
  */
 
-char *safepup(c, cl)
-unsigned int c; /* unprintable (i.e., !isprint())
-                 * character  and '\\' */
-int *cl;        /* returned printable strlen -- NULL if
-                 * no return needed */
+char *safepup(unsigned int c, /* unprintable (i.e., !isprint())
+                               * character  and '\\' */
+              int *cl)        /* returned printable strlen -- NULL if
+                               * no return needed */
 {
     int len;
     char *rp;
@@ -1336,14 +1332,13 @@ int *cl;        /* returned printable strlen -- NULL if
  *		  non-printable characters when printed in a printable form
  */
 
-int safestrlen(sp, flags)
-char *sp;  /* string pointer */
-int flags; /* flags:
-            *   bit 0: 0 (0) = no NL
-            *	    1 (1) = add trailing NL
-            *	 1: 0 (0) = ' ' printable
-            *	    1 (2) = ' ' not printable
-            */
+int safestrlen(char *sp,  /* string pointer */
+               int flags) /* flags:
+                           *   bit 0: 0 (0) = no NL
+                           *	    1 (1) = add trailing NL
+                           *	 1: 0 (0) = ' ' printable
+                           *	    1 (2) = ' ' not printable
+                           */
 {
     char c;
     int len = 0;
@@ -1368,21 +1363,21 @@ int flags; /* flags:
  * safestrprt() - print a string "safely" to the indicated stream -- i.e.,
  *		  print unprintable characters in a printable form
  */
-void safestrprt(sp, fs, flags) char *sp; /* string to print pointer pointer */
-FILE *fs;                                /* destination stream -- e.g., stderr
-                                          * or stdout */
-int flags;                               /* flags:
-                                          *   bit 0: 0 (0) = no NL
-                                          *	    1 (1) = add trailing NL
-                                          *	 1: 0 (0) = ' ' printable
-                                          *	    1 (2) = ' ' not printable
-                                          *	 2: 0 (0) = print string as is
-                                          *	    1 (4) = surround string
-                                          *		    with '"'
-                                          *	 4: 0 (0) = print ending '\n'
-                                          *	    1 (8) = don't print ending
-                                          *		    '\n'
-                                          */
+void safestrprt(char *sp,  /* string to print pointer pointer */
+                FILE *fs,  /* destination stream -- e.g., stderr
+                            * or stdout */
+                int flags) /* flags:
+                            *   bit 0: 0 (0) = no NL
+                            *	    1 (1) = add trailing NL
+                            *	 1: 0 (0) = ' ' printable
+                            *	    1 (2) = ' ' not printable
+                            *	 2: 0 (0) = print string as is
+                            *	    1 (4) = surround string
+                            *		    with '"'
+                            *	 4: 0 (0) = print ending '\n'
+                            *	    1 (8) = don't print ending
+                            *		    '\n'
+                            */
 {
     char c;
     int lnc, lnt, sl;
@@ -1444,24 +1439,23 @@ int flags;                               /* flags:
  *		   "safely" to the indicated stream
  */
 
-void safestrprtn(sp, len, fs,
-                 flags) char *sp; /* string to print pointer pointer */
-int len;                          /* safe number of characters to
-                                   * print */
-FILE *fs;                         /* destination stream -- e.g., stderr
-                                   * or stdout */
-int flags;                        /* flags:
-                                   *   bit 0: 0 (0) = no NL
-                                   *	    1 (1) = add trailing NL
-                                   *	 1: 0 (0) = ' ' printable
-                                   *	    1 (2) = ' ' not printable
-                                   *	 2: 0 (0) = print string as is
-                                   *	    1 (4) = surround string
-                                   *		    with '"'
-                                   *	 4: 0 (0) = print ending '\n'
-                                   *	    1 (8) = don't print ending
-                                   *		    '\n'
-                                   */
+void safestrprtn(char *sp,  /* string to print pointer pointer */
+                 int len,   /* safe number of characters to
+                             * print */
+                 FILE *fs,  /* destination stream -- e.g., stderr
+                             * or stdout */
+                 int flags) /* flags:
+                             *   bit 0: 0 (0) = no NL
+                             *	    1 (1) = add trailing NL
+                             *	 1: 0 (0) = ' ' printable
+                             *	    1 (2) = ' ' not printable
+                             *	 2: 0 (0) = print string as is
+                             *	    1 (4) = surround string
+                             *		    with '"'
+                             *	 4: 0 (0) = print ending '\n'
+                             *	    1 (8) = don't print ending
+                             *		    '\n'
+                             */
 {
     char c, *up;
     int cl, i;
@@ -1498,9 +1492,8 @@ int flags;                        /* flags:
  * statsafely() - stat path safely (i. e., with timeout)
  */
 
-int statsafely(path, buf)
-char *path;       /* file path */
-struct stat *buf; /* stat buffer address */
+int statsafely(struct lsof_context *ctx, char *path, /* file path */
+               struct stat *buf)                     /* stat buffer address */
 {
     if (Fblock) {
         if (!Fwarn)
@@ -1509,14 +1502,14 @@ struct stat *buf; /* stat buffer address */
         errno = EWOULDBLOCK;
         return (1);
     }
-    return (doinchild(dostat, path, (char *)buf, sizeof(struct stat)));
+    return (doinchild(ctx, dostat, path, (char *)buf, sizeof(struct stat)));
 }
 
 /*
  * stkdir() - stack directory name
  */
 
-void stkdir(p) char *p; /* directory path */
+void stkdir(struct lsof_context *ctx, char *p) /* directory path */
 {
     MALLOC_S len;
     /*
@@ -1532,7 +1525,7 @@ void stkdir(p) char *p; /* directory path */
         if (!Dstk) {
             (void)fprintf(stderr, "%s: no space for directory stack at: ", Pn);
             safestrprt(p, stderr, 1);
-            Error();
+            Error(ctx);
         }
     }
     /*
@@ -1542,7 +1535,7 @@ void stkdir(p) char *p; /* directory path */
     if (!(Dstk[Dstkx] = mkstrcpy(p, (MALLOC_S *)NULL))) {
         (void)fprintf(stderr, "%s: no space for: ", Pn);
         safestrprt(p, stderr, 1);
-        Error();
+        Error(ctx);
     }
     Dstkx++;
 }
@@ -1551,9 +1544,8 @@ void stkdir(p) char *p; /* directory path */
  * x2dev() - convert hexadecimal ASCII string to device number
  */
 
-char *x2dev(s, d)
-char *s;  /* ASCII string */
-dev_t *d; /* device receptacle */
+char *x2dev(char *s,  /* ASCII string */
+            dev_t *d) /* device receptacle */
 {
     char *cp, *cp1;
     int n;

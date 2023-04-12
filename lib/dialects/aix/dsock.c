@@ -49,7 +49,8 @@ static char copyright[] =
  * process_socket() - process socket file
  */
 
-void process_socket(sa) KA_T sa; /* socket address in kernel */
+void process_socket(struct lsof_context *ctx, /* context */
+                    KA_T sa)                  /* socket address in kernel */
 {
     struct domain d;
     unsigned char *fa = (unsigned char *)NULL;
@@ -79,23 +80,23 @@ void process_socket(sa) KA_T sa; /* socket address in kernel */
      * Read socket and protocol switch structures.
      */
     if (!sa) {
-        enter_nm("no socket address");
+        enter_nm(ctx, "no socket address");
         return;
     }
-    if (kread(sa, (char *)&s, sizeof(s))) {
+    if (kread(ctx, sa, (char *)&s, sizeof(s))) {
         (void)snpf(Namech, Namechl, "can't read socket struct from %s",
                    print_kptr(sa, (char *)NULL, 0));
-        enter_nm(Namech);
+        enter_nm(ctx, Namech);
         return;
     }
     if (!s.so_type) {
-        enter_nm("no socket type");
+        enter_nm(ctx, "no socket type");
         return;
     }
-    if (!s.so_proto || kread((KA_T)s.so_proto, (char *)&p, sizeof(p))) {
+    if (!s.so_proto || kread(ctx, (KA_T)s.so_proto, (char *)&p, sizeof(p))) {
         (void)snpf(Namech, Namechl, "can't read protocol switch from %s",
                    print_kptr((KA_T)s.so_proto, (char *)NULL, 0));
-        enter_nm(Namech);
+        enter_nm(ctx, Namech);
         return;
     }
     /*
@@ -134,10 +135,10 @@ void process_socket(sa) KA_T sa; /* socket address in kernel */
     /*
      * Process socket by the associated domain family.
      */
-    if (!p.pr_domain || kread((KA_T)p.pr_domain, (char *)&d, sizeof(d))) {
+    if (!p.pr_domain || kread(ctx, (KA_T)p.pr_domain, (char *)&d, sizeof(d))) {
         (void)snpf(Namech, Namechl, "can't read domain struct from %s",
                    print_kptr((KA_T)p.pr_domain, (char *)NULL, 0));
-        enter_nm(Namech);
+        enter_nm(ctx, Namech);
         return;
     }
     switch ((fam = d.dom_family)) {
@@ -153,7 +154,8 @@ void process_socket(sa) KA_T sa; /* socket address in kernel */
         /*
          * Read protocol control block.
          */
-        if (!s.so_pcb || kread((KA_T)s.so_pcb, (char *)&inp, sizeof(inp))) {
+        if (!s.so_pcb ||
+            kread(ctx, (KA_T)s.so_pcb, (char *)&inp, sizeof(inp))) {
             if (!s.so_pcb) {
                 (void)snpf(
                     Namech, Namechl, "no PCB%s%s",
@@ -163,7 +165,7 @@ void process_socket(sa) KA_T sa; /* socket address in kernel */
                 (void)snpf(Namech, Namechl, "can't read inpcb at %s",
                            print_kptr((KA_T)s.so_pcb, (char *)NULL, 0));
             }
-            enter_nm(Namech);
+            enter_nm(ctx, Namech);
             return;
         }
         if (p.pr_protocol == IPPROTO_TCP) {
@@ -172,7 +174,7 @@ void process_socket(sa) KA_T sa; /* socket address in kernel */
              * If this is a TCP socket, read its control block.
              */
             if (inp.inp_ppcb &&
-                !kread((KA_T)inp.inp_ppcb, (char *)&t, sizeof(t))) {
+                !kread(ctx, (KA_T)inp.inp_ppcb, (char *)&t, sizeof(t))) {
                 ts = 1;
                 tsn = (int)t.t_state;
                 tsnx = tsn + TcpStOff;
@@ -224,7 +226,8 @@ void process_socket(sa) KA_T sa; /* socket address in kernel */
         /*
          * Save Internet socket information.
          */
-        enter_dev_ch(print_kptr((KA_T)(inp.inp_ppcb ? inp.inp_ppcb : s.so_pcb),
+        enter_dev_ch(ctx,
+                     print_kptr((KA_T)(inp.inp_ppcb ? inp.inp_ppcb : s.so_pcb),
                                 (char *)NULL, 0));
 
 #if defined(HASIPv6)
@@ -276,7 +279,7 @@ void process_socket(sa) KA_T sa; /* socket address in kernel */
 #endif /* defined(HASIPv6) */
 
         if (fa || la)
-            (void)ent_inaddr(la, lp, fa, fp, fam);
+            (void)ent_inaddr(ctx, la, lp, fa, fp, fam);
         if (ts) {
             Lf->lts.type = 0;
             Lf->lts.state.i = tsn;
@@ -298,7 +301,7 @@ void process_socket(sa) KA_T sa; /* socket address in kernel */
     case AF_ROUTE:
         (void)snpf(Lf->type, sizeof(Lf->type), "rte");
         if (s.so_pcb)
-            enter_dev_ch(print_kptr((KA_T)(s.so_pcb), (char *)NULL, 0));
+            enter_dev_ch(ctx, print_kptr((KA_T)(s.so_pcb), (char *)NULL, 0));
         else
             (void)snpf(Namech, Namechl, "no protocol control block");
         break;
@@ -312,8 +315,8 @@ void process_socket(sa) KA_T sa; /* socket address in kernel */
         /*
          * Read Unix protocol control block and the Unix address structure.
          */
-        enter_dev_ch(print_kptr(sa, (char *)NULL, 0));
-        if (kread((KA_T)s.so_pcb, (char *)&unp, sizeof(unp))) {
+        enter_dev_ch(ctx, print_kptr(sa, (char *)NULL, 0));
+        if (kread(ctx, (KA_T)s.so_pcb, (char *)&unp, sizeof(unp))) {
             (void)snpf(Namech, Namechl, "can't read unpcb at %s",
                        print_kptr((KA_T)s.so_pcb, (char *)NULL, 0));
             break;
@@ -324,7 +327,7 @@ void process_socket(sa) KA_T sa; /* socket address in kernel */
             break;
         }
         if (unp.unp_addr) {
-            if (kread((KA_T)unp.unp_addr, (char *)&mb, sizeof(mb))) {
+            if (kread(ctx, (KA_T)unp.unp_addr, (char *)&mb, sizeof(mb))) {
                 (void)snpf(Namech, Namechl, "can't read unp_addr at %s",
                            print_kptr((KA_T)unp.unp_addr, (char *)NULL, 0));
                 break;
@@ -335,8 +338,8 @@ void process_socket(sa) KA_T sa; /* socket address in kernel */
             if ((uo + sizeof(struct sockaddr)) <= sizeof(mb))
                 ua = (struct sockaddr_un *)((char *)&mb + uo);
             else {
-                if (mb.m_hdr.mh_data &&
-                    !kread((KA_T)mb.m_hdr.mh_data, (char *)&un, sizeof(un))) {
+                if (mb.m_hdr.mh_data && !kread(ctx, (KA_T)mb.m_hdr.mh_data,
+                                               (char *)&un, sizeof(un))) {
                     ua = &un;
                 }
             }
@@ -357,7 +360,7 @@ void process_socket(sa) KA_T sa; /* socket address in kernel */
         if (ua->sun_family != AF_UNIX) {
             if (ua->sun_family == AF_UNSPEC) {
                 if (unp.unp_conn) {
-                    if (kread((KA_T)unp.unp_conn, (char *)&uc, sizeof(uc)))
+                    if (kread(ctx, (KA_T)unp.unp_conn, (char *)&uc, sizeof(uc)))
                         (void)snpf(
                             Namech, Namechl, "can't read unp_conn at %s",
                             print_kptr((KA_T)unp.unp_conn, (char *)NULL, 0));
@@ -376,10 +379,10 @@ void process_socket(sa) KA_T sa; /* socket address in kernel */
          * Read any associated vnode and then read its gnode and inode.
          */
         g.gn_type = VSOCK;
-        if (unp.unp_vnode && !readvnode((KA_T)unp.unp_vnode, &v)) {
-            if (v.v_gnode && !readgnode((KA_T)v.v_gnode, &g)) {
-                Lf->lock = isglocked(&g);
-                if (g.gn_type == VSOCK && g.gn_data && !readlino(&g, &i))
+        if (unp.unp_vnode && !readvnode(ctx, (KA_T)unp.unp_vnode, &v)) {
+            if (v.v_gnode && !readgnode(ctx, (KA_T)v.v_gnode, &g)) {
+                Lf->lock = isglocked(ctx, &g);
+                if (g.gn_type == VSOCK && g.gn_data && !readlino(ctx, &g, &i))
                     is = 1;
             }
         }
@@ -400,7 +403,7 @@ void process_socket(sa) KA_T sa; /* socket address in kernel */
             if (mb.m_len > sizeof(struct sockaddr_un))
                 mb.m_len = sizeof(struct sockaddr_un);
             *((char *)ua + mb.m_len - 1) = '\0';
-            if (Sfile && is_file_named(ua->sun_path, VSOCK, 0, 0))
+            if (Sfile && is_file_named(ctx, ua->sun_path, VSOCK, 0, 0))
                 Lf->sf |= SELNM;
             if (!Namech[0])
                 (void)snpf(Namech, Namechl, "%s", ua->sun_path);
@@ -409,8 +412,8 @@ void process_socket(sa) KA_T sa; /* socket address in kernel */
         break;
 
     default:
-        printunkaf(fam, 1);
+        printunkaf(ctx, fam, 1);
     }
     if (Namech[0])
-        enter_nm(Namech);
+        enter_nm(ctx, Namech);
 }

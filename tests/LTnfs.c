@@ -70,16 +70,15 @@ char *Pn = (char *)NULL;   /* program name */
  * Local function prototypes
  */
 
-_PROTOTYPE(static void cleanup, (void));
-_PROTOTYPE(static char *FindNFSfile, (int *ff, char *szbuf));
+static void cleanup(void);
+static char *FindNFSfile(int *ff, char *szbuf);
 
 /*
  * Main program
  */
 
-int main(argc, argv)
-int argc;     /* argument count */
-char *argv[]; /* arguments */
+int main(int argc,     /* argument count */
+         char *argv[]) /* arguments */
 {
     char buf[2048]; /* temporary buffer */
     char *em;       /* error message pointer */
@@ -263,10 +262,9 @@ static void cleanup() {
  * FindNFSfile() -- find the NFS file with lsof
  */
 
-static char *FindNFSfile(ff, szbuf)
-int *ff;     /* file-found response receptor */
-char *szbuf; /* expected file size in ASCII (if
-              * the file was created by this test */
+static char *FindNFSfile(int *ff,     /* file-found response receptor */
+                         char *szbuf) /* expected file size in ASCII (if
+                                       * the file was created by this test */
 {
     char buf[2048];           /* temporary buffer */
     char *cem;                /* current error message pointer */

@@ -31,6 +31,7 @@
  */
 
 #include "common.h"
+#include "cli.h"
 
 /*
  * Local definitions
@@ -42,17 +43,14 @@ static char *GOv = (char *)NULL; /* option `:' value pointer */
 static int GOx1 = 1;             /* first opt[][] index */
 static int GOx2 = 0;             /* second opt[][] index */
 
-_PROTOTYPE(static int GetOpt, (int ct, char *opt[], char *rules, int *err));
-_PROTOTYPE(static char *sv_fmt_str, (char *f));
+static int GetOpt(int ct, char *opt[], char *rules, int *err);
+static char *sv_fmt_str(struct lsof_context *ctx, char *f);
 
 /*
  * main() - main function for lsof
  */
 
-int main(argc, argv)
-int argc;
-char *argv[];
-{
+int main(int argc, char *argv[]) {
     enum ExitStatus rv;
     int gopt_rv;
     int ad, c, i, n, se1, se2, ss;
@@ -75,6 +73,8 @@ char *argv[];
     int version = 0;
     int xover = 0;
     int pr_count = 0;
+    /** liblsof context */
+    struct lsof_context *ctx = NULL;
 
 #if defined(HAS_STRFTIME)
     char *fmt = (char *)NULL;
@@ -120,7 +120,7 @@ char *argv[];
     while (((i = open("/dev/null", O_RDWR, 0)) >= 0) && (i < 2))
         ;
     if (i < 0)
-        Error();
+        Error(ctx);
     if (i > 2)
         (void)close(i);
     (void)umask(0);
@@ -143,7 +143,7 @@ char *argv[];
         Setuidroot = 1;
     if (!(Namech = (char *)malloc(MAXPATHLEN + 1))) {
         (void)fprintf(stderr, "%s: no space for name buffer\n", Pn);
-        Error();
+        Error(ctx);
     }
     Namechl = (size_t)(MAXPATHLEN + 1);
     /*
@@ -286,7 +286,7 @@ char *argv[];
                 break;
             }
             if (GOv && (*GOv == '/')) {
-                if (enter_cmd_rx(GOv))
+                if (enter_cmd_rx(ctx, GOv))
                     err = 1;
             } else {
                 if (enter_str_lst("-c", GOv, &Cmdl, &Cmdni, &Cmdnx))
@@ -314,20 +314,20 @@ char *argv[];
 #endif /* defined(HASNCACHE) */
         case 'd':
             if (GOp == '+') {
-                if (enter_dir(GOv, 0))
+                if (enter_dir(ctx, GOv, 0))
                     err = 1;
                 else {
                     Selflags |= SELNM;
                     xover = 1;
                 }
             } else {
-                if (enter_fd(GOv))
+                if (enter_fd(ctx, GOv))
                     err = 1;
             }
             break;
         case 'D':
             if (GOp == '+') {
-                if (enter_dir(GOv, 1))
+                if (enter_dir(ctx, GOv, 1))
                     err = 1;
                 else {
                     Selflags |= SELNM;
@@ -336,7 +336,7 @@ char *argv[];
             } else {
 
 #if defined(HASDCACHE)
-                if (ctrl_dcache(GOv))
+                if (ctrl_dcache(ctx, GOv))
                     err = 1;
 #else  /* !defined(HASDCACHE) */
                 (void)fprintf(stderr, "%s: unsupported option: -D\n", Pn);
@@ -347,7 +347,7 @@ char *argv[];
 
 #if defined(HASEOPT)
         case 'e':
-            if (enter_efsys(GOv, ((GOp == '+') ? 1 : 0)))
+            if (enter_efsys(ctx, GOv, ((GOp == '+') ? 1 : 0)))
                 err = 1;
             break;
 #endif /* defined(HASEOPT) */
@@ -555,7 +555,7 @@ char *argv[];
                 if (*GOv == '-' || *GOv == '+') {
                     GOx1 = GObk[0];
                     GOx2 = GObk[1];
-                } else if (enter_id(PGID, GOv))
+                } else if (enter_id(ctx, PGID, GOv))
                     err = 1;
             }
             Fpgid = 1;
@@ -577,7 +577,7 @@ char *argv[];
                 }
                 break;
             }
-            if (enter_network_address(GOv))
+            if (enter_network_address(ctx, GOv))
                 err = 1;
             break;
 
@@ -739,7 +739,7 @@ char *argv[];
             Fovhd = (GOp == '-') ? 1 : 0;
             break;
         case 'p':
-            if (enter_id(PID, GOv))
+            if (enter_id(ctx, PID, GOv))
                 err = 1;
             break;
         case 'Q':
@@ -805,7 +805,7 @@ char *argv[];
                     (void)fprintf(
                         stderr, "%s: no space (%d) for <fmt> result: \"%s\"\n",
                         Pn, (int)fmtl, cp);
-                    Error();
+                    Error(ctx);
                 }
                 if (util_strftime(fmtr, fmtl - 1, fmt) < 1) {
                     (void)fprintf(stderr, "%s: illegal <fmt>: \"%s\"\n", Pn,
@@ -837,7 +837,7 @@ char *argv[];
                     GOx2 = GObk[1];
                 }
             } else {
-                if (enter_state_spec(GOv))
+                if (enter_state_spec(ctx, GOv))
                     err = 1;
             }
 #else  /* !defined(HASTCPUDPSTATE) */
@@ -921,7 +921,7 @@ char *argv[];
             }
             break;
         case 'u':
-            if (enter_uid(GOv))
+            if (enter_uid(ctx, GOv))
                 err = 1;
             break;
         case 'U':
@@ -977,7 +977,7 @@ char *argv[];
                 /*
                  * Add to the zone name argument hash.
                  */
-                if (enter_zone_arg(GOv))
+                if (enter_zone_arg(ctx, GOv))
                     err = 1;
             } else if (GOv) {
                 GOx1 = GObk[0];
@@ -998,7 +998,7 @@ char *argv[];
                     /*
                      * Add to the context name argument hash.
                      */
-                    if (enter_cntx_arg(GOv))
+                    if (enter_cntx_arg(ctx, GOv))
                         err = 1;
                 } else if (GOv) {
                     GOx1 = GObk[0];
@@ -1118,7 +1118,7 @@ char *argv[];
         efsys_list_t *ep;        /* Efsysl pointer */
         struct mounts *mp, *mpw; /* local mount table pointers */
 
-        if ((mp = readmnt())) {
+        if ((mp = readmnt(ctx))) {
             for (ep = Efsysl; ep; ep = ep->next) {
                 for (mpw = mp; mpw; mpw = mpw->next) {
                     if (!strcmp(mpw->dir, ep->path)) {
@@ -1138,7 +1138,7 @@ char *argv[];
 #endif /* defined(HASEOPT) */
 
     if (DChelp || err || Fhelp || fh || version)
-        usage(err ? 1 : 0, fh, version);
+        usage(ctx, err ? 1 : 0, fh, version);
     /*
      * Reduce the size of Suid[], if necessary.
      */
@@ -1147,7 +1147,7 @@ char *argv[];
                   (MALLOC_P *)Suid,
                   (MALLOC_S)(sizeof(struct seluid) * Nuid)))) {
             (void)fprintf(stderr, "%s: can't realloc UID table\n", Pn);
-            Error();
+            Error(ctx);
         }
         Mxuid = Nuid;
     }
@@ -1189,7 +1189,7 @@ char *argv[];
     if (Selflags == 0) {
         if (Fand) {
             (void)fprintf(stderr, "%s: no select options to AND via -a\n", Pn);
-            usage(1, 0, 0);
+            usage(ctx, 1, 0, 0);
         }
         Selflags = SelAll;
     } else {
@@ -1219,7 +1219,7 @@ char *argv[];
                 (void)fprintf(stderr, "%s: can't stat(/dev): %s\n", Pn,
                               strerror(se2));
             }
-            Error();
+            Error(ctx);
         }
     }
     DevDev = sb.st_dev;
@@ -1227,23 +1227,23 @@ char *argv[];
      * Process the file arguments.
      */
     if (GOx1 < argc) {
-        if (ck_file_arg(GOx1, argc, argv, Ffilesys, 0, (struct stat *)NULL,
+        if (ck_file_arg(ctx, GOx1, argc, argv, Ffilesys, 0, (struct stat *)NULL,
                         FsearchErr == 0))
-            Error();
+            Error(ctx);
     }
     /*
      * Do dialect-specific initialization.
      */
-    initialize();
+    initialize(ctx);
     if (Sfile)
-        (void)hashSfile();
+        (void)hashSfile(ctx);
 
 #if defined(WILLDROPGID)
     /*
      * If this process isn't setuid(root), but it is setgid(not_real_gid),
      * relinquish the setgid power.  (If it hasn't already been done.)
      */
-    (void)dropgid();
+    (void)dropgid(ctx);
 #endif /* defined(WILLDROPGID) */
 
 #if defined(HASDCACHE)
@@ -1251,32 +1251,32 @@ char *argv[];
      * If there is a device cache, prepare the device table.
      */
     if (DCstate)
-        readdev(0);
+        readdev(ctx, 0);
 #endif /* defined(HASDCACHE) */
 
     /*
      * Define the size and offset print formats.
      */
     (void)snpf(options, sizeof(options), "%%%su", INODEPSPEC);
-    InodeFmt_d = sv_fmt_str(options);
+    InodeFmt_d = sv_fmt_str(ctx, options);
     (void)snpf(options, sizeof(options), "%%#%sx", INODEPSPEC);
-    InodeFmt_x = sv_fmt_str(options);
+    InodeFmt_x = sv_fmt_str(ctx, options);
     (void)snpf(options, sizeof(options), "0t%%%su", SZOFFPSPEC);
-    SzOffFmt_0t = sv_fmt_str(options);
+    SzOffFmt_0t = sv_fmt_str(ctx, options);
     (void)snpf(options, sizeof(options), "%%%su", SZOFFPSPEC);
-    SzOffFmt_d = sv_fmt_str(options);
+    SzOffFmt_d = sv_fmt_str(ctx, options);
     (void)snpf(options, sizeof(options), "%%*%su", SZOFFPSPEC);
-    SzOffFmt_dv = sv_fmt_str(options);
+    SzOffFmt_dv = sv_fmt_str(ctx, options);
     (void)snpf(options, sizeof(options), "%%#%sx", SZOFFPSPEC);
-    SzOffFmt_x = sv_fmt_str(options);
+    SzOffFmt_x = sv_fmt_str(ctx, options);
 
 #if defined(HASMNTSUP)
     /*
      * Report mount supplement information, as requested.
      */
     if (MntSup == 1) {
-        (void)readmnt();
-        Exit(LSOF_SUCCESS);
+        (void)readmnt(ctx);
+        Exit(ctx, LSOF_SUCCESS);
     }
 #endif /* defined(HASMNTSUP) */
 
@@ -1290,7 +1290,7 @@ char *argv[];
         /*
          * Gather information about processes.
          */
-        gather_proc_info();
+        gather_proc_info(ctx);
         /*
          * If the local process table has more than one entry, sort it by PID.
          */
@@ -1305,7 +1305,7 @@ char *argv[];
                 if (!slp) {
                     (void)fprintf(stderr, "%s: no space for %d sort pointers\n",
                                   Pn, Nlproc);
-                    Error();
+                    Error(ctx);
                 }
             }
             for (i = 0; i < Nlproc; i++) {
@@ -1346,12 +1346,12 @@ char *argv[];
                      * process the file endpoints.
                      */
                     if (Lp->pss && (Lp->ept & EPT_PIPE))
-                        (void)process_pinfo(0);
+                        (void)process_pinfo(ctx, 0);
                     /*
                      * Process POSIX MQ endpoints.
                      */
                     if (Lp->ept & EPT_PSXMQ)
-                        (void)process_psxmqinfo(0);
+                        (void)process_psxmqinfo(ctx, 0);
 
 #    if defined(HASUXSOCKEPT)
                     /*
@@ -1360,7 +1360,7 @@ char *argv[];
                      * socket(s), process the file endpoints.
                      */
                     if (Lp->pss && (Lp->ept & EPT_UXS))
-                        (void)process_uxsinfo(0);
+                        (void)process_uxsinfo(ctx, 0);
 #    endif /* defined(HASUXSOCKEPT) */
 
 #    if defined(HASPTYEPT)
@@ -1370,27 +1370,27 @@ char *argv[];
                      * terminal files(s), process the file endpoints.
                      */
                     if (Lp->pss && (Lp->ept & EPT_PTY))
-                        (void)process_ptyinfo(0);
+                        (void)process_ptyinfo(ctx, 0);
 #    endif /* defined(HASPTYEPT) */
 
                     /*
                      * Process INET socket endpoints.
                      */
                     if (Lp->ept & EPT_NETS)
-                        (void)process_netsinfo(0);
+                        (void)process_netsinfo(ctx, 0);
 
 #    if defined(HASIPv6)
                     /*
                      * Process INET6 socket endpoints.
                      */
                     if (Lp->ept & EPT_NETS6)
-                        (void)process_nets6info(0);
+                        (void)process_nets6info(ctx, 0);
 #    endif /* defined(HASIPv6) */
                     /*
                      * Process eventfd endpoints.
                      */
                     if (Lp->ept & EPT_EVTFD)
-                        (void)process_evtfdinfo(0);
+                        (void)process_evtfdinfo(ctx, 0);
                 }
                 /*
                  * In a second pass, look for unselected endpoint files,
@@ -1403,19 +1403,19 @@ char *argv[];
                      * Process pipe endpoints.
                      */
                     if (Lp->ept & EPT_PIPE_END)
-                        (void)process_pinfo(1);
+                        (void)process_pinfo(ctx, 1);
                     /*
                      * Process POSIX MQ endpoints.
                      */
                     if (Lp->ept & EPT_PSXMQ_END)
-                        (void)process_psxmqinfo(1);
+                        (void)process_psxmqinfo(ctx, 1);
 
 #    if defined(HASUXSOCKEPT)
                     /*
                      * Process UNIX socket endpoints.
                      */
                     if (Lp->ept & EPT_UXS_END)
-                        (void)process_uxsinfo(1);
+                        (void)process_uxsinfo(ctx, 1);
 #    endif /* defined(HASUXSOCKEPT) */
 
 #    if defined(HASPTYEPT)
@@ -1423,28 +1423,28 @@ char *argv[];
                      * Process pseudo-terminal endpoints.
                      */
                     if (Lp->ept & EPT_PTY_END)
-                        (void)process_ptyinfo(1);
+                        (void)process_ptyinfo(ctx, 1);
 #    endif /* defined(HASPTYEPT) */
 
                     /*
                      * Process INET socket endpoints.
                      */
                     if (Lp->ept & EPT_NETS_END)
-                        (void)process_netsinfo(1);
+                        (void)process_netsinfo(ctx, 1);
 
 #    if defined(HASIPv6)
                     /*
                      * Process INET6 socket endpoints.
                      */
                     if (Lp->ept & EPT_NETS6_END)
-                        (void)process_nets6info(1);
+                        (void)process_nets6info(ctx, 1);
 #    endif /* defined(HASIPv6) */
 
                     /*
                      * Process envetfd endpoints.
                      */
                     if (Lp->ept & EPT_EVTFD_END)
-                        (void)process_evtfdinfo(1);
+                        (void)process_evtfdinfo(ctx, 1);
                 }
                 Lf = lf;
             }
@@ -1461,7 +1461,7 @@ char *argv[];
                 for (i = n = 0; i < Nlproc; i++) {
                     Lp = (Nlproc > 1) ? slp[i] : &Lproc[i];
                     if (Lp->pss) {
-                        if (print_proc())
+                        if (print_proc(ctx))
                             n++;
                     }
                     if (RptTm && PrPass)
@@ -1478,25 +1478,25 @@ char *argv[];
         if (RptTm) {
 
 #if defined(HASEPTOPTS)
-            (void)clear_pinfo();
+            (void)clear_pinfo(ctx);
 
-            (void)clear_psxmqinfo();
+            (void)clear_psxmqinfo(ctx);
 
 #    if defined(HASUXSOCKEPT)
-            (void)clear_uxsinfo();
+            (void)clear_uxsinfo(ctx);
 #    endif /* defined(HASUXSOCKEPT) */
 
 #    if defined(HASPTYEPT)
-            (void)clear_ptyinfo();
+            (void)clear_ptyinfo(ctx);
 #    endif /* defined(HASPTYEPT) */
 
-            (void)clear_netsinfo();
+            (void)clear_netsinfo(ctx);
 
 #    if defined(HASIPv6)
-            (void)clear_nets6info();
+            (void)clear_nets6info(ctx);
 #    endif /* defined(HASIPv6) */
 
-            (void)clear_evtfdinfo();
+            (void)clear_evtfdinfo(ctx);
 #endif /* defined(HASEPTOPTS) */
 
             if (rc) {
@@ -1540,7 +1540,7 @@ char *argv[];
                 puts(cp);
             }
             (void)fflush(stdout);
-            (void)childx();
+            (void)childx(ctx);
             (void)sleep(RptTm);
             Hdr = Nlproc = 0;
             CkPasswd = 1;
@@ -1552,7 +1552,7 @@ char *argv[];
      * See if all requested information was displayed.  Return zero if it
      * was; one, if not.  If -V was specified, report what was not displayed.
      */
-    (void)childx();
+    (void)childx(ctx);
     rv = LSOF_SUCCESS;
     for (str = Cmdl; str; str = str->next) {
 
@@ -1809,7 +1809,7 @@ char *argv[];
         rv = ev;
     if (!rv && ErrStat)
         rv = LSOF_ERROR;
-    Exit(rv);
+    Exit(ctx, rv);
     return (rv); /* to make code analyzers happy */
 }
 
@@ -1824,11 +1824,10 @@ char *argv[];
  * value doesn't have one -- e.g., has a default instead.
  */
 
-static int GetOpt(ct, opt, rules, err)
-int ct;      /* option count */
-char *opt[]; /* options */
-char *rules; /* option rules */
-int *err;    /* error return */
+static int GetOpt(int ct,      /* option count */
+                  char *opt[], /* options */
+                  char *rules, /* option rules */
+                  int *err)    /* error return */
 {
     register int c;
     register char *cp = (char *)NULL;
@@ -1942,8 +1941,7 @@ int *err;    /* error return */
  * sv_fmt_str() - save format string
  */
 
-static char *sv_fmt_str(f)
-char *f; /* format string */
+static char *sv_fmt_str(struct lsof_context *ctx, char *f) /* format string */
 {
     char *cp;
     MALLOC_S l;
@@ -1952,7 +1950,7 @@ char *f; /* format string */
     if (!(cp = (char *)malloc(l))) {
         (void)fprintf(stderr, "%s: can't allocate %d bytes for format: %s\n",
                       Pn, (int)l, f);
-        Error();
+        Error(ctx);
     }
     (void)snpf(cp, l, "%s", f);
     return (cp);

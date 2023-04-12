@@ -112,8 +112,8 @@ typedef struct afs_bozoLock afs_bozoLock_t;
  * Local function prototypes
  */
 
-_PROTOTYPE(static struct volume *getvolume, (struct VenusFid * f, int *vols));
-_PROTOTYPE(static int is_rootFid, (struct vcache * vc, int *rfid));
+static struct volume *getvolume(struct VenusFid *f, int *vols);
+static int is_rootFid(struct vcache *vc, int *rfid);
 
 /*
  * alloc_vcache() - allocate space for vcache structure
@@ -127,7 +127,7 @@ struct vnode *alloc_vcache() {
  * ckAFSsym() - check for missing X_AFS_* symbols in AFS name list file
  */
 
-void ckAFSsym(nl) struct nlist *nl; /* copy of Nl[] when empty */
+void ckAFSsym(struct nlist *nl) /* copy of Nl[] when empty */
 {
     char *path = AFSAPATHDEF;
     int i;
@@ -179,9 +179,8 @@ void ckAFSsym(nl) struct nlist *nl; /* copy of Nl[] when empty */
  * getvolume() - get volume structure
  */
 
-static struct volume *getvolume(f, vols)
-struct VenusFid *f; /* file ID pointer */
-int *vols;          /* afs_volumes status return */
+static struct volume *getvolume(struct VenusFid *f, /* file ID pointer */
+                                int *vols) /* afs_volumes status return */
 {
     int i;
     static KA_T ka = 0;
@@ -208,10 +207,10 @@ int *vols;          /* afs_volumes status return */
     *vols = 1;
     i = (NVOLS - 1) & f->Fid.Volume;
     kh = (KA_T)((char *)ka + (i * sizeof(struct volume *)));
-    if (kread(kh, (char *)&vp, sizeof(vp)))
+    if (kread(ctx, kh, (char *)&vp, sizeof(vp)))
         return ((struct volume *)NULL);
     while (vp) {
-        if (kread((KA_T)vp, (char *)&v, sizeof(v)))
+        if (kread(ctx, (KA_T)vp, (char *)&v, sizeof(v)))
             return ((struct volume *)NULL);
         if (v.volume == f->Fid.Volume && v.cell == f->Cell)
             return (&v);
@@ -224,8 +223,7 @@ int *vols;          /* afs_volumes status return */
  * hasAFS() - test for AFS presence via vfs structure
  */
 
-int hasAFS(vp)
-struct vnode *vp; /* vnode pointer */
+int hasAFS(struct vnode *vp) /* vnode pointer */
 {
     struct mounts *mp;
     int n;
@@ -245,7 +243,7 @@ struct vnode *vp; /* vnode pointer */
     if (!AFSdevStat)
         (void)readmnt();
     if (!AFSdevStat || vp->v_data || !vp->v_vfsp ||
-        kread((KA_T)vp->v_vfsp, (char *)&v, sizeof(v)) || v.vfs_data)
+        kread(ctx, (KA_T)vp->v_vfsp, (char *)&v, sizeof(v)) || v.vfs_data)
         return (0);
     if ((dev_t)v.vfs_fsid.val[0] == AFSdev) {
         AFSVfsp = (KA_T)vp->v_vfsp;
@@ -284,9 +282,8 @@ struct vnode *vp; /* vnode pointer */
  *		  1 if root file ID structure address available
  */
 
-static int is_rootFid(vc, rfid)
-struct vcache *vc; /* vcache structure */
-int *rfid;         /* root file ID pointer status return */
+static int is_rootFid(struct vcache *vc, /* vcache structure */
+                      int *rfid) /* root file ID pointer status return */
 {
     KA_T arFid;
     char *err;
@@ -327,7 +324,7 @@ int *rfid;         /* root file ID pointer status return */
             *rfid = 0;
             return (0);
         }
-        if (kread(arFid, (char *)&r, sizeof(r))) {
+        if (kread(ctx, arFid, (char *)&r, sizeof(r))) {
             err = "can't read afs_rootFid from kernel";
             goto rfid_unavailable;
         }
@@ -348,10 +345,9 @@ int *rfid;         /* root file ID pointer status return */
  * readafsnode() - read AFS node
  */
 
-int readafsnode(va, v, an)
-KA_T va;            /* kernel vnode address */
-struct vnode *v;    /* vnode buffer pointer */
-struct afsnode *an; /* afsnode recipient */
+int readafsnode(KA_T va,            /* kernel vnode address */
+                struct vnode *v,    /* vnode buffer pointer */
+                struct afsnode *an) /* afsnode recipient */
 {
     char *cp, tbuf[32];
     KA_T ka;
@@ -362,12 +358,12 @@ struct afsnode *an; /* afsnode recipient */
     cp = ((char *)v + sizeof(struct vnode));
     ka = (KA_T)((char *)va + sizeof(struct vnode));
     len = sizeof(struct vcache) - sizeof(struct vnode);
-    if (kread(ka, cp, len)) {
+    if (kread(ctx, ka, cp, len)) {
         (void)snpf(Namech, Namechl,
                    "vnode at %s: can't read vcache remainder from %s",
                    print_kptr(va, tbuf, sizeof(tbuf)),
                    print_kptr(ka, (char *)NULL, 0));
-        enter_nm(Namech);
+        enter_nm(ctx, Namech);
         return (1);
     }
     vc = (struct vcache *)v;

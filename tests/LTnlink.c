@@ -68,17 +68,16 @@ char *Pn = (char *)NULL;   /* program name */
  * Local function prototypes
  */
 
-_PROTOTYPE(static void cleanup, (void));
-_PROTOTYPE(static char *FindFile, (char *opt, int *ff, int ie, LTdev_t *tfdc,
-                                   char *ibuf, char *xlnk, char *szbuf));
+static void cleanup(void);
+static char *FindFile(char *opt, int *ff, int ie, LTdev_t *tfdc, char *ibuf,
+                      char *xlnk, char *szbuf);
 
 /*
  * Main program
  */
 
-int main(argc, argv)
-int argc;     /* argument count */
-char *argv[]; /* arguments */
+int main(int argc,     /* argument count */
+         char *argv[]) /* arguments */
 {
     char buf[2048];    /* temporary buffer */
     int do_unlink = 1; /* do the unlink test section */
@@ -332,14 +331,13 @@ static void cleanup() {
  * FindFile() -- find a file with lsof
  */
 
-static char *FindFile(opt, ff, ie, tfdc, ibuf, xlnk, szbuf)
-char *opt;     /* additional lsof options */
-int *ff;       /* file-found response receptor */
-int ie;        /* ignore errors if == 1 */
-LTdev_t *tfdc; /* test file device components */
-char *ibuf;    /* inode number in ASCII */
-char *xlnk;    /* expected link count */
-char *szbuf;   /* file size in ASCII */
+static char *FindFile(char *opt,     /* additional lsof options */
+                      int *ff,       /* file-found response receptor */
+                      int ie,        /* ignore errors if == 1 */
+                      LTdev_t *tfdc, /* test file device components */
+                      char *ibuf,    /* inode number in ASCII */
+                      char *xlnk,    /* expected link count */
+                      char *szbuf)   /* file size in ASCII */
 {
     char buf[2048];           /* temporary buffer */
     char *cem;                /* current error message pointer */

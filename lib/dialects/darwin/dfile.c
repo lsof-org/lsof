@@ -47,7 +47,8 @@ extern struct pff_tab Pgf_tab[];
  */
 
 void enter_file_info(
-    pfi) struct proc_fileinfo *pfi; /* pointer to process file info */
+    struct lsof_context *ctx,  /* context */
+    struct proc_fileinfo *pfi) /* pointer to process file info */
 {
     int f;
     /*
@@ -84,7 +85,8 @@ void enter_file_info(
  */
 
 void enter_vnode_info(
-    vip) struct vnode_info_path *vip; /* pointer to vnode info with path */
+    struct lsof_context *ctx,    /* context */
+    struct vnode_info_path *vip) /* pointer to vnode info with path */
 {
     char buf[32], *cp;
     dev_t dev = 0;
@@ -169,7 +171,7 @@ void enter_vnode_info(
      * If a device number is defined, locate file system and save its identity.
      */
     if (devs) {
-        for (mp = readmnt(); mp; mp = mp->next) {
+        for (mp = readmnt(ctx); mp; mp = mp->next) {
             if (dev == mp->dev) {
                 Lf->fsdir = mp->dir;
                 Lf->fsdev = mp->fsname;
@@ -194,21 +196,22 @@ void enter_vnode_info(
      * Test for specified file.
      */
     if (Sfile &&
-        is_file_named(NULL, ((Ntype == N_CHR) || (Ntype == N_BLK) ? 1 : 0))) {
+        is_file_named(ctx, NULL,
+                      ((Ntype == N_CHR) || (Ntype == N_BLK) ? 1 : 0))) {
         Lf->sf |= SELNM;
     }
     /*
      * Enter name characters.
      */
     if (!Lf->nm && Namech[0])
-        enter_nm(Namech);
+        enter_nm(ctx, Namech);
 }
 
 /*
  * err2nm() -- convert errno to a message in Namech
  */
-
-void err2nm(pfx) char *pfx; /* Namech message prefix */
+void err2nm(struct lsof_context *ctx, /* context */
+            char *pfx)                /* Namech message prefix */
 {
     char *sfx;
 
@@ -235,17 +238,16 @@ void err2nm(pfx) char *pfx; /* Namech message prefix */
         sfx = strerror(errno);
     }
     (void)snpf(Namech, Namechl, "%s: %s", pfx, sfx);
-    enter_nm(Namech);
+    enter_nm(ctx, Namech);
 }
 
 /*
  * print_nm() -- print Name column
  */
-void print_nm(lf) struct lfile *lf;
-{
+void print_nm(struct lsof_context *ctx, struct lfile *lf) {
     unsigned char extra = 0;
 
-    printname(0);
+    printname(ctx, 0);
 
 #if defined(PROC_PIDLISTFILEPORTS)
     if (lf->fileport)
@@ -305,10 +307,7 @@ void print_nm(lf) struct lfile *lf;
 /*
  * print_v_path() -- print vnode's path
  */
-
-int print_v_path(lf)
-struct lfile *lf;
-{
+int print_v_path(struct lsof_context *ctx, struct lfile *lf) {
     if (lf->V_path) {
         safestrprt(lf->V_path, stdout, 0);
         return (1);
@@ -319,9 +318,9 @@ struct lfile *lf;
 /*
  * process_atalk() -- process an Apple Talk file
  */
-
-void process_atalk(pid, fd) int pid; /* PID */
-int32_t fd;                          /* FD */
+void process_atalk(struct lsof_context *ctx, /* context */
+                   int pid,                  /* PID */
+                   int32_t fd)               /* FD */
 {
     (void)snpf(Lf->type, sizeof(Lf->type), "ATALK");
     return;
@@ -330,17 +329,19 @@ int32_t fd;                          /* FD */
 /*
  * process_fsevents() -- process a file system events file
  */
-
-void process_fsevents(pid, fd) int pid; /* PID */
-int32_t fd;                             /* FD */
-{ (void)snpf(Lf->type, sizeof(Lf->type), "FSEVENTS"); }
+void process_fsevents(struct lsof_context *ctx, /* context */
+                      int pid,                  /* PID */
+                      int32_t fd)               /* FD */
+{
+    (void)snpf(Lf->type, sizeof(Lf->type), "FSEVENTS");
+}
 
 /*
  * process_kqueue() -- process a kernel queue file
  */
-
-void process_kqueue(pid, fd) int pid; /* PID */
-int32_t fd;                           /* FD */
+void process_kqueue(struct lsof_context *ctx, /* context */
+                    int pid,                  /* PID */
+                    int32_t fd)               /* FD */
 {
     struct kqueue_fdinfo kq;
     int nb;
@@ -350,7 +351,7 @@ int32_t fd;                           /* FD */
     (void)snpf(Lf->type, sizeof(Lf->type), "KQUEUE");
     nb = proc_pidfdinfo(pid, fd, PROC_PIDFDKQUEUEINFO, &kq, sizeof(kq));
     if (nb <= 0) {
-        (void)err2nm("kqueue");
+        (void)err2nm(ctx, "kqueue");
         return;
     } else if (nb < sizeof(kq)) {
         (void)fprintf(
@@ -359,27 +360,26 @@ int32_t fd;                           /* FD */
             pid, fd);
         (void)fprintf(stderr, "      too few bytes; expected %ld, got %d\n",
                       sizeof(kq), nb);
-        Error();
+        Error(ctx);
     }
     /*
      * Enter the kernel queue file information.
      */
-    enter_file_info(&kq.pfi);
+    enter_file_info(ctx, &kq.pfi);
     /*
      * Enter queue counts as NAME column information.
      */
     (void)snpf(Namech, Namechl, "count=%" SZOFFPSPEC "u, state=%#x",
                (SZOFFTYPE)kq.kqueueinfo.kq_stat.vst_size,
                kq.kqueueinfo.kq_state);
-    enter_nm(Namech);
+    enter_nm(ctx, Namech);
 }
 
 /*
  * process_pipe() -- process pipe file
  */
-
-static void process_pipe_common(pi) struct pipe_fdinfo *pi;
-{
+static void process_pipe_common(struct lsof_context *ctx,
+                                struct pipe_fdinfo *pi) {
     char dev_ch[32], *ep;
     size_t sz;
 
@@ -389,7 +389,7 @@ static void process_pipe_common(pi) struct pipe_fdinfo *pi;
      */
     (void)snpf(dev_ch, sizeof(dev_ch), "%s",
                print_kptr((KA_T)pi->pipeinfo.pipe_handle, (char *)NULL, 0));
-    enter_dev_ch(dev_ch);
+    enter_dev_ch(ctx, dev_ch);
     /*
      * Enable offset or size reporting.
      */
@@ -402,21 +402,22 @@ static void process_pipe_common(pi) struct pipe_fdinfo *pi;
         (void)snpf(
             Namech, Namechl, "->%s",
             print_kptr((KA_T)pi->pipeinfo.pipe_peerhandle, (char *)NULL, 0));
-        enter_nm(Namech);
+        enter_nm(ctx, Namech);
     } else
         Namech[0] = '\0';
     /*
      * If the pipe has a count, add it to the NAME column.
      */
     if (pi->pipeinfo.pipe_stat.vst_size) {
-        ep = endnm(&sz);
+        ep = endnm(ctx, &sz);
         (void)snpf(ep, sz, ", cnt=%" SZOFFPSPEC "u",
                    (SZOFFTYPE)pi->pipeinfo.pipe_stat.vst_size);
     }
 }
 
-void process_pipe(pid, fd) int pid; /* PID */
-int32_t fd;                         /* FD */
+void process_pipe(struct lsof_context *ctx, /* context */
+                  int pid,                  /* PID */
+                  int32_t fd)               /* FD */
 {
     int nb;
     struct pipe_fdinfo pi;
@@ -425,7 +426,7 @@ int32_t fd;                         /* FD */
      */
     nb = proc_pidfdinfo(pid, fd, PROC_PIDFDPIPEINFO, &pi, sizeof(pi));
     if (nb <= 0) {
-        (void)err2nm("pipe");
+        (void)err2nm(ctx, "pipe");
         return;
     } else if (nb < sizeof(pi)) {
         (void)fprintf(
@@ -433,15 +434,16 @@ int32_t fd;                         /* FD */
             Pn, pid, fd);
         (void)fprintf(stderr, "      too few bytes; expected %ld, got %d\n",
                       sizeof(pi), nb);
-        Error();
+        Error(ctx);
     }
 
-    process_pipe_common(&pi);
+    process_pipe_common(ctx, &pi);
 }
 
 #if defined(PROC_PIDLISTFILEPORTS)
-void process_fileport_pipe(pid, fp) int pid; /* PID */
-uint32_t fp;                                 /* FILEPORT */
+void process_fileport_pipe(struct lsof_context *ctx, /* context */
+                           int pid,                  /* PID */
+                           uint32_t fp)              /* FILEPORT */
 {
     int nb;
     struct pipe_fdinfo pi;
@@ -451,7 +453,7 @@ uint32_t fp;                                 /* FILEPORT */
     nb = proc_pidfileportinfo(pid, fp, PROC_PIDFILEPORTPIPEINFO, &pi,
                               sizeof(pi));
     if (nb <= 0) {
-        (void)err2nm("pipe");
+        (void)err2nm(ctx, "pipe");
         return;
     } else if (nb < sizeof(pi)) {
         (void)fprintf(stderr,
@@ -460,29 +462,29 @@ uint32_t fp;                                 /* FILEPORT */
                       Pn, pid, fp);
         (void)fprintf(stderr, "      too few bytes; expected %ld, got %d\n",
                       sizeof(pi), nb);
-        Error();
+        Error(ctx);
     }
 
-    process_pipe_common(&pi);
+    process_pipe_common(ctx, &pi);
 }
 #endif /* PROC_PIDLISTFILEPORTS */
 
 /*
  * process_psem() -- process a POSIX semaphore file
  */
-
-void process_psem(pid, fd) int pid; /* PID */
-int32_t fd;                         /* FD */
+void process_psem(struct lsof_context *ctx, /* context */
+                  int pid,                  /* PID */
+                  int32_t fd)               /* FD */
 {
     int nb;
     struct psem_fdinfo ps;
     /*
-     * Get the sempaphore file information.
+     * Get the semaphore file information.
      */
     (void)snpf(Lf->type, sizeof(Lf->type), "PSXSEM");
     nb = proc_pidfdinfo(pid, fd, PROC_PIDFDPSEMINFO, &ps, sizeof(ps));
     if (nb <= 0) {
-        (void)err2nm("semaphore");
+        (void)err2nm(ctx, "semaphore");
         return;
     } else if (nb < sizeof(ps)) {
         (void)fprintf(
@@ -490,46 +492,45 @@ int32_t fd;                         /* FD */
             Pn, pid, fd);
         (void)fprintf(stderr, "      too few bytes; expected %ld, got %d\n",
                       sizeof(ps), nb);
-        Error();
+        Error(ctx);
     }
     /*
      * Enter the semaphore file information.
      */
-    enter_file_info(&ps.pfi);
+    enter_file_info(ctx, &ps.pfi);
     /*
      * If there is a semaphore file name, enter it.
      */
     if (ps.pseminfo.psem_name[0]) {
         ps.pseminfo.psem_name[sizeof(ps.pseminfo.psem_name) - 1] = '\0';
         (void)snpf(Namech, Namechl, "%s", ps.pseminfo.psem_name);
-        enter_nm(Namech);
+        enter_nm(ctx, Namech);
     }
 }
 
 /*
  * process_pshm() -- process POSIX shared memory file
  */
-
-static void process_pshm_common(ps) struct pshm_fdinfo *ps;
-{
+static void process_pshm_common(struct lsof_context *ctx,
+                                struct pshm_fdinfo *ps) {
     (void)snpf(Lf->type, sizeof(Lf->type), "PSXSHM");
     /*
      * Enter the POSIX shared memory file information.
      */
-    enter_file_info(&ps->pfi);
+    enter_file_info(ctx, &ps->pfi);
     /*
-     * If the POSIX shared memory file has a path name, enter it; otherwise, if
-     * it has a mapping address, enter that.
+     * If the POSIX shared memory file has a path name, enter it; otherwise,
+     * if it has a mapping address, enter that.
      */
     if (ps->pshminfo.pshm_name[0]) {
         ps->pshminfo.pshm_name[sizeof(ps->pshminfo.pshm_name) - 1] = '\0';
         (void)snpf(Namech, Namechl, "%s", ps->pshminfo.pshm_name);
-        enter_nm(Namech);
+        enter_nm(ctx, Namech);
     } else if (ps->pshminfo.pshm_mappaddr) {
         (void)snpf(
             Namech, Namechl, "obj=%s",
             print_kptr((KA_T)ps->pshminfo.pshm_mappaddr, (char *)NULL, 0));
-        enter_nm(Namech);
+        enter_nm(ctx, Namech);
     }
     /*
      * Enable offset or size reporting.
@@ -538,8 +539,9 @@ static void process_pshm_common(ps) struct pshm_fdinfo *ps;
     Lf->sz_def = 1;
 }
 
-void process_pshm(pid, fd) int pid; /* PID */
-int32_t fd;                         /* FD */
+void process_pshm(struct lsof_context *ctx, /* context */
+                  int pid,                  /* PID */
+                  int32_t fd)               /* FD */
 {
     int nb;
     struct pshm_fdinfo ps;
@@ -548,7 +550,7 @@ int32_t fd;                         /* FD */
      */
     nb = proc_pidfdinfo(pid, fd, PROC_PIDFDPSHMINFO, &ps, sizeof(ps));
     if (nb <= 0) {
-        (void)err2nm("POSIX shared memory");
+        (void)err2nm(ctx, "POSIX shared memory");
         return;
     } else if (nb < sizeof(ps)) {
         (void)fprintf(
@@ -556,15 +558,16 @@ int32_t fd;                         /* FD */
             Pn, pid, fd);
         (void)fprintf(stderr, "      too few bytes; expected %ld, got %d\n",
                       sizeof(ps), nb);
-        Error();
+        Error(ctx);
     }
 
-    process_pshm_common(&ps);
+    process_pshm_common(ctx, &ps);
 }
 
 #if defined(PROC_PIDLISTFILEPORTS)
-void process_fileport_pshm(pid, fp) int pid; /* PID */
-uint32_t fp;                                 /* FILEPORT */
+void process_fileport_pshm(struct lsof_context *ctx, /* context */
+                           int pid,                  /* PID */
+                           uint32_t fp)              /* FILEPORT */
 {
     int nb;
     struct pshm_fdinfo ps;
@@ -574,7 +577,7 @@ uint32_t fp;                                 /* FILEPORT */
     nb = proc_pidfileportinfo(pid, fp, PROC_PIDFILEPORTPSHMINFO, &ps,
                               sizeof(ps));
     if (nb <= 0) {
-        (void)err2nm("POSIX shared memory");
+        (void)err2nm(ctx, "POSIX shared memory");
         return;
     } else if (nb < sizeof(ps)) {
         (void)fprintf(stderr,
@@ -583,28 +586,28 @@ uint32_t fp;                                 /* FILEPORT */
                       Pn, pid, fp);
         (void)fprintf(stderr, "      too few bytes; expected %ld, got %d\n",
                       sizeof(ps), nb);
-        Error();
+        Error(ctx);
     }
 
-    process_pshm_common(&ps);
+    process_pshm_common(ctx, &ps);
 }
 #endif /* PROC_PIDLISTFILEPORTS */
 
 /*
  * process_vnode() -- process a vnode file
  */
-
-static void process_vnode_common(vi) struct vnode_fdinfowithpath *vi;
-{
+static void process_vnode_common(struct lsof_context *ctx,
+                                 struct vnode_fdinfowithpath *vi) {
     /*
      * Enter the file and vnode information.
      */
-    enter_file_info(&vi->pfi);
-    enter_vnode_info(&vi->pvip);
+    enter_file_info(ctx, &vi->pfi);
+    enter_vnode_info(ctx, &vi->pvip);
 }
 
-void process_vnode(pid, fd) int pid; /* PID */
-int32_t fd;                          /* FD */
+void process_vnode(struct lsof_context *ctx, /* context */
+                   int pid,                  /* PID */
+                   int32_t fd)               /* FD */
 {
     int nb;
     struct vnode_fdinfowithpath vi;
@@ -615,13 +618,13 @@ int32_t fd;                          /* FD */
 
             /*
              * The file descriptor's vnode may have been revoked.  This is a
-             * bit of a hack, since an ENOENT error might not always mean the
-             * descriptor's vnode has been revoked.  As the libproc API
+             * bit of a hack, since an ENOENT error might not always mean
+             * the descriptor's vnode has been revoked.  As the libproc API
              * matures, this code may need to be revisited.
              */
-            enter_nm("(revoked)");
+            enter_nm(ctx, "(revoked)");
         } else
-            (void)err2nm("vnode");
+            (void)err2nm(ctx, "vnode");
         return;
     } else if (nb < sizeof(vi)) {
         (void)fprintf(
@@ -630,15 +633,16 @@ int32_t fd;                          /* FD */
             pid, fd);
         (void)fprintf(stderr, "      too few bytes; expected %ld, got %d\n",
                       sizeof(vi), nb);
-        Error();
+        Error(ctx);
     }
 
-    process_vnode_common(&vi);
+    process_vnode_common(ctx, &vi);
 }
 
 #if defined(PROC_PIDLISTFILEPORTS)
-void process_fileport_vnode(pid, fp) int pid; /* PID */
-uint32_t fp;                                  /* FILEPORT */
+void process_fileport_vnode(struct lsof_context *ctx, /* context */
+                            int pid,                  /* PID */
+                            uint32_t fp)              /* FILEPORT */
 {
     int nb;
     struct vnode_fdinfowithpath vi;
@@ -650,13 +654,13 @@ uint32_t fp;                                  /* FILEPORT */
 
             /*
              * The file descriptor's vnode may have been revoked.  This is a
-             * bit of a hack, since an ENOENT error might not always mean the
-             * descriptor's vnode has been revoked.  As the libproc API
+             * bit of a hack, since an ENOENT error might not always mean
+             * the descriptor's vnode has been revoked.  As the libproc API
              * matures, this code may need to be revisited.
              */
-            enter_nm("(revoked)");
+            enter_nm(ctx, "(revoked)");
         } else
-            (void)err2nm("vnode");
+            (void)err2nm(ctx, "vnode");
         return;
     } else if (nb < sizeof(vi)) {
         (void)fprintf(stderr,
@@ -665,9 +669,9 @@ uint32_t fp;                                  /* FILEPORT */
                       Pn, pid, fp);
         (void)fprintf(stderr, "      too few bytes; expected %ld, got %d\n",
                       sizeof(vi), nb);
-        Error();
+        Error(ctx);
     }
 
-    process_vnode_common(&vi);
+    process_vnode_common(ctx, &vi);
 }
 #endif /* PROC_PIDLISTFILEPORTS */

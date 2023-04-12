@@ -44,9 +44,8 @@
  * Main program for dialects that don't support large files
  */
 
-int main(argc, argv)
-int argc;     /* argument count */
-char *argv[]; /* arguments */
+int main(int argc,     /* argument count */
+         char *argv[]) /* arguments */
 {
     char *pn; /* program name */
               /*
@@ -149,7 +148,7 @@ char *argv[]; /* arguments */
 #        define STATF stat        /* define stat function */
 #        define STATS struct stat /* define stat structure */
 
-_PROTOTYPE(static int ck_Linux_offset_support, (void));
+static int ck_Linux_offset_support(void);
 #    endif                        /* defined(LT_DIAL_linux) */
 
 #    if defined(LT_DIAL_hpux)
@@ -255,16 +254,15 @@ char *Pn = (char *)NULL;   /* program name */
  * Local function prototypes
  */
 
-_PROTOTYPE(static void cleanup, (void));
-_PROTOTYPE(static int tstwlsof, (int tt, char *opt, OFFSET_T sz));
+static void cleanup(void);
+static int tstwlsof(int tt, char *opt, OFFSET_T sz);
 
 /*
  * Main program for dialects that support large files
  */
 
-int main(argc, argv)
-int argc;     /* argument count */
-char *argv[]; /* arguments */
+int main(int argc,     /* argument count */
+         char *argv[]) /* arguments */
 {
     char buf[2048];              /* temporary buffer */
     int do_offt = OFFTST_STAT;   /* do offset tests if == 1 */
@@ -511,10 +509,9 @@ static void cleanup() {
  * tstwlsof() -- test the open file with lsof
  */
 
-static int tstwlsof(tt, opt, sz)
-int tt;      /* test type -- i.e., TST_* */
-char *opt;   /* additional lsof options */
-OFFSET_T sz; /* expected size (and offset) */
+static int tstwlsof(int tt,      /* test type -- i.e., TST_* */
+                    char *opt,   /* additional lsof options */
+                    OFFSET_T sz) /* expected size (and offset) */
 {
     char buf[2048], buf1[2048]; /* temporary buffers */
     LTfldo_t *cmdp;             /* command pointer */

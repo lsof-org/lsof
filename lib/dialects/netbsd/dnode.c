@@ -46,7 +46,7 @@ static char copyright[] =
 #endif /* defined(HAS_DINODE_U) */
 
 #if defined(HASFDESCFS) && HASFDESCFS == 1
-_PROTOTYPE(static int lkup_dev_tty, (dev_t * dr, INODETYPE *ir));
+static int lkup_dev_tty(struct lsof_context *ctx, dev_t *dr, INODETYPE *ir);
 #endif /* defined(HASFDESCFS) && HASFDESCFS==1 */
 
 #if defined(HAS_UM_UFS)
@@ -55,7 +55,7 @@ _PROTOTYPE(static int lkup_dev_tty, (dev_t * dr, INODETYPE *ir));
 #endif /* defined(HAS_UM_UFS) */
 
 #if defined(HASPROCFS)
-_PROTOTYPE(static void getmemsz, (pid_t pid));
+static void getmemsz(struct lsof_context *ctx, pid_t pid);
 
 #    if !defined(PGSHIFT)
 #        define PGSHIFT pgshift
@@ -65,7 +65,7 @@ _PROTOTYPE(static void getmemsz, (pid_t pid));
  * getmemsz() - get memory size of a /proc/<n>/mem entry
  */
 
-static void getmemsz(pid) pid_t pid;
+static void getmemsz(struct lsof_context *ctx, pid_t pid)
 {
     int n;
     struct vmspace vm;
@@ -79,7 +79,7 @@ static void getmemsz(pid) pid_t pid;
     for (n = 0, p = P; n < Np; n++, p++) {
         if (p->P_PID == pid) {
             if (!p->P_VMSPACE ||
-                kread((KA_T)p->P_VMSPACE, (char *)&vm, sizeof(vm)))
+                kread(ctx, (KA_T)p->P_VMSPACE, (char *)&vm, sizeof(vm)))
                 return;
             Lf->sz = (SZOFFTYPE)ctob(vm.vm_tsize + vm.vm_dsize + vm.vm_ssize);
             Lf->sz_def = 1;
@@ -95,13 +95,13 @@ static void getmemsz(pid) pid_t pid;
  * lkup_dev_tty() - look up /dev/tty
  */
 
-static int lkup_dev_tty(dr, ir)
-dev_t *dr;     /* place to return device number */
-INODETYPE *ir; /* place to return inode number */
+static int lkup_dev_tty(struct lsof_context *ctx, /* context */
+                        dev_t *dr,     /* place to return device number */
+                        INODETYPE *ir) /* place to return inode number */
 {
     int i;
 
-    readdev(0);
+    readdev(ctx, 0);
 
 #    if defined(HASDCACHE)
 
@@ -113,7 +113,7 @@ lkup_dev_tty_again:
         if (strcmp(Devtp[i].name, "/dev/tty") == 0) {
 
 #    if defined(HASDCACHE)
-            if (DCunsafe && !Devtp[i].v && !vfy_dev(&Devtp[i]))
+            if (DCunsafe && !Devtp[i].v && !vfy_dev(ctx, &Devtp[i]))
                 goto lkup_dev_tty_again;
 #    endif /* defined(HASDCACHE) */
 
@@ -125,7 +125,7 @@ lkup_dev_tty_again:
 
 #    if defined(HASDCACHE)
     if (DCunsafe) {
-        (void)rereaddev();
+        (void)rereaddev(ctx);
         goto lkup_dev_tty_again;
     }
 #    endif /* defined(HASDCACHE) */
@@ -143,11 +143,12 @@ lkup_dev_tty_again:
  * require a dfile.c, so this is the next best location for the function.
  */
 
-void process_kqueue(ka) KA_T ka; /* kqueue file structure address */
+void process_kqueue(struct lsof_context *ctx, /* context */
+                    KA_T ka) /* kqueue file structure address */
 {
 
     (void)snpf(Lf->type, sizeof(Lf->type), "KQUEUE");
-    enter_dev_ch(print_kptr(ka, (char *)NULL, 0));
+    enter_dev_ch(ctx, print_kptr(ka, (char *)NULL, 0));
 }
 #endif /* defined(HASKQUEUE) */
 
@@ -155,7 +156,8 @@ void process_kqueue(ka) KA_T ka; /* kqueue file structure address */
  * process_node() - process vnode
  */
 
-void process_node(va) KA_T va; /* vnode kernel space address */
+void process_node(struct lsof_context *ctx, /* context */
+                  KA_T va)                  /* vnode kernel space address */
 {
     dev_t dev, rdev;
     unsigned char devs;
@@ -276,7 +278,7 @@ process_overlaid_node:
 
     if (++sc > 1024) {
         (void)snpf(Namech, Namechl, "too many overlaid nodes");
-        enter_nm(Namech);
+        enter_nm(ctx, Namech);
         return;
     }
 #endif /* defined(HASNULLFS) */
@@ -309,12 +311,12 @@ process_overlaid_node:
      * Read the vnode.
      */
     if (!va) {
-        enter_nm("no vnode address");
+        enter_nm(ctx, "no vnode address");
         return;
     }
     v = &vb;
-    if (readvnode(va, v)) {
-        enter_nm(Namech);
+    if (readvnode(ctx, va, v)) {
+        enter_nm(ctx, Namech);
         return;
     }
 
@@ -336,7 +338,7 @@ process_overlaid_node:
     if (!v->v_mount)
         vfs = (struct l_vfs *)NULL;
     else {
-        vfs = readvfs((KA_T)v->v_mount);
+        vfs = readvfs(ctx, (KA_T)v->v_mount);
         if (vfs) {
             if (strcmp(vfs->type, MOUNT_NFS) == 0)
                 Ntype = N_NFS;
@@ -371,10 +373,10 @@ process_overlaid_node:
 
 #if defined(HAS9660FS)
     case VT_ISOFS:
-        if (read_iso_node(v, &iso_dev, &iso_ino, &iso_nlink, &iso_sz)) {
+        if (read_iso_node(ctx, v, &iso_dev, &iso_ino, &iso_nlink, &iso_sz)) {
             (void)snpf(Namech, Namechl, "can't read iso_node at: %s",
                        print_kptr((KA_T)v->v_data, (char *)NULL, 0));
-            enter_nm(Namech);
+            enter_nm(ctx, Namech);
             return;
         }
         iso_stat = 1;
@@ -384,10 +386,10 @@ process_overlaid_node:
 
 #if defined(HASFDESCFS)
     case VT_FDESC:
-        if (!v->v_data || kread((KA_T)v->v_data, (char *)&f, sizeof(f))) {
+        if (!v->v_data || kread(ctx, (KA_T)v->v_data, (char *)&f, sizeof(f))) {
             (void)snpf(Namech, Namechl, "can't read fdescnode at: %x",
                        print_kptr((KA_T)v->v_data, (char *)NULL, 0));
-            enter_nm(Namech);
+            enter_nm(ctx, Namech);
             return;
         }
         nty = FDESCNODE;
@@ -400,11 +402,12 @@ process_overlaid_node:
         /*
          * Read the kernfs_node.
          */
-        if (!v->v_data || kread((KA_T)v->v_data, (char *)&kn, sizeof(kn))) {
+        if (!v->v_data ||
+            kread(ctx, (KA_T)v->v_data, (char *)&kn, sizeof(kn))) {
             if (v->v_type != VDIR || !(v->VNODE_VFLAG && NCACHE_VROOT)) {
                 (void)snpf(Namech, Namechl, "can't read kernfs_node at: %s",
                            print_kptr((KA_T)v->v_data, (char *)NULL, 0));
-                enter_nm(Namech);
+                enter_nm(ctx, Namech);
                 return;
             } else
                 kn.kf_kt = (struct kern_target *)NULL;
@@ -413,11 +416,12 @@ process_overlaid_node:
          * Generate the /kern file name by reading the kern_target to which
          * the kernfs_node points.
          */
-        if (kn.kf_kt && kread((KA_T)kn.kf_kt, (char *)&kt, sizeof(kt)) == 0 &&
+        if (kn.kf_kt &&
+            kread(ctx, (KA_T)kn.kf_kt, (char *)&kt, sizeof(kt)) == 0 &&
             (ktnl = (int)kt.kt_namlen) > 0 && kt.kt_name) {
             if (ktnl > (sizeof(ktnm) - 1))
                 ktnl = sizeof(ktnm) - 1;
-            if (!kread((KA_T)kt.kt_name, ktnm, ktnl)) {
+            if (!kread(ctx, (KA_T)kt.kt_name, ktnm, ktnl)) {
                 ktnm[ktnl] = 0;
                 ktnl = strlen(ktnm);
                 if (ktnl > (MAXPATHLEN - strlen(_PATH_KERNFS) - 2)) {
@@ -444,10 +448,10 @@ process_overlaid_node:
 #endif /* defined(HASKERNFS) */
 
     case VT_MFS:
-        if (!v->v_data || kread((KA_T)v->v_data, (char *)&m, sizeof(m))) {
+        if (!v->v_data || kread(ctx, (KA_T)v->v_data, (char *)&m, sizeof(m))) {
             (void)snpf(Namech, Namechl, "can't read mfsnode at: %s",
                        print_kptr((KA_T)v->v_data, (char *)NULL, 0));
-            enter_nm(Namech);
+            enter_nm(ctx, Namech);
             return;
         }
         nty = MFSNODE;
@@ -455,10 +459,11 @@ process_overlaid_node:
 
 #if defined(HASTMPFS)
     case VT_TMPFS:
-        if (!v->v_data || kread((KA_T)v->v_data, (char *)&tmp, sizeof(tmp))) {
+        if (!v->v_data ||
+            kread(ctx, (KA_T)v->v_data, (char *)&tmp, sizeof(tmp))) {
             (void)snpf(Namech, Namechl, "can't read tmpfs_node at: %s",
                        print_kptr((KA_T)v->v_data, (char *)NULL, 0));
-            enter_nm(Namech);
+            enter_nm(ctx, Namech);
             return;
         }
         nty = TMPFSNODE;
@@ -467,10 +472,10 @@ process_overlaid_node:
 
 #if defined(HASMSDOSFS)
     case VT_MSDOSFS:
-        if (!v->v_data || kread((KA_T)v->v_data, (char *)&d, sizeof(d))) {
+        if (!v->v_data || kread(ctx, (KA_T)v->v_data, (char *)&d, sizeof(d))) {
             (void)snpf(Namech, Namechl, "can't read denode at: %s",
                        print_kptr((KA_T)v->v_data, (char *)NULL, 0));
-            enter_nm(Namech);
+            enter_nm(ctx, Namech);
             return;
         }
         nty = DOSNODE;
@@ -478,18 +483,19 @@ process_overlaid_node:
 #endif /* defined(HASMSDOSFS) */
 
     case VT_NFS:
-        if (!v->v_data || kread((KA_T)v->v_data, (char *)&n, sizeof(n))) {
+        if (!v->v_data || kread(ctx, (KA_T)v->v_data, (char *)&n, sizeof(n))) {
             (void)snpf(Namech, Namechl, "can't read nfsnode at: %s",
                        print_kptr((KA_T)v->v_data, (char *)NULL, 0));
-            enter_nm(Namech);
+            enter_nm(ctx, Namech);
             return;
         }
 
 #if defined(HASNFSVATTRP)
-        if (!n.n_vattr || kread((KA_T)n.n_vattr, (char *)&nv, sizeof(nv))) {
+        if (!n.n_vattr ||
+            kread(ctx, (KA_T)n.n_vattr, (char *)&nv, sizeof(nv))) {
             (void)snpf(Namech, Namechl, "can't read n_vattr at: %x",
                        print_kptr((KA_T)n.n_vattr, (char *)NULL, 0));
-            enter_nm(Namech);
+            enter_nm(ctx, Namech);
             return;
         }
 #endif /* defined(HASNFSVATTRP) */
@@ -501,15 +507,16 @@ process_overlaid_node:
     case VT_NULL:
         if ((sc == 1) && vfs)
             nvfs = vfs;
-        if (!v->v_data || kread((KA_T)v->v_data, (char *)&nu, sizeof(nu))) {
+        if (!v->v_data ||
+            kread(ctx, (KA_T)v->v_data, (char *)&nu, sizeof(nu))) {
             (void)snpf(Namech, Namechl, "can't read null_node at: %s",
                        print_kptr((KA_T)v->v_data, (char *)NULL, 0));
-            enter_nm(Namech);
+            enter_nm(ctx, Namech);
             return;
         }
         if (!nu.null_lowervp) {
             (void)snpf(Namech, Namechl, "null_node overlays nothing");
-            enter_nm(Namech);
+            enter_nm(ctx, Namech);
             return;
         }
         va = (KA_T)nu.null_lowervp;
@@ -518,10 +525,10 @@ process_overlaid_node:
 
 #if defined(HASPROCFS)
     case VT_PROCFS:
-        if (!v->v_data || kread((KA_T)v->v_data, (char *)&p, sizeof(p))) {
+        if (!v->v_data || kread(ctx, (KA_T)v->v_data, (char *)&p, sizeof(p))) {
             (void)snpf(Namech, Namechl, "can't read pfsnode at: %s",
                        print_kptr((KA_T)v->v_data, (char *)NULL, 0));
-            enter_nm(Namech);
+            enter_nm(ctx, Namech);
             return;
         }
         nty = PFSNODE;
@@ -530,10 +537,11 @@ process_overlaid_node:
 
 #if defined(HASPTYFS)
     case VT_PTYFS:
-        if (!v->v_data || kread((KA_T)v->v_data, (char *)&pt, sizeof(pt))) {
+        if (!v->v_data ||
+            kread(ctx, (KA_T)v->v_data, (char *)&pt, sizeof(pt))) {
             (void)snpf(Namech, Namechl, "can't read ptyfsnode at: %s",
                        print_kptr((KA_T)v->v_data, (char *)NULL, 0));
-            enter_nm(Namech);
+            enter_nm(ctx, Namech);
             return;
         }
         nty = PTYFSNODE;
@@ -549,10 +557,10 @@ process_overlaid_node:
 #endif /* defined(HASLFS) */
 
     case VT_UFS:
-        if (!v->v_data || kread((KA_T)v->v_data, (char *)&i, sizeof(i))) {
+        if (!v->v_data || kread(ctx, (KA_T)v->v_data, (char *)&i, sizeof(i))) {
             (void)snpf(Namech, Namechl, "can't read inode at: %s",
                        print_kptr((KA_T)v->v_data, (char *)NULL, 0));
-            enter_nm(Namech);
+            enter_nm(ctx, Namech);
             return;
         }
 
@@ -562,7 +570,7 @@ process_overlaid_node:
 
 #    if defined(HASI_E2FS_PTR)
             if (i.DINODE_U.e2fs_din &&
-                !kread((KA_T)i.DINODE_U.e2fs_din, (char *)&ed, sizeof(ed)))
+                !kread(ctx, (KA_T)i.DINODE_U.e2fs_din, (char *)&ed, sizeof(ed)))
                 edp = &ed;
 #    else /* !defined(HASI_E2FS_PTR) */
 #        if HASEXT2FS < 2
@@ -582,18 +590,19 @@ process_overlaid_node:
             /*
              * If there are multiple FFS's, read the relevant structures.
              */
-            if (i.i_ump && !kread((KA_T)i.i_ump, (char *)&um, sizeof(um))) {
+            if (i.i_ump &&
+                !kread(ctx, (KA_T)i.i_ump, (char *)&um, sizeof(um))) {
                 if (um.um_fstype == UFS1) {
                     ffs = 1;
                     if (i.DINODE_U.ffs1_din &&
-                        !kread((KA_T)i.DINODE_U.ffs1_din, (char *)&u1,
+                        !kread(ctx, (KA_T)i.DINODE_U.ffs1_din, (char *)&u1,
                                sizeof(u1))) {
                         u1s = 1;
                     }
                 } else if (um.um_fstype == UFS2) {
                     ffs = 2;
                     if (i.DINODE_U.ffs2_din &&
-                        !kread((KA_T)i.DINODE_U.ffs2_din, (char *)&u2,
+                        !kread(ctx, (KA_T)i.DINODE_U.ffs2_din, (char *)&u2,
                                sizeof(u2))) {
                         u2s = 1;
                     }
@@ -610,7 +619,7 @@ process_overlaid_node:
              */
             lfp = lff;
             do {
-                if (kread((KA_T)lfp, (char *)&lf, sizeof(lf)))
+                if (kread(ctx, (KA_T)lfp, (char *)&lf, sizeof(lf)))
                     break;
                 lt = 0;
                 switch (lf.lf_flags & (F_FLOCK | F_POSIX)) {
@@ -627,7 +636,8 @@ process_overlaid_node:
 
                         struct lwp lw;
 
-                        if (!kread((KA_T)lf.lf_id, (char *)&lw, sizeof(lw)) &&
+                        if (!kread(ctx, (KA_T)lf.lf_id, (char *)&lw,
+                                   sizeof(lw)) &&
                             (KA_T)lw.l_proc == Kpa)
                             lt = 1;
                     }
@@ -657,7 +667,7 @@ process_overlaid_node:
         if (v->v_type == VBAD || v->v_type == VNON)
             break;
         (void)snpf(Namech, Namechl, "unknown file system type: %d", v->v_tag);
-        enter_nm(Namech);
+        enter_nm(ctx, Namech);
         return;
     }
     /*
@@ -677,7 +687,7 @@ process_overlaid_node:
     case FDESCNODE:
 
 #    if defined(HASFDLINK)
-        if (f.fd_link && !kread((KA_T)f.fd_link, Namech, Namechl - 1)) {
+        if (f.fd_link && !kread(ctx, (KA_T)f.fd_link, Namech, Namechl - 1)) {
             Namech[Namechl - 1] = '\0';
             break;
         }
@@ -686,7 +696,7 @@ process_overlaid_node:
 #    if HASFDESCFS == 1
         if (f.fd_type == Fctty) {
             if (f_tty_s == 0)
-                f_tty_s = lkup_dev_tty(&f_tty_dev, &f_tty_ino);
+                f_tty_s = lkup_dev_tty(ctx, &f_tty_dev, &f_tty_ino);
             if (f_tty_s == 1) {
                 dev = DevDev;
                 rdev = f_tty_dev;
@@ -783,7 +793,7 @@ process_overlaid_node:
 #if defined(HASPTYFS)
     case PTYFSNODE:
         if (v->v_un.vu_specinfo &&
-            !kread((KA_T)v->v_un.vu_specinfo, (char *)&si, sizeof(si))) {
+            !kread(ctx, (KA_T)v->v_un.vu_specinfo, (char *)&si, sizeof(si))) {
             rdev = si.si_rdev;
             rdevs = 1;
         }
@@ -822,7 +832,7 @@ process_overlaid_node:
 
 #if defined(HASMSDOSFS)
     case DOSNODE:
-        if (d.de_pmp && !kread((KA_T)d.de_pmp, (char *)&pm, sizeof(pm))) {
+        if (d.de_pmp && !kread(ctx, (KA_T)d.de_pmp, (char *)&pm, sizeof(pm))) {
             dpb = (u_long)(pm.pm_BytesPerSec / sizeof(struct direntry));
             if (d.de_Attributes & ATTR_DIRECTORY) {
                 if (d.de_StartCluster == MSDOSFSROOT)
@@ -948,7 +958,7 @@ process_overlaid_node:
                 Lf->sz_def = 1;
                 break;
             case Pmem:
-                (void)getmemsz(p.pfs_pid);
+                (void)getmemsz(ctx, p.pfs_pid);
                 break;
             case Pregs:
                 Lf->sz = (SZOFFTYPE)sizeof(struct reg);
@@ -1213,7 +1223,7 @@ process_overlaid_node:
     else if (nty == MFSNODE) {
         Lf->dev_def = Lf->rdev_def = 0;
         (void)snpf(Namech, Namechl, "%#x", m.mfs_baseoff);
-        enter_dev_ch("memory");
+        enter_dev_ch(ctx, "memory");
     }
 
 #if defined(HASPROCFS)
@@ -1226,63 +1236,63 @@ process_overlaid_node:
             ty = "PDIR";
             break;
         case Pcurproc:
-            ep = endnm(&sz);
+            ep = endnm(ctx, &sz);
             (void)snpf(ep, sz, "/curproc");
             ty = "PCUR";
             break;
         case Pproc:
-            ep = endnm(&sz);
+            ep = endnm(ctx, &sz);
             (void)snpf(ep, sz, "/%d", p.pfs_pid);
             ty = "PDIR";
             break;
         case Pfile:
-            ep = endnm(&sz);
+            ep = endnm(ctx, &sz);
             (void)snpf(ep, sz, "/%d/file", p.pfs_pid);
             ty = "PFIL";
             break;
         case Pmem:
-            ep = endnm(&sz);
+            ep = endnm(ctx, &sz);
             (void)snpf(ep, sz, "/%d/mem", p.pfs_pid);
             ty = "PMEM";
             break;
         case Pregs:
-            ep = endnm(&sz);
+            ep = endnm(ctx, &sz);
             (void)snpf(ep, sz, "/%d/regs", p.pfs_pid);
             ty = "PREG";
             break;
         case Pfpregs:
-            ep = endnm(&sz);
+            ep = endnm(ctx, &sz);
             (void)snpf(ep, sz, "/%d/fpregs", p.pfs_pid);
             ty = "PFPR";
             break;
 
 #    if defined(Pctl)
         case Pctl:
-            ep = endnm(&sz);
+            ep = endnm(ctx, &sz);
             (void)snpf(ep, sz, "/%d/ctl", p.pfs_pid);
             ty = "PCTL";
             break;
 #    endif /* defined(Pctl) */
 
         case Pstatus:
-            ep = endnm(&sz);
+            ep = endnm(ctx, &sz);
             (void)snpf(ep, sz, "/%d/status", p.pfs_pid);
             ty = "PSTA";
             break;
         case Pnote:
-            ep = endnm(&sz);
+            ep = endnm(ctx, &sz);
             (void)snpf(ep, sz, "/%d/note", p.pfs_pid);
             ty = "PNTF";
             break;
         case Pnotepg:
-            ep = endnm(&sz);
+            ep = endnm(ctx, &sz);
             (void)snpf(ep, sz, "/%d/notepg", p.pfs_pid);
             ty = "PGID";
             break;
 
 #    if defined(Pfd)
         case Pfd:
-            ep = endnm(&sz);
+            ep = endnm(ctx, &sz);
             (void)snpf(ep, sz, "/%d/fd", p.pfs_pid);
             ty = "PFD";
             break;
@@ -1290,7 +1300,7 @@ process_overlaid_node:
 
 #    if defined(Pmap)
         case Pmap:
-            ep = endnm(&sz);
+            ep = endnm(ctx, &sz);
             (void)snpf(ep, sz, "/%d/map", p.pfs_pid);
             ty = "PMAP";
             break;
@@ -1298,7 +1308,7 @@ process_overlaid_node:
 
 #    if defined(Pmaps)
         case Pmaps:
-            ep = endnm(&sz);
+            ep = endnm(ctx, &sz);
             (void)snpf(ep, sz, "/%d/maps", p.pfs_pid);
             ty = "PMPS";
             break;
@@ -1316,11 +1326,11 @@ process_overlaid_node:
         Lf->nlink_def = 1;
         switch (pt.ptyfs_type) {
         case PTYFSpts:
-            ep = endnm(&sz);
+            ep = endnm(ctx, &sz);
             (void)snpf(ep, sz, "/%lu", (unsigned long)pt.ptyfs_pty);
             break;
         case PTYFSptc:
-            ep = endnm(&sz);
+            ep = endnm(ctx, &sz);
             (void)snpf(ep, sz, "/%lu (master)", (unsigned long)pt.ptyfs_pty);
             break;
         case PTYFSroot:
@@ -1339,7 +1349,7 @@ process_overlaid_node:
      * supply one.
      */
     if ((Lf->inp_ty == 0) && (type == VBLK))
-        find_bl_ino();
+        find_bl_ino(ctx);
 #endif /* defined(HASBLKDEV) */
 
     /*
@@ -1347,7 +1357,7 @@ process_overlaid_node:
      * supply one.
      */
     if ((Lf->inp_ty == 0) && (type == VCHR))
-        find_ch_ino();
+        find_ch_ino(ctx);
         /*
          * Test for specified file.
          */
@@ -1379,12 +1389,12 @@ process_overlaid_node:
 
     {
         if (Namech[0]) {
-            enter_nm(Namech);
+            enter_nm(ctx, Namech);
             ns = 1;
         } else
             ns = 0;
         if (Sfile &&
-            is_file_named((char *)NULL,
+            is_file_named(ctx, (char *)NULL,
                           ((type == VCHR) || (type == VBLK)) ? 1 : 0)) {
             Lf->sf |= SELNM;
         }
@@ -1395,7 +1405,7 @@ process_overlaid_node:
      * Enter name characters.
      */
     if (Namech[0])
-        enter_nm(Namech);
+        enter_nm(ctx, Namech);
 }
 
 #if defined(HAS_SYS_PIPEH)
@@ -1403,20 +1413,21 @@ process_overlaid_node:
  * process_pipe() - process a file structure whose type is DTYPE_PIPE
  */
 
-void process_pipe(pa) KA_T pa; /* pipe structure kernel address */
+void process_pipe(struct lsof_context *ctx, /* context */
+                  KA_T pa)                  /* pipe structure kernel address */
 {
     char *ep;
     struct pipe p;
     size_t sz;
 
-    if (!pa || kread((KA_T)pa, (char *)&p, sizeof(p))) {
+    if (!pa || kread(ctx, (KA_T)pa, (char *)&p, sizeof(p))) {
         (void)snpf(Namech, Namechl, "can't read DTYPE_PIPE pipe struct: %#s",
                    print_kptr(pa, (char *)NULL, 0));
-        enter_nm(Namech);
+        enter_nm(ctx, Namech);
         return;
     }
     (void)snpf(Lf->type, sizeof(Lf->type), "PIPE");
-    enter_dev_ch(print_kptr(pa, (char *)NULL, 0));
+    enter_dev_ch(ctx, print_kptr(pa, (char *)NULL, 0));
     Lf->sz = (SZOFFTYPE)p.pipe_buffer.size;
     Lf->sz_def = 1;
     if (p.pipe_peer)
@@ -1425,21 +1436,21 @@ void process_pipe(pa) KA_T pa; /* pipe structure kernel address */
     else
         Namech[0] = '\0';
     if (p.pipe_buffer.cnt) {
-        ep = endnm(&sz);
+        ep = endnm(ctx, &sz);
         (void)snpf(ep, sz, ", cnt=%d", p.pipe_buffer.cnt);
     }
     if (p.pipe_buffer.in) {
-        ep = endnm(&sz);
+        ep = endnm(ctx, &sz);
         (void)snpf(ep, sz, ", in=%d", p.pipe_buffer.in);
     }
     if (p.pipe_buffer.out) {
-        ep = endnm(&sz);
+        ep = endnm(ctx, &sz);
         (void)snpf(ep, sz, ", out=%d", p.pipe_buffer.out);
     }
     /*
      * Enter name characters.
      */
     if (Namech[0])
-        enter_nm(Namech);
+        enter_nm(ctx, Namech);
 }
 #endif /* defined(HAS_SYS_PIPEH) */

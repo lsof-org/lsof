@@ -8,7 +8,7 @@ EXTRA_DIST += tests/00README tests/TestDB tests/CkTestDB tests/Makefile tests/Ls
 # Dialect neutral sources
 lsof_SOURCES = src/arg.c src/main.c lib/node.c src/print.c src/ptti.c src/store.c src/usage.c src/util.c \
 	lib/ckkv.c lib/cvfs.c lib/dvch.c lib/fino.c lib/isfn.c lib/lkud.c lib/misc.c lib/pdvn.c lib/prfp.c lib/print.c lib/proc.c lib/ptti.c lib/rdev.c lib/rnmt.c lib/rmnt.c lib/rnam.c lib/rnch.c lib/rnmh.c
-lsof_SOURCES += lib/common.h include/lsof_fields.h lib/proto.h lib/hash.h
+lsof_SOURCES += lib/common.h include/lsof_fields.h lib/proto.h lib/hash.h src/cli.h
 include_HEADERS = include/lsof.h include/lsof_fields.h
 DIALECT_ROOT = $(top_srcdir)/lib/dialects
 DIALECT_PATH = $(DIALECT_ROOT)/$(LSOF_DIALECT_DIR)

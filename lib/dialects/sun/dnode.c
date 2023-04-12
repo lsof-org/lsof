@@ -142,7 +142,8 @@ static CTF_request_t Sockfs_requests[] = {
  * Sockfs function prototypes
  */
 
-_PROTOTYPE(static int read_nsti, (struct sonode * so, sotpi_info_t *stpi));
+static int read_nsti(struct lsof_context *ctx, struct sonode *so,
+                     sotpi_info_t *stpi);
 #endif /* solaris>=110000 && defined(HAS_LIBCTF) */
 
 #if defined(HAS_ZFS) && defined(HAS_LIBCTF)
@@ -272,12 +273,15 @@ static CTF_exception_t CTF_exceptions[] = {{ZNODE_TYPE_NAME, "z_phys"},
  * ZFS function prototypes
  */
 
-_PROTOTYPE(static int read_nzn, (KA_T na, KA_T nza, znode_t *z));
-_PROTOTYPE(static int read_nznp, (KA_T nza, KA_T nzpa, znode_phys_t *zp));
-_PROTOTYPE(static int read_nzvfs, (KA_T nza, KA_T nzva, zfsvfs_t *zv));
+static int read_nzn(struct lsof_context *ctx, KA_T na, KA_T nza, znode_t *z);
+static int read_nznp(struct lsof_context *ctx, KA_T nza, KA_T nzpa,
+                     znode_phys_t *zp);
+static int read_nzvfs(struct lsof_context *ctx, KA_T nza, KA_T nzva,
+                      zfsvfs_t *zv);
 #endif /* defined(HAS_ZFS) && defined(HAS_LIBCTF) */
 
-_PROTOTYPE(static struct l_dev *finddev, (dev_t * dev, dev_t *rdev, int flags));
+static struct l_dev *finddev(struct lsof_context *ctx, dev_t *dev, dev_t *rdev,
+                             int flags);
 
 /*
  * Finddev() "look-in " flags
@@ -406,69 +410,88 @@ static v_optab_t **Voptab = (v_optab_t **)NULL;
  * Local function prototypes
  */
 
-_PROTOTYPE(static void build_Voptab, (void));
-_PROTOTYPE(static char isvlocked, (struct vnode * va));
-_PROTOTYPE(static int readinode, (KA_T ia, struct inode *i));
-_PROTOTYPE(static void read_mi, (KA_T s, dev_t *dev, caddr_t so, int *so_st,
-                                 KA_T *so_ad, struct l_dev **sdp));
+static void build_Voptab(struct lsof_context *ctx);
+static char isvlocked(struct lsof_context *ctx, struct vnode *va);
+static int readinode(struct lsof_context *ctx, KA_T ia, struct inode *i);
+static void read_mi(struct lsof_context *ctx, KA_T s, dev_t *dev, caddr_t so,
+                    int *so_st, KA_T *so_ad, struct l_dev **sdp);
 
 #if solaris >= 20500
 #    if solaris >= 20600
-_PROTOTYPE(static int read_nan, (KA_T na, KA_T aa, struct fnnode *rn));
-_PROTOTYPE(static int read_nson, (KA_T na, KA_T sa, struct sonode *sn));
-_PROTOTYPE(static int read_nusa, (struct soaddr * so, struct sockaddr_un *ua));
+static int read_nan(struct lsof_context *ctx, KA_T na, KA_T aa,
+                    struct fnnode *rn);
+static int read_nson(struct lsof_context *ctx, KA_T na, KA_T sa,
+                     struct sonode *sn);
+static int read_nusa(struct lsof_context *ctx, struct soaddr *so,
+                     struct sockaddr_un *ua);
 #    else  /* solaris<20600 */
-_PROTOTYPE(static int read_nan, (KA_T na, KA_T aa, struct autonode *a));
+static int read_nan(struct lsof_context *ctx, KA_T na, KA_T aa,
+                    struct autonode *a);
 #    endif /* solaris>=20600 */
-_PROTOTYPE(static int idoorkeep, (struct door_node * d));
-_PROTOTYPE(static int read_ndn, (KA_T na, KA_T da, struct door_node *d));
+static int idoorkeep(struct lsof_context *ctx, struct door_node *d);
+static int read_ndn(struct lsof_context *ctx, KA_T na, KA_T da,
+                    struct door_node *d);
 #endif /* solaris>=20500 */
 
 #if solaris >= 110000
-_PROTOTYPE(static int read_nsdn,
-           (KA_T na, KA_T sa, struct sdev_node *sdn, struct vattr *sdva));
+static int read_nsdn(struct lsof_context *ctx, KA_T na, KA_T sa,
+                     struct sdev_node *sdn, struct vattr *sdva);
 #endif /* solaris>=110000 */
 
-_PROTOTYPE(static int read_nfn, (KA_T na, KA_T fa, struct fifonode *f));
-_PROTOTYPE(static int read_nhn, (KA_T na, KA_T ha, struct hsnode *h));
-_PROTOTYPE(static int read_nin, (KA_T na, KA_T ia, struct inode *i));
-_PROTOTYPE(static int read_nmn, (KA_T na, KA_T ia, struct mvfsnode *m));
-_PROTOTYPE(static int read_npn, (KA_T na, KA_T pa, struct pcnode *p));
-_PROTOTYPE(static int read_nrn, (KA_T na, KA_T ra, struct rnode *r));
+static int read_nfn(struct lsof_context *ctx, KA_T na, KA_T fa,
+                    struct fifonode *f);
+static int read_nhn(struct lsof_context *ctx, KA_T na, KA_T ha,
+                    struct hsnode *h);
+static int read_nin(struct lsof_context *ctx, KA_T na, KA_T ia,
+                    struct inode *i);
+static int read_nmn(struct lsof_context *ctx, KA_T na, KA_T ia,
+                    struct mvfsnode *m);
+static int read_npn(struct lsof_context *ctx, KA_T na, KA_T pa,
+                    struct pcnode *p);
+static int read_nrn(struct lsof_context *ctx, KA_T na, KA_T ra,
+                    struct rnode *r);
 
 #if solaris >= 100000
-_PROTOTYPE(static int read_nctfsn, (int ty, KA_T na, KA_T ca, char *cn));
-_PROTOTYPE(static int read_nprtn, (KA_T na, KA_T ra, port_t *p));
-_PROTOTYPE(static int read_nrn4, (KA_T na, KA_T ra, struct rnode4 *r));
+static int read_nctfsn(struct lsof_context *ctx, int ty, KA_T na, KA_T ca,
+                       char *cn);
+static int read_nprtn(struct lsof_context *ctx, KA_T na, KA_T ra, port_t *p);
+static int read_nrn4(struct lsof_context *ctx, KA_T na, KA_T ra,
+                     struct rnode4 *r);
 #endif /* solaris>=100000 */
 
-_PROTOTYPE(static int read_nsn, (KA_T na, KA_T sa, struct snode *s));
-_PROTOTYPE(static int read_ntn, (KA_T na, KA_T ta, struct tmpnode *t));
-_PROTOTYPE(static int read_nvn, (KA_T na, KA_T va, struct vnode *v));
+static int read_nsn(struct lsof_context *ctx, KA_T na, KA_T sa,
+                    struct snode *s);
+static int read_ntn(struct lsof_context *ctx, KA_T na, KA_T ta,
+                    struct tmpnode *t);
+static int read_nvn(struct lsof_context *ctx, KA_T na, KA_T va,
+                    struct vnode *v);
 
 #if defined(HASPROCFS)
-_PROTOTYPE(static int read_npi, (KA_T na, struct vnode *v, struct pid *pids));
+static int read_npi(struct lsof_context *ctx, KA_T na, struct vnode *v,
+                    struct pid *pids);
 #endif /* defined(HASPROCFS) */
 
-_PROTOTYPE(static char *ent_fa, (KA_T * a1, KA_T *a2, char *d, int *len));
-_PROTOTYPE(static int is_socket, (struct vnode * v));
-_PROTOTYPE(static int read_cni,
-           (struct snode * s, struct vnode *rv, struct vnode *v,
-            struct snode *rs, struct dev_info *di, char *din, int dinl));
+static char *ent_fa(KA_T *a1, KA_T *a2, char *d, int *len);
+static int is_socket(struct lsof_context *ctx, struct vnode *v);
+static int read_cni(struct lsof_context *ctx, struct snode *s, struct vnode *rv,
+                    struct vnode *v, struct snode *rs, struct dev_info *di,
+                    char *din, int dinl);
 
 #if defined(HASCACHEFS)
-_PROTOTYPE(static int read_ncn, (KA_T na, KA_T ca, struct cnode *cn));
+static int read_ncn(struct lsof_context *ctx, KA_T na, KA_T ca,
+                    struct cnode *cn);
 #endif /* defined(HASCACHEFS) */
 
-_PROTOTYPE(static int read_nln, (KA_T na, KA_T la, struct lnode *ln));
-_PROTOTYPE(static int read_nnn, (KA_T na, KA_T nna, struct namenode *n));
+static int read_nln(struct lsof_context *ctx, KA_T na, KA_T la,
+                    struct lnode *ln);
+static int read_nnn(struct lsof_context *ctx, KA_T na, KA_T nna,
+                    struct namenode *n);
 
 #if solaris < 100000
-_PROTOTYPE(static void savesockmod,
-           (struct so_so * so, struct so_so *sop, int *so_st));
+static void savesockmod(struct so_so *so, struct so_so *sop, int *so_st);
 #else  /* solaris>=100000 */
-_PROTOTYPE(static int read_ndvn, (KA_T na, KA_T da, struct dv_node *dv,
-                                  dev_t *dev, unsigned char *devs));
+static int read_ndvn(struct lsof_context *ctx, KA_T na, KA_T da,
+                     struct dv_node *dv, dev_t *dev, unsigned char *devs);
 #endif /* solaris<100000 */
 
 /*
@@ -497,7 +520,7 @@ static KA_T Vvops[VXVOP_NUM]; /* addresses of:
 #    define GETVOPS(name, nl, ops)                                             \
         if (get_Nl_value(name, nl, &ops) < 0)                                  \
             ops = (KA_T)0;                                                     \
-        else if (kread(ops, (char *)&ops, sizeof(ops)))                        \
+        else if (kread(ctx, ops, (char *)&ops, sizeof(ops)))                   \
         ops = (KA_T)0
 #else /* !defined(VOPNAME_OPEN) || solaris<100000 */
 #    define GETVOPS(name, nl, ops)                                             \
@@ -512,7 +535,7 @@ static KA_T Vvops[VXVOP_NUM]; /* addresses of:
  * build_Voptab() -- build Voptab[]
  */
 
-static void build_Voptab() {
+static void build_Voptab(struct lsof_context *ctx) {
     build_v_optab_t *bp;      /* Build_v_optab[] pointer */
     int fx;                   /* temporary file system type index */
     int h;                    /* hash index */
@@ -534,12 +557,12 @@ static void build_Voptab() {
     if (!(Voptab =
               (v_optab_t **)calloc((MALLOC_S)VOPHASHBINS, sizeof(v_optab_t)))) {
         (void)fprintf(stderr, "%s: no space for Voptab\n", Pn);
-        Error();
+        Error(ctx);
     }
     if (!(FxToVoptab =
               (v_optab_t **)calloc((MALLOC_S)Fsinfomax, sizeof(v_optab_t *)))) {
         (void)fprintf(stderr, "%s: no space for FxToVoptab\n", Pn);
-        Error();
+        Error(ctx);
     }
     for (i = 0; i < VXVOP_NUM; i++) {
         Vvops[i] = (KA_T)NULL;
@@ -580,7 +603,7 @@ static void build_Voptab() {
         if (!(nv = (v_optab_t *)malloc((MALLOC_S)sizeof(v_optab_t)))) {
             (void)fprintf(stderr, "%s: out of Voptab space at: %s\n", Pn,
                           bp->dnm);
-            Error();
+            Error(ctx);
         }
         nv->fsys = bp->fsys;
         nv->fx = -1;
@@ -675,11 +698,11 @@ static void build_Voptab() {
  * CTF_getmem() -- get CTF members
  */
 
-int CTF_getmem(f, mod, ty, mem)
-ctf_file_t *f;     /* CTF file handle */
-const char *mod;   /* module name */
-const char *ty;    /* type */
-CTF_member_t *mem; /* member table */
+int CTF_getmem(struct lsof_context *ctx, /* context*/
+               ctf_file_t *f,            /* CTF file handle */
+               const char *mod,          /* module name */
+               const char *ty,           /* type */
+               CTF_member_t *mem)        /* member table */
 {
     int err;             /* error flag */
     ctf_id_t id;         /* CTF ID */
@@ -747,9 +770,10 @@ CTF_member_t *mem; /* member table */
  * CTF_init - initialize CTF library access
  */
 
-void CTF_init(i, t, r) int *i; /* initialization status */
-char *t;                       /* kernel module template */
-CTF_request_t *r;              /* CTF requests */
+void CTF_init(struct lsof_context *ctx, /* context */
+              int *i,                   /* initialization status */
+              char *t,                  /* kernel module template */
+              CTF_request_t *r)         /* CTF requests */
 {
     int err;       /* error status */
     ctf_file_t *f; /* CTF file info handle */
@@ -780,7 +804,7 @@ CTF_request_t *r;              /* CTF requests */
     if (!isas) {
         if (sysinfo(SI_ARCHITECTURE_K, isa, sizeof(isa) - 1) == -1) {
             (void)fprintf(stderr, "%s: sysinfo: %s\n", Pn, strerror(errno));
-            Error();
+            Error(ctx);
         }
         isas = 1;
         isa[sizeof(isa) - 1] = '\0';
@@ -797,7 +821,7 @@ CTF_request_t *r;              /* CTF requests */
 
     kernmod[sizeof(kernmod) - 1] = '\0';
     kmp = kernmod;
-    if (statsafely(kmp, &sb)) {
+    if (statsafely(ctx, kmp, &sb)) {
 
         /*
          * The module at the specified path does not exist or is inaccessible.
@@ -828,15 +852,15 @@ CTF_request_t *r;              /* CTF requests */
     if ((f = ctf_open(kmp, &err)) == NULL) {
         (void)fprintf(stderr, "%s: ctf_open: %s: %s\n", Pn, kmp,
                       ctf_errmsg(err));
-        Error();
+        Error(ctx);
     }
     for (err = 0; r->name; r++) {
-        if (CTF_getmem(f, kmp, r->name, r->mem))
+        if (CTF_getmem(ctx, f, kmp, r->name, r->mem))
             err = 1;
     }
     (void)ctf_close(f);
     if (err)
-        Error();
+        Error(ctx);
     *i = 1;
 }
 
@@ -844,11 +868,10 @@ CTF_request_t *r;              /* CTF requests */
  * CTF_memCB() - Callback function for ctf_member_iter()
  */
 
-int CTF_memCB(name, id, offset, arg) const
-    char *name; /* structure member name */
-ctf_id_t id;    /* CTF ID */
-ulong_t offset; /* member offset */
-void *arg;      /* member table */
+int CTF_memCB(const char *name, /* structure member name */
+              ctf_id_t id,      /* CTF ID */
+              ulong_t offset,   /* member offset */
+              void *arg)        /* member table */
 {
     CTF_member_t *mp;
     /*
@@ -868,11 +891,10 @@ void *arg;      /* member table */
  * ent_fa() - enter fattach addresses in NAME column addition
  */
 
-static char *ent_fa(a1, a2, d, len)
-KA_T *a1; /* first fattach address (NULL OK) */
-KA_T *a2; /* second fattach address */
-char *d;  /* direction ("->" or "<-") */
-int *len; /* returned description length */
+static char *ent_fa(KA_T *a1, /* first fattach address (NULL OK) */
+                    KA_T *a2, /* second fattach address */
+                    char *d,  /* direction ("->" or "<-") */
+                    int *len) /* returned description length */
 {
     static char buf[1024];
     size_t bufl = sizeof(buf);
@@ -908,8 +930,8 @@ int *len; /* returned description length */
  * is_socket() - is the stream a socket?
  */
 
-static int is_socket(v)
-struct vnode *v; /* vnode pointer */
+static int is_socket(struct lsof_context *ctx, /* context */
+                     struct vnode *v)          /* vnode pointer */
 {
     char *cp, *ep, *pf;
     int i, j, len, n, pfl;
@@ -989,7 +1011,7 @@ struct vnode *v; /* vnode pointer */
 #endif /* solaris<80000 */
 
         ) {
-            process_socket((KA_T)v->v_stream, tcpudp[i].proto);
+            process_socket(ctx, (KA_T)v->v_stream, tcpudp[i].proto);
             return (1);
         }
     }
@@ -1000,8 +1022,8 @@ struct vnode *v; /* vnode pointer */
  * isvlocked() - is Solaris vnode locked?
  */
 
-static char isvlocked(va)
-struct vnode *va; /* local vnode address */
+static char isvlocked(struct lsof_context *ctx, /* context */
+                      struct vnode *va)         /* local vnode address */
 {
 
 #if solaris < 20500
@@ -1047,7 +1069,7 @@ struct vnode *va; /* local vnode address */
         ff = fp = (KA_T)va->v_filocks;
         i = 0;
         do {
-            if (kread(fp, (char *)&f, sizeof(f)))
+            if (kread(ctx, fp, (char *)&f, sizeof(f)))
                 return (' ');
             i++;
             if (f.set.l_pid != (pid_t)Lp->pid)
@@ -1075,7 +1097,7 @@ struct vnode *va; /* local vnode address */
     lf = lp = (KA_T)va->v_filocks;
     i = 0;
     do {
-        if (kread(lp, (char *)&ld, sizeof(ld)))
+        if (kread(ctx, lp, (char *)&ld, sizeof(ld)))
             return (' ');
         i++;
         if (!(LOCK_FLAGS & ACTIVE_LOCK) || LOCK_OWNER != (pid_t)Lp->pid)
@@ -1111,18 +1133,18 @@ struct vnode *va; /* local vnode address */
  * finddev() - look up device by device number
  */
 
-static struct l_dev *finddev(dev, rdev, flags)
-dev_t *dev;  /* device */
-dev_t *rdev; /* raw device */
-int flags;   /* look flags -- see LOOKDEV_* symbol
-              * definitions */
+static struct l_dev *finddev(struct lsof_context *ctx, /* context */
+                             dev_t *dev,               /* device */
+                             dev_t *rdev,              /* raw device */
+                             int flags) /* look flags -- see LOOKDEV_* symbol
+                                         * definitions */
 {
     struct clone *c;
     struct l_dev *dp;
     struct pseudo *p;
 
     if (!Sdev)
-        readdev(0);
+        readdev(ctx, 0);
         /*
          * Search device table for match.
          */
@@ -1134,7 +1156,7 @@ finddev_again:
 #endif /* defined(HASDCACHE) */
 
     if (flags & LOOKDEV_TAB) {
-        if ((dp = lkupdev(dev, rdev, 0, 0)))
+        if ((dp = lkupdev(ctx, dev, rdev, 0, 0)))
             return (dp);
     }
     /*
@@ -1145,7 +1167,7 @@ finddev_again:
             if (GET_MAJ_DEV(*rdev) == GET_MIN_DEV(c->cd.rdev)) {
 
 #if defined(HASDCACHE)
-                if (DCunsafe && !c->cd.v && !vfy_dev(&c->cd))
+                if (DCunsafe && !c->cd.v && !vfy_dev(ctx, &c->cd))
                     goto finddev_again;
 #endif /* defined(HASDCACHE) */
 
@@ -1161,7 +1183,7 @@ finddev_again:
             if (GET_MAJ_DEV(*rdev) == GET_MAJ_DEV(p->pd.rdev)) {
 
 #if defined(HASDCACHE)
-                if (DCunsafe && !p->pd.v && !vfy_dev(&p->pd))
+                if (DCunsafe && !p->pd.v && !vfy_dev(ctx, &p->pd))
                     goto finddev_again;
 #endif /* defined(HASDCACHE) */
 
@@ -1177,8 +1199,8 @@ finddev_again:
  * idoorkeep() -- identify door keeper process
  */
 
-static int idoorkeep(d)
-struct door_node *d; /* door's node */
+static int idoorkeep(struct lsof_context *ctx, /* context */
+                     struct door_node *d)      /* door's node */
 {
     char buf[1024];
     size_t bufl = sizeof(buf);
@@ -1187,9 +1209,10 @@ struct door_node *d; /* door's node */
     /*
      * Get the proc structure and its pid structure for the door target.
      */
-    if (!d->door_target || kread((KA_T)d->door_target, (char *)&dp, sizeof(dp)))
+    if (!d->door_target ||
+        kread(ctx, (KA_T)d->door_target, (char *)&dp, sizeof(dp)))
         return (0);
-    if (!dp.p_pidp || kread((KA_T)dp.p_pidp, (char *)&dpid, sizeof(dpid)))
+    if (!dp.p_pidp || kread(ctx, (KA_T)dp.p_pidp, (char *)&dpid, sizeof(dpid)))
         return (0);
     /*
      * Form a description of the door.
@@ -1204,7 +1227,7 @@ struct door_node *d; /* door's node */
         (void)snpf(buf, bufl, "(door to %.64s[%ld])", dp.p_user.u_comm,
                    (long)dpid.pid_id);
     }
-    (void)add_nma(buf, (int)strlen(buf));
+    (void)add_nma(ctx, buf, (int)strlen(buf));
     return (1);
 }
 #endif /* solaris>=20500 */
@@ -1213,7 +1236,8 @@ struct door_node *d; /* door's node */
  * process_node() - process vnode
  */
 
-void process_node(va) KA_T va; /* vnode kernel space address */
+void process_node(struct lsof_context *ctx, /* context */
+                  KA_T va)                  /* vnode kernel space address */
 {
 
 #if defined(HASCACHEFS)
@@ -1353,14 +1377,14 @@ void process_node(va) KA_T va; /* vnode kernel space address */
 #endif /* solaris<100000 */
 
     if (ft) {
-        (void)build_Voptab();
+        (void)build_Voptab(ctx);
         ft = 0;
     }
     /*
      * Read the vnode.
      */
     if (!va) {
-        enter_nm("no vnode address");
+        enter_nm(ctx, "no vnode address");
         return;
     }
     if (!v) {
@@ -1385,11 +1409,11 @@ void process_node(va) KA_T va; /* vnode kernel space address */
 #endif /* defined(HAS_AFS) */
 
             );
-            Error();
+            Error(ctx);
         }
     }
-    if (readvnode(va, v)) {
-        enter_nm(Namech);
+    if (readvnode(ctx, va, v)) {
+        enter_nm(ctx, Namech);
         return;
     }
 
@@ -1410,13 +1434,13 @@ void process_node(va) KA_T va; /* vnode kernel space address */
     /*
      * Check for a Solaris socket.
      */
-    if (is_socket(v))
+    if (is_socket(ctx, v))
         return;
     /*
      * Obtain the Solaris virtual file system structure.
      */
     if ((ka = (KA_T)v->v_vfsp)) {
-        if (kread(ka, (char *)&kv, sizeof(kv))) {
+        if (kread(ctx, ka, (char *)&kv, sizeof(kv))) {
             vka = va;
 
         vfs_read_error:
@@ -1425,7 +1449,7 @@ void process_node(va) KA_T va; /* vnode kernel space address */
                        print_kptr(vka, tbuf, sizeof(tbuf)),
                        print_kptr(ka, (char *)NULL, 0));
             Namech[Namechl - 1] = '\0';
-            enter_nm(Namech);
+            enter_nm(ctx, Namech);
             return;
         }
         kvs = 1;
@@ -1447,7 +1471,7 @@ void process_node(va) KA_T va; /* vnode kernel space address */
     /*
      * Determine the Solaris vnode type.
      */
-    if ((Ntype = vop2ty(v, fx)) < 0) {
+    if ((Ntype = vop2ty(ctx, v, fx)) < 0) {
         if (v->v_type == VFIFO) {
             vty = N_REGLR;
             Ntype = N_FIFO;
@@ -1461,7 +1485,7 @@ void process_node(va) KA_T va; /* vnode kernel space address */
                        fxs ? " (" : "", fxs ? Fsinfo[fx] : "", fxs ? ")" : "",
                        print_kptr((KA_T)v->v_op, (char *)NULL, 0));
             Namech[Namechl - 1] = '\0';
-            enter_nm(Namech);
+            enter_nm(ctx, Namech);
             return;
         }
     } else {
@@ -1481,7 +1505,7 @@ void process_node(va) KA_T va; /* vnode kernel space address */
      * See if it's covering a socket as well and process accordingly.
      */
     if (vty == N_NM) {
-        if (read_nnn(va, (KA_T)v->v_data, &nn))
+        if (read_nnn(ctx, va, (KA_T)v->v_data, &nn))
             return;
         nns = 1;
         if (nn.nm_mountpt)
@@ -1496,10 +1520,10 @@ void process_node(va) KA_T va; /* vnode kernel space address */
 #endif /* solaris>=20500 */
 
         if (Ntype != N_FIFO && nn.nm_filevp &&
-            !kread((KA_T)nn.nm_filevp, (char *)&rv, sizeof(rv))) {
+            !kread(ctx, (KA_T)nn.nm_filevp, (char *)&rv, sizeof(rv))) {
             rvs = 1;
             if ((ka = (KA_T)rv.v_vfsp) &&
-                !kread(ka, (char *)&rkv, sizeof(rkv)) &&
+                !kread(ctx, ka, (char *)&rkv, sizeof(rkv)) &&
                 ((rfx = rkv.vfs_fstype - 1) >= 0) && (rfx < Fsinfomax)) {
                 rfxs = 1;
             } else {
@@ -1511,7 +1535,7 @@ void process_node(va) KA_T va; /* vnode kernel space address */
             Lf->na = (KA_T)nn.nm_filevp;
 #endif /* defined(HASNCACHE) */
 
-            if (is_socket(&rv))
+            if (is_socket(ctx, &rv))
                 return;
         }
     }
@@ -1525,13 +1549,13 @@ void process_node(va) KA_T va; /* vnode kernel space address */
     /*
      * Determine the Solaris lock state.
      */
-    Lf->lock = isvlocked(v);
+    Lf->lock = isvlocked(ctx, v);
     /*
      * Establish the Solaris local virtual file system structure.
      */
     if (!(ka = (KA_T)v->v_vfsp) || !kvs)
         vfs = (struct l_vfs *)NULL;
-    else if (!(vfs = readvfs(ka, &kv, v))) {
+    else if (!(vfs = readvfs(ctx, ka, &kv, v))) {
         vka = va;
         goto vfs_read_error;
     }
@@ -1547,11 +1571,11 @@ void process_node(va) KA_T va; /* vnode kernel space address */
          * type -- e.g. NFS, HSFS.  Its vnode points to an snode.  Subsequent
          * node structures are implied by the underlying node type.
          */
-        if (read_nsn(va, (KA_T)v->v_data, &s))
+        if (read_nsn(ctx, va, (KA_T)v->v_data, &s))
             return;
         realvp = (KA_T)s.s_realvp;
         if (!realvp && s.s_commonvp) {
-            if (read_cni(&s, &rv, v, &rs, &di, din, sizeof(din)) == 1)
+            if (read_cni(ctx, &s, &rv, v, &rs, &di, din, sizeof(din)) == 1)
                 return;
             if (!rv.v_stream) {
                 if (din[0]) {
@@ -1574,10 +1598,10 @@ void process_node(va) KA_T va; /* vnode kernel space address */
                 vty = N_STREAM;
 
 #if solaris < 100000
-                read_mi(vs, (dev_t *)&s.s_dev, (caddr_t)&soso, &so_st, so_ad,
-                        &sdp);
+                read_mi(ctx, vs, (dev_t *)&s.s_dev, (caddr_t)&soso, &so_st,
+                        so_ad, &sdp);
 #else  /* solaris>=100000 */
-                read_mi(vs, (dev_t *)&s.s_dev, NULL, NULL, NULL, &sdp);
+                read_mi(ctx, vs, (dev_t *)&s.s_dev, NULL, NULL, NULL, &sdp);
 #endif /* solaris<100000 */
 
                 vs = (KA_T)NULL;
@@ -1587,7 +1611,7 @@ void process_node(va) KA_T va; /* vnode kernel space address */
 
 #if defined(HAS_AFS)
     case N_AFS:
-        if (readafsnode(va, v, &an))
+        if (readafsnode(ctx, va, v, &an))
             return;
         break;
 #endif /* defined(HAS_AFS) */
@@ -1596,9 +1620,9 @@ void process_node(va) KA_T va; /* vnode kernel space address */
     case N_AUTO:
 
 #    if solaris < 20600
-        if (read_nan(va, (KA_T)v->v_data, &au))
+        if (read_nan(ctx, va, (KA_T)v->v_data, &au))
 #    else  /* solaris>=20600 */
-        if (read_nan(va, (KA_T)v->v_data, &fnn))
+        if (read_nan(ctx, va, (KA_T)v->v_data, &fnn))
 #    endif /* solaris<20600 */
 
             return;
@@ -1606,14 +1630,14 @@ void process_node(va) KA_T va; /* vnode kernel space address */
 
 #    if solaris >= 100000
     case N_DEV:
-        if (read_ndvn(va, (KA_T)v->v_data, &dv, &dv_dev, &dv_devs))
+        if (read_ndvn(ctx, va, (KA_T)v->v_data, &dv, &dv_dev, &dv_devs))
             return;
         dvs = 1;
         break;
 #    endif /* solaris>=100000 */
 
     case N_DOOR:
-        if (read_ndn(va, (KA_T)v->v_data, &dn))
+        if (read_ndn(ctx, va, (KA_T)v->v_data, &dn))
             return;
         dns = 1;
         break;
@@ -1621,7 +1645,7 @@ void process_node(va) KA_T va; /* vnode kernel space address */
 
 #if defined(HASCACHEFS)
     case N_CACHE:
-        if (read_ncn(va, (KA_T)v->v_data, &cn))
+        if (read_ncn(ctx, va, (KA_T)v->v_data, &cn))
             return;
         break;
 #endif /* defined(HASCACHEFS) */
@@ -1638,7 +1662,7 @@ void process_node(va) KA_T va; /* vnode kernel space address */
     case N_CTFSSYM:
     case N_CTFSTDIR:
     case N_CTFSTMPL:
-        if (read_nctfsn(Ntype, va, (KA_T)v->v_data, (char *)&ctfs))
+        if (read_nctfsn(ctx, Ntype, va, (KA_T)v->v_data, (char *)&ctfs))
             return;
         break;
 #endif /* solaris>=100000 */
@@ -1646,7 +1670,7 @@ void process_node(va) KA_T va; /* vnode kernel space address */
 #if solaris >= 20600
     case N_SOCK:
         sona = (KA_T)v->v_data;
-        if (read_nson(va, sona, &so))
+        if (read_nson(ctx, va, sona, &so))
             return;
         break;
 #endif /* solaris>=20600 */
@@ -1655,17 +1679,17 @@ void process_node(va) KA_T va; /* vnode kernel space address */
         /* Information comes from the l_vfs structure. */
         break;
     case N_MVFS:
-        if (read_nmn(va, (KA_T)v->v_data, &m))
+        if (read_nmn(ctx, va, (KA_T)v->v_data, &m))
             return;
         break;
     case N_NFS:
-        if (read_nrn(va, (KA_T)v->v_data, &r))
+        if (read_nrn(ctx, va, (KA_T)v->v_data, &r))
             return;
         break;
 
 #if solaris >= 100000
     case N_NFS4:
-        if (read_nrn4(va, (KA_T)v->v_data, &r4))
+        if (read_nrn4(ctx, va, (KA_T)v->v_data, &r4))
             return;
         break;
 #endif /* solaris>=100000 */
@@ -1692,7 +1716,7 @@ void process_node(va) KA_T va; /* vnode kernel space address */
          */
         if (vty == N_NM && nns) {
             if (nn.nm_filevp) {
-                if (read_nfn(va, (KA_T)nn.nm_filevp, &f))
+                if (read_nfn(ctx, va, (KA_T)nn.nm_filevp, &f))
                     return;
                 realvp = (KA_T)NULL;
                 vty = N_FIFO;
@@ -1704,7 +1728,7 @@ void process_node(va) KA_T va; /* vnode kernel space address */
                 return;
             }
         } else {
-            if (read_nfn(va, (KA_T)v->v_data, &f))
+            if (read_nfn(ctx, va, (KA_T)v->v_data, &f))
                 return;
             realvp = (KA_T)f.fn_realvp;
         }
@@ -1723,7 +1747,7 @@ void process_node(va) KA_T va; /* vnode kernel space address */
 #endif /* solaris>=80000 Solaris 8 and above hack! */
 
                 Lf->inp_ty = 1;
-            enter_dev_ch(print_kptr((KA_T)v->v_data, (char *)NULL, 0));
+            enter_dev_ch(ctx, print_kptr((KA_T)v->v_data, (char *)NULL, 0));
             if (f.fn_flag & ISPIPE) {
                 (void)snpf(tbuf, sizeof(tbuf), "PIPE");
                 tbufx = (int)strlen(tbuf);
@@ -1745,112 +1769,114 @@ void process_node(va) KA_T va; /* vnode kernel space address */
 #endif /* solaris<20500 */
 
             if (tbufx)
-                (void)add_nma(tbuf, tbufx);
+                (void)add_nma(ctx, tbuf, tbufx);
             break;
         }
         break;
 
     case N_HSFS:
-        if (read_nhn(va, (KA_T)v->v_data, &h))
+        if (read_nhn(ctx, va, (KA_T)v->v_data, &h))
             return;
         break;
     case N_LOFS:
         llc = 0;
         do {
             rvs = 0;
-            if (read_nln(va, llc ? (KA_T)rv.v_data : (KA_T)v->v_data, &lo)) {
+            if (read_nln(ctx, va, llc ? (KA_T)rv.v_data : (KA_T)v->v_data,
+                         &lo)) {
                 return;
             }
             if (!(realvp = (KA_T)lo.lo_vp)) {
                 (void)snpf(Namech, Namechl - 1, "lnode at %s: no real vnode",
                            print_kptr((KA_T)v->v_data, (char *)NULL, 0));
                 Namech[Namechl - 1] = '\0';
-                enter_nm(Namech);
+                enter_nm(ctx, Namech);
                 return;
             }
-            if (read_nvn((KA_T)v->v_data, (KA_T)realvp, &rv))
+            if (read_nvn(ctx, (KA_T)v->v_data, (KA_T)realvp, &rv))
                 return;
             rvs = 1;
             llc++;
             if ((ka = (KA_T)rv.v_vfsp) &&
-                !kread(ka, (char *)&rkv, sizeof(rkv)) &&
+                !kread(ctx, ka, (char *)&rkv, sizeof(rkv)) &&
                 ((rfx = rkv.vfs_fstype - 1) >= 0) && (rfx < Fsinfomax)) {
                 rfxs = 1;
             } else {
                 rfx = fx;
                 rfxs = fxs;
             }
-            if (((vty_tmp = vop2ty(&rv, rfx)) == N_LOFS) && (llc > 1000)) {
+            if (((vty_tmp = vop2ty(ctx, &rv, rfx)) == N_LOFS) && (llc > 1000)) {
                 (void)snpf(Namech, Namechl - 1, "lnode at %s: loop > 1000",
                            print_kptr((KA_T)v->v_data, (char *)NULL, 0));
                 Namech[Namechl - 1] = '\0';
-                enter_nm(Namech);
+                enter_nm(ctx, Namech);
                 return;
             }
         } while (vty_tmp == N_LOFS);
         break;
     case N_PCFS:
-        if (read_npn(va, (KA_T)v->v_data, &pc))
+        if (read_npn(ctx, va, (KA_T)v->v_data, &pc))
             return;
         break;
 
 #if solaris >= 100000
     case N_PORT:
-        if (read_nprtn(va, (KA_T)v->v_data, &pn))
+        if (read_nprtn(ctx, va, (KA_T)v->v_data, &pn))
             return;
         break;
 #endif /* solaris>=100000 */
 
 #if defined(HASPROCFS)
     case N_PROC:
-        if (read_npi(va, v, &pids))
+        if (read_npi(ctx, va, v, &pids))
             return;
         break;
 #endif /* defined(HASPROCFS) */
 
 #if solaris >= 110000
     case N_SDEV:
-        if (read_nsdn(va, (KA_T)v->v_data, &sdn, &sdva))
+        if (read_nsdn(ctx, va, (KA_T)v->v_data, &sdn, &sdva))
             return;
         sdns = 1;
         break;
 #endif /* solaris>=110000 */
 
     case N_SAMFS:
-        (void)add_nma(SAMFS_NMA_MSG, (int)strlen(SAMFS_NMA_MSG));
+        (void)add_nma(ctx, SAMFS_NMA_MSG, (int)strlen(SAMFS_NMA_MSG));
         break;
     case N_SHARED:
         break; /* No more sharedfs information is available. */
     case N_STREAM:
-        if (read_nsn(va, (KA_T)v->v_data, &s))
+        if (read_nsn(ctx, va, (KA_T)v->v_data, &s))
             return;
         if (vs) {
             Lf->is_stream = 1;
 
 #if solaris < 100000
-            read_mi(vs, (dev_t *)&s.s_dev, (caddr_t)&soso, &so_st, so_ad, &sdp);
+            read_mi(ctx, vs, (dev_t *)&s.s_dev, (caddr_t)&soso, &so_st, so_ad,
+                    &sdp);
 #else  /* solaris>=100000 */
-            read_mi(vs, (dev_t *)&s.s_dev, NULL, NULL, NULL, &sdp);
+            read_mi(ctx, vs, (dev_t *)&s.s_dev, NULL, NULL, NULL, &sdp);
 #endif /* solaris<100000 */
 
             vs = (KA_T)NULL;
         }
         break;
     case N_TMP:
-        if (read_ntn(va, (KA_T)v->v_data, &t))
+        if (read_ntn(ctx, va, (KA_T)v->v_data, &t))
             return;
         break;
 
 #if defined(HASVXFS)
     case N_VXFS:
-        if (read_vxnode(va, v, vfs, fx, &vx, Vvops))
+        if (read_vxnode(ctx, va, v, vfs, fx, &vx, Vvops))
             return;
         break;
 #endif /* defined(HASVXFS) */
 
 #if defined(HAS_ZFS)
     case N_ZFS:
-        if (read_nzn(va, (KA_T)v->v_data, &zn))
+        if (read_nzn(ctx, va, (KA_T)v->v_data, &zn))
             return;
         zns = 1;
         break;
@@ -1858,7 +1884,7 @@ void process_node(va) KA_T va; /* vnode kernel space address */
 
     case N_REGLR:
     default:
-        if (read_nin(va, (KA_T)v->v_data, &i))
+        if (read_nin(ctx, va, (KA_T)v->v_data, &i))
             return;
         ins = 1;
     }
@@ -1871,7 +1897,7 @@ void process_node(va) KA_T va; /* vnode kernel space address */
             fx = rfx;
             fxs = rfxs;
         } else {
-            if (read_nvn((KA_T)v->v_data, (KA_T)realvp, v))
+            if (read_nvn(ctx, (KA_T)v->v_data, (KA_T)realvp, v))
                 return;
             else {
 
@@ -1880,7 +1906,7 @@ void process_node(va) KA_T va; /* vnode kernel space address */
 #endif /* defined(HASNCACHE) */
 
                 if ((ka = (KA_T)v->v_vfsp) &&
-                    !kread(ka, (char *)&kv, sizeof(kv))) {
+                    !kread(ctx, ka, (char *)&kv, sizeof(kv))) {
                     kvs = 1;
                 }
                 if (kvs && ((fx = kv.vfs_fstype - 1) >= 0) &&
@@ -1897,9 +1923,10 @@ void process_node(va) KA_T va; /* vnode kernel space address */
             Lf->is_stream = 1;
 
 #if solaris < 100000
-            read_mi(vs, (dev_t *)&s.s_dev, (caddr_t)&soso, &so_st, so_ad, &sdp);
+            read_mi(ctx, vs, (dev_t *)&s.s_dev, (caddr_t)&soso, &so_st, so_ad,
+                    &sdp);
 #else  /* solaris>=100000 */
-            read_mi(vs, (dev_t *)&s.s_dev, NULL, NULL, NULL, &sdp);
+            read_mi(ctx, vs, (dev_t *)&s.s_dev, NULL, NULL, NULL, &sdp);
 #endif /* solaris<100000 */
 
             vs = (KA_T)NULL;
@@ -1907,7 +1934,7 @@ void process_node(va) KA_T va; /* vnode kernel space address */
         /*
          * Get the real vnode's type.
          */
-        if ((vty = vop2ty(v, fx)) < 0) {
+        if ((vty = vop2ty(ctx, v, fx)) < 0) {
             if (Ntype != N_FIFO && vs)
                 vty = N_STREAM;
             else {
@@ -1931,12 +1958,12 @@ void process_node(va) KA_T va; /* vnode kernel space address */
         /*
          * Base further processing on the "real" vnode.
          */
-        Lf->lock = isvlocked(v);
+        Lf->lock = isvlocked(ctx, v);
         switch (vty) {
 
 #if defined(HAS_AFS)
         case N_AFS:
-            if (readafsnode(va, v, &an))
+            if (readafsnode(ctx, va, v, &an))
                 return;
             break;
 #endif /* defined(HAS_AFS) */
@@ -1945,9 +1972,9 @@ void process_node(va) KA_T va; /* vnode kernel space address */
         case N_AUTO:
 
 #    if solaris < 20600
-            if (read_nan(va, (KA_T)v->v_data, &au))
+            if (read_nan(ctx, va, (KA_T)v->v_data, &au))
 #    else  /* solaris>=20600 */
-            if (read_nan(va, (KA_T)v->v_data, &fnn))
+            if (read_nan(ctx, va, (KA_T)v->v_data, &fnn))
 #    endif /* solaris<20600 */
 
                 return;
@@ -1955,7 +1982,7 @@ void process_node(va) KA_T va; /* vnode kernel space address */
 
 #    if solaris >= 100000
         case N_DEV:
-            if (read_ndvn(va, (KA_T)v->v_data, &dv, &dv_dev, &dv_devs))
+            if (read_ndvn(ctx, va, (KA_T)v->v_data, &dv, &dv_dev, &dv_devs))
                 return;
             dvs = 1;
             break;
@@ -1964,9 +1991,9 @@ void process_node(va) KA_T va; /* vnode kernel space address */
         case N_DOOR:
 
 #    if solaris < 20600
-            if (read_ndn(realvp, (KA_T)v->v_data, &dn))
+            if (read_ndn(ctx, realvp, (KA_T)v->v_data, &dn))
 #    else  /* solaris>=20600 */
-            if (read_ndn(va, (KA_T)v->v_data, &dn))
+            if (read_ndn(ctx, va, (KA_T)v->v_data, &dn))
 #    endif /* solaris<20500 */
 
                 return;
@@ -1976,7 +2003,7 @@ void process_node(va) KA_T va; /* vnode kernel space address */
 
 #if defined(HASCACHEFS)
         case N_CACHE:
-            if (read_ncn(va, (KA_T)v->v_data, &cn))
+            if (read_ncn(ctx, va, (KA_T)v->v_data, &cn))
                 return;
             break;
 #endif /* defined(HASCACHEFS) */
@@ -1993,57 +2020,57 @@ void process_node(va) KA_T va; /* vnode kernel space address */
         case N_CTFSSYM:
         case N_CTFSTDIR:
         case N_CTFSTMPL:
-            if (read_nctfsn(vty, va, (KA_T)v->v_data, (char *)&ctfs))
+            if (read_nctfsn(ctx, vty, va, (KA_T)v->v_data, (char *)&ctfs))
                 return;
             break;
 #endif /* solaris>=100000 */
 
         case N_HSFS:
-            if (read_nhn(va, (KA_T)v->v_data, &h))
+            if (read_nhn(ctx, va, (KA_T)v->v_data, &h))
                 return;
             break;
         case N_MNT:
             /* Information comes from the l_vfs structure. */
             break;
         case N_MVFS:
-            if (read_nmn(va, (KA_T)v->v_data, &m))
+            if (read_nmn(ctx, va, (KA_T)v->v_data, &m))
                 return;
             break;
         case N_NFS:
-            if (read_nrn(va, (KA_T)v->v_data, &r))
+            if (read_nrn(ctx, va, (KA_T)v->v_data, &r))
                 return;
             break;
 
 #if solaris >= 100000
         case N_NFS4:
-            if (read_nrn4(va, (KA_T)v->v_data, &r4))
+            if (read_nrn4(ctx, va, (KA_T)v->v_data, &r4))
                 return;
             break;
 #endif /* solaris>=100000 */
 
         case N_NM:
-            if (read_nnn(va, (KA_T)v->v_data, &nn))
+            if (read_nnn(ctx, va, (KA_T)v->v_data, &nn))
                 return;
             nns = 1;
             break;
 
 #if solaris >= 100000
         case N_PORT:
-            if (read_nprtn(va, (KA_T)v->v_data, &pn))
+            if (read_nprtn(ctx, va, (KA_T)v->v_data, &pn))
                 return;
             break;
 #endif /* solaris>=100000 */
 
         case N_PCFS:
-            if (read_npn(va, (KA_T)v->v_data, &pc))
+            if (read_npn(ctx, va, (KA_T)v->v_data, &pc))
                 return;
             break;
         case N_SAMFS:
-            (void)add_nma(SAMFS_NMA_MSG, (int)strlen(SAMFS_NMA_MSG));
+            (void)add_nma(ctx, SAMFS_NMA_MSG, (int)strlen(SAMFS_NMA_MSG));
 
 #if solaris >= 110000
         case N_SDEV:
-            if (read_nsdn(va, (KA_T)v->v_data, &sdn, &sdva))
+            if (read_nsdn(ctx, va, (KA_T)v->v_data, &sdn, &sdva))
                 return;
             if (Lf->is_stream) {
 
@@ -2063,7 +2090,7 @@ void process_node(va) KA_T va; /* vnode kernel space address */
 #if solaris >= 20600
         case N_SOCK:
             sona = (KA_T)v->v_data;
-            if (read_nson(va, sona, &so))
+            if (read_nson(ctx, va, sona, &so))
                 return;
             break;
 #endif /* solaris>=20600 */
@@ -2073,30 +2100,30 @@ void process_node(va) KA_T va; /* vnode kernel space address */
                 Lf->is_stream = 1;
 
 #if solaris < 100000
-                read_mi(vs, (dev_t *)&s.s_dev, (caddr_t)&soso, &so_st, so_ad,
-                        &sdp);
+                read_mi(ctx, vs, (dev_t *)&s.s_dev, (caddr_t)&soso, &so_st,
+                        so_ad, &sdp);
 #else  /* solaris>=100000 */
-                read_mi(vs, (dev_t *)&s.s_dev, NULL, NULL, NULL, &sdp);
+                read_mi(ctx, vs, (dev_t *)&s.s_dev, NULL, NULL, NULL, &sdp);
 #endif /* solaris<100000 */
 
                 vs = (KA_T)NULL;
             }
             break;
         case N_TMP:
-            if (read_ntn(va, (KA_T)v->v_data, &t))
+            if (read_ntn(ctx, va, (KA_T)v->v_data, &t))
                 return;
             break;
 
 #if defined(HASVXFS)
         case N_VXFS:
-            if (read_vxnode(va, v, vfs, fx, &vx, Vvops))
+            if (read_vxnode(ctx, va, v, vfs, fx, &vx, Vvops))
                 return;
             break;
 #endif /* defined(HASVXFS) */
 
 #if defined(HAS_ZFS)
         case N_ZFS:
-            if (read_nzn(va, (KA_T)v->v_data, &zn))
+            if (read_nzn(ctx, va, (KA_T)v->v_data, &zn))
                 return;
             zns = 1;
             break;
@@ -2104,7 +2131,7 @@ void process_node(va) KA_T va; /* vnode kernel space address */
 
         case N_REGLR:
         default:
-            if (read_nin(va, (KA_T)v->v_data, &i))
+            if (read_nin(ctx, va, (KA_T)v->v_data, &i))
                 return;
             ins = 1;
         }
@@ -2247,7 +2274,7 @@ void process_node(va) KA_T va; /* vnode kernel space address */
             dev = (dev_t)nn.nm_vattr.va_fsid;
             devs = 1;
         } else
-            enter_dev_ch("    NMFS");
+            enter_dev_ch(ctx, "    NMFS");
         break;
 
 #if solaris >= 100000
@@ -2315,7 +2342,7 @@ void process_node(va) KA_T va; /* vnode kernel space address */
              *
              * Get its sotpi_info_t structure;
              */
-            if (read_nsti(&so, &sti))
+            if (read_nsti(ctx, &so, &sti))
                 return;
             /*
              * Get its device numbers.  If they are located, start the NAME
@@ -2325,7 +2352,7 @@ void process_node(va) KA_T va; /* vnode kernel space address */
             nmrl = Namechl - 1;
             Namech[Namechl - 1] = '\0';
             if (!sdp)
-                sdp = finddev(&DevDev, &sti.sti_dev, LOOKDEV_ALL);
+                sdp = finddev(ctx, &DevDev, &sti.sti_dev, LOOKDEV_ALL);
             if (sdp) {
                 dev = DevDev;
                 rdev = v->v_rdev;
@@ -2402,9 +2429,9 @@ void process_node(va) KA_T va; /* vnode kernel space address */
              * they exist and as indicated by the socket node's state.
              */
             if ((so.so_state & SS_ISBOUND) &&
-                ((len = read_nusa(&sti.sti_laddr, &ua)) > 0) &&
+                ((len = read_nusa(ctx, &sti.sti_laddr, &ua)) > 0) &&
                 (nmrl > (len + 5))) {
-                if (Sfile && is_file_named(ua.sun_path, Ntype, VSOCK, 0))
+                if (Sfile && is_file_named(ctx, ua.sun_path, Ntype, VSOCK, 0))
                     Lf->sf |= SELNM;
                 if (len > nmrl)
                     len = nmrl;
@@ -2417,9 +2444,9 @@ void process_node(va) KA_T va; /* vnode kernel space address */
                 }
             }
             if ((so.so_state & SS_ISCONNECTED) &&
-                ((len = read_nusa(&sti.sti_faddr, &ua)) > 0) &&
+                ((len = read_nusa(ctx, &sti.sti_faddr, &ua)) > 0) &&
                 (nmrl > (len + 5))) {
-                if (Sfile && is_file_named(ua.sun_path, Ntype, VSOCK, 0))
+                if (Sfile && is_file_named(ctx, ua.sun_path, Ntype, VSOCK, 0))
                     Lf->sf |= SELNM;
                 if (len > nmrl)
                     len = nmrl;
@@ -2441,7 +2468,7 @@ void process_node(va) KA_T va; /* vnode kernel space address */
             case AF_INET:
             case AF_INET6:
             case AF_ROUTE:
-                if (process_VSOCK((KA_T)va, v, &so))
+                if (process_VSOCK(ctx, (KA_T)va, v, &so))
                     return;
             }
         }
@@ -2489,7 +2516,7 @@ void process_node(va) KA_T va; /* vnode kernel space address */
             nl = snl = (int)strlen(Namech);
 
             if ((len = read_nusa(&so.so_laddr, &ua))) {
-                if (Sfile && is_file_named(ua.sun_path, Ntype, VSOCK, 0))
+                if (Sfile && is_file_named(ctx, ua.sun_path, Ntype, VSOCK, 0))
                     Lf->sf |= SELNM;
                 sepl = Namech[0] ? 2 : 0;
                 if (len > (Namechl - nl - sepl - 1))
@@ -2502,7 +2529,7 @@ void process_node(va) KA_T va; /* vnode kernel space address */
                 }
             }
             if ((len = read_nusa(&so.so_faddr, &ua))) {
-                if (Sfile && is_file_named(ua.sun_path, Ntype, VSOCK, 0))
+                if (Sfile && is_file_named(ctx, ua.sun_path, Ntype, VSOCK, 0))
                     Lf->sf |= SELNM;
                 sepl = Namech[0] ? 2 : 0;
                 if (len > (Namechl - nl - sepl - 1))
@@ -2649,10 +2676,12 @@ void process_node(va) KA_T va; /* vnode kernel space address */
                 devs = 0;
             }
             if (soso.laddr.buf && soso.laddr.len == sizeof(ua)) {
-                if (kread((KA_T)soso.laddr.buf, (char *)&ua, sizeof(ua)) == 0) {
+                if (kread(ctx, (KA_T)soso.laddr.buf, (char *)&ua, sizeof(ua)) ==
+                    0) {
                     ua.sun_path[sizeof(ua.sun_path) - 1] = '\0';
                     if (ua.sun_path[0]) {
-                        if (Sfile && is_file_named(ua.sun_path, Ntype, type, 0))
+                        if (Sfile &&
+                            is_file_named(ctx, ua.sun_path, Ntype, type, 0))
                             Lf->sf |= SELNM;
                         len = (int)strlen(ua.sun_path);
                         nl = (int)strlen(Namech);
@@ -2706,9 +2735,9 @@ void process_node(va) KA_T va; /* vnode kernel space address */
 #if defined(HAS_ZFS)
     case N_ZFS:
         if (zns) {
-            if (!read_nzvfs((KA_T)v->v_data, (KA_T)zn.z_zfsvfs, &zvfs) &&
+            if (!read_nzvfs(ctx, (KA_T)v->v_data, (KA_T)zn.z_zfsvfs, &zvfs) &&
                 zvfs.z_vfs &&
-                !kread((KA_T)zvfs.z_vfs, (char *)&zgvfs, sizeof(zgvfs))) {
+                !kread(ctx, (KA_T)zvfs.z_vfs, (char *)&zgvfs, sizeof(zgvfs))) {
                 dev = zgvfs.vfs_dev;
                 devs = 1;
             }
@@ -2738,7 +2767,7 @@ void process_node(va) KA_T va; /* vnode kernel space address */
     }
     type = v->v_type;
     if (devs && vfs && !vfs->dir) {
-        (void)completevfs(vfs, &dev);
+        (void)completevfs(ctx, vfs, &dev);
 
 #if defined(HAS_AFS)
         if (vfs->dir && (Ntype == N_AFS || vty == N_AFS) && !AFSVfsp)
@@ -2870,7 +2899,7 @@ void process_node(va) KA_T va; /* vnode kernel space address */
 
     case N_PCFS:
         if (kvs && kv.vfs_data &&
-            !kread((KA_T)kv.vfs_data, (char *)&pcfs, sizeof(pcfs))) {
+            !kread(ctx, (KA_T)kv.vfs_data, (char *)&pcfs, sizeof(pcfs))) {
 
 #if solaris >= 70000
 #    if defined(HAS_PC_DIRENTPERSEC)
@@ -3336,7 +3365,7 @@ void process_node(va) KA_T va; /* vnode kernel space address */
         Namech[Namechl - 1] = '\0';
 #    else  /* solaris>=20600 */
         if (fnn.fn_name && (len = fnn.fn_namelen) > 0 && len < (Namechl - 1)) {
-            if (kread((KA_T)fnn.fn_name, Namech, len))
+            if (kread(ctx, (KA_T)fnn.fn_name, Namech, len))
                 Namech[0] = '\0';
             else
                 Namech[len] = '\0';
@@ -3353,11 +3382,11 @@ void process_node(va) KA_T va; /* vnode kernel space address */
      */
     if (nns && (!vfs || (!vfs->dir && !vfs->fsname)) && devs &&
         (dev == nn.nm_vattr.va_fsid) && nn.nm_mountpt) {
-        if (!readvnode((KA_T)nn.nm_mountpt, &fv) && fv.v_vfsp) {
-            if ((nvfs = readvfs((KA_T)fv.v_vfsp, (struct vfs *)NULL,
+        if (!readvnode(ctx, (KA_T)nn.nm_mountpt, &fv) && fv.v_vfsp) {
+            if ((nvfs = readvfs(ctx, (KA_T)fv.v_vfsp, (struct vfs *)NULL,
                                 nn.nm_filevp)) &&
                 !nvfs->dir) {
-                (void)completevfs(nvfs, &dev);
+                (void)completevfs(ctx, nvfs, &dev);
             }
 
 #    if defined(HASNCACHE)
@@ -3461,7 +3490,7 @@ void process_node(va) KA_T va; /* vnode kernel space address */
         Lf->rdev_def = rdevs;
         ty = "DOOR";
         if (dns)
-            (void)idoorkeep(&dn);
+            (void)idoorkeep(ctx, &dn);
         break;
 #endif /* solaris>=20500 */
 
@@ -3536,8 +3565,8 @@ void process_node(va) KA_T va; /* vnode kernel space address */
 
             else {
                 ty = "sock";
-                (void)printunkaf(so.so_family, 0);
-                ep = endnm(&sz);
+                (void)printunkaf(ctx, so.so_family, 0);
+                ep = endnm(ctx, &sz);
                 (void)snpf(ep, sz, ", %s", printsockty(so.so_type));
             }
         }
@@ -3586,7 +3615,7 @@ void process_node(va) KA_T va; /* vnode kernel space address */
      * If a file attach description remains, put it in the NAME column addition.
      */
     if (fa)
-        (void)add_nma(fa, fal);
+        (void)add_nma(ctx, fa, fal);
 
 #if defined(HASBLKDEV)
     /*
@@ -3594,7 +3623,7 @@ void process_node(va) KA_T va; /* vnode kernel space address */
      * supply one.
      */
     if ((Lf->inp_ty == 0) && (type == VBLK))
-        find_bl_ino();
+        find_bl_ino(ctx);
 #endif /* defined(HASBLKDEV) */
 
     /*
@@ -3602,7 +3631,7 @@ void process_node(va) KA_T va; /* vnode kernel space address */
      * supply one.
      */
     if ((Lf->inp_ty == 0) && (type == VCHR)) {
-        find_ch_ino();
+        find_ch_ino(ctx);
         /*
          * If the VCHR inode number still isn't known and this is a COMMON
          * vnode file or a stream, or if a pseudo node ID lookup has been
@@ -3617,13 +3646,13 @@ void process_node(va) KA_T va; /* vnode kernel space address */
             if (!sdp) {
                 if (rdevs || devs) {
                     if (Lf->is_stream && !pnl)
-                        sdp = finddev(devs ? &dev : &DevDev,
+                        sdp = finddev(ctx, devs ? &dev : &DevDev,
                                       rdevs ? &rdev : &Lf->dev, LOOKDEV_CLONE);
                     else
-                        sdp = finddev(devs ? &dev : &DevDev,
+                        sdp = finddev(ctx, devs ? &dev : &DevDev,
                                       rdevs ? &rdev : &Lf->dev, LOOKDEV_PSEUDO);
                     if (!sdp)
-                        sdp = finddev(devs ? &dev : &DevDev,
+                        sdp = finddev(ctx, devs ? &dev : &DevDev,
                                       rdevs ? &rdev : &Lf->dev, LOOKDEV_ALL);
                     if (sdp) {
                         if (!rdevs) {
@@ -3670,7 +3699,7 @@ void process_node(va) KA_T va; /* vnode kernel space address */
                             stderr,
                             "%s: no space for (COMMON): PID %d; FD %s\n", Pn,
                             Lp->pid, Lf->fd);
-                        Error();
+                        Error(ctx);
                     }
                     (void)snpf(Lf->nma, len, "(COMMON)");
                 }
@@ -3721,7 +3750,7 @@ void process_node(va) KA_T va; /* vnode kernel space address */
                 tdef = Lf->rdev_def;
                 Lf->rdev_def = 1;
             }
-            if (is_file_named(NULL, Ntype, type, 1))
+            if (is_file_named(ctx, NULL, Ntype, type, 1))
                 Lf->sf |= SELNM;
             if (trdevs) {
                 Lf->rdev = rdev;
@@ -3733,40 +3762,41 @@ void process_node(va) KA_T va; /* vnode kernel space address */
      * Enter name characters.
      */
     if (Namech[0])
-        enter_nm(Namech);
+        enter_nm(ctx, Namech);
 }
 
 /*
  * read_cni() - read common snode information
  */
 
-static int read_cni(s, rv, v, rs, di, din, dinl)
-struct snode *s;     /* starting snode */
-struct vnode *rv;    /* "real" vnode receiver */
-struct vnode *v;     /* starting vnode */
-struct snode *rs;    /* "real" snode receiver */
-struct dev_info *di; /* dev_info structure receiver */
-char *din;           /* device info name receiver */
-int dinl;            /* sizeof(*din) */
+static int read_cni(struct lsof_context *ctx, /* context */
+                    struct snode *s,          /* starting snode */
+                    struct vnode *rv,         /* "real" vnode receiver */
+                    struct vnode *v,          /* starting vnode */
+                    struct snode *rs,         /* "real" snode receiver */
+                    struct dev_info *di,      /* dev_info structure receiver */
+                    char *din,                /* device info name receiver */
+                    int dinl)                 /* sizeof(*din) */
 {
     char tbuf[32];
 
-    if (read_nvn((KA_T)v->v_data, (KA_T)s->s_commonvp, rv))
+    if (read_nvn(ctx, (KA_T)v->v_data, (KA_T)s->s_commonvp, rv))
         return (1);
-    if (read_nsn((KA_T)s->s_commonvp, (KA_T)rv->v_data, rs))
+    if (read_nsn(ctx, (KA_T)s->s_commonvp, (KA_T)rv->v_data, rs))
         return (1);
     *din = '\0';
     if (rs->s_dip) {
-        if (kread((KA_T)rs->s_dip, (char *)di, sizeof(struct dev_info))) {
+        if (kread(ctx, (KA_T)rs->s_dip, (char *)di, sizeof(struct dev_info))) {
             (void)snpf(Namech, Namechl - 1,
                        "common snode at %s: no dev info: %s",
                        print_kptr((KA_T)rv->v_data, tbuf, sizeof(tbuf)),
                        print_kptr((KA_T)rs->s_dip, (char *)NULL, 0));
             Namech[Namechl - 1] = '\0';
-            enter_nm(Namech);
+            enter_nm(ctx, Namech);
             return (1);
         }
-        if (di->devi_name && kread((KA_T)di->devi_name, din, dinl - 1) == 0)
+        if (di->devi_name &&
+            kread(ctx, (KA_T)di->devi_name, din, dinl - 1) == 0)
             din[dinl - 1] = '\0';
     }
     return (0);
@@ -3776,15 +3806,15 @@ int dinl;            /* sizeof(*din) */
  * readinode() - read inode
  */
 
-static int readinode(ia, i)
-KA_T ia;         /* inode kernel address */
-struct inode *i; /* inode buffer */
+static int readinode(struct lsof_context *ctx, /* context */
+                     KA_T ia,                  /* inode kernel address */
+                     struct inode *i)          /* inode buffer */
 {
-    if (kread((KA_T)ia, (char *)i, sizeof(struct inode))) {
+    if (kread(ctx, (KA_T)ia, (char *)i, sizeof(struct inode))) {
         (void)snpf(Namech, Namechl - 1, "can't read inode at %s",
                    print_kptr((KA_T)ia, (char *)NULL, 0));
         Namech[Namechl - 1] = '\0';
-        enter_nm(Namech);
+        enter_nm(ctx, Namech);
         return (1);
     }
     return (0);
@@ -3795,19 +3825,19 @@ struct inode *i; /* inode buffer */
  * read_ndn() - read node's door node
  */
 
-static int read_ndn(na, da, dn)
-KA_T na;              /* containing vnode's address */
-KA_T da;              /* door node's address */
-struct door_node *dn; /* door node receiver */
+static int read_ndn(struct lsof_context *ctx, /* context */
+                    KA_T na,                  /* containing vnode's address */
+                    KA_T da,                  /* door node's address */
+                    struct door_node *dn)     /* door node receiver */
 {
     char tbuf[32];
 
-    if (!da || kread((KA_T)da, (char *)dn, sizeof(struct door_node))) {
+    if (!da || kread(ctx, (KA_T)da, (char *)dn, sizeof(struct door_node))) {
         (void)snpf(Namech, Namechl - 1, "vnode at %s: can't read door_node: %s",
                    print_kptr(na, tbuf, sizeof(tbuf)),
                    print_kptr(da, (char *)NULL, 0));
         Namech[Namechl - 1] = '\0';
-        enter_nm(Namech);
+        enter_nm(ctx, Namech);
         return (1);
     }
     return (0);
@@ -3818,13 +3848,13 @@ struct door_node *dn; /* door node receiver */
  * read_mi() - read stream's module information
  */
 
-static void read_mi(s, rdev, so, so_st, so_ad,
-                    sdp) KA_T s; /* kernel stream pointer address */
-dev_t *rdev;                     /* raw device pointer */
-caddr_t so;                      /* so_so return (Solaris) */
-int *so_st;                      /* so_so status */
-KA_T *so_ad;                     /* so_so addresses */
-struct l_dev **sdp;              /* returned device pointer */
+static void read_mi(struct lsof_context *ctx, /* context */
+                    KA_T s,             /* kernel stream pointer address */
+                    dev_t *rdev,        /* raw device pointer */
+                    caddr_t so,         /* so_so return (Solaris) */
+                    int *so_st,         /* so_so status */
+                    KA_T *so_ad,        /* so_so addresses */
+                    struct l_dev **sdp) /* returned device pointer */
 {
     struct l_dev *dp;
     int i, j, k, nl;
@@ -3841,11 +3871,11 @@ struct l_dev **sdp;              /* returned device pointer */
      */
     if (!s)
         return;
-    if (kread((KA_T)s, (char *)&sd, sizeof(sd))) {
+    if (kread(ctx, (KA_T)s, (char *)&sd, sizeof(sd))) {
         (void)snpf(Namech, Namechl - 1, "can't read stream head: %s",
                    print_kptr(s, (char *)NULL, 0));
         Namech[Namechl - 1] = '\0';
-        enter_nm(Namech);
+        enter_nm(ctx, Namech);
         return;
     }
     /*
@@ -3860,8 +3890,8 @@ struct l_dev **sdp;              /* returned device pointer */
      */
     k = 0;
     Namech[0] = '\0';
-    if (!(dp = finddev(&DevDev, rdev, LOOKDEV_CLONE)))
-        dp = finddev(&DevDev, rdev, LOOKDEV_ALL);
+    if (!(dp = finddev(ctx, &DevDev, rdev, LOOKDEV_CLONE)))
+        dp = finddev(ctx, &DevDev, rdev, LOOKDEV_ALL);
     if (dp) {
         (void)snpf(Namech, Namechl - 1, "%s", dp->name);
         Namech[Namechl - 1] = '\0';
@@ -3873,15 +3903,15 @@ struct l_dev **sdp;              /* returned device pointer */
     mn[nl] = '\0';
     qp = (KA_T)sd.sd_wrq;
     for (i = 0; qp && i < 20; i++, qp = (KA_T)q.q_next) {
-        if (!qp || kread(qp, (char *)&q, sizeof(q)))
+        if (!qp || kread(ctx, qp, (char *)&q, sizeof(q)))
             break;
         if ((ka = (KA_T)q.q_qinfo) == (KA_T)NULL ||
-            kread(ka, (char *)&qi, sizeof(qi)))
+            kread(ctx, ka, (char *)&qi, sizeof(qi)))
             continue;
         if ((ka = (KA_T)qi.qi_minfo) == (KA_T)NULL ||
-            kread(ka, (char *)&mi, sizeof(mi)))
+            kread(ctx, ka, (char *)&mi, sizeof(mi)))
             continue;
-        if ((ka = (KA_T)mi.mi_idname) == (KA_T)NULL || kread(ka, mn, nl))
+        if ((ka = (KA_T)mi.mi_idname) == (KA_T)NULL || kread(ctx, ka, mn, nl))
             continue;
         if ((j = (int)strlen(mn)) < 1)
             continue;
@@ -3898,7 +3928,7 @@ struct l_dev **sdp;              /* returned device pointer */
 
                 struct so_so s;
 
-                if (!kread((KA_T)q.q_ptr, (char *)&s, sizeof(s))) {
+                if (!kread(ctx, (KA_T)q.q_ptr, (char *)&s, sizeof(s))) {
                     if (!(*so_st))
                         so_ad[0] = (KA_T)q.q_ptr;
                     else
@@ -3928,23 +3958,23 @@ struct l_dev **sdp;              /* returned device pointer */
  * read_nan(na, ca, cn) - read node's autofs node
  */
 
-static int read_nan(na, aa, rn)
-KA_T na; /* containing node's address */
-KA_T aa; /* autofs node address */
+static int read_nan(struct lsof_context *ctx, /* context */
+                    KA_T na,                  /* containing node's address */
+                    KA_T aa,                  /* autofs node address */
 
 #    if solaris < 20600
-struct autonode *rn; /* autofs node receiver */
-#    else            /* solaris>=20600 */
-struct fnnode *rn; /* autofs node receiver */
-#    endif           /* solaris<20600 */
+                    struct autonode *rn) /* autofs node receiver */
+#    else                                /* solaris>=20600 */
+                    struct fnnode *rn) /* autofs node receiver */
+#    endif                               /* solaris<20600 */
 
 {
     char tbuf[32];
 
 #    if solaris < 20600
-    if (!aa || kread((KA_T)aa, (char *)rn, sizeof(struct autonode)))
+    if (!aa || kread(ctx, (KA_T)aa, (char *)rn, sizeof(struct autonode)))
 #    else  /* solaris>=20600 */
-    if (!aa || kread((KA_T)aa, (char *)rn, sizeof(struct fnnode)))
+    if (!aa || kread(ctx, (KA_T)aa, (char *)rn, sizeof(struct fnnode)))
 #    endif /* solaris<20600 */
 
     {
@@ -3959,7 +3989,7 @@ struct fnnode *rn; /* autofs node receiver */
                    print_kptr(na, tbuf, sizeof(tbuf)),
                    print_kptr(aa, (char *)NULL, 0));
         Namech[Namechl - 1] = '\0';
-        enter_nm(Namech);
+        enter_nm(ctx, Namech);
         return (1);
     }
     return (0);
@@ -3971,19 +4001,19 @@ struct fnnode *rn; /* autofs node receiver */
  * read_ncn(na, ca, cn) - read node's cache node
  */
 
-static int read_ncn(na, ca, cn)
-KA_T na;          /* containing node's address */
-KA_T ca;          /* cache node address */
-struct cnode *cn; /* cache node receiver */
+static int read_ncn(struct lsof_context *ctx, /* context */
+                    KA_T na,                  /* containing node's address */
+                    KA_T ca,                  /* cache node address */
+                    struct cnode *cn)         /* cache node receiver */
 {
     char tbuf[32];
 
-    if (!ca || kread((KA_T)ca, (char *)cn, sizeof(struct cnode))) {
+    if (!ca || kread(ctx, (KA_T)ca, (char *)cn, sizeof(struct cnode))) {
         (void)snpf(Namech, Namechl - 1, "node at %s: can't read cnode: %s",
                    print_kptr(na, tbuf, sizeof(tbuf)),
                    print_kptr(ca, (char *)NULL, 0));
         Namech[Namechl - 1] = '\0';
-        enter_nm(Namech);
+        enter_nm(ctx, Namech);
         return (1);
     }
     return (0);
@@ -3995,11 +4025,11 @@ struct cnode *cn; /* cache node receiver */
  * read_nctfsn(ty, na, ca, cn) - read node's cache node
  */
 
-static int read_nctfsn(ty, na, ca, cn)
-int ty;   /* node type -- i.e., N_CTFS* */
-KA_T na;  /* containing node's address */
-KA_T ca;  /* cache node address */
-char *cn; /* CTFS node receiver */
+static int read_nctfsn(struct lsof_context *ctx, /* context */
+                       int ty,   /* node type -- i.e., N_CTFS* */
+                       KA_T na,  /* containing node's address */
+                       KA_T ca,  /* cache node address */
+                       char *cn) /* CTFS node receiver */
 {
     char *cp, *nm, tbuf[32];
     READLEN_T sz;
@@ -4052,16 +4082,16 @@ char *cn; /* CTFS node receiver */
     default:
         (void)snpf(Namech, Namechl - 1, "unknown CTFS node type: %d", ty);
         Namech[Namechl - 1] = '\0';
-        enter_nm(Namech);
+        enter_nm(ctx, Namech);
         return (1);
     }
-    if (!ca || kread((KA_T)ca, cn, sz)) {
+    if (!ca || kread(ctx, (KA_T)ca, cn, sz)) {
         (void)snpf(Namech, Namechl - 1,
                    "node at %s: can't read CTFS %s node: %s",
                    print_kptr(na, tbuf, sizeof(tbuf)), nm,
                    print_kptr(ca, (char *)NULL, 0));
         Namech[Namechl - 1] = '\0';
-        enter_nm(Namech);
+        enter_nm(ctx, Namech);
         return (1);
     }
     return (0);
@@ -4072,19 +4102,19 @@ char *cn; /* CTFS node receiver */
  * read_nfn() - read node's fifonode
  */
 
-static int read_nfn(na, fa, f)
-KA_T na;            /* containing node's address */
-KA_T fa;            /* fifonode address */
-struct fifonode *f; /* fifonode receiver */
+static int read_nfn(struct lsof_context *ctx, /* context */
+                    KA_T na,                  /* containing node's address */
+                    KA_T fa,                  /* fifonode address */
+                    struct fifonode *f)       /* fifonode receiver */
 {
     char tbuf[32];
 
-    if (!fa || readfifonode(fa, f)) {
+    if (!fa || readfifonode(ctx, fa, f)) {
         (void)snpf(Namech, Namechl - 1, "node at %s: can't read fifonode: %s",
                    print_kptr(na, tbuf, sizeof(tbuf)),
                    print_kptr(fa, (char *)NULL, 0));
         Namech[Namechl - 1] = '\0';
-        enter_nm(Namech);
+        enter_nm(ctx, Namech);
         return (1);
     }
     return (0);
@@ -4094,19 +4124,19 @@ struct fifonode *f; /* fifonode receiver */
  * read_nhn() - read node's High Sierra node
  */
 
-static int read_nhn(na, ha, h)
-KA_T na;          /* containing node's address */
-KA_T ha;          /* hsnode address */
-struct hsnode *h; /* hsnode receiver */
+static int read_nhn(struct lsof_context *ctx, /* context */
+                    KA_T na,                  /* containing node's address */
+                    KA_T ha,                  /* hsnode address */
+                    struct hsnode *h)         /* hsnode receiver */
 {
     char tbuf[32];
 
-    if (!ha || readhsnode(ha, h)) {
+    if (!ha || readhsnode(ctx, ha, h)) {
         (void)snpf(Namech, Namechl - 1, "node at %s: can't read hsnode: %s",
                    print_kptr(na, tbuf, sizeof(tbuf)),
                    print_kptr(ha, (char *)NULL, 0));
         Namech[Namechl - 1] = '\0';
-        enter_nm(Namech);
+        enter_nm(ctx, Namech);
         return (1);
     }
     return (0);
@@ -4116,19 +4146,19 @@ struct hsnode *h; /* hsnode receiver */
  * read_nin() - read node's inode
  */
 
-static int read_nin(na, ia, i)
-KA_T na;         /* containing node's address */
-KA_T ia;         /* kernel inode address */
-struct inode *i; /* inode receiver */
+static int read_nin(struct lsof_context *ctx, /* context */
+                    KA_T na,                  /* containing node's address */
+                    KA_T ia,                  /* kernel inode address */
+                    struct inode *i)          /* inode receiver */
 {
     char tbuf[32];
 
-    if (!ia || readinode(ia, i)) {
+    if (!ia || readinode(ctx, ia, i)) {
         (void)snpf(Namech, Namechl - 1, "node at %s: can't read inode: %s",
                    print_kptr(na, tbuf, sizeof(tbuf)),
                    print_kptr(ia, (char *)NULL, 0));
         Namech[Namechl - 1] = '\0';
-        enter_nm(Namech);
+        enter_nm(ctx, Namech);
         return (1);
     }
     return (0);
@@ -4138,19 +4168,19 @@ struct inode *i; /* inode receiver */
  * read_nln(na, la, ln) - read node's loopback node
  */
 
-static int read_nln(na, la, ln)
-KA_T na;          /* containing node's address */
-KA_T la;          /* loopback node address */
-struct lnode *ln; /* loopback node receiver */
+static int read_nln(struct lsof_context *ctx, /* context */
+                    KA_T na,                  /* containing node's address */
+                    KA_T la,                  /* loopback node address */
+                    struct lnode *ln)         /* loopback node receiver */
 {
     char tbuf[32];
 
-    if (!la || kread((KA_T)la, (char *)ln, sizeof(struct lnode))) {
+    if (!la || kread(ctx, (KA_T)la, (char *)ln, sizeof(struct lnode))) {
         (void)snpf(Namech, Namechl - 1, "node at %s: can't read lnode: %s",
                    print_kptr(na, tbuf, sizeof(tbuf)),
                    print_kptr(la, (char *)NULL, 0));
         Namech[Namechl - 1] = '\0';
-        enter_nm(Namech);
+        enter_nm(ctx, Namech);
         return (1);
     }
     return (0);
@@ -4160,19 +4190,19 @@ struct lnode *ln; /* loopback node receiver */
  * read_nnn() - read node's namenode
  */
 
-static int read_nnn(na, nna, nn)
-KA_T na;             /* containing node's address */
-KA_T nna;            /* namenode address */
-struct namenode *nn; /* namenode receiver */
+static int read_nnn(struct lsof_context *ctx, /* context */
+                    KA_T na,                  /* containing node's address */
+                    KA_T nna,                 /* namenode address */
+                    struct namenode *nn)      /* namenode receiver */
 {
     char tbuf[32];
 
-    if (!nna || kread((KA_T)nna, (char *)nn, sizeof(struct namenode))) {
+    if (!nna || kread(ctx, (KA_T)nna, (char *)nn, sizeof(struct namenode))) {
         (void)snpf(Namech, Namechl - 1, "node at %s: can't read namenode: %s",
                    print_kptr(na, tbuf, sizeof(tbuf)),
                    print_kptr(nna, (char *)NULL, 0));
         Namech[Namechl - 1] = '\0';
-        enter_nm(Namech);
+        enter_nm(ctx, Namech);
         return (1);
     }
     return (0);
@@ -4182,19 +4212,19 @@ struct namenode *nn; /* namenode receiver */
  * read_nmn() - read node's mvfsnode
  */
 
-static int read_nmn(na, ma, m)
-KA_T na;            /* containing node's address */
-KA_T ma;            /* kernel mvfsnode address */
-struct mvfsnode *m; /* mvfsnode receiver */
+static int read_nmn(struct lsof_context *ctx, /* context */
+                    KA_T na,                  /* containing node's address */
+                    KA_T ma,                  /* kernel mvfsnode address */
+                    struct mvfsnode *m)       /* mvfsnode receiver */
 {
     char tbuf[32];
 
-    if (!ma || kread((KA_T)ma, (char *)m, sizeof(struct mvfsnode))) {
+    if (!ma || kread(ctx, (KA_T)ma, (char *)m, sizeof(struct mvfsnode))) {
         (void)snpf(Namech, Namechl - 1, "node at %s: can't read mvfsnode: %s",
                    print_kptr(na, tbuf, sizeof(tbuf)),
                    print_kptr(ma, (char *)NULL, 0));
         Namech[Namechl - 1] = '\0';
-        enter_nm(Namech);
+        enter_nm(ctx, Namech);
         return (1);
     }
     return (0);
@@ -4205,10 +4235,10 @@ struct mvfsnode *m; /* mvfsnode receiver */
  * read_npi() - read node's /proc file system information
  */
 
-static int read_npi(na, v, pids)
-KA_T na;          /* containing node's address */
-struct vnode *v;  /* containing vnode */
-struct pid *pids; /* pid structure receiver */
+static int read_npi(struct lsof_context *ctx, /* context */
+                    KA_T na,                  /* containing node's address */
+                    struct vnode *v,          /* containing vnode */
+                    struct pid *pids)         /* pid structure receiver */
 {
     struct as as;
     struct proc p;
@@ -4225,12 +4255,12 @@ struct pid *pids; /* pid structure receiver */
     char *ty = (char *)NULL;
 #    endif /* solaris>=20600 */
 
-    if (!v->v_data || kread((KA_T)v->v_data, (char *)&pr, sizeof(pr))) {
+    if (!v->v_data || kread(ctx, (KA_T)v->v_data, (char *)&pr, sizeof(pr))) {
         (void)snpf(Namech, Namechl - 1, "node at %s: can't read prnode: %s",
                    print_kptr(na, tbuf, sizeof(tbuf)),
                    print_kptr((KA_T)v->v_data, (char *)NULL, 0));
         Namech[Namechl - 1] = '\0';
-        enter_nm(Namech);
+        enter_nm(ctx, Namech);
         return (1);
     }
 
@@ -4246,35 +4276,36 @@ struct pid *pids; /* pid structure receiver */
         if (v->v_type == VDIR) {
             (void)snpf(Namech, Namechl - 1, "/%s", HASPROCFS);
             Namech[Namechl - 1] = '\0';
-            enter_nm(Namech);
+            enter_nm(ctx, Namech);
             Lf->inode = (INODETYPE)PR_ROOTINO;
             Lf->inp_ty = 1;
         } else {
             (void)snpf(Namech, Namechl - 1, "/%s/", HASPROCFS);
             Namech[Namechl - 1] = '\0';
-            enter_nm(Namech);
+            enter_nm(ctx, Namech);
             Lf->inp_ty = 0;
         }
         return (0);
     }
-    if (kread((KA_T)pr.pr_proc, (char *)&p, sizeof(p))) {
+    if (kread(ctx, (KA_T)pr.pr_proc, (char *)&p, sizeof(p))) {
         (void)snpf(Namech, Namechl - 1, "prnode at %s: can't read proc: %s",
                    print_kptr((KA_T)v->v_data, tbuf, sizeof(tbuf)),
                    print_kptr((KA_T)pr.pr_proc, (char *)NULL, 0));
         Namech[Namechl - 1] = '\0';
-        enter_nm(Namech);
+        enter_nm(ctx, Namech);
         return (1);
     }
-    if (p.p_as && !kread((KA_T)p.p_as, (char *)&as, sizeof(as))) {
+    if (p.p_as && !kread(ctx, (KA_T)p.p_as, (char *)&as, sizeof(as))) {
         Lf->sz = (SZOFFTYPE)as.a_size;
         Lf->sz_def = 1;
     }
-    if (!p.p_pidp || kread((KA_T)p.p_pidp, (char *)pids, sizeof(struct pid))) {
+    if (!p.p_pidp ||
+        kread(ctx, (KA_T)p.p_pidp, (char *)pids, sizeof(struct pid))) {
         (void)snpf(Namech, Namechl - 1, "proc struct at %s: can't read pid: %s",
                    print_kptr((KA_T)pr.pr_proc, tbuf, sizeof(tbuf)),
                    print_kptr((KA_T)p.p_pidp, (char *)NULL, 0));
         Namech[Namechl - 1] = '\0';
-        enter_nm(Namech);
+        enter_nm(ctx, Namech);
         return (1);
     }
     (void)snpf(Namech, Namechl, "/%s/%d", HASPROCFS, (int)pids->pid_id);
@@ -4295,38 +4326,40 @@ struct pid *pids; /* pid structure receiver */
      * Identify the lwp PID (the thread ID).
      */
     if (pr.pr_common &&
-        kread((KA_T)pr.pr_common, (char *)&pc, sizeof(pc)) == 0) {
+        kread(ctx, (KA_T)pr.pr_common, (char *)&pc, sizeof(pc)) == 0) {
         pcs = 1;
-        if (pc.prc_proc && kread((KA_T)pc.prc_proc, (char *)&p, sizeof(p)) == 0)
+        if (pc.prc_proc &&
+            kread(ctx, (KA_T)pc.prc_proc, (char *)&p, sizeof(p)) == 0)
             prpcs = 1;
         else
             prpcs = 0;
     } else
         pcs = prpcs = 0;
     if (pr.pr_pcommon &&
-        kread((KA_T)pr.pr_pcommon, (char *)&ppc, sizeof(ppc)) == 0) {
+        kread(ctx, (KA_T)pr.pr_pcommon, (char *)&ppc, sizeof(ppc)) == 0) {
         ppcs = 1;
         if (ppc.prc_proc &&
-            kread((KA_T)ppc.prc_proc, (char *)&pp, sizeof(pp)) == 0)
+            kread(ctx, (KA_T)ppc.prc_proc, (char *)&pp, sizeof(pp)) == 0)
             prppcs = 1;
         else
             prppcs = 0;
     } else
         ppcs = prppcs = 0;
     if (prpcs && p.p_pidp &&
-        kread((KA_T)p.p_pidp, (char *)pids, sizeof(struct pid)) == 0)
+        kread(ctx, (KA_T)p.p_pidp, (char *)pids, sizeof(struct pid)) == 0)
         prpid = pids->pid_id;
     else if (prppcs && pp.p_pidp &&
-             kread((KA_T)pp.p_pidp, (char *)pids, sizeof(struct pid)) == 0)
+             kread(ctx, (KA_T)pp.p_pidp, (char *)pids, sizeof(struct pid)) == 0)
         prpid = pids->pid_id;
     else
         pids->pid_id = prpid = (pid_t)0;
     if (pcs && pc.prc_thread &&
-        kread((KA_T)pc.prc_thread, (char *)&thread, sizeof(kthread_t)) == 0)
+        kread(ctx, (KA_T)pc.prc_thread, (char *)&thread, sizeof(kthread_t)) ==
+            0)
         prtid = thread.t_tid;
     else if (ppcs && ppc.prc_thread &&
-             kread((KA_T)ppc.prc_thread, (char *)&thread, sizeof(kthread_t)) ==
-                 0)
+             kread(ctx, (KA_T)ppc.prc_thread, (char *)&thread,
+                   sizeof(kthread_t)) == 0)
         prtid = thread.t_tid;
     else
         prtid = (id_t)0;
@@ -4346,8 +4379,9 @@ struct pid *pids; /* pid structure receiver */
     case PR_AS:
         (void)snpf(Namech, Namechl - 1, "/%s/%d/as", HASPROCFS, (int)prpid);
         ty = "PAS";
-        if (prpcs && kread((KA_T)pc.prc_proc, (char *)&p, sizeof(p)) == 0 &&
-            p.p_as && kread((KA_T)p.p_as, (char *)&as, sizeof(as)) == 0) {
+        if (prpcs &&
+            kread(ctx, (KA_T)pc.prc_proc, (char *)&p, sizeof(p)) == 0 &&
+            p.p_as && kread(ctx, (KA_T)p.p_as, (char *)&as, sizeof(as)) == 0) {
             Lf->sz = (SZOFFTYPE)as.a_size;
             Lf->sz_def = 1;
         }
@@ -4525,7 +4559,7 @@ struct pid *pids; /* pid structure receiver */
 #    endif     /* solaris<20600 */
 
     Namech[Namechl - 1] = '\0';
-    enter_nm(Namech);
+    enter_nm(ctx, Namech);
     return (0);
 }
 #endif /* defined(HASPROCFS) */
@@ -4534,19 +4568,19 @@ struct pid *pids; /* pid structure receiver */
  * read_npn() - read node's pcnode
  */
 
-static int read_npn(na, pa, p)
-KA_T na;          /* containing node's address */
-KA_T pa;          /* pcnode address */
-struct pcnode *p; /* pcnode receiver */
+static int read_npn(struct lsof_context *ctx, /* context */
+                    KA_T na,                  /* containing node's address */
+                    KA_T pa,                  /* pcnode address */
+                    struct pcnode *p)         /* pcnode receiver */
 {
     char tbuf[32];
 
-    if (!pa || kread(pa, (char *)p, sizeof(struct pcnode))) {
+    if (!pa || kread(ctx, pa, (char *)p, sizeof(struct pcnode))) {
         (void)snpf(Namech, Namechl - 1, "node at %s: can't read pcnode: %s",
                    print_kptr(na, tbuf, sizeof(tbuf)),
                    print_kptr(pa, (char *)NULL, 0));
         Namech[Namechl - 1] = '\0';
-        enter_nm(Namech);
+        enter_nm(ctx, Namech);
         return (1);
     }
     return (0);
@@ -4557,19 +4591,19 @@ struct pcnode *p; /* pcnode receiver */
  * read_nprtn() - read node's port node
  */
 
-static int read_nprtn(na, pa, p)
-KA_T na;   /* containing node's address */
-KA_T pa;   /* port node address */
-port_t *p; /* port node receiver */
+static int read_nprtn(struct lsof_context *ctx, /* context */
+                      KA_T na,                  /* containing node's address */
+                      KA_T pa,                  /* port node address */
+                      port_t *p)                /* port node receiver */
 {
     char tbuf[32];
 
-    if (!pa || kread(pa, (char *)p, sizeof(port_t))) {
+    if (!pa || kread(ctx, pa, (char *)p, sizeof(port_t))) {
         (void)snpf(Namech, Namechl - 1, "node at %s: can't read port node: %s",
                    print_kptr(na, tbuf, sizeof(tbuf)),
                    print_kptr(pa, (char *)NULL, 0));
         Namech[Namechl - 1] = '\0';
-        enter_nm(Namech);
+        enter_nm(ctx, Namech);
         return (1);
     }
     return (0);
@@ -4580,19 +4614,19 @@ port_t *p; /* port node receiver */
  * read_nrn() - read node's rnode
  */
 
-static int read_nrn(na, ra, r)
-KA_T na;         /* containing node's address */
-KA_T ra;         /* rnode address */
-struct rnode *r; /* rnode receiver */
+static int read_nrn(struct lsof_context *ctx, /* context */
+                    KA_T na,                  /* containing node's address */
+                    KA_T ra,                  /* rnode address */
+                    struct rnode *r)          /* rnode receiver */
 {
     char tbuf[32];
 
-    if (!ra || readrnode(ra, r)) {
+    if (!ra || readrnode(ctx, ra, r)) {
         (void)snpf(Namech, Namechl - 1, "node at %s: can't read rnode: %s",
                    print_kptr(na, tbuf, sizeof(tbuf)),
                    print_kptr(ra, (char *)NULL, 0));
         Namech[Namechl - 1] = '\0';
-        enter_nm(Namech);
+        enter_nm(ctx, Namech);
         return (1);
     }
     return (0);
@@ -4603,19 +4637,19 @@ struct rnode *r; /* rnode receiver */
  * read_nrn4() - read node's rnode4
  */
 
-static int read_nrn4(na, ra, r)
-KA_T na;          /* containing node's address */
-KA_T ra;          /* rnode address */
-struct rnode4 *r; /* rnode receiver */
+static int read_nrn4(struct lsof_context *ctx, /* context */
+                     KA_T na,                  /* containing node's address */
+                     KA_T ra,                  /* rnode address */
+                     struct rnode4 *r)         /* rnode receiver */
 {
     char tbuf[32];
 
-    if (!ra || kread((KA_T)ra, (char *)r, sizeof(struct rnode4))) {
+    if (!ra || kread(ctx, (KA_T)ra, (char *)r, sizeof(struct rnode4))) {
         (void)snpf(Namech, Namechl - 1, "node at %s: can't read rnode4: %s",
                    print_kptr(na, tbuf, sizeof(tbuf)),
                    print_kptr(ra, (char *)NULL, 0));
         Namech[Namechl - 1] = '\0';
-        enter_nm(Namech);
+        enter_nm(ctx, Namech);
         return (1);
     }
     return (0);
@@ -4627,32 +4661,32 @@ struct rnode4 *r; /* rnode receiver */
  * read_nsdn() - read node's sdev_node
  */
 
-static int read_nsdn(na, sa, sdn, sdva)
-KA_T na;               /* containing node's adress */
-KA_T sa;               /* sdev_node address */
-struct sdev_node *sdn; /* sdev_node receiver */
-struct vattr *sdva;    /* sdev_node's vattr receiver */
+static int read_nsdn(struct lsof_context *ctx, /* context */
+                     KA_T na,                  /* containing node's adress */
+                     KA_T sa,                  /* sdev_node address */
+                     struct sdev_node *sdn,    /* sdev_node receiver */
+                     struct vattr *sdva)       /* sdev_node's vattr receiver */
 {
     KA_T va;
     char tbuf[32], tbuf1[32];
 
-    if (!sa || kread((KA_T)sa, (char *)sdn, sizeof(struct sdev_node))) {
+    if (!sa || kread(ctx, (KA_T)sa, (char *)sdn, sizeof(struct sdev_node))) {
         (void)snpf(Namech, Namechl - 1, "node at %s: can't read sdev_node: %s",
                    print_kptr(na, tbuf, sizeof(tbuf)),
                    print_kptr(sa, (char *)NULL, 0));
         Namech[Namechl - 1] = '\0';
-        enter_nm(Namech);
+        enter_nm(ctx, Namech);
         return (1);
     }
     if (!(va = (KA_T)sdn->sdev_attr) ||
-        kread(va, (char *)sdva, sizeof(struct vattr))) {
+        kread(ctx, va, (char *)sdva, sizeof(struct vattr))) {
         (void)snpf(Namech, Namechl - 1,
                    "node at %s; sdev_node at %s: can't read vattr: %s",
                    print_kptr(na, tbuf, sizeof(tbuf)),
                    print_kptr(sa, tbuf1, sizeof(tbuf1)),
                    print_kptr(va, (char *)NULL, 0));
         Namech[Namechl - 1] = '\0';
-        enter_nm(Namech);
+        enter_nm(ctx, Namech);
         return (1);
     }
     return (0);
@@ -4664,20 +4698,20 @@ struct vattr *sdva;    /* sdev_node's vattr receiver */
  * read_nson() - read node's sonode
  */
 
-static int read_nson(na, sa, sn)
-KA_T na;           /* containing node's address */
-KA_T sa;           /* sonode address */
-struct sonode *sn; /* sonode receiver */
+static int read_nson(struct lsof_context *ctx, /* context */
+                     KA_T na,                  /* containing node's address */
+                     KA_T sa,                  /* sonode address */
+                     struct sonode *sn)        /* sonode receiver */
 
 {
     char tbuf[32];
 
-    if (!sa || kread((KA_T)sa, (char *)sn, sizeof(struct sonode))) {
+    if (!sa || kread(ctx, (KA_T)sa, (char *)sn, sizeof(struct sonode))) {
         (void)snpf(Namech, Namechl - 1, "node at %s: can't read sonode: %s",
                    print_kptr(na, tbuf, sizeof(tbuf)),
                    print_kptr(sa, (char *)NULL, 0));
         Namech[Namechl - 1] = '\0';
-        enter_nm(Namech);
+        enter_nm(ctx, Namech);
         return (1);
     }
     return (0);
@@ -4688,19 +4722,19 @@ struct sonode *sn; /* sonode receiver */
  * read_nsn() - read node's snode
  */
 
-static int read_nsn(na, sa, s)
-KA_T na;         /* containing node's address */
-KA_T sa;         /* snode address */
-struct snode *s; /* snode receiver */
+static int read_nsn(struct lsof_context *ctx, /* context */
+                    KA_T na,                  /* containing node's address */
+                    KA_T sa,                  /* snode address */
+                    struct snode *s)          /* snode receiver */
 {
     char tbuf[32];
 
-    if (!sa || readsnode(sa, s)) {
+    if (!sa || readsnode(ctx, sa, s)) {
         (void)snpf(Namech, Namechl - 1, "node at %s: can't read snode: %s",
                    print_kptr(na, tbuf, sizeof(tbuf)),
                    print_kptr(sa, (char *)NULL, 0));
         Namech[Namechl - 1] = '\0';
-        enter_nm(Namech);
+        enter_nm(ctx, Namech);
         return (1);
     }
     return (0);
@@ -4711,13 +4745,13 @@ struct snode *s; /* snode receiver */
  * read_nsti() - read socket node's info
  */
 
-static int read_nsti(so, stpi)
-struct sonode *so;  /* socket's sonode */
-sotpi_info_t *stpi; /* local socket info receiver */
+static int read_nsti(struct lsof_context *ctx, /* context */
+                     struct sonode *so,        /* socket's sonode */
+                     sotpi_info_t *stpi)       /* local socket info receiver */
 {
     char tbuf[32];
 
-    (void)CTF_init(&Sockfs_ctfs, SOCKFS_MOD_FORMAT, Sockfs_requests);
+    (void)CTF_init(ctx, &Sockfs_ctfs, SOCKFS_MOD_FORMAT, Sockfs_requests);
     if (!so || !so->so_priv ||
         CTF_MEMBER_READ(so->so_priv, stpi, sotpi_info_members, sti_dev) ||
         CTF_MEMBER_READ(so->so_priv, stpi, sotpi_info_members, sti_laddr) ||
@@ -4729,7 +4763,7 @@ sotpi_info_t *stpi; /* local socket info receiver */
                    print_kptr((KA_T)so, tbuf, sizeof(tbuf)),
                    print_kptr((KA_T)so->so_priv, (char *)NULL, 0));
         Namech[Namechl - 1] = '\0';
-        enter_nm(Namech);
+        enter_nm(ctx, Namech);
         return (1);
     }
     return (0);
@@ -4740,19 +4774,19 @@ sotpi_info_t *stpi; /* local socket info receiver */
  * read_ntn() - read node's tmpnode
  */
 
-static int read_ntn(na, ta, t)
-KA_T na;           /* containing node's address */
-KA_T ta;           /* tmpnode address */
-struct tmpnode *t; /* tmpnode receiver */
+static int read_ntn(struct lsof_context *ctx, /* context */
+                    KA_T na,                  /* containing node's address */
+                    KA_T ta,                  /* tmpnode address */
+                    struct tmpnode *t)        /* tmpnode receiver */
 {
     char tbuf[32];
 
-    if (!ta || readtnode(ta, t)) {
+    if (!ta || readtnode(ctx, ta, t)) {
         (void)snpf(Namech, Namechl - 1, "node at %s: can't read tnode: %s",
                    print_kptr(na, tbuf, sizeof(tbuf)),
                    print_kptr(ta, (char *)NULL, 0));
         Namech[Namechl - 1] = '\0';
-        enter_nm(Namech);
+        enter_nm(ctx, Namech);
         return (1);
     }
     return (0);
@@ -4763,9 +4797,9 @@ struct tmpnode *t; /* tmpnode receiver */
  * read_nusa() - read sondode's UNIX socket address
  */
 
-static int read_nusa(so, ua)
-struct soaddr *so;      /* kernel socket info structure */
-struct sockaddr_un *ua; /* local sockaddr_un address */
+static int read_nusa(struct lsof_context *ctx, /* context */
+                     struct soaddr *so,      /* kernel socket info structure */
+                     struct sockaddr_un *ua) /* local sockaddr_un address */
 {
     KA_T a;
     int len;
@@ -4774,8 +4808,8 @@ struct sockaddr_un *ua; /* local sockaddr_un address */
     ua->sun_path[0] = '\0';
 
     if (!(a = (KA_T)so->soa_sa) || (len = so->soa_len) < (min + 2) ||
-        len > (int)sizeof(struct sockaddr_un) || kread(a, (char *)ua, len) ||
-        ua->sun_family != AF_UNIX)
+        len > (int)sizeof(struct sockaddr_un) ||
+        kread(ctx, a, (char *)ua, len) || ua->sun_family != AF_UNIX)
         return (0);
     len -= min;
     if (len >= sizeof(ua->sun_path))
@@ -4789,19 +4823,19 @@ struct sockaddr_un *ua; /* local sockaddr_un address */
  * read_nvn() - read node's vnode
  */
 
-static int read_nvn(na, va, v)
-KA_T na;         /* node's address */
-KA_T va;         /* vnode address */
-struct vnode *v; /* vnode receiver */
+static int read_nvn(struct lsof_context *ctx, /* context */
+                    KA_T na,                  /* node's address */
+                    KA_T va,                  /* vnode address */
+                    struct vnode *v)          /* vnode receiver */
 {
     char tbuf[32];
 
-    if (readvnode(va, v)) {
+    if (readvnode(ctx, va, v)) {
         (void)snpf(Namech, Namechl - 1, "node at %s: can't read real vnode: %s",
                    print_kptr(na, tbuf, sizeof(tbuf)),
                    print_kptr(va, (char *)NULL, 0));
         Namech[Namechl - 1] = '\0';
-        enter_nm(Namech);
+        enter_nm(ctx, Namech);
         return (1);
     }
     return (0);
@@ -4812,17 +4846,17 @@ struct vnode *v; /* vnode receiver */
  * read_nzn() - read node's ZFS node
  */
 
-static int read_nzn(na, nza, zn)
-KA_T na;     /* containing node's address */
-KA_T nza;    /* znode address */
-znode_t *zn; /* znode receiver */
+static int read_nzn(struct lsof_context *ctx, /* context */
+                    KA_T na,                  /* containing node's address */
+                    KA_T nza,                 /* znode address */
+                    znode_t *zn)              /* znode receiver */
 {
     int err = 0;      /* error flag */
     CTF_member_t *mp; /* member pointer */
     char tbuf[32];    /* temporary buffer */
     znode_phys_t zp;  /* physical znode */
 
-    (void)CTF_init(&ZFS_ctfs, ZFS_MOD_FORMAT, ZFS_requests);
+    (void)CTF_init(ctx, &ZFS_ctfs, ZFS_MOD_FORMAT, ZFS_requests);
     if (!nza || CTF_MEMBER_READ(nza, zn, znode_members, z_zfsvfs) ||
         CTF_MEMBER_READ(nza, zn, znode_members, z_vnode) ||
         CTF_MEMBER_READ(nza, zn, znode_members, z_id) ||
@@ -4833,7 +4867,7 @@ znode_t *zn; /* znode receiver */
                    print_kptr(na, tbuf, sizeof(tbuf)),
                    print_kptr(nza, (char *)NULL, 0));
         Namech[Namechl - 1] = '\0';
-        enter_nm(Namech);
+        enter_nm(ctx, Namech);
         return (1);
     }
     /*
@@ -4841,7 +4875,7 @@ znode_t *zn; /* znode receiver */
      * and propagate its values to the znode.
      */
     if (znode_members[MX_z_phys].m_offset != CTF_MEMBER_UNDEF) {
-        err = read_nznp(nza, (KA_T)zn->z_phys, &zp);
+        err = read_nznp(ctx, nza, (KA_T)zn->z_phys, &zp);
         if (!err) {
             zn->z_links = zp.zp_links;
             zn->z_size = zp.zp_size;
@@ -4857,7 +4891,7 @@ znode_t *zn; /* znode receiver */
                        print_kptr(na, tbuf, sizeof(tbuf)),
                        print_kptr(nza, (char *)NULL, 0));
             Namech[Namechl - 1] = '\0';
-            enter_nm(Namech);
+            enter_nm(ctx, Namech);
             err = 1;
         }
         if (znode_members[MX_z_size].m_offset == CTF_MEMBER_UNDEF) {
@@ -4865,7 +4899,7 @@ znode_t *zn; /* znode receiver */
                        print_kptr(na, tbuf, sizeof(tbuf)),
                        print_kptr(nza, (char *)NULL, 0));
             Namech[Namechl - 1] = '\0';
-            enter_nm(Namech);
+            enter_nm(ctx, Namech);
             err = 1;
         }
     }
@@ -4876,14 +4910,14 @@ znode_t *zn; /* znode receiver */
  * read_nznp() - read znode's persistent znode
  */
 
-static int read_nznp(nza, nzpa, zp)
-KA_T nza;         /* containing znode's address */
-KA_T nzpa;        /* persistent znode address */
-znode_phys_t *zp; /* persistent znode receiver */
+static int read_nznp(struct lsof_context *ctx, /* context */
+                     KA_T nza,                 /* containing znode's address */
+                     KA_T nzpa,                /* persistent znode address */
+                     znode_phys_t *zp)         /* persistent znode receiver */
 {
     char tbuf[32];
 
-    (void)CTF_init(&ZFS_ctfs, ZFS_MOD_FORMAT, ZFS_requests);
+    (void)CTF_init(ctx, &ZFS_ctfs, ZFS_MOD_FORMAT, ZFS_requests);
     if (!nzpa || CTF_MEMBER_READ(nzpa, zp, znode_phys_members, zp_size) ||
         CTF_MEMBER_READ(nzpa, zp, znode_phys_members, zp_links)) {
         (void)snpf(Namech, Namechl - 1,
@@ -4892,7 +4926,7 @@ znode_phys_t *zp; /* persistent znode receiver */
                    print_kptr(nza, tbuf, sizeof(tbuf)),
                    print_kptr(nzpa, (char *)NULL, 0));
         Namech[Namechl - 1] = '\0';
-        enter_nm(Namech);
+        enter_nm(ctx, Namech);
         return (1);
     }
     return (0);
@@ -4902,20 +4936,20 @@ znode_phys_t *zp; /* persistent znode receiver */
  * read_nzvfs() - read znode's associated vfs
  */
 
-static int read_nzvfs(nza, nzva, zv)
-KA_T nza;     /* containing znode's address */
-KA_T nzva;    /* associated vfs address */
-zfsvfs_t *zv; /* associated vfs receiver */
+static int read_nzvfs(struct lsof_context *ctx, /* context */
+                      KA_T nza,                 /* containing znode's address */
+                      KA_T nzva,                /* associated vfs address */
+                      zfsvfs_t *zv)             /* associated vfs receiver */
 {
     char tbuf[32];
 
-    (void)CTF_init(&ZFS_ctfs, ZFS_MOD_FORMAT, ZFS_requests);
+    (void)CTF_init(ctx, &ZFS_ctfs, ZFS_MOD_FORMAT, ZFS_requests);
     if (!nzva || CTF_MEMBER_READ(nzva, zv, zfsvfs_members, z_vfs)) {
         (void)snpf(Namech, Namechl - 1, "znode at %s: can't read zfsvfs: %s",
                    print_kptr(nza, tbuf, sizeof(tbuf)),
                    print_kptr(nzva, (char *)NULL, 0));
         Namech[Namechl - 1] = '\0';
-        enter_nm(Namech);
+        enter_nm(ctx, Namech);
         return (1);
     }
     return (0);
@@ -4928,10 +4962,9 @@ zfsvfs_t *zv; /* associated vfs receiver */
  */
 
 static void
-    savesockmod(so, sop,
-                so_st) struct so_so *so; /* new so_so structure pointer */
-struct so_so *sop;                       /* previous so_so structure pointer */
-int *so_st;                              /* status of *sop (0 if not loaded) */
+savesockmod(struct so_so *so,  /* new so_so structure pointer */
+            struct so_so *sop, /* previous so_so structure pointer */
+            int *so_st)        /* status of *sop (0 if not loaded) */
 {
 
 #    if solaris < 20500
@@ -5088,9 +5121,9 @@ int *so_st;                              /* status of *sop (0 if not loaded) */
  * vop2ty() - convert vnode operation switch address to internal type
  */
 
-int vop2ty(vp, fx)
-struct vnode *vp; /* local vnode pointer */
-int fx;           /* file system index (-1 if none) */
+int vop2ty(struct lsof_context *ctx, /* context */
+           struct vnode *vp,         /* local vnode pointer */
+           int fx)                   /* file system index (-1 if none) */
 {
     int h;
     register int i;
@@ -5130,7 +5163,7 @@ int fx;           /* file system index (-1 if none) */
             if (!(nv = (v_optab_t *)malloc((MALLOC_S)sizeof(v_optab_t)))) {
                 (void)fprintf(stderr, "%s: can't add \"%s\" to Voptab\n", Pn,
                               Fsinfo[fx]);
-                Error();
+                Error(ctx);
             }
             *nv = *v;
             nv->v_op = ka;
@@ -5175,13 +5208,13 @@ int fx;           /* file system index (-1 if none) */
  * read_ndvn() -- read node's dv_node
  */
 
-static int read_ndvn(na, da, dv, dev, devs)
-KA_T na;             /* containing vnode's address */
-KA_T da;             /* containing vnode's v_data */
-struct dv_node *dv;  /* dv_node receiver */
-dev_t *dev;          /* underlying file system device
-                      * number receptor */
-unsigned char *devs; /* status of *dev */
+static int read_ndvn(struct lsof_context *ctx, /* context */
+                     KA_T na,                  /* containing vnode's address */
+                     KA_T da,                  /* containing vnode's v_data */
+                     struct dv_node *dv,       /* dv_node receiver */
+                     dev_t *dev,               /* underlying file system device
+                                                * number receptor */
+                     unsigned char *devs)      /* status of *dev */
 {
     struct vnode rv;
     struct snode s;
@@ -5190,44 +5223,44 @@ unsigned char *devs; /* status of *dev */
     /*
      * Read the snode.
      */
-    if (!da || kread((KA_T)da, (char *)&s, sizeof(s))) {
+    if (!da || kread(ctx, (KA_T)da, (char *)&s, sizeof(s))) {
         (void)snpf(Namech, Namechl - 1,
                    "dv_node vnode at %s: can't read snode: %s",
                    print_kptr(na, tbuf, sizeof(tbuf)),
                    print_kptr(da, (char *)NULL, 0));
         Namech[Namechl - 1] = '\0';
-        enter_nm(Namech);
+        enter_nm(ctx, Namech);
         return (1);
     }
     /*
      * Read the snode's real vnode.
      */
     if (!s.s_realvp ||
-        kread((KA_T)s.s_realvp, (char *)&rv, sizeof(struct dv_node))) {
+        kread(ctx, (KA_T)s.s_realvp, (char *)&rv, sizeof(struct dv_node))) {
         (void)snpf(Namech, Namechl - 1,
                    "dv_node snode at %s: can't read real vnode: %s",
                    print_kptr(da, tbuf, sizeof(tbuf)),
                    print_kptr((KA_T)s.s_realvp, (char *)NULL, 0));
         Namech[Namechl - 1] = '\0';
-        enter_nm(Namech);
+        enter_nm(ctx, Namech);
         return (1);
     }
     /*
      * Read the real vnode's dv_node.
      */
-    if (!rv.v_data || kread((KA_T)rv.v_data, (char *)dv, sizeof(rv))) {
+    if (!rv.v_data || kread(ctx, (KA_T)rv.v_data, (char *)dv, sizeof(rv))) {
         (void)snpf(Namech, Namechl - 1,
                    "dv_node real vnode at %s: can't read dv_node: %s",
                    print_kptr((KA_T)s.s_realvp, tbuf, sizeof(tbuf)),
                    print_kptr((KA_T)rv.v_data, (char *)NULL, 0));
         Namech[Namechl - 1] = '\0';
-        enter_nm(Namech);
+        enter_nm(ctx, Namech);
         return (1);
     }
     /*
      * Return the device number of the underlying file system, if possible.
      */
-    if (rv.v_vfsp && !kread((KA_T)rv.v_vfsp, (char *)&v, sizeof(v))) {
+    if (rv.v_vfsp && !kread(ctx, (KA_T)rv.v_vfsp, (char *)&v, sizeof(v))) {
         *dev = v.vfs_dev;
         *devs = 1;
     }

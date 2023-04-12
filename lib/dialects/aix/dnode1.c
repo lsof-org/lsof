@@ -34,7 +34,7 @@ static char copyright[] =
 #endif
 
 #if defined(HAS_AFS)
-#    include "lsof.h"
+#    include "common.h"
 
 /*
  * This is an emulation of the afs_rwlock_t definition that appears in
@@ -63,8 +63,9 @@ typedef struct afs_lock afs_rwlock_t;
  * Local function prototypes
  */
 
-_PROTOTYPE(static struct volume *getvolume, (struct VenusFid * f, int *vols));
-_PROTOTYPE(static int is_rootFid, (struct vcache * vc, int *rfid));
+static struct volume *getvolume(struct lsof_context *ctx, struct VenusFid *f,
+                                int *vols);
+static int is_rootFid(struct lsof_context *ctx, struct vcache *vc, int *rfid);
 
 /*
  * alloc_vcache() - allocate space for vcache structure
@@ -78,9 +79,9 @@ struct vnode *alloc_vcache() {
  * getvolume() - get volume structure
  */
 
-static struct volume *getvolume(f, vols)
-struct VenusFid *f; /* file ID pointer */
-int *vols;          /* afs_volumes status return */
+static struct volume *getvolume(struct lsof_context *ctx, /* context */
+                                struct VenusFid *f,       /* file ID pointer */
+                                int *vols) /* afs_volumes status return */
 {
     int i;
     static KA_T ka = 0;
@@ -107,10 +108,10 @@ int *vols;          /* afs_volumes status return */
     *vols = 1;
     i = (NVOLS - 1) & f->Fid.Volume;
     kh = (KA_T)((char *)ka + (i * sizeof(struct volume *)));
-    if (kread(kh, (char *)&vp, sizeof(vp)))
+    if (kread(ctx, kh, (char *)&vp, sizeof(vp)))
         return ((struct volume *)NULL);
     while (vp) {
-        if (kread((KA_T)vp, (char *)&v, sizeof(v)))
+        if (kread(ctx, (KA_T)vp, (char *)&v, sizeof(v)))
             return ((struct volume *)NULL);
         if (v.volume == f->Fid.Volume && v.cell == f->Cell)
             return (&v);
@@ -123,8 +124,8 @@ int *vols;          /* afs_volumes status return */
  * hasAFS() - test for AFS presence via vfs structure
  */
 
-int hasAFS(vp)
-struct vnode *vp; /* vnode pointer */
+int hasAFS(struct lsof_context *ctx, /* context */
+           struct vnode *vp)         /* vnode pointer */
 {
     struct vmount vm;
     struct vfs v;
@@ -143,9 +144,9 @@ struct vnode *vp; /* vnode pointer */
         return (1);
     if (vp->v_data || !vp->v_vfsp)
         return (0);
-    if (kread((KA_T)vp->v_vfsp, (char *)&v, sizeof(v)))
+    if (kread(ctx, (KA_T)vp->v_vfsp, (char *)&v, sizeof(v)))
         return (0);
-    if (!v.vfs_mdata || kread((KA_T)v.vfs_mdata, (char *)&vm, sizeof(vm)))
+    if (!v.vfs_mdata || kread(ctx, (KA_T)v.vfs_mdata, (char *)&vm, sizeof(vm)))
         return (0);
     if (vm.vmt_gfstype != MNT_AFS)
         return (0);
@@ -162,9 +163,9 @@ struct vnode *vp; /* vnode pointer */
  *		  1 if root file ID structure address available
  */
 
-static int is_rootFid(vc, rfid)
-struct vcache *vc; /* vcache entry */
-int *rfid;         /* root file ID pointer status return */
+static int is_rootFid(struct lsof_context *ctx, /* context */
+                      struct vcache *vc,        /* vcache entry */
+                      int *rfid) /* root file ID pointer status return */
 {
     int err;
     static int f = 0; /* rootFID structure status:
@@ -206,7 +207,7 @@ int *rfid;         /* root file ID pointer status return */
             *rfid = 0;
             return (0);
         }
-        if (kread((KA_T)AFSnl[X_AFS_FID].n_value, (char *)&r, sizeof(r))) {
+        if (kread(ctx, (KA_T)AFSnl[X_AFS_FID].n_value, (char *)&r, sizeof(r))) {
             err = 0;
             goto rfid_unavailable;
         }
@@ -227,10 +228,10 @@ int *rfid;         /* root file ID pointer status return */
  * readafsnode() - read AFS node
  */
 
-int readafsnode(va, v, an)
-KA_T va;            /* kernel vnode address */
-struct vnode *v;    /* vnode buffer pointer */
-struct afsnode *an; /* afsnode recipient */
+int readafsnode(struct lsof_context *ctx, /* context */
+                KA_T va,                  /* kernel vnode address */
+                struct vnode *v,          /* vnode buffer pointer */
+                struct afsnode *an)       /* afsnode recipient */
 {
     char *cp, tbuf[32];
     KA_T ka;
@@ -241,7 +242,7 @@ struct afsnode *an; /* afsnode recipient */
     cp = ((char *)v + sizeof(struct vnode));
     ka = (KA_T)((char *)va + sizeof(struct vnode));
     len = sizeof(struct vcache) - sizeof(struct vnode);
-    if (kread(ka, cp, len)) {
+    if (kread(ctx, ka, cp, len)) {
         (void)snpf(Namech, Namechl,
                    "vnode at %s: can't read vcache remainder from %s",
                    print_kptr(va, tbuf, sizeof(tbuf)),
@@ -258,12 +259,12 @@ struct afsnode *an; /* afsnode recipient */
      * Manufacture the "inode" number.
      */
     if (vc->mvstat == 2) {
-        if ((vp = getvolume(&vc->fid, &vols))) {
+        if ((vp = getvolume(ctx, &vc->fid, &vols))) {
             an->inode = (INODETYPE)((vp->mtpoint.Fid.Vnode +
                                      (vp->mtpoint.Fid.Volume << 16)) &
                                     0x7fffffff);
             if (an->inode == (INODETYPE)0) {
-                if (is_rootFid(vc, &rfid))
+                if (is_rootFid(ctx, vc, &rfid))
                     an->ino_st = 1;
                 else if (rfid) {
                     an->inode = (INODETYPE)2;

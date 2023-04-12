@@ -67,7 +67,7 @@ static int Lmist = 0;                              /* Lmi status */
  * readmnt() - read mount table
  */
 
-struct mounts *readmnt() {
+struct mounts *readmnt(struct lsof_context *ctx) {
     char *dn = (char *)NULL;
     char *ln;
     struct mounts *mtp;
@@ -119,9 +119,9 @@ struct mounts *readmnt() {
             (void)fprintf(stderr, " (");
             safestrprt(mb->f_mntfromname, stderr, 0);
             (void)fprintf(stderr, ")\n");
-            Error();
+            Error(ctx);
         }
-        if ((ln = Readlink(dn)) == NULL) {
+        if ((ln = Readlink(ctx, dn)) == NULL) {
             if (!Fwarn) {
                 (void)fprintf(stderr,
                               "      Output information may be incomplete.\n");
@@ -137,7 +137,7 @@ struct mounts *readmnt() {
         /*
          * Stat() the directory.
          */
-        if (statsafely(dn, &sb)) {
+        if (statsafely(ctx, dn, &sb)) {
             if (!Fwarn) {
                 (void)fprintf(stderr, "%s: WARNING: can't stat() ", Pn);
                 safestrprt(mb->f_fstypename, stderr, 0);
@@ -195,13 +195,13 @@ struct mounts *readmnt() {
         if (!(dn = mkstrcpy(mb->f_mntfromname, (MALLOC_S *)NULL)))
             goto no_space_for_mount;
         mtp->fsname = dn;
-        ln = Readlink(dn);
+        ln = Readlink(ctx, dn);
         dn = (char *)NULL;
         /*
          * Stat() the file system (mounted-on) name and add file system
          * information to the local mount table entry.
          */
-        if (!ln || statsafely(ln, &sb))
+        if (!ln || statsafely(ctx, ln, &sb))
             sb.st_mode = 0;
         mtp->fsnmres = ln;
         mtp->fs_mode = sb.st_mode;
@@ -220,8 +220,8 @@ struct mounts *readmnt() {
  * readvfs() - read vfs structure
  */
 
-struct l_vfs *readvfs(vm)
-KA_T vm; /* kernel mount address from vnode */
+struct l_vfs *readvfs(struct lsof_context *ctx, /* context */
+                      KA_T vm) /* kernel mount address from vnode */
 {
     struct mount m;
     struct l_vfs *vp;
@@ -235,17 +235,17 @@ KA_T vm; /* kernel mount address from vnode */
     /*
      * Read the (new) mount structure, allocate a local entry, and fill it.
      */
-    if (kread(vm, (char *)&m, sizeof(m)) != 0)
+    if (kread(ctx, vm, (char *)&m, sizeof(m)) != 0)
         return ((struct l_vfs *)NULL);
     if (!(vp = (struct l_vfs *)malloc(sizeof(struct l_vfs)))) {
         (void)fprintf(stderr, "%s: PID %d, no space for vfs\n", Pn, Lp->pid);
-        Error();
+        Error(ctx);
     }
     if (!(vp->dir = mkstrcpy(m.m_stat.f_mntonname, (MALLOC_S *)NULL)) ||
         !(vp->fsname = mkstrcpy(m.m_stat.f_mntfromname, (MALLOC_S *)NULL))) {
         (void)fprintf(stderr, "%s: PID %d, no space for mount names\n", Pn,
                       Lp->pid);
-        Error();
+        Error(ctx);
     }
     vp->addr = vm;
 

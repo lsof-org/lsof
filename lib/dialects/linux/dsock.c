@@ -319,91 +319,95 @@ static uxsin_t **Uxsin = (uxsin_t **)NULL;
  * Local function prototypes
  */
 
-_PROTOTYPE(static struct ax25sin *check_ax25, (INODETYPE i));
+static struct ax25sin *check_ax25(struct lsof_context *ctx, INODETYPE i);
 
 #if defined(HASEPTOPTS) && defined(HASUXSOCKEPT)
-_PROTOTYPE(static void enter_uxsinfo, (uxsin_t * up));
-_PROTOTYPE(static void fill_uxicino, (INODETYPE si, INODETYPE sc));
-_PROTOTYPE(static void fill_uxpino, (INODETYPE si, INODETYPE pi));
-_PROTOTYPE(static int get_diagmsg, (int sockfd));
-_PROTOTYPE(static void get_uxpeeri, (void));
-_PROTOTYPE(static void parse_diag, (struct unix_diag_msg * dm, int len));
-_PROTOTYPE(static void prt_uxs, (uxsin_t * p, int mk));
+static void enter_uxsinfo(struct lsof_context *ctx, uxsin_t *up);
+static void fill_uxicino(struct lsof_context *ctx, INODETYPE si, INODETYPE sc);
+static void fill_uxpino(struct lsof_context *ctx, INODETYPE si, INODETYPE pi);
+static int get_diagmsg(int sockfd);
+static void get_uxpeeri(struct lsof_context *ctx);
+static void parse_diag(struct lsof_context *ctx, struct unix_diag_msg *dm,
+                       int len);
+static void prt_uxs(struct lsof_context *ctx, uxsin_t *p, int mk);
 #endif /* defined(HASEPTOPTS) && defined(HASUXSOCKEPT) */
 
 #if defined(HASEPTOPTS)
-_PROTOTYPE(static void enter_netsinfo, (struct tcp_udp * tp));
-_PROTOTYPE(static void get_netpeeri, (void));
+static void enter_netsinfo(struct lsof_context *ctx, struct tcp_udp *tp);
+static void get_netpeeri(struct lsof_context *ctx);
 #endif /* defined(HASEPTOPTS) */
 
 #if defined(HASIPv6)
 #    if defined(HASEPTOPTS)
-_PROTOTYPE(static void enter_nets6info, (struct tcp_udp6 * tp));
-_PROTOTYPE(static void get_net6peeri, (void));
+static void enter_nets6info(struct lsof_context *ctx, struct tcp_udp6 *tp);
+static void get_net6peeri(struct lsof_context *ctx);
 #    endif /* defined(HASEPTOPTS) */
 #endif     /* defined(HASIPv6) */
 
-_PROTOTYPE(static struct icmpin *check_icmp, (INODETYPE i));
-_PROTOTYPE(static struct ipxsin *check_ipx, (INODETYPE i));
-_PROTOTYPE(static struct nlksin *check_netlink, (INODETYPE i));
-_PROTOTYPE(static struct packin *check_pack, (INODETYPE i));
-_PROTOTYPE(static struct rawsin *check_raw, (INODETYPE i));
-_PROTOTYPE(static struct sctpsin *check_sctp, (INODETYPE i));
-_PROTOTYPE(static struct tcp_udp *check_tcpudp, (INODETYPE i, char **p));
-_PROTOTYPE(static uxsin_t *check_unix, (INODETYPE i));
-_PROTOTYPE(static void get_ax25, (char *p));
-_PROTOTYPE(static void get_icmp, (char *p));
-_PROTOTYPE(static void get_ipx, (char *p));
-_PROTOTYPE(static void get_netlink, (char *p));
-_PROTOTYPE(static void get_pack, (char *p));
-_PROTOTYPE(static void get_raw, (char *p));
-_PROTOTYPE(static void get_sctp, (void));
-_PROTOTYPE(static char *get_sctpaddrs, (char **fp, int i, int nf, int *x));
-_PROTOTYPE(static void get_tcpudp, (char *p, int pr, int clr));
-_PROTOTYPE(static void get_unix, (char *p));
-_PROTOTYPE(static int isainb, (char *a, char *b));
-_PROTOTYPE(static void print_ax25info, (struct ax25sin * ap));
-_PROTOTYPE(static void print_ipxinfo, (struct ipxsin * ip));
-_PROTOTYPE(static char *socket_type_to_str, (uint32_t ty, int *rf));
-_PROTOTYPE(static char *netlink_proto_to_str, (unsigned int pr));
+static struct icmpin *check_icmp(struct lsof_context *ctx, INODETYPE i);
+static struct ipxsin *check_ipx(struct lsof_context *ctx, INODETYPE i);
+static struct nlksin *check_netlink(struct lsof_context *ctx, INODETYPE i);
+static struct packin *check_pack(struct lsof_context *ctx, INODETYPE i);
+static struct rawsin *check_raw(struct lsof_context *ctx, INODETYPE i);
+static struct sctpsin *check_sctp(struct lsof_context *ctx, INODETYPE i);
+static struct tcp_udp *check_tcpudp(struct lsof_context *ctx, INODETYPE i,
+                                    char **p);
+static uxsin_t *check_unix(struct lsof_context *ctx, INODETYPE i);
+static void get_ax25(struct lsof_context *ctx, char *p);
+static void get_icmp(struct lsof_context *ctx, char *p);
+static void get_ipx(struct lsof_context *ctx, char *p);
+static void get_netlink(struct lsof_context *ctx, char *p);
+static void get_pack(struct lsof_context *ctx, char *p);
+static void get_raw(struct lsof_context *ctx, char *p);
+static void get_sctp(struct lsof_context *ctx);
+static char *get_sctpaddrs(char **fp, int i, int nf, int *x);
+static void get_tcpudp(struct lsof_context *ctx, char *p, int pr, int clr);
+static void get_unix(struct lsof_context *ctx, char *p);
+static int isainb(char *a, char *b);
+static void print_ax25info(struct lsof_context *ctx, struct ax25sin *ap);
+static void print_ipxinfo(struct lsof_context *ctx, struct ipxsin *ip);
+static char *socket_type_to_str(uint32_t ty, int *rf);
+static char *netlink_proto_to_str(unsigned int pr);
 #if defined(HASSOSTATE)
-_PROTOTYPE(static char *socket_state_to_str, (unsigned int ss));
+static char *socket_state_to_str(unsigned int ss);
 #endif /* defined(HASSOSTATE) */
-_PROTOTYPE(static char *ethernet_proto_to_str, (unsigned int pr));
+static char *ethernet_proto_to_str(unsigned int pr);
 
 #if defined(HASIPv6)
-_PROTOTYPE(static struct rawsin *check_raw6, (INODETYPE i));
-_PROTOTYPE(static struct tcp_udp6 *check_tcpudp6, (INODETYPE i, char **p));
-_PROTOTYPE(static void get_raw6, (char *p));
-_PROTOTYPE(static void get_tcpudp6, (char *p, int pr, int clr));
-_PROTOTYPE(static int hex_ipv6_to_in6, (char *as, struct in6_addr *ad));
+static struct rawsin *check_raw6(struct lsof_context *ctx, INODETYPE i);
+static struct tcp_udp6 *check_tcpudp6(struct lsof_context *ctx, INODETYPE i,
+                                      char **p);
+static void get_raw6(struct lsof_context *ctx, char *p);
+static void get_tcpudp6(struct lsof_context *ctx, char *p, int pr, int clr);
+static int hex_ipv6_to_in6(char *as, struct in6_addr *ad);
 #endif /* defined(HASIPv6) */
 
 /*
  * build_IPstates() -- build the TCP and UDP state tables
  */
-void build_IPstates() {
+void build_IPstates(struct lsof_context *ctx) {
     if (!TcpSt) {
-        (void)enter_IPstate("TCP", "ESTABLISHED", TCP_ESTABLISHED);
-        (void)enter_IPstate("TCP", "SYN_SENT", TCP_SYN_SENT);
-        (void)enter_IPstate("TCP", "SYN_RECV", TCP_SYN_RECV);
-        (void)enter_IPstate("TCP", "FIN_WAIT1", TCP_FIN_WAIT1);
-        (void)enter_IPstate("TCP", "FIN_WAIT2", TCP_FIN_WAIT2);
-        (void)enter_IPstate("TCP", "TIME_WAIT", TCP_TIME_WAIT);
-        (void)enter_IPstate("TCP", "CLOSE", TCP_CLOSE);
-        (void)enter_IPstate("TCP", "CLOSE_WAIT", TCP_CLOSE_WAIT);
-        (void)enter_IPstate("TCP", "LAST_ACK", TCP_LAST_ACK);
-        (void)enter_IPstate("TCP", "LISTEN", TCP_LISTEN);
-        (void)enter_IPstate("TCP", "CLOSING", TCP_CLOSING);
-        (void)enter_IPstate("TCP", "CLOSED", 0);
-        (void)enter_IPstate("TCP", (char *)NULL, 0);
+        (void)enter_IPstate(ctx, "TCP", "ESTABLISHED", TCP_ESTABLISHED);
+        (void)enter_IPstate(ctx, "TCP", "SYN_SENT", TCP_SYN_SENT);
+        (void)enter_IPstate(ctx, "TCP", "SYN_RECV", TCP_SYN_RECV);
+        (void)enter_IPstate(ctx, "TCP", "FIN_WAIT1", TCP_FIN_WAIT1);
+        (void)enter_IPstate(ctx, "TCP", "FIN_WAIT2", TCP_FIN_WAIT2);
+        (void)enter_IPstate(ctx, "TCP", "TIME_WAIT", TCP_TIME_WAIT);
+        (void)enter_IPstate(ctx, "TCP", "CLOSE", TCP_CLOSE);
+        (void)enter_IPstate(ctx, "TCP", "CLOSE_WAIT", TCP_CLOSE_WAIT);
+        (void)enter_IPstate(ctx, "TCP", "LAST_ACK", TCP_LAST_ACK);
+        (void)enter_IPstate(ctx, "TCP", "LISTEN", TCP_LISTEN);
+        (void)enter_IPstate(ctx, "TCP", "CLOSING", TCP_CLOSING);
+        (void)enter_IPstate(ctx, "TCP", "CLOSED", 0);
+        (void)enter_IPstate(ctx, "TCP", (char *)NULL, 0);
     }
 }
 
 /*
  * check_ax25() - check for AX25 socket file
  */
-static struct ax25sin *check_ax25(INODETYPE i) /* socket file's inode number */
+static struct ax25sin *check_ax25(struct lsof_context *ctx,
+                                  INODETYPE i) /* socket file's inode number */
 {
     return HASH_FIND_ELEMENT(AX25sin, INOHASH, struct ax25sin, inode, i);
 }
@@ -411,7 +415,8 @@ static struct ax25sin *check_ax25(INODETYPE i) /* socket file's inode number */
 /*
  * check_icmp() - check for ICMP socket
  */
-static struct icmpin *check_icmp(INODETYPE i) /* socket file's inode number */
+static struct icmpin *check_icmp(struct lsof_context *ctx,
+                                 INODETYPE i) /* socket file's inode number */
 {
     return HASH_FIND_ELEMENT(Icmpin, INOHASH, struct icmpin, inode, i);
 }
@@ -419,7 +424,8 @@ static struct icmpin *check_icmp(INODETYPE i) /* socket file's inode number */
 /*
  * check_ipx() - check for IPX socket file
  */
-static struct ipxsin *check_ipx(INODETYPE i) /* socket file's inode number */
+static struct ipxsin *check_ipx(struct lsof_context *ctx,
+                                INODETYPE i) /* socket file's inode number */
 {
     return HASH_FIND_ELEMENT(Ipxsin, INOHASH, struct ipxsin, inode, i);
 }
@@ -428,7 +434,8 @@ static struct ipxsin *check_ipx(INODETYPE i) /* socket file's inode number */
  * check_netlink() - check for Netlink socket file
  */
 static struct nlksin *
-check_netlink(INODETYPE i) /* socket file's inode number */
+check_netlink(struct lsof_context *ctx,
+              INODETYPE i) /* socket file's inode number */
 {
     return HASH_FIND_ELEMENT(Nlksin, INOHASH, struct nlksin, inode, i);
 }
@@ -436,7 +443,8 @@ check_netlink(INODETYPE i) /* socket file's inode number */
 /*
  * check_pack() - check for packet file
  */
-static struct packin *check_pack(INODETYPE i) /* packet file's inode number */
+static struct packin *check_pack(struct lsof_context *ctx,
+                                 INODETYPE i) /* packet file's inode number */
 {
     return HASH_FIND_ELEMENT(Packin, INOHASH, struct packin, inode, i);
 }
@@ -445,7 +453,8 @@ static struct packin *check_pack(INODETYPE i) /* packet file's inode number */
  * check_raw() - check for raw socket file
  */
 
-static struct rawsin *check_raw(INODETYPE i) /* socket file's inode number */
+static struct rawsin *check_raw(struct lsof_context *ctx,
+                                INODETYPE i) /* socket file's inode number */
 {
     return HASH_FIND_ELEMENT(Rawsin, INOHASH, struct rawsin, inode, i);
 }
@@ -453,7 +462,8 @@ static struct rawsin *check_raw(INODETYPE i) /* socket file's inode number */
 /*
  * check_sctp() - check for SCTP socket file
  */
-static struct sctpsin *check_sctp(INODETYPE i) /* socket file's inode number */
+static struct sctpsin *check_sctp(struct lsof_context *ctx,
+                                  INODETYPE i) /* socket file's inode number */
 {
     return HASH_FIND_ELEMENT(SCTPsin, INOHASH, struct sctpsin, inode, i);
 }
@@ -462,7 +472,8 @@ static struct sctpsin *check_sctp(INODETYPE i) /* socket file's inode number */
  * check_tcpudp() - check for IPv4 TCP or UDP socket file
  */
 static struct tcp_udp *
-check_tcpudp(INODETYPE i, /* socket file's inode number */
+check_tcpudp(struct lsof_context *ctx,
+             INODETYPE i, /* socket file's inode number */
              char **p)    /* protocol return */
 {
     struct tcp_udp *tp;
@@ -489,7 +500,8 @@ check_tcpudp(INODETYPE i, /* socket file's inode number */
 /*
  * check_inet() - check for locally used INET domain socket
  */
-static struct tcp_udp *check_inet(INODETYPE i) /* socket file's inode number */
+static struct tcp_udp *check_inet(struct lsof_context *ctx,
+                                  INODETYPE i) /* socket file's inode number */
 {
     return HASH_FIND_ELEMENT(TcpUdp, TCPUDPHASH, struct tcp_udp, inode, i);
 }
@@ -497,7 +509,7 @@ static struct tcp_udp *check_inet(INODETYPE i) /* socket file's inode number */
 /*
  * clear_netsinfo -- clear allocated INET socket info
  */
-void clear_netsinfo() {
+void clear_netsinfo(struct lsof_context *ctx) {
     int h;                   /* hash index */
     struct tcp_udp *ti, *tp; /* temporary pointers */
 
@@ -535,7 +547,8 @@ void clear_netsinfo() {
 /*
  * check_raw6() - check for raw IPv6 socket file
  */
-static struct rawsin *check_raw6(INODETYPE i) /* socket file's inode number */
+static struct rawsin *check_raw6(struct lsof_context *ctx,
+                                 INODETYPE i) /* socket file's inode number */
 {
     return HASH_FIND_ELEMENT(Rawsin6, INOHASH, struct rawsin, inode, i);
 }
@@ -544,7 +557,8 @@ static struct rawsin *check_raw6(INODETYPE i) /* socket file's inode number */
  * check_tcpudp6() - check for IPv6 TCP or UDP socket file
  */
 static struct tcp_udp6 *
-check_tcpudp6(INODETYPE i, /* socket file's inode number */
+check_tcpudp6(struct lsof_context *ctx,
+              INODETYPE i, /* socket file's inode number */
               char **p)    /* protocol return */
 {
     struct tcp_udp6 *tp6;
@@ -572,7 +586,8 @@ check_tcpudp6(INODETYPE i, /* socket file's inode number */
  * check_inet6() - check for locally used INET6 domain socket
  */
 static struct tcp_udp6 *
-check_inet6(INODETYPE i) /* socket file's inode number */
+check_inet6(struct lsof_context *ctx,
+            INODETYPE i) /* socket file's inode number */
 {
     return HASH_FIND_ELEMENT(TcpUdp6, TCPUDP6HASH, struct tcp_udp6, inode, i);
 }
@@ -580,7 +595,7 @@ check_inet6(INODETYPE i) /* socket file's inode number */
 /*
  * clear_nets6info -- clear allocated INET6 socket info
  */
-void clear_nets6info() {
+void clear_nets6info(struct lsof_context *ctx) {
     int h;                    /* hash index */
     struct tcp_udp6 *ti, *tp; /* temporary pointers */
 
@@ -619,7 +634,8 @@ void clear_nets6info() {
 /*
  * check_unix() - check for UNIX domain socket
  */
-static uxsin_t *check_unix(INODETYPE i) /* socket file's inode number */
+static uxsin_t *check_unix(struct lsof_context *ctx,
+                           INODETYPE i) /* socket file's inode number */
 {
     return HASH_FIND_ELEMENT(Uxsin, INOHASH, uxsin_t, inode, i);
 }
@@ -627,7 +643,7 @@ static uxsin_t *check_unix(INODETYPE i) /* socket file's inode number */
 /*
  * clear_uxsinfo -- clear allocated UNIX socket info
  */
-void clear_uxsinfo() {
+void clear_uxsinfo(struct lsof_context *ctx) {
     int h;            /* hash index */
     uxsin_t *ui, *up; /* remporary pointers */
 
@@ -664,7 +680,8 @@ void clear_uxsinfo() {
 /*
  * get_ax25() - get /proc/net/ax25 info
  */
-static void get_ax25(char *p) /* /proc/net/ax25 path */
+static void get_ax25(struct lsof_context *ctx,
+                     char *p) /* /proc/net/ax25 path */
 {
     struct ax25sin *ap, *np;
     FILE *as;
@@ -699,17 +716,17 @@ static void get_ax25(char *p) /* /proc/net/ax25 path */
             (void)fprintf(stderr,
                           "%s: can't allocate %d AX25 hash pointer bytes\n", Pn,
                           (int)(INOBUCKS * sizeof(struct ax25sin *)));
-            Error();
+            Error(ctx);
         }
     }
     /*
      * Open the /proc/net/ax25 file, assign a page size buffer to the stream,
      * and read it.  Store AX25 socket info in the AX25sin[] hash buckets.
      */
-    if (!(as = open_proc_stream(p, "r", &vbuf, &vsz, 0)))
+    if (!(as = open_proc_stream(ctx, p, "r", &vbuf, &vsz, 0)))
         return;
     while (fgets(buf, sizeof(buf) - 1, as)) {
-        if (get_fields(buf, (char *)NULL, &fp, (int *)NULL, 0) < 24)
+        if (get_fields(ctx, buf, (char *)NULL, &fp, (int *)NULL, 0) < 24)
             continue;
         /*
          * /proc/net/ax25 has no title line, a very poor deficiency in its
@@ -765,7 +782,7 @@ static void get_ax25(char *p) /* /proc/net/ax25 path */
                     stderr,
                     "%s: can't allocate %d destination AX25 addr bytes: %s\n",
                     Pn, (int)(len + 1), fp[3]);
-                Error();
+                Error(ctx);
             }
             (void)snpf(da, len + 1, "%s", fp[3]);
         } else
@@ -781,7 +798,7 @@ static void get_ax25(char *p) /* /proc/net/ax25 path */
                     stderr,
                     "%s: can't allocate %d source AX25 address bytes: %s\n", Pn,
                     (int)(len + 1), fp[2]);
-                Error();
+                Error(ctx);
             }
             (void)snpf(sa, len + 1, "%s", fp[2]);
         } else
@@ -797,7 +814,7 @@ static void get_ax25(char *p) /* /proc/net/ax25 path */
                     stderr,
                     "%s: can't allocate %d destination AX25 dev bytes: %s\n",
                     Pn, (int)(len + 1), fp[1]);
-                Error();
+                Error(ctx);
             }
             (void)snpf(dev_ch, len + 1, "%s", fp[1]);
         } else
@@ -810,7 +827,7 @@ static void get_ax25(char *p) /* /proc/net/ax25 path */
             (void)fprintf(stderr,
                           "%s: can't allocate %d byte ax25sin structure\n", Pn,
                           (int)sizeof(struct ax25sin));
-            Error();
+            Error(ctx);
         }
         ap->da = da;
         ap->dev_ch = dev_ch;
@@ -832,7 +849,7 @@ static void get_ax25(char *p) /* /proc/net/ax25 path */
  * 	entry	Lf = local file structure pointer
  * 		Lp = local process structure pointer
  */
-static void enter_uxsinfo(uxsin_t *up) {
+static void enter_uxsinfo(struct lsof_context *ctx, uxsin_t *up) {
     pxinfo_t *pi;     /* pxinfo_t structure pointer */
     struct lfile *lf; /* local file structure pointer */
     struct lproc *lp; /* local proc structure pointer */
@@ -849,7 +866,7 @@ static void enter_uxsinfo(uxsin_t *up) {
     if (!(np = (pxinfo_t *)malloc(sizeof(pxinfo_t)))) {
         (void)fprintf(stderr, "%s: no space for pipeinfo in uxsinfo, PID %d\n",
                       Pn, Lp->pid);
-        Error();
+        Error(ctx);
     }
     np->ino = Lf->inode;
     np->lf = Lf;
@@ -861,7 +878,8 @@ static void enter_uxsinfo(uxsin_t *up) {
 /*
  * fill_uxicino() -- fill incoming connection inode number
  */
-static void fill_uxicino(INODETYPE si, /* UNIX socket inode number */
+static void fill_uxicino(struct lsof_context *ctx,
+                         INODETYPE si, /* UNIX socket inode number */
                          INODETYPE ic) /* incoming UNIX socket connection
                                         * inode number */
 {
@@ -869,10 +887,10 @@ static void fill_uxicino(INODETYPE si, /* UNIX socket inode number */
     uxsin_t *pic; /* pointer to incoming connection's
                    * information */
 
-    if ((psi = check_unix(si))) {
+    if ((psi = check_unix(ctx, si))) {
         if (psi->icstat || psi->icons)
             return;
-        if ((pic = check_unix(ic))) {
+        if ((pic = check_unix(ctx, ic))) {
             psi->icstat = 1;
             psi->icons = pic;
         }
@@ -882,14 +900,15 @@ static void fill_uxicino(INODETYPE si, /* UNIX socket inode number */
 /*
  * fill_uxpino() -- fill in UNIX socket's peer inode number
  */
-static void fill_uxpino(INODETYPE si, /* UNIX socket inode number */
+static void fill_uxpino(struct lsof_context *ctx,
+                        INODETYPE si, /* UNIX socket inode number */
                         INODETYPE pi) /* UNIX socket peer's inode number */
 {
     uxsin_t *pp, *up;
 
-    if ((up = check_unix(si))) {
+    if ((up = check_unix(ctx, si))) {
         if (!up->peer) {
-            if ((pp = check_unix(pi)))
+            if ((pp = check_unix(ctx, pi)))
                 up->peer = pp;
         }
     }
@@ -898,11 +917,12 @@ static void fill_uxpino(INODETYPE si, /* UNIX socket inode number */
 /*
  * find_uxepti(lf) -- find UNIX socket endpoint info
  */
-uxsin_t *find_uxepti(struct lfile *lf) /* pipe's lfile */
+uxsin_t *find_uxepti(struct lsof_context *ctx,
+                     struct lfile *lf) /* pipe's lfile */
 {
     uxsin_t *up;
 
-    up = check_unix(lf->inode);
+    up = check_unix(ctx, lf->inode);
     return (up ? up->peer : (uxsin_t *)NULL);
 }
 
@@ -948,7 +968,7 @@ static int get_diagmsg(int sockfd) /* socket's file descriptor */
 /*
  * get_uxpeeri() - get UNIX socket peer inode information
  */
-static void get_uxpeeri() {
+static void get_uxpeeri(struct lsof_context *ctx) {
     struct unix_diag_msg *dm;       /* pointer to diag message */
     struct nlmsghdr *hp;            /* netlink structure header pointer */
     int nb = 0;                     /* number of bytes */
@@ -961,7 +981,7 @@ static void get_uxpeeri() {
     if ((ns = socket(AF_NETLINK, SOCK_DGRAM, NETLINK_SOCK_DIAG)) == -1) {
         (void)fprintf(stderr, "%s: netlink socket error: %s\n", Pn,
                       strerror(errno));
-        Error();
+        Error(ctx);
     }
     /*
      * Request peer information.
@@ -989,7 +1009,7 @@ static void get_uxpeeri() {
             }
             dm = (struct unix_diag_msg *)NLMSG_DATA(hp);
             rl = hp->nlmsg_len - NLMSG_LENGTH(sizeof(*dm));
-            parse_diag(dm, rl);
+            parse_diag(ctx, dm, rl);
             hp = NLMSG_NEXT(hp, nb);
         }
     }
@@ -1002,7 +1022,8 @@ get_uxpeeri_exit:
 /*
  * parse_diag() -- parse UNIX diag message
  */
-static void parse_diag(struct unix_diag_msg *dm, /* pointer to diag message */
+static void parse_diag(struct lsof_context *ctx,
+                       struct unix_diag_msg *dm, /* pointer to diag message */
                        int len)                  /* message length */
 {
     struct rtattr *rp;   /* route info pointer */
@@ -1028,15 +1049,15 @@ static void parse_diag(struct unix_diag_msg *dm, /* pointer to diag message */
                 return;
             }
             if ((inoc = *(uint32_t *)RTA_DATA(rp))) {
-                fill_uxpino((INODETYPE)inop, (INODETYPE)inoc);
-                fill_uxpino((INODETYPE)inoc, (INODETYPE)inop);
+                fill_uxpino(ctx, (INODETYPE)inop, (INODETYPE)inoc);
+                fill_uxpino(ctx, (INODETYPE)inoc, (INODETYPE)inop);
             }
             break;
         case UNIX_DIAG_ICONS:
             icct = RTA_PAYLOAD(rp), icp = (uint32_t *)RTA_DATA(rp);
 
             for (i = 0; i < icct; i += sizeof(uint32_t), icp++) {
-                fill_uxicino((INODETYPE)inop, (INODETYPE)*icp);
+                fill_uxicino(ctx, (INODETYPE)inop, (INODETYPE)*icp);
             }
         }
         rp = RTA_NEXT(rp, len);
@@ -1046,8 +1067,8 @@ static void parse_diag(struct unix_diag_msg *dm, /* pointer to diag message */
 /*
  * prt_uxs() -- print UNIX socket information
  */
-static void prt_uxs(uxsin_t *p, /* peer info */
-                    int mk)     /* 1 == mark for later processing */
+static void prt_uxs(struct lsof_context *ctx, uxsin_t *p, /* peer info */
+                    int mk) /* 1 == mark for later processing */
 {
     struct lproc *ep; /* socket endpoint process */
     struct lfile *ef; /* socket endpoint file */
@@ -1059,7 +1080,7 @@ static void prt_uxs(uxsin_t *p, /* peer info */
     (void)strcpy(nma, "->INO=");
     len = (int)strlen(nma);
     (void)snpf(&nma[len], sizeof(nma) - len - 1, InodeFmt_d, p->inode);
-    (void)add_nma(nma, strlen(nma));
+    (void)add_nma(ctx, nma, strlen(nma));
     for (pp = p->pxinfo; pp; pp = pp->next) {
 
         /*
@@ -1074,7 +1095,7 @@ static void prt_uxs(uxsin_t *p, /* peer info */
         }
         (void)snpf(nma, sizeof(nma) - 1, "%d,%.*s,%s%c", ep->pid, CmdLim,
                    ep->cmd, &ef->fd[i], access_to_char(ef->access));
-        (void)add_nma(nma, strlen(nma));
+        (void)add_nma(ctx, nma, strlen(nma));
         if (mk && FeptE == 2) {
 
             /*
@@ -1092,7 +1113,8 @@ static void prt_uxs(uxsin_t *p, /* peer info */
  *			UNIX socket files and selecting UNIX socket end point
  *			files (if requested)
  */
-void process_uxsinfo(int f) /* function:
+void process_uxsinfo(struct lsof_context *ctx,
+                     int f) /* function:
                              *     0 == process selected socket
                              *     1 == process socket end point
                              */
@@ -1117,23 +1139,23 @@ void process_uxsinfo(int f) /* function:
                  * This file has been selected by some criterion other than its
                  * being a socket.  Look up the socket's endpoints.
                  */
-                p = find_uxepti(Lf);
+                p = find_uxepti(ctx, Lf);
                 if (p && p->inode)
-                    prt_uxs(p, 1);
-                if ((tp = check_unix(Lf->inode))) {
+                    prt_uxs(ctx, p, 1);
+                if ((tp = check_unix(ctx, Lf->inode))) {
                     if (tp->icons) {
                         if (tp->icstat) {
                             p = tp->icons;
                             while (p && p != tp) {
                                 if (p->inode)
-                                    prt_uxs(p, 1);
+                                    prt_uxs(ctx, p, 1);
                                 p = p->icons;
                             }
                         } else {
                             for (p = tp->icons; p && !p->icstat; p = p->icons)
                                 ; /* DO NOTHING */
                             if (p && p->inode)
-                                prt_uxs(p, 1);
+                                prt_uxs(ctx, p, 1);
                         }
                     }
                 }
@@ -1149,23 +1171,23 @@ void process_uxsinfo(int f) /* function:
                  */
                 Lf->sf = Selflags;
                 Lp->pss |= PS_SEC;
-                p = find_uxepti(Lf);
+                p = find_uxepti(ctx, Lf);
                 if (p && p->inode)
-                    prt_uxs(p, 0);
-                else if ((tp = check_unix(Lf->inode))) {
+                    prt_uxs(ctx, p, 0);
+                else if ((tp = check_unix(ctx, Lf->inode))) {
                     if (tp->icons) {
                         if (tp->icstat) {
                             p = tp->icons;
                             while (p && p != tp) {
                                 if (p->inode)
-                                    prt_uxs(p, 0);
+                                    prt_uxs(ctx, p, 0);
                                 p = p->icons;
                             }
                         } else {
                             for (p = tp->icons; p && !p->icstat; p = p->icons)
                                 ; /* DO NOTHING */
                             if (p && p->inode)
-                                prt_uxs(p, 0);
+                                prt_uxs(ctx, p, 0);
                         }
                     }
                 }
@@ -1181,7 +1203,8 @@ void process_uxsinfo(int f) /* function:
  * enter_netsinfo_common() -- enter inet or inet6 socket info
  * 	tp = tcp/udp on ipv4 or ipv4 socket pointer
  */
-static void enter_netsinfo_common(void *tp, pxinfo_t *(*get_pxinfo)(void *),
+static void enter_netsinfo_common(struct lsof_context *ctx, void *tp,
+                                  pxinfo_t *(*get_pxinfo)(void *),
                                   void (*set_pxinfo)(void *, pxinfo_t *)) {
     pxinfo_t *pi;     /* pxinfo_t structure pointer */
     struct lfile *lf; /* local file structure pointer */
@@ -1199,7 +1222,7 @@ static void enter_netsinfo_common(void *tp, pxinfo_t *(*get_pxinfo)(void *),
     if (!(np = (pxinfo_t *)malloc(sizeof(pxinfo_t)))) {
         (void)fprintf(stderr, "%s: no space for pipeinfo in netsinfo, PID %d\n",
                       Pn, Lp->pid);
-        Error();
+        Error(ctx);
     }
     np->ino = Lf->inode;
     np->lf = Lf;
@@ -1211,9 +1234,9 @@ static void enter_netsinfo_common(void *tp, pxinfo_t *(*get_pxinfo)(void *),
 /*
  * prt_nets_common() -- print locally used INET or INET6 socket information
  */
-static void prt_nets_common(void *p, /* peer info */
-                            int mk,  /* 1 == mark for later
-                                      * processing */
+static void prt_nets_common(struct lsof_context *ctx, void *p, /* peer info */
+                            int mk, /* 1 == mark for later
+                                     * processing */
                             pxinfo_t *(*get_pxinfo)(void *),
                             unsigned char chend, short ept_flag) {
     struct lproc *ep; /* socket endpoint process */
@@ -1236,7 +1259,7 @@ static void prt_nets_common(void *p, /* peer info */
         }
         (void)snpf(nma, sizeof(nma) - 1, "%d,%.*s,%s%c", ep->pid, CmdLim,
                    ep->cmd, &ef->fd[i], access_to_char(ef->access));
-        (void)add_nma(nma, strlen(nma));
+        (void)add_nma(ctx, nma, strlen(nma));
         if (mk && FeptE == 2) {
 
             /*
@@ -1263,25 +1286,26 @@ static void tcp_udp_set_pxinfo(void *vp, pxinfo_t *np) {
     tp->pxinfo = np;
 }
 
-static void enter_netsinfo(struct tcp_udp *tp) {
-    enter_netsinfo_common(tp, tcp_udp_get_pxinfo, tcp_udp_set_pxinfo);
+static void enter_netsinfo(struct lsof_context *ctx, struct tcp_udp *tp) {
+    enter_netsinfo_common(ctx, tp, tcp_udp_get_pxinfo, tcp_udp_set_pxinfo);
 }
 
 /*
  * find_netsepti(lf) -- find locally used INET socket endpoint info
  */
-static struct tcp_udp *find_netsepti(struct lfile *lf) /* socket's lfile */
+static struct tcp_udp *find_netsepti(struct lsof_context *ctx, /* context */
+                                     struct lfile *lf) /* socket's lfile */
 {
     struct tcp_udp *tp;
 
-    tp = check_inet(lf->inode);
+    tp = check_inet(ctx, lf->inode);
     return (tp ? tp->ipc_peer : (struct tcp_udp *)NULL);
 }
 
 /*
  * get_netpeeri() - get INET socket peer inode information
  */
-static void get_netpeeri() {
+static void get_netpeeri(struct lsof_context *ctx) {
     int h;
     struct tcp_udp *np, *tp;
 
@@ -1307,10 +1331,11 @@ static void get_netpeeri() {
 /*
  * prt_nets() -- print locally used INET socket information
  */
-static void prt_nets(struct tcp_udp *p, /* peer info */
-                     int mk)            /* 1 == mark for later processing */
+static void prt_nets(struct lsof_context *ctx, /* context */
+                     struct tcp_udp *p,        /* peer info */
+                     int mk) /* 1 == mark for later processing */
 {
-    prt_nets_common(p, mk, tcp_udp_get_pxinfo, CHEND_NETS, EPT_NETS_END);
+    prt_nets_common(ctx, p, mk, tcp_udp_get_pxinfo, CHEND_NETS, EPT_NETS_END);
 }
 
 /*
@@ -1318,10 +1343,11 @@ static void prt_nets(struct tcp_udp *p, /* peer info */
  *			it to selected INET socket files and selecting INET
  *			socket end point files (if requested)
  */
-void process_netsinfo(int f) /* function:
-                              *     0 == process selected socket
-                              *     1 == process socket end point
-                              */
+void process_netsinfo(struct lsof_context *ctx, /* context */
+                      int f)                    /* function:
+                                                 *     0 == process selected socket
+                                                 *     1 == process socket end point
+                                                 */
 {
     struct tcp_udp *p; /* peer INET socket info pointer */
 
@@ -1347,9 +1373,9 @@ void process_netsinfo(int f) /* function:
                  * This file has been selected by some criterion other than its
                  * being a socket.  Look up the socket's endpoints.
                  */
-                p = find_netsepti(Lf);
+                p = find_netsepti(ctx, Lf);
                 if (p && p->inode)
-                    prt_nets(p, 1);
+                    prt_nets(ctx, p, 1);
             }
             break;
         case 1:
@@ -1362,9 +1388,9 @@ void process_netsinfo(int f) /* function:
                  */
                 Lf->sf = Selflags;
                 Lp->pss |= PS_SEC;
-                p = find_netsepti(Lf);
+                p = find_netsepti(ctx, Lf);
                 if (p && p->inode)
-                    prt_nets(p, 0);
+                    prt_nets(ctx, p, 0);
             }
             break;
         }
@@ -1388,25 +1414,26 @@ static void tcp_udp6_set_pxinfo(void *vp, pxinfo_t *np) {
     tp->pxinfo = np;
 }
 
-static void enter_nets6info(struct tcp_udp6 *tp) {
-    enter_netsinfo_common(tp, tcp_udp6_get_pxinfo, tcp_udp6_set_pxinfo);
+static void enter_nets6info(struct lsof_context *ctx, struct tcp_udp6 *tp) {
+    enter_netsinfo_common(ctx, tp, tcp_udp6_get_pxinfo, tcp_udp6_set_pxinfo);
 }
 
 /*
  * find_nets6epti(lf) -- find locally used INET6 socket endpoint info
  */
-static struct tcp_udp6 *find_nets6epti(struct lfile *lf) /* socket's lfile */
+static struct tcp_udp6 *find_nets6epti(struct lsof_context *ctx, /* context */
+                                       struct lfile *lf) /* socket's lfile */
 {
     struct tcp_udp6 *tp;
 
-    tp = check_inet6(lf->inode);
+    tp = check_inet6(ctx, lf->inode);
     return (tp ? tp->ipc_peer : (struct tcp_udp6 *)NULL);
 }
 
 /*
  * get_net6peeri() - get INET6 socket peer inode information
  */
-static void get_net6peeri() {
+static void get_net6peeri(struct lsof_context *ctx) {
     int h;
     struct tcp_udp6 *np, *tp;
 
@@ -1433,10 +1460,12 @@ static void get_net6peeri() {
 /*
  * prt_nets6() -- print locally used INET6 socket information
  */
-static void prt_nets6(struct tcp_udp6 *p, /* peer info */
-                      int mk)             /* 1 == mark for later processing */
+static void prt_nets6(struct lsof_context *ctx, /* context */
+                      struct tcp_udp6 *p,       /* peer info */
+                      int mk) /* 1 == mark for later processing */
 {
-    prt_nets_common(p, mk, tcp_udp6_get_pxinfo, CHEND_NETS6, EPT_NETS6_END);
+    prt_nets_common(ctx, p, mk, tcp_udp6_get_pxinfo, CHEND_NETS6,
+                    EPT_NETS6_END);
 }
 
 /*
@@ -1444,10 +1473,11 @@ static void prt_nets6(struct tcp_udp6 *p, /* peer info */
  *			it to selected INET6 socket files and selecting INET6
  *			socket end point files (if requested)
  */
-void process_nets6info(int f) /* function:
-                               *     0 == process selected socket
-                               *     1 == process socket end point
-                               */
+void process_nets6info(struct lsof_context *ctx, /* context */
+                       int f)                    /* function:
+                                                  *     0 == process selected socket
+                                                  *     1 == process socket end point
+                                                  */
 {
     struct tcp_udp6 *p; /* peer INET6 socket info pointer */
 
@@ -1467,9 +1497,9 @@ void process_nets6info(int f) /* function:
                  * This file has been selected by some criterion other than its
                  * being a socket.  Look up the socket's endpoints.
                  */
-                p = find_nets6epti(Lf);
+                p = find_nets6epti(ctx, Lf);
                 if (p && p->inode)
-                    prt_nets6(p, 1);
+                    prt_nets6(ctx, p, 1);
             }
             break;
         case 1:
@@ -1482,9 +1512,9 @@ void process_nets6info(int f) /* function:
                  */
                 Lf->sf = Selflags;
                 Lp->pss |= PS_SEC;
-                p = find_nets6epti(Lf);
+                p = find_nets6epti(ctx, Lf);
                 if (p && p->inode)
-                    prt_nets6(p, 0);
+                    prt_nets6(ctx, p, 0);
             }
             break;
         }
@@ -1496,7 +1526,8 @@ void process_nets6info(int f) /* function:
 /*
  * get_icmp() - get ICMP net info
  */
-static void get_icmp(char *p) /* /proc/net/icmp path */
+static void get_icmp(struct lsof_context *ctx, /* context */
+                     char *p)                  /* /proc/net/icmp path */
 {
     char buf[MAXPATHLEN], *ep, **fp, *la, *ra;
     int fl = 1;
@@ -1524,17 +1555,17 @@ static void get_icmp(char *p) /* /proc/net/icmp path */
             (void)fprintf(stderr,
                           "%s: can't allocate %d icmp hash pointer bytes\n", Pn,
                           (int)(INOBUCKS * sizeof(struct icmpin *)));
-            Error();
+            Error(ctx);
         }
     }
     /*
      * Open the /proc/net/icmp file, assign a page size buffer to its stream,
      * and read the file.  Store icmp info in the Icmpin[] hash buckets.
      */
-    if (!(xs = open_proc_stream(p, "r", &vbuf, &vsz, 0)))
+    if (!(xs = open_proc_stream(ctx, p, "r", &vbuf, &vsz, 0)))
         return;
     while (fgets(buf, sizeof(buf) - 1, xs)) {
-        if (get_fields(buf, (char *)NULL, &fp, (int *)NULL, 0) < 11)
+        if (get_fields(ctx, buf, (char *)NULL, &fp, (int *)NULL, 0) < 11)
             continue;
         if (fl) {
 
@@ -1584,7 +1615,7 @@ static void get_icmp(char *p) /* /proc/net/icmp path */
                     stderr,
                     "%s: can't allocate %d local icmp address bytes: %s\n", Pn,
                     (int)(lal + 1), fp[1]);
-                Error();
+                Error(ctx);
             }
             (void)snpf(la, lal + 1, "%s", fp[1]);
         }
@@ -1597,7 +1628,7 @@ static void get_icmp(char *p) /* /proc/net/icmp path */
                     stderr,
                     "%s: can't allocate %d remote icmp address bytes: %s\n", Pn,
                     (int)(ral + 1), fp[2]);
-                Error();
+                Error(ctx);
             }
             (void)snpf(ra, ral + 1, "%s", fp[2]);
         }
@@ -1608,7 +1639,7 @@ static void get_icmp(char *p) /* /proc/net/icmp path */
         if (!(icmpp = (struct icmpin *)malloc(sizeof(struct icmpin)))) {
             (void)fprintf(stderr, "%s: can't allocate %d byte icmp structure\n",
                           Pn, (int)sizeof(struct icmpin));
-            Error();
+            Error(ctx);
         }
         icmpp->inode = inode;
         icmpp->la = la;
@@ -1623,7 +1654,8 @@ static void get_icmp(char *p) /* /proc/net/icmp path */
 /*
  * get_ipx() - get /proc/net/ipx info
  */
-static void get_ipx(char *p) /* /proc/net/ipx path */
+static void get_ipx(struct lsof_context *ctx, /* context */
+                    char *p)                  /* /proc/net/ipx path */
 {
     char buf[MAXPATHLEN], *ep, **fp, *la, *ra;
     int fl = 1;
@@ -1656,17 +1688,17 @@ static void get_ipx(char *p) /* /proc/net/ipx path */
             (void)fprintf(stderr,
                           "%s: can't allocate %d IPX hash pointer bytes\n", Pn,
                           (int)(INOBUCKS * sizeof(struct ipxsin *)));
-            Error();
+            Error(ctx);
         }
     }
     /*
      * Open the /proc/net/ipx file, assign a page size buffer to the stream,
      * and read it.  Store IPX socket info in the Ipxsin[] hash buckets.
      */
-    if (!(xs = open_proc_stream(p, "r", &vbuf, &vsz, 0)))
+    if (!(xs = open_proc_stream(ctx, p, "r", &vbuf, &vsz, 0)))
         return;
     while (fgets(buf, sizeof(buf) - 1, xs)) {
-        if (get_fields(buf, (char *)NULL, &fp, (int *)NULL, 0) < 7)
+        if (get_fields(ctx, buf, (char *)NULL, &fp, (int *)NULL, 0) < 7)
             continue;
         if (fl) {
 
@@ -1725,7 +1757,7 @@ static void get_ipx(char *p) /* /proc/net/ipx path */
                     stderr,
                     "%s: can't allocate %d local IPX address bytes: %s\n", Pn,
                     (int)(len + 1), fp[0]);
-                Error();
+                Error(ctx);
             }
             (void)snpf(la, len + 1, "%s", fp[0]);
         } else
@@ -1741,7 +1773,7 @@ static void get_ipx(char *p) /* /proc/net/ipx path */
                     stderr,
                     "%s: can't allocate %d remote IPX address bytes: %s\n", Pn,
                     (int)(len + 1), fp[1]);
-                Error();
+                Error(ctx);
             }
             (void)snpf(ra, len + 1, "%s", fp[1]);
         } else
@@ -1754,7 +1786,7 @@ static void get_ipx(char *p) /* /proc/net/ipx path */
             (void)fprintf(stderr,
                           "%s: can't allocate %d byte ipxsin structure\n", Pn,
                           (int)sizeof(struct ipxsin));
-            Error();
+            Error(ctx);
         }
         ip->inode = inode;
         ip->la = la;
@@ -1770,7 +1802,8 @@ static void get_ipx(char *p) /* /proc/net/ipx path */
 /*
  * get_netlink() - get /proc/net/netlink info
  */
-static void get_netlink(char *p) /* /proc/net/netlink path */
+static void get_netlink(struct lsof_context *ctx, /* context */
+                        char *p)                  /* /proc/net/netlink path */
 {
     char buf[MAXPATHLEN], *ep, **fp;
     int fr = 1;
@@ -1797,17 +1830,17 @@ static void get_netlink(char *p) /* /proc/net/netlink path */
             (void)fprintf(stderr,
                           "%s: can't allocate %d netlink hash pointer bytes\n",
                           Pn, (int)(INOBUCKS * sizeof(struct nlksin *)));
-            Error();
+            Error(ctx);
         }
     }
     /*
      * Open the /proc/net/netlink file, assign a page size buffer to its stream,
      * and read the file.  Store Netlink info in the Nlksin[] hash buckets.
      */
-    if (!(xs = open_proc_stream(p, "r", &vbuf, &vsz, 0)))
+    if (!(xs = open_proc_stream(ctx, p, "r", &vbuf, &vsz, 0)))
         return;
     while (fgets(buf, sizeof(buf) - 1, xs)) {
-        if (get_fields(buf, (char *)NULL, &fp, (int *)NULL, 0) < 10)
+        if (get_fields(ctx, buf, (char *)NULL, &fp, (int *)NULL, 0) < 10)
             continue;
         if (fr) {
 
@@ -1850,7 +1883,7 @@ static void get_netlink(char *p) /* /proc/net/netlink path */
             (void)fprintf(stderr,
                           "%s: can't allocate %d byte Netlink structure\n", Pn,
                           (int)sizeof(struct nlksin));
-            Error();
+            Error(ctx);
         }
         lp->inode = inode;
         lp->pr = pr;
@@ -1862,7 +1895,8 @@ static void get_netlink(char *p) /* /proc/net/netlink path */
 /*
  * get_pack() - get /proc/net/packet info
  */
-static void get_pack(char *p) /* /proc/net/raw path */
+static void get_pack(struct lsof_context *ctx, /* context */
+                     char *p)                  /* /proc/net/raw path */
 {
     char buf[MAXPATHLEN], *ep, **fp;
     int fl = 1;
@@ -1890,17 +1924,17 @@ static void get_pack(char *p) /* /proc/net/raw path */
             (void)fprintf(stderr,
                           "%s: can't allocate %d packet hash pointer bytes\n",
                           Pn, (int)(INOBUCKS * sizeof(struct packin *)));
-            Error();
+            Error(ctx);
         }
     }
     /*
      * Open the /proc/net/packet file, assign a page size buffer to its stream,
      * and read the file.  Store packet info in the Packin[] hash buckets.
      */
-    if (!(xs = open_proc_stream(p, "r", &vbuf, &vsz, 0)))
+    if (!(xs = open_proc_stream(ctx, p, "r", &vbuf, &vsz, 0)))
         return;
     while (fgets(buf, sizeof(buf) - 1, xs)) {
-        if (get_fields(buf, (char *)NULL, &fp, (int *)NULL, 0) < 9)
+        if (get_fields(ctx, buf, (char *)NULL, &fp, (int *)NULL, 0) < 9)
             continue;
         if (fl) {
 
@@ -1947,7 +1981,7 @@ static void get_pack(char *p) /* /proc/net/raw path */
             (void)fprintf(stderr,
                           "%s: can't allocate %d byte packet structure\n", Pn,
                           (int)sizeof(struct packin));
-            Error();
+            Error(ctx);
         }
         pp->inode = inode;
         pp->pr = (int)pr;
@@ -1960,7 +1994,8 @@ static void get_pack(char *p) /* /proc/net/raw path */
 /*
  * get_raw() - get /proc/net/raw info
  */
-static void get_raw(char *p) /* /proc/net/raw path */
+static void get_raw(struct lsof_context *ctx, /* context */
+                    char *p)                  /* /proc/net/raw path */
 {
     char buf[MAXPATHLEN], *ep, **fp, *la, *ra, *sp;
     int h;
@@ -1992,17 +2027,17 @@ static void get_raw(char *p) /* /proc/net/raw path */
             (void)fprintf(stderr,
                           "%s: can't allocate %d raw hash pointer bytes\n", Pn,
                           (int)(INOBUCKS * sizeof(struct rawsin *)));
-            Error();
+            Error(ctx);
         }
     }
     /*
      * Open the /proc/net/raw file, assign a page size buffer to its stream,
      * and read the file.  Store raw socket info in the Rawsin[] hash buckets.
      */
-    if (!(xs = open_proc_stream(p, "r", &vbuf, &vsz, 0)))
+    if (!(xs = open_proc_stream(ctx, p, "r", &vbuf, &vsz, 0)))
         return;
     while (fgets(buf, sizeof(buf) - 1, xs)) {
-        if (get_fields(buf, (char *)NULL, &fp, (int *)NULL, 0) < nf)
+        if (get_fields(ctx, buf, (char *)NULL, &fp, (int *)NULL, 0) < nf)
             continue;
         if (nf == 12) {
 
@@ -2044,7 +2079,7 @@ static void get_raw(char *p) /* /proc/net/raw path */
                     stderr,
                     "%s: can't allocate %d local raw address bytes: %s\n", Pn,
                     (int)(lal + 1), fp[1]);
-                Error();
+                Error(ctx);
             }
             (void)snpf(la, lal + 1, "%s", fp[1]);
         }
@@ -2057,7 +2092,7 @@ static void get_raw(char *p) /* /proc/net/raw path */
                     stderr,
                     "%s: can't allocate %d remote raw address bytes: %s\n", Pn,
                     (int)(ral + 1), fp[2]);
-                Error();
+                Error(ctx);
             }
             (void)snpf(ra, ral + 1, "%s", fp[2]);
         }
@@ -2070,7 +2105,7 @@ static void get_raw(char *p) /* /proc/net/raw path */
                     stderr,
                     "%s: can't allocate %d remote raw state bytes: %s\n", Pn,
                     (int)(spl + 1), fp[2]);
-                Error();
+                Error(ctx);
             }
             (void)snpf(sp, spl + 1, "%s", fp[3]);
         }
@@ -2082,7 +2117,7 @@ static void get_raw(char *p) /* /proc/net/raw path */
             (void)fprintf(stderr,
                           "%s: can't allocate %d byte rawsin structure\n", Pn,
                           (int)sizeof(struct rawsin));
-            Error();
+            Error(ctx);
         }
         rp->inode = inode;
         rp->la = la;
@@ -2099,7 +2134,7 @@ static void get_raw(char *p) /* /proc/net/raw path */
 /*
  * get_sctp() - get /proc/net/sctp/assocs info
  */
-static void get_sctp() {
+static void get_sctp(struct lsof_context *ctx) {
     char buf[MAXPATHLEN], *a, *ep, **fp, *id, *la, *lp, *ra, *rp, *ta;
     int d, err, fl, h, i, j, nf, ty, x;
     INODETYPE inode;
@@ -2137,7 +2172,7 @@ static void get_sctp() {
             (void)fprintf(stderr,
                           "%s: can't allocate %d SCTP hash pointer bytes\n", Pn,
                           (int)(INOBUCKS * sizeof(struct sctpsin *)));
-            Error();
+            Error(ctx);
         }
     }
     /*
@@ -2145,11 +2180,11 @@ static void get_sctp() {
      * and read them.  Store SCTP socket info in the SCTPsin[] hash buckets.
      */
     for (i = 0; i < NSCTPPATHS; i++) {
-        if (!(ss = open_proc_stream(SCTPPath[i], "r", &vbuf, &vsz, 0)))
+        if (!(ss = open_proc_stream(ctx, SCTPPath[i], "r", &vbuf, &vsz, 0)))
             continue;
         fl = 1;
         while (fgets(buf, sizeof(buf) - 1, ss)) {
-            if ((nf = get_fields(buf, (char *)NULL, &fp, (int *)NULL, 0)) <
+            if ((nf = get_fields(ctx, buf, (char *)NULL, &fp, (int *)NULL, 0)) <
                 (i ? 9 : 16)) {
                 continue;
             }
@@ -2231,7 +2266,7 @@ static void get_sctp() {
                     (void)fprintf(
                         stderr, "%s: can't allocate %d SCTP ASSOC bytes: %s\n",
                         Pn, (int)(len + 1), fp[0]);
-                    Error();
+                    Error(ctx);
                 }
                 if (!d) {
                     if (plen)
@@ -2262,7 +2297,7 @@ static void get_sctp() {
                         stderr,
                         "%s: can't allocate %d SCTP ASSOC-ID bytes: %s\n", Pn,
                         (int)(len + 1), fp[6]);
-                    Error();
+                    Error(ctx);
                 }
                 if (!d) {
                     if (plen)
@@ -2293,7 +2328,7 @@ static void get_sctp() {
                     (void)fprintf(
                         stderr, "%s: can't allocate %d SCTP LPORT bytes: %s\n",
                         Pn, (int)(len + 1), fp[j]);
-                    Error();
+                    Error(ctx);
                 }
                 if (!d) {
                     if (plen)
@@ -2323,7 +2358,7 @@ static void get_sctp() {
                     (void)fprintf(
                         stderr, "%s: can't allocate %d SCTP RPORT bytes: %s\n",
                         Pn, (int)(len + 1), fp[12]);
-                    Error();
+                    Error(ctx);
                 }
                 if (!d) {
                     if (plen)
@@ -2344,7 +2379,7 @@ static void get_sctp() {
                     (void)fprintf(stderr,
                                   "%s: can't allocate %d SCTP LADDRS bytes\n",
                                   Pn, (int)len);
-                    Error();
+                    Error(ctx);
                 }
                 if (la) {
                     if (isainb(ta, la)) {
@@ -2356,7 +2391,7 @@ static void get_sctp() {
                                 stderr,
                                 "%s: can't reallocate %d SCTP LADDRS bytes\n",
                                 Pn, (int)len);
-                            Error();
+                            Error(ctx);
                         }
                         (void)snpf(la + plen, len + 2, ",%s", ta);
                         (void)free((FREE_P *)ta);
@@ -2375,7 +2410,7 @@ static void get_sctp() {
                     (void)fprintf(stderr,
                                   "%s: can't allocate %d SCTP RADDRS bytes\n",
                                   Pn, (int)len);
-                    Error();
+                    Error(ctx);
                 }
                 if (ra) {
                     if (isainb(ta, ra)) {
@@ -2387,7 +2422,7 @@ static void get_sctp() {
                                 stderr,
                                 "%s: can't reallocate %d SCTP RADDRS bytes\n",
                                 Pn, (int)len);
-                            Error();
+                            Error(ctx);
                         }
                         (void)snpf(ra + plen, len + 2, ",%s", ta);
                         (void)free((FREE_P *)ta);
@@ -2406,7 +2441,7 @@ static void get_sctp() {
                         stderr,
                         "%s: can't allocate %d byte sctpsin structure\n", Pn,
                         (int)sizeof(struct sctpsin));
-                    Error();
+                    Error(ctx);
                 }
                 sp->inode = inode;
                 HASH_INSERT_ELEMENT(SCTPsin, INOHASH, sp, inode);
@@ -2460,10 +2495,11 @@ static char *get_sctpaddrs(char **fp, /* field pointers */
 /*
  * get_tcpudp() - get IPv4 TCP, UDP or UDPLITE net info
  */
-static void get_tcpudp(char *p, /* /proc/net/{tcp,udp} path */
-                       int pr,  /* protocol: 0 = TCP, 1 = UDP,
-                                 *           2 = UDPLITE */
-                       int clr) /* 1 == clear the table */
+static void get_tcpudp(struct lsof_context *ctx, /* context */
+                       char *p,                  /* /proc/net/{tcp,udp} path */
+                       int pr,                   /* protocol: 0 = TCP, 1 = UDP,
+                                                  *           2 = UDPLITE */
+                       int clr)                  /* 1 == clear the table */
 {
     char buf[MAXPATHLEN], *ep, **fp;
     unsigned long faddr, fport, laddr, lport, rxq, state, txq;
@@ -2516,7 +2552,8 @@ static void get_tcpudp(char *p, /* /proc/net/{tcp,udp} path */
         TcpUdp_bucks = INOBUCKS;
         if ((fs = fopen(SockStatPath, "r"))) {
             while (fgets(buf, sizeof(buf) - 1, fs)) {
-                if (get_fields(buf, (char *)NULL, &fp, (int *)NULL, 0) != 3)
+                if (get_fields(ctx, buf, (char *)NULL, &fp, (int *)NULL, 0) !=
+                    3)
                     continue;
                 if (!fp[0] || strcmp(fp[0], "sockets:") || !fp[1] ||
                     strcmp(fp[1], "used") || !fp[2] || !*fp[2])
@@ -2535,7 +2572,7 @@ static void get_tcpudp(char *p, /* /proc/net/{tcp,udp} path */
                 stderr,
                 "%s: can't allocate %d bytes for TCP&UDP hash buckets\n", Pn,
                 (int)(TcpUdp_bucks * sizeof(struct tcp_udp *)));
-            Error();
+            Error(ctx);
         }
 #if defined(HASEPTOPTS)
         if (FeptE && (!(TcpUdpIPC = (struct tcp_udp **)calloc(
@@ -2544,7 +2581,7 @@ static void get_tcpudp(char *p, /* /proc/net/{tcp,udp} path */
                           "%s: can't allocate %d bytes for TCP&UDP local IPC "
                           "hash buckets\n",
                           Pn, (int)(IPCBUCKS * sizeof(struct tcp_udp *)));
-            Error();
+            Error(ctx);
         }
 #endif /* defined(HASEPTOPTS) */
     }
@@ -2552,12 +2589,12 @@ static void get_tcpudp(char *p, /* /proc/net/{tcp,udp} path */
      * Open the /proc/net file, assign a page size buffer to the stream, and
      * read it.
      */
-    if (!(fs = open_proc_stream(p, "r", &vbuf, &vsz, 0)))
+    if (!(fs = open_proc_stream(ctx, p, "r", &vbuf, &vsz, 0)))
         return;
     nf = 12;
     while (fgets(buf, sizeof(buf) - 1, fs)) {
-        if (get_fields(buf, (nf == 12) ? (char *)NULL : ":", &fp, (int *)NULL,
-                       0) < nf)
+        if (get_fields(ctx, buf, (nf == 12) ? (char *)NULL : ":", &fp,
+                       (int *)NULL, 0) < nf)
             continue;
         if (nf == 12) {
             if (!fp[1] || strcmp(fp[1], "local_address") || !fp[2] ||
@@ -2624,7 +2661,7 @@ static void get_tcpudp(char *p, /* /proc/net/{tcp,udp} path */
             (void)fprintf(stderr,
                           "%s: can't allocate %d bytes for tcp_udp struct\n",
                           Pn, (int)sizeof(struct tcp_udp));
-            Error();
+            Error(ctx);
         }
         tp->inode = inode;
         tp->faddr = faddr;
@@ -2654,7 +2691,7 @@ static void get_tcpudp(char *p, /* /proc/net/{tcp,udp} path */
      * If endpoint info has been requested, link INET socket peer info.
      */
     if (FeptE)
-        get_netpeeri();
+        get_netpeeri(ctx);
 #endif /* defined(HASEPTOPTS) */
 
     (void)fclose(fs);
@@ -2664,7 +2701,8 @@ static void get_tcpudp(char *p, /* /proc/net/{tcp,udp} path */
 /*
  * get_raw6() - get /proc/net/raw6 info
  */
-static void get_raw6(char *p) /* /proc/net/raw path */
+static void get_raw6(struct lsof_context *ctx, /* context */
+                     char *p)                  /* /proc/net/raw path */
 {
     char buf[MAXPATHLEN], *ep, **fp, *la, *ra, *sp;
     int h;
@@ -2698,17 +2736,17 @@ static void get_raw6(char *p) /* /proc/net/raw path */
             (void)fprintf(stderr,
                           "%s: can't allocate %d raw6 hash pointer bytes\n", Pn,
                           (int)(INOBUCKS * sizeof(struct rawsin *)));
-            Error();
+            Error(ctx);
         }
     }
     /*
      * Open the /proc/net/raw6 file, assign a page size buffer to the stream,
      * and read it.  Store raw6 socket info in the Rawsin6[] hash buckets.
      */
-    if (!(xs = open_proc_stream(p, "r", &vbuf, &vsz, 0)))
+    if (!(xs = open_proc_stream(ctx, p, "r", &vbuf, &vsz, 0)))
         return;
     while (fgets(buf, sizeof(buf) - 1, xs)) {
-        if (get_fields(buf, (char *)NULL, &fp, (int *)NULL, 0) < nf)
+        if (get_fields(ctx, buf, (char *)NULL, &fp, (int *)NULL, 0) < nf)
             continue;
         if (nf == 12) {
 
@@ -2750,7 +2788,7 @@ static void get_raw6(char *p) /* /proc/net/raw path */
                     stderr,
                     "%s: can't allocate %d local raw6 address bytes: %s\n", Pn,
                     (int)(lal + 1), fp[1]);
-                Error();
+                Error(ctx);
             }
             (void)snpf(la, lal + 1, "%s", fp[1]);
         }
@@ -2763,7 +2801,7 @@ static void get_raw6(char *p) /* /proc/net/raw path */
                     stderr,
                     "%s: can't allocate %d remote raw6 address bytes: %s\n", Pn,
                     (int)(ral + 1), fp[2]);
-                Error();
+                Error(ctx);
             }
             (void)snpf(ra, ral + 1, "%s", fp[2]);
         }
@@ -2776,7 +2814,7 @@ static void get_raw6(char *p) /* /proc/net/raw path */
                     stderr,
                     "%s: can't allocate %d remote raw6 state bytes: %s\n", Pn,
                     (int)(spl + 1), fp[2]);
-                Error();
+                Error(ctx);
             }
             (void)snpf(sp, spl + 1, "%s", fp[3]);
         }
@@ -2789,7 +2827,7 @@ static void get_raw6(char *p) /* /proc/net/raw path */
                 stderr,
                 "%s: can't allocate %d byte rawsin structure for IPv6\n", Pn,
                 (int)sizeof(struct rawsin));
-            Error();
+            Error(ctx);
         }
         rp->inode = inode;
         rp->la = la;
@@ -2806,7 +2844,8 @@ static void get_raw6(char *p) /* /proc/net/raw path */
 /*
  * get_tcpudp6() - get IPv6 TCP, UDP or UDPLITE net info
  */
-static void get_tcpudp6(char *p, /* /proc/net/{tcp,udp} path */
+static void get_tcpudp6(struct lsof_context *ctx, /* context */
+                        char *p,                  /* /proc/net/{tcp,udp} path */
                         int pr,  /* protocol: 0 = TCP, 1 = UDP */
                         int clr) /* 1 == clear the table */
 {
@@ -2860,7 +2899,8 @@ static void get_tcpudp6(char *p, /* /proc/net/{tcp,udp} path */
         i = nf = 0;
         if ((fs = fopen(SockStatPath6, "r"))) {
             while (fgets(buf, sizeof(buf) - 1, fs)) {
-                if (get_fields(buf, (char *)NULL, &fp, (int *)NULL, 0) != 3)
+                if (get_fields(ctx, buf, (char *)NULL, &fp, (int *)NULL, 0) !=
+                    3)
                     continue;
                 if (!fp[0] || !fp[1] || strcmp(fp[1], "inuse") || !fp[2] ||
                     !*fp[2])
@@ -2891,7 +2931,7 @@ static void get_tcpudp6(char *p, /* /proc/net/{tcp,udp} path */
                 stderr,
                 "%s: can't allocate %d bytes for TCP6&UDP6 hash buckets\n", Pn,
                 (int)(TcpUdp6_bucks * sizeof(struct tcp_udp6 *)));
-            Error();
+            Error(ctx);
         }
 #    if defined(HASEPTOPTS)
         if (FeptE && (!(TcpUdp6IPC = (struct tcp_udp6 **)calloc(
@@ -2900,7 +2940,7 @@ static void get_tcpudp6(char *p, /* /proc/net/{tcp,udp} path */
                           "%s: can't allocate %d bytes for TCP6&UDP6 local IPC "
                           "hash buckets\n",
                           Pn, (int)(IPCBUCKS * sizeof(struct tcp_udp6 *)));
-            Error();
+            Error(ctx);
         }
 #    endif /* defined(HASEPTOPTS) */
     }
@@ -2908,12 +2948,12 @@ static void get_tcpudp6(char *p, /* /proc/net/{tcp,udp} path */
      * Open the /proc/net file, assign a page size buffer to the stream,
      * and read it.
      */
-    if (!(fs = open_proc_stream(p, "r", &vbuf, &vsz, 0)))
+    if (!(fs = open_proc_stream(ctx, p, "r", &vbuf, &vsz, 0)))
         return;
     nf = 12;
     while (fgets(buf, sizeof(buf) - 1, fs)) {
-        if (get_fields(buf, (nf == 12) ? (char *)NULL : ":", &fp, (int *)NULL,
-                       0) < nf)
+        if (get_fields(ctx, buf, (nf == 12) ? (char *)NULL : ":", &fp,
+                       (int *)NULL, 0) < nf)
             continue;
         if (nf == 12) {
             if (!fp[1] || strcmp(fp[1], "local_address") || !fp[2] ||
@@ -2977,7 +3017,7 @@ static void get_tcpudp6(char *p, /* /proc/net/{tcp,udp} path */
             (void)fprintf(stderr,
                           "%s: can't allocate %d bytes for tcp_udp6 struct\n",
                           Pn, (int)sizeof(struct tcp_udp6));
-            Error();
+            Error(ctx);
         }
         tp6->inode = inode;
         tp6->faddr = faddr;
@@ -3006,7 +3046,7 @@ static void get_tcpudp6(char *p, /* /proc/net/{tcp,udp} path */
      * If endpoint info has been requested, link INET6 socket peer info.
      */
     if (FeptE)
-        get_net6peeri();
+        get_net6peeri(ctx);
 #    endif /* defined(HASEPTOPTS) */
 
     (void)fclose(fs);
@@ -3016,7 +3056,8 @@ static void get_tcpudp6(char *p, /* /proc/net/{tcp,udp} path */
 /*
  * get_unix() - get UNIX net info
  */
-static void get_unix(char *p) /* /proc/net/unix path */
+static void get_unix(struct lsof_context *ctx, /* context */
+                     char *p)                  /* /proc/net/unix path */
 {
     char buf[MAXPATHLEN], *ep, **fp, *path, *pcb;
     int fl = 1; /* First line */
@@ -3062,17 +3103,17 @@ static void get_unix(char *p) /* /proc/net/unix path */
             (void)fprintf(stderr,
                           "%s: can't allocate %d bytes for Unix socket info\n",
                           Pn, (int)(INOBUCKS * sizeof(uxsin_t *)));
-            Error();
+            Error(ctx);
         }
     }
     /*
      * Open the /proc/net/unix file, assign a page size buffer to the stream,
      * read the file's contents, and add them to the Uxsin hash buckets.
      */
-    if (!(us = open_proc_stream(p, "r", &vbuf, &vsz, 0)))
+    if (!(us = open_proc_stream(ctx, p, "r", &vbuf, &vsz, 0)))
         return;
     while (fgets(buf, sizeof(buf) - 1, us)) {
-        if ((nf = get_fields(buf, ":", &fp, (int *)NULL, 0)) < 7)
+        if ((nf = get_fields(ctx, buf, ":", &fp, (int *)NULL, 0)) < 7)
             continue;
         if (fl) {
 
@@ -3113,7 +3154,7 @@ static void get_unix(char *p) /* /proc/net/unix path */
                 (void)fprintf(stderr,
                               "%s: can't allocate %d bytes for UNIX PCB: %s\n",
                               Pn, (int)(len + 1), fp[0]);
-                Error();
+                Error(ctx);
             }
             (void)snpf(pcb, len + 1, "0x%s", fp[0]);
         }
@@ -3123,7 +3164,7 @@ static void get_unix(char *p) /* /proc/net/unix path */
                     stderr,
                     "%s: can't allocate %d bytes for UNIX path \"%s\"\n", Pn,
                     (int)(len + 1), fp[7]);
-                Error();
+                Error(ctx);
             }
             (void)snpf(path, len + 1, "%s", fp[7]);
         } else
@@ -3160,7 +3201,7 @@ static void get_unix(char *p) /* /proc/net/unix path */
             (void)fprintf(stderr,
                           "%s: can't allocate %d bytes for uxsin struct\n", Pn,
                           (int)sizeof(uxsin_t));
-            Error();
+            Error(ctx);
         }
         up->inode = inode;
         up->next = (uxsin_t *)NULL;
@@ -3180,7 +3221,7 @@ static void get_unix(char *p) /* /proc/net/unix path */
             int sr;
 
             if (HasNFS)
-                sr = statsafely(path, &sb);
+                sr = statsafely(ctx, path, &sb);
             else
                 sr = stat(path, &sb);
             if (sr == 0 && ((sb.st_mode & S_IFMT) == S_IFSOCK)) {
@@ -3208,7 +3249,7 @@ static void get_unix(char *p) /* /proc/net/unix path */
      * If endpoint info has been requested, get UNIX socket peer info.
      */
     if (FeptE)
-        get_uxpeeri();
+        get_uxpeeri(ctx);
 #endif /* defined(HASEPTOPTS) && defined(HASUXSOCKEPT) */
 
     (void)fclose(us);
@@ -3303,7 +3344,8 @@ static int isainb(char *a, /*string a */
 /*
  * print_ax25info() - print AX25 socket info
  */
-static void print_ax25info(struct ax25sin *ap) /* AX25 socket info */
+static void print_ax25info(struct lsof_context *ctx, /* context */
+                           struct ax25sin *ap)       /* AX25 socket info */
 {
     char *cp, pbuf[1024];
     int ds;
@@ -3342,7 +3384,7 @@ static void print_ax25info(struct ax25sin *ap) /* AX25 socket info */
             stderr,
             "%s: can't allocate %d bytes for AX25 sock state, PID: %d\n", Pn,
             (int)(pl + 1), Lp->pid);
-        Error();
+        Error(ctx);
     }
     (void)snpf(cp, pl + 1, "%s", pbuf);
     Lf->nma = cp;
@@ -3351,7 +3393,8 @@ static void print_ax25info(struct ax25sin *ap) /* AX25 socket info */
 /*
  * print_ipxinfo() - print IPX socket info
  */
-static void print_ipxinfo(struct ipxsin *ip) /* IPX socket info */
+static void print_ipxinfo(struct lsof_context *ctx, /* context */
+                          struct ipxsin *ip)        /* IPX socket info */
 {
     char *cp, pbuf[256];
     MALLOC_S pl;
@@ -3365,7 +3408,7 @@ static void print_ipxinfo(struct ipxsin *ip) /* IPX socket info */
         (void)fprintf(
             stderr, "%s: can't allocate %d bytes for IPX sock state, PID: %d\n",
             Pn, (int)(pl + 1), Lp->pid);
-        Error();
+        Error(ctx);
     }
     (void)snpf(cp, pl + 1, "%s", pbuf);
     Lf->nma = cp;
@@ -3397,7 +3440,8 @@ static void print_unix(int nl) {
 /*
  * print_tcptpi() - print TCP/TPI state e.g. ESTBALISHED
  */
-void print_tcptpi(int nl) /* 1 == '\n' required */
+void print_tcptpi(struct lsof_context *ctx, /* context */
+                  int nl)                   /* 1 == '\n' required */
 {
     char buf[128];
     char *cp = (char *)NULL;
@@ -3410,7 +3454,7 @@ void print_tcptpi(int nl) /* 1 == '\n' required */
     }
     if ((Ftcptpi & TCPTPI_STATE) && Lf->lts.type == 0) {
         if (!TcpSt)
-            (void)build_IPstates();
+            (void)build_IPstates(ctx);
         if ((s = Lf->lts.state.i + TcpStOff) < 0 || s >= TcpNstates) {
             (void)snpf(buf, sizeof(buf), "UNKNOWN_TCP_STATE_%d",
                        Lf->lts.state.i);
@@ -3503,7 +3547,8 @@ void print_tcptpi(int nl) /* 1 == '\n' required */
 /*
  * process_proc_sock() - process /proc-based socket
  */
-void process_proc_sock(char *p,        /* node's readlink() path */
+void process_proc_sock(struct lsof_context *ctx, /* context */
+                       char *p,                  /* node's readlink() path */
                        char *pbr,      /* node's path before readlink() */
                        struct stat *s, /* stat() result for path */
                        int ss,         /* *s status -- i.e, SB_* values */
@@ -3545,11 +3590,11 @@ void process_proc_sock(char *p,        /* node's readlink() path */
      * Check for socket's inode presence in the protocol info caches.
      */
     if (AX25path) {
-        (void)get_ax25(AX25path);
+        (void)get_ax25(ctx, AX25path);
         (void)free((FREE_P *)AX25path);
         AX25path = (char *)NULL;
     }
-    if ((ss & SB_INO) && (ap = check_ax25((INODETYPE)s->st_ino))) {
+    if ((ss & SB_INO) && (ap = check_ax25(ctx, (INODETYPE)s->st_ino))) {
 
         /*
          * The inode is connected to an AX25 /proc record.
@@ -3560,19 +3605,19 @@ void process_proc_sock(char *p,        /* node's readlink() path */
          */
         (void)snpf(Lf->type, sizeof(Lf->type), "ax25");
         if (ap->dev_ch)
-            (void)enter_dev_ch(ap->dev_ch);
+            (void)enter_dev_ch(ctx, ap->dev_ch);
         Lf->inode = ap->inode;
         Lf->inp_ty = 1;
-        print_ax25info(ap);
+        print_ax25info(ctx, ap);
         return;
     }
 
     if (Ipxpath) {
-        (void)get_ipx(Ipxpath);
+        (void)get_ipx(ctx, Ipxpath);
         (void)free((FREE_P *)Ipxpath);
         Ipxpath = (char *)NULL;
     }
-    if ((ss & SB_INO) && (ip = check_ipx((INODETYPE)s->st_ino))) {
+    if ((ss & SB_INO) && (ip = check_ipx(ctx, (INODETYPE)s->st_ino))) {
         /*
          * The inode is connected to an IPX /proc record.
          *
@@ -3619,18 +3664,18 @@ void process_proc_sock(char *p,        /* node's readlink() path */
                 nl -= len;
             }
         }
-        (void)print_ipxinfo(ip);
+        (void)print_ipxinfo(ctx, ip);
         if (Namech[0])
-            enter_nm(Namech);
+            enter_nm(ctx, Namech);
         return;
     }
 
     if (Rawpath) {
-        (void)get_raw(Rawpath);
+        (void)get_raw(ctx, Rawpath);
         (void)free((FREE_P *)Rawpath);
         Rawpath = (char *)NULL;
     }
-    if ((ss & SB_INO) && (rp = check_raw((INODETYPE)s->st_ino))) {
+    if ((ss & SB_INO) && (rp = check_raw(ctx, (INODETYPE)s->st_ino))) {
         /*
          * The inode is connected to a raw /proc record.
          *
@@ -3681,16 +3726,16 @@ void process_proc_sock(char *p,        /* node's readlink() path */
             }
         }
         if (Namech[0])
-            enter_nm(Namech);
+            enter_nm(ctx, Namech);
         return;
     }
 
     if (Nlkpath) {
-        (void)get_netlink(Nlkpath);
+        (void)get_netlink(ctx, Nlkpath);
         (void)free((FREE_P *)Nlkpath);
         Nlkpath = (char *)NULL;
     }
-    if ((ss & SB_INO) && (np = check_netlink((INODETYPE)s->st_ino))) {
+    if ((ss & SB_INO) && (np = check_netlink(ctx, (INODETYPE)s->st_ino))) {
         /*
          * The inode is connected to a Netlink /proc record.
          *
@@ -3708,16 +3753,16 @@ void process_proc_sock(char *p,        /* node's readlink() path */
         Lf->inode = (INODETYPE)s->st_ino;
         Lf->inp_ty = 1;
         if (Namech[0])
-            enter_nm(Namech);
+            enter_nm(ctx, Namech);
         return;
     }
 
     if (Packpath) {
-        (void)get_pack(Packpath);
+        (void)get_pack(ctx, Packpath);
         (void)free((FREE_P *)Packpath);
         Packpath = (char *)NULL;
     }
-    if ((ss & SB_INO) && (pp = check_pack((INODETYPE)s->st_ino))) {
+    if ((ss & SB_INO) && (pp = check_pack(ctx, (INODETYPE)s->st_ino))) {
         /*
          * The inode is connected to a packet /proc record.
          *
@@ -3740,19 +3785,19 @@ void process_proc_sock(char *p,        /* node's readlink() path */
         if (ss & SB_INO) {
             (void)snpf(tbuf, sizeof(tbuf), InodeFmt_d, (INODETYPE)s->st_ino);
             tbuf[sizeof(tbuf) - 1] = '\0';
-            enter_dev_ch(tbuf);
+            enter_dev_ch(ctx, tbuf);
         }
         if (Namech[0])
-            enter_nm(Namech);
+            enter_nm(ctx, Namech);
         return;
     }
 
     if (UNIXpath) {
-        (void)get_unix(UNIXpath);
+        (void)get_unix(ctx, UNIXpath);
         (void)free((FREE_P *)UNIXpath);
         UNIXpath = (char *)NULL;
     }
-    if ((ss & SB_INO) && (up = check_unix((INODETYPE)s->st_ino))) {
+    if ((ss & SB_INO) && (up = check_unix(ctx, (INODETYPE)s->st_ino))) {
 
         /*
          * The inode is connected to a UNIX /proc record.
@@ -3764,7 +3809,7 @@ void process_proc_sock(char *p,        /* node's readlink() path */
             Lf->sf |= SELUNX;
         (void)snpf(Lf->type, sizeof(Lf->type), "unix");
         if (up->pcb)
-            enter_dev_ch(up->pcb);
+            enter_dev_ch(ctx, up->pcb);
         Lf->inode = (INODETYPE)s->st_ino;
         Lf->inp_ty = 1;
 
@@ -3777,7 +3822,7 @@ void process_proc_sock(char *p,        /* node's readlink() path */
 #endif /* defined(HASSOSTATE) */
 #if defined(HASEPTOPTS) && defined(HASUXSOCKEPT)
         if (FeptE) {
-            (void)enter_uxsinfo(up);
+            (void)enter_uxsinfo(ctx, up);
             Lf->sf |= SELUXSINFO;
         }
 #endif /* defined(HASEPTOPTS) && defined(HASUXSOCKEPT) */
@@ -3786,7 +3831,7 @@ void process_proc_sock(char *p,        /* node's readlink() path */
         (void)snpf(Namech, Namechl - 1, "%s%stype=%s", up->path ? up->path : "",
                    up->path ? " " : "", cp);
         Namech[Namechl - 1] = '\0';
-        (void)enter_nm(Namech);
+        (void)enter_nm(ctx, Namech);
         if (Sfile) {
 
             /*
@@ -3824,7 +3869,7 @@ void process_proc_sock(char *p,        /* node's readlink() path */
                 Lf->dev = up->sb_dev;
                 Lf->inode = up->sb_ino;
                 Lf->rdev = up->sb_rdev;
-                if (is_file_named(0, path, (struct mounts *)NULL, 0)) {
+                if (is_file_named(ctx, 0, path, (struct mounts *)NULL, 0)) {
                     f = 1;
                     Lf->sf |= SELNM;
                 }
@@ -3841,7 +3886,7 @@ void process_proc_sock(char *p,        /* node's readlink() path */
                  * If the file has not yet been found and the stat buffer has
                  * st_mode, search for the file by full path.
                  */
-                if (is_file_named(2, up->path ? up->path : p,
+                if (is_file_named(ctx, 2, up->path ? up->path : p,
                                   (struct mounts *)NULL,
                                   ((s->st_mode & S_IFMT) == S_IFCHR))
                         ? 1
@@ -3856,11 +3901,12 @@ void process_proc_sock(char *p,        /* node's readlink() path */
 #if defined(HASIPv6)
     if (Raw6path) {
         if (!Fxopt)
-            (void)get_raw6(Raw6path);
+            (void)get_raw6(ctx, Raw6path);
         (void)free((FREE_P *)Raw6path);
         Raw6path = (char *)NULL;
     }
-    if (!Fxopt && (ss & SB_INO) && (rp = check_raw6((INODETYPE)s->st_ino))) {
+    if (!Fxopt && (ss & SB_INO) &&
+        (rp = check_raw6(ctx, (INODETYPE)s->st_ino))) {
 
         /*
          * The inode is connected to a raw IPv6 /proc record.
@@ -3913,33 +3959,33 @@ void process_proc_sock(char *p,        /* node's readlink() path */
             }
         }
         if (Namech[0])
-            enter_nm(Namech);
+            enter_nm(ctx, Namech);
         return;
     }
 
     if (TCP6path) {
         if (!Fxopt)
-            (void)get_tcpudp6(TCP6path, 0, 1);
+            (void)get_tcpudp6(ctx, TCP6path, 0, 1);
         (void)free((FREE_P *)TCP6path);
         TCP6path = (char *)NULL;
     }
 
     if (UDP6path) {
         if (!Fxopt)
-            (void)get_tcpudp6(UDP6path, 1, 0);
+            (void)get_tcpudp6(ctx, UDP6path, 1, 0);
         (void)free((FREE_P *)UDP6path);
         UDP6path = (char *)NULL;
     }
 
     if (UDPLITE6path) {
         if (!Fxopt)
-            (void)get_tcpudp6(UDPLITE6path, 2, 0);
+            (void)get_tcpudp6(ctx, UDPLITE6path, 2, 0);
         (void)free((FREE_P *)UDPLITE6path);
         UDPLITE6path = (char *)NULL;
     }
 
     if (!Fxopt && (ss & SB_INO) &&
-        (tp6 = check_tcpudp6((INODETYPE)s->st_ino, &pr))) {
+        (tp6 = check_tcpudp6(ctx, (INODETYPE)s->st_ino, &pr))) {
 
         /*
          * The inode is connected to an IPv6 TCP or UDP /proc record.
@@ -3984,7 +4030,7 @@ void process_proc_sock(char *p,        /* node's readlink() path */
         if (ss & SB_INO) {
             (void)snpf(tbuf, sizeof(tbuf), InodeFmt_d, (INODETYPE)s->st_ino);
             tbuf[sizeof(tbuf) - 1] = '\0';
-            enter_dev_ch(tbuf);
+            enter_dev_ch(ctx, tbuf);
             Lf->inode = (INODETYPE)s->st_ino;
         }
         af = AF_INET6;
@@ -4004,7 +4050,7 @@ void process_proc_sock(char *p,        /* node's readlink() path */
             if (la)
                 la += 12;
         }
-        ent_inaddr(la, tp6->lport, fa, tp6->fport, af);
+        ent_inaddr(ctx, la, tp6->lport, fa, tp6->fport, af);
         Lf->lts.type = tp6->proto;
         Lf->lts.state.i = tp6->state;
 
@@ -4016,7 +4062,7 @@ void process_proc_sock(char *p,        /* node's readlink() path */
 
 #    if defined(HASEPTOPTS)
         if (FeptE && tp6->ipc_peer) {
-            (void)enter_nets6info(tp6);
+            (void)enter_nets6info(ctx, tp6);
             Lf->sf |= SELNETS6INFO;
         }
 #    endif /* defined(HASEPTOPTS) */
@@ -4026,27 +4072,27 @@ void process_proc_sock(char *p,        /* node's readlink() path */
 
     if (TCPpath) {
         if (!Fxopt)
-            (void)get_tcpudp(TCPpath, 0, 1);
+            (void)get_tcpudp(ctx, TCPpath, 0, 1);
         (void)free((FREE_P *)TCPpath);
         TCPpath = (char *)NULL;
     }
 
     if (UDPpath) {
         if (!Fxopt)
-            (void)get_tcpudp(UDPpath, 1, 0);
+            (void)get_tcpudp(ctx, UDPpath, 1, 0);
         (void)free((FREE_P *)UDPpath);
         UDPpath = (char *)NULL;
     }
 
     if (UDPLITEpath) {
         if (!Fxopt)
-            (void)get_tcpudp(UDPLITEpath, 2, 0);
+            (void)get_tcpudp(ctx, UDPLITEpath, 2, 0);
         (void)free((FREE_P *)UDPLITEpath);
         UDPLITEpath = (char *)NULL;
     }
 
     if (!Fxopt && (ss & SB_INO) &&
-        (tp = check_tcpudp((INODETYPE)s->st_ino, &pr))) {
+        (tp = check_tcpudp(ctx, (INODETYPE)s->st_ino, &pr))) {
 
         /*
          * The inode is connected to an IPv4 TCP or UDP /proc record.
@@ -4097,7 +4143,7 @@ void process_proc_sock(char *p,        /* node's readlink() path */
         if (ss & SB_INO) {
             (void)snpf(tbuf, sizeof(tbuf), InodeFmt_d, (INODETYPE)s->st_ino);
             tbuf[sizeof(tbuf) - 1] = '\0';
-            enter_dev_ch(tbuf);
+            enter_dev_ch(ctx, tbuf);
             Lf->inode = (INODETYPE)s->st_ino;
         }
         if (tp->faddr || tp->fport) {
@@ -4110,7 +4156,7 @@ void process_proc_sock(char *p,        /* node's readlink() path */
             la = (unsigned char *)&ls;
         } else
             la = (unsigned char *)NULL;
-        ent_inaddr(la, tp->lport, fa, tp->fport, AF_INET);
+        ent_inaddr(ctx, la, tp->lport, fa, tp->fport, AF_INET);
         Lf->lts.type = tp->proto;
         Lf->lts.state.i = tp->state;
 
@@ -4122,7 +4168,7 @@ void process_proc_sock(char *p,        /* node's readlink() path */
 
 #if defined(HASEPTOPTS)
         if (FeptE && tp->ipc_peer) {
-            (void)enter_netsinfo(tp);
+            (void)enter_netsinfo(ctx, tp);
             Lf->sf |= SELNETSINFO;
         }
 #endif /* defined(HASEPTOPTS) */
@@ -4131,13 +4177,13 @@ void process_proc_sock(char *p,        /* node's readlink() path */
     }
 
     if (SCTPPath[0]) {
-        (void)get_sctp();
+        (void)get_sctp(ctx);
         for (i = 0; i < NSCTPPATHS; i++) {
             (void)free((FREE_P *)SCTPPath[i]);
             SCTPPath[i] = (char *)NULL;
         }
     }
-    if ((ss & SB_INO) && (sp = check_sctp((INODETYPE)s->st_ino))) {
+    if ((ss & SB_INO) && (sp = check_sctp(ctx, (INODETYPE)s->st_ino))) {
 
         /*
          * The inode is connected to an SCTP /proc record.
@@ -4151,7 +4197,7 @@ void process_proc_sock(char *p,        /* node's readlink() path */
         Lf->inp_ty = 2;
         (void)snpf(tbuf, sizeof(tbuf), InodeFmt_d, (INODETYPE)s->st_ino);
         tbuf[sizeof(tbuf) - 1] = '\0';
-        enter_dev_ch(tbuf);
+        enter_dev_ch(ctx, tbuf);
         Namech[0] = '\0';
         if (sp->type == 1) {
 
@@ -4181,16 +4227,16 @@ void process_proc_sock(char *p,        /* node's readlink() path */
                 sp->rport ? sp->rport : "", sp->rport ? "]" : "");
         }
         if (Namech[0])
-            enter_nm(Namech);
+            enter_nm(ctx, Namech);
         return;
     }
 
     if (ICMPpath) {
-        (void)get_icmp(ICMPpath);
+        (void)get_icmp(ctx, ICMPpath);
         (void)free((FREE_P *)ICMPpath);
         ICMPpath = (char *)NULL;
     }
-    if ((ss & SB_INO) && (icmpp = check_icmp((INODETYPE)s->st_ino))) {
+    if ((ss & SB_INO) && (icmpp = check_icmp(ctx, (INODETYPE)s->st_ino))) {
 
         /*
          * The inode is connected to an ICMP /proc record.
@@ -4229,7 +4275,7 @@ void process_proc_sock(char *p,        /* node's readlink() path */
             }
         }
         if (Namech[0])
-            enter_nm(Namech);
+            enter_nm(ctx, Namech);
         return;
     }
 
@@ -4246,7 +4292,7 @@ void process_proc_sock(char *p,        /* node's readlink() path */
         Lf->dev_def = 1;
     }
     if (Fxopt)
-        enter_nm("can't identify protocol (-X specified)");
+        enter_nm(ctx, "can't identify protocol (-X specified)");
     else {
         (void)snpf(Namech, Namechl, "protocol: ");
         if (!prp) {
@@ -4255,61 +4301,62 @@ void process_proc_sock(char *p,        /* node's readlink() path */
             sz = (ssize_t)(Namechl - i - 1);
         }
         if ((getxattr(pbr, "system.sockprotoname", prp, sz)) < 0)
-            enter_nm("can't identify protocol");
+            enter_nm(ctx, "can't identify protocol");
         else
-            enter_nm(Namech);
+            enter_nm(ctx, Namech);
     }
 }
 
 /*
  * set_net_paths() - set /proc/net paths
  */
-void set_net_paths(char *p, /* path to /proc/net/ */
-                   int pl)  /* strlen(p) */
+void set_net_paths(struct lsof_context *ctx, /* context */
+                   char *p,                  /* path to /proc/net/ */
+                   int pl)                   /* strlen(p) */
 {
     int i;
     int pathl;
 
     pathl = 0;
-    (void)make_proc_path(p, pl, &AX25path, &pathl, "ax25");
+    (void)make_proc_path(ctx, p, pl, &AX25path, &pathl, "ax25");
     pathl = 0;
-    (void)make_proc_path(p, pl, &ICMPpath, &pathl, "icmp");
+    (void)make_proc_path(ctx, p, pl, &ICMPpath, &pathl, "icmp");
     pathl = 0;
-    (void)make_proc_path(p, pl, &Ipxpath, &pathl, "ipx");
+    (void)make_proc_path(ctx, p, pl, &Ipxpath, &pathl, "ipx");
     pathl = 0;
-    (void)make_proc_path(p, pl, &Nlkpath, &pathl, "netlink");
+    (void)make_proc_path(ctx, p, pl, &Nlkpath, &pathl, "netlink");
     pathl = 0;
-    (void)make_proc_path(p, pl, &Packpath, &pathl, "packet");
+    (void)make_proc_path(ctx, p, pl, &Packpath, &pathl, "packet");
     pathl = 0;
-    (void)make_proc_path(p, pl, &Rawpath, &pathl, "raw");
+    (void)make_proc_path(ctx, p, pl, &Rawpath, &pathl, "raw");
     for (i = 0; i < NSCTPPATHS; i++) {
         pathl = 0;
-        (void)make_proc_path(p, pl, &SCTPPath[i], &pathl, SCTPSfx[i]);
+        (void)make_proc_path(ctx, p, pl, &SCTPPath[i], &pathl, SCTPSfx[i]);
     }
     pathl = 0;
-    (void)make_proc_path(p, pl, &SockStatPath, &pathl, "sockstat");
+    (void)make_proc_path(ctx, p, pl, &SockStatPath, &pathl, "sockstat");
     pathl = 0;
-    (void)make_proc_path(p, pl, &TCPpath, &pathl, "tcp");
+    (void)make_proc_path(ctx, p, pl, &TCPpath, &pathl, "tcp");
     pathl = 0;
-    (void)make_proc_path(p, pl, &UDPpath, &pathl, "udp");
+    (void)make_proc_path(ctx, p, pl, &UDPpath, &pathl, "udp");
     pathl = 0;
-    (void)make_proc_path(p, pl, &UDPLITEpath, &pathl, "udplite");
+    (void)make_proc_path(ctx, p, pl, &UDPLITEpath, &pathl, "udplite");
 
 #if defined(HASIPv6)
     pathl = 0;
-    (void)make_proc_path(p, pl, &Raw6path, &pathl, "raw6");
+    (void)make_proc_path(ctx, p, pl, &Raw6path, &pathl, "raw6");
     pathl = 0;
-    (void)make_proc_path(p, pl, &SockStatPath6, &pathl, "sockstat6");
+    (void)make_proc_path(ctx, p, pl, &SockStatPath6, &pathl, "sockstat6");
     pathl = 0;
-    (void)make_proc_path(p, pl, &TCP6path, &pathl, "tcp6");
+    (void)make_proc_path(ctx, p, pl, &TCP6path, &pathl, "tcp6");
     pathl = 0;
-    (void)make_proc_path(p, pl, &UDP6path, &pathl, "udp6");
+    (void)make_proc_path(ctx, p, pl, &UDP6path, &pathl, "udp6");
     pathl = 0;
-    (void)make_proc_path(p, pl, &UDPLITE6path, &pathl, "udplite6");
+    (void)make_proc_path(ctx, p, pl, &UDPLITE6path, &pathl, "udplite6");
 #endif /* defined(HASIPv6) */
 
     pathl = 0;
-    (void)make_proc_path(p, pl, &UNIXpath, &pathl, "unix");
+    (void)make_proc_path(ctx, p, pl, &UNIXpath, &pathl, "unix");
 }
 
 /*

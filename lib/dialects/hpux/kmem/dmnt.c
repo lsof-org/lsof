@@ -122,7 +122,7 @@ dev_t *dev;                                  /* device */
         if (!(vfs->dir = mkstrcpy(v->vfs_name, (MALLOC_S *)NULL))) {
             (void)fprintf(stderr, "%s: no space for vfs name: ", Pn);
             safestrprt(v->vfs_name, stderr, 1);
-            Error();
+            Error(ctx);
         }
         if (statsafely(v->vfs_name, &sb) == 0)
             vfs->dev = sb.st_dev;
@@ -140,8 +140,7 @@ dev_t *dev;                                  /* device */
  * readvfs() - read vfs structure
  */
 
-struct l_vfs *readvfs(lv)
-struct vnode *lv; /* local vnode */
+struct l_vfs *readvfs(struct vnode *lv) /* local vnode */
 {
     struct mount m;
     struct mntinfo mi;
@@ -158,7 +157,7 @@ struct vnode *lv; /* local vnode */
     }
     if ((vp = (struct l_vfs *)malloc(sizeof(struct l_vfs))) == NULL) {
         (void)fprintf(stderr, "%s: PID %d, no space for vfs\n", Pn, Lp->pid);
-        Error();
+        Error(ctx);
     }
     vp->dev = 0;
     vp->dir = (char *)NULL;
@@ -168,7 +167,7 @@ struct vnode *lv; /* local vnode */
     vp->fs_ino = 0;
 #endif /* defined(HASFSINO) */
 
-    if (lv->v_vfsp && kread((KA_T)lv->v_vfsp, (char *)&v, sizeof(v))) {
+    if (lv->v_vfsp && kread(ctx, (KA_T)lv->v_vfsp, (char *)&v, sizeof(v))) {
         (void)free((FREE_P *)vp);
         return ((struct l_vfs *)NULL);
     }
@@ -182,7 +181,7 @@ struct vnode *lv; /* local vnode */
          * private data pointer to an mntinfo structure.
          */
         if (v.vfs_data &&
-            kread((KA_T)v.vfs_data, (char *)&mi, sizeof(mi)) == 0) {
+            kread(ctx, (KA_T)v.vfs_data, (char *)&mi, sizeof(mi)) == 0) {
 
 #if HPUXV < 1020
             td = (dev_t)makedev(255, (int)mi.mi_mntno);
@@ -198,7 +197,7 @@ struct vnode *lv; /* local vnode */
         }
     } else {
         if (v.vfs_data) {
-            if (kread((KA_T)v.vfs_data, (char *)&m, sizeof(m)) == 0)
+            if (kread(ctx, (KA_T)v.vfs_data, (char *)&m, sizeof(m)) == 0)
                 ms = 1;
             else
                 ms = 0;

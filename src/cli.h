@@ -1,7 +1,5 @@
 /*
- * dproto.h - OpenBSD function prototypes for lsof
- *
- * The _PROTOTYPE macro is defined in the common proto.h.
+ * cli.h - header file for lsof cli
  */
 
 /*
@@ -30,14 +28,10 @@
  * 4. This notice may not be removed or altered.
  */
 
-/*
- * $Id: dproto.h,v 1.11 2005/08/08 19:53:24 abe Exp $
- */
+#if !defined(CLI_H)
+#    define CLI_H
 
-extern int is_file_named(struct lsof_context *ctx, char *p, int cd);
+#    include "lsof.h"
+#    include "proto.h"
 
-extern void process_vnode(struct lsof_context *ctx, struct kinfo_file *file);
-extern void process_socket(struct lsof_context *ctx, struct kinfo_file *file);
-extern void process_pipe(struct lsof_context *ctx, struct kinfo_file *file);
-extern void process_kqueue_file(struct lsof_context *ctx,
-                                struct kinfo_file *file);
+#endif
