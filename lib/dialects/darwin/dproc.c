@@ -632,7 +632,7 @@ static void process_fileports(struct lsof_context *ctx, /* context */
          * fileport reported as "fp." with "(fileport=0xXXXX)" in the Name
          * column
          */
-        alloc_lfile(ctx, LSOF_FD_FILEPOTY, -1);
+        alloc_lfile(ctx, LSOF_FD_FILEPORT, -1);
         Lf->fileport = fpi->proc_fileport;
         /*
          * Process the file by its type.
