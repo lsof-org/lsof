@@ -52,9 +52,9 @@ static char copyright[] =
 #    include "proto.h"
 #    include "dproto.h"
 
-int readj2lino(ga, li)
-struct gnode *ga; /* gnode address */
-struct l_ino *li; /* local inode receiver */
+int readj2lino(struct lsof_context *ctx, /* context */
+               struct gnode *ga,         /* gnode address */
+               struct l_ino *li)         /* local inode receiver */
 {
     struct inode i; /* jfs2 inode */
                     /*
@@ -62,7 +62,8 @@ struct l_ino *li; /* local inode receiver */
                      *
                      * Note: the caller is responsible for initializing *li to zeroes.
                      */
-    if (!ga || !ga->gn_data || kread((KA_T)ga->gn_data, (char *)&i, sizeof(i)))
+    if (!ga || !ga->gn_data ||
+        kread(ctx, (KA_T)ga->gn_data, (char *)&i, sizeof(i)))
         return (1);
     li->dev = i.i_dev;
     li->nlink = i.i_nlink;

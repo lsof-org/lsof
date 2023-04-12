@@ -84,7 +84,7 @@ static int HbyMPCCt = 0; /* HbyMPC entry count */
  * hashSfile() - hash Sfile entries for use in is_file_named() searches
  */
 
-void hashSfile() {
+void hashSfile(struct lsof_context *ctx) {
     static int hs = 0;
     int i;
     struct sfile *s;
@@ -200,12 +200,12 @@ void hashSfile() {
  * is_file_named() - is file named?
  */
 
-int is_file_named(p, ty, ch, ic)
-char *p;       /* path name; NULL = search by device
-                * and inode (from *Lf) */
-enum vtype ty; /* vnode type */
-chan_t ch;     /* gnode channel */
-int ic;        /* is clone file (4.1.4 and above) */
+int is_file_named(struct lsof_context *ctx, /* context */
+                  char *p,       /* path name; NULL = search by device
+                                  * and inode (from *Lf) */
+                  enum vtype ty, /* vnode type */
+                  chan_t ch,     /* gnode channel */
+                  int ic)        /* is clone file (4.1.4 and above) */
 {
     int dmaj, dmin, maj, min, rmaj, rmin;
     static int dsplit = 0;
@@ -222,7 +222,7 @@ int ic;        /* is clone file (4.1.4 and above) */
      * be compared directly, but must be compared by extracting their major and
      * minor numbers and comparing them.
      */
-    readdev(0);
+    readdev(ctx, 0);
     if (!dsplit) {
         dmaj = GET_MAJ_DEV(DevDev);
         dmin = GET_MIN_DEV(DevDev);
@@ -346,11 +346,11 @@ int ic;        /* is clone file (4.1.4 and above) */
              */
             (void)snpf(Namech, Namechl, "%s", s->name);
             if (ty == VMPC && s->ch < 0) {
-                ep = endnm(&sz);
+                ep = endnm(ctx, &sz);
                 (void)snpf(ep, sz, "/%d", ch);
             }
             if (s->devnm) {
-                ep = endnm(&sz);
+                ep = endnm(ctx, &sz);
                 (void)snpf(ep, sz, " (%s)", s->devnm);
             }
         }
@@ -364,9 +364,8 @@ int ic;        /* is clone file (4.1.4 and above) */
  * print_dev() - print device
  */
 
-char *print_dev(lf, dev)
-struct lfile *lf; /* file whose device to be printed */
-dev_t *dev;       /* pointer to device to be printed */
+char *print_dev(struct lfile *lf, /* file whose device to be printed */
+                dev_t *dev)       /* pointer to device to be printed */
 
 {
     static char buf[128];
@@ -388,8 +387,8 @@ dev_t *dev;       /* pointer to device to be printed */
  * readvfs() - read vfs structure
  */
 
-struct l_vfs *readvfs(vn)
-struct vnode *vn; /* vnode */
+struct l_vfs *readvfs(struct lsof_context *ctx, /* context */
+                      struct vnode *vn)         /* vnode */
 {
     struct gfs g;
     void *mp;
@@ -414,7 +413,7 @@ struct vnode *vn; /* vnode */
     /*
      * Read the vfs structure.
      */
-    if (kread((KA_T)vn->v_vfsp, (char *)&v, sizeof(v))) {
+    if (kread(ctx, (KA_T)vn->v_vfsp, (char *)&v, sizeof(v))) {
 
     vfs_exit:
         (void)free((FREE_P *)vp);
@@ -423,10 +422,11 @@ struct vnode *vn; /* vnode */
     /*
      * Locate AIX mount information.
      */
-    if (!v.vfs_gfs || kread((KA_T)v.vfs_gfs, (char *)&g, sizeof(g)))
+    if (!v.vfs_gfs || kread(ctx, (KA_T)v.vfs_gfs, (char *)&g, sizeof(g)))
         goto vfs_exit;
     if (!v.vfs_mdata ||
-        kread((KA_T)((char *)v.vfs_mdata + offsetof(struct vmount, vmt_length)),
+        kread(ctx,
+              (KA_T)((char *)v.vfs_mdata + offsetof(struct vmount, vmt_length)),
               (char *)&ul, sizeof(ul)))
         goto vfs_exit;
     if (!(mp = (void *)malloc((MALLOC_S)ul))) {
@@ -434,7 +434,7 @@ struct vnode *vn; /* vnode */
                       Lp->pid);
         Error(ctx);
     }
-    if (kread((KA_T)v.vfs_mdata, (char *)mp, (int)ul)) {
+    if (kread(ctx, (KA_T)v.vfs_mdata, (char *)mp, (int)ul)) {
         (void)free((FREE_P *)mp);
         goto vfs_exit;
     }

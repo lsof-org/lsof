@@ -30,6 +30,7 @@
 
 #include "common.h"
 #include "machine.h"
+
 #if defined(USE_LIB_CKKV)
 
 #    include <sys/utsname.h>
@@ -38,11 +39,12 @@
  * ckkv() - check kernel version
  */
 
-void ckkv(struct lsof_context *ctx, char *d, /* dialect */
-          char *er, /* expected revision, NULL, no test */
-          char *ev, /* expected version, NULL, no test */
-          char *ea) /* expected architecture, NULL, no
-                     * test */
+void ckkv(struct lsof_context *ctx, /* context */
+          char *d,                  /* dialect */
+          char *er,                 /* expected revision, NULL, no test */
+          char *ev,                 /* expected version, NULL, no test */
+          char *ea)                 /* expected architecture, NULL, no
+                                     * test */
 {
 
 #    if defined(HASKERNIDCK)
@@ -79,4 +81,6 @@ void ckkv(struct lsof_context *ctx, char *d, /* dialect */
 #    endif /* defined(HASKERNIDCK) */
 }
 #else  /* !defined(USE_LIB_CKKV) */
+char ckkv_d1[] = "d";
+char *ckkv_d2 = ckkv_d1;
 #endif /* defined(USE_LIB_CKKV) */
