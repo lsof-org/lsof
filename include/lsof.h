@@ -64,6 +64,7 @@ enum lsof_fd_type {
     LSOF_FD_UNKNOWN,    /**< Unknown fd type */
     LSOF_FD_CWD,        /**< Current working directory */
     LSOF_FD_ERROR,      /**< Failed to get fd information */
+    LSOF_FD_NOFD,       /**< No file descriptors */
     LSOF_FD_ROOT_DIR,   /**< Root directory */
     LSOF_FD_PARENT_DIR, /**< Parent directory */
     LSOF_FD_PROGRAM_TEXT,    /**< Program text */

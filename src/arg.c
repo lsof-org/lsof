@@ -915,6 +915,8 @@ static int enter_fd_lst(struct lsof_context *ctx, /* context */
                 f->fd_type = LSOF_FD_CWD;
             } else if (strcmp(nm, "err") == 0) {
                 f->fd_type = LSOF_FD_ERROR;
+            } else if (strcmp(nm, "NOFD") == 0) {
+                f->fd_type = LSOF_FD_NOFD;
             } else if (strcmp(nm, "rtd") == 0) {
                 f->fd_type = LSOF_FD_ROOT_DIR;
             } else if (strcmp(nm, "pd") == 0) {
@@ -925,7 +927,7 @@ static int enter_fd_lst(struct lsof_context *ctx, /* context */
                 f->fd_type = LSOF_FD_LIBRARY_TEXT;
             } else if (strcmp(nm, "mem") == 0) {
                 f->fd_type = LSOF_FD_MEMORY;
-            } else if (strcmp(nm, "del") == 0) {
+            } else if (strcmp(nm, "DEL") == 0) {
                 f->fd_type = LSOF_FD_DELETED;
             } else if (strcmp(nm, "fp") == 0) {
                 f->fd_type = LSOF_FD_FILEPORT;

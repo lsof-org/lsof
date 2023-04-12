@@ -28,6 +28,7 @@
  * 4. This notice may not be removed or altered.
  */
 
+#include "lsof.h"
 #ifndef lint
 static char copyright[] =
     "@(#) Copyright 1994 Purdue Research Foundation.\nAll rights reserved.\n";
@@ -56,7 +57,7 @@ void process_vnode(struct lsof_context *ctx, struct kinfo_file *file) {
         fd_type = LSOF_FD_CWD;
         break;
     case KERN_FILE_RDIR:
-        fd_type = LSOF_FD_CWD;
+        fd_type = LSOF_FD_ROOT_DIR;
         break;
     default:
         fd_type = LSOF_FD_NUMERIC;

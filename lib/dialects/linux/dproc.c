@@ -1178,7 +1178,7 @@ static int process_id(struct lsof_context *ctx, /* context */
         if (!Fwarn) {
             (void)snpf(nmabuf, sizeof(nmabuf), "%s (opendir: %s)", dpath,
                        strerror(errno));
-            alloc_lfile(ctx, LSOF_FD_ERROR, -1);
+            alloc_lfile(ctx, LSOF_FD_NOFD, -1);
             nmabuf[sizeof(nmabuf) - 1] = '\0';
             (void)add_nma(ctx, nmabuf, strlen(nmabuf));
             link_lfile(ctx);

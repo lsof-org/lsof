@@ -1698,6 +1698,9 @@ void fd_to_string(enum lsof_fd_type fd_type, int fd_num, char *buf) {
     case LSOF_FD_ERROR:
         (void)snpf(buf, FDLEN, "err");
         break;
+    case LSOF_FD_NOFD:
+        (void)snpf(buf, FDLEN, "NOFD");
+        break;
     case LSOF_FD_ROOT_DIR:
         (void)snpf(buf, FDLEN, "rtd");
         break;
@@ -1714,7 +1717,7 @@ void fd_to_string(enum lsof_fd_type fd_type, int fd_num, char *buf) {
         (void)snpf(buf, FDLEN, "mem");
         break;
     case LSOF_FD_DELETED:
-        (void)snpf(buf, FDLEN, "del");
+        (void)snpf(buf, FDLEN, "DEL");
         break;
     case LSOF_FD_FILEPORT:
         (void)snpf(buf, FDLEN, "fp.");
