@@ -47,7 +47,7 @@ void process_kqueue_file(struct lsof_context *ctx, struct kinfo_file *file) {
     alloc_lfile(ctx, LSOF_FD_NUMERIC, file->fd_fd);
 
     /* Fill type name*/
-    (void)snpf(Lf->type, sizeof(Lf->type), "KQUEUE");
+    Lf->type = LSOF_FILE_KQUEUE;
 
     /* Fill dev with f_data if available */
     if (file->f_data) {

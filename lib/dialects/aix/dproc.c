@@ -1368,7 +1368,7 @@ static void process_text(pid_t pid) /* process PID */
         Lf->dev_def = Lf->inp_ty = Lf->nlink_def = 1;
         Lf->dev = sb.st_dev;
         Lf->inode = (INODETYPE)sb.st_ino;
-        (void)snpf(Lf->type, sizeof(Lf->type), "VREG");
+        Lf->type = LSOF_FILE_VNODE_VREG;
         /*
          * Look for a match on device and node numbers in the *.so cache.
          */

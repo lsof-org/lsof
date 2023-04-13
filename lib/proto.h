@@ -194,6 +194,9 @@ extern char *printuid(struct lsof_context *ctx, UID_ARG uid, int *ty);
 extern void printunkaf(struct lsof_context *ctx, int fam, int ty);
 extern char access_to_char(enum lsof_file_access_mode access);
 extern char lock_to_char(enum lsof_lock_mode access);
+extern void file_type_to_string(enum lsof_file_type type,
+                                uint32_t unknown_file_type_number, char *buf,
+                                size_t buf_len);
 extern char *printsockty(int ty);
 extern void process_file(struct lsof_context *ctx, KA_T fp);
 extern void process_node(struct lsof_context *ctx, KA_T f);

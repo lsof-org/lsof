@@ -28,6 +28,7 @@
  * 4. This notice may not be removed or altered.
  */
 
+#include "lsof.h"
 #ifndef lint
 static char copyright[] =
     "@(#) Copyright 1994 Purdue Research Foundation.\nAll rights reserved.\n";
@@ -1014,7 +1015,7 @@ void process_node(struct lsof_context *ctx, /* context */
     switch (type) {
 
     case VNON:
-        ty = "VNON";
+        Lf->type = LSOF_FILE_VNODE_VNON;
         Lf->dev = dev;
         Lf->dev_def = devs;
         Lf->rdev = rdev;
@@ -1022,14 +1023,14 @@ void process_node(struct lsof_context *ctx, /* context */
         break;
     case VREG:
     case VDIR:
-        ty = (type == VREG) ? "VREG" : "VDIR";
+        Lf->type = (type == VREG) ? LSOF_FILE_VNODE_VREG : LSOF_FILE_VNODE_VDIR;
         Lf->dev = dev;
         Lf->dev_def = devs;
         Lf->rdev = rdev;
         Lf->rdev_def = rdevs;
         break;
     case VBLK:
-        ty = "VBLK";
+        Lf->type = LSOF_FILE_VNODE_VBLK;
         Lf->dev = dev;
         Lf->dev_def = devs;
         Lf->rdev = rdev;
@@ -1037,7 +1038,7 @@ void process_node(struct lsof_context *ctx, /* context */
         Ntype = N_BLK;
         break;
     case VCHR:
-        ty = "VCHR";
+        Lf->type = LSOF_FILE_VNODE_VCHR;
         Lf->dev = dev;
         Lf->dev_def = devs;
         Lf->rdev = rdev;
@@ -1045,7 +1046,7 @@ void process_node(struct lsof_context *ctx, /* context */
         Ntype = N_CHR;
         break;
     case VLNK:
-        ty = "VLNK";
+        Lf->type = LSOF_FILE_VNODE_VLNK;
         Lf->dev = dev;
         Lf->dev_def = devs;
         Lf->rdev = rdev;
@@ -1054,7 +1055,7 @@ void process_node(struct lsof_context *ctx, /* context */
 
 #if defined(VSOCK)
     case VSOCK:
-        ty = "SOCK";
+        Lf->type = LSOF_FILE_VNODE_VSOCK;
         Lf->dev = dev;
         Lf->dev_def = devs;
         Lf->rdev = rdev;
@@ -1063,7 +1064,7 @@ void process_node(struct lsof_context *ctx, /* context */
 #endif
 
     case VBAD:
-        ty = "VBAD";
+        Lf->type = LSOF_FILE_VNODE_VBAD;
         Lf->dev = dev;
         Lf->dev_def = devs;
         Lf->rdev = rdev;
@@ -1076,7 +1077,7 @@ void process_node(struct lsof_context *ctx, /* context */
             Lf->rdev = rdev;
             Lf->rdev_def = rdevs;
         }
-        ty = "FIFO";
+        Lf->type = LSOF_FILE_VNODE_VFIFO;
         break;
     case VMPC:
         Lf->rdev = g.gn_rdev;
@@ -1092,18 +1093,16 @@ void process_node(struct lsof_context *ctx, /* context */
 #endif /* AIXV<3200 */
 
         Ntype = N_CHR;
-        ty = "VMPC";
+        Lf->type = LSOF_FILE_VNODE_VMPC;
         break;
     default:
         Lf->dev = dev;
         Lf->dev_def = devs;
         Lf->rdev = rdev;
         Lf->rdev_def = rdevs;
-        (void)snpf(Lf->type, sizeof(Lf->type), "%04o", (type & 0xfff));
-        ty = (char *)NULL;
+        Lf->type = LSOF_FILE_UNKNOWN_RAW;
+        Lf->unknown_file_type_number = type;
     }
-    if (ty)
-        (void)snpf(Lf->type, sizeof(Lf->type), "%s", ty);
     Lf->ntype = Ntype;
 
 #if defined(HASBLKDEV)
@@ -1163,7 +1162,7 @@ void process_shmt(struct lsof_context *ctx, /* context */
     /*
      * Set type to " SMT" and put shmtnode structure address in device column.
      */
-    (void)snpf(Lf->type, sizeof(Lf->type), " SMT");
+    Lf->type = LSOF_FILE_SHARED_MEM_TRANSPORT;
     if (!sa || kread(ctx, (KA_T)sa, (char *)&mn, sizeof(mn))) {
         (void)snpf(Namech, Namechl, "can't read shmtnode: %s",
                    print_kptr(sa, (char *)NULL, 0));

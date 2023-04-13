@@ -28,6 +28,7 @@
  * 4. This notice may not be removed or altered.
  */
 
+#include "lsof.h"
 #ifndef lint
 static char copyright[] =
     "@(#) Copyright 1994 Purdue Research Foundation.\nAll rights reserved.\n";
@@ -937,55 +938,53 @@ void process_node(va) KA_T va; /* vnode kernel space address */
     Lf->rdev_def = rdevs;
     switch (type) {
     case VNON:
-        ty = "VNON";
+        Lf->type = LSOF_FILE_VNODE_VNON;
         break;
     case VREG:
     case VDIR:
-        ty = (type == VREG) ? "VREG" : "VDIR";
+        Lf->type = (type == VREG) ? LSOF_FILE_VNODE_VREG : LSOF_FILE_VNODE_VDIR;
         break;
     case VBLK:
-        ty = "VBLK";
+        Lf->type = LSOF_FILE_VNODE_VBLK;
         Ntype = N_BLK;
         break;
     case VCHR:
-        ty = "VCHR";
+        Lf->type = LSOF_FILE_VNODE_VCHR;
         Ntype = N_CHR;
         break;
     case VLNK:
-        ty = "VLNK";
+        Lf->type = LSOF_FILE_VNODE_VLNK;
         break;
 
 #if defined(VSOCK)
     case VSOCK:
-        ty = "SOCK";
+        Lf->type = LSOF_FILE_VNODE_VSOCK;
         break;
 #endif /* defined(VSOCK) */
 
     case VBAD:
-        ty = "VBAD";
+        Lf->type = LSOF_FILE_VNODE_VBAD;
         break;
     case VFIFO:
         switch (Ntype) {
 
 #if HPUXV >= 1000
         case N_FIFO:
-            ty = "FIFO";
+            Lf->type = LSOF_FILE_VNODE_VFIFO;
             break;
         case N_PIPE:
-            ty = "PIPE";
+            Lf->type = LSOF_FILE_PIPE;
             break;
 #endif /* HPUXV>=1000 */
 
         default:
-            ty = "FIFO";
+            Lf->type = LSOF_FILE_FIFO;
         }
         break;
     default:
-        (void)snpf(Lf->type, sizeof(Lf->type), "%04o", (type & 0xfff));
-        ty = (char *)NULL;
+        Lf->type = LSOF_FILE_UNKNOWN_RAW;
+        Lf->unknown_file_type_number = type;
     }
-    if (ty)
-        (void)snpf(Lf->type, sizeof(Lf->type), "%s", ty);
     Lf->ntype = Ntype;
 
 #if defined(HASBLKDEV)

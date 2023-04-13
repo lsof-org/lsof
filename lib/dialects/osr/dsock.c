@@ -28,6 +28,7 @@
  * 4. This notice may not be removed or altered.
  */
 
+#include "lsof.h"
 #ifndef lint
 static char copyright[] =
     "@(#) Copyright 1995 Purdue Research Foundation.\nAll rights reserved.\n";
@@ -68,7 +69,7 @@ void process_socket(i) struct inode *i; /* inode pointer */
     struct un_dev ud;
 #endif /* OSRV<500 */
 
-    (void)snpf(Lf->type, sizeof(Lf->type), "sock");
+    Lf->type = LSOF_FILE_SOCKET;
     /*
      * Read socket.
      */
@@ -105,7 +106,7 @@ void process_socket(i) struct inode *i; /* inode pointer */
     case AF_INET:
         if (Fnet)
             Lf->sf |= SELNET;
-        (void)snpf(Lf->type, sizeof(Lf->type), "inet");
+        Lf->type = LSOF_FILE_INET;
         printiproto((int)s.so_proto.pr_protocol);
         Lf->inp_ty = 2;
         /*
@@ -130,7 +131,8 @@ void process_socket(i) struct inode *i; /* inode pointer */
                  * at the PCB's per-protocol control block address.  It
                  * may contain a foreign address.
                  */
-                if (!kread(ctx, (KA_T)pcb.inp_ppcb, (char *)&udp, sizeof(udp))) {
+                if (!kread(ctx, (KA_T)pcb.inp_ppcb, (char *)&udp,
+                           sizeof(udp))) {
 
 #if OSRV >= 500
                     if (udp.ud_lsin.sin_addr.s_addr != INADDR_ANY ||
@@ -206,11 +208,13 @@ void process_socket(i) struct inode *i; /* inode pointer */
                 }
             }
 #else  /* OSRV>=500 */
-            if (s.so_name && !kread(ctx, (KA_T)s.so_name, (char *)&si, sizeof(si))) {
+            if (s.so_name &&
+                !kread(ctx, (KA_T)s.so_name, (char *)&si, sizeof(si))) {
                 la = (unsigned char *)&si.sin_addr;
                 lp = (int)ntohs(si.sin_port);
             }
-            if (s.so_peer && !kread(ctx, (KA_T)s.so_peer, (char *)&si, sizeof(si))) {
+            if (s.so_peer &&
+                !kread(ctx, (KA_T)s.so_peer, (char *)&si, sizeof(si))) {
                 if (si.sin_addr.s_addr != INADDR_ANY || si.sin_port != 0) {
                     fa = (unsigned char *)&si.sin_addr;
                     fp = (int)ntohs(si.sin_port);
@@ -272,14 +276,15 @@ void process_socket(i) struct inode *i; /* inode pointer */
     case AF_UNIX:
         if (Funix)
             Lf->sf |= SELUNX;
-        (void)snpf(Lf->type, sizeof(Lf->type), "unix");
+        Lf->type = LSOF_FILE_UNIX;
         /*
          * Read Unix protocol control block and the Unix address structure.
          */
         enter_dev_ch(print_kptr(sa, (char *)NULL, 0));
         if (s.so_stp && !readstdata((KA_T)s.so_stp, &sd) &&
             !readsthead((KA_T)sd.sd_wrq, &sh)) {
-            if (!sh.q_ptr || kread(ctx, (KA_T)sh.q_ptr, (char *)&ud, sizeof(ud))) {
+            if (!sh.q_ptr ||
+                kread(ctx, (KA_T)sh.q_ptr, (char *)&ud, sizeof(ud))) {
                 (void)snpf(Namech, Namechl, "can't read un_dev from %s",
                            print_kptr((KA_T)sh.q_ptr, (char *)NULL, 0));
                 break;

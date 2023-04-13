@@ -28,6 +28,7 @@
  * 4. This notice may not be removed or altered.
  */
 
+#include <sys/socket.h>
 #ifndef lint
 static char copyright[] =
     "@(#) Copyright 1994 Purdue Research Foundation.\nAll rights reserved.\n";
@@ -380,7 +381,7 @@ void process_socket(struct lsof_context *ctx, struct kinfo_file *kf,
 
     int unl;
 
-    (void)snpf(Lf->type, sizeof(Lf->type), "sock");
+    Lf->type = LSOF_FILE_SOCKET;
     Lf->inp_ty = 2;
     /*
      * Read the socket, protocol, and domain structures.
@@ -446,8 +447,7 @@ void process_socket(struct lsof_context *ctx, struct kinfo_file *kf,
         }
         printiproto(kf->kf_sock_protocol);
 
-        (void)snpf(Lf->type, sizeof(Lf->type),
-                   (fam == AF_INET) ? "IPv4" : "IPv6");
+        Lf->type = (fam == AF_INET) ? LSOF_FILE_IPV4 : LSOF_FILE_IPV6;
 
         if (fam == AF_INET6) {
             struct sockaddr_in6 *local_addr6, *foreign_addr6;
@@ -567,7 +567,7 @@ void process_socket(struct lsof_context *ctx, struct kinfo_file *kf,
          * Process a ROUTE domain socket.
          */
     case AF_ROUTE:
-        (void)snpf(Lf->type, sizeof(Lf->type), "rte");
+        Lf->type = LSOF_FILE_ROUTE;
         if (s && s->so_pcb)
             enter_dev_ch(ctx, print_kptr((KA_T)(s->so_pcb), (char *)NULL, 0));
         else
@@ -580,7 +580,7 @@ void process_socket(struct lsof_context *ctx, struct kinfo_file *kf,
         struct xunpcb *unix_pcb = (struct xunpcb *)pcb;
         if (Funix)
             Lf->sf |= SELUNX;
-        (void)snpf(Lf->type, sizeof(Lf->type), "unix");
+        Lf->type = LSOF_FILE_UNIX;
         /*
          * Read Unix protocol control block and the Unix address structure.
          */

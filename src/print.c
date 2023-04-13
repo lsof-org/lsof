@@ -650,6 +650,7 @@ void print_file(struct lsof_context *ctx) {
     char access;
     char lock;
     char fd[FDLEN];
+    char type[TYPEL];
 
     if (PrPass && !Hdr) {
 
@@ -871,11 +872,13 @@ void print_file(struct lsof_context *ctx) {
     /*
      * Size or print the type.
      */
+    file_type_to_string(Lf->type, Lf->unknown_file_type_number, type,
+                        sizeof(type));
     if (!PrPass) {
-        if ((len = strlen(Lf->type)) > TypeColW)
+        if ((len = strlen(type)) > TypeColW)
             TypeColW = len;
     } else
-        (void)printf(" %*.*s", TypeColW, TypeColW, Lf->type);
+        (void)printf(" %*.*s", TypeColW, TypeColW, type);
 
 #if defined(HASFSTRUCT)
     /*

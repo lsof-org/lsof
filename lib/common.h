@@ -849,7 +849,10 @@ struct lfile {
                    LSOF_FD_PREGION_UNKNOWN}, otherwise -1 */
 
     char iproto[IPROTOL];
-    char type[TYPEL];
+    enum lsof_file_type type;
+    uint32_t unknown_file_type_number; /* store file type when type ==
+                                      LSOF_FILE_UNKNOWN */
+
     unsigned int sf; /* select flags -- SEL* symbols */
     int ch;          /* VMPC channel: -1 = none */
     int ntype;       /* node type -- N_* value */

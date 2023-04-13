@@ -397,15 +397,15 @@ void gather_proc_info() {
                 (void)process_stream(f, (int)ckscko);
                 break;
             case PS_TYPE_UNKNOWN:
-                (void)snpf(Lf->type, sizeof(Lf->type), "UNKN");
+                Lf->type = LSOF_FILE_UNKNOWN;
                 (void)enter_nm("no more information");
                 break;
             case PS_TYPE_UNSP:
-                (void)snpf(Lf->type, sizeof(Lf->type), "UNSP");
+                Lf->type = LSOF_FILE_UNSUPPORTED;
                 (void)enter_nm("no more information");
                 break;
             case PS_TYPE_LLA:
-                (void)snpf(Lf->type, sizeof(Lf->type), "LLA");
+                Lf->type = LSOF_FILE_LINK_LEVEL_ACCESS;
                 (void)enter_nm("no more information");
                 break;
             }

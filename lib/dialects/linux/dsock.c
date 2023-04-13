@@ -31,6 +31,7 @@
 #include "common.h"
 #include <sys/xattr.h>
 #include "hash.h"
+#include "lsof.h"
 #include "proto.h"
 
 #if defined(HASEPTOPTS) && defined(HASUXSOCKEPT)
@@ -1125,7 +1126,7 @@ void process_uxsinfo(struct lsof_context *ctx,
     if (!FeptE)
         return;
     for (Lf = Lp->file; Lf; Lf = Lf->next) {
-        if (strcmp(Lf->type, "unix"))
+        if (Lf->type != LSOF_FILE_UNIX)
             continue;
         switch (f) {
         case 0:
@@ -1354,11 +1355,11 @@ void process_netsinfo(struct lsof_context *ctx, /* context */
         return;
     for (Lf = Lp->file; Lf; Lf = Lf->next) {
 #    if defined(HASIPv6)
-        char *type = "IPv4";
+        enum lsof_file_type type = LSOF_FILE_IPV4;
 #    else  /* !defined(HASIPv6) */
-        char *type = "inet";
+        enum lsof_file_type type = LSOF_FILE_INET;
 #    endif /* defined(HASIPv6) */
-        if (strcmp(Lf->type, type))
+        if (Lf->type != type)
             continue;
         switch (f) {
         case 0:
@@ -1483,7 +1484,7 @@ void process_nets6info(struct lsof_context *ctx, /* context */
     if (!FeptE)
         return;
     for (Lf = Lp->file; Lf; Lf = Lf->next) {
-        if (strcmp(Lf->type, "IPv6"))
+        if (Lf->type != LSOF_FILE_IPV6)
             continue;
         switch (f) {
         case 0:
@@ -3447,7 +3448,7 @@ void print_tcptpi(struct lsof_context *ctx, /* context */
     int ps = 0;
     int s;
 
-    if (!strcmp(Lf->type, "unix")) {
+    if (Lf->type == LSOF_FILE_UNIX) {
         print_unix(nl);
         return;
     }
@@ -3602,7 +3603,7 @@ void process_proc_sock(struct lsof_context *ctx, /* context */
          * save the destination and source addresses; save the send and receive
          * queue sizes; and save the connection state.
          */
-        (void)snpf(Lf->type, sizeof(Lf->type), "ax25");
+        Lf->type = LSOF_FILE_AX25;
         if (ap->dev_ch)
             (void)enter_dev_ch(ctx, ap->dev_ch);
         Lf->inode = ap->inode;
@@ -3623,7 +3624,7 @@ void process_proc_sock(struct lsof_context *ctx, /* context */
          * Set the type to "ipx"; enter the inode and device numbers; store
          * the addresses, queue sizes, and state in the NAME column.
          */
-        (void)snpf(Lf->type, sizeof(Lf->type), "ipx");
+        Lf->type = LSOF_FILE_IPX;
         Lf->inode = (INODETYPE)s->st_ino;
         Lf->inp_ty = 1;
 
@@ -3681,7 +3682,7 @@ void process_proc_sock(struct lsof_context *ctx, /* context */
          * Set the type to "raw"; enter the inode number; store the local
          * address, remote address, and state in the NAME column.
          */
-        (void)snpf(Lf->type, sizeof(Lf->type), "raw");
+        Lf->type = LSOF_FILE_RAW;
         Lf->inode = (INODETYPE)s->st_ino;
         Lf->inp_ty = 1;
 
@@ -3742,7 +3743,7 @@ void process_proc_sock(struct lsof_context *ctx, /* context */
          * column.  Save the inode number.
          */
 
-        (void)snpf(Lf->type, sizeof(Lf->type), "netlink");
+        Lf->type = LSOF_FILE_NETLINK;
         cp = netlink_proto_to_str(np->pr);
         if (cp)
             (void)snpf(Namech, Namechl, "%s", cp);
@@ -3769,7 +3770,7 @@ void process_proc_sock(struct lsof_context *ctx, /* context */
          * column.  Put the protocol name in the NODE column and the inode
          * number in the DEVICE column.
          */
-        (void)snpf(Lf->type, sizeof(Lf->type), "pack");
+        Lf->type = LSOF_FILE_PACKET;
         cp = socket_type_to_str(pp->ty, &rf);
         (void)snpf(Namech, Namechl, "type=%s%s", rf ? "" : "SOCK_", cp);
         cp = ethernet_proto_to_str(pp->pr);
@@ -3806,7 +3807,7 @@ void process_proc_sock(struct lsof_context *ctx, /* context */
          */
         if (Funix)
             Lf->sf |= SELUNX;
-        (void)snpf(Lf->type, sizeof(Lf->type), "unix");
+        Lf->type = LSOF_FILE_UNIX;
         if (up->pcb)
             enter_dev_ch(ctx, up->pcb);
         Lf->inode = (INODETYPE)s->st_ino;
@@ -3913,7 +3914,7 @@ void process_proc_sock(struct lsof_context *ctx, /* context */
          * Set the type to "raw6"; enter the inode number; store the local
          * address, remote address, and state in the NAME column.
          */
-        (void)snpf(Lf->type, sizeof(Lf->type), "raw6");
+        Lf->type = LSOF_FILE_RAW6;
         if (ss & SB_INO) {
             Lf->inode = (INODETYPE)s->st_ino;
             Lf->inp_ty = 1;
@@ -4023,7 +4024,7 @@ void process_proc_sock(struct lsof_context *ctx, /* context */
         }
         if (Fnet && (FnetTy != 4))
             Lf->sf |= SELNET;
-        (void)snpf(Lf->type, sizeof(Lf->type), "IPv6");
+        Lf->type = LSOF_FILE_IPV6;
         (void)snpf(Lf->iproto, sizeof(Lf->iproto), "%.*s", IPROTOL - 1, pr);
         Lf->inp_ty = 2;
         if (ss & SB_INO) {
@@ -4132,9 +4133,9 @@ void process_proc_sock(struct lsof_context *ctx, /* context */
             Lf->sf |= SELNET;
 
 #if defined(HASIPv6)
-        (void)snpf(Lf->type, sizeof(Lf->type), "IPv4");
+        Lf->type = LSOF_FILE_IPV4;
 #else  /* !defined(HASIPv6) */
-        (void)snpf(Lf->type, sizeof(Lf->type), "inet");
+        Lf->type = LSOF_FILE_INET;
 #endif /* defined(HASIPv6) */
 
         (void)snpf(Lf->iproto, sizeof(Lf->iproto), "%.*s", IPROTOL - 1, pr);
@@ -4191,7 +4192,7 @@ void process_proc_sock(struct lsof_context *ctx, /* context */
          * column; set the protocol to SCTP; and fill in the NAME column
          * with ASSOC, ASSOC-ID, ENDPT, LADDRS, LPORT, RADDRS and RPORT.
          */
-        (void)snpf(Lf->type, sizeof(Lf->type), "sock");
+        Lf->type = LSOF_FILE_SOCKET;
         (void)snpf(Lf->iproto, sizeof(Lf->iproto), "%.*s", IPROTOL - 1, "SCTP");
         Lf->inp_ty = 2;
         (void)snpf(tbuf, sizeof(tbuf), InodeFmt_d, (INODETYPE)s->st_ino);
@@ -4243,7 +4244,7 @@ void process_proc_sock(struct lsof_context *ctx, /* context */
          * Set the type to "icmp" and store the type in the NAME
          * column.  Save the inode number.
          */
-        (void)snpf(Lf->type, sizeof(Lf->type), "icmp");
+        Lf->type = LSOF_FILE_ICMP;
         Lf->inode = (INODETYPE)s->st_ino;
         Lf->inp_ty = 1;
         cp = Namech;
@@ -4281,7 +4282,7 @@ void process_proc_sock(struct lsof_context *ctx, /* context */
     /*
      * The socket's protocol can't be identified.
      */
-    (void)snpf(Lf->type, sizeof(Lf->type), "sock");
+    Lf->type = LSOF_FILE_SOCKET;
     if (ss & SB_INO) {
         Lf->inode = (INODETYPE)s->st_ino;
         Lf->inp_ty = 1;

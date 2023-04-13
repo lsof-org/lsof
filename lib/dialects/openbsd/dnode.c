@@ -43,7 +43,6 @@ void process_vnode(struct lsof_context *ctx, struct kinfo_file *file) {
     enum lsof_fd_type fd_type;
     int num = -1;
     uint32_t flag;
-    char *type_name = NULL;
     int mib[3];
     size_t size;
     char path[PATH_MAX];
@@ -123,22 +122,20 @@ void process_vnode(struct lsof_context *ctx, struct kinfo_file *file) {
     switch (file->v_type) {
     case VREG:
         Lf->ntype = N_REGLR;
-        type_name = "REG";
+        Lf->type = LSOF_FILE_VNODE_VREG;
         break;
     case VDIR:
-        type_name = "DIR";
+        Lf->type = LSOF_FILE_VNODE_VDIR;
         break;
     case VCHR:
         Lf->ntype = N_CHR;
-        type_name = "CHR";
+        Lf->type = LSOF_FILE_VNODE_VCHR;
         break;
     case VFIFO:
         Lf->ntype = N_FIFO;
-        type_name = "FIFO";
+        Lf->type = LSOF_FILE_VNODE_VFIFO;
         break;
     }
-    if (type_name)
-        (void)snpf(Lf->type, sizeof(Lf->type), "%s", type_name);
 
     /* No way to read file path, request mount info  */
     Lf->lmi_srch = 1;
