@@ -1437,9 +1437,9 @@ int print_proc(struct lsof_context *ctx) {
             lc++;
         }
         if (FieldSel[LSOF_FIX_TYPE].st) {
-            file_type_to_string(Lf->type, Lf->unknown_file_type_number, type,
-                                TYPEL);
-            if (*cp) {
+            if (Lf->type != LSOF_FILE_NONE) {
+                file_type_to_string(Lf->type, Lf->unknown_file_type_number,
+                                    type, TYPEL);
                 (void)printf("%c%s%c", LSOF_FID_TYPE, type, Terminator);
                 lc++;
             }
