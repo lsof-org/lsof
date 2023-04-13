@@ -1227,7 +1227,6 @@ process_overlaid_node:
 #if defined(HASPROCFS)
     else if (nty == PFSNODE) {
         Lf->dev_def = Lf->rdev_def = 0;
-        ty = NULL;
         (void)snpf(Namech, Namechl, "/%s", HASPROCFS);
         switch (p.pfs_type) {
         case Proot:
