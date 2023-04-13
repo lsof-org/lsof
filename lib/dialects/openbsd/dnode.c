@@ -149,7 +149,7 @@ void process_vnode(struct lsof_context *ctx, struct kinfo_file *file) {
 
     /* Handle name match, must be done late, because if_file_named checks
      * Lf->dev etc. */
-    if (is_file_named(ctx, nm, 0)) {
+    if (is_file_named(ctx, NULL, 0)) {
         Lf->sf |= SELNM;
     }
 
