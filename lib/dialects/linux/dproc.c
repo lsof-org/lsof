@@ -29,7 +29,6 @@
  */
 
 #include "common.h"
-#include "lsof.h"
 
 #include <inttypes.h>
 

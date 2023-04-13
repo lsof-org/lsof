@@ -29,8 +29,6 @@
  */
 
 #include "common.h"
-#include "lsof.h"
-#include "proto.h"
 
 #if defined(HASEPTOPTS) && defined(HASPTYEPT)
 #    include <linux/major.h>

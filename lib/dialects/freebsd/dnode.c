@@ -281,7 +281,6 @@ void process_vnode(struct lsof_context *ctx, struct kinfo_file *kf,
     dev_t dev = 0, rdev = 0;
     unsigned char devs;
     unsigned char rdevs;
-    const char *ty;
     KA_T va;
     struct vnode *v, vb;
     struct l_vfs *vfs;

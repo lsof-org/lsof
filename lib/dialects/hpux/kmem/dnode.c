@@ -28,7 +28,6 @@
  * 4. This notice may not be removed or altered.
  */
 
-#include "lsof.h"
 #ifndef lint
 static char copyright[] =
     "@(#) Copyright 1994 Purdue Research Foundation.\nAll rights reserved.\n";
@@ -305,7 +304,7 @@ void process_node(va) KA_T va; /* vnode kernel space address */
     struct rnode r;
     int rdevs = 0;
     int rns = 0;
-    char tbuf[32], *ty;
+    char tbuf[32];
     enum vtype type;
     static struct vnode *v = (struct vnode *)NULL;
     struct l_vfs *vfs;

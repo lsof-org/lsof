@@ -32,7 +32,6 @@
  * $Id: proto.h,v 1.39 2018/02/14 14:20:14 abe Exp $
  */
 
-#include "lsof.h"
 #if !defined(PROTO_H)
 #    define PROTO_H 1
 

@@ -187,7 +187,7 @@ void process_node(struct lsof_context *ctx, /* context */
     struct vfs *la = NULL;
     int rdevs = 0;
     size_t sz;
-    char tbuf[32], *ty;
+    char tbuf[32];
     enum vtype type;
     struct l_vfs *vfs;
     static struct vnode *v = (struct vnode *)NULL;

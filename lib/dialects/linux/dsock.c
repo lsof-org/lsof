@@ -31,8 +31,6 @@
 #include "common.h"
 #include <sys/xattr.h>
 #include "hash.h"
-#include "lsof.h"
-#include "proto.h"
 
 #if defined(HASEPTOPTS) && defined(HASUXSOCKEPT)
 /*
