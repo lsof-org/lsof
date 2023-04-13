@@ -2536,7 +2536,9 @@ is the File Descriptor number of the file or:
 .br
 	\fBmmap\fP	memory\-mapped device;
 .br
-	\fBNOFD\fP	no file descriptors;
+	\fBNOFD\fP	for a Linux /proc/<PID>/fd directory that can't be opened --
+		the directory path appears in the NAME column, followed by an error
+		message;
 .br
 	\fBpd\fP	parent directory;
 .br
@@ -2642,10 +2644,6 @@ or ``LINK'' for a symbolic link file;
 or ``MPB'' for a multiplexed block file;
 .IP
 or ``MPC'' for a multiplexed character file;
-.IP
-or ``NOFD'' for a Linux /proc/<PID>/fd directory that can't be opened --
-the directory path appears in the NAME column, followed by an error
-message;
 .IP
 or ``PAS'' for a
 .I /proc/as
