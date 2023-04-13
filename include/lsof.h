@@ -126,7 +126,6 @@ enum lsof_file_type {
     LSOF_FILE_PROC_CWD, /**< Solaris /proc/<PID>/cwd current working directory
                          */
     LSOF_FILE_PROC_DIR, /**< /proc directory */
-    LSOF_FILE_PROC_PID, /**< /proc/<PID> directory */
     LSOF_FILE_PROC_EXEC_TYPE, /**< FreeBSD /proc executable type (etype) */
     LSOF_FILE_PROC_FD,        /**< /proc/<PID>/fd/<FD> file */
     LSOF_FILE_PROC_FD_DIR,    /**< /proc/<PID>/fd directory */

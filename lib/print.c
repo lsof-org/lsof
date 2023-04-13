@@ -194,9 +194,6 @@ void file_type_to_string(enum lsof_file_type type,
     case LSOF_FILE_PROC_DIR:
         (void)snpf(buf, buf_len, "PDIR");
         break;
-    case LSOF_FILE_PROC_PID:
-        (void)snpf(buf, buf_len, "PPID");
-        break;
     case LSOF_FILE_PROC_EXEC_TYPE:
         (void)snpf(buf, buf_len, "PETY");
         break;
@@ -218,6 +215,12 @@ void file_type_to_string(enum lsof_file_type type,
     case LSOF_FILE_PROC_GROUP_NOTIFIER:
         (void)snpf(buf, buf_len, "PGID");
         break;
+    case LSOF_FILE_PROC_LWP_CTL:
+        (void)snpf(buf, buf_len, "PLC");
+        break;
+    case LSOF_FILE_PROC_LWP_DIR:
+        (void)snpf(buf, buf_len, "PLDR");
+        break;
     case LSOF_FILE_PROC_LDT:
         (void)snpf(buf, buf_len, "PLDT");
         break;
@@ -232,12 +235,6 @@ void file_type_to_string(enum lsof_file_type type,
         break;
     case LSOF_FILE_PROC_LWP_GWINDOWS:
         (void)snpf(buf, buf_len, "PLWG");
-        break;
-    case LSOF_FILE_PROC_LWP_CTL:
-        (void)snpf(buf, buf_len, "PLC");
-        break;
-    case LSOF_FILE_PROC_LWP_DIR:
-        (void)snpf(buf, buf_len, "PLDR");
         break;
     case LSOF_FILE_PROC_LWP_SINFO:
         (void)snpf(buf, buf_len, "PLWI");
