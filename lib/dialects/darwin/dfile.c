@@ -91,7 +91,7 @@ void enter_vnode_info(
 {
     char buf[32];
     enum lsof_file_type type;
-    uint32_t unknown_file_type_number;
+    uint32_t unknown_file_type_number = 0;
     dev_t dev = 0;
     int devs = 0;
     struct mounts *mp;

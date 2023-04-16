@@ -433,7 +433,7 @@ void file_type_to_string(enum lsof_file_type type,
         (void)snpf(buf, buf_len, "DOOR");
         break;
     case LSOF_FILE_VNODE_VPORT:
-        (void)snpf(buf, buf_len, "PORT");
+        
         break;
     case LSOF_FILE_VNODE_VUNNAMED:
         (void)snpf(buf, buf_len, "UNNM");

@@ -599,7 +599,7 @@ KA_T na;                /* node address */
 {
     char *cp, buf[32];
     enum lsof_file_type type;
-    uint32_t unknown_file_type_number;
+    uint32_t unknown_file_type_number = 0;
     dev_t dev;
     int devs = 0;
     int32_t lk;
