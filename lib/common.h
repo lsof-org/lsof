@@ -767,8 +767,8 @@ extern int Fxover;
 extern int Fzone;
 
 struct fd_lst {
-    enum lsof_fd_type fd_type; /* file descriptor type -- range if
-                                * LSOF_FD_NUMERIC */
+    enum lsof_fd_type fd_type; /* file descriptor type;
+                                * range if LSOF_FD_NUMERIC */
     int lo;                    /* range start (if nm NULL) */
     int hi;                    /* range end (if nm NULL) */
     struct fd_lst *next;
