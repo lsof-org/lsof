@@ -130,8 +130,7 @@ void process_socket(i) struct inode *i; /* inode pointer */
                  * at the PCB's per-protocol control block address.  It
                  * may contain a foreign address.
                  */
-                if (!kread(ctx, (KA_T)pcb.inp_ppcb, (char *)&udp,
-                           sizeof(udp))) {
+                if (!kread(ctx, (KA_T)pcb.inp_ppcb, (char *)&udp, sizeof(udp))) {
 
 #if OSRV >= 500
                     if (udp.ud_lsin.sin_addr.s_addr != INADDR_ANY ||
@@ -282,8 +281,7 @@ void process_socket(i) struct inode *i; /* inode pointer */
         enter_dev_ch(print_kptr(sa, (char *)NULL, 0));
         if (s.so_stp && !readstdata((KA_T)s.so_stp, &sd) &&
             !readsthead((KA_T)sd.sd_wrq, &sh)) {
-            if (!sh.q_ptr ||
-                kread(ctx, (KA_T)sh.q_ptr, (char *)&ud, sizeof(ud))) {
+            if (!sh.q_ptr || kread(ctx, (KA_T)sh.q_ptr, (char *)&ud, sizeof(ud))) {
                 (void)snpf(Namech, Namechl, "can't read un_dev from %s",
                            print_kptr((KA_T)sh.q_ptr, (char *)NULL, 0));
                 break;
