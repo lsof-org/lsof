@@ -118,8 +118,9 @@ static MALLOC_S alloc_cbf(struct lsof_context *ctx, MALLOC_S len, char **cbf,
 static int get_fdinfo(struct lsof_context *ctx, char *p, int msk,
                       struct l_fdinfo *fi);
 static int getlinksrc(char *ln, char *src, int srcl, char **rest);
-static int isefsys(struct lsof_context *ctx, char *path, char *type, int l,
-                   efsys_list_t **rep, struct lfile **lfr);
+static int isefsys(struct lsof_context *ctx, char *path,
+                   enum lsof_file_type type, int l, efsys_list_t **rep,
+                   struct lfile **lfr);
 static int nm2id(char *nm, int *id, int *idl);
 static int read_id_stat(struct lsof_context *ctx, char *p, int id, char **cmd,
                         int *ppid, int *pgid);
@@ -725,7 +726,7 @@ int make_proc_path(struct lsof_context *ctx, /* context */
 
 static int isefsys(struct lsof_context *ctx, /* context */
                    char *path,               /* path to file */
-                   char *type,               /* unknown file type */
+                   enum lsof_file_type type, /* unknown file type */
                    int l,                    /* link request: 0 = report
                                               *               1 = link */
                    efsys_list_t **rep,       /* returned Efsysl pointer, if not
@@ -773,7 +774,7 @@ static int isefsys(struct lsof_context *ctx, /* context */
         if (!ds)
             (void)enter_dev_ch(ctx, "UNKNOWN");
         Lf->ntype = N_UNKN;
-        (void)snpf(Lf->type, sizeof(Lf->type), "%s", (type ? type : "UNKN"));
+        Lf->type = type != LSOF_FILE_NONE ? type : LSOF_FILE_UNKNOWN;
         (void)enter_nm(ctx, path);
         (void)snpf(nmabuf, sizeof(nmabuf), "(%ce %s)", ep->rdlnk ? '+' : '-',
                    ep->path);
@@ -975,7 +976,7 @@ static int process_id(struct lsof_context *ctx, /* context */
     efs = 0;
     if (!Ckscko) {
         (void)make_proc_path(ctx, idp, idpl, &path, &pathl, "cwd");
-        alloc_lfile(ctx, CWD, -1);
+        alloc_lfile(ctx, LSOF_FD_CWD, -1);
         if (getlinksrc(path, pbuf, sizeof(pbuf), (char **)NULL) < 1) {
             if (!Fwarn) {
                 zeromem((char *)&sb, sizeof(sb));
@@ -989,7 +990,8 @@ static int process_id(struct lsof_context *ctx, /* context */
                 pn = 0;
         } else {
             lnk = pn = 1;
-            if (Efsysl && !isefsys(ctx, pbuf, "UNKNcwd", 1, NULL, &lfr)) {
+            if (Efsysl &&
+                !isefsys(ctx, pbuf, LSOF_FILE_UNKNOWN_CWD, 1, NULL, &lfr)) {
                 efs = 1;
                 pn = 0;
             } else {
@@ -1023,7 +1025,7 @@ static int process_id(struct lsof_context *ctx, /* context */
     lnk = ss = 0;
     if (!Ckscko) {
         (void)make_proc_path(ctx, idp, idpl, &path, &pathl, "root");
-        alloc_lfile(ctx, RTD, -1);
+        alloc_lfile(ctx, LSOF_FD_ROOT_DIR, -1);
         if (getlinksrc(path, pbuf, sizeof(pbuf), (char **)NULL) < 1) {
             if (!Fwarn) {
                 zeromem((char *)&sb, sizeof(sb));
@@ -1036,7 +1038,8 @@ static int process_id(struct lsof_context *ctx, /* context */
                 pn = 0;
         } else {
             lnk = pn = 1;
-            if (Efsysl && !isefsys(ctx, pbuf, "UNKNrtd", 1, NULL, NULL))
+            if (Efsysl &&
+                !isefsys(ctx, pbuf, LSOF_FILE_UNKNOWN_ROOT_DIR, 1, NULL, NULL))
                 pn = 0;
             else {
                 ss = SB_ALL;
@@ -1069,7 +1072,7 @@ static int process_id(struct lsof_context *ctx, /* context */
     lnk = ss = txts = 0;
     if (!Ckscko) {
         (void)make_proc_path(ctx, idp, idpl, &path, &pathl, "exe");
-        alloc_lfile(ctx, "txt", -1);
+        alloc_lfile(ctx, LSOF_FD_PROGRAM_TEXT, -1);
         if (getlinksrc(path, pbuf, sizeof(pbuf), (char **)NULL) < 1) {
             zeromem((void *)&sb, sizeof(sb));
             if (!Fwarn) {
@@ -1084,7 +1087,8 @@ static int process_id(struct lsof_context *ctx, /* context */
                 pn = 0;
         } else {
             lnk = pn = 1;
-            if (Efsysl && !isefsys(ctx, pbuf, "UNKNtxt", 1, NULL, NULL))
+            if (Efsysl && !isefsys(ctx, pbuf, LSOF_FILE_UNKNOWN_PROGRAM_TEXT, 1,
+                                   NULL, NULL))
                 pn = 0;
             else {
                 ss = SB_ALL;
@@ -1177,7 +1181,7 @@ static int process_id(struct lsof_context *ctx, /* context */
         if (!Fwarn) {
             (void)snpf(nmabuf, sizeof(nmabuf), "%s (opendir: %s)", dpath,
                        strerror(errno));
-            alloc_lfile(ctx, "NOFD", -1);
+            alloc_lfile(ctx, LSOF_FD_NOFD, -1);
             nmabuf[sizeof(nmabuf) - 1] = '\0';
             (void)add_nma(ctx, nmabuf, strlen(nmabuf));
             link_lfile(ctx);
@@ -1189,7 +1193,7 @@ static int process_id(struct lsof_context *ctx, /* context */
         if (nm2id(fp->d_name, &fd, &n))
             continue;
         (void)make_proc_path(ctx, dpath, i, &path, &pathl, fp->d_name);
-        (void)alloc_lfile(ctx, (char *)NULL, fd);
+        (void)alloc_lfile(ctx, LSOF_FD_NUMERIC, fd);
         if (getlinksrc(path, pbuf, sizeof(pbuf), &rest) < 1) {
             zeromem((char *)&sb, sizeof(sb));
             lnk = ss = 0;
@@ -1204,7 +1208,8 @@ static int process_id(struct lsof_context *ctx, /* context */
                 pn = 0;
         } else {
             lnk = 1;
-            if (Efsysl && !isefsys(ctx, pbuf, "UNKNfd", 1, NULL, &lfr)) {
+            if (Efsysl &&
+                !isefsys(ctx, pbuf, LSOF_FILE_UNKNOWN_FD, 1, NULL, &lfr)) {
                 efs = 1;
                 pn = 0;
             } else {
@@ -1497,8 +1502,8 @@ process_proc_map(struct lsof_context *ctx, /* context */
          * for it.  Skip the stat(2) operation if this is on an exempt file
          * system.
          */
-        alloc_lfile(ctx, "mem", -1);
-        if (Efsysl && !isefsys(ctx, fp[6], (char *)NULL, 0, &rep, NULL))
+        alloc_lfile(ctx, LSOF_FD_MEMORY, -1);
+        if (Efsysl && !isefsys(ctx, fp[6], LSOF_FILE_NONE, 0, &rep, NULL))
             efs = sv = 1;
         else
             efs = 0;
@@ -1557,7 +1562,7 @@ process_proc_map(struct lsof_context *ctx, /* context */
             sb.st_mode = S_IFREG;
             mss = SB_DEV | SB_INO | SB_MODE;
             if (ds)
-                alloc_lfile(ctx, "DEL", -1);
+                alloc_lfile(ctx, LSOF_FD_DELETED, -1);
             else if (!efs && !Fwarn) {
                 (void)snpf(nmabuf, sizeof(nmabuf), "(stat: %s)", strerror(en));
                 nmabuf[sizeof(nmabuf) - 1] = '\0';
@@ -1578,7 +1583,7 @@ process_proc_map(struct lsof_context *ctx, /* context */
              * information.
              */
             if (ds)
-                alloc_lfile(ctx, "DEL", -1);
+                alloc_lfile(ctx, LSOF_FD_DELETED, -1);
             else if (!Fwarn) {
                 char *sep;
 
@@ -1624,8 +1629,8 @@ process_proc_map(struct lsof_context *ctx, /* context */
             Lf->inode = (ino_t)sb.st_ino;
             Lf->dev_def = Lf->inp_ty = 1;
             (void)enter_nm(ctx, fp[6]);
-            (void)snpf(Lf->type, sizeof(Lf->type), "%s",
-                       (ds ? "UNKNdel" : "UNKNmem"));
+            Lf->type =
+                ds ? LSOF_FILE_UNKNOWN_DELETED : LSOF_FILE_UNKNOWN_MEMORY;
             (void)snpf(nmabuf, sizeof(nmabuf), "(%ce %s)",
                        rep->rdlnk ? '+' : '-', rep->path);
             nmabuf[sizeof(nmabuf) - 1] = '\0';

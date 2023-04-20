@@ -928,9 +928,9 @@ void print_tcptpi(nl) int nl; /* 1 == '\n' required */
  * process_socket() -- process socket
  */
 
-void process_socket(f, s) struct pst_fileinfo2 *f; /* file information */
-struct pst_socket *s; /* optional socket information
-                       * NULL == none */
+void process_socket(struct pst_fileinfo2 *f, /* file information */
+                    struct pst_socket *s)    /* optional socket information
+                                              * NULL == none */
 {
     int af, err, fp, lp, tx;
     char buf[1024], tbuf[32];
@@ -942,6 +942,7 @@ struct pst_socket *s; /* optional socket information
     struct pst_filedetails pd;
     struct sockaddr_in *sa;
     int sx;
+    char fd[FDLEN];
 
 #if defined(HASIPv6)
     struct sockaddr_in6 *sa6;
@@ -1046,7 +1047,7 @@ struct pst_socket *s; /* optional socket information
     /*
      * Set default type.
      */
-    (void)snpf(Lf->type, sizeof(Lf->type), "sock");
+    Lf->type = LSOF_FILE_SOCKET;
     Lf->inp_ty = 2;
     /*
      * Generate and save node ID.
@@ -1123,15 +1124,11 @@ struct pst_socket *s; /* optional socket information
     case PS_AF_INET:
         if (Fnet && (!FnetTy || (FnetTy != 6)))
             Lf->sf |= SELNET;
-        (void)snpf(Lf->type, sizeof(Lf->type),
-
 #if defined(HASIPv6)
-                   "IPv4"
+        Lf->type = LSOF_FILE_IPV4;
 #else  /* !defined(HASIPv6) */
-                   "inet"
+        Lf->type = LSOF_FILE_INET;
 #endif /* defined(HASIPv6) */
-
-        );
         printpsproto(s->pst_protocol);
         enter_dev_ch(print_kptr(na, (char *)NULL, 0));
         switch (s->pst_protocol) {
@@ -1168,7 +1165,7 @@ struct pst_socket *s; /* optional socket information
         af = AF_INET6;
         if (Fnet && (!FnetTy || (FnetTy != 4)))
             Lf->sf |= SELNET;
-        (void)snpf(Lf->type, sizeof(Lf->type), "IPv6");
+        Lf->type = LSOF_FILE_IPV6;
         printpsproto(s->pst_protocol);
         enter_dev_ch(print_kptr(na, (char *)NULL, 0));
         switch (s->pst_protocol) {
@@ -1214,7 +1211,7 @@ struct pst_socket *s; /* optional socket information
     case PS_AF_UNIX:
         if (Funix)
             Lf->sf |= SELUNX;
-        (void)snpf(Lf->type, sizeof(Lf->type), "unix");
+        Lf->type = LSOF_FILE_UNIX;
         if (((len = (size_t)s->pst_boundaddr_len) > 0) &&
             (len <= sizeof(struct sockaddr_un))) {
             ua = (struct sockaddr_un *)s->pst_boundaddr;
@@ -1239,9 +1236,10 @@ struct pst_socket *s; /* optional socket information
                             : "");
                     len = strlen(buf) + 1;
                     if (!(nma = (char *)malloc((MALLOC_S)len))) {
+                        fd_to_string(Lf->fd_type, Lf->fd_num, fd);
                         (void)fprintf(
                             stderr, "%s: no unix nma space(1): PID %ld, FD %s",
-                            Pn, (long)Lp->pid, Lf->fd);
+                            Pn, (long)Lp->pid, fd);
                     }
                     (void)snpf(nma, len, "%s", buf);
                     Lf->nma = nma;
@@ -1292,10 +1290,11 @@ struct pst_socket *s; /* optional socket information
                                    s->pst_peer_lo_nodeid ? ")" : "");
                         len = strlen(buf) + 1;
                         if (!(nma = (char *)malloc((MALLOC_S)len))) {
+                            fd_to_string(Lf->fd_type, Lf->fd_num, fd);
                             (void)fprintf(
                                 stderr,
                                 "%s: no unix nma space(2): PID %ld, FD %s", Pn,
-                                (long)Lp->pid, Lf->fd);
+                                (long)Lp->pid, fd);
                         }
                         (void)snpf(nma, len, "%s", buf);
                         Lf->nma = nma;
@@ -1335,7 +1334,7 @@ int ckscko; /* socket file only checking
              * if 1 */
 {
     struct clone *cl;
-    char *cp;
+    enum lsof_file_type type;
     struct l_dev *dp = (struct l_dev *)NULL;
     int hx, i, ncx, nsn, nsr;
     size_t nb, nl;
@@ -1374,18 +1373,18 @@ int ckscko; /* socket file only checking
      */
     switch (f->psf_ftype) {
     case PS_TYPE_STREAMS:
-        cp = "STR";
+        Lf->type = LSOF_FILE_STREAM;
         break;
     case PS_TYPE_SOCKET:
         if (f->psf_subtype == PS_SUBTYPE_SOCKSTR) {
-            cp = "STSO";
+            Lf->type = LSOF_FILE_STREAM_SOCKET;
             break;
         }
         /* fall through */
     default:
-        cp = "unkn";
+        Lf->type = LSOF_FILE_UNKNOWN_RAW;
+        Lf->unknown_file_type_number = f->psf_ftype;
     }
-    (void)snpf(Lf->type, sizeof(Lf->type), "%s", cp);
     /*
      * Allocate sufficient space for stream structures, then read them.
      */

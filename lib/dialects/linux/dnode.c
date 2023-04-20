@@ -55,7 +55,7 @@ struct llock {
     int pid;
     dev_t dev;
     INODETYPE inode;
-    char type;
+    enum lsof_lock_mode type;
     struct llock *next;
 };
 
@@ -135,6 +135,7 @@ static void endpoint_enter(struct lsof_context *ctx, pxinfo_t **pinfo_hash,
     struct lfile *lf;       /* local file structure pointer */
     struct lproc *lp;       /* local proc structure pointer */
     pxinfo_t *np, *pi, *pe; /* inode hash pointers */
+    char fd[FDLEN];
 
     /*
      * Make sure this is a unique entry.
@@ -144,7 +145,8 @@ static void endpoint_enter(struct lsof_context *ctx, pxinfo_t **pinfo_hash,
         lf = pi->lf;
         lp = &Lproc[pi->lpx];
         if (pi->ino == id) {
-            if ((lp->pid == Lp->pid) && !strcmp(lf->fd, Lf->fd))
+            if ((lp->pid == Lp->pid) && (lf->fd_type == Lf->fd_type) &&
+                (lf->fd_num == Lf->fd_num))
                 return;
         }
     }
@@ -153,9 +155,10 @@ static void endpoint_enter(struct lsof_context *ctx, pxinfo_t **pinfo_hash,
      * to the end of the pty device hash chain.
      */
     if (!(np = (pxinfo_t *)malloc(sizeof(pxinfo_t)))) {
+        fd_to_string(Lf->fd_type, Lf->fd_num, fd);
         (void)fprintf(stderr,
                       "%s: no space for pipeinfo for %s, PID %d, FD %s\n",
-                      table_name, Pn, Lp->pid, Lf->fd);
+                      table_name, Pn, Lp->pid, fd);
         Error(ctx);
     }
     np->ino = id;
@@ -202,7 +205,8 @@ static int endpoint_accept_other_than_self(struct lsof_context *ctx,
                                            struct lfile *lf) {
     struct lfile *ef = pi->lf;
     struct lproc *ep = &Lproc[pi->lpx];
-    return (strcmp(lf->fd, ef->fd)) || (pid != ep->pid);
+    return (lf->fd_type != ef->fd_type) || (lf->fd_num != ef->fd_num) ||
+           (pid != ep->pid);
 }
 
 /*
@@ -566,7 +570,7 @@ void get_locks(struct lsof_context *ctx, /* context */
     struct llock *lp, *np;
     FILE *ls;
     long maj, min;
-    char type;
+    enum lsof_lock_mode type;
     static char *vbuf = (char *)NULL;
     static size_t vsz = (size_t)0;
     /*
@@ -657,9 +661,9 @@ void get_locks(struct lsof_context *ctx, /* context */
         }
         ex = ((off_t)bp == (off_t)0 && (off_t)ep == OFFSET_MAX) ? 1 : 0;
         if (mode)
-            type = ex ? 'W' : 'w';
+            type = ex ? LSOF_LOCK_WRITE_FULL : LSOF_LOCK_WRITE_PARTIAL;
         else
-            type = ex ? 'R' : 'r';
+            type = ex ? LSOF_LOCK_READ_FULL : LSOF_LOCK_READ_PARTIAL;
         /*
          * Look for this lock via the hash buckets.
          */
@@ -838,42 +842,36 @@ void process_proc_node(struct lsof_context *ctx, /* context */
     if (ss & SB_MODE) {
         switch (type) {
         case S_IFBLK:
-            tn = "BLK";
+            Lf->type = LSOF_FILE_BLOCK;
             break;
         case S_IFCHR:
-            tn = "CHR";
+            Lf->type = LSOF_FILE_CHAR;
             break;
         case S_IFDIR:
-            tn = "DIR";
+            Lf->type = LSOF_FILE_DIR;
             break;
         case S_IFIFO:
-            tn = "FIFO";
+            Lf->type = LSOF_FILE_FIFO;
             break;
         case S_IFREG:
             if (Lf->dev == MqueueDev)
-                tn = "PSXMQ";
+                Lf->type = LSOF_FILE_POSIX_MQ;
             else
-                tn = "REG";
+                Lf->type = LSOF_FILE_REGULAR;
             break;
         case S_IFLNK:
-            tn = "LINK";
-            break;
-        case S_ISVTX:
-            tn = "VTXT";
+            Lf->type = LSOF_FILE_LINK;
             break;
         default:
             if (Ntype == N_ANON_INODE)
-                tn = "a_inode";
+                Lf->type = LSOF_FILE_ANON_INODE;
             else {
-                (void)snpf(Lf->type, sizeof(Lf->type), "%04o",
-                           ((type >> 12) & 0xf));
-                tn = (char *)NULL;
+                Lf->type = LSOF_FILE_UNKNOWN_RAW;
+                Lf->unknown_file_type_number = (type >> 12) & 0xf;
             }
         }
     } else
-        tn = "unknown";
-    if (tn)
-        (void)snpf(Lf->type, sizeof(Lf->type), "%s", tn);
+        Lf->type = LSOF_FILE_UNKNOWN_STAT;
     /*
      * Record an NFS file selection.
      */

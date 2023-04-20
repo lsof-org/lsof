@@ -30,6 +30,7 @@
 
 #include "common.h"
 #include "cli.h"
+#include "lsof.h"
 #include <limits.h>
 
 /*
@@ -906,27 +907,69 @@ static int enter_fd_lst(struct lsof_context *ctx, /* context */
             n = (n * 10) + (int)(*cp - '0');
         }
         if (*cp) {
-            if (!(f->nm = mkstrcpy(nm, (MALLOC_S *)NULL))) {
-                (void)fprintf(stderr, "%s: no space for copy of: %s\n", Pn, nm);
-                Error(ctx);
-            }
             lo = 1;
             hi = 0;
+            if (strcmp(nm, "unk") == 0) {
+                f->fd_type = LSOF_FD_UNKNOWN;
+            } else if (strcmp(nm, "cwd") == 0) {
+                f->fd_type = LSOF_FD_CWD;
+            } else if (strcmp(nm, "err") == 0) {
+                f->fd_type = LSOF_FD_ERROR;
+            } else if (strcmp(nm, "NOFD") == 0) {
+                f->fd_type = LSOF_FD_NOFD;
+            } else if (strcmp(nm, "rtd") == 0) {
+                f->fd_type = LSOF_FD_ROOT_DIR;
+            } else if (strcmp(nm, "pd") == 0) {
+                f->fd_type = LSOF_FD_PARENT_DIR;
+            } else if (strcmp(nm, "txt") == 0) {
+                f->fd_type = LSOF_FD_PROGRAM_TEXT;
+            } else if (strcmp(nm, "ltx") == 0) {
+                f->fd_type = LSOF_FD_LIBRARY_TEXT;
+            } else if (strcmp(nm, "mem") == 0) {
+                f->fd_type = LSOF_FD_MEMORY;
+            } else if (strcmp(nm, "DEL") == 0) {
+                f->fd_type = LSOF_FD_DELETED;
+            } else if (strcmp(nm, "fp") == 0) {
+                f->fd_type = LSOF_FD_FILEPORT;
+            } else if (strcmp(nm, "twd") == 0) {
+                f->fd_type = LSOF_FD_TASK_CWD;
+            } else if (strcmp(nm, "ctty") == 0) {
+                f->fd_type = LSOF_FD_CTTY;
+            } else if (strcmp(nm, "jd.") == 0) {
+                f->fd_type = LSOF_FD_JAIL_DIR;
+            } else if (strcmp(nm, "v86") == 0) {
+                f->fd_type = LSOF_FD_VIRTUAL_8086;
+            } else if (strcmp(nm, "m86") == 0) {
+                f->fd_type = LSOF_FD_MERGE_386;
+            } else if (strcmp(nm, "mmap") == 0) {
+                f->fd_type = LSOF_FD_MMAP_DEVICE;
+            } else if (strcmp(nm, "fd") == 0) {
+                /* pseudo fd type meaning whole range of fd */
+                f->fd_type = LSOF_FD_NUMERIC;
+                hi = INT_MAX;
+                lo = 0;
+            } else {
+                (void)fprintf(stderr,
+                              "%s: invalid fd type given in -d option\n", Pn);
+                Error(ctx);
+                return (1);
+            }
         } else {
-            f->nm = (char *)NULL;
+            f->fd_type = LSOF_FD_NUMERIC;
             lo = hi = n;
         }
     } else
-        f->nm = (char *)NULL;
+        f->fd_type = LSOF_FD_NUMERIC;
     /*
      * Skip duplicates.
      */
     for (ft = Fdl; ft; ft = ft->next) {
-        if (f->nm) {
-            if (!ft->nm || strcmp(f->nm, ft->nm))
-                continue;
-        } else if ((lo != ft->lo) || (hi != ft->hi))
+        if (ft->fd_type != f->fd_type)
             continue;
+        if (ft->fd_type == LSOF_FD_NUMERIC) {
+            if ((lo != ft->lo) || (hi != ft->hi))
+                continue;
+        }
         (void)free((FREE_P *)f);
         return (0);
     }
@@ -935,12 +978,6 @@ static int enter_fd_lst(struct lsof_context *ctx, /* context */
      */
     f->hi = hi;
     f->lo = lo;
-    if (f->nm && strcmp(f->nm, "fd") == 0) {
-        (void)free((FREE_P *)f->nm);
-        f->nm = NULL;
-        f->hi = INT_MAX;
-        f->lo = 0;
-    }
     f->next = Fdl;
     Fdl = f;
     FdlTy = excl;

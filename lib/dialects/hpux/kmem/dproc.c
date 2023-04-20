@@ -372,7 +372,7 @@ void gather_proc_info() {
          * Save current working directory information.
          */
         if (CURDIR) {
-            alloc_lfile(CWD, -1);
+            alloc_lfile(ctx, LSOF_FD_CWD, -1);
             process_node((KA_T)CURDIR);
             if (Lf->sf)
                 link_lfile();
@@ -381,7 +381,7 @@ void gather_proc_info() {
          * Save root directory information.
          */
         if (ROOTDIR) {
-            alloc_lfile(RTD, -1);
+            alloc_lfile(ctx, LSOF_FD_ROOT_DIR, -1);
             process_node((KA_T)ROOTDIR);
             if (Lf->sf)
                 link_lfile();
@@ -461,7 +461,7 @@ void gather_proc_info() {
              */
 
             {
-                alloc_lfile(NULL, i);
+                alloc_lfile(ctx, LSOF_FD_NUMERIC, i);
                 process_file(fp);
                 if (Lf->sf) {
 
@@ -785,14 +785,13 @@ static void process_text(vasp) KA_T vasp; /* kernel's virtual address space
         switch (p.p_type) {
         case PT_DATA:
         case PT_TEXT:
-            alloc_lfile(" txt", -1);
+            alloc_lfile(ctx, LSOF_FD_PROGRAM_TEXT, -1);
             break;
         case PT_MMAP:
-            alloc_lfile(" mem", -1);
+            alloc_lfile(ctx, LSOF_FD_MEMORY, -1);
             break;
         default:
-            (void)snpf(fd, sizeof(fd), "R%02d", p.p_type);
-            alloc_lfile(fd, -1);
+            alloc_lfile(ctx, LSOF_FD_PREGION_UNKNOWN, p.p_type);
         }
         /*
          * Save vnode information.

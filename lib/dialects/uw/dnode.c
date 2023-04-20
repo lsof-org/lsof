@@ -69,7 +69,7 @@ static struct l_dev *ismouse(struct vnode *va, struct l_ino *i, int fx,
 #endif /* UNIXWAREV<70103 */
 
 static struct l_dev *findstrdev(dev_t *dev, dev_t *rdev);
-static char isvlocked(struct vnode *va);
+static enum lsof_lock_mode isvlocked(struct vnode *va);
 static int readlino(int fx, struct vnode *v, struct l_ino *i);
 
 /*
@@ -106,12 +106,13 @@ static int SpDevX = -1; /* SpDev[] maximum index */
  * ent_fa() - enter fattach addresses in NAME column addition
  */
 
-static void ent_fa(a1, a2, d) KA_T *a1; /* first fattach address (NULL OK) */
-KA_T *a2;                               /* second fattach address */
-char *d;                                /* direction ("->" or "<-") */
+static void ent_fa(KA_T *a1, /* first fattach address (NULL OK) */
+                   KA_T *a2, /* second fattach address */
+                   char *d)  /* direction ("->" or "<-") */
 {
     char buf[64], *cp, tbuf[32];
     MALLOC_S len;
+    char fd[FDLEN];
 
     if (Lf->nma)
         return;
@@ -124,9 +125,10 @@ char *d;                                /* direction ("->" or "<-") */
                    print_kptr(*a2, (char *)NULL, 0));
     len = strlen(buf) + 1;
     if ((cp = (char *)malloc(len)) == NULL) {
+        fd_to_string(Lf->fd_type, Lf->fd_num, fd);
         (void)fprintf(stderr,
                       "%s: no space for fattach addresses at PID %d, FD %s\n",
-                      Pn, Lp->pid, Lf->fd);
+                      Pn, Lp->pid, fd);
         Error(ctx);
     }
     (void)snpf(cp, len, "%s", buf);
@@ -516,15 +518,15 @@ static struct l_dev *ismouse(struct vnode *va, /* local vnode address */
  * isvlocked() - is a vnode locked
  */
 
-static char isvlocked(struct lsof_context *ctx, /* context */
-                      struct vnode *va)         /* local vnode address */
+static enum lsof_lock_mode isvlocked(struct lsof_context *ctx, /* context */
+                                     struct vnode *va) /* local vnode address */
 {
     struct filock f;
     KA_T flf, flp;
     int i, l;
 
     if (!(flf = (KA_T)va->v_filocks))
-        return (' ');
+        return LSOF_LOCK_NONE;
     flp = flf;
     i = 0;
     do {
@@ -552,16 +554,16 @@ static char isvlocked(struct lsof_context *ctx, /* context */
             l = 0;
         switch (f.set.l_type & (F_RDLCK | F_WRLCK)) {
         case F_RDLCK:
-            return ((l) ? 'R' : 'r');
+            return l ? LSOF_LOCK_READ_FULL : LSOF_LOCK_READ_PARTIAL;
         case F_WRLCK:
-            return ((l) ? 'W' : 'w');
+            return l ? LSOF_LOCK_WRITE_FULL : LSOF_LOCK_WRITE_PARTIAL;
         case (F_RDLCK + F_WRLCK):
-            return ('u');
+            return LSOF_LOCK_READ_WRITE;
         default:
-            return (' ');
+            return LSOF_LOCK_NONE;
         }
     } while (flp != (KA_T)f.next && (flp = (KA_T)f.next) && flp != flf);
-    return (' ');
+    return LSOF_LOCK_NONE;
 }
 
 /*
@@ -604,7 +606,7 @@ void process_node(struct lsof_context *ctx, /* context */
     struct so_so so;
     KA_T sqp = (KA_T)NULL;
     size_t sz;
-    char tbuf[32], *ty;
+    char tbuf[32];
     enum vtype type;
     struct sockaddr_un ua;
 
@@ -1228,35 +1230,35 @@ get_lock_state:
     }
     switch (type) {
     case VNON:
-        ty = "VNON";
+        Lf->type = LSOF_FILE_VNODE_VNON;
         break;
     case VREG:
-        ty = "VREG";
+        Lf->type = LSOF_FILE_VNODE_VREG;
         break;
     case VDIR:
-        ty = "VDIR";
+        Lf->type = LSOF_FILE_VNODE_VDIR;
         break;
     case VBLK:
-        ty = "VBLK";
+        Lf->type = LSOF_FILE_VNODE_VBLK;
         Ntype = N_BLK;
         break;
     case VCHR:
-        ty = "VCHR";
+        Lf->type = LSOF_FILE_VNODE_VCHR;
         if (Lf->is_stream == 0)
             Ntype = N_CHR;
         break;
     case VLNK:
-        ty = "VLNK";
+        Lf->type = LSOF_FILE_VNODE_VLNK;
         break;
 
 #if defined(VSOCK)
     case VSOCK:
-        ty = "SOCK";
+        Lf->type = LSOF_FILE_VNODE_VSOCK;
         break;
 #endif /* VSOCK */
 
     case VBAD:
-        ty = "VBAD";
+        Lf->type = LSOF_FILE_VNODE_VBAD;
         break;
     case VFIFO:
         if (!Lf->dev_ch || Lf->dev_ch[0] == '\0') {
@@ -1265,17 +1267,15 @@ get_lock_state:
             Lf->rdev = rdev;
             Lf->rdev_def = rdevs;
         }
-        ty = "FIFO";
+        Lf->type = LSOF_FILE_VNODE_VFIFO;
         break;
     case VUNNAMED:
-        ty = "UNNM";
+        Lf->type = LSOF_FILE_VNODE_VUNNAMED;
         break;
     default:
-        (void)snpf(Lf->type, sizeof(Lf->type), "%04o", (type & 0xfff));
-        ty = NULL;
+        Lf->type = LSOF_FILE_UNKNOWN_RAW;
+        Lf->unknown_file_type_number = type;
     }
-    if (ty)
-        (void)snpf(Lf->type, sizeof(Lf->type), "%s", ty);
     Lf->ntype = Ntype;
     /*
      * If this is a VBLK file and it's missing an inode number, try to
@@ -1297,7 +1297,7 @@ get_lock_state:
     if (Ntype == N_STREAM && sqp) {
         if (Funix)
             Lf->sf |= SELUNX;
-        (void)snpf(Lf->type, sizeof(Lf->type), "unix");
+        Lf->type = LSOF_FILE_UNIX;
         if (!Namech[0] && so.laddr.buf && so.laddr.len == sizeof(ua) &&
             !kread(ctx, (KA_T)so.laddr.buf, (char *)&ua, sizeof(ua))) {
             ua.sun_path[sizeof(ua.sun_path) - 1] = '\0';

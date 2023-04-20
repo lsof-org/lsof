@@ -30,6 +30,7 @@
 
 #include "common.h"
 #include "cli.h"
+#include "proto.h"
 
 /*
  * Local definitions, structures and function prototypes
@@ -647,6 +648,9 @@ void print_file(struct lsof_context *ctx) {
     dev_t dev;
     int devs, len;
     char access;
+    char lock;
+    char fd[FDLEN];
+    char type[TYPEL];
 
     if (PrPass && !Hdr) {
 
@@ -848,29 +852,33 @@ void print_file(struct lsof_context *ctx) {
     /*
      * Size or print the file descriptor, access mode and lock status.
      */
+    fd_to_string(Lf->fd_type, Lf->fd_num, fd);
     access = access_to_char(Lf->access);
+    lock = lock_to_char(Lf->lock);
     if (!PrPass) {
-        (void)snpf(buf, sizeof(buf), "%s%c%c", Lf->fd,
-                   (Lf->lock == ' ') ? access
+        (void)snpf(buf, sizeof(buf), "%s%c%c", fd,
+                   (lock == ' ')     ? access
                    : (access == ' ') ? '-'
                                      : access,
-                   Lf->lock);
+                   lock);
         if ((len = strlen(buf)) > FdColW)
             FdColW = len;
     } else
-        (void)printf(" %*.*s%c%c", FdColW - 2, FdColW - 2, Lf->fd,
-                     (Lf->lock == ' ') ? access
+        (void)printf(" %*.*s%c%c", FdColW - 2, FdColW - 2, fd,
+                     (lock == ' ')     ? access
                      : (access == ' ') ? '-'
                                        : access,
-                     Lf->lock);
+                     lock);
     /*
      * Size or print the type.
      */
+    file_type_to_string(Lf->type, Lf->unknown_file_type_number, type,
+                        sizeof(type));
     if (!PrPass) {
-        if ((len = strlen(Lf->type)) > TypeColW)
+        if ((len = strlen(type)) > TypeColW)
             TypeColW = len;
     } else
-        (void)printf(" %*.*s", TypeColW, TypeColW, Lf->type);
+        (void)printf(" %*.*s", TypeColW, TypeColW, type);
 
 #if defined(HASFSTRUCT)
     /*

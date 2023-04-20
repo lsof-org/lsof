@@ -767,10 +767,10 @@ extern int Fxover;
 extern int Fzone;
 
 struct fd_lst {
-    char *nm; /* file descriptor name -- range if
-               * NULL */
-    int lo;   /* range start (if nm NULL) */
-    int hi;   /* range end (if nm NULL) */
+    enum lsof_fd_type fd_type; /* file descriptor type;
+                                * range if LSOF_FD_NUMERIC */
+    int lo;                    /* range start (if nm NULL) */
+    int hi;                    /* range end (if nm NULL) */
     struct fd_lst *next;
 };
 extern struct fd_lst *Fdl;
@@ -797,7 +797,7 @@ extern int LastPid;
 
 struct lfile {
     enum lsof_file_access_mode access;
-    char lock;
+    enum lsof_lock_mode lock;
     unsigned char dev_def;   /* device number definition status */
     unsigned char inp_ty;    /* inode/iproto type
                               *	0: neither inode nor iproto
@@ -841,9 +841,18 @@ struct lfile {
     unsigned char fsv; /* file struct value status */
 #    endif             /* defined(HASFSTRUCT) */
 
-    char fd[FDLEN];
+    /* FD column */
+    enum lsof_fd_type fd_type;
+    int fd_num; /* stores fd number when fd_type is LSOF_FD_NUMERIC,
+                   stores raw number when fd_type is one of
+                   {LSOF_FD_LIBRARY_REF, LSOF_FD_MMAP_UNKNOWN,
+                   LSOF_FD_PREGION_UNKNOWN}, otherwise -1 */
+
     char iproto[IPROTOL];
-    char type[TYPEL];
+    enum lsof_file_type type;
+    uint32_t unknown_file_type_number; /* store file type when type ==
+                                      LSOF_FILE_UNKNOWN_RAW */
+
     unsigned int sf; /* select flags -- SEL* symbols */
     int ch;          /* VMPC channel: -1 = none */
     int ntype;       /* node type -- N_* value */
@@ -1120,8 +1129,7 @@ typedef struct znhash {
 extern znhash_t **ZoneArg;
 #    endif /* defined(HASZONES) */
 
-struct lsof_context {
-};
+struct lsof_context {};
 
 #    include "proto.h"
 #    include "dproto.h"

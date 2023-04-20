@@ -39,7 +39,6 @@ static char copyright[] =
  * process_socket() - process socket
  */
 void process_socket(struct lsof_context *ctx, struct kinfo_file *file) {
-    char *type_name = NULL;
     char *proto = NULL;
     char *type = NULL;
     char buf[64];
@@ -47,25 +46,23 @@ void process_socket(struct lsof_context *ctx, struct kinfo_file *file) {
     uint32_t lport, fport;
 
     /* Alloc Lf and set fd */
-    alloc_lfile(ctx, NULL, file->fd_fd);
+    alloc_lfile(ctx, LSOF_FD_NUMERIC, file->fd_fd);
 
     /* Type name */
     switch (file->so_family) {
     case AF_INET:
-        type_name = "IPv4";
+        Lf->type = LSOF_FILE_IPV4;
         break;
     case AF_INET6:
-        type_name = "IPv6";
+        Lf->type = LSOF_FILE_IPV6;
         break;
     case AF_UNIX:
-        type_name = "unix";
+        Lf->type = LSOF_FILE_UNIX;
         break;
     case AF_ROUTE:
-        type_name = "rte";
+        Lf->type = LSOF_FILE_ROUTE;
         break;
     }
-    if (type_name)
-        (void)snpf(Lf->type, sizeof(Lf->type), "%s", type_name);
 
     /*
      * Construct access code.

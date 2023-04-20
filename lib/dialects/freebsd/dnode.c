@@ -63,9 +63,11 @@ static void get_lock_state_sysctl(struct kinfo_file *kf,
     if (lock != NULL) {
         int whole_file = (lock->kl_start == 0 && lock->kl_len == 0);
         if (lock->kl_rw == KLOCKF_RW_READ)
-            Lf->lock = whole_file ? 'R' : 'r';
+            Lf->lock =
+                whole_file ? LSOF_LOCK_READ_FULL : LSOF_LOCK_READ_PARTIAL;
         else if (lock->kl_rw == KLOCKF_RW_WRITE)
-            Lf->lock = whole_file ? 'W' : 'w';
+            Lf->lock =
+                whole_file ? LSOF_LOCK_WRITE_FULL : LSOF_LOCK_WRITE_PARTIAL;
     }
 }
 #endif /* KERN_LOCKF */
@@ -98,9 +100,9 @@ static void get_lock_state_kvm(struct lsof_context *ctx, /* context */
             else
                 lt = 0;
             if (le.lf_type == F_RDLCK)
-                Lf->lock = lt ? 'R' : 'r';
+                Lf->lock = lt ? LSOF_LOCK_READ_FULL : LSOF_LOCK_READ_PARTIAL;
             else if (le.lf_type == F_WRLCK)
-                Lf->lock = lt ? 'W' : 'w';
+                Lf->lock = lt ? LSOF_LOCK_WRITE_FULL : LSOF_LOCK_WRITE_PARTIAL;
             return;
         }
     } while ((lep = (KA_T)le.lf_link.le_next) && (lep != lef));
@@ -139,9 +141,9 @@ static void get_lock_state_kvm(struct lsof_context *ctx, /* context */
             else
                 lt = 0;
             if (lf.lf_type == F_RDLCK)
-                Lf->lock = lt ? 'R' : 'r';
+                Lf->lock = lt ? LSOF_LOCK_READ_FULL : LSOF_LOCK_READ_PARTIAL;
             else if (lf.lf_type == F_WRLCK)
-                Lf->lock = lt ? 'W' : 'w';
+                Lf->lock = lt ? LSOF_LOCK_WRITE_FULL : LSOF_LOCK_WRITE_PARTIAL;
             break;
         } while ((lfp = (KA_T)lf.lf_next) && (lfp != f));
     }
@@ -163,7 +165,7 @@ void process_kf_kqueue(struct lsof_context *ctx, /* context */
     struct kqueue kq; /* kqueue structure */
 #    endif            /* __FreeBSD_version < 1400062 */
 
-    (void)snpf(Lf->type, sizeof(Lf->type), "KQUEUE");
+    Lf->type = LSOF_FILE_KQUEUE;
     enter_dev_ch(ctx, print_kptr(ka, (char *)NULL, 0));
 #    if __FreeBSD_version >= 1400062
     (void)snpf(Namech, Namechl, "count=%d, state=%#x",
@@ -181,7 +183,7 @@ void process_kf_kqueue(struct lsof_context *ctx, /* context */
 
 #if defined(KF_TYPE_EVENTFD)
 void process_eventfd(struct lsof_context *ctx, struct kinfo_file *kf) {
-    (void)snpf(Lf->type, sizeof(Lf->type), "EVENTFD");
+    Lf->type = LSOF_FILE_EVENTFD;
 #    if __FreeBSD_version >= 1400062
     enter_dev_ch(
         ctx, print_kptr(kf->kf_un.kf_eventfd.kf_eventfd_addr, (char *)NULL, 0));
@@ -194,7 +196,7 @@ void process_eventfd(struct lsof_context *ctx, struct kinfo_file *kf) {
 #endif /* defined(KF_TYPE_EVENTFD) */
 
 void process_shm(struct lsof_context *ctx, struct kinfo_file *kf) {
-    (void)snpf(Lf->type, sizeof(Lf->type), "SHM");
+    Lf->type = LSOF_FILE_SHM;
     Lf->sz = kf->kf_un.kf_file.kf_file_size;
     Lf->sz_def = 1;
     Lf->off_def = 0;
@@ -211,7 +213,7 @@ void process_shm(struct lsof_context *ctx, struct kinfo_file *kf) {
 void process_procdesc(struct lsof_context *ctx, struct kinfo_file *kf) {
     char pidstr[50];
 
-    snpf(Lf->type, sizeof(Lf->type), "PROCDSC");
+    Lf->type = LSOF_FILE_PROCDESC;
     snpf(pidstr, sizeof(pidstr), "pid=%d", kf->kf_un.kf_proc.kf_pid);
     add_nma(ctx, pidstr, strlen(pidstr));
     if (kf->kf_path[0]) {
@@ -220,42 +222,43 @@ void process_procdesc(struct lsof_context *ctx, struct kinfo_file *kf) {
     }
 }
 
-static const char *parse_proc_path(struct kinfo_file *kf, int *proc_pid) {
-    const char *ty;
+static enum lsof_file_type parse_proc_path(struct kinfo_file *kf,
+                                           int *proc_pid) {
+    enum lsof_file_type ty;
     char *basename;
 
-    ty = (char *)NULL;
+    ty = LSOF_FILE_NONE;
     basename = strrchr(kf->kf_path, '/');
     if (basename) {
         ++basename;
         if (!strcmp(basename, "cmdline")) {
         } else if (!strcmp(basename, "dbregs")) {
         } else if (!strcmp(basename, "etype")) {
-            ty = "PETY";
+            ty = LSOF_FILE_PROC_EXEC_TYPE;
         } else if (!strcmp(basename, "file")) {
-            ty = "PFIL";
+            ty = LSOF_FILE_PROC_FILE;
         } else if (!strcmp(basename, "fpregs")) {
-            ty = "PFPR";
+            ty = LSOF_FILE_PROC_FP_REGS;
         } else if (!strcmp(basename, "map")) {
-            ty = "PMAP";
+            ty = LSOF_FILE_PROC_MAP;
         } else if (!strcmp(basename, "mem")) {
-            ty = "PMEM";
+            ty = LSOF_FILE_PROC_MEMORY;
         } else if (!strcmp(basename, "note")) {
-            ty = "PNTF";
+            ty = LSOF_FILE_PROC_PROC_NOTIFIER;
         } else if (!strcmp(basename, "notepg")) {
-            ty = "PGID";
+            ty = LSOF_FILE_PROC_GROUP_NOTIFIER;
         } else if (!strcmp(basename, "osrel")) {
         } else if (!strcmp(basename, "regs")) {
-            ty = "PREG";
+            ty = LSOF_FILE_PROC_REGS;
         } else if (!strcmp(basename, "rlimit")) {
         } else if (!strcmp(basename, "status")) {
-            ty = "PSTA";
+            ty = LSOF_FILE_PROC_STATUS;
         } else {
             /* we're excluded all files - must be a directory, either
              * /proc/<pid> or /proc itself */
-            ty = "PDIR";
+            ty = LSOF_FILE_PROC_DIR;
         }
-        if (ty && strcmp(ty, "PDIR") != 0) {
+        if (ty != LSOF_FILE_NONE && ty != LSOF_FILE_PROC_DIR) {
             char *parent_dir;
             --basename;
             *basename = '\0';
@@ -277,7 +280,6 @@ void process_vnode(struct lsof_context *ctx, struct kinfo_file *kf,
     dev_t dev = 0, rdev = 0;
     unsigned char devs;
     unsigned char rdevs;
-    const char *ty;
     KA_T va;
     struct vnode *v, vb;
     struct l_vfs *vfs;
@@ -533,38 +535,37 @@ process_overlaid_node:
     Lf->rdev_def = rdevs;
     switch (kf_vtype) {
     case KF_VTYPE_VNON:
-        ty = "VNON";
+        Lf->type = LSOF_FILE_VNODE_VNON;
         break;
     case KF_VTYPE_VREG:
     case KF_VTYPE_VDIR:
-        ty = (kf_vtype == KF_VTYPE_VREG) ? "VREG" : "VDIR";
+        Lf->type = (kf_vtype == KF_VTYPE_VREG) ? LSOF_FILE_VNODE_VREG
+                                               : LSOF_FILE_VNODE_VDIR;
         break;
     case KF_VTYPE_VBLK:
-        ty = "VBLK";
+        Lf->type = LSOF_FILE_VNODE_VBLK;
         Ntype = N_BLK;
         break;
     case KF_VTYPE_VCHR:
-        ty = "VCHR";
+        Lf->type = LSOF_FILE_VNODE_VCHR;
         Ntype = N_CHR;
         break;
     case KF_VTYPE_VLNK:
-        ty = "VLNK";
+        Lf->type = LSOF_FILE_VNODE_VLNK;
         break;
     case KF_VTYPE_VSOCK:
-        ty = "SOCK";
+        Lf->type = LSOF_FILE_VNODE_VSOCK;
         break;
     case KF_VTYPE_VBAD:
-        ty = "VBAD";
+        Lf->type = LSOF_FILE_VNODE_VBAD;
         break;
     case KF_VTYPE_VFIFO:
-        ty = "FIFO";
+        Lf->type = LSOF_FILE_VNODE_VFIFO;
         break;
     default:
-        (void)snpf(Lf->type, sizeof(Lf->type), "%04o", (kf_vtype & 0xfff));
-        ty = (char *)NULL;
+        Lf->type = LSOF_FILE_UNKNOWN_RAW;
+        Lf->unknown_file_type_number = kf_vtype;
     }
-    if (ty)
-        (void)snpf(Lf->type, sizeof(Lf->type), "%s", ty);
     Lf->ntype = Ntype;
     /*
      * Handle some special cases:
@@ -578,9 +579,7 @@ process_overlaid_node:
         (void)snpf(Namech, Namechl, "(revoked)");
 
     else if (Ntype == N_PROC) {
-        ty = parse_proc_path(kf, &proc_pid);
-        if (ty)
-            (void)snpf(Lf->type, sizeof(Lf->type), "%s", ty);
+        Lf->type = parse_proc_path(kf, &proc_pid);
     }
 
 #if defined(HASBLKDEV)
@@ -663,7 +662,7 @@ void process_pipe(struct lsof_context *ctx, struct kinfo_file *kf, KA_T pa) {
     int have_kpipe = (pa && kread(ctx, pa, (char *)&p, sizeof(p)) == 0);
 #endif
 
-    (void)snpf(Lf->type, sizeof(Lf->type), "PIPE");
+    Lf->type = LSOF_FILE_PIPE;
     (void)snpf(dev_ch, sizeof(dev_ch), "%s",
                print_kptr(kf->kf_un.kf_pipe.kf_pipe_addr, (char *)NULL, 0));
     enter_dev_ch(ctx, dev_ch);
@@ -718,7 +717,7 @@ void process_pipe(struct lsof_context *ctx, struct kinfo_file *kf, KA_T pa) {
  */
 
 void process_pts(struct lsof_context *ctx, struct kinfo_file *kf) {
-    (void)snpf(Lf->type, sizeof(Lf->type), "PTS");
+    Lf->type = LSOF_FILE_PTS;
     /*
      * Convert the tty's cdev from kernel to user form.
      *     -- already done in the kernel, file sys/kern/tty_pts.c, function

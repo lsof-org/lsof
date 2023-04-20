@@ -453,7 +453,7 @@ void gather_proc_info(struct lsof_context *ctx) {
          * Save current working directory information.
          */
         if (!ckscko && u->u_cdir) {
-            alloc_lfile(ctx, CWD, -1);
+            alloc_lfile(ctx, LSOF_FD_CWD, -1);
 
 #if defined(FILEPTR)
             FILEPTR = (struct file *)NULL;
@@ -467,7 +467,7 @@ void gather_proc_info(struct lsof_context *ctx) {
          * Save root directory information.
          */
         if (!ckscko && u->u_rdir) {
-            alloc_lfile(ctx, RTD, -1);
+            alloc_lfile(ctx, LSOF_FD_ROOT_DIR, -1);
 
 #if defined(FILEPTR)
             FILEPTR = (struct file *)NULL;
@@ -528,7 +528,7 @@ void gather_proc_info(struct lsof_context *ctx) {
 #endif /* solaris<20400 */
 
                 continue;
-            alloc_lfile(ctx, (char *)NULL, i);
+            alloc_lfile(ctx, LSOF_FD_NUMERIC, i);
 
 #if solaris < 20400
             pofv = (long)u->u_flist.uf_pofile[j - 1];
@@ -1124,7 +1124,7 @@ static void process_text(struct lsof_context *ctx, /* context */
      * Get address space description.
      */
     if (kread(ctx, (KA_T)pa, (char *)&as, sizeof(as))) {
-        alloc_lfile(ctx, " txt", -1);
+        alloc_lfile(ctx, LSOF_FD_PROGRAM_TEXT, -1);
         (void)snpf(Namech, Namechl, "can't read text segment list (%s)",
                    print_kptr(pa, (char *)NULL, 0));
         enter_nm(ctx, Namech);
@@ -1159,7 +1159,7 @@ static void process_text(struct lsof_context *ctx, /* context */
                 }
                 if (k >= i) {
                     v[i++] = (KA_T)vn.vp;
-                    alloc_lfile(ctx, " txt", -1);
+                    alloc_lfile(ctx, LSOF_FD_PROGRAM_TEXT, -1);
 
 #    if defined(FILEPTR)
                     FILEPTR = (struct file *)NULL;
@@ -1194,7 +1194,7 @@ static void process_text(struct lsof_context *ctx, /* context */
      * Get address space description.
      */
     if (kread(ctx, (KA_T)pa, (char *)&as, sizeof(as))) {
-        alloc_lfile(" txt", -1);
+        alloc_lfile(ctx, LSOF_FD_PROGRAM_TEXT, -1);
         (void)snpf(Namech, Namechl, "can't read text segment list (%s)",
                    print_kptr(pa, (char *)NULL, 0));
         enter_nm(ctx, Namech);
@@ -1228,7 +1228,7 @@ static void process_text(struct lsof_context *ctx, /* context */
                 }
                 if (k >= i) {
                     v[i++] = (KA_T)vn.vp;
-                    alloc_lfile(" txt", -1);
+                    alloc_lfile(ctx, LSOF_FD_PROGRAM_TEXT, -1);
 
 #    if defined(FILEPTR)
                     FILEPTR = (struct file *)NULL;

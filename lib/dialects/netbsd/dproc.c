@@ -132,7 +132,7 @@ static void enter_vn_text(struct lsof_context *ctx, /* context */
     /*
      * Save the text file information.
      */
-    alloc_lfile(ctx, " txt", -1);
+    alloc_lfile(ctx, LSOF_FD_PROGRAM_TEXT, -1);
     Cfp = (struct file *)NULL;
     process_node(ctx, (KA_T)va);
     if (Lf->sf)
@@ -263,7 +263,7 @@ void gather_proc_info(struct lsof_context *ctx) {
          * Save current working directory information.
          */
         if (CDIR) {
-            alloc_lfile(ctx, CWD, -1);
+            alloc_lfile(ctx, LSOF_FD_CWD, -1);
             Cfp = (struct file *)NULL;
             process_node(ctx, (KA_T)CDIR);
             if (Lf->sf)
@@ -273,7 +273,7 @@ void gather_proc_info(struct lsof_context *ctx) {
          * Save root directory information.
          */
         if (RDIR) {
-            alloc_lfile(ctx, RTD, -1);
+            alloc_lfile(ctx, LSOF_FD_ROOT_DIR, -1);
             Cfp = (struct file *)NULL;
             process_node(ctx, (KA_T)RDIR);
             if (Lf->sf)
@@ -343,7 +343,7 @@ void gather_proc_info(struct lsof_context *ctx) {
 #else  /* ! HAVE_STRUCT_FDFILE */
                 Cfp = ofb[i];
 #endif /* ! HAVE_STRUCT_FDFILE */
-                alloc_lfile(ctx, NULL, i);
+                alloc_lfile(ctx, LSOF_FD_NUMERIC, i);
                 process_file(ctx, (KA_T)Cfp);
                 if (Lf->sf) {
 

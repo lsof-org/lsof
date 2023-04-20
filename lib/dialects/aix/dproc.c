@@ -646,7 +646,7 @@ void gather_proc_info(struct lsof_context *ctx) {
          * Save current working directory information.
          */
         if (!ckscko && cdir) {
-            alloc_lfile(ctx, CWD, -1);
+            alloc_lfile(ctx, LSOF_FD_CWD, -1);
             process_node(ctx, cdir);
             if (Lf->sf)
                 link_lfile(ctx);
@@ -655,7 +655,7 @@ void gather_proc_info(struct lsof_context *ctx) {
          * Save root directory information.
          */
         if (!ckscko && rdir) {
-            alloc_lfile(ctx, RTD, -1);
+            alloc_lfile(ctx, LSOF_FD_ROOT_DIR, -1);
             process_node(ctx, rdir);
             if (Lf->sf)
                 link_lfile(ctx);
@@ -666,7 +666,7 @@ void gather_proc_info(struct lsof_context *ctx) {
          * Save parent directory information.
          */
         if (!ckscko && pdir) {
-            alloc_lfile(ctx, "  pd", -1);
+            alloc_lfile(ctx, LSOF_FD_PARENT_DIR, -1);
             process_node(ctx, pdir);
             if (Lf->sf)
                 link_lfile(ctx);
@@ -721,7 +721,7 @@ void gather_proc_info(struct lsof_context *ctx) {
 #endif /* AIXV<4300 */
 
             if (fp) {
-                alloc_lfile(ctx, (char *)NULL, i);
+                alloc_lfile(ctx, LSOF_FD_NUMERIC, i);
                 process_file(ctx, fp);
                 if (Lf->sf) {
 
@@ -1191,7 +1191,7 @@ static void process_text(struct lsof_context *ctx, /* context */
 #    endif /* AIXV<4300 */
 
     {
-        alloc_lfile(ctx, " txt", -1);
+        alloc_lfile(ctx, LSOF_FD_PROGRAM_TEXT, -1);
         if ((le = getle(ctx, ll, sid, &err))) {
             if ((xf = le->fp)) {
                 process_file(ctx, (KA_T)xf);
@@ -1225,8 +1225,7 @@ static void process_text(struct lsof_context *ctx, /* context */
 #    endif /* AIXV<4300 */
 
          ll; ll = (KA_T)le->next) {
-        (void)snpf(fd, sizeof(fd), " L%02d", i);
-        alloc_lfile(ctx, fd, -1);
+        alloc_lfile(ctx, LSOF_FD_LIBRARY_REF, i);
         if (!(le = getle(ctx, ll, sid, &err))) {
             (void)snpf(Namech, Namechl, "loader entry at %s: %s",
                        print_kptr((KA_T)ll, (char *)NULL, 0), err);
@@ -1307,7 +1306,7 @@ static void process_text(pid_t pid) /* process PID */
      */
     if (la->exec && !kread(ctx, (KA_T)la->exec, (char *)&le, sizeof(le)) &&
         le.fp) {
-        alloc_lfile(ctx, " txt", -1);
+        alloc_lfile(ctx, LSOF_FD_PROGRAM_TEXT, -1);
         process_file(ctx, (KA_T)le.fp);
         if (Lf->dev_def && (Lf->inp_ty == 1)) {
             xdev = Lf->dev;
@@ -1364,12 +1363,11 @@ static void process_text(pid_t pid) /* process PID */
         /*
          * Allocate space for a file entry.  Set its basic characteristics.
          */
-        (void)snpf(fd, sizeof(fd), "L%02d", i++);
-        alloc_lfile(ctx, fd, -1);
+        alloc_lfile(ctx, LSOF_FD_LIBRARY_REF, i++);
         Lf->dev_def = Lf->inp_ty = Lf->nlink_def = 1;
         Lf->dev = sb.st_dev;
         Lf->inode = (INODETYPE)sb.st_ino;
-        (void)snpf(Lf->type, sizeof(Lf->type), "VREG");
+        Lf->type = LSOF_FILE_VNODE_VREG;
         /*
          * Look for a match on device and node numbers in the *.so cache.
          */

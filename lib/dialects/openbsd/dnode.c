@@ -39,10 +39,9 @@ static char copyright[] =
  * process_vnode() - process vnode
  */
 void process_vnode(struct lsof_context *ctx, struct kinfo_file *file) {
-    char *nm = NULL;
+    enum lsof_fd_type fd_type;
     int num = -1;
     uint32_t flag;
-    char *type_name = NULL;
     int mib[3];
     size_t size;
     char path[PATH_MAX];
@@ -50,20 +49,20 @@ void process_vnode(struct lsof_context *ctx, struct kinfo_file *file) {
     /* Alloc Lf and set fd */
     switch (file->fd_fd) {
     case KERN_FILE_TEXT:
-        nm = "txt";
+        fd_type = LSOF_FD_PROGRAM_TEXT;
         break;
     case KERN_FILE_CDIR:
-        nm = "cwd";
-
+        fd_type = LSOF_FD_CWD;
         break;
     case KERN_FILE_RDIR:
-        nm = "rtd";
+        fd_type = LSOF_FD_ROOT_DIR;
         break;
     default:
+        fd_type = LSOF_FD_NUMERIC;
         num = file->fd_fd;
         break;
     }
-    alloc_lfile(ctx, nm, num);
+    alloc_lfile(ctx, fd_type, num);
 
     if (file->fd_fd == KERN_FILE_CDIR) {
         /*
@@ -122,22 +121,20 @@ void process_vnode(struct lsof_context *ctx, struct kinfo_file *file) {
     switch (file->v_type) {
     case VREG:
         Lf->ntype = N_REGLR;
-        type_name = "REG";
+        Lf->type = LSOF_FILE_VNODE_VREG;
         break;
     case VDIR:
-        type_name = "DIR";
+        Lf->type = LSOF_FILE_VNODE_VDIR;
         break;
     case VCHR:
         Lf->ntype = N_CHR;
-        type_name = "CHR";
+        Lf->type = LSOF_FILE_VNODE_VCHR;
         break;
     case VFIFO:
         Lf->ntype = N_FIFO;
-        type_name = "FIFO";
+        Lf->type = LSOF_FILE_VNODE_VFIFO;
         break;
     }
-    if (type_name)
-        (void)snpf(Lf->type, sizeof(Lf->type), "%s", type_name);
 
     /* No way to read file path, request mount info  */
     Lf->lmi_srch = 1;
@@ -152,7 +149,7 @@ void process_vnode(struct lsof_context *ctx, struct kinfo_file *file) {
 
     /* Handle name match, must be done late, because if_file_named checks
      * Lf->dev etc. */
-    if (is_file_named(ctx, nm, 0)) {
+    if (is_file_named(ctx, NULL, 0)) {
         Lf->sf |= SELNM;
     }
 

@@ -2516,13 +2516,19 @@ is the File Descriptor number of the file or:
 .br
 	\fBL\fInn\fR	library references (AIX);
 .br
+	\fBctty\fR	character tty;
+.br
+	\fBDEL\fR	deleted file;
+.br
 	\fBerr\fR	FD information error (see NAME column);
+.br
+	\fBfp.\fR	Fileport (Darwin);
 .br
 	\fBjld\fR	jail directory (FreeBSD);
 .br
 	\fBltx\fP	shared library text (code and data);
 .br
-	\fBMxx\fP	hex memory\-mapped type number xx.
+	\fBM\fIxx\fR	hex memory\-mapped type number xx.
 .br
 	\fBm86\fP	DOS Merge mapped file;
 .br
@@ -2530,11 +2536,17 @@ is the File Descriptor number of the file or:
 .br
 	\fBmmap\fP	memory\-mapped device;
 .br
+	\fBNOFD\fP	for a Linux /proc/<PID>/fd directory that can't be opened --
+		the directory path appears in the NAME column, followed by an error
+		message;
+.br
 	\fBpd\fP	parent directory;
+.br
+	\fBR\fInn\fR	unknown pregion number (HP-UX);
 .br
 	\fBrtd\fP	root directory;
 .br
-	\fBtr\fR	kernel trace file (OpenBSD);
+	\fBtwd\fP	per task current working directory;
 .br
 	\fBtxt\fP	program text (code and data);
 .br
@@ -2575,8 +2587,7 @@ the type of lock applied to the file:
 .br
 	\fBU\fP for a lock of unknown type;
 .br
-	\fBx\fP for an SCO OpenServer Xenix lock on part
-	of the file;
+	\fBx\fP for an SCO OpenServer Xenix lock on part of the file;
 .br
 	\fBX\fP for an SCO OpenServer Xenix lock on the entire file;
 .br
@@ -2592,27 +2603,45 @@ to a ``*'' followed by the last three digits. E.g., 10001 appears as
 ``*001''
 .TP
 TYPE
-is the type of the node associated with the file \- e.g., GDIR, GREG,
-VDIR, VREG, etc.
-.IP
-or ``IPv4'' for an IPv4 socket;
-.IP
-or ``IPv6'' for an open IPv6 network file \- even if its address is
-IPv4, mapped in an IPv6 address;
+is the type of the node associated with the file \- e.g., VDIR, VREG, etc.
 .IP
 or ``ax25'' for a Linux AX.25 socket;
 .IP
+or ``a_inode'' for anonymous inode;
+.IP
+or ``icmp'' for an ICMP socket;
+.IP
 or ``inet'' for an Internet domain socket;
 .IP
+or ``ipx'' for an IPX socket;
+.IP
+or ``key'' for an internal key management socket;
+.IP
 or ``lla'' for a HP\-UX link level access file;
+.IP
+or ``ndrv'' for a net driver socket;
+.IP
+or ``netlink'' for a netlink socket;
+.IP
+or ``pack'' for a packet socket;
+.IP
+or ``ppp'' for a PPP socket;
+.IP
+or ``raw'' for a raw socket;
+.IP
+or ``raw6'' for a raw IPv6 socket;
 .IP
 or ``rte'' for an AF_ROUTE socket;
 .IP
 or ``sock'' for a socket of unknown domain;
 .IP
+or ``systm'' for a system socket;
+.IP
 or ``unix'' for a UNIX domain socket;
 .IP
 or ``x.25'' for an HP\-UX x.25 socket;
+.IP
+or ``ATALK'' for an AppleTalk socket;
 .IP
 or ``BLK'' for a block special file;
 .IP
@@ -2624,7 +2653,16 @@ or ``DIR'' for a directory;
 .IP
 or ``DOOR'' for a VDOOR file;
 .IP
+or ``EVENTFD'' for an eventfd;
+.IP
 or ``FIFO'' for a FIFO special file;
+.IP
+or ``FSEVENTS'' for fsevents;
+.IP
+or ``IPv4'' for an IPv4 socket;
+.IP
+or ``IPv6'' for an open IPv6 network file \- even if its address is
+IPv4, mapped in an IPv6 address;
 .IP
 or ``KQUEUE'' for a BSD style kernel event queue file;
 .IP
@@ -2633,10 +2671,6 @@ or ``LINK'' for a symbolic link file;
 or ``MPB'' for a multiplexed block file;
 .IP
 or ``MPC'' for a multiplexed character file;
-.IP
-or ``NOFD'' for a Linux /proc/<PID>/fd directory that can't be opened --
-the directory path appears in the NAME column, followed by an error
-message;
 .IP
 or ``PAS'' for a
 .I /proc/as
@@ -2744,6 +2778,10 @@ or ``PMAP'' for a
 .I /proc
 map file (\fImap\fP);
 .IP
+or ``PMPS'' for a
+.I /proc/maps
+file;
+.IP
 or ``PMEM'' for a
 .I /proc
 memory image file;
@@ -2781,6 +2819,8 @@ register file;
 or ``PRMP'' for a
 .I /proc/rmap
 file;
+.IP
+or ``PROCDSC'' for a processor descriptor;
 .IP
 or ``PRTD'' for a
 .I /proc
@@ -2822,9 +2862,27 @@ file;
 .IP
 or ``REG'' for a regular file;
 .IP
+or ``SHM'' for a shared memory file;
+.IP
 or ``SMT'' for a shared memory transport file;
 .IP
+or ``STR'' for streams;
+.IP
 or ``STSO'' for a stream socket;
+.IP
+or ``UNKN'' for an unknown file;
+.IP
+or ``UNKNcwd'' for unknown current working directory;
+.IP
+or ``UNKNdel'' for unknown deleted file;
+.IP
+or ``UNKNfd'' for unknown file descriptor;
+.IP
+or ``UNKNmem'' for unknown memory-mapped file;
+.IP
+or ``UNKNrtd'' for unknown root directory;
+.IP
+or ``UNKNtxt'' for unknown program text;
 .IP
 or ``UNNM'' for an unnamed type file;
 .IP
@@ -2833,6 +2891,8 @@ or ``XNAM'' for an OpenServer Xenix special file of unknown type;
 or ``XSEM'' for an OpenServer Xenix semaphore file;
 .IP
 or ``XSD'' for an OpenServer Xenix shared data file;
+.IP
+or ``UNSP'' for an unsupported file;
 .IP
 or the four type number octets if the corresponding name isn't known.
 .TP

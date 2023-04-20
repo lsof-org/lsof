@@ -88,7 +88,9 @@ void enter_vnode_info(
     struct lsof_context *ctx,    /* context */
     struct vnode_info_path *vip) /* pointer to vnode info with path */
 {
-    char buf[32], *cp;
+    char buf[32];
+    enum lsof_file_type type;
+    uint32_t unknown_file_type_number = 0;
     dev_t dev = 0;
     int devs = 0;
     struct mounts *mp;
@@ -97,41 +99,43 @@ void enter_vnode_info(
      */
     switch ((int)(vip->vip_vi.vi_stat.vst_mode & S_IFMT)) {
     case S_IFIFO:
-        cp = "FIFO";
+        type = LSOF_FILE_FIFO;
         Ntype = N_FIFO;
         break;
     case S_IFCHR:
-        cp = "CHR";
+        type = LSOF_FILE_CHAR;
         Ntype = N_CHR;
         break;
     case S_IFDIR:
-        cp = "DIR";
+        type = LSOF_FILE_DIR;
         Ntype = N_REGLR;
         break;
     case S_IFBLK:
-        cp = "BLK";
+        type = LSOF_FILE_BLOCK;
         Ntype = N_BLK;
         break;
 
 #if defined(S_IFLNK)
     case S_IFLNK:
-        cp = "LINK";
+        type = LSOF_FILE_LINK;
         Ntype = N_REGLR;
         break;
 #endif /* defined(S_IFLNK) */
 
     case S_IFREG:
-        cp = "REG";
+        type = LSOF_FILE_REGULAR;
         Ntype = N_REGLR;
         break;
     default:
-        (void)snpf(buf, sizeof(buf), "%04o",
-                   (((vip->vip_vi.vi_stat.vst_mode & S_IFMT) >> 12) & 0xfff));
-        cp = buf;
+        type = LSOF_FILE_UNKNOWN_RAW;
+        unknown_file_type_number =
+            (vip->vip_vi.vi_stat.vst_mode & S_IFMT) >> 12;
         Ntype = N_REGLR;
     }
-    if (!Lf->type[0])
-        (void)snpf(Lf->type, sizeof(Lf->type), "%s", cp);
+    if (Lf->type == LSOF_FILE_NONE) {
+        Lf->type = type;
+        Lf->unknown_file_type_number = unknown_file_type_number;
+    }
     Lf->ntype = Ntype;
     /*
      * Save device number and path
@@ -322,7 +326,7 @@ void process_atalk(struct lsof_context *ctx, /* context */
                    int pid,                  /* PID */
                    int32_t fd)               /* FD */
 {
-    (void)snpf(Lf->type, sizeof(Lf->type), "ATALK");
+    Lf->type = LSOF_FILE_APPLETALK;
     return;
 }
 
@@ -333,7 +337,7 @@ void process_fsevents(struct lsof_context *ctx, /* context */
                       int pid,                  /* PID */
                       int32_t fd)               /* FD */
 {
-    (void)snpf(Lf->type, sizeof(Lf->type), "FSEVENTS");
+    Lf->type = LSOF_FILE_FSEVENTS;
 }
 
 /*
@@ -348,7 +352,7 @@ void process_kqueue(struct lsof_context *ctx, /* context */
     /*
      * Get the kernel queue file information.
      */
-    (void)snpf(Lf->type, sizeof(Lf->type), "KQUEUE");
+    Lf->type = LSOF_FILE_KQUEUE;
     nb = proc_pidfdinfo(pid, fd, PROC_PIDFDKQUEUEINFO, &kq, sizeof(kq));
     if (nb <= 0) {
         (void)err2nm(ctx, "kqueue");
@@ -383,7 +387,7 @@ static void process_pipe_common(struct lsof_context *ctx,
     char dev_ch[32], *ep;
     size_t sz;
 
-    (void)snpf(Lf->type, sizeof(Lf->type), "PIPE");
+    Lf->type = LSOF_FILE_PIPE;
     /*
      * Enter the pipe handle as the device.
      */
@@ -481,7 +485,7 @@ void process_psem(struct lsof_context *ctx, /* context */
     /*
      * Get the semaphore file information.
      */
-    (void)snpf(Lf->type, sizeof(Lf->type), "PSXSEM");
+    Lf->type = LSOF_FILE_POSIX_SEMA;
     nb = proc_pidfdinfo(pid, fd, PROC_PIDFDPSEMINFO, &ps, sizeof(ps));
     if (nb <= 0) {
         (void)err2nm(ctx, "semaphore");
@@ -513,7 +517,7 @@ void process_psem(struct lsof_context *ctx, /* context */
  */
 static void process_pshm_common(struct lsof_context *ctx,
                                 struct pshm_fdinfo *ps) {
-    (void)snpf(Lf->type, sizeof(Lf->type), "PSXSHM");
+    Lf->type = LSOF_FILE_POSIX_SHM;
     /*
      * Enter the POSIX shared memory file information.
      */

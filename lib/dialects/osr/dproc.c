@@ -189,7 +189,7 @@ void gather_proc_info() {
          * Save current working directory information.
          */
         if (u->u_cdir) {
-            alloc_lfile(CWD, -1);
+            alloc_lfile(ctx, LSOF_FD_CWD, -1);
             process_node((KA_T)u->u_cdir);
             if (Lf->sf)
                 link_lfile();
@@ -198,7 +198,7 @@ void gather_proc_info() {
          * Save root directory information.
          */
         if (u->u_rdir) {
-            alloc_lfile(RTD, -1);
+            alloc_lfile(ctx, LSOF_FD_ROOT_DIR, -1);
             process_node((KA_T)u->u_rdir);
             if (Lf->sf)
                 link_lfile();
@@ -252,7 +252,7 @@ void gather_proc_info() {
 
         for (i = 0; i < nf; i++) {
             if (u->u_ofile[i]) {
-                alloc_lfile((char *)NULL, i);
+                alloc_lfile(ctx, LSOF_FD_NUMERIC, i);
                 process_file((KA_T)u->u_ofile[i]);
                 if (Lf->sf) {
 
@@ -731,7 +731,9 @@ static void process_text(prp) KA_T prp; /* process region pointer */
     struct pregion *p;
     struct region r;
     KA_T na;
-    char *ty, tyb[8];
+    enum lsof_fd_type ty;
+    int fd_num;
+    char tyb[8];
 
 #if OSRV >= 500
     KA_T pc;
@@ -806,34 +808,34 @@ static void process_text(prp) KA_T prp; /* process region pointer */
         /*
          * Save text node and mapped region information.
          */
+        fd_num = -1;
         switch (p->p_type) {
         case PT_DATA: /* data and text of */
         case PT_TEXT: /* executing binaries */
-            ty = " txt";
+            ty = LSOF_FD_PROGRAM_TEXT;
             break;
         case PT_LIBDAT: /* shared library data and */
         case PT_LIBTXT: /* COFF format text */
-            ty = " ltx";
+            ty = LSOF_FD_LIBRARY_TEXT;
             break;
         case PT_SHFIL: /* memory mapped file */
-            ty = " mem";
+            ty = LSOF_FD_MEMORY;
             break;
         case PT_V86: /* virtual 8086 mode */
-            ty = " v86";
+            ty = LSOF_FD_VIRTUAL_8086;
             break;
         case PT_VM86: /* MERGE386 vm86 region */
-            ty = " m86";
+            ty = LSOF_FD_MERGE_386;
             break;
-        default: /* all others as a hex number */
-            (void)snpf(tyb, sizeof(tyb), " M%02x", p->p_type & 0xff);
-            ty = tyb;
+        default:
+            ty = LSOF_FD_MMAP_UNKNOWN;
+            fd_num = p->p_type & 0xff;
+            break;
         }
-        if (ty) {
-            alloc_lfile(ty, -1);
-            process_node(na);
-            if (Lf->sf)
-                link_lfile();
-        }
+        alloc_lfile(ctx, ty, fd_num);
+        process_node(na);
+        if (Lf->sf)
+            link_lfile();
     }
 }
 

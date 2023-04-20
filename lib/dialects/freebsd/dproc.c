@@ -253,27 +253,27 @@ static void process_file_descriptors(struct lsof_context *ctx,
             bsearch(&key, xfiles, n_xfiles, sizeof(*xfiles), cmp_xfiles_pid_fd);
 
         if (!ckscko && kfiles[i].kf_fd == KF_FD_TYPE_CWD) {
-            alloc_lfile(ctx, CWD, -1);
+            alloc_lfile(ctx, LSOF_FD_CWD, -1);
             process_vnode(ctx, &kfiles[i], xfile, locks);
             if (Lf->sf)
                 link_lfile(ctx);
         } else if (!ckscko && kfiles[i].kf_fd == KF_FD_TYPE_ROOT) {
-            alloc_lfile(ctx, RTD, -1);
+            alloc_lfile(ctx, LSOF_FD_ROOT_DIR, -1);
             process_vnode(ctx, &kfiles[i], xfile, locks);
             if (Lf->sf)
                 link_lfile(ctx);
         } else if (!ckscko && kfiles[i].kf_fd == KF_FD_TYPE_JAIL) {
-            alloc_lfile(ctx, " jld", -1);
+            alloc_lfile(ctx, LSOF_FD_JAIL_DIR, -1);
             process_vnode(ctx, &kfiles[i], xfile, locks);
             if (Lf->sf)
                 link_lfile(ctx);
         } else if (!ckscko && kfiles[i].kf_fd == KF_FD_TYPE_TEXT) {
-            alloc_lfile(ctx, " txt", -1);
+            alloc_lfile(ctx, LSOF_FD_PROGRAM_TEXT, -1);
             process_vnode(ctx, &kfiles[i], xfile, locks);
             if (Lf->sf)
                 link_lfile(ctx);
         } else if (!ckscko && kfiles[i].kf_fd == KF_FD_TYPE_CTTY) {
-            alloc_lfile(ctx, "ctty", -1);
+            alloc_lfile(ctx, LSOF_FD_CTTY, -1);
             process_vnode(ctx, &kfiles[i], xfile, locks);
             if (Lf->sf)
                 link_lfile(ctx);
@@ -282,7 +282,7 @@ static void process_file_descriptors(struct lsof_context *ctx,
                 fprintf(stderr, "%s: WARNING -- unsupported fd type %d\n", Pn,
                         kfiles[i].kf_fd);
         } else {
-            alloc_lfile(ctx, NULL, kfiles[i].kf_fd);
+            alloc_lfile(ctx, LSOF_FD_NUMERIC, kfiles[i].kf_fd);
             process_kinfo_file(ctx, &kfiles[i], xfile, pcbs, locks);
             if (Lf->sf)
                 link_lfile(ctx);

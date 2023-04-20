@@ -124,7 +124,7 @@ static void enter_vn_text(struct lsof_context *ctx,    /* context */
     /*
      * Save the text file information.
      */
-    alloc_lfile(ctx, " txt", -1);
+    alloc_lfile(ctx, LSOF_FD_PROGRAM_TEXT, -1);
     Cfp = (struct file *)NULL;
     (void)enter_vnode_info(ctx, vip);
     if (Lf->sf)
@@ -364,7 +364,7 @@ void gather_proc_info(struct lsof_context *ctx) {
          */
         if (!ckscko) {
             if (cres || vpi.pvi_cdir.vip_path[0]) {
-                alloc_lfile(ctx, CWD, -1);
+                alloc_lfile(ctx, LSOF_FD_CWD, -1);
                 Cfp = (struct file *)NULL;
                 if (cres) {
 
@@ -393,7 +393,7 @@ void gather_proc_info(struct lsof_context *ctx) {
          */
         if (!ckscko) {
             if (!cres && vpi.pvi_rdir.vip_path[0]) {
-                alloc_lfile(ctx, RTD, -1);
+                alloc_lfile(ctx, LSOF_FD_ROOT_DIR, -1);
                 Cfp = (struct file *)NULL;
                 (void)enter_vnode_info(ctx, &vpi.pvi_rdir);
                 if (Lf->sf)
@@ -487,7 +487,7 @@ static void process_fds(struct lsof_context *ctx, /* context */
         /*
          * Make a dummy file entry with an error message in its NAME column.
          */
-        alloc_lfile(ctx, " err", -1);
+        alloc_lfile(ctx, LSOF_FD_ERROR, -1);
         (void)snpf(Namech, Namechl, "FD info error: %s", strerror(errno));
         Namech[Namechl - 1] = '\0';
         enter_nm(ctx, Namech);
@@ -501,7 +501,7 @@ static void process_fds(struct lsof_context *ctx, /* context */
      */
     for (i = 0; i < nf; i++) {
         fdp = &Fds[i];
-        alloc_lfile(ctx, NULL, (int)fdp->proc_fd);
+        alloc_lfile(ctx, LSOF_FD_NUMERIC, (int)fdp->proc_fd);
         /*
          * Process the file by its type.
          */
@@ -584,7 +584,7 @@ static void process_fileports(struct lsof_context *ctx, /* context */
             /*
              * Make a dummy file entry with an error message in its NAME column.
              */
-            alloc_lfile(ctx, " err", -1);
+            alloc_lfile(ctx, LSOF_FD_ERROR, -1);
             (void)snpf(Namech, Namechl, "FILEPORT info error: %s",
                        strerror(errno));
             Namech[Namechl - 1] = '\0';
@@ -631,7 +631,7 @@ static void process_fileports(struct lsof_context *ctx, /* context */
          * fileport reported as "fp." with "(fileport=0xXXXX)" in the Name
          * column
          */
-        alloc_lfile(ctx, " fp.", -1);
+        alloc_lfile(ctx, LSOF_FD_FILEPORT, -1);
         Lf->fileport = fpi->proc_fileport;
         /*
          * Process the file by its type.
@@ -691,7 +691,7 @@ static void process_text(struct lsof_context *ctx, /* context */
             /*
              * Warn about all other errors via a NAME column message.
              */
-            alloc_lfile(ctx, " txt", -1);
+            alloc_lfile(ctx, LSOF_FD_PROGRAM_TEXT, -1);
             Cfp = (struct file *)NULL;
             (void)snpf(Namech, Namechl, "region info error: %s",
                        strerror(errno));
@@ -783,7 +783,7 @@ static void process_threads(struct lsof_context *ctx, /* context */
             /*
              * Warn about all other errors via a NAME column message.
              */
-            alloc_lfile(ctx, TWD, -1);
+            alloc_lfile(ctx, LSOF_FD_TASK_CWD, -1);
             Cfp = (struct file *)NULL;
             (void)snpf(Namech, Namechl, "thread info error: %s",
                        strerror(errno));
@@ -801,7 +801,7 @@ static void process_threads(struct lsof_context *ctx, /* context */
             Error(ctx);
         }
         if (tpi.pvip.vip_path[0]) {
-            alloc_lfile(ctx, TWD, -1);
+            alloc_lfile(ctx, LSOF_FD_TASK_CWD, -1);
             Cfp = (struct file *)NULL;
             (void)enter_vnode_info(ctx, &tpi.pvip);
             if (Lf->sf)

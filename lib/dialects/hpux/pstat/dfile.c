@@ -598,6 +598,8 @@ struct psfileid *psfid; /* PSTAT file ID for this file */
 KA_T na;                /* node address */
 {
     char *cp, buf[32];
+    enum lsof_file_type type;
+    uint32_t unknown_file_type_number = 0;
     dev_t dev;
     int devs = 0;
     int32_t lk;
@@ -622,47 +624,48 @@ KA_T na;                /* node address */
      * Construct lock code.
      */
     if ((lk = pd->psfd_lckflag) & PS_FPARTRDLCK)
-        Lf->lock = 'r';
+        Lf->lock = LSOF_LOCK_READ_PARTIAL;
     else if (lk & PS_FPARTWRLCK)
-        Lf->lock = 'w';
+        Lf->lock = LSOF_LOCK_WRITE_PARTIAL;
     else if (lk & PS_FFULLRDLCK)
-        Lf->lock = 'R';
+        Lf->lock = LSOF_LOCK_READ_FULL;
     else if (lk & PS_FFULLWRLCK)
-        Lf->lock = 'W';
+        Lf->lock = LSOF_LOCK_WRITE_FULL;
     else
-        Lf->lock = ' ';
+        Lf->lock = LSOF_LOCK_NONE;
     /*
      * Derive type from modes.
      */
     switch ((int)(pd->psfd_mode & PS_IFMT)) {
     case PS_IFREG:
-        cp = "REG";
+        type = LSOF_FILE_REGULAR;
         Ntype = N_REGLR;
         break;
     case PS_IFBLK:
-        cp = "BLK";
+        type = LSOF_FILE_BLOCK;
         Ntype = N_BLK;
         break;
     case PS_IFDIR:
-        cp = "DIR";
+        type = LSOF_FILE_DIR;
         Ntype = N_REGLR;
         break;
     case PS_IFCHR:
-        cp = "CHR";
+        type = LSOF_FILE_CHAR;
         Ntype = N_CHR;
         break;
     case PS_IFIFO:
-        cp = "FIFO";
+        type = LSOF_FILE_FIFO;
         Ntype = N_FIFO;
         break;
     default:
-        (void)snpf(buf, sizeof(buf), "%04o",
-                   (unsigned int)(((pd->psfd_mode & PS_IFMT) >> 12) & 0xfff));
-        cp = buf;
+        type = LSOF_FILE_UNKNOWN_RAW;
+        unknown_file_type_number = (pd->psfd_mode & PS_IFMT) >> 12;
         Ntype = N_REGLR;
     }
-    if (!Lf->type[0])
-        (void)snpf(Lf->type, sizeof(Lf->type), "%s", cp);
+    if (Lf->type == LSOF_FILE_NONE) {
+        Lf->type = type;
+        Lf->unknown_file_type_number = unknown_file_type_number;
+    }
     Lf->ntype = Ntype;
     /*
      * Save device number.

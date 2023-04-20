@@ -50,13 +50,15 @@
 #    endif /* gcc && gcc>=2.7 */
 
 extern void add_nma(struct lsof_context *ctx, char *cp, int len);
-extern void alloc_lfile(struct lsof_context *ctx, char *nm, int num);
+extern void alloc_lfile(struct lsof_context *ctx, enum lsof_fd_type fd_type,
+                        int num);
 extern void alloc_lproc(struct lsof_context *ctx, int pid, int pgid, int ppid,
                         UID_ARG uid, char *cmd, int pss, int sf);
 extern void build_IPstates(struct lsof_context *ctx);
 extern void childx(struct lsof_context *ctx);
 extern void closefrom_shim(int low);
-extern int ck_fd_status(struct lsof_context *ctx, char *nm, int num);
+extern int ck_fd_status(struct lsof_context *ctx, enum lsof_fd_type fd_type,
+                        int num);
 extern int ck_file_arg(struct lsof_context *ctx, int i, int ac, char *av[],
                        int fv, int rs, struct stat *sbp,
                        int accept_deleted_file);
@@ -184,11 +186,16 @@ extern void print_init(void);
 extern void printname(struct lsof_context *ctx, int nl);
 extern char *print_kptr(KA_T kp, char *buf, size_t bufl);
 extern int print_proc(struct lsof_context *ctx);
+extern void fd_to_string(enum lsof_fd_type fd_type, int fd_num, char *buf);
 extern void printrawaddr(struct lsof_context *ctx, struct sockaddr *sa);
 extern void print_tcptpi(struct lsof_context *ctx, int nl);
 extern char *printuid(struct lsof_context *ctx, UID_ARG uid, int *ty);
 extern void printunkaf(struct lsof_context *ctx, int fam, int ty);
 extern char access_to_char(enum lsof_file_access_mode access);
+extern char lock_to_char(enum lsof_lock_mode access);
+extern void file_type_to_string(enum lsof_file_type type,
+                                uint32_t unknown_file_type_number, char *buf,
+                                size_t buf_len);
 extern char *printsockty(int ty);
 extern void process_file(struct lsof_context *ctx, KA_T fp);
 extern void process_node(struct lsof_context *ctx, KA_T f);

@@ -68,7 +68,7 @@ void process_socket(i) struct inode *i; /* inode pointer */
     struct un_dev ud;
 #endif /* OSRV<500 */
 
-    (void)snpf(Lf->type, sizeof(Lf->type), "sock");
+    Lf->type = LSOF_FILE_SOCKET;
     /*
      * Read socket.
      */
@@ -105,7 +105,7 @@ void process_socket(i) struct inode *i; /* inode pointer */
     case AF_INET:
         if (Fnet)
             Lf->sf |= SELNET;
-        (void)snpf(Lf->type, sizeof(Lf->type), "inet");
+        Lf->type = LSOF_FILE_INET;
         printiproto((int)s.so_proto.pr_protocol);
         Lf->inp_ty = 2;
         /*
@@ -206,11 +206,13 @@ void process_socket(i) struct inode *i; /* inode pointer */
                 }
             }
 #else  /* OSRV>=500 */
-            if (s.so_name && !kread(ctx, (KA_T)s.so_name, (char *)&si, sizeof(si))) {
+            if (s.so_name &&
+                !kread(ctx, (KA_T)s.so_name, (char *)&si, sizeof(si))) {
                 la = (unsigned char *)&si.sin_addr;
                 lp = (int)ntohs(si.sin_port);
             }
-            if (s.so_peer && !kread(ctx, (KA_T)s.so_peer, (char *)&si, sizeof(si))) {
+            if (s.so_peer &&
+                !kread(ctx, (KA_T)s.so_peer, (char *)&si, sizeof(si))) {
                 if (si.sin_addr.s_addr != INADDR_ANY || si.sin_port != 0) {
                     fa = (unsigned char *)&si.sin_addr;
                     fp = (int)ntohs(si.sin_port);
@@ -272,7 +274,7 @@ void process_socket(i) struct inode *i; /* inode pointer */
     case AF_UNIX:
         if (Funix)
             Lf->sf |= SELUNX;
-        (void)snpf(Lf->type, sizeof(Lf->type), "unix");
+        Lf->type = LSOF_FILE_UNIX;
         /*
          * Read Unix protocol control block and the Unix address structure.
          */

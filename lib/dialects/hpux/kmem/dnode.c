@@ -45,7 +45,7 @@ typedef int time_t;
 
 #if HPUXV >= 900
 static void enter_nma(char *b);
-static int islocked(KA_T lp);
+static enum lsof_lock_mode islocked(KA_T lp);
 #endif /* HPUXV>=900 */
 
 static int getnodety(struct vnode *v);
@@ -70,8 +70,7 @@ static void enter_nma(b) char *b; /* addition buffer */
  * islocked() - is node locked?
  */
 
-static int islocked(lp)
-KA_T lp; /* local locklist struct pointer */
+static enum lsof_lock_mode islocked(KA_T lp) /* local locklist struct pointer */
 {
     static int ety = -1;
     static unsigned int ei = 0;
@@ -81,7 +80,7 @@ KA_T lp; /* local locklist struct pointer */
     KA_T llf, llp;
 
     if (!(llf = (KA_T)lp))
-        return ((int)' ');
+        return LSOF_LOCK_NONE;
     llp = llf;
     /*
      * Compute the end test value the first time through.
@@ -108,7 +107,7 @@ KA_T lp; /* local locklist struct pointer */
      */
     do {
         if (kread(ctx, llp, (char *)&ll, sizeof(ll)))
-            return ((int)' ');
+            return LSOF_LOCK_NONE;
 
 #    if !defined(L_REMOTE)
 #        define L_REMOTE 0x1 /* from HP-UX 9.01 */
@@ -135,10 +134,10 @@ KA_T lp; /* local locklist struct pointer */
             }
         }
         if (ll.ll_type == F_WRLCK)
-            return ((int)(l ? 'W' : 'w'));
+            return l ? LSOF_LOCK_WRITE_FULL : LSOF_LOCK_WRITE_PARTIAL;
         else if (ll.ll_type == F_RDLCK)
-            return ((int)(l ? 'R' : 'r'));
-        return ((int)' ');
+            return l ? LSOF_LOCK_READ_FULL : LSOF_LOCK_READ_PARTIAL;
+        return LSOF_LOCK_NONE;
     }
 
 #    if HPUXV < 1010
@@ -147,7 +146,7 @@ KA_T lp; /* local locklist struct pointer */
     while ((llp = (KA_T)ll.ll_fwd) && llp != llf);
 #    endif /* HPUXV<1010 */
 
-    return ((int)' ');
+    return LSOF_LOCK_NONE;
 }
 #endif /* HPUXV>=900 */
 
@@ -305,7 +304,7 @@ void process_node(va) KA_T va; /* vnode kernel space address */
     struct rnode r;
     int rdevs = 0;
     int rns = 0;
-    char tbuf[32], *ty;
+    char tbuf[32];
     enum vtype type;
     static struct vnode *v = (struct vnode *)NULL;
     struct l_vfs *vfs;
@@ -386,15 +385,15 @@ void process_node(va) KA_T va; /* vnode kernel space address */
 #if HPUXV < 900
     if (v->v_shlockc || v->v_exlockc) {
         if (v->v_shlockc && v->v_exlockc)
-            Lf->lock = 'u';
+            Lf->lock = LSOF_LOCK_READ_WRITE;
         else if (v->v_shlockc)
-            Lf->lock = 'R';
+            Lf->lock = LSOF_LOCK_READ_FULL;
         else
-            Lf->lock = 'W';
+            Lf->lock = LSOF_LOCK_WRITE_FULL;
     }
 #else /* HPUXV>900 */
 #    if HPUXV >= 1000
-    Lf->lock = (char)islocked((KA_T)v->v_locklist);
+    Lf->lock = islocked((KA_T)v->v_locklist);
 #    endif /* HPUXV>=1000 */
 #endif     /* HPUXV<900 */
 
@@ -583,7 +582,7 @@ void process_node(va) KA_T va; /* vnode kernel space address */
     }
 
 #if HPUXV >= 900 && HPUXV < 1000
-    Lf->lock = (char)islocked((KA_T)i.i_locklist);
+    Lf->lock = islocked((KA_T)i.i_locklist);
 #endif /* HPUXV>=900 && HPUXV<1000 */
 
     /*
@@ -938,55 +937,53 @@ void process_node(va) KA_T va; /* vnode kernel space address */
     Lf->rdev_def = rdevs;
     switch (type) {
     case VNON:
-        ty = "VNON";
+        Lf->type = LSOF_FILE_VNODE_VNON;
         break;
     case VREG:
     case VDIR:
-        ty = (type == VREG) ? "VREG" : "VDIR";
+        Lf->type = (type == VREG) ? LSOF_FILE_VNODE_VREG : LSOF_FILE_VNODE_VDIR;
         break;
     case VBLK:
-        ty = "VBLK";
+        Lf->type = LSOF_FILE_VNODE_VBLK;
         Ntype = N_BLK;
         break;
     case VCHR:
-        ty = "VCHR";
+        Lf->type = LSOF_FILE_VNODE_VCHR;
         Ntype = N_CHR;
         break;
     case VLNK:
-        ty = "VLNK";
+        Lf->type = LSOF_FILE_VNODE_VLNK;
         break;
 
 #if defined(VSOCK)
     case VSOCK:
-        ty = "SOCK";
+        Lf->type = LSOF_FILE_VNODE_VSOCK;
         break;
 #endif /* defined(VSOCK) */
 
     case VBAD:
-        ty = "VBAD";
+        Lf->type = LSOF_FILE_VNODE_VBAD;
         break;
     case VFIFO:
         switch (Ntype) {
 
 #if HPUXV >= 1000
         case N_FIFO:
-            ty = "FIFO";
+            Lf->type = LSOF_FILE_VNODE_VFIFO;
             break;
         case N_PIPE:
-            ty = "PIPE";
+            Lf->type = LSOF_FILE_PIPE;
             break;
 #endif /* HPUXV>=1000 */
 
         default:
-            ty = "FIFO";
+            Lf->type = LSOF_FILE_FIFO;
         }
         break;
     default:
-        (void)snpf(Lf->type, sizeof(Lf->type), "%04o", (type & 0xfff));
-        ty = (char *)NULL;
+        Lf->type = LSOF_FILE_UNKNOWN_RAW;
+        Lf->unknown_file_type_number = type;
     }
-    if (ty)
-        (void)snpf(Lf->type, sizeof(Lf->type), "%s", ty);
     Lf->ntype = Ntype;
 
 #if defined(HASBLKDEV)
