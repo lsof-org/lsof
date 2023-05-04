@@ -971,7 +971,7 @@ void process_pinfo(struct lsof_context *ctx,
             /*
              * Process already selected pipe file.
              */
-            if (is_file_sel(Lp, Lf)) {
+            if (is_file_sel(ctx, Lp, Lf)) {
 
                 /*
                  * This file has been selected by some criterion other than
@@ -992,7 +992,7 @@ void process_pinfo(struct lsof_context *ctx,
             }
             break;
         case 1:
-            if (!is_file_sel(Lp, Lf) && (Lf->chend & CHEND_PIPE)) {
+            if (!is_file_sel(ctx, Lp, Lf) && (Lf->chend & CHEND_PIPE)) {
 
                 /*
                  * This is an unselected end point file.  Select it and add
@@ -1069,7 +1069,7 @@ void process_psxmqinfo(struct lsof_context *ctx,
             /*
              * Process already selected posix mq file.
              */
-            if (is_file_sel(Lp, Lf)) {
+            if (is_file_sel(ctx, Lp, Lf)) {
 
                 /*
                  * This file has been selected by some criterion other than
@@ -1090,7 +1090,7 @@ void process_psxmqinfo(struct lsof_context *ctx,
             }
             break;
         case 1:
-            if (!is_file_sel(Lp, Lf) && (Lf->chend & CHEND_PSXMQ)) {
+            if (!is_file_sel(ctx, Lp, Lf) && (Lf->chend & CHEND_PSXMQ)) {
 
                 /*
                  * This is an unselected end point file.  Select it and add
@@ -1168,7 +1168,7 @@ void process_evtfdinfo(struct lsof_context *ctx,
             /*
              * Process already selected eventfd_id file.
              */
-            if (is_file_sel(Lp, Lf)) {
+            if (is_file_sel(ctx, Lp, Lf)) {
 
                 /*
                  * This file has been selected by some criterion other than
@@ -1189,7 +1189,7 @@ void process_evtfdinfo(struct lsof_context *ctx,
             }
             break;
         case 1:
-            if (!is_file_sel(Lp, Lf) && (Lf->chend & CHEND_EVTFD)) {
+            if (!is_file_sel(ctx, Lp, Lf) && (Lf->chend & CHEND_EVTFD)) {
 
                 /*
                  * This is an unselected end point file.  Select it and add
@@ -1597,7 +1597,7 @@ void process_ptyinfo(struct lsof_context *ctx,
             /*
              * Process already selected pseudoterminal file.
              */
-            if (is_file_sel(Lp, Lf)) {
+            if (is_file_sel(ctx, Lp, Lf)) {
 
                 /*
                  * This file has been selected by some criterion other than
@@ -1621,7 +1621,7 @@ void process_ptyinfo(struct lsof_context *ctx,
             }
             break;
         case 1:
-            if (!is_file_sel(Lp, Lf) && (Lf->chend & CHEND_PTY)) {
+            if (!is_file_sel(ctx, Lp, Lf) && (Lf->chend & CHEND_PTY)) {
 
                 /*
                  * This is an unselected end point file.  Select it and add
