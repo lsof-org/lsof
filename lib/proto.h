@@ -158,8 +158,10 @@ extern void hashSfile(struct lsof_context *ctx);
 extern void initialize(struct lsof_context *ctx);
 extern int is_cmd_excl(struct lsof_context *ctx, char *cmd, short *pss,
                        short *sf);
-extern int is_file_sel(struct lproc *lp, struct lfile *lf);
-extern int is_nw_addr(unsigned char *ia, int p, int af);
+extern int is_file_sel(struct lsof_context *ctx, struct lproc *lp,
+                       struct lfile *lf);
+extern int is_nw_addr(struct lsof_context *ctx, unsigned char *ia, int p,
+                      int af);
 
 #    if defined(HASTASKS)
 extern int is_proc_excl(struct lsof_context *ctx, int pid, int pgid,
@@ -293,7 +295,7 @@ extern int HASPRIVNMCACHE(struct lsof_context *ctx, struct lfile *lf);
 #    endif /* defined(HASPRIVNMCACHE) */
 
 #    if !defined(HASPRIVPRIPP)
-extern void printiproto(int p);
+extern void printiproto(struct lsof_context *ctx, int p);
 #    endif /* !defined(HASPRIVPRIPP) */
 
 #    if defined(HASRNODE)

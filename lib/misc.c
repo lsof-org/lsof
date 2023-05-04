@@ -824,10 +824,11 @@ int hashbyname(char *nm, /* pointer to NUL-terminated name */
  * is_nw_addr() - is this network address selected?
  */
 
-int is_nw_addr(unsigned char *ia, /* Internet address */
-               int p,             /* port */
-               int af)            /* address family -- e.g., AF_INET,
-                                   * AF_INET6 */
+int is_nw_addr(struct lsof_context *ctx, /* context */
+               unsigned char *ia,        /* Internet address */
+               int p,                    /* port */
+               int af)                   /* address family -- e.g., AF_INET,
+                                          * AF_INET6 */
 {
     struct nwad *n;
 

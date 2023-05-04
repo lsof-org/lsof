@@ -106,7 +106,7 @@ void process_socket(i) struct inode *i; /* inode pointer */
         if (Fnet)
             Lf->sf |= SELNET;
         Lf->type = LSOF_FILE_INET;
-        printiproto((int)s.so_proto.pr_protocol);
+        printiproto(ctx, (int)s.so_proto.pr_protocol);
         Lf->inp_ty = 2;
         /*
          * Get protocol control block address from stream head queue structure.

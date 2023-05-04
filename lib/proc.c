@@ -449,8 +449,8 @@ void ent_inaddr(struct lsof_context *ctx,
      * If network address matching has been selected, check both addresses.
      */
     if ((Selflags & SELNA) && Nwad) {
-        m = (fa && is_nw_addr(fa, fp, af)) ? 1 : 0;
-        m |= (la && is_nw_addr(la, lp, af)) ? 1 : 0;
+        m = (fa && is_nw_addr(ctx, fa, fp, af)) ? 1 : 0;
+        m |= (la && is_nw_addr(ctx, la, lp, af)) ? 1 : 0;
         if (m)
             Lf->sf |= SELNA;
     }
@@ -606,8 +606,9 @@ int is_cmd_excl(struct lsof_context *ctx, char *cmd, /* command name */
  * is_file_sel() - is file selected?
  */
 
-int is_file_sel(struct lproc *lp, /* lproc structure pointer */
-                struct lfile *lf) /* lfile structure pointer */
+int is_file_sel(struct lsof_context *ctx, /* context */
+                struct lproc *lp,         /* lproc structure pointer */
+                struct lfile *lf)         /* lfile structure pointer */
 {
     if (!lf || !lf->sf)
         return (0);
@@ -1341,7 +1342,7 @@ int print_proc(struct lsof_context *ctx) {
          * won't produce a false positive result.
          */
         for (Lf = Lp->file; Lf; Lf = Lf->next) {
-            if (is_file_sel(Lp, Lf)) {
+            if (is_file_sel(ctx, Lp, Lf)) {
                 (void)printf("%d\n", Lp->pid);
                 return (1);
             }
@@ -1354,7 +1355,7 @@ int print_proc(struct lsof_context *ctx) {
      */
     if (Ffield) {
         for (Lf = Lp->file; Lf; Lf = Lf->next) {
-            if (is_file_sel(Lp, Lf))
+            if (is_file_sel(ctx, Lp, Lf))
                 break;
         }
         if (!Lf)
@@ -1406,7 +1407,7 @@ int print_proc(struct lsof_context *ctx) {
      * Print files.
      */
     for (Lf = Lp->file; Lf; Lf = Lf->next) {
-        if (!is_file_sel(Lp, Lf))
+        if (!is_file_sel(ctx, Lp, Lf))
             continue;
         rv = 1;
         /*

@@ -1090,7 +1090,7 @@ int process_VSOCK(struct lsof_context *ctx, /* context */
 
         break;
     default:
-        (void)printiproto((int)cs.conn_ulp);
+        (void)printiproto(ctx, (int)cs.conn_ulp);
         (void)snpf(Namech, Namechl - 1, "unsupported socket family: %u",
                    so->so_family);
         Namech[Namechl - 1] = '\0';

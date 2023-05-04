@@ -445,7 +445,7 @@ void process_socket(struct lsof_context *ctx, struct kinfo_file *kf,
                     Lf->sf |= SELNET;
             }
         }
-        printiproto(kf->kf_sock_protocol);
+        printiproto(ctx, kf->kf_sock_protocol);
 
         Lf->type = (fam == AF_INET) ? LSOF_FILE_IPV4 : LSOF_FILE_IPV6;
 

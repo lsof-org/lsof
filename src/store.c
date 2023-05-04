@@ -238,12 +238,6 @@ char *InodeFmt_x = (char *)NULL;
 /* INODETYPE hexadecimal printf specification */
 int LastPid = -1; /* last PID listed (for eliminating duplicates
                    * in terse output) */
-struct lfile *Lf = (struct lfile *)NULL;
-/* current local file structure */
-struct lproc *Lp = (struct lproc *)NULL;
-/* current local process table entry */
-struct lproc *Lproc = (struct lproc *)NULL;
-/* local process table */
 int MaxFd;                    /* maximum file descriptors to close */
 char *Memory = (char *)NULL;  /* core file path */
 int MntSup = 0;               /* mount supplement state: 0 == none
@@ -297,8 +291,6 @@ int OffDecDig = OFFDECDIG; /* offset decimal form (0t...) digit limit */
 int OffColW;               /* OFFSET column width */
 int PgidColW;              /* PGID column width */
 int PidColW;               /* PID column width */
-struct lfile *Plf = (struct lfile *)NULL;
-/* previous local file structure */
 char *Pn;     /* program name */
 int PpidColW; /* PPID column width */
 

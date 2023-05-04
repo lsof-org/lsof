@@ -29,7 +29,7 @@
  */
 
 /*
- * $Id: lsof.h,v 1.70 2018/03/26 21:50:45 abe Exp $
+ * $Id: common.h,v 1.70 2018/03/26 21:50:45 abe Exp $
  */
 
 #include "lsof.h"
@@ -964,7 +964,6 @@ struct lfile {
 
     struct lfile *next;
 };
-extern struct lfile *Lf, *Plf;
 
 struct lproc {
     char *cmd; /* command name */
@@ -998,7 +997,6 @@ struct lproc {
 
     struct lfile *file; /* open files of process */
 };
-extern struct lproc *Lp, *Lproc;
 
 extern int MaxFd;
 extern char *Memory;
@@ -1129,9 +1127,37 @@ typedef struct znhash {
 extern znhash_t **ZoneArg;
 #    endif /* defined(HASZONES) */
 
-struct lsof_context {};
+struct lsof_context {
+
+    /** Output */
+    /** Pointer to current process */
+    struct lproc *cur_proc;
+    /** Pointer to all processes */
+    struct lproc *procs;
+    /** Length and capacity of `procs` */
+    size_t procs_size;
+    size_t procs_cap;
+
+    /** Pointer to current file */
+    struct lfile *cur_file;
+    /** Pointer to previous file */
+    struct lfile *prev_file;
+
+    /** dialect specific fields, see dlsof.h */
+    struct lsof_context_dialect dialect;
+};
+
+/** Convenience macros to access context */
+/* Local process */
+#    define Lp (ctx->cur_proc)
+/* All local processes */
+#    define Lproc (ctx->procs)
+/* Local file */
+#    define Lf (ctx->cur_file)
+/* Previous local file */
+#    define Plf (ctx->prev_file)
 
 #    include "proto.h"
 #    include "dproto.h"
 
-#endif /* LSOF_H */
+#endif /* COMMON_H */

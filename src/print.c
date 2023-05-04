@@ -1325,7 +1325,8 @@ void print_init() {
  * printiproto() - print Internet protocol name
  */
 
-void printiproto(p) int p; /* protocol number */
+void printiproto(struct lsof_context *ctx, /* context */
+                 int p)                    /* protocol number */
 {
     int i;
     static int m = -1;
