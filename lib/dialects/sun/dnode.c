@@ -4661,7 +4661,7 @@ static int read_nrn4(struct lsof_context *ctx, /* context */
  */
 
 static int read_nsdn(struct lsof_context *ctx, /* context */
-                     KA_T na,                  /* containing node's adress */
+                     KA_T na,                  /* containing node's address */
                      KA_T sa,                  /* sdev_node address */
                      struct sdev_node *sdn,    /* sdev_node receiver */
                      struct vattr *sdva)       /* sdev_node's vattr receiver */
