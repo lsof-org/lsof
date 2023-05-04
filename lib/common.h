@@ -1012,8 +1012,6 @@ extern int Mxuid;
 extern gid_t Mygid;
 extern int Mypid;
 extern uid_t Myuid;
-extern char *Namech;
-extern size_t Namechl;
 extern int Ndev;
 
 #    if defined(HASNLIST)
@@ -1127,6 +1125,12 @@ extern znhash_t **ZoneArg;
 
 struct lsof_context {
 
+    /** Temporary */
+    /* name characters for printing */
+    char *name_buf;
+    /* sizeof(name_buf) */
+    size_t name_buf_size;
+
     /** Output */
     /** Pointer to current process */
     struct lproc *cur_proc;
@@ -1163,6 +1167,9 @@ struct lsof_context {
 #    define Pn (ctx->program_name)
 /* Suppress warnings */
 #    define Fwarn (ctx->warn)
+/* Name buffer */
+#    define Namech (ctx->name_buf)
+#    define Namechl (ctx->name_buf_size)
 
 #    include "proto.h"
 #    include "dproto.h"

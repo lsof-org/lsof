@@ -250,8 +250,6 @@ int Mxuid = 0;               /* maximum UID table entries */
 gid_t Mygid;                 /* real GID of this lsof process */
 int Mypid;                   /* lsof's process ID */
 uid_t Myuid;                 /* real UID of this lsof process */
-char *Namech = (char *)NULL; /* name characters for printing */
-size_t Namechl = (size_t)0;  /* sizeof(Namech) */
 int NCmdRxU = 0;             /* number of CmdRx[] entries */
 int Ndev = 0;                /* number of entries in Devtp[] */
 
