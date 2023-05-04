@@ -95,6 +95,9 @@ int main(int argc, char *argv[]) {
     CntxStatus = is_selinux_enabled() ? 1 : 0;
 #endif /* defined(HASSELINUX) */
 
+    /* Initialize lsof context */
+    ctx = lsof_new();
+
     /*
      * Save program name.
      */

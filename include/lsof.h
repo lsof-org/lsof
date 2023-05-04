@@ -220,4 +220,12 @@ enum lsof_file_type {
     LSOF_FILE_VNODE_VPORT,    /**< The vnode represents a port */
 };
 
+/** Create a new lsof context
+ *
+ * The context should be freed via `lsof_destroy()`.
+ *
+ * \since API version 1
+ */
+struct lsof_context *lsof_new();
+
 #endif
