@@ -1129,6 +1129,39 @@ struct lsof_context {
     /* SELPROC flags, modified by IgnTasks */
     int sel_proc;
 
+    /* allocated (possibly unused) entries in TCP
+     * state tables */
+    int tcp_state_alloc;
+    /* included TCP states */
+    unsigned char *tcp_state_incl;
+    int tcp_state_incl_num; /* number of entries in tcp_state_incl[] */
+    int tcp_state_off;      /* offset for TCP state number to adjust
+                             * negative numbers to an index into tcp_states[],
+                             * tcp_state_incl[] and tcp_state_excl[] */
+    /* excluded TCP states */
+    unsigned char *tcp_state_excl;
+    int tcp_state_excl_num; /* number of entries in tcp_state_excl[] */
+    int tcp_num_states;     /* number of TCP states -- either in
+                             * tcpstates[] or tcp_states[] */
+    char **tcp_states;      /* local TCP state names, indexed by system
+                             * state value */
+
+    /* allocated (possibly unused) entries in UDP
+     * state tables */
+    int udp_state_alloc;
+    /* included UDP states */
+    unsigned char *udp_state_incl;
+    int udp_state_incl_num; /* number of entries in udp_state_incl[] */
+    int udp_state_off;      /* offset for UDP state number to adjust
+                             * negative numbers to an index into udp_states[],
+                             * udp_state_incl[] and udp_state_excl[] */
+    unsigned char *udp_state_excl;
+    /* excluded UDP states */
+    int udp_state_excl_num; /* number of entries in udp_state_excl[] */
+    int udp_num_states;     /* number of UDP states  in udp_states[] */
+    char **udp_states;      /* local UDP state names, indexed by system
+                             * state number */
+
     int sel_all;  /* SELALL flags, modified by IgnTasks */
     int sel_inet; /* select only Internet socket files */
 
@@ -1186,6 +1219,24 @@ struct lsof_context {
 #    define Selinet (ctx->sel_inet)
 /* dev_t of /dev */
 #    define DevDev (ctx->dev_dev)
+/* TCP states */
+#    define TcpNstates (ctx->tcp_num_states)
+#    define TcpSt (ctx->tcp_states)
+#    define TcpStI (ctx->tcp_state_incl)
+#    define TcpStIn (ctx->tcp_state_incl_num)
+#    define TcpStX (ctx->tcp_state_excl)
+#    define TcpStXn (ctx->tcp_state_excl_num)
+#    define TcpStOff (ctx->tcp_state_off)
+#    define TcpStAlloc (ctx->tcp_state_alloc)
+/* UDP states */
+#    define UdpNstates (ctx->udp_num_states)
+#    define UdpSt (ctx->udp_states)
+#    define UdpStI (ctx->udp_state_incl)
+#    define UdpStIn (ctx->udp_state_incl_num)
+#    define UdpStX (ctx->udp_state_excl)
+#    define UdpStXn (ctx->udp_state_excl_num)
+#    define UdpStOff (ctx->udp_state_off)
+#    define UdpStAlloc (ctx->udp_state_alloc)
 
 #    include "proto.h"
 #    include "dproto.h"

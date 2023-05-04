@@ -322,39 +322,10 @@ int TaskCmdLim = TASKCMDL;        /* TASKCMD column width limit (same as
                                    * CmdLim) */
 int TaskPrtCmd = 0;               /* task print task command flag */
 int TaskPrtTid = 0;               /* task print TID flag */
-int TcpStAlloc = 0;               /* allocated (possibly unused) entries in TCP
-                                   * state tables */
-unsigned char *TcpStI = (unsigned char *)NULL;
-/* included TCP states */
-int TcpStIn = 0;  /* number of entries in TcpStI[] */
-int TcpStOff = 0; /* offset for TCP state number to adjust
-                   * negative numbers to an index into TcpSt[],
-                   * TcpStI[] and TcpStX[] */
-unsigned char *TcpStX = (unsigned char *)NULL;
-/* excluded TCP states */
-int TcpStXn = 0;              /* number of entries in TcpStX[] */
-int TcpNstates = 0;           /* number of TCP states -- either in
-                               * tcpstates[] or TcpSt[] */
-char **TcpSt = (char **)NULL; /* local TCP state names, indexed by system
-                               * state value */
 char Terminator = '\n';       /* output field terminator */
 int TaskTidColW = 0;          /* task TID column width */
 int TmLimit = TMLIMIT;        /* Readlink() and stat() timeout (seconds) */
 int TypeColW;                 /* TYPE column width */
-int UdpStAlloc = 0;           /* allocated (possibly unused) entries in UDP
-                               * state tables */
-unsigned char *UdpStI = (unsigned char *)NULL;
-/* included UDP states */
-int UdpStIn = 0;  /* number of entries in UdpStI[] */
-int UdpStOff = 0; /* offset for UDP state number to adjust
-                   * negative numbers to an index into UdpSt[],
-                   * UdpStI[] and UdpStX[] */
-unsigned char *UdpStX = (unsigned char *)NULL;
-/* excluded UDP states */
-int UdpStXn = 0;              /* number of entries in UdpStX[] */
-int UdpNstates = 0;           /* number of UDP states  in UdpSt[] */
-char **UdpSt = (char **)NULL; /* local UDP state names, indexed by system
-                               * state number */
 int UserColW;                 /* USER column width */
 
 #if defined(HASZONES)
