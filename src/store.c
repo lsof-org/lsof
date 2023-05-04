@@ -302,11 +302,7 @@ int RptMaxCount = 0; /* count of repeasts: 0 = no limit
 struct l_dev **Sdev = (struct l_dev **)NULL;
 /* pointer to Devtp[] pointers, sorted
  * by device */
-int SelAll = 0;     /* SELALL flags, modified by IgnTasks */
-int Selflags = 0;   /* selection flags -- see SEL* in lsof.h */
-int SelProc = 0;    /* SELPROC flags, modified by IgnTasks */
 int Setgid = 0;     /* setgid state */
-int Selinet = 0;    /* select only Internet socket files */
 int Setuidroot = 0; /* setuid-root state */
 struct sfile *Sfile = (struct sfile *)NULL;
 /* chain of files to search for */

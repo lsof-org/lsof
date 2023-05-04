@@ -1124,6 +1124,14 @@ extern znhash_t **ZoneArg;
 #    endif /* defined(HASZONES) */
 
 struct lsof_context {
+    /** Parameters */
+    /* selection flags -- see SEL* macros */
+    int sel_flags;
+    /* SELPROC flags, modified by IgnTasks */
+    int sel_proc;
+
+    int sel_all;  /* SELALL flags, modified by IgnTasks */
+    int sel_inet; /* select only Internet socket files */
 
     /** Temporary */
     /* name characters for printing */
@@ -1170,6 +1178,11 @@ struct lsof_context {
 /* Name buffer */
 #    define Namech (ctx->name_buf)
 #    define Namechl (ctx->name_buf_size)
+/* Selection flags */
+#    define SelAll (ctx->sel_all)
+#    define Selflags (ctx->sel_flags)
+#    define SelProc (ctx->sel_proc)
+#    define Selinet (ctx->sel_inet)
 
 #    include "proto.h"
 #    include "dproto.h"
