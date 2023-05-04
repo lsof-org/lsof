@@ -1128,6 +1128,13 @@ struct lsof_context {
     int sel_flags;
     /* SELPROC flags, modified by IgnTasks */
     int sel_proc;
+    /* SELALL flags, modified by IgnTasks */
+    int sel_all;
+    /* select only Internet socket files */
+    int sel_inet;
+    /* -N option status: 0==none, 1==find all,
+     * 2==some found*/
+    int sel_nfs;
 
     /* allocated (possibly unused) entries in TCP
      * state tables */
@@ -1158,14 +1165,20 @@ struct lsof_context {
     unsigned char *udp_state_excl;
     /* excluded UDP states */
     int udp_state_excl_num; /* number of entries in udp_state_excl[] */
-    int udp_num_states;     /* number of UDP states  in udp_states[] */
+    int udp_num_states;     /* number of UDP states in udp_states[] */
     char **udp_states;      /* local UDP state names, indexed by system
                              * state number */
 
-    int sel_all;  /* SELALL flags, modified by IgnTasks */
-    int sel_inet; /* select only Internet socket files */
+    int unix_socket; /* -U option status */
 
     dev_t dev_dev; /* device number of /dev or its equivalent */
+
+    int net;      /* -i option status: 0==none
+                   *                   1==find all
+                   *                   2==some found */
+    int net_type; /* Fnet type request: AF_UNSPEC==all
+                   *                    AF_INET==IPv4
+                   *                    AF_INET6==IPv6 */
 
     /** Temporary */
     /* name characters for printing */
@@ -1237,6 +1250,13 @@ struct lsof_context {
 #    define UdpStXn (ctx->udp_state_excl_num)
 #    define UdpStOff (ctx->udp_state_off)
 #    define UdpStAlloc (ctx->udp_state_alloc)
+/* select unix socket */
+#    define Funix (ctx->unix_socket)
+/* select inet socket */
+#    define Fnet (ctx->net)
+#    define FnetTy (ctx->net_type)
+/* select nfs files */
+#    define Fnfs (ctx->sel_nfs)
 
 #    include "proto.h"
 #    include "dproto.h"

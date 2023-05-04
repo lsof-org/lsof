@@ -137,14 +137,6 @@ int Ffield = 0;  /* -f and -F status */
 int FgColW;      /* FILE-FLAG column width */
 int Fhelp = 0;   /* -h option status */
 int Fhost = 1;   /* -H option status */
-int Fnet = 0;    /* -i option status: 0==none
-                  *		     1==find all
-                  *		     2==some found*/
-int FnetTy = 0;  /* Fnet type request: 0==all
-                  *		      4==IPv4
-                  *		      6==IPv6 */
-int Fnfs = 0;    /* -N option status: 0==none, 1==find all,
-                  * 2==some found*/
 int Fnlink = 0;  /* -L option status */
 int Foffset = 0; /* -o option status */
 int Fovhd = 0;   /* -O option status */
@@ -172,7 +164,6 @@ char *NiTtl = NITTL;        /* NODE-ID column title */
 int FsearchErr = 1;         /* -Q option status */
 int Ftcptpi = TCPTPI_STATE; /* -T option status */
 int Fterse = 0;             /* -t option status */
-int Funix = 0;              /* -U option status */
 int Futol = 1;              /* -l option status */
 int Fverbose = 0;           /* -V option status */
 
