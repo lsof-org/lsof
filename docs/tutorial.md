@@ -217,7 +217,7 @@ rlogin    25023      abe    3u  inet 0x10144168      0t184    TCP lsof.itap.purd
 ...
 ```
 
-If the file is a UNIX socket and netstat reveals and adress for it,
+If the file is a UNIX socket and netstat reveals and address for it,
 like this Solaris 11 example:
 
 ```shell
