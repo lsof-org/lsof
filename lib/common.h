@@ -709,7 +709,6 @@ extern int DCunsafe;
 #    endif /* defined(HASDCACHE) */
 
 extern int DChelp;
-extern dev_t DevDev;
 extern struct l_dev *Devtp;
 extern char **Dstk;
 extern int Dstkn;
@@ -1133,6 +1132,8 @@ struct lsof_context {
     int sel_all;  /* SELALL flags, modified by IgnTasks */
     int sel_inet; /* select only Internet socket files */
 
+    dev_t dev_dev; /* device number of /dev or its equivalent */
+
     /** Temporary */
     /* name characters for printing */
     char *name_buf;
@@ -1183,6 +1184,8 @@ struct lsof_context {
 #    define Selflags (ctx->sel_flags)
 #    define SelProc (ctx->sel_proc)
 #    define Selinet (ctx->sel_inet)
+/* dev_t of /dev */
+#    define DevDev (ctx->dev_dev)
 
 #    include "proto.h"
 #    include "dproto.h"

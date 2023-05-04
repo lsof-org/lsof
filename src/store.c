@@ -101,7 +101,6 @@ int DCunsafe = 0;  /* device cache file is potentially unsafe,
 int DChelp = 0; /* -D? status */
 
 int DevColW;  /* DEVICE column width */
-dev_t DevDev; /* device number of /dev or its equivalent */
 struct l_dev *Devtp = (struct l_dev *)NULL;
 /* device table pointer */
 
