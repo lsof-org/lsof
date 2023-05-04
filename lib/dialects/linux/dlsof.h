@@ -198,4 +198,6 @@ extern dev_t MqueueDev;
 #    define OFFSET_FDINFO 2
 extern int OffType;
 
+struct lsof_context_dialect {};
+
 #endif /* LINUX_LSOF_H	*/

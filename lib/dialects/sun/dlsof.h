@@ -692,4 +692,6 @@ extern int Unof; /* u_nofiles value */
 #        endif /* solaris>=80000 */
 #    endif     /* defined(HASNCACHE) */
 
+struct lsof_context_dialect {};
+
 #endif /* SOLARIS_LSOF_H */

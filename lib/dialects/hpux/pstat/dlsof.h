@@ -200,4 +200,6 @@ extern int HasNFS;
 #        define MOUNTS_STAT_FSTYPE stat_fstype
 #    endif /* defined(HASFSTYPE) && HASFSTYPE==2 */
 
+struct lsof_context_dialect {};
+
 #endif /* HPUX_LSOF_H */

@@ -427,4 +427,6 @@ static char *tcpstates[] = {"CLOSED",     "LISTEN",      "SYN_SENT",
                         * in libc.so */
 #    endif             /* AIXA>1 */
 
+struct lsof_context_dialect {};
+
 #endif /* AIX_LSOF_H */

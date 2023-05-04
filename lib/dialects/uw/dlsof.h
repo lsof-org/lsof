@@ -350,4 +350,6 @@ struct sfile {
 #        include <sys/dnlc.h>
 #    endif /* defined(HASNCACHE) */
 
+struct lsof_context_dialect {};
+
 #endif /* UW_LSOF_H */
