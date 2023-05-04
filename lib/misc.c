@@ -968,8 +968,9 @@ char *mkstrcat(char *s1,      /* source string 1 */
  * is_readable() -- is file readable
  */
 
-int is_readable(char *path, /* file path */
-                int msg)    /* issue warning message if 1 */
+int is_readable(struct lsof_context *ctx, /* context */
+                char *path,               /* file path */
+                int msg)                  /* issue warning message if 1 */
 {
     if (access(path, R_OK) < 0) {
         if (!Fwarn && msg == 1)

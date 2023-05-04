@@ -91,8 +91,8 @@ extern void enter_nm(struct lsof_context *ctx, char *m);
 extern int enter_state_spec(struct lsof_context *ctx, char *ss);
 #    endif /* defined(HASTCPUDPSTATE) */
 
-extern int enter_str_lst(char *opt, char *s, struct str_lst **lp, int *incl,
-                         int *excl);
+extern int enter_str_lst(struct lsof_context *ctx, char *opt, char *s,
+                         struct str_lst **lp, int *incl, int *excl);
 extern int enter_uid(struct lsof_context *ctx, char *us);
 extern void ent_inaddr(struct lsof_context *ctx, unsigned char *la, int lp,
                        unsigned char *fa, int fp, int af);
@@ -171,7 +171,7 @@ extern int is_proc_excl(struct lsof_context *ctx, int pid, int pgid,
                         UID_ARG uid, short *pss, short *sf);
 #    endif /* defined(HASTASKS) */
 
-extern int is_readable(char *path, int msg);
+extern int is_readable(struct lsof_context *ctx, char *path, int msg);
 extern int kread(struct lsof_context *ctx, KA_T addr, char *buf, READLEN_T len);
 extern void link_lfile(struct lsof_context *ctx);
 extern struct l_dev *lkupdev(struct lsof_context *ctx, dev_t *dev, dev_t *rdev,

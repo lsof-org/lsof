@@ -198,7 +198,7 @@ getmntdev(struct lsof_context *ctx, /* context */
 
         if ((MntSup != 2) || !MntSupP)
             return (0);
-        if (!is_readable(MntSupP, 1)) {
+        if (!is_readable(ctx, MntSupP, 1)) {
 
             /*
              * The mount supplement file isn't readable.

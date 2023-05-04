@@ -757,7 +757,6 @@ extern int Fterse;
 extern int Funix;
 extern int Futol;
 extern int Fverbose;
-extern int Fwarn;
 
 #    if defined(HASXOPT_VALUE)
 extern int Fxopt;
@@ -1053,7 +1052,6 @@ struct nwad {
 extern struct nwad *Nwad;
 
 extern int OffDecDig;
-extern char *Pn;
 
 #    if defined(HASFSTRUCT)
 extern struct pff_tab Pff_tab[]; /* file flags table */
@@ -1143,6 +1141,11 @@ struct lsof_context {
     /** Pointer to previous file */
     struct lfile *prev_file;
 
+    /** Warnings and errors */
+    FILE *err;
+    char *program_name;
+    int warn; /* 1=suppress warnings */
+
     /** dialect specific fields, see dlsof.h */
     struct lsof_context_dialect dialect;
 };
@@ -1156,6 +1159,10 @@ struct lsof_context {
 #    define Lf (ctx->cur_file)
 /* Previous local file */
 #    define Plf (ctx->prev_file)
+/* Error output */
+#    define Pn (ctx->program_name)
+/* Suppress warnings */
+#    define Fwarn (ctx->warn)
 
 #    include "proto.h"
 #    include "dproto.h"

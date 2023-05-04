@@ -177,12 +177,6 @@ int Funix = 0;              /* -U option status */
 int Futol = 1;              /* -l option status */
 int Fverbose = 0;           /* -V option status */
 
-#if defined(WARNINGSTATE)
-int Fwarn = 1; /* +|-w option status */
-#else          /* !defined(WARNINGSTATE) */
-int Fwarn = 0; /* +|-w option status */
-#endif         /* defined(WARNINGSTATE) */
-
 #if defined(HASXOPT_VALUE)
 int Fxopt = HASXOPT_VALUE; /* -X option status */
 #endif                     /* defined(HASXOPT_VALUE) */
@@ -291,7 +285,6 @@ int OffDecDig = OFFDECDIG; /* offset decimal form (0t...) digit limit */
 int OffColW;               /* OFFSET column width */
 int PgidColW;              /* PGID column width */
 int PidColW;               /* PID column width */
-char *Pn;     /* program name */
 int PpidColW; /* PPID column width */
 
 #if defined(HASPROCFS)

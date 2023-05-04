@@ -43,7 +43,8 @@ static char *GOv = (char *)NULL; /* option `:' value pointer */
 static int GOx1 = 1;             /* first opt[][] index */
 static int GOx2 = 0;             /* second opt[][] index */
 
-static int GetOpt(int ct, char *opt[], char *rules, int *err);
+static int GetOpt(struct lsof_context *ctx, int ct, char *opt[], char *rules,
+                  int *err);
 static char *sv_fmt_str(struct lsof_context *ctx, char *f);
 
 /*
@@ -236,7 +237,7 @@ int main(int argc, char *argv[]) {
     /*
      * Loop through options.
      */
-    while ((c = GetOpt(argc, argv, options, &gopt_rv)) != EOF) {
+    while ((c = GetOpt(ctx, argc, argv, options, &gopt_rv)) != EOF) {
         if (gopt_rv) {
             err = 1;
             continue;
@@ -292,7 +293,7 @@ int main(int argc, char *argv[]) {
                 if (enter_cmd_rx(ctx, GOv))
                     err = 1;
             } else {
-                if (enter_str_lst("-c", GOv, &Cmdl, &Cmdni, &Cmdnx))
+                if (enter_str_lst(ctx, "-c", GOv, &Cmdl, &Cmdni, &Cmdnx))
                     err = 1;
 
 #if defined(MAXSYSCMDL)
@@ -1827,10 +1828,11 @@ int main(int argc, char *argv[]) {
  * value doesn't have one -- e.g., has a default instead.
  */
 
-static int GetOpt(int ct,      /* option count */
-                  char *opt[], /* options */
-                  char *rules, /* option rules */
-                  int *err)    /* error return */
+static int GetOpt(struct lsof_context *ctx, /* context */
+                  int ct,                   /* option count */
+                  char *opt[],              /* options */
+                  char *rules,              /* option rules */
+                  int *err)                 /* error return */
 {
     register int c;
     register char *cp = (char *)NULL;

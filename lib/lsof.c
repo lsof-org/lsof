@@ -43,8 +43,16 @@ struct lsof_context *lsof_new() {
     struct lsof_context *ctx =
         (struct lsof_context *)malloc(sizeof(struct lsof_context));
     if (ctx) {
-        // Initialization
+        /* Initialization */
         memset(ctx, 0, sizeof(struct lsof_context));
+
+#if defined(WARNINGSTATE)
+        /* suppress warnings */
+        Fwarn = 1;
+#else  /* !defined(WARNINGSTATE) */
+        /* display warnings */
+        Fwarn = 0;
+#endif /* defined(WARNINGSTATE) */
     }
     return ctx;
 }
