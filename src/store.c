@@ -227,9 +227,6 @@ struct NLIST_TYPE *Nl = (struct NLIST_TYPE *)NULL;
 int Nll = 0; /* Nl calloc'd length */
 #endif       /* defined(HASNLIST) */
 
-long Nlink = 0l;            /* report nlink values below this number
-                             * (0 = report all nlink values) */
-int Nlproc = 0;             /* number of entries in Lproc[] */
 int NlColW;                 /* NLINK column width */
 int NmColW;                 /* NAME column width */
 char *Nmlst = (char *)NULL; /* namelist file path */
@@ -240,7 +237,6 @@ int Npgidx = 0;             /* -g option exclusion count */
 int Npid = 0;               /* -p option count */
 int Npidi = 0;              /* -p option inclusion count */
 int Npidx = 0;              /* -p option exclusion count */
-int Npuns;                  /* number of unselected PIDs (starts at Npid) */
 int Ntype;                  /* node type (see N_* symbols) */
 int Nuid = 0;               /* -u option count */
 int Nuidexcl = 0;           /* -u option count of UIDs excluded */
@@ -293,7 +289,6 @@ int TaskPrtCmd = 0;               /* task print task command flag */
 int TaskPrtTid = 0;               /* task print TID flag */
 char Terminator = '\n';       /* output field terminator */
 int TaskTidColW = 0;          /* task TID column width */
-int TmLimit = TMLIMIT;        /* Readlink() and stat() timeout (seconds) */
 int TypeColW;                 /* TYPE column width */
 int UserColW;                 /* USER column width */
 

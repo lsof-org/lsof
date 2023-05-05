@@ -1003,8 +1003,6 @@ extern int Ndev;
 extern struct NLIST_TYPE *Nl;
 extern int Nll;
 #    endif /* defined(HASNLIST) */
-extern long Nlink;
-extern int Nlproc;
 extern char *Nmlst;
 extern int Npgid;
 extern int Npgidi;
@@ -1012,7 +1010,6 @@ extern int Npgidx;
 extern int Npid;
 extern int Npidi;
 extern int Npidx;
-extern int Npuns;
 extern int Ntype;
 extern int Nuid;
 extern int Nuidexcl;
@@ -1086,7 +1083,6 @@ extern int TcpStXn;
 extern int TcpNstates;
 extern char **TcpSt;
 extern char Terminator;
-extern int TmLimit;
 extern int UdpStAlloc;
 extern unsigned char *UdpStI;
 extern int UdpStIn;
@@ -1163,6 +1159,17 @@ struct lsof_context {
     int mnt_sup_state;
     /* mount supplement path -- if MntSup == 2 */
     char *mnt_sup_path;
+
+    /* report nlink values below this number
+     * (0 = report all nlink values) */
+    long nlink;
+
+    /* Readlink() and stat() timeout (seconds) */
+    int time_limit;
+
+    /* number of unselected PIDs (starts at sel_pid_size) for
+                      optimization in examine_lproc() */
+    int num_unsel_pid;
 
     /* allocated (possibly unused) entries in TCP
      * state tables */
@@ -1246,6 +1253,8 @@ struct lsof_context {
 #    define Lf (ctx->cur_file)
 /* Previous local file */
 #    define Plf (ctx->prev_file)
+/* Length of local processes */
+#    define Nlproc (ctx->procs_size)
 /* Error output */
 #    define Pn (ctx->program_name)
 /* Suppress warnings */
@@ -1307,6 +1316,12 @@ struct lsof_context {
 /* mount supplement */
 #    define MntSup (ctx->mnt_sup_state)
 #    define MntSupP (ctx->mnt_sup_path)
+/* nlink limit */
+#    define Nlink (ctx->nlink)
+/* Time limit */
+#    define TmLimit (ctx->time_limit)
+/* number of unselected PIDs */
+#    define Npuns (ctx->num_unsel_pid)
 
 #    include "proto.h"
 #    include "dproto.h"
