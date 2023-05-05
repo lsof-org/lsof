@@ -164,12 +164,6 @@ int Fverbose = 0;           /* -V option status */
 int Fxover = 0; /* -x option value */
 int Fzone = 0;  /* -z option status */
 
-struct fd_lst *Fdl = (struct fd_lst *)NULL;
-/* file descriptors selected with -d */
-int FdlTy = -1; /* Fdl[] type: -1 == none
-                 *		0 == include
-                 *		1 == exclude */
-
 struct fieldsel FieldSel[] = {
     {LSOF_FID_ACCESS, 0, LSOF_FNM_ACCESS, NULL, 0},              /*  0 */
     {LSOF_FID_CMD, 0, LSOF_FNM_CMD, NULL, 0},                    /*  1 */
@@ -205,19 +199,13 @@ struct fieldsel FieldSel[] = {
     {' ', 0, NULL, NULL, 0}};
 
 int Hdr = 0;      /* header print status */
-int IgnTasks = 0; /* ignore tasks when non-zero */
 char *InodeFmt_d = (char *)NULL;
 /* INODETYPE decimal printf specification */
 char *InodeFmt_x = (char *)NULL;
 /* INODETYPE hexadecimal printf specification */
 int LastPid = -1; /* last PID listed (for eliminating duplicates
                    * in terse output) */
-int MaxFd;                    /* maximum file descriptors to close */
 char *Memory = (char *)NULL;  /* core file path */
-int MntSup = 0;               /* mount supplement state: 0 == none
-                               *			   1 == create
-                               *			   2 == read */
-char *MntSupP = (char *)NULL; /* mount supplement path -- if MntSup == 2 */
 
 #if defined(HASPROCFS)
 struct mounts *Mtprocfs = (struct mounts *)NULL;

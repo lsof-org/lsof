@@ -762,10 +762,6 @@ struct fd_lst {
     int hi;                    /* range end (if nm NULL) */
     struct fd_lst *next;
 };
-extern struct fd_lst *Fdl;
-extern int FdlTy; /* Fdl[] type: -1 == none
-                   *		0 == include
-                   *		1 == exclude */
 
 struct fieldsel {
     char id;          /* field ID character */
@@ -779,7 +775,6 @@ extern struct fieldsel FieldSel[];
 extern int Hdr;
 
 enum IDType { PGID, PID };
-extern int IgnTasks;
 extern char *InodeFmt_d;
 extern char *InodeFmt_x;
 extern int LastPid;
@@ -987,10 +982,7 @@ struct lproc {
     struct lfile *file; /* open files of process */
 };
 
-extern int MaxFd;
 extern char *Memory;
-extern int MntSup;
-extern char *MntSupP;
 
 #    if defined(HASPROCFS)
 extern struct mounts *Mtprocfs;
@@ -1150,6 +1142,28 @@ struct lsof_context {
      * 2==info+files */
     int endpoint_status;
 
+    /* ignore tasks when non-zero */
+    int ign_tasks;
+
+    /* maximum file descriptors to close */
+    int max_fd;
+
+    /* file descriptors selected with -d */
+    struct fd_lst *fd_list;
+    /* fd_list[] type:
+     * -1 == none
+     * 0 == include
+     * 1 == exclude */
+    int fd_list_ty;
+
+    /* mount supplement state:
+     * 0 == none
+     * 1 == create
+     * 2 == read */
+    int mnt_sup_state;
+    /* mount supplement path -- if MntSup == 2 */
+    char *mnt_sup_path;
+
     /* allocated (possibly unused) entries in TCP
      * state tables */
     int tcp_state_alloc;
@@ -1283,6 +1297,16 @@ struct lsof_context {
 #    define FeptE (ctx->endpoint_status)
 /* select tasks */
 #    define Ftask (ctx->sel_task)
+/* fd list */
+#    define Fdl (ctx->fd_list)
+#    define FdlTy (ctx->fd_list_ty)
+/* ignore tasks */
+#    define IgnTasks (ctx->ign_tasks)
+/* maximum fd number */
+#    define MaxFd (ctx->max_fd)
+/* mount supplement */
+#    define MntSup (ctx->mnt_sup_state)
+#    define MntSupP (ctx->mnt_sup_path)
 
 #    include "proto.h"
 #    include "dproto.h"
