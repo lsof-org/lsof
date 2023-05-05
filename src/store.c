@@ -116,12 +116,9 @@ efsys_list_t *Efsysl = (efsys_list_t *)NULL;
  * to be eliminated */
 int ErrStat = 0;  /* path stat() error count */
 uid_t Euid;       /* effective UID of this lsof process */
-int Fblock = 0;   /* -b option status */
 int FcColW;       /* FCT column width */
 int Fcntx = 0;    /* -Z option status */
 int FdColW;       /* FD column width */
-int FeptE = 0;    /* -E option status: 0==none, 1==info,
-                   * 2==info+files */
 int Ffilesys = 0; /* -f option status:
                    *    0 = paths may be file systems
                    *    1 = paths are just files
@@ -138,7 +135,6 @@ int Fhelp = 0;   /* -h option status */
 int Fhost = 1;   /* -H option status */
 int Fnlink = 0;  /* -L option status */
 int Foffset = 0; /* -o option status */
-int Fovhd = 0;   /* -O option status */
 int Fport = 1;   /* -P option status */
 
 #if !defined(HASNORPC_H)
@@ -157,7 +153,6 @@ int FsColW;                 /* FSTR-ADDR column width */
 int Fsv = FSV_DEFAULT;      /* file struct value selections */
 int FsvByf = 0;             /* Fsv was set by +f */
 int FsvFlagX = 0;           /* hex format status for FSV_FG */
-int Ftask = 0;              /* -K option value */
 int NiColW;                 /* NODE-ID column width */
 char *NiTtl = NITTL;        /* NODE-ID column title */
 int FsearchErr = 1;         /* -Q option status */

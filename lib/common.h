@@ -715,7 +715,6 @@ extern int Dstkn;
 extern int Dstkx;
 extern int ErrStat;
 extern uid_t Euid;
-extern int Fblock;
 extern int Fcntx;
 extern int Ffield;
 extern int Ffilesys;
@@ -732,8 +731,6 @@ extern int FnetTy;
 extern int Fnfs;
 extern int Fnlink;
 extern int Foffset;
-extern int Fovhd;
-extern int FeptE;
 
 extern int Fport;
 
@@ -749,7 +746,6 @@ extern int Fhuman;
 extern int Fsv;
 extern int FsvByf;
 extern int FsvFlagX;
-extern int Ftask;
 extern int Ftcptpi;
 extern int Fterse;
 extern int Funix;
@@ -1119,6 +1115,7 @@ extern znhash_t **ZoneArg;
 
 struct lsof_context {
     /** Parameters */
+
     /* selection flags -- see SEL* macros */
     int sel_flags;
     /* SELPROC flags, modified by IgnTasks */
@@ -1127,15 +1124,31 @@ struct lsof_context {
     int sel_all;
     /* select only Internet socket files */
     int sel_inet;
+
     /* -N option status: 0==none, 1==find all,
      * 2==some found*/
     int sel_nfs;
 
+    /* -K option value */
+    int sel_task;
+
     /* -a option status */
     int logic_and;
 
+    /* -b option status */
+    int avoid_blocking;
+
+    /* -O option status */
+    int avoid_forking;
+
     /* -X option status */
     int x_opt;
+
+    /* -E option status:
+     * 0==none,
+     * 1==info,
+     * 2==info+files */
+    int endpoint_status;
 
     /* allocated (possibly unused) entries in TCP
      * state tables */
@@ -1262,6 +1275,14 @@ struct lsof_context {
 #    define Fand (ctx->logic_and)
 /* -x option */
 #    define Fxopt (ctx->x_opt)
+/* avoid blocking */
+#    define Fblock (ctx->avoid_blocking)
+/* avoid forking overhead */
+#    define Fovhd (ctx->avoid_forking)
+/* endpoint status */
+#    define FeptE (ctx->endpoint_status)
+/* select tasks */
+#    define Ftask (ctx->sel_task)
 
 #    include "proto.h"
 #    include "dproto.h"
