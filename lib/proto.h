@@ -56,7 +56,7 @@ extern void alloc_lproc(struct lsof_context *ctx, int pid, int pgid, int ppid,
                         UID_ARG uid, char *cmd, int pss, int sf);
 extern void build_IPstates(struct lsof_context *ctx);
 extern void childx(struct lsof_context *ctx);
-extern void closefrom_shim(int low);
+extern void closefrom_shim(struct lsof_context *ctx, int low);
 extern int ck_fd_status(struct lsof_context *ctx, enum lsof_fd_type fd_type,
                         int num);
 extern int ck_file_arg(struct lsof_context *ctx, int i, int ac, char *av[],

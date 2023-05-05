@@ -119,7 +119,7 @@ int main(int argc, char *argv[]) {
     if ((MaxFd = (int)GET_MAX_FD()) < 53)
         MaxFd = 53;
 
-    closefrom_shim(3);
+    closefrom_shim(ctx, 3);
 
     while (((i = open("/dev/null", O_RDWR, 0)) >= 0) && (i < 2))
         ;

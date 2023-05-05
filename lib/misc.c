@@ -217,7 +217,7 @@ int compdev(COMP_P *a1, COMP_P *a2) {
 /*
  * closefrom_shim() -- provide closefrom() when unavailable
  */
-void closefrom_shim(int low) {
+void closefrom_shim(struct lsof_context *ctx, int low) {
     int i;
 #if defined(HAS_CLOSEFROM)
     (void)closefrom(low);
@@ -325,7 +325,7 @@ static int doinchild(struct lsof_context *ctx,
                     Error(ctx);
                 }
                 Pipes[3] = 1;
-                (void)closefrom_shim(2);
+                (void)closefrom_shim(ctx, 2);
                 Pipes[1] = -1;
                 Pipes[2] = -1;
 
