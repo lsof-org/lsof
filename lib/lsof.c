@@ -53,6 +53,11 @@ struct lsof_context *lsof_new() {
         /* display warnings */
         Fwarn = 0;
 #endif /* defined(WARNINGSTATE) */
+
+#if defined(HASXOPT_VALUE)
+        /* -X option status */
+        Fxopt = HASXOPT_VALUE;
+#endif /* defined(HASXOPT_VALUE) */
     }
     return ctx;
 }

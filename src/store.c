@@ -116,7 +116,6 @@ efsys_list_t *Efsysl = (efsys_list_t *)NULL;
  * to be eliminated */
 int ErrStat = 0;  /* path stat() error count */
 uid_t Euid;       /* effective UID of this lsof process */
-int Fand = 0;     /* -a option status */
 int Fblock = 0;   /* -b option status */
 int FcColW;       /* FCT column width */
 int Fcntx = 0;    /* -Z option status */
@@ -166,10 +165,6 @@ int Ftcptpi = TCPTPI_STATE; /* -T option status */
 int Fterse = 0;             /* -t option status */
 int Futol = 1;              /* -l option status */
 int Fverbose = 0;           /* -V option status */
-
-#if defined(HASXOPT_VALUE)
-int Fxopt = HASXOPT_VALUE; /* -X option status */
-#endif                     /* defined(HASXOPT_VALUE) */
 
 int Fxover = 0; /* -x option value */
 int Fzone = 0;  /* -z option status */

@@ -715,7 +715,6 @@ extern int Dstkn;
 extern int Dstkx;
 extern int ErrStat;
 extern uid_t Euid;
-extern int Fand;
 extern int Fblock;
 extern int Fcntx;
 extern int Ffield;
@@ -756,10 +755,6 @@ extern int Fterse;
 extern int Funix;
 extern int Futol;
 extern int Fverbose;
-
-#    if defined(HASXOPT_VALUE)
-extern int Fxopt;
-#    endif /* defined(HASXOPT_VALUE) */
 
 extern int Fxover;
 extern int Fzone;
@@ -1136,6 +1131,12 @@ struct lsof_context {
      * 2==some found*/
     int sel_nfs;
 
+    /* -a option status */
+    int logic_and;
+
+    /* -X option status */
+    int x_opt;
+
     /* allocated (possibly unused) entries in TCP
      * state tables */
     int tcp_state_alloc;
@@ -1257,6 +1258,10 @@ struct lsof_context {
 #    define FnetTy (ctx->net_type)
 /* select nfs files */
 #    define Fnfs (ctx->sel_nfs)
+/* -a option */
+#    define Fand (ctx->logic_and)
+/* -x option */
+#    define Fxopt (ctx->x_opt)
 
 #    include "proto.h"
 #    include "dproto.h"
