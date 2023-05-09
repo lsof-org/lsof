@@ -665,11 +665,6 @@ struct seluid {
                          * (meaningful only if excl == 0) */
 };
 
-#    if defined(HASBLKDEV)
-extern struct l_dev *BDevtp, **BSdev;
-extern int BNdev;
-#    endif /* defined(HASBLKDEV) */
-
 extern int CkPasswd;
 
 struct str_lst {
@@ -707,7 +702,6 @@ extern int DCunsafe;
 #    endif /* defined(HASDCACHE) */
 
 extern int DChelp;
-extern struct l_dev *Devtp;
 extern int ErrStat;
 extern uid_t Euid;
 extern int Fcntx;
@@ -983,8 +977,6 @@ extern char *Memory;
 extern struct mounts *Mtprocfs;
 #    endif
 
-extern int Ndev;
-
 #    if defined(HASNLIST)
 #        if !defined(NLIST_TYPE)
 #            define NLIST_TYPE nlist
@@ -1036,7 +1028,6 @@ extern int Procsrch;
 extern int PrPass;
 extern int RptTm;
 extern int RptMaxCount;
-extern struct l_dev **Sdev;
 extern char *SzOffFmt_0t;
 extern char *SzOffFmt_d;
 extern char *SzOffFmt_dv;
@@ -1122,6 +1113,23 @@ struct lsof_context {
 
     /* select by network address */
     struct nwad *sel_net_addr;
+
+    /* security context arguments supplied with -Z */
+    cntxlist_t *sel_selinux_context;
+
+    /* device table pointer */
+    struct l_dev *dev_table;
+    int dev_table_size; /* number of entries in dev_table[] */
+    /* pointer to dev_table[] pointers, sorted
+     * by device */
+    struct l_dev **dev_table_sorted;
+
+    /* block device table pointer */
+    struct l_dev *block_dev_table;
+    int block_dev_table_size; /* number of entries in block_dev_table[] */
+    /* pointer to BDevtp[] pointers, sorted
+     * by device */
+    struct l_dev **block_dev_table_sorted;
 
     /* selection flags -- see SEL* macros */
     int sel_flags;
@@ -1392,6 +1400,16 @@ struct lsof_context {
 #    define NCmdRxU (ctx->cmd_regex_size)
 /* select by network address */
 #    define Nwad (ctx->sel_net_addr)
+/* device table pointer */
+#    define Devtp (ctx->dev_table)
+#    define Ndev (ctx->dev_table_size)
+#    define Sdev (ctx->dev_table_sorted)
+/* block device table */
+#    define BDevtp (ctx->block_dev_table)
+#    define BNdev (ctx->block_dev_table_size)
+#    define BSdev (ctx->block_dev_table_sorted)
+/* select selinux context */
+#    define CntxArg (ctx->sel_selinux_context)
 
 #    include "proto.h"
 #    include "dproto.h"

@@ -54,9 +54,6 @@ int CmdColW; /* COMMAND column width */
 int CmdLim = CMDL; /* COMMAND column width limit */
 
 #if defined(HASSELINUX)
-cntxlist_t *CntxArg = (cntxlist_t *)NULL;
-/* security context arguments supplied with
- * -Z */
 int CntxColW;       /* security context column width */
 int CntxStatus = 0; /* security context status: 0 == disabled,
                      * 1 == enabled */
@@ -93,8 +90,6 @@ int DCunsafe = 0;  /* device cache file is potentially unsafe,
 int DChelp = 0; /* -D? status */
 
 int DevColW;  /* DEVICE column width */
-struct l_dev *Devtp = (struct l_dev *)NULL;
-/* device table pointer */
 
 /*
  * Externals for a stkdir(), dumbed-down for older AIX compilers.
@@ -198,8 +193,6 @@ struct mounts *Mtprocfs = (struct mounts *)NULL;
 /* /proc mount entry */
 #endif /* defined(HASPROCFS) */
 
-int Ndev = 0;                /* number of entries in Devtp[] */
-
 #if defined(HASNLIST)
 struct NLIST_TYPE *Nl = (struct NLIST_TYPE *)NULL;
 /* kernel name list */
@@ -231,9 +224,6 @@ int PrPass = 0;      /* print pass: 0 = compute column widths
 int RptTm = 0;       /* repeat time -- set by -r */
 int RptMaxCount = 0; /* count of repeasts: 0 = no limit
                       * -- set by -r */
-struct l_dev **Sdev = (struct l_dev **)NULL;
-/* pointer to Devtp[] pointers, sorted
- * by device */
 int SzColW;                       /* SIZE column width */
 int SzOffColW;                    /* SIZE/OFF column width */
 char *SzOffFmt_0t = (char *)NULL; /* SZOFFTYPE 0t%u printf specification */
