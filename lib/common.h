@@ -672,14 +672,12 @@ struct str_lst {
 };
 extern int CmdLim;
 
-#    if defined(HASSELINUX)
 typedef struct cntxlist {
     char *cntx;            /* zone name */
     int f;                 /* "find" flag (used only in CntxArg) */
     struct cntxlist *next; /* next zone hash entry */
 } cntxlist_t;
 extern int CntxStatus;
-#    endif /* defined(HASSELINUX) */
 
 extern int DChelp;
 extern int ErrStat;

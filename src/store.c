@@ -34,15 +34,6 @@
  * Global storage definitions
  */
 
-#if defined(HASBLKDEV)
-struct l_dev *BDevtp = (struct l_dev *)NULL;
-/* block device table pointer */
-int BNdev = 0; /* number of entries in BDevtp[] */
-struct l_dev **BSdev = (struct l_dev **)NULL;
-/* pointer to BDevtp[] pointers, sorted
- * by device */
-#endif /* defined(HASBLKDEV) */
-
 int CkPasswd = 0; /* time to check /etc/passwd for change */
 
 #if defined(HAS_STD_CLONE)
