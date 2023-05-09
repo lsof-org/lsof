@@ -206,9 +206,6 @@ struct mounts *Mtprocfs = (struct mounts *)NULL;
 /* /proc mount entry */
 #endif /* defined(HASPROCFS) */
 
-int Mxpgid = 0;              /* maximum process group ID table entries */
-int Mxpid = 0;               /* maximum PID table entries */
-int Mxuid = 0;               /* maximum UID table entries */
 int NCmdRxU = 0;             /* number of CmdRx[] entries */
 int Ndev = 0;                /* number of entries in Devtp[] */
 
@@ -222,16 +219,7 @@ int NlColW;                 /* NLINK column width */
 int NmColW;                 /* NAME column width */
 char *Nmlst = (char *)NULL; /* namelist file path */
 int NodeColW;               /* NODE column width */
-int Npgid = 0;              /* -g option count */
-int Npgidi = 0;             /* -g option inclusion count */
-int Npgidx = 0;             /* -g option exclusion count */
-int Npid = 0;               /* -p option count */
-int Npidi = 0;              /* -p option inclusion count */
-int Npidx = 0;              /* -p option exclusion count */
 int Ntype;                  /* node type (see N_* symbols) */
-int Nuid = 0;               /* -u option count */
-int Nuidexcl = 0;           /* -u option count of UIDs excluded */
-int Nuidincl = 0;           /* -u option count of UIDs included */
 struct nwad *Nwad = (struct nwad *)NULL;
 /* list of network addresses */
 int OffDecDig = OFFDECDIG; /* offset decimal form (0t...) digit limit */
@@ -257,12 +245,6 @@ int RptMaxCount = 0; /* count of repeasts: 0 = no limit
 struct l_dev **Sdev = (struct l_dev **)NULL;
 /* pointer to Devtp[] pointers, sorted
  * by device */
-struct int_lst *Spgid = (struct int_lst *)NULL;
-/* process group IDs to search for */
-struct int_lst *Spid = (struct int_lst *)NULL;
-/* Process IDs to search for */
-struct seluid *Suid = (struct seluid *)NULL;
-/* User IDs to include or exclude */
 int SzColW;                       /* SIZE column width */
 int SzOffColW;                    /* SIZE/OFF column width */
 char *SzOffFmt_0t = (char *)NULL; /* SZOFFTYPE 0t%u printf specification */

@@ -983,9 +983,6 @@ extern char *Memory;
 extern struct mounts *Mtprocfs;
 #    endif
 
-extern int Mxpgid;
-extern int Mxpid;
-extern int Mxuid;
 extern int Ndev;
 
 #    if defined(HASNLIST)
@@ -996,16 +993,7 @@ extern struct NLIST_TYPE *Nl;
 extern int Nll;
 #    endif /* defined(HASNLIST) */
 extern char *Nmlst;
-extern int Npgid;
-extern int Npgidi;
-extern int Npgidx;
-extern int Npid;
-extern int Npidi;
-extern int Npidx;
 extern int Ntype;
-extern int Nuid;
-extern int Nuidexcl;
-extern int Nuidincl;
 
 struct nwad {
     char *arg;                    /* argument */
@@ -1049,9 +1037,6 @@ extern int PrPass;
 extern int RptTm;
 extern int RptMaxCount;
 extern struct l_dev **Sdev;
-extern struct int_lst *Spgid;
-extern struct int_lst *Spid;
-extern struct seluid *Suid;
 extern char *SzOffFmt_0t;
 extern char *SzOffFmt_d;
 extern char *SzOffFmt_dv;
@@ -1094,6 +1079,33 @@ struct lsof_context {
     /* file systems for which kernel blocks are
      * to be eliminated */
     efsys_list_t *elim_fs_list;
+
+    /* User IDs to include or exclude */
+    struct seluid *sel_uid;
+    /* -u option count */
+    int sel_uid_size;
+    /* capacity of sel_uid */
+    int sel_uid_cap;
+    /* -u option count of UIDs excluded */
+    int num_uid_excluded;
+    /* -u option count of UIDs included */
+    int num_uid_included;
+
+    /* process group IDs to search for */
+    struct int_lst *sel_pgid;
+    int sel_pgid_size;     /* -g option count */
+    int sel_pgid_cap;      /* capacity of sel_pgid */
+    int sel_pgid_incl_num; /* -g option inclusion count */
+    int sel_pgid_excl_num; /* -g option exclusion count */
+
+    /* Process IDs to search for */
+    struct int_lst *sel_pid;
+    int sel_pid_size;  /* -p option count */
+    int num_unsel_pid; /* number of unselected PIDs (starts at sel_pid_size) for
+                          optimization in examine_lproc() */
+    int sel_pid_cap;   /* capacity of sel_pid */
+    int sel_pid_incl_num; /* -p option inclusion count */
+    int sel_pid_excl_num; /* -p option exclusion count */
 
     /* selection flags -- see SEL* macros */
     int sel_flags;
@@ -1157,10 +1169,6 @@ struct lsof_context {
 
     /* Readlink() and stat() timeout (seconds) */
     int time_limit;
-
-    /* number of unselected PIDs (starts at sel_pid_size) for
-                      optimization in examine_lproc() */
-    int num_unsel_pid;
 
     int my_pid;      /* lsof's process ID */
     uid_t my_uid;    /* real UID of this lsof process */
@@ -1340,6 +1348,24 @@ struct lsof_context {
 #    define Sfile (ctx->select_files)
 /* fs to eliminate blocking syscalls */
 #    define Efsysl (ctx->elim_fs_list)
+/* select uid */
+#    define Suid (ctx->sel_uid)
+#    define Nuid (ctx->sel_uid_size)
+#    define Nuidincl (ctx->num_uid_included)
+#    define Nuidexcl (ctx->num_uid_excluded)
+#    define Mxuid (ctx->sel_uid_cap)
+/* select pid */
+#    define Spid (ctx->sel_pid)
+#    define Npid (ctx->sel_pid_size)
+#    define Npidi (ctx->sel_pid_incl_num)
+#    define Npidx (ctx->sel_pid_excl_num)
+#    define Mxpid (ctx->sel_pid_cap)
+/* select pgid */
+#    define Spgid (ctx->sel_pgid)
+#    define Npgid (ctx->sel_pgid_size)
+#    define Npgidi (ctx->sel_pgid_incl_num)
+#    define Npgidx (ctx->sel_pgid_excl_num)
+#    define Mxpgid (ctx->sel_pgid_cap)
 
 #    include "proto.h"
 #    include "dproto.h"
