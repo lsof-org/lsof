@@ -1107,6 +1107,22 @@ struct lsof_context {
     int sel_pid_incl_num; /* -p option inclusion count */
     int sel_pid_excl_num; /* -p option exclusion count */
 
+    /* Whether all processes are selected */
+    int sel_all_proc;
+
+    /* command names selected with -c */
+    struct str_lst *sel_cmds;
+    int sel_cmd_incl; /* number of command name inclusions selected with -c */
+    int sel_cmd_excl; /* number of command name exclusions selected with -c */
+
+    /* command regular expression table for -c option */
+    lsof_rx_t *cmd_regex;
+    int cmd_regex_size; /* number of cmd_regex[] entries */
+    int cmd_regex_cap;  /* capacity of cmd_regex[] */
+
+    /* select by network address */
+    struct nwad *sel_net_addr;
+
     /* selection flags -- see SEL* macros */
     int sel_flags;
     /* SELPROC flags, modified by IgnTasks */
@@ -1366,6 +1382,16 @@ struct lsof_context {
 #    define Npgidi (ctx->sel_pgid_incl_num)
 #    define Npgidx (ctx->sel_pgid_excl_num)
 #    define Mxpgid (ctx->sel_pgid_cap)
+/* select all procs */
+#    define AllProc (ctx->sel_all_proc)
+/* select command */
+#    define Cmdl (ctx->sel_cmds)
+#    define Cmdni (ctx->sel_cmd_incl)
+#    define Cmdnx (ctx->sel_cmd_excl)
+#    define CmdRx (ctx->cmd_regex)
+#    define NCmdRxU (ctx->cmd_regex_size)
+/* select by network address */
+#    define Nwad (ctx->sel_net_addr)
 
 #    include "proto.h"
 #    include "dproto.h"

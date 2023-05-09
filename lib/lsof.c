@@ -63,6 +63,9 @@ struct lsof_context *lsof_new() {
         FdlTy = -1;
 
         TmLimit = TMLIMIT;
+
+        /* default */
+        AllProc = 1;
     }
     return ctx;
 }

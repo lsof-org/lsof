@@ -34,8 +34,6 @@
  * Global storage definitions
  */
 
-int AllProc = 1; /* all processes are selected (default) */
-
 #if defined(HASBLKDEV)
 struct l_dev *BDevtp = (struct l_dev *)NULL;
 /* block device table pointer */
@@ -53,13 +51,7 @@ struct clone *Clone = (struct clone *)NULL;
 #endif /* defined(HAS_STD_CLONE) */
 
 int CmdColW; /* COMMAND column width */
-struct str_lst *Cmdl = (struct str_lst *)NULL;
-/* command names selected with -c */
 int CmdLim = CMDL; /* COMMAND column width limit */
-int Cmdni = 0;     /* command name inclusions selected with -c */
-int Cmdnx = 0;     /* command name exclusions selected with -c */
-lsof_rx_t *CmdRx = (lsof_rx_t *)NULL;
-/* command regular expression table */
 
 #if defined(HASSELINUX)
 cntxlist_t *CntxArg = (cntxlist_t *)NULL;
@@ -206,7 +198,6 @@ struct mounts *Mtprocfs = (struct mounts *)NULL;
 /* /proc mount entry */
 #endif /* defined(HASPROCFS) */
 
-int NCmdRxU = 0;             /* number of CmdRx[] entries */
 int Ndev = 0;                /* number of entries in Devtp[] */
 
 #if defined(HASNLIST)
@@ -220,8 +211,6 @@ int NmColW;                 /* NAME column width */
 char *Nmlst = (char *)NULL; /* namelist file path */
 int NodeColW;               /* NODE column width */
 int Ntype;                  /* node type (see N_* symbols) */
-struct nwad *Nwad = (struct nwad *)NULL;
-/* list of network addresses */
 int OffDecDig = OFFDECDIG; /* offset decimal form (0t...) digit limit */
 int OffColW;               /* OFFSET column width */
 int PgidColW;              /* PGID column width */
