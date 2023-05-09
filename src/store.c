@@ -215,9 +215,6 @@ struct mounts *Mtprocfs = (struct mounts *)NULL;
 int Mxpgid = 0;              /* maximum process group ID table entries */
 int Mxpid = 0;               /* maximum PID table entries */
 int Mxuid = 0;               /* maximum UID table entries */
-gid_t Mygid;                 /* real GID of this lsof process */
-int Mypid;                   /* lsof's process ID */
-uid_t Myuid;                 /* real UID of this lsof process */
 int NCmdRxU = 0;             /* number of CmdRx[] entries */
 int Ndev = 0;                /* number of entries in Devtp[] */
 
@@ -266,8 +263,6 @@ int RptMaxCount = 0; /* count of repeasts: 0 = no limit
 struct l_dev **Sdev = (struct l_dev **)NULL;
 /* pointer to Devtp[] pointers, sorted
  * by device */
-int Setgid = 0;     /* setgid state */
-int Setuidroot = 0; /* setuid-root state */
 struct sfile *Sfile = (struct sfile *)NULL;
 /* chain of files to search for */
 struct int_lst *Spgid = (struct int_lst *)NULL;

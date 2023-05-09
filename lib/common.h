@@ -253,7 +253,7 @@ struct l_dev {
 #    include "dlsof.h"
 
 #    include <sys/types.h> /* just in case -- because utmp.h
-					 * may need it */
+                     * may need it */
 #    include <regex.h>
 
 #    if defined(EMPTY)
@@ -991,9 +991,6 @@ extern struct mounts *Mtprocfs;
 extern int Mxpgid;
 extern int Mxpid;
 extern int Mxuid;
-extern gid_t Mygid;
-extern int Mypid;
-extern uid_t Myuid;
 extern int Ndev;
 
 #    if defined(HASNLIST)
@@ -1057,12 +1054,6 @@ extern int PrPass;
 extern int RptTm;
 extern int RptMaxCount;
 extern struct l_dev **Sdev;
-extern int SelAll;
-extern int Selflags;
-extern int SelProc;
-extern int Setgid;
-extern int Selinet;
-extern int Setuidroot;
 extern struct sfile *Sfile;
 extern struct int_lst *Spgid;
 extern struct int_lst *Spid;
@@ -1170,6 +1161,12 @@ struct lsof_context {
     /* number of unselected PIDs (starts at sel_pid_size) for
                       optimization in examine_lproc() */
     int num_unsel_pid;
+
+    int my_pid;      /* lsof's process ID */
+    uid_t my_uid;    /* real UID of this lsof process */
+    gid_t my_gid;    /* real GID of this lsof process */
+    int setgid;      /* setgid state */
+    int setuid_root; /* setuid-root state */
 
     /* allocated (possibly unused) entries in TCP
      * state tables */
@@ -1322,6 +1319,14 @@ struct lsof_context {
 #    define TmLimit (ctx->time_limit)
 /* number of unselected PIDs */
 #    define Npuns (ctx->num_unsel_pid)
+/* pid/uid/gid of current process */
+#    define Mypid (ctx->my_pid)
+#    define Myuid (ctx->my_uid)
+#    define Mygid (ctx->my_gid)
+/* setgid state */
+#    define Setgid (ctx->setgid)
+/* setuid-root state */
+#    define Setuidroot (ctx->setuid_root)
 
 #    include "proto.h"
 #    include "dproto.h"
