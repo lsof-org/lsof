@@ -108,12 +108,6 @@ struct l_dev *Devtp = (struct l_dev *)NULL;
  * Externals for a stkdir(), dumbed-down for older AIX compilers.
  */
 
-char **Dstk = (char **)NULL; /* the directory stack */
-int Dstkx = 0;               /* Dstk[] index */
-int Dstkn = 0;               /* Dstk[] entries allocated */
-efsys_list_t *Efsysl = (efsys_list_t *)NULL;
-/* file systems for which kernel blocks are
- * to be eliminated */
 int ErrStat = 0;  /* path stat() error count */
 uid_t Euid;       /* effective UID of this lsof process */
 int FcColW;       /* FCT column width */
@@ -263,8 +257,6 @@ int RptMaxCount = 0; /* count of repeasts: 0 = no limit
 struct l_dev **Sdev = (struct l_dev **)NULL;
 /* pointer to Devtp[] pointers, sorted
  * by device */
-struct sfile *Sfile = (struct sfile *)NULL;
-/* chain of files to search for */
 struct int_lst *Spgid = (struct int_lst *)NULL;
 /* process group IDs to search for */
 struct int_lst *Spid = (struct int_lst *)NULL;

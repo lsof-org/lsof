@@ -634,8 +634,6 @@ typedef struct efsys_list {
     struct mounts *mp;       /* local mount table entry pointer */
     struct efsys_list *next; /* next efsys_list entry pointer */
 } efsys_list_t;
-extern efsys_list_t *Efsysl; /* file systems for which kernel blocks
-                              * are to be eliminated */
 
 struct int_lst {
     int i; /* integer argument */
@@ -710,9 +708,6 @@ extern int DCunsafe;
 
 extern int DChelp;
 extern struct l_dev *Devtp;
-extern char **Dstk;
-extern int Dstkn;
-extern int Dstkx;
 extern int ErrStat;
 extern uid_t Euid;
 extern int Fcntx;
@@ -1054,7 +1049,6 @@ extern int PrPass;
 extern int RptTm;
 extern int RptMaxCount;
 extern struct l_dev **Sdev;
-extern struct sfile *Sfile;
 extern struct int_lst *Spgid;
 extern struct int_lst *Spid;
 extern struct seluid *Suid;
@@ -1094,6 +1088,12 @@ extern znhash_t **ZoneArg;
 
 struct lsof_context {
     /** Parameters */
+    /** Linked list of files to search */
+    struct sfile *select_files;
+
+    /* file systems for which kernel blocks are
+     * to be eliminated */
+    efsys_list_t *elim_fs_list;
 
     /* selection flags -- see SEL* macros */
     int sel_flags;
@@ -1167,6 +1167,11 @@ struct lsof_context {
     gid_t my_gid;    /* real GID of this lsof process */
     int setgid;      /* setgid state */
     int setuid_root; /* setuid-root state */
+
+    /* directory stack */
+    char **dir_stack;    /* the directory stack */
+    int dir_stack_index; /* dir_stack[] index */
+    int dir_stack_size;  /* dir_stack[] entries allocated */
 
     /* allocated (possibly unused) entries in TCP
      * state tables */
@@ -1327,6 +1332,14 @@ struct lsof_context {
 #    define Setgid (ctx->setgid)
 /* setuid-root state */
 #    define Setuidroot (ctx->setuid_root)
+/* directory stack */
+#    define Dstk (ctx->dir_stack)
+#    define Dstkx (ctx->dir_stack_index)
+#    define Dstkn (ctx->dir_stack_size)
+/* selection files */
+#    define Sfile (ctx->select_files)
+/* fs to eliminate blocking syscalls */
+#    define Efsysl (ctx->elim_fs_list)
 
 #    include "proto.h"
 #    include "dproto.h"
