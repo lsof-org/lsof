@@ -604,8 +604,6 @@ struct afsnode { /* AFS pseudo-node structure */
 };
 #    endif /* defined(HAS_AFS) */
 
-extern int AllProc;
-
 #    if defined(HAS_STD_CLONE)
 struct clone {
     int dx;             /* index of device entry in Devtp[] */
@@ -647,8 +645,6 @@ typedef struct lsof_rx { /* regular expression table entry */
     regex_t cx;          /* compiled expression */
     int mc;              /* match count */
 } lsof_rx_t;
-extern lsof_rx_t *CmdRx;
-extern int NCmdRxU;
 
 #    if defined(HASFSTRUCT)
 struct pff_tab { /* print file flags table structure */
@@ -674,10 +670,7 @@ struct str_lst {
     short x;              /* exclusion (if non-zero) */
     struct str_lst *next; /* next list entry */
 };
-extern struct str_lst *Cmdl;
 extern int CmdLim;
-extern int Cmdni;
-extern int Cmdnx;
 
 #    if defined(HASSELINUX)
 typedef struct cntxlist {
@@ -685,21 +678,8 @@ typedef struct cntxlist {
     int f;                 /* "find" flag (used only in CntxArg) */
     struct cntxlist *next; /* next zone hash entry */
 } cntxlist_t;
-extern cntxlist_t *CntxArg;
 extern int CntxStatus;
 #    endif /* defined(HASSELINUX) */
-
-#    if defined(HASDCACHE)
-extern unsigned DCcksum;
-extern int DCfd;
-extern FILE *DCfs;
-extern char *DCpathArg;
-extern char *DCpath[];
-extern int DCpathX;
-extern int DCrebuilt;
-extern int DCstate;
-extern int DCunsafe;
-#    endif /* defined(HASDCACHE) */
 
 extern int DChelp;
 extern int ErrStat;
@@ -711,13 +691,9 @@ extern int Fhelp;
 extern int Fhost;
 
 #    if defined(HASNCACHE)
-extern int Fncache;
 extern int NcacheReload;
 #    endif /* defined(HASNCACHE) */
 
-extern int Fnet;
-extern int FnetTy;
-extern int Fnfs;
 extern int Fnlink;
 extern int Foffset;
 
@@ -1053,14 +1029,11 @@ extern int UdpStXn;
 extern int UdpNstates;
 extern char **UdpSt;
 
-#    if defined(HASZONES)
 typedef struct znhash {
     char *zn;            /* zone name */
     int f;               /* "find" flag (used only in ZoneArg) */
     struct znhash *next; /* next zone hash entry */
 } znhash_t;
-extern znhash_t **ZoneArg;
-#    endif /* defined(HASZONES) */
 
 struct lsof_context {
     /** Parameters */
@@ -1116,6 +1089,76 @@ struct lsof_context {
 
     /* security context arguments supplied with -Z */
     cntxlist_t *sel_selinux_context;
+
+    /* device cache paths, indexed by DCpathX
+     * when it's >= 0 */
+    char *dev_cache_paths[4];
+    int dev_cache_path_index;    /* device cache path index:
+                                  * -1 = path not defined
+                                  *  0 = defined via -D
+                                  *  1 = defined via HASENVDC
+                                  *  2 = defined via HASSYSDC
+                                  *  3 = defined via HASPERSDC and
+                                  *      HASPERSDCPATH */
+    char *dev_cache_path_arg;    /* device cache path from -D[b|r|u]<path> */
+    unsigned dev_cache_checksum; /* device cache file checksum */
+    int dev_cache_fd;            /* device cache file descriptor */
+    FILE *dev_cache_fp;          /* stream pointer for DCfd */
+    int dev_cache_rebuilt;       /* an unsafe device cache file has been
+                                  * rebuilt */
+    int dev_cache_state;         /* device cache state:
+                                  * 0 = ignore (-Di)
+                                  * 1 = build (-Db[path])
+                                  * 2 = read; don't rebuild (-Dr[path])
+                                  * 3 = update; read and rebuild if
+                                  *     necessary (-Du[path])
+                                  */
+    int dev_cache_unsafe;        /* device cache file is potentially unsafe,
+                                  * (The [cm]time check failed.) */
+
+#    if defined(HASNLIST)
+    /* kernel name list */
+    struct NLIST_TYPE *name_list;
+    int name_list_size;
+#    endif                /* defined(HASNLIST) */
+    char *name_list_path; /* namelist file path */
+    char *core_file_path; /* core file path */
+
+#    if defined(HASPROCFS)
+    /* /proc mount entry */
+    struct mounts *procfs_mount;
+    int procfs_found; /* 1 when searching for an proc file system
+                       * file and one was found */
+    /* proc file system PID search table */
+    struct procfsid *procfs_table;
+    /* 1 if searching for any proc file system
+     * file */
+    int procfs_search;
+#    endif /* defined(HASPROCFS) */
+
+    /* name cache */
+    int name_cache_enable; /* -C option status */
+
+    /* local mount info */
+    struct mounts *local_mount_info;
+    int local_mount_info_valid;
+
+    /** hashSfile() buckets */
+    /* hash by file (dev,ino) buckets */
+    struct hsfile *sfile_hash_file_dev_inode;
+    int sfile_hash_file_dev_inode_count;
+    /* hash by file raw device buckets */
+    struct hsfile *sfile_hash_file_raw_device;
+    int sfile_hash_file_raw_device_count;
+    /* hash by file system buckets */
+    struct hsfile *sfile_hash_file_system;
+    int sfile_hash_file_system_count;
+    /* hash by name buckets */
+    struct hsfile *sfile_hash_name;
+    int sfile_hash_name_count;
+
+    /* zone arguments supplied with -z */
+    znhash_t **sel_zone;
 
     /* device table pointer */
     struct l_dev *dev_table;
@@ -1410,6 +1453,42 @@ struct lsof_context {
 #    define BSdev (ctx->block_dev_table_sorted)
 /* select selinux context */
 #    define CntxArg (ctx->sel_selinux_context)
+/* device cache */
+#    define DCpath (ctx->dev_cache_paths)
+#    define DCpathArg (ctx->dev_cache_path_arg)
+#    define DCpathX (ctx->dev_cache_path_index)
+#    define DCcksum (ctx->dev_cache_checksum)
+#    define DCfd (ctx->dev_cache_fd)
+#    define DCfs (ctx->dev_cache_fp)
+#    define DCrebuilt (ctx->dev_cache_rebuilt)
+#    define DCstate (ctx->dev_cache_state)
+#    define DCunsafe (ctx->dev_cache_unsafe)
+/* name list */
+#    define Nl (ctx->name_list)
+#    define Nll (ctx->name_list_size)
+#    define Nmlst (ctx->name_list_path)
+#    define Memory (ctx->core_file_path)
+/* procfs */
+#    define Mtprocfs (ctx->procfs_mount)
+#    define Procsrch (ctx->procfs_search)
+#    define Procfsid (ctx->procfs_table)
+#    define Procfind (ctx->procfs_found)
+/* name cache */
+#    define Fncache (ctx->name_cache_enable)
+/* local mount info */
+#    define Lmi (ctx->local_mount_info)
+#    define Lmist (ctx->local_mount_info_valid)
+/* hash buckets in hashSfile() */
+#    define HbyFdi (ctx->sfile_hash_file_dev_inode)
+#    define HbyFdiCt (ctx->sfile_hash_file_dev_inode_count)
+#    define HbyFrd (ctx->sfile_hash_file_raw_device)
+#    define HbyFrdCt (ctx->sfile_hash_file_raw_device_count)
+#    define HbyFsd (ctx->sfile_hash_file_system)
+#    define HbyFsdCt (ctx->sfile_hash_file_system_count)
+#    define HbyNm (ctx->sfile_hash_name)
+#    define HbyNmCt (ctx->sfile_hash_name_count)
+/* solaris zone */
+#    define ZoneArg (ctx->sel_zone)
 
 #    include "proto.h"
 #    include "dproto.h"

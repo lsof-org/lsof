@@ -186,7 +186,6 @@ char *InodeFmt_x = (char *)NULL;
 /* INODETYPE hexadecimal printf specification */
 int LastPid = -1; /* last PID listed (for eliminating duplicates
                    * in terse output) */
-char *Memory = (char *)NULL;  /* core file path */
 
 #if defined(HASPROCFS)
 struct mounts *Mtprocfs = (struct mounts *)NULL;
@@ -201,7 +200,6 @@ int Nll = 0; /* Nl calloc'd length */
 
 int NlColW;                 /* NLINK column width */
 int NmColW;                 /* NAME column width */
-char *Nmlst = (char *)NULL; /* namelist file path */
 int NodeColW;               /* NODE column width */
 int Ntype;                  /* node type (see N_* symbols) */
 int OffDecDig = OFFDECDIG; /* offset decimal form (0t...) digit limit */

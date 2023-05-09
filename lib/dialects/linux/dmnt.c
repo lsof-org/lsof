@@ -70,8 +70,6 @@ typedef struct mntsup {
  * Local static definitions
  */
 
-static struct mounts *Lmi = (struct mounts *)NULL; /* local mount info */
-static int Lmist = 0;                              /* Lmi status */
 static mntsup_t **MSHash = (mntsup_t **)NULL;      /* mount supplement
                                                     * hash buckets */
 
