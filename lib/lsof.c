@@ -70,6 +70,15 @@ struct lsof_context *lsof_new() {
 
         /* -1 == none */
         FdlTy = -1;
+
+	/* device cache file descriptor */
+	DCfd = -1;
+
+	/* device cache path index: -1 = path not defined */
+	DCpathX = -1;
+
+	/* device cache state: 3 = update; read and rebuild if necessary */
+	DCstate = 3;
     }
     return ctx;
 }

@@ -83,7 +83,7 @@ static char copyright[] =
  * Local function prototypes
  */
 
-static int ckstate(struct xtcpcb *pcb, int fam);
+static int ckstate(struct lsof_context *ctx, struct xtcpcb *pcb, int fam);
 
 static int cmp_xunpcb_sock_pcb(const void *a, const void *b) {
     const struct xunpcb *pcb1 = (const struct xunpcb *)a;
@@ -268,7 +268,7 @@ void free_pcb_lists(struct pcb_lists *pcbs) {
  *	    1 == stop processing file
  */
 
-static int ckstate(struct xtcpcb *pcb, int fam) {
+static int ckstate(struct lsof_context *ctx, struct xtcpcb *pcb, int fam) {
 #if __FreeBSD_version >= 1200026
     int tsnx;
 
@@ -467,7 +467,7 @@ void process_socket(struct lsof_context *ctx, struct kinfo_file *kf,
              * Save IPv6 address information.
              */
             if (kf->kf_sock_protocol == IPPROTO_TCP) {
-                if ((ts = ckstate((struct xtcpcb *)pcb, fam)) == 1) {
+                if ((ts = ckstate(ctx, (struct xtcpcb *)pcb, fam)) == 1) {
                     return;
                 }
             }
@@ -505,7 +505,7 @@ void process_socket(struct lsof_context *ctx, struct kinfo_file *kf,
                 return;
             }
             if (kf->kf_sock_protocol == IPPROTO_TCP) {
-                if ((ts = ckstate((struct xtcpcb *)pcb, fam)) == 1)
+                if ((ts = ckstate(ctx, (struct xtcpcb *)pcb, fam)) == 1)
                     return;
             }
             enter_dev_ch(ctx,

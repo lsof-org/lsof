@@ -41,7 +41,7 @@ struct clone *Clone = (struct clone *)NULL;
 /* clone device list */
 #endif /* defined(HAS_STD_CLONE) */
 
-int CmdColW; /* COMMAND column width */
+int CmdColW;       /* COMMAND column width */
 int CmdLim = CMDL; /* COMMAND column width limit */
 
 #if defined(HASSELINUX)
@@ -50,37 +50,9 @@ int CntxStatus = 0; /* security context status: 0 == disabled,
                      * 1 == enabled */
 #endif              /* defined(HASSELINUX) */
 
-#if defined(HASDCACHE)
-unsigned DCcksum;               /* device cache file checksum */
-int DCfd = -1;                  /* device cache file descriptor */
-FILE *DCfs = (FILE *)NULL;      /* stream pointer for DCfd */
-char *DCpathArg = (char *)NULL; /* device cache path from -D[b|r|u]<path> */
-char *DCpath[] = {              /* device cache paths, indexed by DCpathX
-                                 *when it's >= 0 */
-                  (char *)NULL, (char *)NULL, (char *)NULL, (char *)NULL};
-int DCpathX = -1;  /* device cache path index:
-                    *	-1 = path not defined
-                    *	 0 = defined via -D
-                    *	 1 = defined via HASENVDC
-                    *	 2 = defined via HASSYSDC
-                    *	 3 = defined via HASPERSDC and
-                    *	     HASPERSDCPATH */
-int DCrebuilt = 0; /* an unsafe device cache file has been
-                    * rebuilt */
-int DCstate = 3;   /* device cache state:
-                    *	0 = ignore (-Di)
-                    *	1 = build (-Db[path])
-                    *	2 = read; don't rebuild (-Dr[path])
-                    *	3 = update; read and rebuild if
-                    *	    necessary (-Du[path])
-                    */
-int DCunsafe = 0;  /* device cache file is potentially unsafe,
-                    * (The [cm]time check failed.) */
-#endif             /* defined(HASDCACHE) */
-
 int DChelp = 0; /* -D? status */
 
-int DevColW;  /* DEVICE column width */
+int DevColW; /* DEVICE column width */
 
 /*
  * Externals for a stkdir(), dumbed-down for older AIX compilers.
@@ -170,7 +142,7 @@ struct fieldsel FieldSel[] = {
     {LSOF_FID_TERM, 0, LSOF_FNM_TERM, NULL, 0},                  /* 30 */
     {' ', 0, NULL, NULL, 0}};
 
-int Hdr = 0;      /* header print status */
+int Hdr = 0; /* header print status */
 char *InodeFmt_d = (char *)NULL;
 /* INODETYPE decimal printf specification */
 char *InodeFmt_x = (char *)NULL;
@@ -178,41 +150,21 @@ char *InodeFmt_x = (char *)NULL;
 int LastPid = -1; /* last PID listed (for eliminating duplicates
                    * in terse output) */
 
-#if defined(HASPROCFS)
-struct mounts *Mtprocfs = (struct mounts *)NULL;
-/* /proc mount entry */
-#endif /* defined(HASPROCFS) */
-
-#if defined(HASNLIST)
-struct NLIST_TYPE *Nl = (struct NLIST_TYPE *)NULL;
-/* kernel name list */
-int Nll = 0; /* Nl calloc'd length */
-#endif       /* defined(HASNLIST) */
-
-int NlColW;                 /* NLINK column width */
-int NmColW;                 /* NAME column width */
-int NodeColW;               /* NODE column width */
-int Ntype;                  /* node type (see N_* symbols) */
+int NlColW;                /* NLINK column width */
+int NmColW;                /* NAME column width */
+int NodeColW;              /* NODE column width */
+int Ntype;                 /* node type (see N_* symbols) */
 int OffDecDig = OFFDECDIG; /* offset decimal form (0t...) digit limit */
 int OffColW;               /* OFFSET column width */
 int PgidColW;              /* PGID column width */
 int PidColW;               /* PID column width */
-int PpidColW; /* PPID column width */
+int PpidColW;              /* PPID column width */
 
-#if defined(HASPROCFS)
-int Procfind = 0; /* 1 when searching for an proc file system
-                   * file and one was found */
-struct procfsid *Procfsid = (struct procfsid *)NULL;
-/* proc file system PID search table */
-int Procsrch = 0; /* 1 if searching for any proc file system
-                   * file */
-#endif            /* defined(HASPROCFS) */
-
-int PrPass = 0;      /* print pass: 0 = compute column widths
-                      *	       1 = print */
-int RptTm = 0;       /* repeat time -- set by -r */
-int RptMaxCount = 0; /* count of repeasts: 0 = no limit
-                      * -- set by -r */
+int PrPass = 0;                   /* print pass: 0 = compute column widths
+                                   *	       1 = print */
+int RptTm = 0;                    /* repeat time -- set by -r */
+int RptMaxCount = 0;              /* count of repeasts: 0 = no limit
+                                   * -- set by -r */
 int SzColW;                       /* SIZE column width */
 int SzOffColW;                    /* SIZE/OFF column width */
 char *SzOffFmt_0t = (char *)NULL; /* SZOFFTYPE 0t%u printf specification */
@@ -224,10 +176,10 @@ int TaskCmdLim = TASKCMDL;        /* TASKCMD column width limit (same as
                                    * CmdLim) */
 int TaskPrtCmd = 0;               /* task print task command flag */
 int TaskPrtTid = 0;               /* task print TID flag */
-char Terminator = '\n';       /* output field terminator */
-int TaskTidColW = 0;          /* task TID column width */
-int TypeColW;                 /* TYPE column width */
-int UserColW;                 /* USER column width */
+char Terminator = '\n';           /* output field terminator */
+int TaskTidColW = 0;              /* task TID column width */
+int TypeColW;                     /* TYPE column width */
+int UserColW;                     /* USER column width */
 
 #if defined(HASZONES)
 znhash_t **ZoneArg = (znhash_t **)NULL;

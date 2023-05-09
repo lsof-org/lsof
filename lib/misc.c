@@ -764,11 +764,12 @@ void Error(struct lsof_context *ctx) { Exit(ctx, LSOF_ERROR); }
  * get_Nl_value() - get Nl value for nickname
  */
 
-int get_Nl_value(char *nn,           /* nickname of requested entry */
-                 struct drive_Nl *d, /* drive_Nl table that built Nl
-                                      * (if NULL, use Build_Nl) */
-                 KA_T *v)            /* returned value (if NULL,
-                                      * return nothing) */
+int get_Nl_value(struct lsof_context *ctx, /* context */
+                 char *nn,                 /* nickname of requested entry */
+                 struct drive_Nl *d,       /* drive_Nl table that built Nl
+                                            * (if NULL, use Build_Nl) */
+                 KA_T *v)                  /* returned value (if NULL,
+                                            * return nothing) */
 {
     int i;
 

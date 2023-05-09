@@ -235,7 +235,7 @@ extern int ctrl_dcache(struct lsof_context *ctx, char *p);
 extern int dcpath(struct lsof_context *ctx, int rw, int npw);
 extern int open_dcache(struct lsof_context *ctx, int m, int r, struct stat *sb);
 extern int read_dcache(struct lsof_context *ctx);
-extern int wr2DCfd(char *b, unsigned *c);
+extern int wr2DCfd(struct lsof_context *ctx, char *b, unsigned *c);
 extern void write_dcache(struct lsof_context *ctx);
 #    endif /* defined(HASDCACHE) */
 
@@ -271,7 +271,8 @@ extern char *ncache_lookup(struct lsof_context *ctx, char *buf, int blen,
 
 #    if defined(HASNLIST)
 extern void build_Nl(struct lsof_context *ctx, struct drive_Nl *d);
-extern int get_Nl_value(char *nn, struct drive_Nl *d, KA_T *v);
+extern int get_Nl_value(struct lsof_context *ctx, char *nn, struct drive_Nl *d,
+                        KA_T *v);
 #    endif /* defined(HASNLIST) */
 
 #    if defined(HASPIPENODE)

@@ -49,7 +49,8 @@ static int NCmdRxA = 0; /* space allocated to CmdRx[] */
  * Local function prototypes
  */
 
-static int ckfd_range(struct lsof_context *ctx, char *first, char *dash, char *last, int *lo, int *hi);
+static int ckfd_range(struct lsof_context *ctx, char *first, char *dash,
+                      char *last, int *lo, int *hi);
 static int enter_fd_lst(struct lsof_context *ctx, char *nm, int lo, int hi,
                         int excl);
 static int enter_nwad(struct lsof_context *ctx, struct nwad *n, int sp, int ep,

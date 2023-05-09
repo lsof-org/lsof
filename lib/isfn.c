@@ -75,7 +75,6 @@ static struct hsfile *HbyCd = /* hash by clone buckets */
 static int HbyCdCt = 0; /* HbyCd entry count */
 #    endif              /* defined(HAVECLONEMAJ) */
 
-
 /*
  * Local definitions
  */
