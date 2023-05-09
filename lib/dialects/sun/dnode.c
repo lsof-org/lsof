@@ -519,13 +519,13 @@ static KA_T Vvops[VXVOP_NUM]; /* addresses of:
 
 #if defined(VOPNAME_OPEN) && solaris >= 100000
 #    define GETVOPS(name, nl, ops)                                             \
-        if (get_Nl_value(name, nl, &ops) < 0)                                  \
+        if (get_Nl_value(ctx, name, nl, &ops) < 0)                                  \
             ops = (KA_T)0;                                                     \
         else if (kread(ctx, ops, (char *)&ops, sizeof(ops)))                   \
         ops = (KA_T)0
 #else /* !defined(VOPNAME_OPEN) || solaris<100000 */
 #    define GETVOPS(name, nl, ops)                                             \
-        if (get_Nl_value(name, nl, &ops) < 0)                                  \
+        if (get_Nl_value(ctx, name, nl, &ops) < 0)                                  \
         ops = (KA_T)0
 #endif /* defined(VOPNAME_OPEN) && solaris>=100000 */
 
