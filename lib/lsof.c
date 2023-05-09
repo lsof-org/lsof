@@ -62,10 +62,14 @@ struct lsof_context *lsof_new() {
         /* -1 == none */
         FdlTy = -1;
 
+        /* Readlink() and stat() timeout (seconds) */
         TmLimit = TMLIMIT;
 
         /* default */
         AllProc = 1;
+
+        /* -1 == none */
+        FdlTy = -1;
     }
     return ctx;
 }
