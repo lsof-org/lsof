@@ -1154,6 +1154,9 @@ struct lsof_context {
     /* hash by name buckets */
     struct hsfile *sfile_hash_name;
     int sfile_hash_name_count;
+    /* hash by clone buckets */
+    struct hsfile *sfile_hash_clone;
+    int sfile_hash_clone_count;
 
     /* zone arguments supplied with -z */
     znhash_t **sel_zone;
@@ -1485,6 +1488,8 @@ struct lsof_context {
 #    define HbyFsdCt (ctx->sfile_hash_file_system_count)
 #    define HbyNm (ctx->sfile_hash_name)
 #    define HbyNmCt (ctx->sfile_hash_name_count)
+#    define HbyCd (ctx->sfile_hash_clone)
+#    define HbyCdCt (ctx->sfile_hash_clone_count)
 /* solaris zone */
 #    define ZoneArg (ctx->sel_zone)
 

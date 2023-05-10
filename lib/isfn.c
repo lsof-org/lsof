@@ -69,12 +69,6 @@ struct hsfile {
  * Local static variables
  */
 
-#    if defined(HAVECLONEMAJ)
-static struct hsfile *HbyCd = /* hash by clone buckets */
-    (struct hsfile *)NULL;
-static int HbyCdCt = 0; /* HbyCd entry count */
-#    endif              /* defined(HAVECLONEMAJ) */
-
 /*
  * Local definitions
  */
