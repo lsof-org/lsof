@@ -340,7 +340,7 @@ void ncache_load(struct lsof_context *ctx) {
      * Get kernel cache hash table size
      */
     v = (KA_T)0;
-    if (get_Nl_value(X_NCSIZE, (struct drive_Nl *)NULL, &v) < 0 || !v ||
+    if (get_Nl_value(ctx, X_NCSIZE, (struct drive_Nl *)NULL, &v) < 0 || !v ||
         kread(ctx, (KA_T)v, (char *)&khsz, sizeof(khsz))) {
         if (!Fwarn)
             (void)fprintf(stderr,
@@ -361,7 +361,7 @@ void ncache_load(struct lsof_context *ctx) {
      */
     ka = (KA_T)0;
     v = (KA_T)0;
-    if (get_Nl_value(X_NCACHE, (struct drive_Nl *)NULL, &v) < 0 || !v ||
+    if (get_Nl_value(ctx, X_NCACHE, (struct drive_Nl *)NULL, &v) < 0 || !v ||
         kread(ctx, (KA_T)v, (char *)&ka, sizeof(ka)) || !ka) {
         if (!Fwarn)
             (void)fprintf(
