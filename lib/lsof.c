@@ -193,3 +193,15 @@ enum lsof_error lsof_select_process(struct lsof_context *ctx, char *command,
 
     return LSOF_SUCCESS;
 }
+
+API_EXPORT
+enum lsof_error lsof_set_output_stream(struct lsof_context *ctx, FILE *fp,
+                                   char *program_name, int warn) {
+    if (!ctx) {
+        return LSOF_ERROR_INVALID_ARGUMENT;
+    }
+    ctx->err = fp;
+    ctx->program_name = mkstrcpy(program_name, NULL);
+    ctx->warn = warn;
+    return LSOF_SUCCESS;
+}

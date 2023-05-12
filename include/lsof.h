@@ -35,6 +35,8 @@
 #if !defined(LSOF_H)
 #    define LSOF_H 1
 
+#    include <stdio.h>
+
 /** lsof error returns */
 enum lsof_error {
     LSOF_SUCCESS = 0,            /**< Success */
@@ -258,6 +260,21 @@ char *lsof_get_library_version();
  * \since API version 1
  */
 struct lsof_context *lsof_new();
+
+/** Set output stream for warning and error messages
+ *
+ * lsof may want to print warning and error messages to the user. You can allow
+ * printing by setting the output stream and whether prints warning or not. You
+ * should also supply `program_name` so that the output starts with your program
+ * name.
+ *
+ * By default, the output is suppressed. You can set fp to NULL to suppress
+ * output.
+ *
+ * \since API version 1
+ */
+enum lsof_error lsof_set_output_stream(struct lsof_context *ctx, FILE *fp,
+                                   char *program_name, int warn);
 
 /** Ask lsof to avoid using blocking functions
  *
