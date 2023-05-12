@@ -91,8 +91,7 @@ extern void enter_nm(struct lsof_context *ctx, char *m);
 extern int enter_state_spec(struct lsof_context *ctx, char *ss);
 #    endif /* defined(HASTCPUDPSTATE) */
 
-extern int enter_str_lst(struct lsof_context *ctx, char *opt, char *s,
-                         struct str_lst **lp, int *incl, int *excl);
+extern int enter_cmd(struct lsof_context *ctx, char *opt, char *s);
 extern int enter_uid(struct lsof_context *ctx, char *us);
 extern void ent_inaddr(struct lsof_context *ctx, unsigned char *la, int lp,
                        unsigned char *fa, int fp, int af);

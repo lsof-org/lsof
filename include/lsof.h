@@ -288,4 +288,16 @@ enum lsof_error lsof_avoid_forking(struct lsof_context *ctx, int avoid);
  */
 enum lsof_error lsof_logic_and(struct lsof_context *ctx);
 
+/** Ask lsof to select process by command
+ *
+ * Select process executing the command that begins with the characters of
+ * `command`. You can specify exclusion by setting `exclude` to 1.
+ *
+ * You can call this function multiple times to add more search conditions.
+ *
+ * \since API version 1
+ */
+enum lsof_error lsof_select_process(struct lsof_context *ctx, char *command,
+                                    int exclude);
+
 #endif

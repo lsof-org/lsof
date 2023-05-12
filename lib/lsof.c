@@ -80,14 +80,14 @@ struct lsof_context *lsof_new() {
         /* -1 == none */
         FdlTy = -1;
 
-	/* device cache file descriptor */
-	DCfd = -1;
+        /* device cache file descriptor */
+        DCfd = -1;
 
-	/* device cache path index: -1 = path not defined */
-	DCpathX = -1;
+        /* device cache path index: -1 = path not defined */
+        DCpathX = -1;
 
-	/* device cache state: 3 = update; read and rebuild if necessary */
-	DCstate = 3;
+        /* device cache state: 3 = update; read and rebuild if necessary */
+        DCstate = 3;
     }
     return ctx;
 }
@@ -116,5 +116,80 @@ enum lsof_error lsof_logic_and(struct lsof_context *ctx) {
         return LSOF_ERROR_INVALID_ARGUMENT;
     }
     Fand = 1;
+    return LSOF_SUCCESS;
+}
+
+API_EXPORT
+enum lsof_error lsof_select_process(struct lsof_context *ctx, char *command,
+                                    int exclude) {
+    char *cp; /* command copy */
+    MALLOC_S len;
+    struct str_lst *lpt, *str;
+    if (!ctx || ctx->frozen) {
+        return LSOF_ERROR_INVALID_ARGUMENT;
+    }
+
+    /*
+     * Check for command inclusion/exclusion conflicts.
+     */
+    for (str = Cmdl; str; str = str->next) {
+        if (str->x != exclude) {
+            if (!strcmp(str->str, command)) {
+                if (ctx->err) {
+                    (void)fprintf(ctx->err, "%s: -c^%s and -c%s conflict.\n",
+                                  Pn, str->str, command);
+                }
+                return LSOF_ERROR_INVALID_ARGUMENT;
+            }
+        }
+    }
+
+    if (!(cp = mkstrcpy(command, &len))) {
+        if (ctx->err) {
+            (void)fprintf(ctx->err, "%s: no string copy space: ", Pn);
+            safestrprt(command, ctx->err, 1);
+        }
+        return LSOF_ERROR_NO_MEMORY;
+    }
+
+#if defined(MAXSYSCMDL)
+    if (len > MAXSYSCMDL) {
+        /* Impossible to match */
+        if (ctx->err) {
+            (void)fprintf(ctx->err, "%s: \"-c ", Pn);
+            (void)safestrprt(command, ctx->err, 2);
+            (void)fprintf(ctx->err, "\" length (%zu) > what system", len);
+            (void)fprintf(ctx->err, " provides (%d)\n", MAXSYSCMDL);
+        }
+        CLEAN(cp);
+        return LSOF_ERROR_INVALID_ARGUMENT;
+    }
+#endif
+
+    if ((lpt = (struct str_lst *)malloc(sizeof(struct str_lst))) == NULL) {
+        if (ctx->err) {
+            safestrprt(command, ctx->err, 1);
+            (void)fprintf(ctx->err, "%s: no list space: ", Pn);
+            safestrprt(command, ctx->err, 1);
+        }
+        CLEAN(cp);
+        return LSOF_ERROR_NO_MEMORY;
+    }
+
+    /* Insert into list */
+    lpt->f = 0;
+    lpt->str = cp;
+    lpt->len = (int)len;
+    lpt->x = exclude;
+    if (exclude) {
+        Cmdnx++;
+    } else {
+        Cmdni++;
+        /* Update selection flag for inclusions */
+        Selflags |= SELCMD;
+    }
+    lpt->next = Cmdl;
+    Cmdl = lpt;
+
     return LSOF_SUCCESS;
 }

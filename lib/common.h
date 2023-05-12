@@ -1162,7 +1162,7 @@ struct lsof_context {
     /* zone arguments supplied with -z */
     znhash_t **sel_zone;
 
-    /** When frozen, paramters must not be changed */
+    /** When frozen, parameters must not be changed */
     uint8_t frozen;
 
     /* device table pointer */
@@ -1496,6 +1496,14 @@ struct lsof_context {
 #    define HbyCdCt (ctx->sfile_hash_clone_count)
 /* solaris zone */
 #    define ZoneArg (ctx->sel_zone)
+
+/* Utility macro to free if non-null and set the pointer to null */
+#    define CLEAN(ptr)                                                         \
+        do {                                                                   \
+            if ((ptr))                                                         \
+                free(ptr);                                                     \
+            ptr = NULL;                                                        \
+        } while (0);
 
 #    include "proto.h"
 #    include "dproto.h"

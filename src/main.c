@@ -293,20 +293,8 @@ int main(int argc, char *argv[]) {
                 if (enter_cmd_rx(ctx, GOv))
                     err = 1;
             } else {
-                if (enter_str_lst(ctx, "-c", GOv, &Cmdl, &Cmdni, &Cmdnx))
+                if (enter_cmd(ctx, "-c", GOv))
                     err = 1;
-
-#if defined(MAXSYSCMDL)
-                else if (Cmdl->len > MAXSYSCMDL) {
-                    (void)fprintf(stderr, "%s: \"-c ", Pn);
-                    (void)safestrprt(Cmdl->str, stderr, 2);
-                    (void)fprintf(stderr, "\" length (%d) > what system",
-                                  Cmdl->len);
-                    (void)fprintf(stderr, " provides (%d)\n", MAXSYSCMDL);
-                    Cmdl->len = 0; /* (to avoid later error report) */
-                    err = 1;
-                }
-#endif /* defined(MAXSYSCMDL) */
             }
             break;
 

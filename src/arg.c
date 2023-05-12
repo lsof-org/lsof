@@ -2158,18 +2158,15 @@ int enter_state_spec(struct lsof_context *ctx,
 #endif /* defined(HASTCPUDPSTATE) */
 
 /*
- * enter_str_lst() - enter a string on a list
+ * enter_cmd() - enter -c option
  */
 
-int enter_str_lst(struct lsof_context *ctx, /* context */
-                  char *opt,                /* option name */
-                  char *s,                  /* string to enter */
-                  struct str_lst **lp,      /* string's list */
-                  int *incl,                /* included count */
-                  int *excl)                /* excluded count */
+int enter_cmd(struct lsof_context *ctx, /* context */
+              char *opt,                /* option name */
+              char *s)                  /* string to enter */
 {
     char *cp;
-    short i, x;
+    short x;
     MALLOC_S len;
     struct str_lst *lpt;
 
@@ -2178,35 +2175,15 @@ int enter_str_lst(struct lsof_context *ctx, /* context */
         return (1);
     }
     if (*s == '^') {
-        i = 0;
         x = 1;
         s++;
     } else {
-        i = 1;
         x = 0;
     }
-    if (!(cp = mkstrcpy(s, &len))) {
-        (void)fprintf(stderr, "%s: no string copy space: ", Pn);
-        safestrprt(s, stderr, 1);
-        return (1);
+    if (lsof_select_process(ctx, s, x) != LSOF_SUCCESS) {
+        return 1;
     }
-    if ((lpt = (struct str_lst *)malloc(sizeof(struct str_lst))) == NULL) {
-        (void)fprintf(stderr, "%s: no list space: ", Pn);
-        safestrprt(s, stderr, 1);
-        (void)free((FREE_P *)cp);
-        return (1);
-    }
-    lpt->f = 0;
-    lpt->str = cp;
-    lpt->len = (int)len;
-    lpt->x = x;
-    if (i)
-        *incl += 1;
-    if (x)
-        *excl += 1;
-    lpt->next = *lp;
-    *lp = lpt;
-    return (0);
+    return 0;
 }
 
 /*
