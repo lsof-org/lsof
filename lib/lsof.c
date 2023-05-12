@@ -38,6 +38,15 @@
 #ifndef API_EXPORT
 #    define API_EXPORT
 #endif
+
+API_EXPORT
+int lsof_get_api_version() { return LSOF_API_VERSION; }
+
+#ifdef AUTOTOOLS
+API_EXPORT
+char *lsof_get_library_version() { return PACKAGE_VERSION; }
+#endif
+
 API_EXPORT
 struct lsof_context *lsof_new() {
     struct lsof_context *ctx =
@@ -81,4 +90,31 @@ struct lsof_context *lsof_new() {
 	DCstate = 3;
     }
     return ctx;
+}
+
+API_EXPORT
+enum lsof_error lsof_avoid_blocking(struct lsof_context *ctx, int avoid) {
+    if (!ctx || ctx->frozen) {
+        return LSOF_ERROR_INVALID_ARGUMENT;
+    }
+    Fblock = avoid;
+    return LSOF_EXIT_SUCCESS;
+}
+
+API_EXPORT
+enum lsof_error lsof_avoid_forking(struct lsof_context *ctx, int avoid) {
+    if (!ctx || ctx->frozen) {
+        return LSOF_ERROR_INVALID_ARGUMENT;
+    }
+    Fovhd = avoid;
+    return LSOF_SUCCESS;
+}
+
+API_EXPORT
+enum lsof_error lsof_logic_and(struct lsof_context *ctx) {
+    if (!ctx || ctx->frozen) {
+        return LSOF_ERROR_INVALID_ARGUMENT;
+    }
+    Fand = 1;
+    return LSOF_SUCCESS;
 }

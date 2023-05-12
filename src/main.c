@@ -57,7 +57,7 @@ int main(int argc, char *argv[]) {
     int ad, c, i, n, se1, se2, ss;
     char *cp;
     int err = 0;
-    enum ExitStatus ev = LSOF_SUCCESS;
+    enum ExitStatus ev = LSOF_EXIT_SUCCESS;
     int fh = 0;
     char *fmtr = (char *)NULL;
     long l;
@@ -262,7 +262,7 @@ int main(int argc, char *argv[]) {
 #endif /* defined(HAS_AFS) && defined(HASAOPT) */
 
         case 'b':
-            Fblock = 1;
+            lsof_avoid_blocking(ctx, 1);
             break;
         case 'c':
             if (GOp == '+') {
@@ -740,7 +740,7 @@ int main(int argc, char *argv[]) {
             }
             break;
         case 'O':
-            Fovhd = (GOp == '-') ? 1 : 0;
+            lsof_avoid_forking(ctx, (GOp == '-') ? 1 : 0);
             break;
         case 'p':
             if (enter_id(ctx, PID, GOv))
@@ -754,7 +754,7 @@ int main(int argc, char *argv[]) {
             break;
         case 'r':
             if (GOp == '+') {
-                ev = LSOF_ERROR;
+                ev = LSOF_EXIT_ERROR;
                 rc = 1;
             }
             if (!GOv || *GOv == '-' || *GOv == '+') {
@@ -1280,7 +1280,7 @@ int main(int argc, char *argv[]) {
      */
     if (MntSup == 1) {
         (void)readmnt(ctx);
-        Exit(ctx, LSOF_SUCCESS);
+        Exit(ctx, LSOF_EXIT_SUCCESS);
     }
 #endif /* defined(HASMNTSUP) */
 
@@ -1507,7 +1507,7 @@ int main(int argc, char *argv[]) {
                 if (!n)
                     break;
                 else
-                    ev = LSOF_SUCCESS;
+                    ev = LSOF_EXIT_SUCCESS;
             }
 
 #if defined(HAS_STRFTIME)
@@ -1557,7 +1557,7 @@ int main(int argc, char *argv[]) {
      * was; one, if not.  If -V was specified, report what was not displayed.
      */
     (void)childx(ctx);
-    rv = LSOF_SUCCESS;
+    rv = LSOF_EXIT_SUCCESS;
     for (str = Cmdl; str; str = str->next) {
 
         /*
@@ -1812,7 +1812,7 @@ int main(int argc, char *argv[]) {
     if (!rv && rc)
         rv = ev;
     if (!rv && ErrStat)
-        rv = LSOF_ERROR;
+        rv = LSOF_EXIT_ERROR;
     Exit(ctx, rv);
     return (rv); /* to make code analyzers happy */
 }

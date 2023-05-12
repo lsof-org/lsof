@@ -584,10 +584,11 @@ extern int ZoneColW;
  */
 
 enum ExitStatus {
-    LSOF_SUCCESS,
-    LSOF_ERROR,
+    LSOF_EXIT_SUCCESS,
+    LSOF_EXIT_ERROR,
 };
-#    define LSOF_SEARCH_FAILURE (FsearchErr ? LSOF_ERROR : LSOF_SUCCESS)
+#    define LSOF_SEARCH_FAILURE                                                \
+        (FsearchErr ? LSOF_EXIT_ERROR : LSOF_EXIT_SUCCESS)
 
 /*
  * Structure definitions
@@ -1160,6 +1161,9 @@ struct lsof_context {
 
     /* zone arguments supplied with -z */
     znhash_t **sel_zone;
+
+    /** When frozen, paramters must not be changed */
+    uint8_t frozen;
 
     /* device table pointer */
     struct l_dev *dev_table;

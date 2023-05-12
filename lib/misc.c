@@ -757,7 +757,7 @@ void Exit(struct lsof_context *ctx, enum ExitStatus xv) /* exit() value */
 /*
  * Error() - exit with an error status
  */
-void Error(struct lsof_context *ctx) { Exit(ctx, LSOF_ERROR); }
+void Error(struct lsof_context *ctx) { Exit(ctx, LSOF_EXIT_ERROR); }
 
 #if defined(HASNLIST)
 /*

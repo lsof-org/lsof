@@ -35,6 +35,14 @@
 #if !defined(LSOF_H)
 #    define LSOF_H 1
 
+/** lsof error returns */
+enum lsof_error {
+    LSOF_SUCCESS = 0,            /**< Success */
+    LSOF_ERROR_INVALID_ARGUMENT, /**< Invalid argument */
+    LSOF_ERROR_NO_MEMORY,        /**< No memory */
+    LSOF_ERROR_UNSUPPORTED,      /**< Unsupported operation */
+};
+
 /** File access mode */
 enum lsof_file_access_mode {
     LSOF_FILE_ACCESS_NONE = 0,  /**< None */
@@ -220,6 +228,29 @@ enum lsof_file_type {
     LSOF_FILE_VNODE_VPORT,    /**< The vnode represents a port */
 };
 
+/** API version of liblsof
+ * you may use this macro to check the existence of
+ * functions
+ */
+#    define LSOF_API_VERSION 1
+
+/** Get runtime API version of liblsof
+ *
+ * liblsof might not function properly if API version mismatched between compile
+ * time and runtime.
+ *
+ * \since API version 1
+ */
+int lsof_get_api_version();
+
+/** Get library version of liblsof
+ *
+ * \return a string like "4.xx.x". The caller must not free it.
+ *
+ * \since API version 1
+ */
+char *lsof_get_library_version();
+
 /** Create a new lsof context
  *
  * The context should be freed via `lsof_destroy()`.
@@ -227,5 +258,34 @@ enum lsof_file_type {
  * \since API version 1
  */
 struct lsof_context *lsof_new();
+
+/** Ask lsof to avoid using blocking functions
+ *
+ * lsof may block when calling lstat(), readlink() or stat(). Call this function
+ * with `avoid=1` to let lsof avoid calling these functions.
+ *
+ * \since API version 1
+ */
+enum lsof_error lsof_avoid_blocking(struct lsof_context *ctx, int avoid);
+
+/** Ask lsof to avoid forking
+ *
+ * To avoid being blocked by some kernel operations, liblsof does them in forked
+ * child processes. Call this function to change this behavior.
+ *
+ * \since API version 1
+ */
+enum lsof_error lsof_avoid_forking(struct lsof_context *ctx, int avoid);
+
+/** Ask lsof to AND the selections
+ *
+ * By default, lsof OR the selections, for example, if you call
+ * lsof_select_unix_socket() and lsof_select_login(), it will report unix
+ * sockets OR open files by the user. If lsof_logic_and() is called, it will
+ * report unix sockets open by the specified user.
+ *
+ * \since API version 1
+ */
+enum lsof_error lsof_logic_and(struct lsof_context *ctx);
 
 #endif

@@ -450,7 +450,7 @@ void usage(struct lsof_context *ctx, /* context */
         (void)fprintf(stderr,
                       "Use the ``-h'' option to get more help information.\n");
         if (!fh)
-            Exit(ctx, err ? LSOF_ERROR : LSOF_SUCCESS);
+            Exit(ctx, err ? LSOF_EXIT_ERROR : LSOF_EXIT_SUCCESS);
     }
     if (Fhelp) {
         (void)fprintf(
@@ -993,5 +993,5 @@ void usage(struct lsof_context *ctx, /* context */
 
         (void)report_HASDCACHE(ctx, 1, "    ", "\t");
     }
-    Exit(ctx, err ? LSOF_ERROR : LSOF_SUCCESS);
+    Exit(ctx, err ? LSOF_EXIT_ERROR : LSOF_EXIT_SUCCESS);
 }
