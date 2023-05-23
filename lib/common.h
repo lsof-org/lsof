@@ -1500,8 +1500,7 @@ struct lsof_context {
 /* Utility macro to free if non-null and set the pointer to null */
 #    define CLEAN(ptr)                                                         \
         do {                                                                   \
-            if ((ptr))                                                         \
-                free(ptr);                                                     \
+            free(ptr);                                                         \
             ptr = NULL;                                                        \
         } while (0);
 
