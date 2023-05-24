@@ -616,7 +616,7 @@ int open_dcache(struct lsof_context *ctx, int m, /* mode: 1 = read; 2 = write */
         /*
          * Check for access permission.
          */
-        if (!is_readable(DCpath[DCpathX], 0)) {
+        if (!is_readable(ctx, DCpath[DCpathX], 0)) {
             if (DCpathX == 2 && errno == ENOENT)
                 return (2);
             if (!Fwarn)
@@ -1170,7 +1170,7 @@ static int rw_clone_sect(struct lsof_context *ctx,
         for (c = Clone, n = 0; c; c = c->next, n++)
             ;
         (void)snpf(buf, sizeof(buf), "clone section: %d\n", n);
-        if (wr2DCfd(buf, &DCcksum))
+        if (wr2DCfd(ctx, buf, &DCcksum))
             return (1);
         /*
          * Write the clone section lines.
@@ -1192,7 +1192,7 @@ static int rw_clone_sect(struct lsof_context *ctx,
                 return (1);
             }
             (void)snpf(buf, sizeof(buf), "%d %s\n", j, dp->name);
-            if (wr2DCfd(buf, &DCcksum))
+            if (wr2DCfd(ctx, buf, &DCcksum))
                 return (1);
         }
         return (0);
@@ -1243,19 +1243,19 @@ void write_dcache(struct lsof_context *ctx) {
                (long)DevDev);
     (void)crcbld();
     DCcksum = 0;
-    if (wr2DCfd(buf, &DCcksum))
+    if (wr2DCfd(ctx, buf, &DCcksum))
         return;
     /*
      * Write the device section from the contents of Sdev[] and Devtp[].
      */
     (void)snpf(buf, sizeof(buf), "device section: %d\n", Ndev);
-    if (wr2DCfd(buf, &DCcksum))
+    if (wr2DCfd(ctx, buf, &DCcksum))
         return;
     for (i = 0; i < Ndev; i++) {
         dp = Sdev[i];
         (void)snpf(buf, sizeof(buf), "%lx %ld %s\n", (long)dp->rdev,
                    (long)dp->inode, dp->name);
-        if (wr2DCfd(buf, &DCcksum))
+        if (wr2DCfd(ctx, buf, &DCcksum))
             return;
     }
 
@@ -1264,14 +1264,14 @@ void write_dcache(struct lsof_context *ctx) {
      * Write the block device section from the contents of BSdev[] and BDevtp[].
      */
     (void)snpf(buf, sizeof(buf), "block device section: %d\n", BNdev);
-    if (wr2DCfd(buf, &DCcksum))
+    if (wr2DCfd(ctx, buf, &DCcksum))
         return;
     if (BNdev) {
         for (i = 0; i < BNdev; i++) {
             dp = BSdev[i];
             (void)snpf(buf, sizeof(buf), "%lx %ld %s\n", (long)dp->rdev,
                        (long)dp->inode, dp->name);
-            if (wr2DCfd(buf, &DCcksum))
+            if (wr2DCfd(ctx, buf, &DCcksum))
                 return;
         }
     }
@@ -1297,7 +1297,7 @@ void write_dcache(struct lsof_context *ctx) {
      * Write the CRC section and close the file.
      */
     (void)snpf(buf, sizeof(buf), "CRC section: %x\n", DCcksum);
-    if (wr2DCfd(buf, (unsigned *)NULL))
+    if (wr2DCfd(ctx, buf, (unsigned *)NULL))
         return;
     if (close(DCfd) != 0) {
         if (!Fwarn)
@@ -1322,8 +1322,9 @@ void write_dcache(struct lsof_context *ctx) {
  * wr2DCfd() - write to the DCfd file descriptor
  */
 
-int wr2DCfd(char *b,     /* buffer */
-            unsigned *c) /* checksum receiver */
+int wr2DCfd(struct lsof_context *ctx, /* context */
+            char *b,                  /* buffer */
+            unsigned *c)              /* checksum receiver */
 {
     int bl, bw;
 

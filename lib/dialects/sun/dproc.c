@@ -237,7 +237,7 @@ void gather_proc_info(struct lsof_context *ctx) {
         /*
          * Get the segment vnodeops address.
          */
-        if (get_Nl_value("sgvops", Drive_Nl, &Sgvops) < 0)
+        if (get_Nl_value(ctx, "sgvops", Drive_Nl, &Sgvops) < 0)
             Sgvops = (KA_T)NULL;
         ft = 0;
     } else if (!HasALLKMEM) {
@@ -619,7 +619,7 @@ static void get_kernel_access(struct lsof_context *ctx) {
     /*
      * Get kernel symbols.
      */
-    if (Nmlst && !is_readable(Nmlst, 1))
+    if (Nmlst && !is_readable(ctx, Nmlst, 1))
         Error(ctx);
     (void)build_Nl(ctx, Drive_Nl);
 
@@ -654,9 +654,9 @@ static void get_kernel_access(struct lsof_context *ctx) {
          * the AFS modload file.  Make sure that other symbols that appear in
          * both name list files have the same values.
          */
-        if ((get_Nl_value("arFID", Drive_Nl, &v) >= 0 && !v) ||
-            (get_Nl_value("avops", Drive_Nl, &v) >= 0 && !v) ||
-            (get_Nl_value("avol", Drive_Nl, &v) >= 0 && !v))
+        if ((get_Nl_value(ctx, "arFID", Drive_Nl, &v) >= 0 && !v) ||
+            (get_Nl_value(ctx, "avops", Drive_Nl, &v) >= 0 && !v) ||
+            (get_Nl_value(ctx, "avol", Drive_Nl, &v) >= 0 && !v))
             (void)ckAFSsym(nl);
         (void)free((MALLOC_P *)nl);
     }
@@ -716,7 +716,7 @@ static void get_kernel_access(struct lsof_context *ctx) {
     /*
      * See if the non-KMEM memory file is readable.
      */
-    if (Memory && !is_readable(Memory, 1))
+    if (Memory && !is_readable(ctx, Memory, 1))
         Error(ctx);
 #endif /* defined(WILLDROPGID) */
 
@@ -730,7 +730,7 @@ static void get_kernel_access(struct lsof_context *ctx) {
      * Get the kernel's KERNELBASE value for Solaris 2.5 and above.
      */
     v = (KA_T)0;
-    if (get_Nl_value("kbase", Drive_Nl, &v) < 0 || !v ||
+    if (get_Nl_value(ctx, "kbase", Drive_Nl, &v) < 0 || !v ||
         kread(ctx, (KA_T)v, (char *)&Kb, sizeof(Kb))) {
         (void)fprintf(stderr, "%s: can't read kernel base address from %s\n",
                       Pn, print_kptr(v, (char *)NULL, 0));
@@ -742,8 +742,8 @@ static void get_kernel_access(struct lsof_context *ctx) {
      * Get the Solaris clone major device number, if possible.
      */
     v = (KA_T)0;
-    if ((get_Nl_value("clmaj", Drive_Nl, &v) < 0) || !v) {
-        if (get_Nl_value("clmaj_alt", Drive_Nl, &v) < 0)
+    if ((get_Nl_value(ctx, "clmaj", Drive_Nl, &v) < 0) || !v) {
+        if (get_Nl_value(ctx, "clmaj_alt", Drive_Nl, &v) < 0)
             v = (KA_T)0;
     }
     if (v && kread(ctx, (KA_T)v, (char *)&CloneMaj, sizeof(CloneMaj)) == 0)
@@ -753,7 +753,7 @@ static void get_kernel_access(struct lsof_context *ctx) {
      * active process chain.  If it's not available, clear the ALLKMEM status.
      */
     if (HasALLKMEM) {
-        if ((get_Nl_value("pract", Drive_Nl, &PrAct) < 0) || !PrAct)
+        if ((get_Nl_value(ctx, "pract", Drive_Nl, &PrAct) < 0) || !PrAct)
             HasALLKMEM = 0;
     }
 
@@ -763,7 +763,7 @@ static void get_kernel_access(struct lsof_context *ctx) {
      * physical map structure for Solaris 2.5.1 and above.
      */
     if (!HasALLKMEM) {
-        if (get_Nl_value("kasp", Drive_Nl, &v) >= 0 && v) {
+        if (get_Nl_value(ctx, "kasp", Drive_Nl, &v) >= 0 && v) {
             PageSz = getpagesize();
             PSMask = PageSz - 1;
             for (i = 1, PSShft = 0; i < PageSz; i <<= 1, PSShft++)
@@ -1370,7 +1370,7 @@ static void read_proc(struct lsof_context *ctx) {
         /*
          * Get a proc structure count estimate.
          */
-        if (get_Nl_value("nproc", Drive_Nl, &pa) < 0 || !pa ||
+        if (get_Nl_value(ctx, "nproc", Drive_Nl, &pa) < 0 || !pa ||
             kread(ctx, pa, (char *)&knp, sizeof(knp)) || knp < 1)
             knp = PROCDFLT;
         /*
@@ -1783,7 +1783,7 @@ void ncache_load() {
          * Establish DNLC hash size.
          */
         v = (KA_T)0;
-        if (get_Nl_value(X_NCSIZE, (struct drive_Nl *)NULL, &v) < 0 || !v ||
+        if (get_Nl_value(ctx, X_NCSIZE, (struct drive_Nl *)NULL, &v) < 0 || !v ||
             kread(ctx, (KA_T)v, (char *)&Nch, sizeof(Nch))) {
             if (!Fwarn)
                 (void)fprintf(stderr,
@@ -1802,13 +1802,13 @@ void ncache_load() {
         /*
          * Get negative vnode address.
          */
-        if (get_Nl_value(NCACHE_NEGVN, (struct drive_Nl *)NULL, &NegVN) < 0)
+        if (get_Nl_value(ctx, NCACHE_NEGVN, (struct drive_Nl *)NULL, &NegVN) < 0)
             NegVN = (KA_T)NULL;
         /*
          * Establish DNLC hash address.
          */
         v = (KA_T)0;
-        if (get_Nl_value(X_NCACHE, (struct drive_Nl *)NULL, (KA_T *)&v) < 0 ||
+        if (get_Nl_value(ctx, X_NCACHE, (struct drive_Nl *)NULL, (KA_T *)&v) < 0 ||
             !v || kread(ctx, v, (char *)&kha, sizeof(kha)) || !kha) {
             if (!Fwarn)
                 (void)fprintf(stderr, "%s: WARNING: no DNLC hash address\n",
@@ -1841,7 +1841,7 @@ void ncache_load() {
          * hash table count and the current average hash length.
          */
         v = (KA_T)0;
-        if ((get_Nl_value("hshav", (struct drive_Nl *)NULL, (KA_T *)&v) < 0) ||
+        if ((get_Nl_value(ctx, "hshav", (struct drive_Nl *)NULL, (KA_T *)&v) < 0) ||
             !v || kread(ctx, v, (char *)&i, sizeof(i)) || (i < 1)) {
             i = 16;
             if (!Fwarn) {

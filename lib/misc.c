@@ -217,7 +217,7 @@ int compdev(COMP_P *a1, COMP_P *a2) {
 /*
  * closefrom_shim() -- provide closefrom() when unavailable
  */
-void closefrom_shim(int low) {
+void closefrom_shim(struct lsof_context *ctx, int low) {
     int i;
 #if defined(HAS_CLOSEFROM)
     (void)closefrom(low);
@@ -325,7 +325,7 @@ static int doinchild(struct lsof_context *ctx,
                     Error(ctx);
                 }
                 Pipes[3] = 1;
-                (void)closefrom_shim(2);
+                (void)closefrom_shim(ctx, 2);
                 Pipes[1] = -1;
                 Pipes[2] = -1;
 
@@ -757,18 +757,19 @@ void Exit(struct lsof_context *ctx, enum ExitStatus xv) /* exit() value */
 /*
  * Error() - exit with an error status
  */
-void Error(struct lsof_context *ctx) { Exit(ctx, LSOF_ERROR); }
+void Error(struct lsof_context *ctx) { Exit(ctx, LSOF_EXIT_ERROR); }
 
 #if defined(HASNLIST)
 /*
  * get_Nl_value() - get Nl value for nickname
  */
 
-int get_Nl_value(char *nn,           /* nickname of requested entry */
-                 struct drive_Nl *d, /* drive_Nl table that built Nl
-                                      * (if NULL, use Build_Nl) */
-                 KA_T *v)            /* returned value (if NULL,
-                                      * return nothing) */
+int get_Nl_value(struct lsof_context *ctx, /* context */
+                 char *nn,                 /* nickname of requested entry */
+                 struct drive_Nl *d,       /* drive_Nl table that built Nl
+                                            * (if NULL, use Build_Nl) */
+                 KA_T *v)                  /* returned value (if NULL,
+                                            * return nothing) */
 {
     int i;
 
@@ -824,10 +825,11 @@ int hashbyname(char *nm, /* pointer to NUL-terminated name */
  * is_nw_addr() - is this network address selected?
  */
 
-int is_nw_addr(unsigned char *ia, /* Internet address */
-               int p,             /* port */
-               int af)            /* address family -- e.g., AF_INET,
-                                   * AF_INET6 */
+int is_nw_addr(struct lsof_context *ctx, /* context */
+               unsigned char *ia,        /* Internet address */
+               int p,                    /* port */
+               int af)                   /* address family -- e.g., AF_INET,
+                                          * AF_INET6 */
 {
     struct nwad *n;
 
@@ -967,8 +969,9 @@ char *mkstrcat(char *s1,      /* source string 1 */
  * is_readable() -- is file readable
  */
 
-int is_readable(char *path, /* file path */
-                int msg)    /* issue warning message if 1 */
+int is_readable(struct lsof_context *ctx, /* context */
+                char *path,               /* file path */
+                int msg)                  /* issue warning message if 1 */
 {
     if (access(path, R_OK) < 0) {
         if (!Fwarn && msg == 1)

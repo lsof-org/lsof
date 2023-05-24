@@ -434,4 +434,6 @@ extern KA_T Vnfops;
 #        endif /* HPUXV<1000 */
 #    endif     /* defined(HASNCACHE) */
 
+struct lsof_context_dialect {};
+
 #endif /* HPUX_LSOF_H */

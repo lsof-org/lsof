@@ -56,7 +56,7 @@ extern void alloc_lproc(struct lsof_context *ctx, int pid, int pgid, int ppid,
                         UID_ARG uid, char *cmd, int pss, int sf);
 extern void build_IPstates(struct lsof_context *ctx);
 extern void childx(struct lsof_context *ctx);
-extern void closefrom_shim(int low);
+extern void closefrom_shim(struct lsof_context *ctx, int low);
 extern int ck_fd_status(struct lsof_context *ctx, enum lsof_fd_type fd_type,
                         int num);
 extern int ck_file_arg(struct lsof_context *ctx, int i, int ac, char *av[],
@@ -91,8 +91,7 @@ extern void enter_nm(struct lsof_context *ctx, char *m);
 extern int enter_state_spec(struct lsof_context *ctx, char *ss);
 #    endif /* defined(HASTCPUDPSTATE) */
 
-extern int enter_str_lst(char *opt, char *s, struct str_lst **lp, int *incl,
-                         int *excl);
+extern int enter_cmd(struct lsof_context *ctx, char *opt, char *s);
 extern int enter_uid(struct lsof_context *ctx, char *us);
 extern void ent_inaddr(struct lsof_context *ctx, unsigned char *la, int lp,
                        unsigned char *fa, int fp, int af);
@@ -158,8 +157,10 @@ extern void hashSfile(struct lsof_context *ctx);
 extern void initialize(struct lsof_context *ctx);
 extern int is_cmd_excl(struct lsof_context *ctx, char *cmd, short *pss,
                        short *sf);
-extern int is_file_sel(struct lproc *lp, struct lfile *lf);
-extern int is_nw_addr(unsigned char *ia, int p, int af);
+extern int is_file_sel(struct lsof_context *ctx, struct lproc *lp,
+                       struct lfile *lf);
+extern int is_nw_addr(struct lsof_context *ctx, unsigned char *ia, int p,
+                      int af);
 
 #    if defined(HASTASKS)
 extern int is_proc_excl(struct lsof_context *ctx, int pid, int pgid,
@@ -169,7 +170,7 @@ extern int is_proc_excl(struct lsof_context *ctx, int pid, int pgid,
                         UID_ARG uid, short *pss, short *sf);
 #    endif /* defined(HASTASKS) */
 
-extern int is_readable(char *path, int msg);
+extern int is_readable(struct lsof_context *ctx, char *path, int msg);
 extern int kread(struct lsof_context *ctx, KA_T addr, char *buf, READLEN_T len);
 extern void link_lfile(struct lsof_context *ctx);
 extern struct l_dev *lkupdev(struct lsof_context *ctx, dev_t *dev, dev_t *rdev,
@@ -233,7 +234,7 @@ extern int ctrl_dcache(struct lsof_context *ctx, char *p);
 extern int dcpath(struct lsof_context *ctx, int rw, int npw);
 extern int open_dcache(struct lsof_context *ctx, int m, int r, struct stat *sb);
 extern int read_dcache(struct lsof_context *ctx);
-extern int wr2DCfd(char *b, unsigned *c);
+extern int wr2DCfd(struct lsof_context *ctx, char *b, unsigned *c);
 extern void write_dcache(struct lsof_context *ctx);
 #    endif /* defined(HASDCACHE) */
 
@@ -269,7 +270,8 @@ extern char *ncache_lookup(struct lsof_context *ctx, char *buf, int blen,
 
 #    if defined(HASNLIST)
 extern void build_Nl(struct lsof_context *ctx, struct drive_Nl *d);
-extern int get_Nl_value(char *nn, struct drive_Nl *d, KA_T *v);
+extern int get_Nl_value(struct lsof_context *ctx, char *nn, struct drive_Nl *d,
+                        KA_T *v);
 #    endif /* defined(HASNLIST) */
 
 #    if defined(HASPIPENODE)
@@ -293,7 +295,7 @@ extern int HASPRIVNMCACHE(struct lsof_context *ctx, struct lfile *lf);
 #    endif /* defined(HASPRIVNMCACHE) */
 
 #    if !defined(HASPRIVPRIPP)
-extern void printiproto(int p);
+extern void printiproto(struct lsof_context *ctx, int p);
 #    endif /* !defined(HASPRIVPRIPP) */
 
 #    if defined(HASRNODE)

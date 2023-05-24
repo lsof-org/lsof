@@ -301,8 +301,8 @@ typedef struct tcpb {
  * Local function prototypes
  */
 
-static void save_TCP_size(tcp_t *tc);
-static void save_TCP_states(tcp_t *tc, caddr_t *fa, tcpb_t *tb, caddr_t *xp);
+static void save_TCP_size(struct lsof_context *ctx, tcp_t *tc);
+static void save_TCP_states(struct lsof_context *ctx, tcp_t *tc, caddr_t *fa, tcpb_t *tb, caddr_t *xp);
 
 /*
  * build_IPstates() -- build the TCP and UDP state tables
@@ -835,13 +835,13 @@ int process_VSOCK(struct lsof_context *ctx, /* context */
                 !kread(ctx, ka, (char *)&xa, sizeof(xa))) {
                 xp = (caddr_t *)&xa;
             }
-            (void)save_TCP_states(&tc, (caddr_t *)&cs, (tcpb_t *)NULL, xp);
+            (void)save_TCP_states(ctx, &tc, (caddr_t *)&cs, (tcpb_t *)NULL, xp);
 #    else  /* !defined(HAS_CONN_NEW) */
             if (tc.tcp_tcp_hdr_len && (ka = (KA_T)tc.tcp_tcph) &&
                 !kread(ctx, ka, (char *)&th, sizeof(th))) {
                 tha = &th;
             }
-            (void)save_TCP_states(&tc, (caddr_t *)tha, (tcpb_t *)NULL,
+            (void)save_TCP_states(ctx, &tc, (caddr_t *)tha, (tcpb_t *)NULL,
                                   (caddr_t *)NULL);
 #    endif /* defined(HAS_CONN_NEW) */
 
@@ -850,7 +850,7 @@ int process_VSOCK(struct lsof_context *ctx, /* context */
             /*
              * Save TCP size information.
              */
-            (void)save_TCP_size(&tc);
+            (void)save_TCP_size(ctx, &tc);
             break;
         case IPPROTO_UDP:
 
@@ -1090,7 +1090,7 @@ int process_VSOCK(struct lsof_context *ctx, /* context */
 
         break;
     default:
-        (void)printiproto((int)cs.conn_ulp);
+        (void)printiproto(ctx, (int)cs.conn_ulp);
         (void)snpf(Namech, Namechl - 1, "unsupported socket family: %u",
                    so->so_family);
         Namech[Namechl - 1] = '\0';
@@ -1659,7 +1659,7 @@ void process_socket(struct lsof_context *ctx, /* context */
              * Save TCP state information.
              */
             if (tcs) {
-                (void)save_TCP_states(&tc, (caddr_t *)tha, tcbp,
+                (void)save_TCP_states(ctx, &tc, (caddr_t *)tha, tcbp,
                                       (caddr_t *)NULL);
                 Lf->lts.type = 0;
                 Lf->lts.state.i = (int)tc.tcp_state;
@@ -1669,7 +1669,7 @@ void process_socket(struct lsof_context *ctx, /* context */
              */
 
             if (tcs)
-                (void)save_TCP_size(&tc);
+                (void)save_TCP_size(ctx, &tc);
         }
     } else
         (void)strcat(Namech, "no TCP/UDP/IP information available");
@@ -1850,7 +1850,7 @@ static int read_udp_t(struct lsof_context *ctx, /* context */
  * save_TCP_size() -- save TCP size information
  */
 
-static void save_TCP_size(tcp_t *tc) /* pointer to TCP control structure */
+static void save_TCP_size(struct lsof_context *ctx, tcp_t *tc) /* pointer to TCP control structure */
 {
     int rq, sq;
 
@@ -1886,7 +1886,8 @@ static void save_TCP_size(tcp_t *tc) /* pointer to TCP control structure */
  * save_TCP_states() - save TCP states
  */
 
-static void save_TCP_states(tcp_t *tc,   /* pointer to TCP control structure */
+static void save_TCP_states(struct lsof_context *ctx, /* context */
+                            tcp_t *tc,   /* pointer to TCP control structure */
                             caddr_t *fa, /* flags address (may be NULL):
                                           *   if HAS_CONN_NEW: conn_s *
                                           *   if !CONN_HAS_NEW: tcph_t *

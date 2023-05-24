@@ -50,8 +50,8 @@ char *print_kptr(KA_T kp,     /* kernel pointer address */
  */
 
 int readcdrnode(struct lsof_context *ctx, /* context */
-                KA_T ca,           /* cdrnode kernel address */
-                struct cdrnode *c) /* cdrnode buffer */
+                KA_T ca,                  /* cdrnode kernel address */
+                struct cdrnode *c)        /* cdrnode buffer */
 {
     if (kread(ctx, (KA_T)ca, (char *)c, sizeof(struct cdrnode))) {
         (void)snpf(Namech, Namechl, "can't read cdrnode at %s",
@@ -86,8 +86,8 @@ int readfifonode(struct lsof_context *ctx, /* context */
  */
 
 int readgnode(struct lsof_context *ctx, /* context */
-              KA_T ga,         /* gnode kernel address */
-              struct gnode *g) /* gnode buffer */
+              KA_T ga,                  /* gnode kernel address */
+              struct gnode *g)          /* gnode buffer */
 {
     if (kread(ctx, (KA_T)ga, (char *)g, sizeof(struct gnode))) {
         (void)snpf(Namech, Namechl, "can't read gnode at %s",

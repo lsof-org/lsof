@@ -49,7 +49,8 @@ static int NCmdRxA = 0; /* space allocated to CmdRx[] */
  * Local function prototypes
  */
 
-static int ckfd_range(char *first, char *dash, char *last, int *lo, int *hi);
+static int ckfd_range(struct lsof_context *ctx, char *first, char *dash,
+                      char *last, int *lo, int *hi);
 static int enter_fd_lst(struct lsof_context *ctx, char *nm, int lo, int hi,
                         int excl);
 static int enter_nwad(struct lsof_context *ctx, struct nwad *n, int sp, int ep,
@@ -61,11 +62,12 @@ static char *isIPv4addr(char *hn, unsigned char *a, int al);
  * ckfd_range() - check fd range
  */
 
-static int ckfd_range(char *first, /* starting character */
-                      char *dash,  /* '-' location */
-                      char *last,  /* '\0' location */
-                      int *lo,     /* returned low value */
-                      int *hi)     /* returned high value */
+static int ckfd_range(struct lsof_context *ctx, /* context */
+                      char *first,              /* starting character */
+                      char *dash,               /* '-' location */
+                      char *last,               /* '\0' location */
+                      int *lo,                  /* returned low value */
+                      int *hi)                  /* returned high value */
 {
     char *cp;
     /*
@@ -822,7 +824,7 @@ int enter_fd(struct lsof_context *ctx, /* context */
             *cp2 = '\0';
         if (cp2 > cp1) {
             if (dash) {
-                if (ckfd_range(cp1, dash, cp2, &lo, &hi))
+                if (ckfd_range(ctx, cp1, dash, cp2, &lo, &hi))
                     err = 1;
                 else {
                     if (enter_fd_lst(ctx, (char *)NULL, lo, hi, excl))
@@ -2156,17 +2158,15 @@ int enter_state_spec(struct lsof_context *ctx,
 #endif /* defined(HASTCPUDPSTATE) */
 
 /*
- * enter_str_lst() - enter a string on a list
+ * enter_cmd() - enter -c option
  */
 
-int enter_str_lst(char *opt,           /* option name */
-                  char *s,             /* string to enter */
-                  struct str_lst **lp, /* string's list */
-                  int *incl,           /* included count */
-                  int *excl)           /* excluded count */
+int enter_cmd(struct lsof_context *ctx, /* context */
+              char *opt,                /* option name */
+              char *s)                  /* string to enter */
 {
     char *cp;
-    short i, x;
+    short x;
     MALLOC_S len;
     struct str_lst *lpt;
 
@@ -2175,35 +2175,15 @@ int enter_str_lst(char *opt,           /* option name */
         return (1);
     }
     if (*s == '^') {
-        i = 0;
         x = 1;
         s++;
     } else {
-        i = 1;
         x = 0;
     }
-    if (!(cp = mkstrcpy(s, &len))) {
-        (void)fprintf(stderr, "%s: no string copy space: ", Pn);
-        safestrprt(s, stderr, 1);
-        return (1);
+    if (lsof_select_process(ctx, s, x) != LSOF_SUCCESS) {
+        return 1;
     }
-    if ((lpt = (struct str_lst *)malloc(sizeof(struct str_lst))) == NULL) {
-        (void)fprintf(stderr, "%s: no list space: ", Pn);
-        safestrprt(s, stderr, 1);
-        (void)free((FREE_P *)cp);
-        return (1);
-    }
-    lpt->f = 0;
-    lpt->str = cp;
-    lpt->len = (int)len;
-    lpt->x = x;
-    if (i)
-        *incl += 1;
-    if (x)
-        *excl += 1;
-    lpt->next = *lp;
-    *lp = lpt;
-    return (0);
+    return 0;
 }
 
 /*

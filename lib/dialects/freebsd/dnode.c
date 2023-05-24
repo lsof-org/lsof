@@ -50,7 +50,8 @@ static void get_lock_state_kvm(struct lsof_context *ctx, KA_T f);
  */
 
 #ifdef KERN_LOCKF
-static void get_lock_state_sysctl(struct kinfo_file *kf,
+static void get_lock_state_sysctl(struct lsof_context *ctx,
+                                  struct kinfo_file *kf,
                                   struct lock_list *locks) {
     struct kinfo_lockf key, *lock;
 
@@ -387,7 +388,7 @@ process_overlaid_node:
     }
 
 #ifdef KERN_LOCKF
-    get_lock_state_sysctl(kf, locks);
+    get_lock_state_sysctl(ctx, kf, locks);
 #elif defined(HAS_V_LOCKF)
     if (v && v->v_lockf)
         (void)get_lock_state_kvm(ctx, (KA_T)v->v_lockf);

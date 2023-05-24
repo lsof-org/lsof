@@ -539,4 +539,6 @@ struct namecache {
 
 #    include <libutil.h>
 
+struct lsof_context_dialect {};
+
 #endif /* defined(FREEBSD_LSOF_H) */

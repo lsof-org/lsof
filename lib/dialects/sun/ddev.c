@@ -795,7 +795,7 @@ int rw_clone_sect(struct lsof_context *ctx,
         for (c = Clone, n = 0; c; c = c->next, n++)
             ;
         (void)snpf(buf, sizeof(buf), "clone section: %d\n", n);
-        if (wr2DCfd(buf, &DCcksum))
+        if (wr2DCfd(ctx, buf, &DCcksum))
             return (1);
         /*
          * Write the clone section lines.
@@ -808,7 +808,7 @@ int rw_clone_sect(struct lsof_context *ctx,
         for (c = Clone; c; c = c->next) {
             (void)snpf(buf, sizeof(buf), " %lx %d %ld %s\n", (long)c->cd.rdev,
                        c->n, (long)c->cd.inode, c->cd.name);
-            if (wr2DCfd(buf, &DCcksum))
+            if (wr2DCfd(ctx, buf, &DCcksum))
                 return (1);
         }
         return (0);
@@ -959,7 +959,7 @@ int rw_pseudo_sect(struct lsof_context *ctx,
         for (p = Pseudo, n = 0; p; p = p->next, n++)
             ;
         (void)snpf(buf, sizeof(buf), "pseudo section: %d\n", n);
-        if (wr2DCfd(buf, &DCcksum))
+        if (wr2DCfd(ctx, buf, &DCcksum))
             return (1);
         /*
          * Write the pseudo section lines.
@@ -972,7 +972,7 @@ int rw_pseudo_sect(struct lsof_context *ctx,
         for (p = Pseudo; p; p = p->next) {
             (void)snpf(buf, sizeof(buf), " %lx %ld %s\n", (long)p->pd.rdev,
                        (long)p->pd.inode, p->pd.name);
-            if (wr2DCfd(buf, &DCcksum))
+            if (wr2DCfd(ctx, buf, &DCcksum))
                 return (1);
         }
         return (0);

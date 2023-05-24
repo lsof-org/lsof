@@ -578,7 +578,8 @@ static void get_kernel_access(struct lsof_context *ctx) {
     /*
      * Get kernel's badfileops address (for process_file()).
      */
-    if (get_Nl_value(X_BADFILEOPS, (struct drive_Nl *)NULL, &X_bfopsa) < 0 ||
+    if (get_Nl_value(ctx, X_BADFILEOPS, (struct drive_Nl *)NULL, &X_bfopsa) <
+            0 ||
         !X_bfopsa) {
         X_bfopsa = (KA_T)0;
     }

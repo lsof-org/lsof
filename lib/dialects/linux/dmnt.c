@@ -70,8 +70,6 @@ typedef struct mntsup {
  * Local static definitions
  */
 
-static struct mounts *Lmi = (struct mounts *)NULL; /* local mount info */
-static int Lmist = 0;                              /* Lmi status */
 static mntsup_t **MSHash = (mntsup_t **)NULL;      /* mount supplement
                                                     * hash buckets */
 
@@ -198,7 +196,7 @@ getmntdev(struct lsof_context *ctx, /* context */
 
         if ((MntSup != 2) || !MntSupP)
             return (0);
-        if (!is_readable(MntSupP, 1)) {
+        if (!is_readable(ctx, MntSupP, 1)) {
 
             /*
              * The mount supplement file isn't readable.

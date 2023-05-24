@@ -153,7 +153,7 @@ static void process_socket_common(struct lsof_context *ctx,
                 ((FnetTy == 6) && (fam == AF_INET6)))
                 Lf->sf |= SELNET;
         }
-        printiproto(si->psi.soi_protocol);
+        printiproto(ctx, si->psi.soi_protocol);
         if ((si->psi.soi_kind == SOCKINFO_TCP) &&
             si->psi.soi_proto.pri_tcp.tcpsi_tp) {
             enter_dev_ch(ctx,

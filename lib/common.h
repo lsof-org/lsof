@@ -29,7 +29,7 @@
  */
 
 /*
- * $Id: lsof.h,v 1.70 2018/03/26 21:50:45 abe Exp $
+ * $Id: common.h,v 1.70 2018/03/26 21:50:45 abe Exp $
  */
 
 #include "lsof.h"
@@ -253,7 +253,7 @@ struct l_dev {
 #    include "dlsof.h"
 
 #    include <sys/types.h> /* just in case -- because utmp.h
-					 * may need it */
+                            * may need it */
 #    include <regex.h>
 
 #    if defined(EMPTY)
@@ -584,10 +584,11 @@ extern int ZoneColW;
  */
 
 enum ExitStatus {
-    LSOF_SUCCESS,
-    LSOF_ERROR,
+    LSOF_EXIT_SUCCESS,
+    LSOF_EXIT_ERROR,
 };
-#    define LSOF_SEARCH_FAILURE (FsearchErr ? LSOF_ERROR : LSOF_SUCCESS)
+#    define LSOF_SEARCH_FAILURE                                                \
+        (FsearchErr ? LSOF_EXIT_ERROR : LSOF_EXIT_SUCCESS)
 
 /*
  * Structure definitions
@@ -603,8 +604,6 @@ struct afsnode { /* AFS pseudo-node structure */
     long nlink;
 };
 #    endif /* defined(HAS_AFS) */
-
-extern int AllProc;
 
 #    if defined(HAS_STD_CLONE)
 struct clone {
@@ -634,8 +633,6 @@ typedef struct efsys_list {
     struct mounts *mp;       /* local mount table entry pointer */
     struct efsys_list *next; /* next efsys_list entry pointer */
 } efsys_list_t;
-extern efsys_list_t *Efsysl; /* file systems for which kernel blocks
-                              * are to be eliminated */
 
 struct int_lst {
     int i; /* integer argument */
@@ -649,8 +646,6 @@ typedef struct lsof_rx { /* regular expression table entry */
     regex_t cx;          /* compiled expression */
     int mc;              /* match count */
 } lsof_rx_t;
-extern lsof_rx_t *CmdRx;
-extern int NCmdRxU;
 
 #    if defined(HASFSTRUCT)
 struct pff_tab { /* print file flags table structure */
@@ -667,11 +662,6 @@ struct seluid {
                          * (meaningful only if excl == 0) */
 };
 
-#    if defined(HASBLKDEV)
-extern struct l_dev *BDevtp, **BSdev;
-extern int BNdev;
-#    endif /* defined(HASBLKDEV) */
-
 extern int CkPasswd;
 
 struct str_lst {
@@ -681,43 +671,18 @@ struct str_lst {
     short x;              /* exclusion (if non-zero) */
     struct str_lst *next; /* next list entry */
 };
-extern struct str_lst *Cmdl;
 extern int CmdLim;
-extern int Cmdni;
-extern int Cmdnx;
 
-#    if defined(HASSELINUX)
 typedef struct cntxlist {
     char *cntx;            /* zone name */
     int f;                 /* "find" flag (used only in CntxArg) */
     struct cntxlist *next; /* next zone hash entry */
 } cntxlist_t;
-extern cntxlist_t *CntxArg;
 extern int CntxStatus;
-#    endif /* defined(HASSELINUX) */
-
-#    if defined(HASDCACHE)
-extern unsigned DCcksum;
-extern int DCfd;
-extern FILE *DCfs;
-extern char *DCpathArg;
-extern char *DCpath[];
-extern int DCpathX;
-extern int DCrebuilt;
-extern int DCstate;
-extern int DCunsafe;
-#    endif /* defined(HASDCACHE) */
 
 extern int DChelp;
-extern dev_t DevDev;
-extern struct l_dev *Devtp;
-extern char **Dstk;
-extern int Dstkn;
-extern int Dstkx;
 extern int ErrStat;
 extern uid_t Euid;
-extern int Fand;
-extern int Fblock;
 extern int Fcntx;
 extern int Ffield;
 extern int Ffilesys;
@@ -725,17 +690,11 @@ extern int Fhelp;
 extern int Fhost;
 
 #    if defined(HASNCACHE)
-extern int Fncache;
 extern int NcacheReload;
 #    endif /* defined(HASNCACHE) */
 
-extern int Fnet;
-extern int FnetTy;
-extern int Fnfs;
 extern int Fnlink;
 extern int Foffset;
-extern int Fovhd;
-extern int FeptE;
 
 extern int Fport;
 
@@ -751,17 +710,11 @@ extern int Fhuman;
 extern int Fsv;
 extern int FsvByf;
 extern int FsvFlagX;
-extern int Ftask;
 extern int Ftcptpi;
 extern int Fterse;
 extern int Funix;
 extern int Futol;
 extern int Fverbose;
-extern int Fwarn;
-
-#    if defined(HASXOPT_VALUE)
-extern int Fxopt;
-#    endif /* defined(HASXOPT_VALUE) */
 
 extern int Fxover;
 extern int Fzone;
@@ -773,10 +726,6 @@ struct fd_lst {
     int hi;                    /* range end (if nm NULL) */
     struct fd_lst *next;
 };
-extern struct fd_lst *Fdl;
-extern int FdlTy; /* Fdl[] type: -1 == none
-                   *		0 == include
-                   *		1 == exclude */
 
 struct fieldsel {
     char id;          /* field ID character */
@@ -790,7 +739,6 @@ extern struct fieldsel FieldSel[];
 extern int Hdr;
 
 enum IDType { PGID, PID };
-extern int IgnTasks;
 extern char *InodeFmt_d;
 extern char *InodeFmt_x;
 extern int LastPid;
@@ -964,7 +912,6 @@ struct lfile {
 
     struct lfile *next;
 };
-extern struct lfile *Lf, *Plf;
 
 struct lproc {
     char *cmd; /* command name */
@@ -998,26 +945,12 @@ struct lproc {
 
     struct lfile *file; /* open files of process */
 };
-extern struct lproc *Lp, *Lproc;
 
-extern int MaxFd;
 extern char *Memory;
-extern int MntSup;
-extern char *MntSupP;
 
 #    if defined(HASPROCFS)
 extern struct mounts *Mtprocfs;
 #    endif
-
-extern int Mxpgid;
-extern int Mxpid;
-extern int Mxuid;
-extern gid_t Mygid;
-extern int Mypid;
-extern uid_t Myuid;
-extern char *Namech;
-extern size_t Namechl;
-extern int Ndev;
 
 #    if defined(HASNLIST)
 #        if !defined(NLIST_TYPE)
@@ -1026,20 +959,8 @@ extern int Ndev;
 extern struct NLIST_TYPE *Nl;
 extern int Nll;
 #    endif /* defined(HASNLIST) */
-extern long Nlink;
-extern int Nlproc;
 extern char *Nmlst;
-extern int Npgid;
-extern int Npgidi;
-extern int Npgidx;
-extern int Npid;
-extern int Npidi;
-extern int Npidx;
-extern int Npuns;
 extern int Ntype;
-extern int Nuid;
-extern int Nuidexcl;
-extern int Nuidincl;
 
 struct nwad {
     char *arg;                    /* argument */
@@ -1055,7 +976,6 @@ struct nwad {
 extern struct nwad *Nwad;
 
 extern int OffDecDig;
-extern char *Pn;
 
 #    if defined(HASFSTRUCT)
 extern struct pff_tab Pff_tab[]; /* file flags table */
@@ -1083,17 +1003,6 @@ extern int Procsrch;
 extern int PrPass;
 extern int RptTm;
 extern int RptMaxCount;
-extern struct l_dev **Sdev;
-extern int SelAll;
-extern int Selflags;
-extern int SelProc;
-extern int Setgid;
-extern int Selinet;
-extern int Setuidroot;
-extern struct sfile *Sfile;
-extern struct int_lst *Spgid;
-extern struct int_lst *Spid;
-extern struct seluid *Suid;
 extern char *SzOffFmt_0t;
 extern char *SzOffFmt_d;
 extern char *SzOffFmt_dv;
@@ -1110,7 +1019,6 @@ extern int TcpStXn;
 extern int TcpNstates;
 extern char **TcpSt;
 extern char Terminator;
-extern int TmLimit;
 extern int UdpStAlloc;
 extern unsigned char *UdpStI;
 extern int UdpStIn;
@@ -1120,18 +1028,483 @@ extern int UdpStXn;
 extern int UdpNstates;
 extern char **UdpSt;
 
-#    if defined(HASZONES)
 typedef struct znhash {
     char *zn;            /* zone name */
     int f;               /* "find" flag (used only in ZoneArg) */
     struct znhash *next; /* next zone hash entry */
 } znhash_t;
-extern znhash_t **ZoneArg;
-#    endif /* defined(HASZONES) */
 
-struct lsof_context {};
+struct lsof_context {
+    /** Parameters */
+    /** Linked list of files to search */
+    struct sfile *select_files;
+
+    /* file systems for which kernel blocks are
+     * to be eliminated */
+    efsys_list_t *elim_fs_list;
+
+    /* User IDs to include or exclude */
+    struct seluid *sel_uid;
+    /* -u option count */
+    int sel_uid_size;
+    /* capacity of sel_uid */
+    int sel_uid_cap;
+    /* -u option count of UIDs excluded */
+    int num_uid_excluded;
+    /* -u option count of UIDs included */
+    int num_uid_included;
+
+    /* process group IDs to search for */
+    struct int_lst *sel_pgid;
+    int sel_pgid_size;     /* -g option count */
+    int sel_pgid_cap;      /* capacity of sel_pgid */
+    int sel_pgid_incl_num; /* -g option inclusion count */
+    int sel_pgid_excl_num; /* -g option exclusion count */
+
+    /* Process IDs to search for */
+    struct int_lst *sel_pid;
+    int sel_pid_size;  /* -p option count */
+    int num_unsel_pid; /* number of unselected PIDs (starts at sel_pid_size) for
+                          optimization in examine_lproc() */
+    int sel_pid_cap;   /* capacity of sel_pid */
+    int sel_pid_incl_num; /* -p option inclusion count */
+    int sel_pid_excl_num; /* -p option exclusion count */
+
+    /* Whether all processes are selected */
+    int sel_all_proc;
+
+    /* command names selected with -c */
+    struct str_lst *sel_cmds;
+    int sel_cmd_incl; /* number of command name inclusions selected with -c */
+    int sel_cmd_excl; /* number of command name exclusions selected with -c */
+
+    /* command regular expression table for -c option */
+    lsof_rx_t *cmd_regex;
+    int cmd_regex_size; /* number of cmd_regex[] entries */
+    int cmd_regex_cap;  /* capacity of cmd_regex[] */
+
+    /* select by network address */
+    struct nwad *sel_net_addr;
+
+    /* security context arguments supplied with -Z */
+    cntxlist_t *sel_selinux_context;
+
+    /* device cache paths, indexed by DCpathX
+     * when it's >= 0 */
+    char *dev_cache_paths[4];
+    int dev_cache_path_index;    /* device cache path index:
+                                  * -1 = path not defined
+                                  *  0 = defined via -D
+                                  *  1 = defined via HASENVDC
+                                  *  2 = defined via HASSYSDC
+                                  *  3 = defined via HASPERSDC and
+                                  *      HASPERSDCPATH */
+    char *dev_cache_path_arg;    /* device cache path from -D[b|r|u]<path> */
+    unsigned dev_cache_checksum; /* device cache file checksum */
+    int dev_cache_fd;            /* device cache file descriptor */
+    FILE *dev_cache_fp;          /* stream pointer for DCfd */
+    int dev_cache_rebuilt;       /* an unsafe device cache file has been
+                                  * rebuilt */
+    int dev_cache_state;         /* device cache state:
+                                  * 0 = ignore (-Di)
+                                  * 1 = build (-Db[path])
+                                  * 2 = read; don't rebuild (-Dr[path])
+                                  * 3 = update; read and rebuild if
+                                  *     necessary (-Du[path])
+                                  */
+    int dev_cache_unsafe;        /* device cache file is potentially unsafe,
+                                  * (The [cm]time check failed.) */
+
+#    if defined(HASNLIST)
+    /* kernel name list */
+    struct NLIST_TYPE *name_list;
+    int name_list_size;
+#    endif                /* defined(HASNLIST) */
+    char *name_list_path; /* namelist file path */
+    char *core_file_path; /* core file path */
+
+#    if defined(HASPROCFS)
+    /* /proc mount entry */
+    struct mounts *procfs_mount;
+    int procfs_found; /* 1 when searching for an proc file system
+                       * file and one was found */
+    /* proc file system PID search table */
+    struct procfsid *procfs_table;
+    /* 1 if searching for any proc file system
+     * file */
+    int procfs_search;
+#    endif /* defined(HASPROCFS) */
+
+    /* name cache */
+    int name_cache_enable; /* -C option status */
+
+    /* local mount info */
+    struct mounts *local_mount_info;
+    int local_mount_info_valid;
+
+    /** hashSfile() buckets */
+    /* hash by file (dev,ino) buckets */
+    struct hsfile *sfile_hash_file_dev_inode;
+    int sfile_hash_file_dev_inode_count;
+    /* hash by file raw device buckets */
+    struct hsfile *sfile_hash_file_raw_device;
+    int sfile_hash_file_raw_device_count;
+    /* hash by file system buckets */
+    struct hsfile *sfile_hash_file_system;
+    int sfile_hash_file_system_count;
+    /* hash by name buckets */
+    struct hsfile *sfile_hash_name;
+    int sfile_hash_name_count;
+    /* hash by clone buckets */
+    struct hsfile *sfile_hash_clone;
+    int sfile_hash_clone_count;
+
+    /* zone arguments supplied with -z */
+    znhash_t **sel_zone;
+
+    /** When frozen, parameters must not be changed */
+    uint8_t frozen;
+
+    /* device table pointer */
+    struct l_dev *dev_table;
+    int dev_table_size; /* number of entries in dev_table[] */
+    /* pointer to dev_table[] pointers, sorted
+     * by device */
+    struct l_dev **dev_table_sorted;
+
+    /* block device table pointer */
+    struct l_dev *block_dev_table;
+    int block_dev_table_size; /* number of entries in block_dev_table[] */
+    /* pointer to BDevtp[] pointers, sorted
+     * by device */
+    struct l_dev **block_dev_table_sorted;
+
+    /* selection flags -- see SEL* macros */
+    int sel_flags;
+    /* SELPROC flags, modified by IgnTasks */
+    int sel_proc;
+    /* SELALL flags, modified by IgnTasks */
+    int sel_all;
+    /* select only Internet socket files */
+    int sel_inet;
+
+    /* -N option status: 0==none, 1==find all,
+     * 2==some found*/
+    int sel_nfs;
+
+    /* -K option value */
+    int sel_task;
+
+    /* -a option status */
+    int logic_and;
+
+    /* -b option status */
+    int avoid_blocking;
+
+    /* -O option status */
+    int avoid_forking;
+
+    /* -X option status */
+    int x_opt;
+
+    /* -E option status:
+     * 0==none,
+     * 1==info,
+     * 2==info+files */
+    int endpoint_status;
+
+    /* ignore tasks when non-zero */
+    int ign_tasks;
+
+    /* maximum file descriptors to close */
+    int max_fd;
+
+    /* file descriptors selected with -d */
+    struct fd_lst *fd_list;
+    /* fd_list[] type:
+     * -1 == none
+     * 0 == include
+     * 1 == exclude */
+    int fd_list_ty;
+
+    /* mount supplement state:
+     * 0 == none
+     * 1 == create
+     * 2 == read */
+    int mnt_sup_state;
+    /* mount supplement path -- if MntSup == 2 */
+    char *mnt_sup_path;
+
+    /* report nlink values below this number
+     * (0 = report all nlink values) */
+    long nlink;
+
+    /* Readlink() and stat() timeout (seconds) */
+    int time_limit;
+
+    int my_pid;      /* lsof's process ID */
+    uid_t my_uid;    /* real UID of this lsof process */
+    gid_t my_gid;    /* real GID of this lsof process */
+    int setgid;      /* setgid state */
+    int setuid_root; /* setuid-root state */
+
+    /* directory stack */
+    char **dir_stack;    /* the directory stack */
+    int dir_stack_index; /* dir_stack[] index */
+    int dir_stack_size;  /* dir_stack[] entries allocated */
+
+    /* allocated (possibly unused) entries in TCP
+     * state tables */
+    int tcp_state_alloc;
+    /* included TCP states */
+    unsigned char *tcp_state_incl;
+    int tcp_state_incl_num; /* number of entries in tcp_state_incl[] */
+    int tcp_state_off;      /* offset for TCP state number to adjust
+                             * negative numbers to an index into tcp_states[],
+                             * tcp_state_incl[] and tcp_state_excl[] */
+    /* excluded TCP states */
+    unsigned char *tcp_state_excl;
+    int tcp_state_excl_num; /* number of entries in tcp_state_excl[] */
+    int tcp_num_states;     /* number of TCP states -- either in
+                             * tcpstates[] or tcp_states[] */
+    char **tcp_states;      /* local TCP state names, indexed by system
+                             * state value */
+
+    /* allocated (possibly unused) entries in UDP
+     * state tables */
+    int udp_state_alloc;
+    /* included UDP states */
+    unsigned char *udp_state_incl;
+    int udp_state_incl_num; /* number of entries in udp_state_incl[] */
+    int udp_state_off;      /* offset for UDP state number to adjust
+                             * negative numbers to an index into udp_states[],
+                             * udp_state_incl[] and udp_state_excl[] */
+    unsigned char *udp_state_excl;
+    /* excluded UDP states */
+    int udp_state_excl_num; /* number of entries in udp_state_excl[] */
+    int udp_num_states;     /* number of UDP states in udp_states[] */
+    char **udp_states;      /* local UDP state names, indexed by system
+                             * state number */
+
+    int unix_socket; /* -U option status */
+
+    dev_t dev_dev; /* device number of /dev or its equivalent */
+
+    int net;      /* -i option status: 0==none
+                   *                   1==find all
+                   *                   2==some found */
+    int net_type; /* Fnet type request: AF_UNSPEC==all
+                   *                    AF_INET==IPv4
+                   *                    AF_INET6==IPv6 */
+
+    /** Temporary */
+    /* name characters for printing */
+    char *name_buf;
+    /* sizeof(name_buf) */
+    size_t name_buf_size;
+
+    /** Output */
+    /** Pointer to current process */
+    struct lproc *cur_proc;
+    /** Pointer to all processes */
+    struct lproc *procs;
+    /** Length and capacity of `procs` */
+    size_t procs_size;
+    size_t procs_cap;
+
+    /** Pointer to current file */
+    struct lfile *cur_file;
+    /** Pointer to previous file */
+    struct lfile *prev_file;
+
+    /** Warnings and errors */
+    FILE *err;
+    char *program_name;
+    int warn; /* 1=suppress warnings */
+
+    /** dialect specific fields, see dlsof.h */
+    struct lsof_context_dialect dialect;
+};
+
+/** Convenience macros to access context */
+/* Local process */
+#    define Lp (ctx->cur_proc)
+/* All local processes */
+#    define Lproc (ctx->procs)
+/* Local file */
+#    define Lf (ctx->cur_file)
+/* Previous local file */
+#    define Plf (ctx->prev_file)
+/* Length of local processes */
+#    define Nlproc (ctx->procs_size)
+/* Error output */
+#    define Pn (ctx->program_name)
+/* Suppress warnings */
+#    define Fwarn (ctx->warn)
+/* Name buffer */
+#    define Namech (ctx->name_buf)
+#    define Namechl (ctx->name_buf_size)
+/* Selection flags */
+#    define SelAll (ctx->sel_all)
+#    define Selflags (ctx->sel_flags)
+#    define SelProc (ctx->sel_proc)
+#    define Selinet (ctx->sel_inet)
+/* dev_t of /dev */
+#    define DevDev (ctx->dev_dev)
+/* TCP states */
+#    define TcpNstates (ctx->tcp_num_states)
+#    define TcpSt (ctx->tcp_states)
+#    define TcpStI (ctx->tcp_state_incl)
+#    define TcpStIn (ctx->tcp_state_incl_num)
+#    define TcpStX (ctx->tcp_state_excl)
+#    define TcpStXn (ctx->tcp_state_excl_num)
+#    define TcpStOff (ctx->tcp_state_off)
+#    define TcpStAlloc (ctx->tcp_state_alloc)
+/* UDP states */
+#    define UdpNstates (ctx->udp_num_states)
+#    define UdpSt (ctx->udp_states)
+#    define UdpStI (ctx->udp_state_incl)
+#    define UdpStIn (ctx->udp_state_incl_num)
+#    define UdpStX (ctx->udp_state_excl)
+#    define UdpStXn (ctx->udp_state_excl_num)
+#    define UdpStOff (ctx->udp_state_off)
+#    define UdpStAlloc (ctx->udp_state_alloc)
+/* select unix socket */
+#    define Funix (ctx->unix_socket)
+/* select inet socket */
+#    define Fnet (ctx->net)
+#    define FnetTy (ctx->net_type)
+/* select nfs files */
+#    define Fnfs (ctx->sel_nfs)
+/* -a option */
+#    define Fand (ctx->logic_and)
+/* -x option */
+#    define Fxopt (ctx->x_opt)
+/* avoid blocking */
+#    define Fblock (ctx->avoid_blocking)
+/* avoid forking overhead */
+#    define Fovhd (ctx->avoid_forking)
+/* endpoint status */
+#    define FeptE (ctx->endpoint_status)
+/* select tasks */
+#    define Ftask (ctx->sel_task)
+/* fd list */
+#    define Fdl (ctx->fd_list)
+#    define FdlTy (ctx->fd_list_ty)
+/* ignore tasks */
+#    define IgnTasks (ctx->ign_tasks)
+/* maximum fd number */
+#    define MaxFd (ctx->max_fd)
+/* mount supplement */
+#    define MntSup (ctx->mnt_sup_state)
+#    define MntSupP (ctx->mnt_sup_path)
+/* nlink limit */
+#    define Nlink (ctx->nlink)
+/* Time limit */
+#    define TmLimit (ctx->time_limit)
+/* number of unselected PIDs */
+#    define Npuns (ctx->num_unsel_pid)
+/* pid/uid/gid of current process */
+#    define Mypid (ctx->my_pid)
+#    define Myuid (ctx->my_uid)
+#    define Mygid (ctx->my_gid)
+/* setgid state */
+#    define Setgid (ctx->setgid)
+/* setuid-root state */
+#    define Setuidroot (ctx->setuid_root)
+/* directory stack */
+#    define Dstk (ctx->dir_stack)
+#    define Dstkx (ctx->dir_stack_index)
+#    define Dstkn (ctx->dir_stack_size)
+/* selection files */
+#    define Sfile (ctx->select_files)
+/* fs to eliminate blocking syscalls */
+#    define Efsysl (ctx->elim_fs_list)
+/* select uid */
+#    define Suid (ctx->sel_uid)
+#    define Nuid (ctx->sel_uid_size)
+#    define Nuidincl (ctx->num_uid_included)
+#    define Nuidexcl (ctx->num_uid_excluded)
+#    define Mxuid (ctx->sel_uid_cap)
+/* select pid */
+#    define Spid (ctx->sel_pid)
+#    define Npid (ctx->sel_pid_size)
+#    define Npidi (ctx->sel_pid_incl_num)
+#    define Npidx (ctx->sel_pid_excl_num)
+#    define Mxpid (ctx->sel_pid_cap)
+/* select pgid */
+#    define Spgid (ctx->sel_pgid)
+#    define Npgid (ctx->sel_pgid_size)
+#    define Npgidi (ctx->sel_pgid_incl_num)
+#    define Npgidx (ctx->sel_pgid_excl_num)
+#    define Mxpgid (ctx->sel_pgid_cap)
+/* select all procs */
+#    define AllProc (ctx->sel_all_proc)
+/* select command */
+#    define Cmdl (ctx->sel_cmds)
+#    define Cmdni (ctx->sel_cmd_incl)
+#    define Cmdnx (ctx->sel_cmd_excl)
+#    define CmdRx (ctx->cmd_regex)
+#    define NCmdRxU (ctx->cmd_regex_size)
+/* select by network address */
+#    define Nwad (ctx->sel_net_addr)
+/* device table pointer */
+#    define Devtp (ctx->dev_table)
+#    define Ndev (ctx->dev_table_size)
+#    define Sdev (ctx->dev_table_sorted)
+/* block device table */
+#    define BDevtp (ctx->block_dev_table)
+#    define BNdev (ctx->block_dev_table_size)
+#    define BSdev (ctx->block_dev_table_sorted)
+/* select selinux context */
+#    define CntxArg (ctx->sel_selinux_context)
+/* device cache */
+#    define DCpath (ctx->dev_cache_paths)
+#    define DCpathArg (ctx->dev_cache_path_arg)
+#    define DCpathX (ctx->dev_cache_path_index)
+#    define DCcksum (ctx->dev_cache_checksum)
+#    define DCfd (ctx->dev_cache_fd)
+#    define DCfs (ctx->dev_cache_fp)
+#    define DCrebuilt (ctx->dev_cache_rebuilt)
+#    define DCstate (ctx->dev_cache_state)
+#    define DCunsafe (ctx->dev_cache_unsafe)
+/* name list */
+#    define Nl (ctx->name_list)
+#    define Nll (ctx->name_list_size)
+#    define Nmlst (ctx->name_list_path)
+#    define Memory (ctx->core_file_path)
+/* procfs */
+#    define Mtprocfs (ctx->procfs_mount)
+#    define Procsrch (ctx->procfs_search)
+#    define Procfsid (ctx->procfs_table)
+#    define Procfind (ctx->procfs_found)
+/* name cache */
+#    define Fncache (ctx->name_cache_enable)
+/* local mount info */
+#    define Lmi (ctx->local_mount_info)
+#    define Lmist (ctx->local_mount_info_valid)
+/* hash buckets in hashSfile() */
+#    define HbyFdi (ctx->sfile_hash_file_dev_inode)
+#    define HbyFdiCt (ctx->sfile_hash_file_dev_inode_count)
+#    define HbyFrd (ctx->sfile_hash_file_raw_device)
+#    define HbyFrdCt (ctx->sfile_hash_file_raw_device_count)
+#    define HbyFsd (ctx->sfile_hash_file_system)
+#    define HbyFsdCt (ctx->sfile_hash_file_system_count)
+#    define HbyNm (ctx->sfile_hash_name)
+#    define HbyNmCt (ctx->sfile_hash_name_count)
+#    define HbyCd (ctx->sfile_hash_clone)
+#    define HbyCdCt (ctx->sfile_hash_clone_count)
+/* solaris zone */
+#    define ZoneArg (ctx->sel_zone)
+
+/* Utility macro to free if non-null and set the pointer to null */
+#    define CLEAN(ptr)                                                         \
+        do {                                                                   \
+            free(ptr);                                                         \
+            ptr = NULL;                                                        \
+        } while (0);
 
 #    include "proto.h"
 #    include "dproto.h"
 
-#endif /* LSOF_H */
+#endif /* COMMON_H */

@@ -244,4 +244,6 @@ extern KA_T Socktab;
 #    define HAS_STD_CLONE 1             /* has standard clone structure */
 #    define HAVECLONEMAJ HaveCloneMajor /* clone major status variable name */
 
+struct lsof_context_dialect {};
+
 #endif /* OSR_LSOF_H	*/

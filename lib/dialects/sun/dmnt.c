@@ -39,9 +39,6 @@ static char copyright[] =
  * Local static definitions
  */
 
-static struct mounts *Lmi = (struct mounts *)NULL; /* local mount info */
-static int Lmist = 0;                              /* Lmi status */
-
 static char *getmntdev(struct lsof_context *ctx, char *o, int l, struct stat *s,
                        char *f);
 

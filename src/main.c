@@ -43,7 +43,8 @@ static char *GOv = (char *)NULL; /* option `:' value pointer */
 static int GOx1 = 1;             /* first opt[][] index */
 static int GOx2 = 0;             /* second opt[][] index */
 
-static int GetOpt(int ct, char *opt[], char *rules, int *err);
+static int GetOpt(struct lsof_context *ctx, int ct, char *opt[], char *rules,
+                  int *err);
 static char *sv_fmt_str(struct lsof_context *ctx, char *f);
 
 /*
@@ -56,7 +57,7 @@ int main(int argc, char *argv[]) {
     int ad, c, i, n, se1, se2, ss;
     char *cp;
     int err = 0;
-    enum ExitStatus ev = LSOF_SUCCESS;
+    enum ExitStatus ev = LSOF_EXIT_SUCCESS;
     int fh = 0;
     char *fmtr = (char *)NULL;
     long l;
@@ -95,6 +96,9 @@ int main(int argc, char *argv[]) {
     CntxStatus = is_selinux_enabled() ? 1 : 0;
 #endif /* defined(HASSELINUX) */
 
+    /* Initialize lsof context */
+    ctx = lsof_new();
+
     /*
      * Save program name.
      */
@@ -102,6 +106,8 @@ int main(int argc, char *argv[]) {
         Pn++;
     else
         Pn = argv[0];
+    lsof_set_output_stream(ctx, stderr, Pn, 0);
+
     /*
      * Close enough file descriptors above 2 that library functions will have
      * open descriptors.
@@ -115,7 +121,7 @@ int main(int argc, char *argv[]) {
     if ((MaxFd = (int)GET_MAX_FD()) < 53)
         MaxFd = 53;
 
-    closefrom_shim(3);
+    closefrom_shim(ctx, 3);
 
     while (((i = open("/dev/null", O_RDWR, 0)) >= 0) && (i < 2))
         ;
@@ -233,7 +239,7 @@ int main(int argc, char *argv[]) {
     /*
      * Loop through options.
      */
-    while ((c = GetOpt(argc, argv, options, &gopt_rv)) != EOF) {
+    while ((c = GetOpt(ctx, argc, argv, options, &gopt_rv)) != EOF) {
         if (gopt_rv) {
             err = 1;
             continue;
@@ -258,7 +264,7 @@ int main(int argc, char *argv[]) {
 #endif /* defined(HAS_AFS) && defined(HASAOPT) */
 
         case 'b':
-            Fblock = 1;
+            lsof_avoid_blocking(ctx, 1);
             break;
         case 'c':
             if (GOp == '+') {
@@ -289,20 +295,8 @@ int main(int argc, char *argv[]) {
                 if (enter_cmd_rx(ctx, GOv))
                     err = 1;
             } else {
-                if (enter_str_lst("-c", GOv, &Cmdl, &Cmdni, &Cmdnx))
+                if (enter_cmd(ctx, "-c", GOv))
                     err = 1;
-
-#if defined(MAXSYSCMDL)
-                else if (Cmdl->len > MAXSYSCMDL) {
-                    (void)fprintf(stderr, "%s: \"-c ", Pn);
-                    (void)safestrprt(Cmdl->str, stderr, 2);
-                    (void)fprintf(stderr, "\" length (%d) > what system",
-                                  Cmdl->len);
-                    (void)fprintf(stderr, " provides (%d)\n", MAXSYSCMDL);
-                    Cmdl->len = 0; /* (to avoid later error report) */
-                    err = 1;
-                }
-#endif /* defined(MAXSYSCMDL) */
             }
             break;
 
@@ -736,7 +730,7 @@ int main(int argc, char *argv[]) {
             }
             break;
         case 'O':
-            Fovhd = (GOp == '-') ? 1 : 0;
+            lsof_avoid_forking(ctx, (GOp == '-') ? 1 : 0);
             break;
         case 'p':
             if (enter_id(ctx, PID, GOv))
@@ -750,7 +744,7 @@ int main(int argc, char *argv[]) {
             break;
         case 'r':
             if (GOp == '+') {
-                ev = LSOF_ERROR;
+                ev = LSOF_EXIT_ERROR;
                 rc = 1;
             }
             if (!GOv || *GOv == '-' || *GOv == '+') {
@@ -1276,7 +1270,7 @@ int main(int argc, char *argv[]) {
      */
     if (MntSup == 1) {
         (void)readmnt(ctx);
-        Exit(ctx, LSOF_SUCCESS);
+        Exit(ctx, LSOF_EXIT_SUCCESS);
     }
 #endif /* defined(HASMNTSUP) */
 
@@ -1503,7 +1497,7 @@ int main(int argc, char *argv[]) {
                 if (!n)
                     break;
                 else
-                    ev = LSOF_SUCCESS;
+                    ev = LSOF_EXIT_SUCCESS;
             }
 
 #if defined(HAS_STRFTIME)
@@ -1553,7 +1547,7 @@ int main(int argc, char *argv[]) {
      * was; one, if not.  If -V was specified, report what was not displayed.
      */
     (void)childx(ctx);
-    rv = LSOF_SUCCESS;
+    rv = LSOF_EXIT_SUCCESS;
     for (str = Cmdl; str; str = str->next) {
 
         /*
@@ -1808,7 +1802,7 @@ int main(int argc, char *argv[]) {
     if (!rv && rc)
         rv = ev;
     if (!rv && ErrStat)
-        rv = LSOF_ERROR;
+        rv = LSOF_EXIT_ERROR;
     Exit(ctx, rv);
     return (rv); /* to make code analyzers happy */
 }
@@ -1824,10 +1818,11 @@ int main(int argc, char *argv[]) {
  * value doesn't have one -- e.g., has a default instead.
  */
 
-static int GetOpt(int ct,      /* option count */
-                  char *opt[], /* options */
-                  char *rules, /* option rules */
-                  int *err)    /* error return */
+static int GetOpt(struct lsof_context *ctx, /* context */
+                  int ct,                   /* option count */
+                  char *opt[],              /* options */
+                  char *rules,              /* option rules */
+                  int *err)                 /* error return */
 {
     register int c;
     register char *cp = (char *)NULL;

@@ -39,9 +39,6 @@ static char copyright[] =
  * Local static information
  */
 
-static struct mounts *Lmi = (struct mounts *)NULL; /* local mount info */
-static int Lmist = 0;                              /* Lmi status */
-
 #undef HAS_MNT_NAMES
 
 #if defined(MOUNT_NONE)

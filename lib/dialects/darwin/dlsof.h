@@ -128,4 +128,6 @@ struct sfile {
 #        define offsetof(type, member) ((size_t)(&((type *)0)->member))
 #    endif /* !defined(offsetof) */
 
+struct lsof_context_dialect {};
+
 #endif /* DARWIN_LSOF_H */

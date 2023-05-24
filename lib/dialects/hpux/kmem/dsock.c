@@ -642,7 +642,7 @@ void process_socket(sa) KA_T sa; /* socket address in kernel */
         if (Fnet)
             Lf->sf |= SELNET;
         Lf->type = LSOF_FILE_INET;
-        printiproto(p.pr_protocol);
+        printiproto(ctx, p.pr_protocol);
 
 #if HPUXV >= 1030
         /*

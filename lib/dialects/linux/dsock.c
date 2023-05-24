@@ -369,7 +369,7 @@ static void print_ipxinfo(struct lsof_context *ctx, struct ipxsin *ip);
 static char *socket_type_to_str(uint32_t ty, int *rf);
 static char *netlink_proto_to_str(unsigned int pr);
 #if defined(HASSOSTATE)
-static char *socket_state_to_str(unsigned int ss);
+static char *socket_state_to_str(struct lsof_context *ctx, unsigned int ss);
 #endif /* defined(HASSOSTATE) */
 static char *ethernet_proto_to_str(unsigned int pr);
 
@@ -1132,7 +1132,7 @@ void process_uxsinfo(struct lsof_context *ctx,
             /*
              * Process already selected socket.
              */
-            if (is_file_sel(Lp, Lf)) {
+            if (is_file_sel(ctx, Lp, Lf)) {
 
                 /*
                  * This file has been selected by some criterion other than its
@@ -1161,7 +1161,7 @@ void process_uxsinfo(struct lsof_context *ctx,
             }
             break;
         case 1:
-            if (!is_file_sel(Lp, Lf) && (Lf->chend & CHEND_UXS)) {
+            if (!is_file_sel(ctx, Lp, Lf) && (Lf->chend & CHEND_UXS)) {
 
                 /*
                  * This is an unselected end point UNIX socket file.  Select it
@@ -1365,7 +1365,7 @@ void process_netsinfo(struct lsof_context *ctx, /* context */
             /*
              * Process already selected socket.
              */
-            if (is_file_sel(Lp, Lf)) {
+            if (is_file_sel(ctx, Lp, Lf)) {
 
                 /*
                  * This file has been selected by some criterion other than its
@@ -1377,7 +1377,7 @@ void process_netsinfo(struct lsof_context *ctx, /* context */
             }
             break;
         case 1:
-            if (!is_file_sel(Lp, Lf) && (Lf->chend & CHEND_NETS)) {
+            if (!is_file_sel(ctx, Lp, Lf) && (Lf->chend & CHEND_NETS)) {
 
                 /*
                  * This is an unselected end point INET socket file.  Select it
@@ -1490,7 +1490,7 @@ void process_nets6info(struct lsof_context *ctx, /* context */
             /*
              * Process already selected socket.
              */
-            if (is_file_sel(Lp, Lf)) {
+            if (is_file_sel(ctx, Lp, Lf)) {
                 /*
                  * This file has been selected by some criterion other than its
                  * being a socket.  Look up the socket's endpoints.
@@ -1501,7 +1501,7 @@ void process_nets6info(struct lsof_context *ctx, /* context */
             }
             break;
         case 1:
-            if (!is_file_sel(Lp, Lf) && (Lf->chend & CHEND_NETS6)) {
+            if (!is_file_sel(ctx, Lp, Lf) && (Lf->chend & CHEND_NETS6)) {
 
                 /*
                  * This is an unselected end point INET6 socket file.  Select it
@@ -3415,12 +3415,12 @@ static void print_ipxinfo(struct lsof_context *ctx, /* context */
 /*
  * print_unix() - print state of UNIX domain socket e.g. UNCONNECTED
  */
-static void print_unix(int nl) {
+static void print_unix(struct lsof_context *ctx, int nl) {
     if (Ftcptpi & TCPTPI_STATE) {
 #if defined(HASSOSTATE) && defined(HASSOOPT)
         char *cp = (Lf->lts.opt == __SO_ACCEPTCON)
                        ? "LISTEN"
-                       : socket_state_to_str(Lf->lts.ss);
+                       : socket_state_to_str(ctx, Lf->lts.ss);
 
         if (Ffield)
             (void)printf("%cST=%s%c", LSOF_FID_TCPTPI, cp, Terminator);
@@ -3447,7 +3447,7 @@ void print_tcptpi(struct lsof_context *ctx, /* context */
     int s;
 
     if (Lf->type == LSOF_FILE_UNIX) {
-        print_unix(nl);
+        print_unix(ctx, nl);
         return;
     }
     if ((Ftcptpi & TCPTPI_STATE) && Lf->lts.type == 0) {
@@ -4570,7 +4570,7 @@ static char *netlink_proto_to_str(unsigned int pr) {
  *
  * returns "UNKNOWN" for unknown state.
  */
-static char *socket_state_to_str(unsigned int ss) {
+static char *socket_state_to_str(struct lsof_context *ctx, unsigned int ss) {
     char *sr;
     switch (Lf->lts.ss) {
     case SS_UNCONNECTED:

@@ -440,7 +440,7 @@ static void get_kernel_access(struct lsof_context *ctx) {
     /*
      * Read the kernel's page shift amount, if possible.
      */
-    if (get_Nl_value("pgshift", Drive_Nl, &v) < 0 || !v ||
+    if (get_Nl_value(ctx, "pgshift", Drive_Nl, &v) < 0 || !v ||
         kread(ctx, (KA_T)v, (char *)&pgshift, sizeof(pgshift)))
         pgshift = 0;
 }
