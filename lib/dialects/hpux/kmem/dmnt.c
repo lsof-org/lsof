@@ -44,8 +44,6 @@ typedef int time_t;
  * Local static definitions
  */
 
-static struct mounts *Lmi = (struct mounts *)NULL; /* local mount info */
-
 /*
  * completevfs() - complete local vfs structure
  */
