@@ -1028,6 +1028,11 @@ extern int UdpStXn;
 extern int UdpNstates;
 extern char **UdpSt;
 
+struct hsfile {
+    struct sfile *s;     /* the Sfile table address */
+    struct hsfile *next; /* the next hash bucket entry */
+};
+
 typedef struct znhash {
     char *zn;            /* zone name */
     int f;               /* "find" flag (used only in ZoneArg) */

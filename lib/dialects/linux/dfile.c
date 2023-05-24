@@ -34,11 +34,6 @@
  * Local structures
  */
 
-struct hsfile {
-    struct sfile *s;     /* the Sfile table address */
-    struct hsfile *next; /* the next hash bucket entry */
-};
-
 /*
  * Local static variables
  */
