@@ -140,6 +140,7 @@ static char *tstlsof(char **texec, /* result of the executable test */
                      char **tproc) /* result of the lsof process test */
 {
     char buf[2048];           /* temporary buffer */
+    char buf2[2048] = {};     /* temporary buffer */
     char *cem;                /* current error message pointer */
     LTfldo_t *cmdp;           /* command pointer */
     LTdev_t cwddc;            /* CWD device components */
@@ -172,7 +173,15 @@ static char *tstlsof(char **texec, /* result of the executable test */
     /*
      * Get lsof executable's stat(2) information.
      */
-    if (stat(LsofPath, &lsofsb)) {
+    /* lsof could be a wrapper script when building with libtool, try
+     * ./.libs/lsof first */
+    (void)snprintf(buf, sizeof(buf) - 1, "%s", LsofPath);
+    if (strlen(buf) >= 4) {
+        /* strip lsof suffix */
+        buf[strlen(buf) - 4] = '\0';
+        (void)snprintf(buf2, sizeof(buf2) - 1, "%s.libs/lsof", buf);
+    }
+    if ((buf2[0] && stat(buf2, &lsofsb)) && stat(LsofPath, &lsofsb)) {
         (void)snprintf(buf, sizeof(buf) - 1, "ERROR!!!  stat(%s): %s", LsofPath,
                        strerror(errno));
         buf[sizeof(buf) - 1] = '\0';
