@@ -109,9 +109,6 @@ endif
 if DARWIN
 lsof_SOURCES += src/dialects/darwin/dprint.c
 endif
-if SOLARIS
-lsof_SOURCES += src/dialects/sun/dprint.c
-endif
 # TODO: link to dynamic library instead after internal functions are no longer used
 lsof_SOURCES += $(liblsof_la_SOURCES)
 #lsof_LDADD = liblsof.la
