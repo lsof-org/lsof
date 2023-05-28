@@ -497,4 +497,21 @@ enum lsof_error lsof_freeze(struct lsof_context *ctx);
 enum lsof_error lsof_gather(struct lsof_context *ctx,
                             struct lsof_result **result);
 
+/** Destroy a lsof context
+ *
+ * You should call `lsof_free_result` to free all `struct lsof_result`
+ * before destorying the context.
+ *
+ * You must not use the context anymore after this call.
+ *
+ * \since API version 1
+ */
+void lsof_destroy(struct lsof_context *ctx);
+
+/** Free struct lsof_result
+ *
+ * \since API version 1
+ */
+void lsof_free_result(struct lsof_result *result);
+
 #endif

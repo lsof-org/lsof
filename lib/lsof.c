@@ -655,3 +655,90 @@ enum lsof_error lsof_gather(struct lsof_context *ctx,
 
     return ret;
 }
+
+API_EXPORT
+void lsof_destroy(struct lsof_context *ctx) {
+    int i;
+    struct str_lst *str_lst, *str_lst_next;
+    struct int_lst *int_lst, *int_lst_next;
+    struct mounts *mnt, *mnt_next;
+    if (!ctx) {
+        return;
+    }
+    /* Free parameters */
+    for (str_lst = Cmdl; str_lst; str_lst = str_lst_next) {
+        str_lst_next = str_lst->next;
+        CLEAN(str_lst->str);
+        CLEAN(str_lst);
+    }
+    CLEAN(Spid);
+    CLEAN(Spgid);
+    for (i = 0; i < Nuid; i++) {
+        CLEAN(Suid[i].lnm);
+    }
+    CLEAN(Suid);
+    CLEAN(Nmlst);
+
+    /* Free temporary */
+    CLEAN(Namech);
+#if defined(HASNLIST)
+    CLEAN(Nl);
+    Nll = 0;
+#endif /* defined(HASNLIST) */
+
+    /* Free local mount info */
+    if (Lmist) {
+        for (mnt = Lmi; mnt; mnt = mnt_next) {
+            mnt_next = mnt->next;
+            CLEAN(mnt->dir);
+            CLEAN(mnt->fsname);
+            CLEAN(mnt->fsnmres);
+#if defined(HASFSTYPE)
+            CLEAN(mnt->fstype);
+#endif
+            CLEAN(mnt);
+        }
+        Lmi = NULL;
+        Lmist = 0;
+    }
+
+    /* state table */
+#if !defined(USE_LIB_PRINT_TCPTPI)
+    for (i = 0; i < TcpNstates; i++) {
+        CLEAN(TcpSt[i]);
+    }
+    CLEAN(TcpSt);
+#endif /* !defined(USE_LIB_PRINT_TCPTPI) */
+    for (i = 0; i < UdpNstates; i++) {
+        CLEAN(UdpSt[i]);
+    }
+    CLEAN(UdpSt);
+    CLEAN(Pn);
+
+    CLEAN(ctx);
+}
+
+API_EXPORT
+void lsof_free_result(struct lsof_result *result) {
+    int pi, fi;
+    struct lsof_process *p;
+    struct lsof_file *f;
+    for (pi = 0; pi < result->num_processes; pi++) {
+        p = &result->processes[pi];
+        /* Free files */
+        for (fi = 0; fi < p->num_files; fi++) {
+            f = &p->files[fi];
+            CLEAN(f->name);
+        }
+        CLEAN(p->files);
+
+        /* Free process fields */
+        CLEAN(p->command);
+        CLEAN(p->task_cmd);
+        CLEAN(p->solaris_zone);
+        CLEAN(p->selinux_context);
+    }
+    CLEAN(result->processes);
+    CLEAN(result->selections);
+    CLEAN(result);
+}
