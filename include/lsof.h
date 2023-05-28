@@ -274,7 +274,7 @@ struct lsof_context *lsof_new();
  * \since API version 1
  */
 enum lsof_error lsof_set_output_stream(struct lsof_context *ctx, FILE *fp,
-                                   char *program_name, int warn);
+                                       char *program_name, int warn);
 
 /** Ask lsof to avoid using blocking functions
  *
@@ -316,5 +316,14 @@ enum lsof_error lsof_logic_and(struct lsof_context *ctx);
  */
 enum lsof_error lsof_select_process(struct lsof_context *ctx, char *command,
                                     int exclude);
+
+/** Freeze the lsof context
+ *
+ * You can only call it once per context. After this call, no more options can
+ * be changed.
+ *
+ * \since API version 1
+ */
+enum lsof_error lsof_freeze(struct lsof_context *ctx);
 
 #endif

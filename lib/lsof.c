@@ -196,7 +196,7 @@ enum lsof_error lsof_select_process(struct lsof_context *ctx, char *command,
 
 API_EXPORT
 enum lsof_error lsof_set_output_stream(struct lsof_context *ctx, FILE *fp,
-                                   char *program_name, int warn) {
+                                       char *program_name, int warn) {
     if (!ctx) {
         return LSOF_ERROR_INVALID_ARGUMENT;
     }
@@ -204,4 +204,26 @@ enum lsof_error lsof_set_output_stream(struct lsof_context *ctx, FILE *fp,
     ctx->program_name = mkstrcpy(program_name, NULL);
     ctx->warn = warn;
     return LSOF_SUCCESS;
+}
+
+API_EXPORT
+enum lsof_error lsof_freeze(struct lsof_context *ctx) {
+    enum lsof_error ret = LSOF_SUCCESS;
+    if (ctx->frozen) {
+        ret = LSOF_ERROR_INVALID_ARGUMENT;
+    } else {
+        if (Selflags == 0) {
+            Selflags = SelAll;
+        } else {
+            if ((Selflags & (SELNA | SELNET)) != 0 &&
+                (Selflags & ~(SELNA | SELNET)) == 0)
+                Selinet = 1;
+            AllProc = 0;
+        }
+
+        initialize(ctx);
+        hashSfile(ctx);
+        ctx->frozen = 1;
+    }
+    return ret;
 }
