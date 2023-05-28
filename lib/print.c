@@ -440,3 +440,17 @@ void file_type_to_string(enum lsof_file_type type,
         break;
     }
 }
+
+/*
+ * endnm() - locate end of Namech
+ */
+char *endnm(struct lsof_context *ctx, size_t *sz) /* returned remaining size */
+{
+    register char *s;
+    register size_t tsz;
+
+    for (s = Namech, tsz = Namechl; *s; s++, tsz--)
+        ;
+    *sz = tsz;
+    return (s);
+}

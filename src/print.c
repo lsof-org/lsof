@@ -93,21 +93,6 @@ static char *lkup_svcnam(struct lsof_context *ctx, int h, int p, int pr,
 static int printinaddr(struct lsof_context *ctx);
 static int human_readable_size(SZOFFTYPE sz, int print, int col);
 
-/*
- * endnm() - locate end of Namech
- */
-
-char *endnm(struct lsof_context *ctx, size_t *sz) /* returned remaining size */
-{
-    register char *s;
-    register size_t tsz;
-
-    for (s = Namech, tsz = Namechl; *s; s++, tsz--)
-        ;
-    *sz = tsz;
-    return (s);
-}
-
 #if !defined(HASNORPC_H)
 /*
  * fill_portmap() -- fill the RPC portmap program name table via a conversation
