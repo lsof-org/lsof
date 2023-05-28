@@ -79,36 +79,6 @@ void add_nma(struct lsof_context *ctx, char *cp, /* string to add */
     }
 }
 
-#if defined(HASFSTRUCT)
-static char *alloc_fflbuf(struct lsof_context *ctx, char **bp, int *al, int lr);
-
-/*
- * alloc_fflbuf() - allocate file flags print buffer
- */
-
-static char *alloc_fflbuf(struct lsof_context *ctx,
-                          char **bp, /* current buffer pointer */
-                          int *al,   /* current allocated length */
-                          int lr)    /* length required */
-{
-    int sz;
-
-    sz = (int)(lr + 1); /* allocate '\0' space */
-    if (*bp && (sz <= *al))
-        return (*bp);
-    if (*bp)
-        *bp = (char *)realloc((MALLOC_P *)*bp, (MALLOC_S)sz);
-    else
-        *bp = (char *)malloc((MALLOC_S)sz);
-    if (!*bp) {
-        (void)fprintf(stderr, "%s: no space (%d) for print flags\n", Pn, sz);
-        Error(ctx);
-    }
-    *al = sz;
-    return (*bp);
-}
-#endif /* defined(HASFSTRUCT) */
-
 /*
  * alloc_lfile() - allocate local file structure space
  */
@@ -1234,78 +1204,6 @@ static void prt_evtfdinfo(struct lsof_context *ctx,
     }
 }
 #endif /* defined(HASEPTOPTS) */
-
-#if defined(HASFSTRUCT)
-/*
- * print_fflags() - print interpreted f_flag[s]
- */
-
-char *print_fflags(struct lsof_context *ctx,
-                   long ffg, /* file structure's flags value */
-                   long pof) /* process open files flags value */
-{
-    int al, ct, fx;
-    static int bl = 0;
-    static char *bp = (char *)NULL;
-    char *sep;
-    int sepl;
-    struct pff_tab *tp;
-    long wf;
-    char xbuf[64];
-    /*
-     * Reduce the supplied flags according to the definitions in Pff_tab[] and
-     * Pof_tab[].
-     */
-    for (ct = fx = 0; fx < 2; fx++) {
-        if (fx == 0) {
-            sep = "";
-            sepl = 0;
-            tp = Pff_tab;
-            wf = ffg;
-        } else {
-            sep = ";";
-            sepl = 1;
-            tp = Pof_tab;
-            wf = pof;
-        }
-        for (; wf && !FsvFlagX; ct += al) {
-            while (tp->nm) {
-                if (wf & tp->val)
-                    break;
-                tp++;
-            }
-            if (!tp->nm)
-                break;
-            al = (int)strlen(tp->nm) + sepl;
-            bp = alloc_fflbuf(ctx, &bp, &bl, al + ct);
-            (void)snpf(bp + ct, al + 1, "%s%s", sep, tp->nm);
-            sep = ",";
-            sepl = 1;
-            wf &= ~(tp->val);
-        }
-        /*
-         * If flag bits remain, print them in hex.  If hex output was
-         * specified with +fG, print all flag values, including zero,
-         * in hex.
-         */
-        if (wf || FsvFlagX) {
-            (void)snpf(xbuf, sizeof(xbuf), "0x%lx", wf);
-            al = (int)strlen(xbuf) + sepl;
-            bp = alloc_fflbuf(ctx, &bp, &bl, al + ct);
-            (void)snpf(bp + ct, al + 1, "%s%s", sep, xbuf);
-            ct += al;
-        }
-    }
-    /*
-     * Make sure there is at least a NUL terminated reply.
-     */
-    if (!bp) {
-        bp = alloc_fflbuf(ctx, &bp, &bl, 0);
-        *bp = '\0';
-    }
-    return (bp);
-}
-#endif /* defined(HASFSTRUCT) */
 
 #if defined(HASPTYEPT)
 /*
