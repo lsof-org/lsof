@@ -2819,3 +2819,251 @@ int human_readable_size(SZOFFTYPE sz, int print, int col) {
     }
     return strlen(buf);
 }
+
+/*
+ * print_proc() - print process
+ */
+int print_proc(struct lsof_context *ctx) {
+    char buf[128], *cp;
+    int lc, len, st, ty;
+    int rv = 0;
+    unsigned long ul;
+    char fd[FDLEN];
+    char type[TYPEL];
+    /*
+     * If nothing in the process has been selected, skip it.
+     */
+    if (!Lp->pss)
+        return (0);
+    if (Fterse) {
+        if (Lp->pid == LastPid) /* eliminate duplicates */
+            return (0);
+        LastPid = Lp->pid;
+        /*
+         * The mode is terse and something in the process appears to have
+         * been selected.  Make sure of that by looking for a selected file,
+         * so that the HASSECURITY and HASNOSOCKSECURITY option combination
+         * won't produce a false positive result.
+         */
+        for (Lf = Lp->file; Lf; Lf = Lf->next) {
+            if (is_file_sel(ctx, Lp, Lf)) {
+                (void)printf("%d\n", Lp->pid);
+                return (1);
+            }
+        }
+        return (0);
+    }
+    /*
+     * If fields have been selected, output the process-only ones, provided
+     * that some file has also been selected.
+     */
+    if (Ffield) {
+        for (Lf = Lp->file; Lf; Lf = Lf->next) {
+            if (is_file_sel(ctx, Lp, Lf))
+                break;
+        }
+        if (!Lf)
+            return (rv);
+        rv = 1;
+        (void)printf("%c%d%c", LSOF_FID_PID, Lp->pid, Terminator);
+
+#if defined(HASTASKS)
+        if (FieldSel[LSOF_FIX_TID].st && Lp->tid)
+            (void)printf("%c%d%c", LSOF_FID_TID, Lp->tid, Terminator);
+        if (FieldSel[LSOF_FIX_TCMD].st && Lp->tcmd)
+            (void)printf("%c%s%c", LSOF_FID_TCMD, Lp->tcmd, Terminator);
+#endif /* defined(HASTASKS) */
+
+#if defined(HASZONES)
+        if (FieldSel[LSOF_FIX_ZONE].st && Fzone && Lp->zn)
+            (void)printf("%c%s%c", LSOF_FID_ZONE, Lp->zn, Terminator);
+#endif /* defined(HASZONES) */
+
+#if defined(HASSELINUX)
+        if (FieldSel[LSOF_FIX_CNTX].st && Fcntx && Lp->cntx && CntxStatus)
+            (void)printf("%c%s%c", LSOF_FID_CNTX, Lp->cntx, Terminator);
+#endif /* defined(HASSELINUX) */
+
+        if (FieldSel[LSOF_FIX_PGID].st && Fpgid)
+            (void)printf("%c%d%c", LSOF_FID_PGID, Lp->pgid, Terminator);
+
+#if defined(HASPPID)
+        if (FieldSel[LSOF_FIX_PPID].st && Fppid)
+            (void)printf("%c%d%c", LSOF_FID_PPID, Lp->ppid, Terminator);
+#endif /* defined(HASPPID) */
+
+        if (FieldSel[LSOF_FIX_CMD].st) {
+            putchar(LSOF_FID_CMD);
+            safestrprt(Lp->cmd ? Lp->cmd : "(unknown)", stdout, 0);
+            putchar(Terminator);
+        }
+        if (FieldSel[LSOF_FIX_UID].st)
+            (void)printf("%c%d%c", LSOF_FID_UID, (int)Lp->uid, Terminator);
+        if (FieldSel[LSOF_FIX_LOGIN].st) {
+            cp = printuid(ctx, (UID_ARG)Lp->uid, &ty);
+            if (ty == 0)
+                (void)printf("%c%s%c", LSOF_FID_LOGIN, cp, Terminator);
+        }
+        if (Terminator == '\0')
+            putchar('\n');
+    }
+    /*
+     * Print files.
+     */
+    for (Lf = Lp->file; Lf; Lf = Lf->next) {
+        if (!is_file_sel(ctx, Lp, Lf))
+            continue;
+        rv = 1;
+        /*
+         * If no field output selected, print dialect-specific formatted
+         * output.
+         */
+        if (!Ffield) {
+            print_file(ctx);
+            continue;
+        }
+        lc = st = 0;
+        if (FieldSel[LSOF_FIX_FD].st) {
+
+            fd_to_string(Lf->fd_type, Lf->fd_num, fd);
+            (void)printf("%c%s%c", LSOF_FID_FD, fd, Terminator);
+            lc++;
+        }
+        /*
+         * Print selected fields.
+         */
+        if (FieldSel[LSOF_FIX_ACCESS].st) {
+            (void)printf("%c%c%c", LSOF_FID_ACCESS, access_to_char(Lf->access),
+                         Terminator);
+            lc++;
+        }
+        if (FieldSel[LSOF_FIX_LOCK].st) {
+            (void)printf("%c%c%c", LSOF_FID_LOCK, lock_to_char(Lf->lock),
+                         Terminator);
+            lc++;
+        }
+        if (FieldSel[LSOF_FIX_TYPE].st) {
+            if (Lf->type != LSOF_FILE_NONE) {
+                file_type_to_string(Lf->type, Lf->unknown_file_type_number,
+                                    type, TYPEL);
+                (void)printf("%c%s%c", LSOF_FID_TYPE, type, Terminator);
+                lc++;
+            }
+        }
+
+#if defined(HASFSTRUCT)
+        if (FieldSel[LSOF_FIX_FA].st && (Fsv & FSV_FA) && (Lf->fsv & FSV_FA)) {
+            (void)printf("%c%s%c", LSOF_FID_FA,
+                         print_kptr(Lf->fsa, (char *)NULL, 0), Terminator);
+            lc++;
+        }
+        if (FieldSel[LSOF_FIX_CT].st && (Fsv & FSV_CT) && (Lf->fsv & FSV_CT)) {
+            (void)printf("%c%ld%c", LSOF_FID_CT, Lf->fct, Terminator);
+            lc++;
+        }
+        if (FieldSel[LSOF_FIX_FG].st && (Fsv & FSV_FG) && (Lf->fsv & FSV_FG) &&
+            (FsvFlagX || Lf->ffg || Lf->pof)) {
+            (void)printf("%c%s%c", LSOF_FID_FG,
+                         print_fflags(ctx, Lf->ffg, Lf->pof), Terminator);
+            lc++;
+        }
+        if (FieldSel[LSOF_FIX_NI].st && (Fsv & FSV_NI) && (Lf->fsv & FSV_NI)) {
+            (void)printf("%c%s%c", LSOF_FID_NI,
+                         print_kptr(Lf->fna, (char *)NULL, 0), Terminator);
+            lc++;
+        }
+#endif /* defined(HASFSTRUCT) */
+
+        if (FieldSel[LSOF_FIX_DEVCH].st && Lf->dev_ch && Lf->dev_ch[0]) {
+            for (cp = Lf->dev_ch; *cp == ' '; cp++)
+                ;
+            if (*cp) {
+                (void)printf("%c%s%c", LSOF_FID_DEVCH, cp, Terminator);
+                lc++;
+            }
+        }
+        if (FieldSel[LSOF_FIX_DEVN].st && Lf->dev_def) {
+            if (sizeof(unsigned long) > sizeof(dev_t))
+                ul = (unsigned long)((unsigned int)Lf->dev);
+            else
+                ul = (unsigned long)Lf->dev;
+            (void)printf("%c0x%lx%c", LSOF_FID_DEVN, ul, Terminator);
+            lc++;
+        }
+        if (FieldSel[LSOF_FIX_RDEV].st && Lf->rdev_def) {
+            if (sizeof(unsigned long) > sizeof(dev_t))
+                ul = (unsigned long)((unsigned int)Lf->rdev);
+            else
+                ul = (unsigned long)Lf->rdev;
+            (void)printf("%c0x%lx%c", LSOF_FID_RDEV, ul, Terminator);
+            lc++;
+        }
+        if (FieldSel[LSOF_FIX_SIZE].st && Lf->sz_def) {
+            putchar(LSOF_FID_SIZE);
+
+            (void)snpf(buf, sizeof(buf), SzOffFmt_d, Lf->sz);
+            cp = buf;
+
+            (void)printf("%s", cp);
+            putchar(Terminator);
+            lc++;
+        }
+        if (FieldSel[LSOF_FIX_OFFSET].st && Lf->off_def) {
+            putchar(LSOF_FID_OFFSET);
+
+            (void)snpf(buf, sizeof(buf), SzOffFmt_0t, Lf->off);
+            cp = buf;
+
+            len = strlen(cp);
+            if (OffDecDig && len > (OffDecDig + 2)) {
+
+                (void)snpf(buf, sizeof(buf), SzOffFmt_x, Lf->off);
+                cp = buf;
+            }
+            (void)printf("%s", cp);
+            putchar(Terminator);
+            lc++;
+        }
+        if (FieldSel[LSOF_FIX_INODE].st && Lf->inp_ty == 1) {
+            putchar(LSOF_FID_INODE);
+            (void)printf(InodeFmt_d, Lf->inode);
+            putchar(Terminator);
+            lc++;
+        }
+        if (FieldSel[LSOF_FIX_NLINK].st && Lf->nlink_def) {
+            (void)printf("%c%ld%c", LSOF_FID_NLINK, Lf->nlink, Terminator);
+            lc++;
+        }
+        if (FieldSel[LSOF_FIX_PROTO].st && Lf->inp_ty == 2) {
+            for (cp = Lf->iproto; *cp == ' '; cp++)
+                ;
+            if (*cp) {
+                (void)printf("%c%s%c", LSOF_FID_PROTO, cp, Terminator);
+                lc++;
+            }
+        }
+        if (FieldSel[LSOF_FIX_STREAM].st && Lf->nm && Lf->is_stream) {
+            if (strncmp(Lf->nm, "STR:", 4) == 0 ||
+                strcmp(Lf->iproto, "STR") == 0) {
+                putchar(LSOF_FID_STREAM);
+                printname(ctx, 0);
+                putchar(Terminator);
+                lc++;
+                st++;
+            }
+        }
+        if (st == 0 && FieldSel[LSOF_FIX_NAME].st) {
+            putchar(LSOF_FID_NAME);
+            printname(ctx, 0);
+            putchar(Terminator);
+            lc++;
+        }
+        if (Lf->lts.type >= 0 && FieldSel[LSOF_FIX_TCPTPI].st) {
+            print_tcptpi(ctx, 0);
+            lc++;
+        }
+        if (Terminator == '\0' && lc)
+            putchar('\n');
+    }
+    return (rv);
+}
