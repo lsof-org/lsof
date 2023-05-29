@@ -88,6 +88,9 @@ struct lsof_context *lsof_new() {
 
         /* device cache state: 3 = update; read and rebuild if necessary */
         DCstate = 3;
+
+        /* COMMAND column width limit */
+        CmdLim = CMDL;
     }
     return ctx;
 }

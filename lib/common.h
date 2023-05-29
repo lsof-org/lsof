@@ -671,7 +671,6 @@ struct str_lst {
     short x;              /* exclusion (if non-zero) */
     struct str_lst *next; /* next list entry */
 };
-extern int CmdLim;
 
 typedef struct cntxlist {
     char *cntx;            /* zone name */
@@ -960,7 +959,6 @@ extern struct NLIST_TYPE *Nl;
 extern int Nll;
 #    endif /* defined(HASNLIST) */
 extern char *Nmlst;
-extern int Ntype;
 
 struct nwad {
     char *arg;                    /* argument */
@@ -1167,8 +1165,14 @@ struct lsof_context {
     /* zone arguments supplied with -z */
     znhash_t **sel_zone;
 
+    /* command name limit */
+    int cmd_limit;
+
     /** When frozen, parameters must not be changed */
     uint8_t frozen;
+
+    /* node type (see N_* symbols) */
+    int node_type;
 
     /* device table pointer */
     struct l_dev *dev_table;
@@ -1501,6 +1505,10 @@ struct lsof_context {
 #    define HbyCdCt (ctx->sfile_hash_clone_count)
 /* solaris zone */
 #    define ZoneArg (ctx->sel_zone)
+/* command name limit */
+#    define CmdLim (ctx->cmd_limit)
+/* node type */
+#    define Ntype (ctx->node_type)
 
 /* Utility macro to free if non-null and set the pointer to null */
 #    define CLEAN(ptr)                                                         \

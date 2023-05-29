@@ -42,7 +42,6 @@ struct clone *Clone = (struct clone *)NULL;
 #endif /* defined(HAS_STD_CLONE) */
 
 int CmdColW;       /* COMMAND column width */
-int CmdLim = CMDL; /* COMMAND column width limit */
 
 #if defined(HASSELINUX)
 int CntxColW;       /* security context column width */
@@ -152,7 +151,6 @@ int LastPid = -1; /* last PID listed (for eliminating duplicates
 int NlColW;                /* NLINK column width */
 int NmColW;                /* NAME column width */
 int NodeColW;              /* NODE column width */
-int Ntype;                 /* node type (see N_* symbols) */
 int OffDecDig = OFFDECDIG; /* offset decimal form (0t...) digit limit */
 int OffColW;               /* OFFSET column width */
 int PgidColW;              /* PGID column width */
