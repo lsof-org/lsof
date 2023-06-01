@@ -93,7 +93,6 @@ int Fsize = 0;              /* -s option status */
 int Fhuman = 0;             /* -H option status */
 int FsColW;                 /* FSTR-ADDR column width */
 int Fsv = FSV_DEFAULT;      /* file struct value selections */
-int FsvByf = 0;             /* Fsv was set by +f */
 int FsvFlagX = 0;           /* hex format status for FSV_FG */
 int NiColW;                 /* NODE-ID column width */
 char *NiTtl = NITTL;        /* NODE-ID column title */
@@ -159,7 +158,6 @@ int PpidColW;              /* PPID column width */
 
 int PrPass = 0;                   /* print pass: 0 = compute column widths
                                    *	       1 = print */
-int RptTm = 0;                    /* repeat time -- set by -r */
 int RptMaxCount = 0;              /* count of repeasts: 0 = no limit
                                    * -- set by -r */
 int SzColW;                       /* SIZE column width */

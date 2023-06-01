@@ -707,7 +707,6 @@ extern int FsearchErr;
 extern int Fsize;
 extern int Fhuman;
 extern int Fsv;
-extern int FsvByf;
 extern int FsvFlagX;
 extern int Ftcptpi;
 extern int Fterse;
@@ -999,7 +998,6 @@ extern int Procsrch;
 #    endif /* defined(HASPROCFS) */
 
 extern int PrPass;
-extern int RptTm;
 extern int RptMaxCount;
 extern char *SzOffFmt_0t;
 extern char *SzOffFmt_d;
@@ -1306,6 +1304,12 @@ struct lsof_context {
                    *                    AF_INET==IPv4
                    *                    AF_INET6==IPv6 */
 
+    /* Fsv was set by +f */
+    int fsv_set_f;
+
+    /* repeat time -- set by -r */
+    int repeat_time;
+
     /** Temporary */
     /* name characters for printing */
     char *name_buf;
@@ -1509,6 +1513,10 @@ struct lsof_context {
 #    define CmdLim (ctx->cmd_limit)
 /* node type */
 #    define Ntype (ctx->node_type)
+/* Fsv was set by +f */
+#    define FsvByf (ctx->fsv_set_f)
+/* repeat time */
+#    define RptTm (ctx->repeat_time)
 
 /* Utility macro to free if non-null and set the pointer to null */
 #    define CLEAN(ptr)                                                         \
