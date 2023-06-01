@@ -88,7 +88,6 @@ int FportMap = 0; /* +|-M option status */
 
 int Fpgid = 0;              /* -g option status */
 int Fppid = 0;              /* -R option status */
-int Fsize = 0;              /* -s option status */
 int Fhuman = 0;             /* -H option status */
 int FsColW;                 /* FSTR-ADDR column width */
 int Fsv = FSV_DEFAULT;      /* file struct value selections */

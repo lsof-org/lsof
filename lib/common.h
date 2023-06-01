@@ -702,7 +702,6 @@ extern int FportMap;
 extern int Fpgid;
 extern int Fppid;
 extern int FsearchErr;
-extern int Fsize;
 extern int Fhuman;
 extern int Fsv;
 extern int FsvFlagX;
@@ -1311,6 +1310,9 @@ struct lsof_context {
     /* -o option status */
     int show_offset;
 
+    /* -s option status */
+    int show_size;
+
     /** Temporary */
     /* name characters for printing */
     char *name_buf;
@@ -1520,6 +1522,8 @@ struct lsof_context {
 #    define RptTm (ctx->repeat_time)
 /* -o option status */
 #    define Foffset (ctx->show_offset)
+/* -s option status */
+#    define Fsize (ctx->show_size)
 
 /* Utility macro to free if non-null and set the pointer to null */
 #    define CLEAN(ptr)                                                         \
