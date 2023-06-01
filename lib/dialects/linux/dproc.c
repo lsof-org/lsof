@@ -1594,8 +1594,8 @@ process_proc_map(struct lsof_context *ctx, /* context */
                 } else
                     sep = "(path ";
                 if ((INODETYPE)sb.st_ino != inode) {
-                    (void)snpf(fmtbuf, sizeof(fmtbuf), "%%sinode=%s)",
-                               InodeFmt_d);
+                    (void)snpf(fmtbuf, sizeof(fmtbuf),
+                               "%%sinode=%%" INODEPSPEC "u)");
                     (void)snpf(nmabuf, sizeof(nmabuf), fmtbuf, sep,
                                (INODETYPE)sb.st_ino);
                     nmabuf[sizeof(nmabuf) - 1] = '\0';

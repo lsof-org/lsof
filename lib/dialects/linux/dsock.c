@@ -1081,7 +1081,7 @@ static void prt_uxs(struct lsof_context *ctx, uxsin_t *p, /* peer info */
 
     (void)strcpy(nma, "->INO=");
     len = (int)strlen(nma);
-    (void)snpf(&nma[len], sizeof(nma) - len - 1, InodeFmt_d, p->inode);
+    (void)snpf(&nma[len], sizeof(nma) - len - 1, "%" INODEPSPEC "u", p->inode);
     (void)add_nma(ctx, nma, strlen(nma));
     for (pp = p->pxinfo; pp; pp = pp->next) {
 
@@ -3651,7 +3651,8 @@ void process_proc_sock(struct lsof_context *ctx, /* context */
         (void)snpf(Lf->iproto, sizeof(Lf->iproto), "%.*s", IPROTOL - 1, cp);
         Lf->inp_ty = 2;
         if (ss & SB_INO) {
-            (void)snpf(tbuf, sizeof(tbuf), InodeFmt_d, (INODETYPE)s->st_ino);
+            (void)snpf(tbuf, sizeof(tbuf), "%" INODEPSPEC "u",
+                       (INODETYPE)s->st_ino);
             tbuf[sizeof(tbuf) - 1] = '\0';
             enter_dev_ch(ctx, tbuf);
         }
@@ -3896,7 +3897,8 @@ void process_proc_sock(struct lsof_context *ctx, /* context */
         (void)snpf(Lf->iproto, sizeof(Lf->iproto), "%.*s", IPROTOL - 1, pr);
         Lf->inp_ty = 2;
         if (ss & SB_INO) {
-            (void)snpf(tbuf, sizeof(tbuf), InodeFmt_d, (INODETYPE)s->st_ino);
+            (void)snpf(tbuf, sizeof(tbuf), "%" INODEPSPEC "u",
+                       (INODETYPE)s->st_ino);
             tbuf[sizeof(tbuf) - 1] = '\0';
             enter_dev_ch(ctx, tbuf);
             Lf->inode = (INODETYPE)s->st_ino;
@@ -4009,7 +4011,8 @@ void process_proc_sock(struct lsof_context *ctx, /* context */
         (void)snpf(Lf->iproto, sizeof(Lf->iproto), "%.*s", IPROTOL - 1, pr);
         Lf->inp_ty = 2;
         if (ss & SB_INO) {
-            (void)snpf(tbuf, sizeof(tbuf), InodeFmt_d, (INODETYPE)s->st_ino);
+            (void)snpf(tbuf, sizeof(tbuf), "%" INODEPSPEC "u",
+                       (INODETYPE)s->st_ino);
             tbuf[sizeof(tbuf) - 1] = '\0';
             enter_dev_ch(ctx, tbuf);
             Lf->inode = (INODETYPE)s->st_ino;
@@ -4063,7 +4066,7 @@ void process_proc_sock(struct lsof_context *ctx, /* context */
         Lf->type = LSOF_FILE_SOCKET;
         (void)snpf(Lf->iproto, sizeof(Lf->iproto), "%.*s", IPROTOL - 1, "SCTP");
         Lf->inp_ty = 2;
-        (void)snpf(tbuf, sizeof(tbuf), InodeFmt_d, (INODETYPE)s->st_ino);
+        (void)snpf(tbuf, sizeof(tbuf), "%" INODEPSPEC "u", (INODETYPE)s->st_ino);
         tbuf[sizeof(tbuf) - 1] = '\0';
         enter_dev_ch(ctx, tbuf);
         Namech[0] = '\0';

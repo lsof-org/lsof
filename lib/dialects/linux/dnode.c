@@ -679,7 +679,7 @@ void get_locks(struct lsof_context *ctx, /* context */
          * Allocate a new llock structure and link it to the PID hash bucket.
          */
         if (!(lp = (struct llock *)malloc(sizeof(struct llock)))) {
-            (void)snpf(buf, sizeof(buf), InodeFmt_d, inode);
+            (void)snpf(buf, sizeof(buf), "%" INODEPSPEC "u", inode);
             (void)fprintf(
                 stderr, "%s: can't allocate llock: PID %d; dev %x; inode %s\n",
                 Pn, pid, (int)dev, buf);
