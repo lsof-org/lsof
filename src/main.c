@@ -1451,7 +1451,7 @@ int main(int argc, char *argv[]) {
              * malloc()'d area, and since Lf is used throughout the print
              * process.
              */
-            for (lf = Lf, print_init(); PrPass < 2; PrPass++) {
+            for (lf = Lf, print_init(ctx); PrPass < 2; PrPass++) {
                 for (i = n = 0; i < Nlproc; i++) {
                     Lp = (Nlproc > 1) ? slp[i] : &Lproc[i];
                     if (Lp->pss) {

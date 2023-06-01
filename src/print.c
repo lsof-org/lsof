@@ -1239,7 +1239,7 @@ static int printinaddr(struct lsof_context *ctx) {
  * print_init() - initialize for printing
  */
 
-void print_init() {
+void print_init(struct lsof_context *ctx) {
 
     /*
      * Preset standard values.

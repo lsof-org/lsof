@@ -76,7 +76,6 @@ int FgColW;      /* FILE-FLAG column width */
 int Fhelp = 0;   /* -h option status */
 int Fhost = 1;   /* -H option status */
 int Fnlink = 0;  /* -L option status */
-int Foffset = 0; /* -o option status */
 int Fport = 1;   /* -P option status */
 
 #if !defined(HASNORPC_H)

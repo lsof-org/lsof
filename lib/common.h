@@ -693,8 +693,6 @@ extern int NcacheReload;
 #    endif /* defined(HASNCACHE) */
 
 extern int Fnlink;
-extern int Foffset;
-
 extern int Fport;
 
 #    if !defined(HASNORPC_H)
@@ -1310,6 +1308,9 @@ struct lsof_context {
     /* repeat time -- set by -r */
     int repeat_time;
 
+    /* -o option status */
+    int show_offset;
+
     /** Temporary */
     /* name characters for printing */
     char *name_buf;
@@ -1517,6 +1518,8 @@ struct lsof_context {
 #    define FsvByf (ctx->fsv_set_f)
 /* repeat time */
 #    define RptTm (ctx->repeat_time)
+/* -o option status */
+#    define Foffset (ctx->show_offset)
 
 /* Utility macro to free if non-null and set the pointer to null */
 #    define CLEAN(ptr)                                                         \
