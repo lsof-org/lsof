@@ -454,3 +454,12 @@ char *endnm(struct lsof_context *ctx, size_t *sz) /* returned remaining size */
     *sz = tsz;
     return (s);
 }
+
+void __attribute__((weak))
+usage(struct lsof_context *ctx, /* context */
+      int err,                  /* it is called as part of error handlng? */
+      int fh,                   /* ``-F ?'' status */
+      int version)              /* ``-v'' status */
+{
+    // do nothing in liblsof
+}
