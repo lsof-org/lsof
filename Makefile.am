@@ -198,6 +198,11 @@ tests_LTszoff_CFLAGS = @LSOF_TEST_CFLAGS@ -I$(top_srcdir)/include
 tests_LTunix_SOURCES = tests/LTunix.c tests/LTlib.c
 tests_LTunix_CFLAGS = @LSOF_TEST_CFLAGS@ -I$(top_srcdir)/include
 
+TESTS += tests/LTbasic2
+check_PROGRAMS += tests/LTbasic2
+tests_LTbasic2_CFLAGS = -I$(top_srcdir)/include
+tests_LTbasic2_LDADD = liblsof.la
+
 # Documentation
 EXTRA_DIST += 00.README.FIRST 00CREDITS 00DCACHE 00DIALECTS 00DIST 00FAQ 00LSOF-L 00MANIFEST 00PORTING 00QUICKSTART 00README 00TEST 00XCONFIG
 # Testing
