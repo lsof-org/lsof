@@ -704,7 +704,6 @@ extern int Fppid;
 extern int FsearchErr;
 extern int Fhuman;
 extern int Fsv;
-extern int FsvFlagX;
 extern int Ftcptpi;
 extern int Fterse;
 extern int Funix;
@@ -1304,6 +1303,9 @@ struct lsof_context {
     /* Fsv was set by +f */
     int fsv_set_f;
 
+    /* hex format status for FSV_FG */
+    int fsv_hex;
+
     /* repeat time -- set by -r */
     int repeat_time;
 
@@ -1518,6 +1520,8 @@ struct lsof_context {
 #    define Ntype (ctx->node_type)
 /* Fsv was set by +f */
 #    define FsvByf (ctx->fsv_set_f)
+/* hex format status for FSV_FG */
+#    define FsvFlagX (ctx->fsv_hex)
 /* repeat time */
 #    define RptTm (ctx->repeat_time)
 /* -o option status */

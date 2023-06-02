@@ -91,7 +91,6 @@ int Fppid = 0;              /* -R option status */
 int Fhuman = 0;             /* -H option status */
 int FsColW;                 /* FSTR-ADDR column width */
 int Fsv = FSV_DEFAULT;      /* file struct value selections */
-int FsvFlagX = 0;           /* hex format status for FSV_FG */
 int NiColW;                 /* NODE-ID column width */
 char *NiTtl = NITTL;        /* NODE-ID column title */
 int FsearchErr = 1;         /* -Q option status */
