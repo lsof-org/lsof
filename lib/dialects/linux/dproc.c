@@ -659,13 +659,6 @@ void initialize(struct lsof_context *ctx) {
         Foffset = 0;
         Fsize = 1;
     }
-    if (Fsv && (OffType != OFFSET_FDINFO)) {
-        if (!Fwarn && FsvByf)
-            (void)fprintf(
-                stderr,
-                "%s: WARNING: can't report file flags; disregarding +f.\n", Pn);
-        Fsv = 0;
-    }
     /*
      * Make sure the local mount info table is loaded if doing anything other
      * than just Internet lookups.  (HasNFS is defined during the loading of the

@@ -1229,6 +1229,15 @@ int main(int argc, char *argv[]) {
      * Do dialect-specific initialization.
      */
     initialize(ctx);
+#if defined(LINUX_LSOF_H)
+    if (Fsv && (OffType != OFFSET_FDINFO)) {
+        if (!Fwarn && FsvByf)
+            (void)fprintf(
+                stderr,
+                "%s: WARNING: can't report file flags; disregarding +f.\n", Pn);
+        Fsv = 0;
+    }
+#endif
     if (Sfile)
         (void)hashSfile(ctx);
 
