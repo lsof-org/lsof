@@ -55,6 +55,12 @@ struct lsof_context *lsof_new() {
         /* Initialization */
         memset(ctx, 0, sizeof(struct lsof_context));
 
+        if (!(Namech = (char *)malloc(MAXPATHLEN + 1))) {
+            free(ctx);
+            return NULL;
+        }
+        Namechl = (size_t)(MAXPATHLEN + 1);
+
 #if defined(WARNINGSTATE)
         /* suppress warnings */
         Fwarn = 1;

@@ -675,6 +675,7 @@ struct mounts *readmnt(struct lsof_context *ctx) {
         if (ignstat || !ln || statsafely(ctx, ln, &sb))
             sb.st_mode = 0;
         mp->fsnmres = ln;
+        ln = NULL;
         mp->fs_mode = sb.st_mode;
         if (ne)
             Lmi = mp;

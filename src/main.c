@@ -147,11 +147,6 @@ int main(int argc, char *argv[]) {
     Euid = geteuid();
     if ((Myuid = (uid_t)getuid()) && !Euid)
         Setuidroot = 1;
-    if (!(Namech = (char *)malloc(MAXPATHLEN + 1))) {
-        (void)fprintf(stderr, "%s: no space for name buffer\n", Pn);
-        Error(ctx);
-    }
-    Namechl = (size_t)(MAXPATHLEN + 1);
     /*
      * Create option mask.
      */

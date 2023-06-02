@@ -574,7 +574,7 @@ int is_file_sel(struct lsof_context *ctx, /* context */
 {
     if (!lf || !lf->sf)
         return (0);
-    if (Lf->sf & SELEXCLF)
+    if (lf->sf & SELEXCLF)
         return (0);
 
 #if defined(HASSECURITY) && defined(HASNOSOCKSECURITY)
