@@ -477,6 +477,8 @@ enum lsof_error lsof_select_process(struct lsof_context *ctx, char *command,
  * You can only call it once per context. After this call, no more options can
  * be changed.
  *
+ * The function allows liblsof to do some preprocessing to improve performance.
+ *
  * \since API version 1
  */
 enum lsof_error lsof_freeze(struct lsof_context *ctx);
@@ -489,8 +491,9 @@ enum lsof_error lsof_freeze(struct lsof_context *ctx);
  * pointers within. You should free `result` by calling
  * `lsof_free_result()`
  *
- * \return LSOF_INVALID_ARGUMENT if either pointer argument is NULL, or the
- * context is not frozen.
+ * If the context is not frozen, lsof_freeze() will be called.
+ *
+ * \return LSOF_INVALID_ARGUMENT if either pointer argument is NULL
  *
  * \since API version 1
  */

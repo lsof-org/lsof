@@ -217,24 +217,23 @@ enum lsof_error lsof_set_output_stream(struct lsof_context *ctx, FILE *fp,
 
 API_EXPORT
 enum lsof_error lsof_freeze(struct lsof_context *ctx) {
-    enum lsof_error ret = LSOF_SUCCESS;
     if (ctx->frozen) {
-        ret = LSOF_ERROR_INVALID_ARGUMENT;
-    } else {
-        if (Selflags == 0) {
-            Selflags = SelAll;
-        } else {
-            if ((Selflags & (SELNA | SELNET)) != 0 &&
-                (Selflags & ~(SELNA | SELNET)) == 0)
-                Selinet = 1;
-            AllProc = 0;
-        }
-
-        initialize(ctx);
-        hashSfile(ctx);
-        ctx->frozen = 1;
+        return LSOF_ERROR_INVALID_ARGUMENT;
     }
-    return ret;
+
+    if (Selflags == 0) {
+        Selflags = SelAll;
+    } else {
+        if ((Selflags & (SELNA | SELNET)) != 0 &&
+            (Selflags & ~(SELNA | SELNET)) == 0)
+            Selinet = 1;
+        AllProc = 0;
+    }
+
+    initialize(ctx);
+    hashSfile(ctx);
+    ctx->frozen = 1;
+    return LSOF_SUCCESS;
 }
 
 API_EXPORT
@@ -275,8 +274,9 @@ enum lsof_error lsof_gather(struct lsof_context *ctx,
         ret = LSOF_ERROR_INVALID_ARGUMENT;
         return ret;
     } else if (!ctx->frozen) {
-        ret = LSOF_ERROR_INVALID_ARGUMENT;
-        return ret;
+        ret = lsof_freeze(ctx);
+        if (ret != LSOF_SUCCESS)
+            return ret;
     }
 
     gather_proc_info(ctx);
