@@ -659,13 +659,6 @@ void initialize(struct lsof_context *ctx) {
         Foffset = 0;
         Fsize = 1;
     }
-    if (Fsv && (OffType != OFFSET_FDINFO)) {
-        if (!Fwarn && FsvByf)
-            (void)fprintf(
-                stderr,
-                "%s: WARNING: can't report file flags; disregarding +f.\n", Pn);
-        Fsv = 0;
-    }
     /*
      * Make sure the local mount info table is loaded if doing anything other
      * than just Internet lookups.  (HasNFS is defined during the loading of the
@@ -1132,35 +1125,32 @@ static int process_id(struct lsof_context *ctx, /* context */
     /*
      * Process the PID's SELinux context.
      */
-    if (Fcntx) {
+    /*
+     * match the valid contexts.
+     */
+    errno = 0;
+    if (getpidcon(pid, &Lp->cntx) == -1) {
+        Lp->cntx = (char *)NULL;
+        if (!Fwarn) {
+            (void)snpf(nmabuf, sizeof(nmabuf), "(getpidcon: %s)",
+                       strerror(errno));
+            if (!(Lp->cntx = strdup(nmabuf))) {
+                (void)fprintf(stderr, "%s: no context error space: PID %ld", Pn,
+                              (long)Lp->pid);
+                Error(ctx);
+            }
+        }
+    } else if (CntxArg) {
 
         /*
-         * If the -Z (cntx) option was specified, match the valid contexts.
+         * See if context includes the process.
          */
-        errno = 0;
-        if (getpidcon(pid, &Lp->cntx) == -1) {
-            Lp->cntx = (char *)NULL;
-            if (!Fwarn) {
-                (void)snpf(nmabuf, sizeof(nmabuf), "(getpidcon: %s)",
-                           strerror(errno));
-                if (!(Lp->cntx = strdup(nmabuf))) {
-                    (void)fprintf(stderr, "%s: no context error space: PID %ld",
-                                  Pn, (long)Lp->pid);
-                    Error(ctx);
-                }
-            }
-        } else if (CntxArg) {
-
-            /*
-             * See if context includes the process.
-             */
-            for (cntxp = CntxArg; cntxp; cntxp = cntxp->next) {
-                if (cmp_cntx_eq(Lp->cntx, cntxp->cntx)) {
-                    cntxp->f = 1;
-                    Lp->pss |= PS_PRI;
-                    Lp->sf |= SELCNTX;
-                    break;
-                }
+        for (cntxp = CntxArg; cntxp; cntxp = cntxp->next) {
+            if (cmp_cntx_eq(Lp->cntx, cntxp->cntx)) {
+                cntxp->f = 1;
+                Lp->pss |= PS_PRI;
+                Lp->sf |= SELCNTX;
+                break;
             }
         }
     }
@@ -1597,8 +1587,8 @@ process_proc_map(struct lsof_context *ctx, /* context */
                 } else
                     sep = "(path ";
                 if ((INODETYPE)sb.st_ino != inode) {
-                    (void)snpf(fmtbuf, sizeof(fmtbuf), "%%sinode=%s)",
-                               InodeFmt_d);
+                    (void)snpf(fmtbuf, sizeof(fmtbuf),
+                               "%%sinode=%%" INODEPSPEC "u)");
                     (void)snpf(nmabuf, sizeof(nmabuf), fmtbuf, sep,
                                (INODETYPE)sb.st_ino);
                     nmabuf[sizeof(nmabuf) - 1] = '\0';

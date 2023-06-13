@@ -1,5 +1,6 @@
 AC_INIT([lsof],[4.98.0])
 AM_INIT_AUTOMAKE([subdir-objects])
+LT_INIT([disable-fast-install]) # avoid lt-lsof naming
 # Locate custom m4 macros
 AC_CONFIG_MACRO_DIR([m4])
 
@@ -246,6 +247,10 @@ CFLAGS="$CFLAGS -DLSOF_VSTR=\\\"$LSOF_TMP\\\""
 # Pass LSOF_DIALECT/LSOF_DIALECT_DIR to Makefile.am
 AC_SUBST([LSOF_DIALECT])
 AC_SUBST([LSOF_DIALECT_DIR])
+
+# Export public function with default visibility
+AC_DEFINE([API_EXPORT], [__attribute__ ((visibility ("default")))],
+	[Set visibility to default for exported API functions.])
 
 # --enable-security to define HASSECURITY
 AC_ARG_ENABLE(security, AS_HELP_STRING([--enable-security],

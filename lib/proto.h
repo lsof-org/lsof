@@ -183,7 +183,7 @@ extern char *mkstrcat(char *s1, int l1, char *s2, int l2, char *s3, int l3,
 extern int printdevname(struct lsof_context *ctx, dev_t *dev, dev_t *rdev,
                         int f, int nty);
 extern void print_file(struct lsof_context *ctx);
-extern void print_init(void);
+extern void print_init(struct lsof_context *ctx);
 extern void printname(struct lsof_context *ctx, int nl);
 extern char *print_kptr(KA_T kp, char *buf, size_t bufl);
 extern int print_proc(struct lsof_context *ctx);

@@ -1,21 +1,19 @@
-bin_PROGRAMS = lsof
+# liblsof
+lib_LTLIBRARIES = liblsof.la
 
-# Documentation
-EXTRA_DIST = 00.README.FIRST 00CREDITS 00DCACHE 00DIALECTS 00DIST 00FAQ 00LSOF-L 00MANIFEST 00PORTING 00QUICKSTART 00README 00TEST 00XCONFIG
-# Testing
-EXTRA_DIST += tests/00README tests/TestDB tests/CkTestDB tests/Makefile tests/LsofTest.h check.bash
-
-# Dialect neutral sources
-lsof_SOURCES = src/arg.c src/main.c lib/node.c src/print.c src/ptti.c src/store.c src/usage.c src/util.c \
-	lib/ckkv.c lib/cvfs.c lib/dvch.c lib/fino.c lib/lsof.c lib/isfn.c lib/lkud.c lib/misc.c lib/pdvn.c lib/prfp.c lib/print.c lib/proc.c lib/ptti.c lib/rdev.c lib/rnmt.c lib/rmnt.c lib/rnam.c lib/rnch.c lib/rnmh.c
-lsof_SOURCES += lib/common.h include/lsof_fields.h lib/proto.h lib/hash.h src/cli.h
+liblsof_la_SOURCES = lib/ckkv.c lib/cvfs.c lib/dvch.c lib/fino.c lib/isfn.c lib/lkud.c lib/lsof.c lib/misc.c lib/node.c lib/pdvn.c lib/prfp.c lib/print.c lib/proc.c lib/ptti.c lib/rdev.c lib/rnmt.c lib/rmnt.c lib/rnam.c lib/rnch.c lib/rnmh.c
+liblsof_la_SOURCES += lib/common.h lib/proto.h lib/hash.h
 include_HEADERS = include/lsof.h include/lsof_fields.h
+
+# Hide internal functions
+AM_CFLAGS = -fvisibility=hidden
+
 DIALECT_ROOT = $(top_srcdir)/lib/dialects
 DIALECT_PATH = $(DIALECT_ROOT)/$(LSOF_DIALECT_DIR)
 
 # Dialect specific sources
 if LINUX
-lsof_SOURCES += lib/dialects/linux/dfile.c \
+liblsof_la_SOURCES += lib/dialects/linux/dfile.c \
 		lib/dialects/linux/dmnt.c \
 		lib/dialects/linux/dnode.c \
 		lib/dialects/linux/dproc.c \
@@ -27,7 +25,7 @@ lsof_SOURCES += lib/dialects/linux/dfile.c \
 endif
 
 if DARWIN
-lsof_SOURCES += lib/dialects/darwin/ddev.c \
+liblsof_la_SOURCES += lib/dialects/darwin/ddev.c \
 		lib/dialects/darwin/dfile.c \
 		lib/dialects/darwin/dmnt.c \
 		lib/dialects/darwin/dproc.c \
@@ -39,7 +37,7 @@ lsof_SOURCES += lib/dialects/darwin/ddev.c \
 endif
 
 if FREEBSD
-lsof_SOURCES += lib/dialects/freebsd/dmnt.c \
+liblsof_la_SOURCES += lib/dialects/freebsd/dmnt.c \
 		lib/dialects/freebsd/dnode.c \
 		lib/dialects/freebsd/dproc.c \
 		lib/dialects/freebsd/dsock.c \
@@ -50,7 +48,7 @@ lsof_SOURCES += lib/dialects/freebsd/dmnt.c \
 endif
 
 if NETBSD
-lsof_SOURCES += lib/dialects/netbsd/dmnt.c \
+liblsof_la_SOURCES += lib/dialects/netbsd/dmnt.c \
 		lib/dialects/netbsd/dnode.c \
 		lib/dialects/netbsd/dproc.c \
 		lib/dialects/netbsd/dsock.c \
@@ -61,7 +59,7 @@ lsof_SOURCES += lib/dialects/netbsd/dmnt.c \
 endif
 
 if OPENBSD
-lsof_SOURCES += lib/dialects/openbsd/dfile.c \
+liblsof_la_SOURCES += lib/dialects/openbsd/dfile.c \
 		lib/dialects/openbsd/dmnt.c \
 		lib/dialects/openbsd/dnode.c \
 		lib/dialects/openbsd/dproc.c \
@@ -73,7 +71,7 @@ lsof_SOURCES += lib/dialects/openbsd/dfile.c \
 endif
 
 if SOLARIS
-lsof_SOURCES += lib/dialects/sun/ddev.c \
+liblsof_la_SOURCES += lib/dialects/sun/ddev.c \
 		lib/dialects/sun/dfile.c \
 		lib/dialects/sun/dmnt.c \
 		lib/dialects/sun/dnode.c \
@@ -86,7 +84,7 @@ lsof_SOURCES += lib/dialects/sun/ddev.c \
 endif
 
 if AIX
-lsof_SOURCES += lib/dialects/aix/ddev.c \
+liblsof_la_SOURCES += lib/dialects/aix/ddev.c \
 		lib/dialects/aix/dfile.c \
 		lib/dialects/aix/dmnt.c \
 		lib/dialects/aix/dnode.c \
@@ -99,22 +97,28 @@ lsof_SOURCES += lib/dialects/aix/ddev.c \
 		lib/dialects/aix/machine.h
 endif
 
-lsof_CPPFLAGS = -I$(DIALECT_PATH) -Iautotools -I$(top_srcdir)/lib -I$(top_srcdir)/include
-lsof_CPPFLAGS += -DAUTOTOOLS
+# Binary
+bin_PROGRAMS = lsof
 
-# Manpages
-lsof.man: Lsof.8 version 00DIALECTS
-	soelim < Lsof.8 > $@
-man8_MANS = lsof.man
-EXTRA_DIST += Lsof.8
-# Fix distcheck error
-clean-local:
-	rm -rf lsof.man
-distclean-local:
-	rm -rf lockf_owner.h lockf.h
+lsof_SOURCES = src/arg.c src/main.c src/print.c src/ptti.c src/store.c src/usage.c src/util.c
+lsof_SOURCES += src/cli.h
+
+if LINUX
+lsof_SOURCES += src/dialects/linux/dprint.c
+endif
+if DARWIN
+lsof_SOURCES += src/dialects/darwin/dprint.c
+endif
+# TODO: link to dynamic library instead after internal functions are no longer used
+lsof_SOURCES += $(liblsof_la_SOURCES)
+#lsof_LDADD = liblsof.la
+
+liblsof_la_CPPFLAGS = -I$(DIALECT_PATH) -Iautotools -DAUTOTOOLS -I$(top_srcdir)/lib -I$(top_srcdir)/include
+lsof_CPPFLAGS = -I$(DIALECT_PATH) -Iautotools -DAUTOTOOLS -I$(top_srcdir)/lib -I$(top_srcdir)/include -I$(top_srcdir)/src
 
 # Testing scripts
 AM_TESTS_ENVIRONMENT = export LSOF_DIALECT_DIR=$(LSOF_DIALECT_DIR); export LSOF_DIALECT=$(LSOF_DIALECT);
+EXTRA_DIST =
 # Dialect neutral
 DIALECT_NEUTRAL_TESTS = tests/case-00-hello.bash \
 	tests/case-01-version.bash \
@@ -193,3 +197,24 @@ tests_LTszoff_SOURCES = tests/LTszoff.c tests/LTlib.c
 tests_LTszoff_CFLAGS = @LSOF_TEST_CFLAGS@ -I$(top_srcdir)/include
 tests_LTunix_SOURCES = tests/LTunix.c tests/LTlib.c
 tests_LTunix_CFLAGS = @LSOF_TEST_CFLAGS@ -I$(top_srcdir)/include
+
+TESTS += tests/LTbasic2
+check_PROGRAMS += tests/LTbasic2
+tests_LTbasic2_CFLAGS = -I$(top_srcdir)/include
+tests_LTbasic2_LDADD = liblsof.la
+
+# Documentation
+EXTRA_DIST += 00.README.FIRST 00CREDITS 00DCACHE 00DIALECTS 00DIST 00FAQ 00LSOF-L 00MANIFEST 00PORTING 00QUICKSTART 00README 00TEST 00XCONFIG
+# Testing
+EXTRA_DIST += tests/00README tests/TestDB tests/CkTestDB tests/Makefile tests/LsofTest.h check.bash
+
+# Manpages
+lsof.man: Lsof.8 version 00DIALECTS
+	soelim < Lsof.8 > $@
+man8_MANS = lsof.man
+EXTRA_DIST += Lsof.8
+# Fix distcheck error
+clean-local:
+	rm -rf lsof.man
+distclean-local:
+	rm -rf lockf_owner.h lockf.h

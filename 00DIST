@@ -5563,6 +5563,11 @@ Supplement	Regenerated the 4.04 distribution to correct a non-
 
 		[aix] Suppress warnings properly on AIX version greater than
 		5.0. Closes #187.
+		
+		Introduce alpha version of liblsof which allows users to use
+		lsof functionality via C functions instead of spawning a
+		subprocess and parsing the output. This version may contain BUGs
+		and memory leaks, and the API may change before it stablizes.
 
 4.9?.?		????????? ??, ????
 

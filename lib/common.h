@@ -671,7 +671,6 @@ struct str_lst {
     short x;              /* exclusion (if non-zero) */
     struct str_lst *next; /* next list entry */
 };
-extern int CmdLim;
 
 typedef struct cntxlist {
     char *cntx;            /* zone name */
@@ -694,8 +693,6 @@ extern int NcacheReload;
 #    endif /* defined(HASNCACHE) */
 
 extern int Fnlink;
-extern int Foffset;
-
 extern int Fport;
 
 #    if !defined(HASNORPC_H)
@@ -705,11 +702,8 @@ extern int FportMap;
 extern int Fpgid;
 extern int Fppid;
 extern int FsearchErr;
-extern int Fsize;
 extern int Fhuman;
 extern int Fsv;
-extern int FsvByf;
-extern int FsvFlagX;
 extern int Ftcptpi;
 extern int Fterse;
 extern int Funix;
@@ -748,10 +742,10 @@ struct lfile {
     enum lsof_lock_mode lock;
     unsigned char dev_def;   /* device number definition status */
     unsigned char inp_ty;    /* inode/iproto type
-                              *	0: neither inode nor iproto
-                              *	1: print inode in decimal
-                              *	2: iproto contains string
-                              *      3: print inode in hex
+                              * 0: neither inode nor iproto
+                              * 1: print inode in decimal
+                              * 2: iproto contains string
+                              * 3: print inode in hex
                               */
     unsigned char is_com;    /* common stream status */
     unsigned char is_nfs;    /* NFS file status */
@@ -960,7 +954,6 @@ extern struct NLIST_TYPE *Nl;
 extern int Nll;
 #    endif /* defined(HASNLIST) */
 extern char *Nmlst;
-extern int Ntype;
 
 struct nwad {
     char *arg;                    /* argument */
@@ -1001,7 +994,6 @@ extern int Procsrch;
 #    endif /* defined(HASPROCFS) */
 
 extern int PrPass;
-extern int RptTm;
 extern int RptMaxCount;
 extern char *SzOffFmt_0t;
 extern char *SzOffFmt_d;
@@ -1167,8 +1159,14 @@ struct lsof_context {
     /* zone arguments supplied with -z */
     znhash_t **sel_zone;
 
+    /* command name limit */
+    int cmd_limit;
+
     /** When frozen, parameters must not be changed */
     uint8_t frozen;
+
+    /* node type (see N_* symbols) */
+    int node_type;
 
     /* device table pointer */
     struct l_dev *dev_table;
@@ -1301,6 +1299,21 @@ struct lsof_context {
     int net_type; /* Fnet type request: AF_UNSPEC==all
                    *                    AF_INET==IPv4
                    *                    AF_INET6==IPv6 */
+
+    /* Fsv was set by +f */
+    int fsv_set_f;
+
+    /* hex format status for FSV_FG */
+    int fsv_hex;
+
+    /* repeat time -- set by -r */
+    int repeat_time;
+
+    /* -o option status */
+    int show_offset;
+
+    /* -s option status */
+    int show_size;
 
     /** Temporary */
     /* name characters for printing */
@@ -1501,6 +1514,20 @@ struct lsof_context {
 #    define HbyCdCt (ctx->sfile_hash_clone_count)
 /* solaris zone */
 #    define ZoneArg (ctx->sel_zone)
+/* command name limit */
+#    define CmdLim (ctx->cmd_limit)
+/* node type */
+#    define Ntype (ctx->node_type)
+/* Fsv was set by +f */
+#    define FsvByf (ctx->fsv_set_f)
+/* hex format status for FSV_FG */
+#    define FsvFlagX (ctx->fsv_hex)
+/* repeat time */
+#    define RptTm (ctx->repeat_time)
+/* -o option status */
+#    define Foffset (ctx->show_offset)
+/* -s option status */
+#    define Fsize (ctx->show_size)
 
 /* Utility macro to free if non-null and set the pointer to null */
 #    define CLEAN(ptr)                                                         \

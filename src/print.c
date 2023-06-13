@@ -93,21 +93,6 @@ static char *lkup_svcnam(struct lsof_context *ctx, int h, int p, int pr,
 static int printinaddr(struct lsof_context *ctx);
 static int human_readable_size(SZOFFTYPE sz, int print, int col);
 
-/*
- * endnm() - locate end of Namech
- */
-
-char *endnm(struct lsof_context *ctx, size_t *sz) /* returned remaining size */
-{
-    register char *s;
-    register size_t tsz;
-
-    for (s = Namech, tsz = Namechl; *s; s++, tsz--)
-        ;
-    *sz = tsz;
-    return (s);
-}
-
 #if !defined(HASNORPC_H)
 /*
  * fill_portmap() -- fill the RPC portmap program name table via a conversation
@@ -1254,7 +1239,7 @@ static int printinaddr(struct lsof_context *ctx) {
  * print_init() - initialize for printing
  */
 
-void print_init() {
+void print_init(struct lsof_context *ctx) {
 
     /*
      * Preset standard values.
@@ -1319,660 +1304,6 @@ void print_init() {
         ZoneColW = strlen(ZONETTL);
 #endif /* defined(HASZONES) */
 }
-
-#if !defined(HASPRIVPRIPP)
-/*
- * printiproto() - print Internet protocol name
- */
-
-void printiproto(struct lsof_context *ctx, /* context */
-                 int p)                    /* protocol number */
-{
-    int i;
-    static int m = -1;
-    char *s;
-
-    switch (p) {
-
-#    if defined(IPPROTO_TCP)
-    case IPPROTO_TCP:
-        s = "TCP";
-        break;
-#    endif /* defined(IPPROTO_TCP) */
-
-#    if defined(IPPROTO_UDP)
-    case IPPROTO_UDP:
-        s = "UDP";
-        break;
-#    endif /* defined(IPPROTO_UDP) */
-
-#    if defined(IPPROTO_IP)
-#        if !defined(IPPROTO_HOPOPTS) || IPPROTO_IP != IPPROTO_HOPOPTS
-    case IPPROTO_IP:
-        s = "IP";
-        break;
-#        endif /* !defined(IPPROTO_HOPOPTS) || IPPROTO_IP!=IPPROTO_HOPOPTS */
-#    endif     /* defined(IPPROTO_IP) */
-
-#    if defined(IPPROTO_ICMP)
-    case IPPROTO_ICMP:
-        s = "ICMP";
-        break;
-#    endif /* defined(IPPROTO_ICMP) */
-
-#    if defined(IPPROTO_ICMPV6)
-    case IPPROTO_ICMPV6:
-        s = "ICMPV6";
-        break;
-#    endif /* defined(IPPROTO_ICMPV6) */
-
-#    if defined(IPPROTO_IGMP)
-    case IPPROTO_IGMP:
-        s = "IGMP";
-        break;
-#    endif /* defined(IPPROTO_IGMP) */
-
-#    if defined(IPPROTO_GGP)
-    case IPPROTO_GGP:
-        s = "GGP";
-        break;
-#    endif /* defined(IPPROTO_GGP) */
-
-#    if defined(IPPROTO_EGP)
-    case IPPROTO_EGP:
-        s = "EGP";
-        break;
-#    endif /* defined(IPPROTO_EGP) */
-
-#    if defined(IPPROTO_PUP)
-    case IPPROTO_PUP:
-        s = "PUP";
-        break;
-#    endif /* defined(IPPROTO_PUP) */
-
-#    if defined(IPPROTO_IDP)
-    case IPPROTO_IDP:
-        s = "IDP";
-        break;
-#    endif /* defined(IPPROTO_IDP) */
-
-#    if defined(IPPROTO_ND)
-    case IPPROTO_ND:
-        s = "ND";
-        break;
-#    endif /* defined(IPPROTO_ND) */
-
-#    if defined(IPPROTO_RAW)
-    case IPPROTO_RAW:
-        s = "RAW";
-        break;
-#    endif /* defined(IPPROTO_RAW) */
-
-#    if defined(IPPROTO_HELLO)
-    case IPPROTO_HELLO:
-        s = "HELLO";
-        break;
-#    endif /* defined(IPPROTO_HELLO) */
-
-#    if defined(IPPROTO_PXP)
-    case IPPROTO_PXP:
-        s = "PXP";
-        break;
-#    endif /* defined(IPPROTO_PXP) */
-
-#    if defined(IPPROTO_RAWIP)
-    case IPPROTO_RAWIP:
-        s = "RAWIP";
-        break;
-#    endif /* defined(IPPROTO_RAWIP) */
-
-#    if defined(IPPROTO_RAWIF)
-    case IPPROTO_RAWIF:
-        s = "RAWIF";
-        break;
-#    endif /* defined(IPPROTO_RAWIF) */
-
-#    if defined(IPPROTO_HOPOPTS)
-    case IPPROTO_HOPOPTS:
-        s = "HOPOPTS";
-        break;
-#    endif /* defined(IPPROTO_HOPOPTS) */
-
-#    if defined(IPPROTO_IPIP)
-    case IPPROTO_IPIP:
-        s = "IPIP";
-        break;
-#    endif /* defined(IPPROTO_IPIP) */
-
-#    if defined(IPPROTO_ST)
-    case IPPROTO_ST:
-        s = "ST";
-        break;
-#    endif /* defined(IPPROTO_ST) */
-
-#    if defined(IPPROTO_PIGP)
-    case IPPROTO_PIGP:
-        s = "PIGP";
-        break;
-#    endif /* defined(IPPROTO_PIGP) */
-
-#    if defined(IPPROTO_RCCMON)
-    case IPPROTO_RCCMON:
-        s = "RCCMON";
-        break;
-#    endif /* defined(IPPROTO_RCCMON) */
-
-#    if defined(IPPROTO_NVPII)
-    case IPPROTO_NVPII:
-        s = "NVPII";
-        break;
-#    endif /* defined(IPPROTO_NVPII) */
-
-#    if defined(IPPROTO_ARGUS)
-    case IPPROTO_ARGUS:
-        s = "ARGUS";
-        break;
-#    endif /* defined(IPPROTO_ARGUS) */
-
-#    if defined(IPPROTO_EMCON)
-    case IPPROTO_EMCON:
-        s = "EMCON";
-        break;
-#    endif /* defined(IPPROTO_EMCON) */
-
-#    if defined(IPPROTO_XNET)
-    case IPPROTO_XNET:
-        s = "XNET";
-        break;
-#    endif /* defined(IPPROTO_XNET) */
-
-#    if defined(IPPROTO_CHAOS)
-    case IPPROTO_CHAOS:
-        s = "CHAOS";
-        break;
-#    endif /* defined(IPPROTO_CHAOS) */
-
-#    if defined(IPPROTO_MUX)
-    case IPPROTO_MUX:
-        s = "MUX";
-        break;
-#    endif /* defined(IPPROTO_MUX) */
-
-#    if defined(IPPROTO_MEAS)
-    case IPPROTO_MEAS:
-        s = "MEAS";
-        break;
-#    endif /* defined(IPPROTO_MEAS) */
-
-#    if defined(IPPROTO_HMP)
-    case IPPROTO_HMP:
-        s = "HMP";
-        break;
-#    endif /* defined(IPPROTO_HMP) */
-
-#    if defined(IPPROTO_PRM)
-    case IPPROTO_PRM:
-        s = "PRM";
-        break;
-#    endif /* defined(IPPROTO_PRM) */
-
-#    if defined(IPPROTO_TRUNK1)
-    case IPPROTO_TRUNK1:
-        s = "TRUNK1";
-        break;
-#    endif /* defined(IPPROTO_TRUNK1) */
-
-#    if defined(IPPROTO_TRUNK2)
-    case IPPROTO_TRUNK2:
-        s = "TRUNK2";
-        break;
-#    endif /* defined(IPPROTO_TRUNK2) */
-
-#    if defined(IPPROTO_LEAF1)
-    case IPPROTO_LEAF1:
-        s = "LEAF1";
-        break;
-#    endif /* defined(IPPROTO_LEAF1) */
-
-#    if defined(IPPROTO_LEAF2)
-    case IPPROTO_LEAF2:
-        s = "LEAF2";
-        break;
-#    endif /* defined(IPPROTO_LEAF2) */
-
-#    if defined(IPPROTO_RDP)
-    case IPPROTO_RDP:
-        s = "RDP";
-        break;
-#    endif /* defined(IPPROTO_RDP) */
-
-#    if defined(IPPROTO_IRTP)
-    case IPPROTO_IRTP:
-        s = "IRTP";
-        break;
-#    endif /* defined(IPPROTO_IRTP) */
-
-#    if defined(IPPROTO_TP)
-    case IPPROTO_TP:
-        s = "TP";
-        break;
-#    endif /* defined(IPPROTO_TP) */
-
-#    if defined(IPPROTO_BLT)
-    case IPPROTO_BLT:
-        s = "BLT";
-        break;
-#    endif /* defined(IPPROTO_BLT) */
-
-#    if defined(IPPROTO_NSP)
-    case IPPROTO_NSP:
-        s = "NSP";
-        break;
-#    endif /* defined(IPPROTO_NSP) */
-
-#    if defined(IPPROTO_INP)
-    case IPPROTO_INP:
-        s = "INP";
-        break;
-#    endif /* defined(IPPROTO_INP) */
-
-#    if defined(IPPROTO_SEP)
-    case IPPROTO_SEP:
-        s = "SEP";
-        break;
-#    endif /* defined(IPPROTO_SEP) */
-
-#    if defined(IPPROTO_3PC)
-    case IPPROTO_3PC:
-        s = "3PC";
-        break;
-#    endif /* defined(IPPROTO_3PC) */
-
-#    if defined(IPPROTO_IDPR)
-    case IPPROTO_IDPR:
-        s = "IDPR";
-        break;
-#    endif /* defined(IPPROTO_IDPR) */
-
-#    if defined(IPPROTO_XTP)
-    case IPPROTO_XTP:
-        s = "XTP";
-        break;
-#    endif /* defined(IPPROTO_XTP) */
-
-#    if defined(IPPROTO_DDP)
-    case IPPROTO_DDP:
-        s = "DDP";
-        break;
-#    endif /* defined(IPPROTO_DDP) */
-
-#    if defined(IPPROTO_CMTP)
-    case IPPROTO_CMTP:
-        s = "CMTP";
-        break;
-#    endif /* defined(IPPROTO_CMTP) */
-
-#    if defined(IPPROTO_TPXX)
-    case IPPROTO_TPXX:
-        s = "TPXX";
-        break;
-#    endif /* defined(IPPROTO_TPXX) */
-
-#    if defined(IPPROTO_IL)
-    case IPPROTO_IL:
-        s = "IL";
-        break;
-#    endif /* defined(IPPROTO_IL) */
-
-#    if defined(IPPROTO_IPV6)
-    case IPPROTO_IPV6:
-        s = "IPV6";
-        break;
-#    endif /* defined(IPPROTO_IPV6) */
-
-#    if defined(IPPROTO_SDRP)
-    case IPPROTO_SDRP:
-        s = "SDRP";
-        break;
-#    endif /* defined(IPPROTO_SDRP) */
-
-#    if defined(IPPROTO_ROUTING)
-    case IPPROTO_ROUTING:
-        s = "ROUTING";
-        break;
-#    endif /* defined(IPPROTO_ROUTING) */
-
-#    if defined(IPPROTO_FRAGMENT)
-    case IPPROTO_FRAGMENT:
-        s = "FRAGMNT";
-        break;
-#    endif /* defined(IPPROTO_FRAGMENT) */
-
-#    if defined(IPPROTO_IDRP)
-    case IPPROTO_IDRP:
-        s = "IDRP";
-        break;
-#    endif /* defined(IPPROTO_IDRP) */
-
-#    if defined(IPPROTO_RSVP)
-    case IPPROTO_RSVP:
-        s = "RSVP";
-        break;
-#    endif /* defined(IPPROTO_RSVP) */
-
-#    if defined(IPPROTO_GRE)
-    case IPPROTO_GRE:
-        s = "GRE";
-        break;
-#    endif /* defined(IPPROTO_GRE) */
-
-#    if defined(IPPROTO_MHRP)
-    case IPPROTO_MHRP:
-        s = "MHRP";
-        break;
-#    endif /* defined(IPPROTO_MHRP) */
-
-#    if defined(IPPROTO_BHA)
-    case IPPROTO_BHA:
-        s = "BHA";
-        break;
-#    endif /* defined(IPPROTO_BHA) */
-
-#    if defined(IPPROTO_ESP)
-    case IPPROTO_ESP:
-        s = "ESP";
-        break;
-#    endif /* defined(IPPROTO_ESP) */
-
-#    if defined(IPPROTO_AH)
-    case IPPROTO_AH:
-        s = "AH";
-        break;
-#    endif /* defined(IPPROTO_AH) */
-
-#    if defined(IPPROTO_INLSP)
-    case IPPROTO_INLSP:
-        s = "INLSP";
-        break;
-#    endif /* defined(IPPROTO_INLSP) */
-
-#    if defined(IPPROTO_SWIPE)
-    case IPPROTO_SWIPE:
-        s = "SWIPE";
-        break;
-#    endif /* defined(IPPROTO_SWIPE) */
-
-#    if defined(IPPROTO_NHRP)
-    case IPPROTO_NHRP:
-        s = "NHRP";
-        break;
-#    endif /* defined(IPPROTO_NHRP) */
-
-#    if defined(IPPROTO_NONE)
-    case IPPROTO_NONE:
-        s = "NONE";
-        break;
-#    endif /* defined(IPPROTO_NONE) */
-
-#    if defined(IPPROTO_DSTOPTS)
-    case IPPROTO_DSTOPTS:
-        s = "DSTOPTS";
-        break;
-#    endif /* defined(IPPROTO_DSTOPTS) */
-
-#    if defined(IPPROTO_AHIP)
-    case IPPROTO_AHIP:
-        s = "AHIP";
-        break;
-#    endif /* defined(IPPROTO_AHIP) */
-
-#    if defined(IPPROTO_CFTP)
-    case IPPROTO_CFTP:
-        s = "CFTP";
-        break;
-#    endif /* defined(IPPROTO_CFTP) */
-
-#    if defined(IPPROTO_SATEXPAK)
-    case IPPROTO_SATEXPAK:
-        s = "SATEXPK";
-        break;
-#    endif /* defined(IPPROTO_SATEXPAK) */
-
-#    if defined(IPPROTO_KRYPTOLAN)
-    case IPPROTO_KRYPTOLAN:
-        s = "KRYPTOL";
-        break;
-#    endif /* defined(IPPROTO_KRYPTOLAN) */
-
-#    if defined(IPPROTO_RVD)
-    case IPPROTO_RVD:
-        s = "RVD";
-        break;
-#    endif /* defined(IPPROTO_RVD) */
-
-#    if defined(IPPROTO_IPPC)
-    case IPPROTO_IPPC:
-        s = "IPPC";
-        break;
-#    endif /* defined(IPPROTO_IPPC) */
-
-#    if defined(IPPROTO_ADFS)
-    case IPPROTO_ADFS:
-        s = "ADFS";
-        break;
-#    endif /* defined(IPPROTO_ADFS) */
-
-#    if defined(IPPROTO_SATMON)
-    case IPPROTO_SATMON:
-        s = "SATMON";
-        break;
-#    endif /* defined(IPPROTO_SATMON) */
-
-#    if defined(IPPROTO_VISA)
-    case IPPROTO_VISA:
-        s = "VISA";
-        break;
-#    endif /* defined(IPPROTO_VISA) */
-
-#    if defined(IPPROTO_IPCV)
-    case IPPROTO_IPCV:
-        s = "IPCV";
-        break;
-#    endif /* defined(IPPROTO_IPCV) */
-
-#    if defined(IPPROTO_CPNX)
-    case IPPROTO_CPNX:
-        s = "CPNX";
-        break;
-#    endif /* defined(IPPROTO_CPNX) */
-
-#    if defined(IPPROTO_CPHB)
-    case IPPROTO_CPHB:
-        s = "CPHB";
-        break;
-#    endif /* defined(IPPROTO_CPHB) */
-
-#    if defined(IPPROTO_WSN)
-    case IPPROTO_WSN:
-        s = "WSN";
-        break;
-#    endif /* defined(IPPROTO_WSN) */
-
-#    if defined(IPPROTO_PVP)
-    case IPPROTO_PVP:
-        s = "PVP";
-        break;
-#    endif /* defined(IPPROTO_PVP) */
-
-#    if defined(IPPROTO_BRSATMON)
-    case IPPROTO_BRSATMON:
-        s = "BRSATMN";
-        break;
-#    endif /* defined(IPPROTO_BRSATMON) */
-
-#    if defined(IPPROTO_WBMON)
-    case IPPROTO_WBMON:
-        s = "WBMON";
-        break;
-#    endif /* defined(IPPROTO_WBMON) */
-
-#    if defined(IPPROTO_WBEXPAK)
-    case IPPROTO_WBEXPAK:
-        s = "WBEXPAK";
-        break;
-#    endif /* defined(IPPROTO_WBEXPAK) */
-
-#    if defined(IPPROTO_EON)
-    case IPPROTO_EON:
-        s = "EON";
-        break;
-#    endif /* defined(IPPROTO_EON) */
-
-#    if defined(IPPROTO_VMTP)
-    case IPPROTO_VMTP:
-        s = "VMTP";
-        break;
-#    endif /* defined(IPPROTO_VMTP) */
-
-#    if defined(IPPROTO_SVMTP)
-    case IPPROTO_SVMTP:
-        s = "SVMTP";
-        break;
-#    endif /* defined(IPPROTO_SVMTP) */
-
-#    if defined(IPPROTO_VINES)
-    case IPPROTO_VINES:
-        s = "VINES";
-        break;
-#    endif /* defined(IPPROTO_VINES) */
-
-#    if defined(IPPROTO_TTP)
-    case IPPROTO_TTP:
-        s = "TTP";
-        break;
-#    endif /* defined(IPPROTO_TTP) */
-
-#    if defined(IPPROTO_IGP)
-    case IPPROTO_IGP:
-        s = "IGP";
-        break;
-#    endif /* defined(IPPROTO_IGP) */
-
-#    if defined(IPPROTO_DGP)
-    case IPPROTO_DGP:
-        s = "DGP";
-        break;
-#    endif /* defined(IPPROTO_DGP) */
-
-#    if defined(IPPROTO_TCF)
-    case IPPROTO_TCF:
-        s = "TCF";
-        break;
-#    endif /* defined(IPPROTO_TCF) */
-
-#    if defined(IPPROTO_IGRP)
-    case IPPROTO_IGRP:
-        s = "IGRP";
-        break;
-#    endif /* defined(IPPROTO_IGRP) */
-
-#    if defined(IPPROTO_OSPFIGP)
-    case IPPROTO_OSPFIGP:
-        s = "OSPFIGP";
-        break;
-#    endif /* defined(IPPROTO_OSPFIGP) */
-
-#    if defined(IPPROTO_SRPC)
-    case IPPROTO_SRPC:
-        s = "SRPC";
-        break;
-#    endif /* defined(IPPROTO_SRPC) */
-
-#    if defined(IPPROTO_LARP)
-    case IPPROTO_LARP:
-        s = "LARP";
-        break;
-#    endif /* defined(IPPROTO_LARP) */
-
-#    if defined(IPPROTO_MTP)
-    case IPPROTO_MTP:
-        s = "MTP";
-        break;
-#    endif /* defined(IPPROTO_MTP) */
-
-#    if defined(IPPROTO_AX25)
-    case IPPROTO_AX25:
-        s = "AX25";
-        break;
-#    endif /* defined(IPPROTO_AX25) */
-
-#    if defined(IPPROTO_IPEIP)
-    case IPPROTO_IPEIP:
-        s = "IPEIP";
-        break;
-#    endif /* defined(IPPROTO_IPEIP) */
-
-#    if defined(IPPROTO_MICP)
-    case IPPROTO_MICP:
-        s = "MICP";
-        break;
-#    endif /* defined(IPPROTO_MICP) */
-
-#    if defined(IPPROTO_SCCSP)
-    case IPPROTO_SCCSP:
-        s = "SCCSP";
-        break;
-#    endif /* defined(IPPROTO_SCCSP) */
-
-#    if defined(IPPROTO_ETHERIP)
-    case IPPROTO_ETHERIP:
-        s = "ETHERIP";
-        break;
-#    endif /* defined(IPPROTO_ETHERIP) */
-
-#    if defined(IPPROTO_ENCAP)
-#        if !defined(IPPROTO_IPIP) || IPPROTO_IPIP != IPPROTO_ENCAP
-    case IPPROTO_ENCAP:
-        s = "ENCAP";
-        break;
-#        endif /* !defined(IPPROTO_IPIP) || IPPROTO_IPIP!=IPPROTO_ENCAP */
-#    endif     /* defined(IPPROTO_ENCAP) */
-
-#    if defined(IPPROTO_APES)
-    case IPPROTO_APES:
-        s = "APES";
-        break;
-#    endif /* defined(IPPROTO_APES) */
-
-#    if defined(IPPROTO_GMTP)
-    case IPPROTO_GMTP:
-        s = "GMTP";
-        break;
-#    endif /* defined(IPPROTO_GMTP) */
-
-#    if defined(IPPROTO_DIVERT)
-    case IPPROTO_DIVERT:
-        s = "DIVERT";
-        break;
-#    endif /* defined(IPPROTO_DIVERT) */
-
-    default:
-        s = (char *)NULL;
-    }
-    if (s)
-        (void)snpf(Lf->iproto, sizeof(Lf->iproto), "%.*s", IPROTOL - 1, s);
-    else {
-        if (m < 0) {
-            for (i = 0, m = 1; i < IPROTOL - 2; i++)
-                m *= 10;
-        }
-        if (m > p)
-            (void)snpf(Lf->iproto, sizeof(Lf->iproto), "%d?", p);
-        else
-            (void)snpf(Lf->iproto, sizeof(Lf->iproto), "*%d?", p % (m / 10));
-    }
-}
-#endif /* !defined(HASPRIVPRIPP) */
 
 /*
  * printname() - print output name field
@@ -2384,370 +1715,6 @@ char *printuid(struct lsof_context *ctx, /* context */
     return (user);
 }
 
-/*
- * printunkaf() - print unknown address family
- */
-
-void printunkaf(struct lsof_context *ctx, int fam, /* unknown address family */
-                int ty) /* output type: 0 = terse; 1 = full */
-{
-    char *p, *s;
-
-    p = "";
-    switch (fam) {
-
-#if defined(AF_UNSPEC)
-    case AF_UNSPEC:
-        s = "UNSPEC";
-        break;
-#endif /* defined(AF_UNSPEC) */
-
-#if defined(AF_UNIX)
-    case AF_UNIX:
-        s = "UNIX";
-        break;
-#endif /* defined(AF_UNIX) */
-
-#if defined(AF_INET)
-    case AF_INET:
-        s = "INET";
-        break;
-#endif /* defined(AF_INET) */
-
-#if defined(AF_INET6)
-    case AF_INET6:
-        s = "INET6";
-        break;
-#endif /* defined(AF_INET6) */
-
-#if defined(AF_IMPLINK)
-    case AF_IMPLINK:
-        s = "IMPLINK";
-        break;
-#endif /* defined(AF_IMPLINK) */
-
-#if defined(AF_PUP)
-    case AF_PUP:
-        s = "PUP";
-        break;
-#endif /* defined(AF_PUP) */
-
-#if defined(AF_CHAOS)
-    case AF_CHAOS:
-        s = "CHAOS";
-        break;
-#endif /* defined(AF_CHAOS) */
-
-#if defined(AF_NS)
-    case AF_NS:
-        s = "NS";
-        break;
-#endif /* defined(AF_NS) */
-
-#if defined(AF_ISO)
-    case AF_ISO:
-        s = "ISO";
-        break;
-#endif /* defined(AF_ISO) */
-
-#if defined(AF_NBS)
-#    if !defined(AF_ISO) || AF_NBS != AF_ISO
-    case AF_NBS:
-        s = "NBS";
-        break;
-#    endif /* !defined(AF_ISO) || AF_NBS!=AF_ISO */
-#endif     /* defined(AF_NBS) */
-
-#if defined(AF_ECMA)
-    case AF_ECMA:
-        s = "ECMA";
-        break;
-#endif /* defined(AF_ECMA) */
-
-#if defined(AF_DATAKIT)
-    case AF_DATAKIT:
-        s = "DATAKIT";
-        break;
-#endif /* defined(AF_DATAKIT) */
-
-#if defined(AF_CCITT)
-    case AF_CCITT:
-        s = "CCITT";
-        break;
-#endif /* defined(AF_CCITT) */
-
-#if defined(AF_SNA)
-    case AF_SNA:
-        s = "SNA";
-        break;
-#endif /* defined(AF_SNA) */
-
-#if defined(AF_DECnet)
-    case AF_DECnet:
-        s = "DECnet";
-        break;
-#endif /* defined(AF_DECnet) */
-
-#if defined(AF_DLI)
-    case AF_DLI:
-        s = "DLI";
-        break;
-#endif /* defined(AF_DLI) */
-
-#if defined(AF_LAT)
-    case AF_LAT:
-        s = "LAT";
-        break;
-#endif /* defined(AF_LAT) */
-
-#if defined(AF_HYLINK)
-    case AF_HYLINK:
-        s = "HYLINK";
-        break;
-#endif /* defined(AF_HYLINK) */
-
-#if defined(AF_APPLETALK)
-    case AF_APPLETALK:
-        s = "APPLETALK";
-        break;
-#endif /* defined(AF_APPLETALK) */
-
-#if defined(AF_BSC)
-    case AF_BSC:
-        s = "BSC";
-        break;
-#endif /* defined(AF_BSC) */
-
-#if defined(AF_DSS)
-    case AF_DSS:
-        s = "DSS";
-        break;
-#endif /* defined(AF_DSS) */
-
-#if defined(AF_ROUTE)
-    case AF_ROUTE:
-        s = "ROUTE";
-        break;
-#endif /* defined(AF_ROUTE) */
-
-#if defined(AF_RAW)
-    case AF_RAW:
-        s = "RAW";
-        break;
-#endif /* defined(AF_RAW) */
-
-#if defined(AF_LINK)
-    case AF_LINK:
-        s = "LINK";
-        break;
-#endif /* defined(AF_LINK) */
-
-#if defined(pseudo_AF_XTP)
-    case pseudo_AF_XTP:
-        p = "pseudo_";
-        s = "XTP";
-        break;
-#endif /* defined(pseudo_AF_XTP) */
-
-#if defined(AF_RMP)
-    case AF_RMP:
-        s = "RMP";
-        break;
-#endif /* defined(AF_RMP) */
-
-#if defined(AF_COIP)
-    case AF_COIP:
-        s = "COIP";
-        break;
-#endif /* defined(AF_COIP) */
-
-#if defined(AF_CNT)
-    case AF_CNT:
-        s = "CNT";
-        break;
-#endif /* defined(AF_CNT) */
-
-#if defined(pseudo_AF_RTIP)
-    case pseudo_AF_RTIP:
-        p = "pseudo_";
-        s = "RTIP";
-        break;
-#endif /* defined(pseudo_AF_RTIP) */
-
-#if defined(AF_NETMAN)
-    case AF_NETMAN:
-        s = "NETMAN";
-        break;
-#endif /* defined(AF_NETMAN) */
-
-#if defined(AF_INTF)
-    case AF_INTF:
-        s = "INTF";
-        break;
-#endif /* defined(AF_INTF) */
-
-#if defined(AF_NETWARE)
-    case AF_NETWARE:
-        s = "NETWARE";
-        break;
-#endif /* defined(AF_NETWARE) */
-
-#if defined(AF_NDD)
-    case AF_NDD:
-        s = "NDD";
-        break;
-#endif /* defined(AF_NDD) */
-
-#if defined(AF_NIT)
-#    if !defined(AF_ROUTE) || AF_ROUTE != AF_NIT
-    case AF_NIT:
-        s = "NIT";
-        break;
-#    endif /* !defined(AF_ROUTE) || AF_ROUTE!=AF_NIT */
-#endif     /* defined(AF_NIT) */
-
-#if defined(AF_802)
-#    if !defined(AF_RAW) || AF_RAW != AF_802
-    case AF_802:
-        s = "802";
-        break;
-#    endif /* !defined(AF_RAW) || AF_RAW!=AF_802 */
-#endif     /* defined(AF_802) */
-
-#if defined(AF_X25)
-    case AF_X25:
-        s = "X25";
-        break;
-#endif /* defined(AF_X25) */
-
-#if defined(AF_CTF)
-    case AF_CTF:
-        s = "CTF";
-        break;
-#endif /* defined(AF_CTF) */
-
-#if defined(AF_WAN)
-    case AF_WAN:
-        s = "WAN";
-        break;
-#endif /* defined(AF_WAN) */
-
-#if defined(AF_OSINET)
-#    if defined(AF_INET) && AF_INET != AF_OSINET
-    case AF_OSINET:
-        s = "OSINET";
-        break;
-#    endif /* defined(AF_INET) && AF_INET!=AF_OSINET */
-#endif     /* defined(AF_OSINET) */
-
-#if defined(AF_GOSIP)
-    case AF_GOSIP:
-        s = "GOSIP";
-        break;
-#endif /* defined(AF_GOSIP) */
-
-#if defined(AF_SDL)
-    case AF_SDL:
-        s = "SDL";
-        break;
-#endif /* defined(AF_SDL) */
-
-#if defined(AF_IPX)
-    case AF_IPX:
-        s = "IPX";
-        break;
-#endif /* defined(AF_IPX) */
-
-#if defined(AF_SIP)
-    case AF_SIP:
-        s = "SIP";
-        break;
-#endif /* defined(AF_SIP) */
-
-#if defined(psuedo_AF_PIP)
-    case psuedo_AF_PIP:
-        p = "pseudo_";
-        s = "PIP";
-        break;
-#endif /* defined(psuedo_AF_PIP) */
-
-#if defined(AF_OTS)
-    case AF_OTS:
-        s = "OTS";
-        break;
-#endif /* defined(AF_OTS) */
-
-#if defined(pseudo_AF_BLUE)
-    case pseudo_AF_BLUE: /* packets for Blue box */
-        p = "pseudo_";
-        s = "BLUE";
-        break;
-#endif /* defined(pseudo_AF_BLUE) */
-
-#if defined(AF_NDRV) /* network driver raw access */
-    case AF_NDRV:
-        s = "NDRV";
-        break;
-#endif /* defined(AF_NDRV) */
-
-#if defined(AF_SYSTEM) /* kernel event messages */
-    case AF_SYSTEM:
-        s = "SYSTEM";
-        break;
-#endif /* defined(AF_SYSTEM) */
-
-#if defined(AF_USER)
-    case AF_USER:
-        s = "USER";
-        break;
-#endif /* defined(AF_USER) */
-
-#if defined(pseudo_AF_KEY)
-    case pseudo_AF_KEY:
-        p = "pseudo_";
-        s = "KEY";
-        break;
-#endif /* defined(pseudo_AF_KEY) */
-
-#if defined(AF_KEY) /* Security Association DB socket */
-    case AF_KEY:
-        s = "KEY";
-        break;
-#endif /* defined(AF_KEY) */
-
-#if defined(AF_NCA) /* NCA socket */
-    case AF_NCA:
-        s = "NCA";
-        break;
-#endif /* defined(AF_NCA) */
-
-#if defined(AF_POLICY) /* Security Policy DB socket */
-    case AF_POLICY:
-        s = "POLICY";
-        break;
-#endif /* defined(AF_POLICY) */
-
-#if defined(AF_PPP) /* PPP socket */
-    case AF_PPP:
-        s = "PPP";
-        break;
-#endif /* defined(AF_PPP) */
-
-    default:
-        if (!ty)
-            (void)snpf(Namech, Namechl, "%#x", fam);
-        else
-            (void)snpf(Namech, Namechl, "no further information on family %#x",
-                       fam);
-        return;
-    }
-    if (!ty)
-        (void)snpf(Namech, Namechl, "%sAF_%s", p, s);
-    else
-        (void)snpf(Namech, Namechl, "no further information on %sAF_%s", p, s);
-    return;
-}
-
 #if !defined(HASNORPC_H)
 /*
  * update_portmap() - update a portmap entry with its port number or service
@@ -2819,3 +1786,352 @@ int human_readable_size(SZOFFTYPE sz, int print, int col) {
     }
     return strlen(buf);
 }
+
+/*
+ * print_proc() - print process
+ */
+int print_proc(struct lsof_context *ctx) {
+    char buf[128], *cp;
+    int lc, len, st, ty;
+    int rv = 0;
+    unsigned long ul;
+    char fd[FDLEN];
+    char type[TYPEL];
+    /*
+     * If nothing in the process has been selected, skip it.
+     */
+    if (!Lp->pss)
+        return (0);
+    if (Fterse) {
+        if (Lp->pid == LastPid) /* eliminate duplicates */
+            return (0);
+        LastPid = Lp->pid;
+        /*
+         * The mode is terse and something in the process appears to have
+         * been selected.  Make sure of that by looking for a selected file,
+         * so that the HASSECURITY and HASNOSOCKSECURITY option combination
+         * won't produce a false positive result.
+         */
+        for (Lf = Lp->file; Lf; Lf = Lf->next) {
+            if (is_file_sel(ctx, Lp, Lf)) {
+                (void)printf("%d\n", Lp->pid);
+                return (1);
+            }
+        }
+        return (0);
+    }
+    /*
+     * If fields have been selected, output the process-only ones, provided
+     * that some file has also been selected.
+     */
+    if (Ffield) {
+        for (Lf = Lp->file; Lf; Lf = Lf->next) {
+            if (is_file_sel(ctx, Lp, Lf))
+                break;
+        }
+        if (!Lf)
+            return (rv);
+        rv = 1;
+        (void)printf("%c%d%c", LSOF_FID_PID, Lp->pid, Terminator);
+
+#if defined(HASTASKS)
+        if (FieldSel[LSOF_FIX_TID].st && Lp->tid)
+            (void)printf("%c%d%c", LSOF_FID_TID, Lp->tid, Terminator);
+        if (FieldSel[LSOF_FIX_TCMD].st && Lp->tcmd)
+            (void)printf("%c%s%c", LSOF_FID_TCMD, Lp->tcmd, Terminator);
+#endif /* defined(HASTASKS) */
+
+#if defined(HASZONES)
+        if (FieldSel[LSOF_FIX_ZONE].st && Fzone && Lp->zn)
+            (void)printf("%c%s%c", LSOF_FID_ZONE, Lp->zn, Terminator);
+#endif /* defined(HASZONES) */
+
+#if defined(HASSELINUX)
+        if (FieldSel[LSOF_FIX_CNTX].st && Fcntx && Lp->cntx && CntxStatus)
+            (void)printf("%c%s%c", LSOF_FID_CNTX, Lp->cntx, Terminator);
+#endif /* defined(HASSELINUX) */
+
+        if (FieldSel[LSOF_FIX_PGID].st && Fpgid)
+            (void)printf("%c%d%c", LSOF_FID_PGID, Lp->pgid, Terminator);
+
+#if defined(HASPPID)
+        if (FieldSel[LSOF_FIX_PPID].st && Fppid)
+            (void)printf("%c%d%c", LSOF_FID_PPID, Lp->ppid, Terminator);
+#endif /* defined(HASPPID) */
+
+        if (FieldSel[LSOF_FIX_CMD].st) {
+            putchar(LSOF_FID_CMD);
+            safestrprt(Lp->cmd ? Lp->cmd : "(unknown)", stdout, 0);
+            putchar(Terminator);
+        }
+        if (FieldSel[LSOF_FIX_UID].st)
+            (void)printf("%c%d%c", LSOF_FID_UID, (int)Lp->uid, Terminator);
+        if (FieldSel[LSOF_FIX_LOGIN].st) {
+            cp = printuid(ctx, (UID_ARG)Lp->uid, &ty);
+            if (ty == 0)
+                (void)printf("%c%s%c", LSOF_FID_LOGIN, cp, Terminator);
+        }
+        if (Terminator == '\0')
+            putchar('\n');
+    }
+    /*
+     * Print files.
+     */
+    for (Lf = Lp->file; Lf; Lf = Lf->next) {
+        if (!is_file_sel(ctx, Lp, Lf))
+            continue;
+        rv = 1;
+        /*
+         * If no field output selected, print dialect-specific formatted
+         * output.
+         */
+        if (!Ffield) {
+            print_file(ctx);
+            continue;
+        }
+        lc = st = 0;
+        if (FieldSel[LSOF_FIX_FD].st) {
+
+            fd_to_string(Lf->fd_type, Lf->fd_num, fd);
+            (void)printf("%c%s%c", LSOF_FID_FD, fd, Terminator);
+            lc++;
+        }
+        /*
+         * Print selected fields.
+         */
+        if (FieldSel[LSOF_FIX_ACCESS].st) {
+            (void)printf("%c%c%c", LSOF_FID_ACCESS, access_to_char(Lf->access),
+                         Terminator);
+            lc++;
+        }
+        if (FieldSel[LSOF_FIX_LOCK].st) {
+            (void)printf("%c%c%c", LSOF_FID_LOCK, lock_to_char(Lf->lock),
+                         Terminator);
+            lc++;
+        }
+        if (FieldSel[LSOF_FIX_TYPE].st) {
+            if (Lf->type != LSOF_FILE_NONE) {
+                file_type_to_string(Lf->type, Lf->unknown_file_type_number,
+                                    type, TYPEL);
+                (void)printf("%c%s%c", LSOF_FID_TYPE, type, Terminator);
+                lc++;
+            }
+        }
+
+#if defined(HASFSTRUCT)
+        if (FieldSel[LSOF_FIX_FA].st && (Fsv & FSV_FA) && (Lf->fsv & FSV_FA)) {
+            (void)printf("%c%s%c", LSOF_FID_FA,
+                         print_kptr(Lf->fsa, (char *)NULL, 0), Terminator);
+            lc++;
+        }
+        if (FieldSel[LSOF_FIX_CT].st && (Fsv & FSV_CT) && (Lf->fsv & FSV_CT)) {
+            (void)printf("%c%ld%c", LSOF_FID_CT, Lf->fct, Terminator);
+            lc++;
+        }
+        if (FieldSel[LSOF_FIX_FG].st && (Fsv & FSV_FG) && (Lf->fsv & FSV_FG) &&
+            (FsvFlagX || Lf->ffg || Lf->pof)) {
+            (void)printf("%c%s%c", LSOF_FID_FG,
+                         print_fflags(ctx, Lf->ffg, Lf->pof), Terminator);
+            lc++;
+        }
+        if (FieldSel[LSOF_FIX_NI].st && (Fsv & FSV_NI) && (Lf->fsv & FSV_NI)) {
+            (void)printf("%c%s%c", LSOF_FID_NI,
+                         print_kptr(Lf->fna, (char *)NULL, 0), Terminator);
+            lc++;
+        }
+#endif /* defined(HASFSTRUCT) */
+
+        if (FieldSel[LSOF_FIX_DEVCH].st && Lf->dev_ch && Lf->dev_ch[0]) {
+            for (cp = Lf->dev_ch; *cp == ' '; cp++)
+                ;
+            if (*cp) {
+                (void)printf("%c%s%c", LSOF_FID_DEVCH, cp, Terminator);
+                lc++;
+            }
+        }
+        if (FieldSel[LSOF_FIX_DEVN].st && Lf->dev_def) {
+            if (sizeof(unsigned long) > sizeof(dev_t))
+                ul = (unsigned long)((unsigned int)Lf->dev);
+            else
+                ul = (unsigned long)Lf->dev;
+            (void)printf("%c0x%lx%c", LSOF_FID_DEVN, ul, Terminator);
+            lc++;
+        }
+        if (FieldSel[LSOF_FIX_RDEV].st && Lf->rdev_def) {
+            if (sizeof(unsigned long) > sizeof(dev_t))
+                ul = (unsigned long)((unsigned int)Lf->rdev);
+            else
+                ul = (unsigned long)Lf->rdev;
+            (void)printf("%c0x%lx%c", LSOF_FID_RDEV, ul, Terminator);
+            lc++;
+        }
+        if (FieldSel[LSOF_FIX_SIZE].st && Lf->sz_def) {
+            putchar(LSOF_FID_SIZE);
+
+            (void)snpf(buf, sizeof(buf), SzOffFmt_d, Lf->sz);
+            cp = buf;
+
+            (void)printf("%s", cp);
+            putchar(Terminator);
+            lc++;
+        }
+        if (FieldSel[LSOF_FIX_OFFSET].st && Lf->off_def) {
+            putchar(LSOF_FID_OFFSET);
+
+            (void)snpf(buf, sizeof(buf), SzOffFmt_0t, Lf->off);
+            cp = buf;
+
+            len = strlen(cp);
+            if (OffDecDig && len > (OffDecDig + 2)) {
+
+                (void)snpf(buf, sizeof(buf), SzOffFmt_x, Lf->off);
+                cp = buf;
+            }
+            (void)printf("%s", cp);
+            putchar(Terminator);
+            lc++;
+        }
+        if (FieldSel[LSOF_FIX_INODE].st && Lf->inp_ty == 1) {
+            putchar(LSOF_FID_INODE);
+            (void)printf(InodeFmt_d, Lf->inode);
+            putchar(Terminator);
+            lc++;
+        }
+        if (FieldSel[LSOF_FIX_NLINK].st && Lf->nlink_def) {
+            (void)printf("%c%ld%c", LSOF_FID_NLINK, Lf->nlink, Terminator);
+            lc++;
+        }
+        if (FieldSel[LSOF_FIX_PROTO].st && Lf->inp_ty == 2) {
+            for (cp = Lf->iproto; *cp == ' '; cp++)
+                ;
+            if (*cp) {
+                (void)printf("%c%s%c", LSOF_FID_PROTO, cp, Terminator);
+                lc++;
+            }
+        }
+        if (FieldSel[LSOF_FIX_STREAM].st && Lf->nm && Lf->is_stream) {
+            if (strncmp(Lf->nm, "STR:", 4) == 0 ||
+                strcmp(Lf->iproto, "STR") == 0) {
+                putchar(LSOF_FID_STREAM);
+                printname(ctx, 0);
+                putchar(Terminator);
+                lc++;
+                st++;
+            }
+        }
+        if (st == 0 && FieldSel[LSOF_FIX_NAME].st) {
+            putchar(LSOF_FID_NAME);
+            printname(ctx, 0);
+            putchar(Terminator);
+            lc++;
+        }
+        if (Lf->lts.type >= 0 && FieldSel[LSOF_FIX_TCPTPI].st) {
+            print_tcptpi(ctx, 0);
+            lc++;
+        }
+        if (Terminator == '\0' && lc)
+            putchar('\n');
+    }
+    return (rv);
+}
+
+#if defined(HASFSTRUCT)
+static char *alloc_fflbuf(struct lsof_context *ctx, char **bp, int *al, int lr);
+
+/*
+ * alloc_fflbuf() - allocate file flags print buffer
+ */
+
+static char *alloc_fflbuf(struct lsof_context *ctx,
+                          char **bp, /* current buffer pointer */
+                          int *al,   /* current allocated length */
+                          int lr)    /* length required */
+{
+    int sz;
+
+    sz = (int)(lr + 1); /* allocate '\0' space */
+    if (*bp && (sz <= *al))
+        return (*bp);
+    if (*bp)
+        *bp = (char *)realloc((MALLOC_P *)*bp, (MALLOC_S)sz);
+    else
+        *bp = (char *)malloc((MALLOC_S)sz);
+    if (!*bp) {
+        (void)fprintf(stderr, "%s: no space (%d) for print flags\n", Pn, sz);
+        Error(ctx);
+    }
+    *al = sz;
+    return (*bp);
+}
+#endif /* defined(HASFSTRUCT) */
+
+#if defined(HASFSTRUCT)
+/*
+ * print_fflags() - print interpreted f_flag[s]
+ */
+char *print_fflags(struct lsof_context *ctx,
+                   long ffg, /* file structure's flags value */
+                   long pof) /* process open files flags value */
+{
+    int al, ct, fx;
+    static int bl = 0;
+    static char *bp = (char *)NULL;
+    char *sep;
+    int sepl;
+    struct pff_tab *tp;
+    long wf;
+    char xbuf[64];
+    /*
+     * Reduce the supplied flags according to the definitions in Pff_tab[] and
+     * Pof_tab[].
+     */
+    for (ct = fx = 0; fx < 2; fx++) {
+        if (fx == 0) {
+            sep = "";
+            sepl = 0;
+            tp = Pff_tab;
+            wf = ffg;
+        } else {
+            sep = ";";
+            sepl = 1;
+            tp = Pof_tab;
+            wf = pof;
+        }
+        for (; wf && !FsvFlagX; ct += al) {
+            while (tp->nm) {
+                if (wf & tp->val)
+                    break;
+                tp++;
+            }
+            if (!tp->nm)
+                break;
+            al = (int)strlen(tp->nm) + sepl;
+            bp = alloc_fflbuf(ctx, &bp, &bl, al + ct);
+            (void)snpf(bp + ct, al + 1, "%s%s", sep, tp->nm);
+            sep = ",";
+            sepl = 1;
+            wf &= ~(tp->val);
+        }
+        /*
+         * If flag bits remain, print them in hex.  If hex output was
+         * specified with +fG, print all flag values, including zero,
+         * in hex.
+         */
+        if (wf || FsvFlagX) {
+            (void)snpf(xbuf, sizeof(xbuf), "0x%lx", wf);
+            al = (int)strlen(xbuf) + sepl;
+            bp = alloc_fflbuf(ctx, &bp, &bl, al + ct);
+            (void)snpf(bp + ct, al + 1, "%s%s", sep, xbuf);
+            ct += al;
+        }
+    }
+    /*
+     * Make sure there is at least a NUL terminated reply.
+     */
+    if (!bp) {
+        bp = alloc_fflbuf(ctx, &bp, &bl, 0);
+        *bp = '\0';
+    }
+    return (bp);
+}
+#endif /* defined(HASFSTRUCT) */

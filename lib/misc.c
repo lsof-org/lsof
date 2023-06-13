@@ -1027,7 +1027,7 @@ char *Readlink(struct lsof_context *ctx,
             (void)fprintf(stderr, "): -b was specified.\n");
         }
         op = (char *)NULL;
-        return (arg);
+        return mkstrcpy(arg, NULL);
     }
     /*
      * Save the original path.
@@ -1131,7 +1131,7 @@ char *Readlink(struct lsof_context *ctx,
         }
         sx = 0;
         op = (char *)NULL;
-        return (arg);
+        return mkstrcpy(arg, NULL);
     }
     /*
      * If the assembled path and argument are different, add it to the

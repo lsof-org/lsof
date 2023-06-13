@@ -35,6 +35,7 @@
 #if !defined(LSOF_H)
 #    define LSOF_H 1
 
+#    include <stdint.h>
 #    include <stdio.h>
 
 /** lsof error returns */
@@ -230,6 +231,160 @@ enum lsof_file_type {
     LSOF_FILE_VNODE_VPORT,    /**< The vnode represents a port */
 };
 
+/** @struct lsof_context
+ * Hidden struct of lsof context, use `lsof_new()` to get one
+ */
+struct lsof_context;
+
+/** @enum struct lsof_file flags */
+enum lsof_file_flag {
+    LSOF_FILE_FLAG_NONE,
+    /** \ref struct lsof_file.dev field is valid */
+    LSOF_FILE_FLAG_DEV_VALID = 0x00000001,
+    /** \ref struct lsof_file.rdev field is valid */
+    LSOF_FILE_FLAG_RDEV_VALID = 0x00000002,
+    /** \ref struct lsof_file.size field is valid */
+    LSOF_FILE_FLAG_SIZE_VALID = 0x00000004,
+    /** \ref struct lsof_file.offset field is valid */
+    LSOF_FILE_FLAG_OFFSET_VALID = 0x00000008,
+    /** \ref struct lsof_file.num_links field is valid */
+    LSOF_FILE_FLAG_NUM_LINKS_VALID = 0x00000010,
+    /** \ref struct lsof_file.inode field is valid */
+    LSOF_FILE_FLAG_INODE_VALID = 0x00000020,
+};
+
+/** An open file
+ */
+struct lsof_file {
+    /** Flags, see \ref lsof_file_flag */
+    uint64_t flags;
+
+    /* FD column */
+    /** File desciptor type */
+    enum lsof_fd_type fd_type;
+
+    /** File descriptor number, valid if \ref fd_type == \ref LSOF_FD_NUMERIC */
+    uint32_t fd_num;
+
+    /** File access mode */
+    enum lsof_file_access_mode access;
+
+    /** File lock mode */
+    enum lsof_lock_mode lock;
+
+    /* TYPE column */
+    /** File type */
+    enum lsof_file_type file_type;
+    /** Store raw file type number when \ref file_type == \ref LSOF_FILE_UNKNOWN
+     */
+    uint32_t unknown_file_type_number;
+
+    /* DEVICE column */
+    /** Device ID of device containing file, use major() and minor() to extract
+     * components. Valid if \ref flags & \ref LSOF_FILE_FLAG_DEV_VALID */
+    uint64_t dev;
+    /** Device ID of special character/block file, use major() and minor() to
+     * extract components. Valid if \ref flags & \ref
+     * LSOF_FILE_FLAG_RDEV_VALID */
+    uint64_t rdev;
+
+    /* SIZE, SIZE/OFF, OFFSET column */
+    /** File size, valid if \ref flags & \ref LSOF_FILE_FLAG_SIZE_VALID */
+    uint64_t size;
+
+    /** File offset, valid if \ref flags & \ref LSOF_FILE_FLAG_OFFSET_VALID */
+    uint64_t offset;
+
+    /* NLINK column */
+    /** Link count, valid if \ref flags & \ref LSOF_FILE_FLAG_NUM_LINKS_VALID */
+    uint64_t num_links;
+
+    /* NODE column */
+    /** File inode, valid if \ref flags & \ref LSOF_FILE_FLAG_INODE_VALID */
+    uint64_t inode;
+
+    /* NAME column */
+    /** File name or description */
+    char *name;
+};
+
+/** The result of lsof_gather(), grouped by process
+ *
+ * For each process, you can find a linked list of open files at `files`
+ */
+struct lsof_process {
+    /* COMMAND column */
+    char *command; /**< command name */
+    /* PID column */
+    uint32_t pid; /**< process ID */
+
+    /* TID column */
+    uint32_t tid; /**< task ID */
+    /* TASKCMD column */
+    char *task_cmd; /**< task command name */
+
+    /* ZONES column */
+    char *solaris_zone; /**< solaris zone name */
+    /* SECURITY-CONTEXT column */
+    char *selinux_context; /**< seLinux context name */
+
+    /* PGID column */
+    uint32_t pgid; /**< process group ID */
+    /* PPID column */
+    uint32_t ppid; /**< parent process ID */
+    /* USER column */
+    uint32_t uid; /**< user ID */
+
+    uint32_t num_files;      /**< length of files array */
+    struct lsof_file *files; /**< array of open files */
+};
+
+/** selection types */
+enum lsof_selection_type {
+    LSOF_SELECTION_COMMAND,         /**< select by command */
+    LSOF_SELECTION_COMMAND_REGEX,   /**< select by command regex */
+    LSOF_SELECTION_PATH,            /**< select by file path */
+    LSOF_SELECTION_FILE_SYSTEM,     /**< select by file system */
+    LSOF_SELECTION_NETWORK_ADDRESS, /**< select by network address */
+    LSOF_SELECTION_INTERNET,        /**< select by internet protocol */
+    LSOF_SELECTION_PROTOCOL_STATE,  /**< select by tcp/tpi state */
+    LSOF_SELECTION_NFS,             /**< select by nfs */
+    LSOF_SELECTION_PID,             /**< select by pid */
+    LSOF_SELECTION_PGID,            /**< select by pgid */
+    LSOF_SELECTION_UID,             /**< select by uid */
+    LSOF_SELECTION_TASK,            /**< select by tasks */
+    LSOF_SELECTION_SOLARIS_ZONE,    /**< select by Solaris zones */
+    LSOF_SELECTION_SELINUX_CONTEXT, /**< select by SELinux context */
+};
+
+/** Report selection status */
+struct lsof_selection {
+    enum lsof_selection_type type; /**< selection type */
+    int found;                     /**< whether selection matches file */
+    /** string selection argument, valid if type is one of
+     * LSOF_SELECTION_COMMAND, LSOF_SELECTION_COMMAND_REGEX,
+     * LSOF_SELECTION_PATH, LSOF_SELECTION_FILE_SYSTEM,
+     * LSOF_SELECTION_NETWORK_ADDRESS, LSOF_SELECTION_PROTOCOL_STATE,
+     * LSOF_SELECTION_UID, LSOF_SELECTION_SOLARIS_ZONE,
+     * LSOF_SELECTION_SELINUX_CONTEXT
+     */
+    char *string;
+    /** integer selection argument, valid if type is one of
+     * LSOF_SELECTION_PID, LSOF_SELECTION_PGID, LSOF_SELECTION_UID
+     */
+    uint64_t integer;
+};
+
+/** The result of lsof_gather() */
+struct lsof_result {
+    size_t num_processes;           /**< length of processes array */
+    struct lsof_process *processes; /**< array of processes */
+
+    /* Report selection status */
+    size_t num_selections;             /**< length of selections array */
+    struct lsof_selection *selections; /**< array of selections */
+};
+
 /** API version of liblsof
  * you may use this macro to check the existence of
  * functions
@@ -274,7 +429,7 @@ struct lsof_context *lsof_new();
  * \since API version 1
  */
 enum lsof_error lsof_set_output_stream(struct lsof_context *ctx, FILE *fp,
-                                   char *program_name, int warn);
+                                       char *program_name, int warn);
 
 /** Ask lsof to avoid using blocking functions
  *
@@ -316,5 +471,50 @@ enum lsof_error lsof_logic_and(struct lsof_context *ctx);
  */
 enum lsof_error lsof_select_process(struct lsof_context *ctx, char *command,
                                     int exclude);
+
+/** Freeze the lsof context
+ *
+ * You can only call it once per context. After this call, no more options can
+ * be changed.
+ *
+ * The function allows liblsof to do some preprocessing to improve performance.
+ *
+ * \since API version 1
+ */
+enum lsof_error lsof_freeze(struct lsof_context *ctx);
+
+/** List open files, grouped by processes
+ *
+ * The result is a struct lsof_result, saved into `result` paramter.
+ *
+ * You should not alter the content of `result`, nor call `free()` to
+ * pointers within. You should free `result` by calling
+ * `lsof_free_result()`
+ *
+ * If the context is not frozen, lsof_freeze() will be called.
+ *
+ * \return LSOF_INVALID_ARGUMENT if either pointer argument is NULL
+ *
+ * \since API version 1
+ */
+enum lsof_error lsof_gather(struct lsof_context *ctx,
+                            struct lsof_result **result);
+
+/** Destroy a lsof context
+ *
+ * You should call `lsof_free_result` to free all `struct lsof_result`
+ * before destorying the context.
+ *
+ * You must not use the context anymore after this call.
+ *
+ * \since API version 1
+ */
+void lsof_destroy(struct lsof_context *ctx);
+
+/** Free struct lsof_result
+ *
+ * \since API version 1
+ */
+void lsof_free_result(struct lsof_result *result);
 
 #endif

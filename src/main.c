@@ -147,11 +147,6 @@ int main(int argc, char *argv[]) {
     Euid = geteuid();
     if ((Myuid = (uid_t)getuid()) && !Euid)
         Setuidroot = 1;
-    if (!(Namech = (char *)malloc(MAXPATHLEN + 1))) {
-        (void)fprintf(stderr, "%s: no space for name buffer\n", Pn);
-        Error(ctx);
-    }
-    Namechl = (size_t)(MAXPATHLEN + 1);
     /*
      * Create option mask.
      */
@@ -1229,6 +1224,15 @@ int main(int argc, char *argv[]) {
      * Do dialect-specific initialization.
      */
     initialize(ctx);
+#if defined(LINUX_LSOF_H)
+    if (Fsv && (OffType != OFFSET_FDINFO)) {
+        if (!Fwarn && FsvByf)
+            (void)fprintf(
+                stderr,
+                "%s: WARNING: can't report file flags; disregarding +f.\n", Pn);
+        Fsv = 0;
+    }
+#endif
     if (Sfile)
         (void)hashSfile(ctx);
 
@@ -1451,7 +1455,7 @@ int main(int argc, char *argv[]) {
              * malloc()'d area, and since Lf is used throughout the print
              * process.
              */
-            for (lf = Lf, print_init(); PrPass < 2; PrPass++) {
+            for (lf = Lf, print_init(ctx); PrPass < 2; PrPass++) {
                 for (i = n = 0; i < Nlproc; i++) {
                     Lp = (Nlproc > 1) ? slp[i] : &Lproc[i];
                     if (Lp->pss) {
