@@ -287,7 +287,7 @@ int main(int argc, char *argv[]) {
                 break;
             }
             if (GOv && (*GOv == '/')) {
-                if (enter_cmd_rx(ctx, GOv))
+                if (lsof_select_process_regex(ctx, GOv))
                     err = 1;
             } else {
                 if (enter_cmd(ctx, "-c", GOv))
