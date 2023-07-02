@@ -492,6 +492,30 @@ enum lsof_error lsof_select_process(struct lsof_context *ctx, char *command,
 enum lsof_error lsof_select_process_regex(struct lsof_context *ctx,
                                           char *regex);
 
+/** Ask lsof to select process by pid (process id)
+ *
+ * Select process by comparing pid. You can specify exclusion by setting
+ * `exclude` to 1.
+ *
+ * You can call this function multiple times to add more search conditions.
+ *
+ * \since API version 1
+ */
+enum lsof_error lsof_select_pid(struct lsof_context *ctx, uint32_t pid,
+                                int exclude);
+
+/** Ask lsof to select process by pgid (process group id)
+ *
+ * Select process by comparing pgid. You can specify exclusion by setting
+ * `exclude` to 1.
+ *
+ * You can call this function multiple times to add more search conditions.
+ *
+ * \since API version 1
+ */
+enum lsof_error lsof_select_pgid(struct lsof_context *ctx, uint32_t pgid,
+                                 int exclude);
+
 /** Freeze the lsof context
  *
  * You can only call it once per context. After this call, no more options can

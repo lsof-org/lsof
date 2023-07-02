@@ -1132,30 +1132,6 @@ int enter_id(struct lsof_context *ctx, /* context */
         return (1);
     }
     /*
-     * Set up variables for the type of ID.
-     */
-    switch (ty) {
-    case PGID:
-        mx = Mxpgid;
-        n = Npgid;
-        ni = Npgidi;
-        nx = Npgidx;
-        s = Spgid;
-        break;
-    case PID:
-        mx = Mxpid;
-        n = Npid;
-        ni = Npidi;
-        nx = Npidx;
-        s = Spid;
-        break;
-    default:
-        (void)fprintf(stderr, "%s: enter_id \"", Pn);
-        safestrprt(p, stderr, 0);
-        (void)fprintf(stderr, "\", invalid type: %d\n", ty);
-        Error(ctx);
-    }
-    /*
      * Convert and store the ID.
      */
     for (cp = p, err = 0; *cp;) {
@@ -1188,64 +1164,15 @@ int enter_id(struct lsof_context *ctx, /* context */
         }
         if (*cp)
             cp++;
-        /*
-         * Avoid entering duplicates and conflicts.
-         */
-        for (i = j = 0; i < n; i++) {
-            if (id == s[i].i) {
-                if (x == s[i].x) {
-                    j = 1;
-                    continue;
-                }
-                (void)fprintf(stderr,
-                              "%s: P%sID %d has been included and excluded.\n",
-                              Pn, (ty == PGID) ? "G" : "", id);
-                err = j = 1;
-                break;
+        if (ty == PGID) {
+            if (lsof_select_pgid(ctx, id, x)) {
+                err = 1;
+            }
+        } else {
+            if (lsof_select_pid(ctx, id, x)) {
+                err = 1;
             }
         }
-        if (j)
-            continue;
-        /*
-         * Allocate table table space.
-         */
-        if (n >= mx) {
-            mx += IDINCR;
-            if (!s)
-                s = (struct int_lst *)malloc(
-                    (MALLOC_S)(sizeof(struct int_lst) * mx));
-            else
-                s = (struct int_lst *)realloc(
-                    (MALLOC_P *)s, (MALLOC_S)(sizeof(struct int_lst) * mx));
-            if (!s) {
-                (void)fprintf(stderr, "%s: no space for %d process%s IDs", Pn,
-                              mx, (ty == PGID) ? " group" : "");
-                Error(ctx);
-            }
-        }
-        s[n].f = 0;
-        s[n].i = id;
-        s[n++].x = x;
-        if (x)
-            nx++;
-        else
-            ni++;
-    }
-    /*
-     * Save variables for the type of ID.
-     */
-    if (ty == PGID) {
-        Mxpgid = mx;
-        Npgid = n;
-        Npgidi = ni;
-        Npgidx = nx;
-        Spgid = s;
-    } else {
-        Mxpid = mx;
-        Npid = Npuns = n;
-        Npidi = ni;
-        Npidx = nx;
-        Spid = s;
     }
     return (err);
 }

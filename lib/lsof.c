@@ -933,3 +933,83 @@ cleanup:
     CLEAN(xp);
     return ret;
 }
+
+/* Internel helper for lsof_select_pid/pgid */
+enum lsof_error lsof_select_pid_pgid(struct lsof_context *ctx, int32_t id,
+                                     struct int_lst **sel, int *cap, int *size,
+                                     int *incl_num, int *excl_num, int exclude,
+                                     int is_pid) {
+    int i, j;
+    if (!ctx || ctx->frozen) {
+        return LSOF_ERROR_INVALID_ARGUMENT;
+    }
+
+    /*
+     * Avoid entering duplicates and conflicts.
+     */
+    for (i = 0; i < *size; i++) {
+        if (id == (*sel)[i].i) {
+            if (exclude == (*sel)[i].x) {
+                return LSOF_SUCCESS;
+            }
+            if (ctx->err) {
+                (void)fprintf(ctx->err,
+                              "%s: P%sID %d has been included and excluded.\n",
+                              Pn, is_pid ? "" : "G", id);
+            }
+            return LSOF_ERROR_INVALID_ARGUMENT;
+        }
+    }
+
+    /*
+     * Allocate table table space.
+     */
+    if (*size >= *cap) {
+        *cap += 10;
+        if (!(*sel))
+            *sel = (struct int_lst *)malloc(
+                (MALLOC_S)(sizeof(struct int_lst) * (*cap)));
+        else
+            *sel = (struct int_lst *)realloc(
+                (MALLOC_P *)(*sel),
+                (MALLOC_S)(sizeof(struct int_lst) * (*cap)));
+        if (!(*sel)) {
+            if (ctx->err) {
+                (void)fprintf(ctx->err, "%s: no space for %d process%s IDs", Pn,
+                              *cap, is_pid ? "" : " group");
+            }
+            Error(ctx);
+            return LSOF_ERROR_NO_MEMORY;
+        }
+    }
+
+    /* Insert selection into sel_pid/sel_pgid*/
+    (*sel)[*size].f = 0;
+    (*sel)[*size].i = id;
+    (*sel)[(*size)++].x = exclude;
+    if (exclude)
+        (*excl_num)++;
+    else {
+        (*incl_num)++;
+        /* Update selection flags */
+        Selflags |= is_pid ? SELPID : SELPGID;
+    }
+    return LSOF_SUCCESS;
+}
+
+API_EXPORT
+enum lsof_error lsof_select_pid(struct lsof_context *ctx, uint32_t pid,
+                                int exclude) {
+    enum lsof_error res = lsof_select_pid_pgid(ctx, pid, &Spid, &Mxpid, &Npid,
+                                               &Npidi, &Npidx, exclude, 1);
+    /* Record number of unselected PIDs for optimization */
+    Npuns = Npid;
+    return res;
+}
+
+API_EXPORT
+enum lsof_error lsof_select_pgid(struct lsof_context *ctx, uint32_t pgid,
+                                 int exclude) {
+    return lsof_select_pid_pgid(ctx, pgid, &Spgid, &Mxpgid, &Npgid, &Npgidi,
+                                &Npgidx, exclude, 0);
+}
