@@ -2046,54 +2046,17 @@ int enter_uid(struct lsof_context *ctx, /* context */
         }
 #endif /* defined(HASSECURITY)  && !defined(HASNOSOCKSECURITY) */
 
-        /*
-         * Avoid entering duplicates.
-         */
-        for (i = j = 0; i < Nuid; i++) {
-            if (uid != Suid[i].uid)
-                continue;
-            if (Suid[i].excl == excl) {
-                j = 1;
-                continue;
-            }
-            (void)fprintf(stderr,
-                          "%s: UID %d has been included and excluded.\n", Pn,
-                          (int)uid);
-            err = j = 1;
-            break;
-        }
-        if (j)
-            continue;
-        /*
-         * Allocate space for User IDentifier.
-         */
-        if (Nuid >= Mxuid) {
-            Mxuid += UIDINCR;
-            len = (MALLOC_S)(Mxuid * sizeof(struct seluid));
-            if (!Suid)
-                Suid = (struct seluid *)malloc(len);
-            else
-                Suid = (struct seluid *)realloc((MALLOC_P *)Suid, len);
-            if (!Suid) {
-                (void)fprintf(stderr, "%s: no space for UIDs", Pn);
-                Error(ctx);
-            }
-        }
         if (nn) {
-            if (!(lp = mkstrcpy(lnm, (MALLOC_S *)NULL))) {
-                (void)fprintf(stderr, "%s: no space for login: ", Pn);
-                safestrprt(lnm, stderr, 1);
+            if (lsof_select_login(ctx, lnm, excl)) {
                 Error(ctx);
+                return (1);
             }
-            Suid[Nuid].lnm = lp;
-        } else
-            Suid[Nuid].lnm = (char *)NULL;
-        Suid[Nuid].uid = uid;
-        Suid[Nuid++].excl = excl;
-        if (excl)
-            Nuidexcl++;
-        else
-            Nuidincl++;
+        } else {
+            if (lsof_select_uid(ctx, uid, excl)) {
+                Error(ctx);
+                return (1);
+            }
+        }
     }
     return (err);
 }

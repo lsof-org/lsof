@@ -516,6 +516,28 @@ enum lsof_error lsof_select_pid(struct lsof_context *ctx, uint32_t pid,
 enum lsof_error lsof_select_pgid(struct lsof_context *ctx, uint32_t pgid,
                                  int exclude);
 
+/** Ask lsof to select process by uid
+ *
+ * Select process whose user id equals to or not equals to `uid`
+ *
+ * You can call this function multiple times to add more search conditions.
+ *
+ * \since API version 1
+ */
+enum lsof_error lsof_select_uid(struct lsof_context *ctx, uint32_t uid,
+                                int exclude);
+
+/** Ask lsof to select process by user login
+ *
+ * Select process whose user login name equals to or not equals to `login`
+ *
+ * You can call this function multiple times to add more search conditions.
+ *
+ * \since API version 1
+ */
+enum lsof_error lsof_select_login(struct lsof_context *ctx, char *login,
+                                  int exclude);
+
 /** Freeze the lsof context
  *
  * You can only call it once per context. After this call, no more options can

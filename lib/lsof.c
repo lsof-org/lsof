@@ -1013,3 +1013,101 @@ enum lsof_error lsof_select_pgid(struct lsof_context *ctx, uint32_t pgid,
     return lsof_select_pid_pgid(ctx, pgid, &Spgid, &Mxpgid, &Npgid, &Npgidi,
                                 &Npgidx, exclude, 0);
 }
+
+/* Internal helper for lsof_select_uid/lsof_select_login*/
+enum lsof_error lsof_select_uid_login(struct lsof_context *ctx, uint32_t uid,
+                                      char *login, int exclude) {
+    int i, j;
+    MALLOC_S len;
+    char *lp;
+
+    if (!ctx || ctx->frozen) {
+        return LSOF_ERROR_INVALID_ARGUMENT;
+    }
+
+    /*
+     * Avoid entering duplicates.
+     */
+    for (i = 0; i < Nuid; i++) {
+        if (uid != Suid[i].uid)
+            continue;
+        /* Duplicate */
+        if (Suid[i].excl == exclude) {
+            return LSOF_SUCCESS;
+        }
+
+        /* Conflict */
+        if (ctx->err) {
+            (void)fprintf(ctx->err,
+                          "%s: UID %d has been included and excluded.\n", Pn,
+                          (int)uid);
+        }
+        return LSOF_ERROR_INVALID_ARGUMENT;
+    }
+
+    /*
+     * Allocate space for User IDentifier.
+     */
+    if (Nuid >= Mxuid) {
+        Mxuid += 10;
+        len = (MALLOC_S)(Mxuid * sizeof(struct seluid));
+        if (!Suid)
+            Suid = (struct seluid *)malloc(len);
+        else
+            Suid = (struct seluid *)realloc((MALLOC_P *)Suid, len);
+        if (!Suid) {
+            if (ctx->err) {
+                (void)fprintf(ctx->err, "%s: no space for UIDs", Pn);
+            }
+            Error(ctx);
+            return LSOF_ERROR_NO_MEMORY;
+        }
+    }
+    if (login) {
+        if (!(lp = mkstrcpy(login, (MALLOC_S *)NULL))) {
+            if (ctx->err) {
+                (void)fprintf(ctx->err, "%s: no space for login: ", Pn);
+                safestrprt(login, ctx->err, 1);
+            }
+            Error(ctx);
+            return LSOF_ERROR_NO_MEMORY;
+        }
+        Suid[Nuid].lnm = lp;
+    } else
+        Suid[Nuid].lnm = (char *)NULL;
+    Suid[Nuid].f = 0;
+    Suid[Nuid].uid = uid;
+    Suid[Nuid++].excl = exclude;
+    if (exclude)
+        Nuidexcl++;
+    else {
+        Nuidincl++;
+        Selflags |= SELUID;
+    }
+    return LSOF_SUCCESS;
+}
+
+API_EXPORT
+enum lsof_error lsof_select_uid(struct lsof_context *ctx, uint32_t uid,
+                                int exclude) {
+    return lsof_select_uid_login(ctx, uid, NULL, exclude);
+}
+
+API_EXPORT
+enum lsof_error lsof_select_login(struct lsof_context *ctx, char *login,
+                                  int exclude) {
+    struct passwd *pw;
+    if (!ctx || ctx->frozen) {
+        return LSOF_ERROR_INVALID_ARGUMENT;
+    }
+
+    /* Convert login to uid, then call lsof_select_uid_login */
+    if ((pw = getpwnam(login)) == NULL) {
+        if (ctx->err) {
+            (void)fprintf(ctx->err, "%s: can't get UID for ", Pn);
+            safestrprt(login, ctx->err, 1);
+        }
+        return LSOF_ERROR_INVALID_ARGUMENT;
+    }
+    return lsof_select_uid_login(ctx, pw->pw_uid, login, exclude);
+}
