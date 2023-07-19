@@ -45,6 +45,7 @@ jobs:
           command: |
             dnf -y install autoconf automake gcc git iproute libtool make nmap-ncat pkg-config procps sudo || true
             dnf -y install libtirpc-devel || true
+            dnf -y install make || true
             apt update || true
             apt install -y autoconf automake gcc git groff iproute2 libtirpc-dev libtool make ncat pkg-config procps sudo || true
             pacman -Sy --noconfirm autoconf automake gcc git groff iproute2 libtool make pkg-config procps sudo || true
