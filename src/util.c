@@ -34,6 +34,8 @@
  * 4. This notice may not be removed or altered.
  */
 
+#include "common.h"
+
 #if defined(HAS_STRFTIME)
 #    include <time.h>
 #endif /* defined(HAS_STRFTIME) */

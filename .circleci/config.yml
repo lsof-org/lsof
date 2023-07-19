@@ -18,12 +18,12 @@ executors:
   debian11:
     docker:
       - image: docker.io/debian:11
-  fedora36:
-    docker:
-      - image: docker.io/fedora:36
   fedora37:
     docker:
       - image: docker.io/fedora:37
+  fedora38:
+    docker:
+      - image: docker.io/fedora:38
   centos8:
     docker:
       - image: quay.io/centos/centos:stream8
@@ -45,6 +45,7 @@ jobs:
           command: |
             dnf -y install autoconf automake gcc git iproute libtool make nmap-ncat pkg-config procps sudo || true
             dnf -y install libtirpc-devel || true
+            dnf -y install make || true
             apt update || true
             apt install -y autoconf automake gcc git groff iproute2 libtirpc-dev libtool make ncat pkg-config procps sudo || true
             pacman -Sy --noconfirm autoconf automake gcc git groff iproute2 libtool make pkg-config procps sudo || true
@@ -52,7 +53,7 @@ jobs:
             apk add sudo autoconf automake bash gcc git groff gzip iproute2 libtool linux-headers make musl-dev nmap-ncat pkgconf strace which || true
       - when:
           condition:
-            equal: [ fedora36, << parameters.distro >> ]
+            equal: [ fedora38, << parameters.distro >> ]
           steps:
             - run:
                 command: |
@@ -65,7 +66,7 @@ jobs:
             ./Configure -n linux
       - when:
           condition:
-            equal: [ fedora36, << parameters.distro >> ]
+            equal: [ fedora38, << parameters.distro >> ]
           steps:
             - run:
                 name: Build
@@ -76,7 +77,7 @@ jobs:
       - when:
           condition:
             not:
-              equal: [ fedora36, << parameters.distro >> ]
+              equal: [ fedora38, << parameters.distro >> ]
           steps:
             - run:
                 name: Build
@@ -88,7 +89,7 @@ jobs:
             bash ./check.bash linux
       - when:
           condition:
-            equal: [ fedora36, << parameters.distro >> ]
+            equal: [ fedora38, << parameters.distro >> ]
           steps:
             - run:
                 name: Report coverage
@@ -167,6 +168,6 @@ workflows:
       - linux:
           matrix:
             parameters:
-              distro: [fedora36, fedora37, centos8, centos9, debian11, ubuntu2204, archlinux, opensuse15, alpine317]
+              distro: [fedora37, fedora38, centos8, centos9, debian11, ubuntu2204, archlinux, opensuse15, alpine317]
       - nixos
       - bigsur
