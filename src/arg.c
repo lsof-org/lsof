@@ -43,8 +43,6 @@
  * Local static variables
  */
 
-static int NCmdRxA = 0; /* space allocated to CmdRx[] */
-
 /*
  * Local function prototypes
  */
@@ -563,158 +561,6 @@ int ctrl_dcache(struct lsof_context *ctx, /* context */
 }
 #endif /* defined(HASDCACHE) */
 
-/*
- * enter_cmd_rx() - enter command regular expression
- */
-
-int enter_cmd_rx(struct lsof_context *ctx, char *x) /* regular expression */
-{
-    int bmod = 0;
-    int bxmod = 0;
-    int i, re;
-    int imod = 0;
-    int xmod = 0;
-    int co = REG_NOSUB | REG_EXTENDED;
-    char reb[256], *xb, *xe, *xm;
-    MALLOC_S xl;
-    char *xp = (char *)NULL;
-    /*
-     * Make sure the supplied string starts a regular expression.
-     */
-    if (!*x || (*x != '/')) {
-        (void)fprintf(stderr, "%s: regexp doesn't begin with '/': ", Pn);
-        if (x)
-            safestrprt(x, stderr, 1);
-        return (1);
-    }
-    /*
-     * Skip to the end ('/') of the regular expression.
-     */
-    xb = x + 1;
-    for (xe = xb; *xe; xe++) {
-        if (*xe == '/')
-            break;
-    }
-    if (*xe != '/') {
-        (void)fprintf(stderr, "%s: regexp doesn't end with '/': ", Pn);
-        safestrprt(x, stderr, 1);
-        return (1);
-    }
-    /*
-     * Decode any regular expression modifiers.
-     */
-    for (i = 0, xm = xe + 1; *xm; xm++) {
-        switch (*xm) {
-        case 'b': /* This is a basic expression. */
-            if (++bmod > 1) {
-                if (bmod == 2) {
-                    (void)fprintf(stderr,
-                                  "%s: b regexp modifier already used: ", Pn);
-                    safestrprt(x, stderr, 1);
-                }
-                i = 1;
-            } else if (xmod) {
-                if (++bxmod == 1) {
-                    (void)fprintf(
-                        stderr, "%s: b and x regexp modifiers conflict: ", Pn);
-                    safestrprt(x, stderr, 1);
-                }
-                i = 1;
-            } else
-                co &= ~REG_EXTENDED;
-            break;
-        case 'i': /* Ignore case. */
-            if (++imod > 1) {
-                if (imod == 2) {
-                    (void)fprintf(stderr,
-                                  "%s: i regexp modifier already used: ", Pn);
-                    safestrprt(x, stderr, 1);
-                }
-                i = 1;
-            } else
-                co |= REG_ICASE;
-            break;
-        case 'x': /* This is an extended expression. */
-            if (++xmod > 1) {
-                if (xmod == 2) {
-                    (void)fprintf(stderr,
-                                  "%s: x regexp modifier already used: ", Pn);
-                    safestrprt(x, stderr, 1);
-                }
-                i = 1;
-            } else if (bmod) {
-                if (++bxmod == 1) {
-                    (void)fprintf(
-                        stderr, "%s: b and x regexp modifiers conflict: ", Pn);
-                    safestrprt(x, stderr, 1);
-                }
-                i = 1;
-            } else
-                co |= REG_EXTENDED;
-            break;
-        default:
-            (void)fprintf(stderr, "%s: invalid regexp modifier: %c\n", Pn,
-                          (int)*xm);
-            i = 1;
-        }
-    }
-    if (i)
-        return (1);
-    /*
-     * Allocate space to hold expression and copy it there.
-     */
-    xl = (MALLOC_S)(xe - xb);
-    if (!(xp = (char *)malloc(xl + 1))) {
-        (void)fprintf(stderr, "%s: no regexp space for: ", Pn);
-        safestrprt(x, stderr, 1);
-        Error(ctx);
-    }
-    (void)strncpy(xp, xb, xl);
-    xp[(int)xl] = '\0';
-    /*
-     * Assign a new CmdRx[] slot for this expression.
-     */
-    if (NCmdRxA >= NCmdRxU) {
-
-        /*
-         * More CmdRx[] space must be assigned.
-         */
-        NCmdRxA += CMDRXINCR;
-        xl = (MALLOC_S)(NCmdRxA * sizeof(lsof_rx_t));
-        if (CmdRx)
-            CmdRx = (lsof_rx_t *)realloc((MALLOC_P *)CmdRx, xl);
-        else
-            CmdRx = (lsof_rx_t *)malloc(xl);
-        if (!CmdRx) {
-            (void)fprintf(stderr, "%s: no space for regexp: ", Pn);
-            safestrprt(x, stderr, 1);
-            Error(ctx);
-        }
-    }
-    i = NCmdRxU;
-    CmdRx[i].exp = xp;
-    /*
-     * Compile the expression.
-     */
-    if ((re = regcomp(&CmdRx[i].cx, xp, co))) {
-        (void)fprintf(stderr, "%s: regexp error: ", Pn);
-        safestrprt(x, stderr, 0);
-        (void)regerror(re, &CmdRx[i].cx, &reb[0], sizeof(reb));
-        (void)fprintf(stderr, ": %s\n", reb);
-        if (xp) {
-            (void)free((FREE_P *)xp);
-            xp = (char *)NULL;
-        }
-        return (1);
-    }
-    /*
-     * Complete the CmdRx[] table entry.
-     */
-    CmdRx[i].mc = 0;
-    CmdRx[i].exp = xp;
-    NCmdRxU++;
-    return (0);
-}
 
 #if defined(HASEOPT)
 /*
@@ -1286,30 +1132,6 @@ int enter_id(struct lsof_context *ctx, /* context */
         return (1);
     }
     /*
-     * Set up variables for the type of ID.
-     */
-    switch (ty) {
-    case PGID:
-        mx = Mxpgid;
-        n = Npgid;
-        ni = Npgidi;
-        nx = Npgidx;
-        s = Spgid;
-        break;
-    case PID:
-        mx = Mxpid;
-        n = Npid;
-        ni = Npidi;
-        nx = Npidx;
-        s = Spid;
-        break;
-    default:
-        (void)fprintf(stderr, "%s: enter_id \"", Pn);
-        safestrprt(p, stderr, 0);
-        (void)fprintf(stderr, "\", invalid type: %d\n", ty);
-        Error(ctx);
-    }
-    /*
      * Convert and store the ID.
      */
     for (cp = p, err = 0; *cp;) {
@@ -1342,64 +1164,15 @@ int enter_id(struct lsof_context *ctx, /* context */
         }
         if (*cp)
             cp++;
-        /*
-         * Avoid entering duplicates and conflicts.
-         */
-        for (i = j = 0; i < n; i++) {
-            if (id == s[i].i) {
-                if (x == s[i].x) {
-                    j = 1;
-                    continue;
-                }
-                (void)fprintf(stderr,
-                              "%s: P%sID %d has been included and excluded.\n",
-                              Pn, (ty == PGID) ? "G" : "", id);
-                err = j = 1;
-                break;
+        if (ty == PGID) {
+            if (lsof_select_pgid(ctx, id, x)) {
+                err = 1;
+            }
+        } else {
+            if (lsof_select_pid(ctx, id, x)) {
+                err = 1;
             }
         }
-        if (j)
-            continue;
-        /*
-         * Allocate table table space.
-         */
-        if (n >= mx) {
-            mx += IDINCR;
-            if (!s)
-                s = (struct int_lst *)malloc(
-                    (MALLOC_S)(sizeof(struct int_lst) * mx));
-            else
-                s = (struct int_lst *)realloc(
-                    (MALLOC_P *)s, (MALLOC_S)(sizeof(struct int_lst) * mx));
-            if (!s) {
-                (void)fprintf(stderr, "%s: no space for %d process%s IDs", Pn,
-                              mx, (ty == PGID) ? " group" : "");
-                Error(ctx);
-            }
-        }
-        s[n].f = 0;
-        s[n].i = id;
-        s[n++].x = x;
-        if (x)
-            nx++;
-        else
-            ni++;
-    }
-    /*
-     * Save variables for the type of ID.
-     */
-    if (ty == PGID) {
-        Mxpgid = mx;
-        Npgid = n;
-        Npgidi = ni;
-        Npgidx = nx;
-        Spgid = s;
-    } else {
-        Mxpid = mx;
-        Npid = Npuns = n;
-        Npidi = ni;
-        Npidx = nx;
-        Spid = s;
     }
     return (err);
 }
@@ -2273,54 +2046,17 @@ int enter_uid(struct lsof_context *ctx, /* context */
         }
 #endif /* defined(HASSECURITY)  && !defined(HASNOSOCKSECURITY) */
 
-        /*
-         * Avoid entering duplicates.
-         */
-        for (i = j = 0; i < Nuid; i++) {
-            if (uid != Suid[i].uid)
-                continue;
-            if (Suid[i].excl == excl) {
-                j = 1;
-                continue;
-            }
-            (void)fprintf(stderr,
-                          "%s: UID %d has been included and excluded.\n", Pn,
-                          (int)uid);
-            err = j = 1;
-            break;
-        }
-        if (j)
-            continue;
-        /*
-         * Allocate space for User IDentifier.
-         */
-        if (Nuid >= Mxuid) {
-            Mxuid += UIDINCR;
-            len = (MALLOC_S)(Mxuid * sizeof(struct seluid));
-            if (!Suid)
-                Suid = (struct seluid *)malloc(len);
-            else
-                Suid = (struct seluid *)realloc((MALLOC_P *)Suid, len);
-            if (!Suid) {
-                (void)fprintf(stderr, "%s: no space for UIDs", Pn);
-                Error(ctx);
-            }
-        }
         if (nn) {
-            if (!(lp = mkstrcpy(lnm, (MALLOC_S *)NULL))) {
-                (void)fprintf(stderr, "%s: no space for login: ", Pn);
-                safestrprt(lnm, stderr, 1);
+            if (lsof_select_login(ctx, lnm, excl)) {
                 Error(ctx);
+                return (1);
             }
-            Suid[Nuid].lnm = lp;
-        } else
-            Suid[Nuid].lnm = (char *)NULL;
-        Suid[Nuid].uid = uid;
-        Suid[Nuid++].excl = excl;
-        if (excl)
-            Nuidexcl++;
-        else
-            Nuidincl++;
+        } else {
+            if (lsof_select_uid(ctx, uid, excl)) {
+                Error(ctx);
+                return (1);
+            }
+        }
     }
     return (err);
 }

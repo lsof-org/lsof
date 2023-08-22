@@ -1463,6 +1463,7 @@ struct lsof_context {
 #    define Cmdni (ctx->sel_cmd_incl)
 #    define Cmdnx (ctx->sel_cmd_excl)
 #    define CmdRx (ctx->cmd_regex)
+#    define NCmdRxA (ctx->cmd_regex_cap)
 #    define NCmdRxU (ctx->cmd_regex_size)
 /* select by network address */
 #    define Nwad (ctx->sel_net_addr)

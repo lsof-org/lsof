@@ -472,6 +472,72 @@ enum lsof_error lsof_logic_and(struct lsof_context *ctx);
 enum lsof_error lsof_select_process(struct lsof_context *ctx, char *command,
                                     int exclude);
 
+/** Ask lsof to select process by matching regex
+ *
+ * Select process executing the command that matches with the
+ * `regex`.
+ *
+ * `regex` must begin and end with a slash ('/'), the characters between the
+ * slashes are interpreted as a regular expression.
+ *
+ * The closing slash may be followed by these modifiers:
+ * - b the regular expression is a basic one.
+ * - i ignore the case of letters.
+ * - x the regular expression is an extended one (default).
+ *
+ * You can call this function multiple times to add more search conditions.
+ *
+ * \since API version 1
+ */
+enum lsof_error lsof_select_process_regex(struct lsof_context *ctx,
+                                          char *regex);
+
+/** Ask lsof to select process by pid (process id)
+ *
+ * Select process by comparing pid. You can specify exclusion by setting
+ * `exclude` to 1.
+ *
+ * You can call this function multiple times to add more search conditions.
+ *
+ * \since API version 1
+ */
+enum lsof_error lsof_select_pid(struct lsof_context *ctx, uint32_t pid,
+                                int exclude);
+
+/** Ask lsof to select process by pgid (process group id)
+ *
+ * Select process by comparing pgid. You can specify exclusion by setting
+ * `exclude` to 1.
+ *
+ * You can call this function multiple times to add more search conditions.
+ *
+ * \since API version 1
+ */
+enum lsof_error lsof_select_pgid(struct lsof_context *ctx, uint32_t pgid,
+                                 int exclude);
+
+/** Ask lsof to select process by uid
+ *
+ * Select process whose user id equals to or not equals to `uid`
+ *
+ * You can call this function multiple times to add more search conditions.
+ *
+ * \since API version 1
+ */
+enum lsof_error lsof_select_uid(struct lsof_context *ctx, uint32_t uid,
+                                int exclude);
+
+/** Ask lsof to select process by user login
+ *
+ * Select process whose user login name equals to or not equals to `login`
+ *
+ * You can call this function multiple times to add more search conditions.
+ *
+ * \since API version 1
+ */
+enum lsof_error lsof_select_login(struct lsof_context *ctx, char *login,
+                                  int exclude);
+
 /** Freeze the lsof context
  *
  * You can only call it once per context. After this call, no more options can
@@ -503,7 +569,7 @@ enum lsof_error lsof_gather(struct lsof_context *ctx,
 /** Destroy a lsof context
  *
  * You should call `lsof_free_result` to free all `struct lsof_result`
- * before destorying the context.
+ * before destroying the context.
  *
  * You must not use the context anymore after this call.
  *

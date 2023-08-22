@@ -751,3 +751,363 @@ void lsof_free_result(struct lsof_result *result) {
     CLEAN(result->selections);
     CLEAN(result);
 }
+
+API_EXPORT
+enum lsof_error lsof_select_process_regex(struct lsof_context *ctx, char *x) {
+    int bmod = 0;
+    int bxmod = 0;
+    int i, re;
+    int imod = 0;
+    int xmod = 0;
+    int co = REG_NOSUB | REG_EXTENDED;
+    char reb[256], *xb, *xe, *xm;
+    MALLOC_S xl;
+    char *xp = (char *)NULL;
+    enum lsof_error ret = LSOF_SUCCESS;
+
+    if (!ctx || ctx->frozen) {
+        return LSOF_ERROR_INVALID_ARGUMENT;
+    }
+
+    /*
+     * Make sure the supplied string starts a regular expression.
+     */
+    if (!*x || (*x != '/')) {
+        if (ctx->err) {
+            (void)fprintf(ctx->err, "%s: regexp doesn't begin with '/': ", Pn);
+            if (x)
+                safestrprt(x, ctx->err, 1);
+        }
+        ret = LSOF_ERROR_INVALID_ARGUMENT;
+        goto cleanup;
+    }
+
+    /*
+     * Skip to the end ('/') of the regular expression.
+     */
+    xb = x + 1;
+    for (xe = xb; *xe; xe++) {
+        if (*xe == '/')
+            break;
+    }
+    if (*xe != '/') {
+        if (ctx->err) {
+            (void)fprintf(ctx->err, "%s: regexp doesn't end with '/': ", Pn);
+            safestrprt(x, ctx->err, 1);
+        }
+        ret = LSOF_ERROR_INVALID_ARGUMENT;
+        goto cleanup;
+    }
+
+    /*
+     * Decode any regular expression modifiers.
+     */
+    for (i = 0, xm = xe + 1; *xm; xm++) {
+        switch (*xm) {
+        case 'b': /* This is a basic expression. */
+            if (++bmod > 1) {
+                if (bmod == 2 && ctx->err) {
+                    (void)fprintf(ctx->err,
+                                  "%s: b regexp modifier already used: ", Pn);
+                    safestrprt(x, ctx->err, 1);
+                }
+                i = 1;
+            } else if (xmod) {
+                if (++bxmod == 1 && ctx->err) {
+                    (void)fprintf(
+                        ctx->err,
+                        "%s: b and x regexp modifiers conflict: ", Pn);
+                    safestrprt(x, ctx->err, 1);
+                }
+                i = 1;
+            } else
+                co &= ~REG_EXTENDED;
+            break;
+        case 'i': /* Ignore case. */
+            if (++imod > 1) {
+                if (imod == 2 && ctx->err) {
+                    (void)fprintf(ctx->err,
+                                  "%s: i regexp modifier already used: ", Pn);
+                    safestrprt(x, ctx->err, 1);
+                }
+                i = 1;
+            } else
+                co |= REG_ICASE;
+            break;
+        case 'x': /* This is an extended expression. */
+            if (++xmod > 1) {
+                if (xmod == 2 && ctx->err) {
+                    (void)fprintf(ctx->err,
+                                  "%s: x regexp modifier already used: ", Pn);
+                    safestrprt(x, ctx->err, 1);
+                }
+                i = 1;
+            } else if (bmod) {
+                if (++bxmod == 1 && ctx->err) {
+                    (void)fprintf(
+                        ctx->err,
+                        "%s: b and x regexp modifiers conflict: ", Pn);
+                    safestrprt(x, ctx->err, 1);
+                }
+                i = 1;
+            } else
+                co |= REG_EXTENDED;
+            break;
+        default:
+            if (ctx->err)
+                (void)fprintf(ctx->err, "%s: invalid regexp modifier: %c\n", Pn,
+                              (int)*xm);
+            i = 1;
+        }
+    }
+    if (i) {
+        ret = LSOF_ERROR_INVALID_ARGUMENT;
+        goto cleanup;
+    }
+
+    /*
+     * Allocate space to hold expression and copy it there.
+     */
+    xl = (MALLOC_S)(xe - xb);
+    if (!(xp = (char *)malloc(xl + 1))) {
+        if (ctx->err) {
+            (void)fprintf(ctx->err, "%s: no regexp space for: ", Pn);
+            safestrprt(x, ctx->err, 1);
+        }
+        Error(ctx);
+        ret = LSOF_ERROR_NO_MEMORY;
+        goto cleanup;
+    }
+    (void)strncpy(xp, xb, xl);
+    xp[(int)xl] = '\0';
+    /*
+     * Assign a new CmdRx[] slot for this expression.
+     */
+    if (NCmdRxA <= NCmdRxU) {
+        /*
+         * More CmdRx[] space must be assigned.
+         */
+        NCmdRxA += 32;
+        xl = (MALLOC_S)(ctx->cmd_regex_cap * sizeof(lsof_rx_t));
+        if (CmdRx)
+            CmdRx = (lsof_rx_t *)realloc((MALLOC_P *)CmdRx, xl);
+        else
+            CmdRx = (lsof_rx_t *)malloc(xl);
+        if (!CmdRx) {
+            if (ctx->err) {
+                (void)fprintf(ctx->err, "%s: no space for regexp: ", Pn);
+                safestrprt(x, ctx->err, 1);
+            }
+            Error(ctx);
+            ret = LSOF_ERROR_NO_MEMORY;
+            goto cleanup;
+        }
+    }
+    i = NCmdRxU;
+    CmdRx[i].exp = xp;
+    /*
+     * Compile the expression.
+     */
+    if ((re = regcomp(&CmdRx[i].cx, xp, co))) {
+        if (ctx->err) {
+            (void)fprintf(ctx->err, "%s: regexp error: ", Pn);
+            safestrprt(x, ctx->err, 0);
+            (void)regerror(re, &CmdRx[i].cx, &reb[0], sizeof(reb));
+            (void)fprintf(ctx->err, ": %s\n", reb);
+        }
+        ret = LSOF_ERROR_INVALID_ARGUMENT;
+        goto cleanup;
+    }
+    /*
+     * Complete the CmdRx[] table entry.
+     */
+    CmdRx[i].mc = 0;
+    CmdRx[i].exp = xp;
+    NCmdRxU++;
+
+    /** Update selection flags for inclusion */
+    if (CmdRx)
+        Selflags |= SELCMD;
+    ret = LSOF_SUCCESS;
+cleanup:
+    CLEAN(xp);
+    return ret;
+}
+
+/* Internel helper for lsof_select_pid/pgid */
+enum lsof_error lsof_select_pid_pgid(struct lsof_context *ctx, int32_t id,
+                                     struct int_lst **sel, int *cap, int *size,
+                                     int *incl_num, int *excl_num, int exclude,
+                                     int is_pid) {
+    int i, j;
+    if (!ctx || ctx->frozen) {
+        return LSOF_ERROR_INVALID_ARGUMENT;
+    }
+
+    /*
+     * Avoid entering duplicates and conflicts.
+     */
+    for (i = 0; i < *size; i++) {
+        if (id == (*sel)[i].i) {
+            if (exclude == (*sel)[i].x) {
+                return LSOF_SUCCESS;
+            }
+            if (ctx->err) {
+                (void)fprintf(ctx->err,
+                              "%s: P%sID %d has been included and excluded.\n",
+                              Pn, is_pid ? "" : "G", id);
+            }
+            return LSOF_ERROR_INVALID_ARGUMENT;
+        }
+    }
+
+    /*
+     * Allocate table table space.
+     */
+    if (*size >= *cap) {
+        *cap += 10;
+        if (!(*sel))
+            *sel = (struct int_lst *)malloc(
+                (MALLOC_S)(sizeof(struct int_lst) * (*cap)));
+        else
+            *sel = (struct int_lst *)realloc(
+                (MALLOC_P *)(*sel),
+                (MALLOC_S)(sizeof(struct int_lst) * (*cap)));
+        if (!(*sel)) {
+            if (ctx->err) {
+                (void)fprintf(ctx->err, "%s: no space for %d process%s IDs", Pn,
+                              *cap, is_pid ? "" : " group");
+            }
+            Error(ctx);
+            return LSOF_ERROR_NO_MEMORY;
+        }
+    }
+
+    /* Insert selection into sel_pid/sel_pgid*/
+    (*sel)[*size].f = 0;
+    (*sel)[*size].i = id;
+    (*sel)[(*size)++].x = exclude;
+    if (exclude)
+        (*excl_num)++;
+    else {
+        (*incl_num)++;
+        /* Update selection flags */
+        Selflags |= is_pid ? SELPID : SELPGID;
+    }
+    return LSOF_SUCCESS;
+}
+
+API_EXPORT
+enum lsof_error lsof_select_pid(struct lsof_context *ctx, uint32_t pid,
+                                int exclude) {
+    enum lsof_error res = lsof_select_pid_pgid(ctx, pid, &Spid, &Mxpid, &Npid,
+                                               &Npidi, &Npidx, exclude, 1);
+    /* Record number of unselected PIDs for optimization */
+    Npuns = Npid;
+    return res;
+}
+
+API_EXPORT
+enum lsof_error lsof_select_pgid(struct lsof_context *ctx, uint32_t pgid,
+                                 int exclude) {
+    return lsof_select_pid_pgid(ctx, pgid, &Spgid, &Mxpgid, &Npgid, &Npgidi,
+                                &Npgidx, exclude, 0);
+}
+
+/* Internal helper for lsof_select_uid/lsof_select_login*/
+enum lsof_error lsof_select_uid_login(struct lsof_context *ctx, uint32_t uid,
+                                      char *login, int exclude) {
+    int i, j;
+    MALLOC_S len;
+    char *lp;
+
+    if (!ctx || ctx->frozen) {
+        return LSOF_ERROR_INVALID_ARGUMENT;
+    }
+
+    /*
+     * Avoid entering duplicates.
+     */
+    for (i = 0; i < Nuid; i++) {
+        if (uid != Suid[i].uid)
+            continue;
+        /* Duplicate */
+        if (Suid[i].excl == exclude) {
+            return LSOF_SUCCESS;
+        }
+
+        /* Conflict */
+        if (ctx->err) {
+            (void)fprintf(ctx->err,
+                          "%s: UID %d has been included and excluded.\n", Pn,
+                          (int)uid);
+        }
+        return LSOF_ERROR_INVALID_ARGUMENT;
+    }
+
+    /*
+     * Allocate space for User IDentifier.
+     */
+    if (Nuid >= Mxuid) {
+        Mxuid += 10;
+        len = (MALLOC_S)(Mxuid * sizeof(struct seluid));
+        if (!Suid)
+            Suid = (struct seluid *)malloc(len);
+        else
+            Suid = (struct seluid *)realloc((MALLOC_P *)Suid, len);
+        if (!Suid) {
+            if (ctx->err) {
+                (void)fprintf(ctx->err, "%s: no space for UIDs", Pn);
+            }
+            Error(ctx);
+            return LSOF_ERROR_NO_MEMORY;
+        }
+    }
+    if (login) {
+        if (!(lp = mkstrcpy(login, (MALLOC_S *)NULL))) {
+            if (ctx->err) {
+                (void)fprintf(ctx->err, "%s: no space for login: ", Pn);
+                safestrprt(login, ctx->err, 1);
+            }
+            Error(ctx);
+            return LSOF_ERROR_NO_MEMORY;
+        }
+        Suid[Nuid].lnm = lp;
+    } else
+        Suid[Nuid].lnm = (char *)NULL;
+    Suid[Nuid].f = 0;
+    Suid[Nuid].uid = uid;
+    Suid[Nuid++].excl = exclude;
+    if (exclude)
+        Nuidexcl++;
+    else {
+        Nuidincl++;
+        Selflags |= SELUID;
+    }
+    return LSOF_SUCCESS;
+}
+
+API_EXPORT
+enum lsof_error lsof_select_uid(struct lsof_context *ctx, uint32_t uid,
+                                int exclude) {
+    return lsof_select_uid_login(ctx, uid, NULL, exclude);
+}
+
+API_EXPORT
+enum lsof_error lsof_select_login(struct lsof_context *ctx, char *login,
+                                  int exclude) {
+    struct passwd *pw;
+    if (!ctx || ctx->frozen) {
+        return LSOF_ERROR_INVALID_ARGUMENT;
+    }
+
+    /* Convert login to uid, then call lsof_select_uid_login */
+    if ((pw = getpwnam(login)) == NULL) {
+        if (ctx->err) {
+            (void)fprintf(ctx->err, "%s: can't get UID for ", Pn);
+            safestrprt(login, ctx->err, 1);
+        }
+        return LSOF_ERROR_INVALID_ARGUMENT;
+    }
+    return lsof_select_uid_login(ctx, pw->pw_uid, login, exclude);
+}
