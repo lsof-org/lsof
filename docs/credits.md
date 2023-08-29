@@ -579,8 +579,11 @@ provided test systems where I was able to do development work.
 	Florian Weimer (@fweimer-rh)
 	Andreas Schwab (@andreas-schwab)
 	@oldmanhere
-	@mjoerg and and
+	@mjoerg
 	Subhaditya Nath (@subnut)
+	Linjie Li (@uniontech-lilinjie)
+	Clement Martin (@clementmartin) and
+	Kalin KOZHUHAROV (@thinrope)
 
 If I have omitted a contributor's name, the fault is wholly mine,
 and I apologize for the error.
