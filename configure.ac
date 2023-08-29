@@ -70,7 +70,8 @@ AS_CASE([${host_os}],
 	[11*],	[LSOF_VERS=11000],
 	[12*],	[LSOF_VERS=12000],
 	[13*],	[LSOF_VERS=13000],
-	[14*],	[LSOF_VERS=14000], [
+	[14*],	[LSOF_VERS=14000],
+	[15*],	[LSOF_VERS=15000], [
 		AC_MSG_ERROR([Unknown FreeBSD release: $(uname -r)])
 	])
 
