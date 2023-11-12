@@ -1135,7 +1135,7 @@ static int printinaddr(struct lsof_context *ctx) {
         if (Lf->li[i].ia.a4.s_addr == INADDR_ANY)
             host = "*";
         else
-            host = gethostnm((unsigned char *)&Lf->li[i].ia, Lf->li[i].af);
+            host = gethostnm(ctx, (unsigned char *)&Lf->li[i].ia, Lf->li[i].af);
 #endif /* defined(HASIPv6) */
 
         /*
