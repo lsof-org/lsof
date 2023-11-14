@@ -253,6 +253,11 @@ AC_SUBST([LSOF_DIALECT_DIR])
 AC_DEFINE([API_EXPORT], [__attribute__ ((visibility ("default")))],
 	[Set visibility to default for exported API functions.])
 
+# --enable-liblsof to install liblsof
+AC_ARG_ENABLE(liblsof, AS_HELP_STRING([--enable-liblsof],
+	[build and install liblsof @<:@default=no@:>@]), [], [enable_liblsof=no])
+AM_CONDITIONAL([INSTALL_LIBLSOF], [test "x$enable_liblsof" = xyes])
+
 # --enable-security to define HASSECURITY
 AC_ARG_ENABLE(security, AS_HELP_STRING([--enable-security],
 	[allow only the root user to list all open files @<:@default=no@:>@]), [], [enable_security=no])
