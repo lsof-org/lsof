@@ -5574,6 +5574,9 @@ Supplement	Regenerated the 4.04 distribution to correct a non-
 
 		Fix compilation error when HASIPv6 is not defined. (@chenrui333)
 
+		Add configure option --disable-liblsof to disable installation
+		of liblsof. (@subnut, #300)
+
 4.9?.?		????????? ??, ????
 
 Vic Abell <abe@purdue.edu>

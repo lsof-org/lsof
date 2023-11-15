@@ -255,7 +255,7 @@ AC_DEFINE([API_EXPORT], [__attribute__ ((visibility ("default")))],
 
 # --enable-liblsof to install liblsof
 AC_ARG_ENABLE(liblsof, AS_HELP_STRING([--enable-liblsof],
-	[build and install liblsof @<:@default=no@:>@]), [], [enable_liblsof=no])
+	[build and install liblsof @<:@default=yes@:>@]), [], [enable_liblsof=yes])
 AM_CONDITIONAL([INSTALL_LIBLSOF], [test "x$enable_liblsof" = xyes])
 
 # --enable-security to define HASSECURITY
