@@ -49,7 +49,7 @@ jobs:
             apt update || true
             apt install -y autoconf automake gcc git groff iproute2 libtirpc-dev libtool make ncat pkg-config procps sudo || true
             pacman -Sy --noconfirm autoconf automake gcc git groff iproute2 libtool make pkg-config procps sudo || true
-            zypper install -y autoconf automake gcc git groff gzip iproute2 libtool make pkg-config procps sudo tar || true
+            zypper install -y autoconf automake gcc git groff gzip iproute2 libtool make pkg-config procps sudo tar make || true
             apk add sudo autoconf automake bash gcc git groff gzip iproute2 libtool linux-headers make musl-dev nmap-ncat pkgconf strace which || true
       - when:
           condition:
