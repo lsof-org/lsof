@@ -255,6 +255,7 @@ provided test systems where I was able to do development work.
 	Steve Kirsch
 	Philip Kizer
 	Thomas Klausner
+	Ronald Klop
 	Roger Klorese
 	Peter Klosky
 	Przemek Klosowski

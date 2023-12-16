@@ -5578,6 +5578,8 @@ Supplement	Regenerated the 4.04 distribution to correct a non-
 		of liblsof. (@subnut, #300)
 
 4.9?.?		????????? ??, ????
+                
+                [freebsd] fix segfault from fs info (FreeBSD bug 267760)
 
 Vic Abell <abe@purdue.edu>
 July 14, 2018

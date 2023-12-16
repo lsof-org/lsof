@@ -294,6 +294,7 @@ void process_vnode(struct lsof_context *ctx, struct kinfo_file *kf,
     char *dp, *np, tbuf[1024];
     struct null_node nu;
     int sc = 0;
+    size_t vfs_fsname_len, vfs_dir_len, vfs_path_len;
 #endif /* defined(HASNULLFS) */
 
     int proc_pid = 0;
@@ -441,10 +442,15 @@ process_overlaid_node:
          * /original_mountpoint/path/to/file
          * ------fsname--------
          */
-        memmove(&vfs_path[strlen(vfs->fsname) + 1],
-                &vfs_path[strlen(vfs->dir) + 1],
-                strlen(vfs_path) - strlen(vfs->dir) + 1);
-        memcpy(vfs_path, vfs->fsname, strlen(vfs->fsname));
+         vfs_fsname_len = strlen(vfs->fsname);
+         vfs_dir_len = strlen(vfs->dir);
+         vfs_path_len = strlen(vfs_path);
+ 
+         if (vfs_path_len >= vfs_dir_len) {
+             memmove(&vfs_path[vfs_fsname_len], &vfs_path[vfs_dir_len],
+             vfs_path_len - vfs_dir_len + 1);
+             memcpy(vfs_path, vfs->fsname, vfs_fsname_len);
+         }
         goto process_overlaid_node;
 #endif /* defined(HASNULLFS) */
     }
