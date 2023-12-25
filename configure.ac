@@ -561,7 +561,7 @@ AC_CONFIG_FILES([Makefile])
 
 # Pass build configurations to version.h.in
 AC_SUBST(cc, $CC)
-AC_SUBST(ccv, $($CC -v 2>&1 | sed -n 's/.*version \(.*\)/\1/p'))
+AC_SUBST(ccv, $($CC -v 2>&1 | sed -n 's/.*version \(.*\)/\1/p;q'))
 AC_SUBST(ccflags, $CFLAGS)
 AC_SUBST(ldflags, "$LDFLAGS$LIBS")
 # Reproducible build
