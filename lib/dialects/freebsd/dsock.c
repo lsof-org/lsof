@@ -472,9 +472,14 @@ void process_socket(struct lsof_context *ctx, struct kinfo_file *kf,
                 }
             }
             enter_dev_ch(ctx,
-                         print_kptr((KA_T)(kf->kf_un.kf_sock.kf_sock_inpcb
-                                               ? kf->kf_un.kf_sock.kf_sock_inpcb
-                                               : kf->kf_un.kf_sock.kf_sock_pcb),
+                         print_kptr((KA_T)(
+#if __FreeBSD_version >= 1400074
+                                           kf->kf_un.kf_sock.kf_sock_pcb),
+#else
+                                           kf->kf_un.kf_sock.kf_sock_inpcb
+                                           ? kf->kf_un.kf_sock.kf_sock_inpcb
+                                           : kf->kf_un.kf_sock.kf_sock_pcb),
+#endif
                                     (char *)NULL, 0));
             la = (unsigned char *)&local_addr6->sin6_addr;
             lp = (int)ntohs(local_addr6->sin6_port);
@@ -509,9 +514,14 @@ void process_socket(struct lsof_context *ctx, struct kinfo_file *kf,
                     return;
             }
             enter_dev_ch(ctx,
-                         print_kptr((KA_T)(kf->kf_un.kf_sock.kf_sock_inpcb
-                                               ? kf->kf_un.kf_sock.kf_sock_inpcb
-                                               : kf->kf_un.kf_sock.kf_sock_pcb),
+                         print_kptr((KA_T)(
+#if __FreeBSD_version >= 1400074
+                                           kf->kf_un.kf_sock.kf_sock_pcb),
+#else
+                                           kf->kf_un.kf_sock.kf_sock_inpcb
+                                           ? kf->kf_un.kf_sock.kf_sock_inpcb
+                                           : kf->kf_un.kf_sock.kf_sock_pcb),
+#endif
                                     (char *)NULL, 0));
             lp = (int)ntohs(local_addr->sin_port);
             la = (unsigned char *)&local_addr->sin_addr;
