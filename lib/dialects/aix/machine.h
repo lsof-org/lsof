@@ -291,7 +291,7 @@ typedef long long aligned_offset_t __attribute__((aligned(8)));
 /* #define	NCACHELDSFX	??? */
 
 /*
- * HASNLIST is defined for those dialects that use nlist() to acccess
+ * HASNLIST is defined for those dialects that use nlist() to access
  * kernel symbols.  (AIX lsof doesn't use nlist, it uses knlist.)
  */
 

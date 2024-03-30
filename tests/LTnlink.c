@@ -189,7 +189,7 @@ int main(int argc,     /* argument count */
      *
      * Get the test file's parameters:
      *
-     *    * device paramters in LTdev_t form;
+     *    * device parameters in LTdev_t form;
      *    * inode number in ASCII;
      *    * link count in ASCII;
      *    * file size in ASCII.

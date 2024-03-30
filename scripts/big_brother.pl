@@ -11,7 +11,7 @@
 
 # @(#)big_brother	1.12 08/14/96 Written by Lionel.Cons@cern.ch
 
-# no waranty! use this at your own risks!
+# no warranty! use this at your own risks!
 
 #
 # init & setup

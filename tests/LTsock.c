@@ -215,7 +215,7 @@ int main(int argc,     /* argument count */
     (void)fflush(stdout);
     PrtMsg((char *)NULL, Pn);
     /*
-     * Initalize the FdPara[] array before any CleanupClnt() call.
+     * Initialize the FdPara[] array before any CleanupClnt() call.
      */
     for (ti = 0; ti < NFDPARA; ti++) {
         (void)memset((void *)&FdPara[ti], 0, sizeof(fdpara_t));
@@ -701,7 +701,7 @@ static char *FindSock(int fn) /* function -- an LT_FBY* value */
                 break;
             }
             /*
-             * Check the addess in the name, based on the calling function.
+             * Check the address in the name, based on the calling function.
              */
             if (!nmp)
                 break;

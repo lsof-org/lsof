@@ -35,7 +35,7 @@ fi
 	echo child:  $child
 	echo fdm:    $fdm
 	echo fds:    $fds
-	echo nams:   $names
+	echo names:  $names
 	echo cmdline: "$lsof +E -p $parent"
     } >> $report
     $lsof +E -p "$parent" >> $report

@@ -30,7 +30,7 @@
 #	-size reset in loop (script was broken in 4.76)
 #	-isexec looking in .. (like other scripts)
 #	-display for one or all processes
-#	-removing unuseful line number arg.
+#	-removing useless line number arg.
 #	-display global size
 
 my @args = @_;

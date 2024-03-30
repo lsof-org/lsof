@@ -260,7 +260,7 @@ struct lsof_file {
     uint64_t flags;
 
     /* FD column */
-    /** File desciptor type */
+    /** File descriptor type */
     enum lsof_fd_type fd_type;
 
     /** File descriptor number, valid if \ref fd_type == \ref LSOF_FD_NUMERIC */
@@ -551,7 +551,7 @@ enum lsof_error lsof_freeze(struct lsof_context *ctx);
 
 /** List open files, grouped by processes
  *
- * The result is a struct lsof_result, saved into `result` paramter.
+ * The result is a struct lsof_result, saved into `result` parameter.
  *
  * You should not alter the content of `result`, nor call `free()` to
  * pointers within. You should free `result` by calling

@@ -816,7 +816,7 @@ These files may be created by suite tests.
 
     config.LTnlink*	LTnlink	    for link count tests
 
-    config.LTszoff*     LTszoff     for small file size and and
+    config.LTszoff*     LTszoff     for small file size and
 				    offset reporting
 
     config.LT[01]U*     LTunix      two UNIX domain sockets, used

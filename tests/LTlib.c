@@ -440,7 +440,7 @@ char *ExecLsof(char **opt) /* lsof options -- a pointer to an
         if (!av) {
             (void)snprintf(
                 buf, sizeof(buf) - 1,
-                "LTlib: ExecLsof() can't allocat pointers for %d arguments",
+                "LTlib: ExecLsof() can't allocate pointers for %d arguments",
                 optc + 4);
             return (MkStrCpy(buf, &ti));
         }

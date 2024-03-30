@@ -865,7 +865,7 @@ void usage(struct lsof_context *ctx, /* context */
     if (version) {
 
         /*
-         * Display version information in reponse to ``-v''.
+         * Display version information in response to ``-v''.
          */
         (void)fprintf(stderr, "%s version information:\n", Pn);
         (void)fprintf(stderr, "    revision: %s\n", LSOF_VERSION);

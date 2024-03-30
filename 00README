@@ -562,7 +562,7 @@ compile-time definitions for the dialect's machine.h header file:
 	HASKERNIDCK		the build-time to run-time kernel
 				identity check
 	HASSECURITY		the security option
-	HASNOSOCKSECURITY	the open socket listing option whe
+	HASNOSOCKSECURITY	the open socket listing option when
 				HASSECURITY is defined
 	WARNDEVACCESS		/dev (or /devices) warning message
 				control
@@ -825,8 +825,8 @@ of tests/, with:
 	$ make opt
     or	$ make optional
 
-It's possible to excute individual tests, too.  See the 00TEST file
-of this distribution for more informaiton on the tests, what they
+It's possible to execute individual tests, too.  See the 00TEST file
+of this distribution for more information on the tests, what they
 do, and how to run and possibly customize each test.
 
 It's possible to run the tests, using an lsof other than the one
@@ -1336,7 +1336,7 @@ to read memory devices such as /dev/kmem, /dev/mem, or /dev/swap,
 or it may be authorization to read entries in the /proc file system.
 
 Memory device access can usually be provided by setting the modes
-of the lsof executable so that it's effective group identifier when
+of the lsof executable so that its effective group identifier when
 it runs is the same as the group that has permission to read the
 memory devices -- i.e., it is setgid-group.  The privileged group
 is usually kmem, sys, or system.

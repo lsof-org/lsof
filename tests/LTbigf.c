@@ -659,7 +659,7 @@ static int tstwlsof(int tt,      /* test type -- i.e., TST_* */
             if (strcmp(inop->v, buf))
                 break;
             /*
-             * The specifed file has been located.  Check its size or offset,
+             * The specified file has been located.  Check its size or offset,
              * according to the tt argument.
              */
             ff = 1;

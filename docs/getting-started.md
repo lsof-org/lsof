@@ -24,7 +24,7 @@ You should use the legacy build system if you are building lsof on old OSes or d
 - linux                   : Linux
 - netbsd                  : NetBSD
 - openbsd                 : OpenBSD
-- osr|sco                 : SCO OpenServer < 6.0.0, SCO devloper's compiler
+- osr|sco                 : SCO OpenServer < 6.0.0, SCO developer's compiler
 - osrgcc|scogcc           : SCO OpenServer < 6.0.0, gcc compiler
 - osr6                    : SCO OpenServer 6.0.0, SCO compiler
 - solaris|solariscc       : Solaris gcc (solaris) or cc (solariscc)

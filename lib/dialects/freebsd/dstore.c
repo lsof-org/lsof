@@ -35,7 +35,7 @@ static char copyright[] =
 
 #include "common.h"
 
-struct file *Cfp; /* curent file's file struct pointer */
+struct file *Cfp; /* current file's file struct pointer */
 
 /*
  * Drive_Nl -- table to drive the building of Nl[] via build_Nl()

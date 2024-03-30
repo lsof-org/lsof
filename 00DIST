@@ -1903,7 +1903,7 @@ Supplement	Regenerated the 4.04 distribution to correct a non-
 		possible.  PTX 4.4.4 requires clnt_create().
 
 4.41		February 27, 1999
-		Added FreeBSD 3.1 and and 4.0 support with help
+		Added FreeBSD 3.1 and 4.0 support with help
 		from Sheldon Hearn <axl@iafrica.com>, David O'Brien
 		<obrien@NUXI.com>, and John Polstra <jdp@polstra.com>.
 
@@ -4016,7 +4016,7 @@ Supplement	Regenerated the 4.04 distribution to correct a non-
 		a patch to 4.75.
 
 		Added support for Solaris 10 port and CTFS files.  The
-		CTFS support is imcomplete, because I don't know how
+		CTFS support is incomplete, because I don't know how
 		to get inode number, size and link count.  (There's
 		a new 00FAQ entry about that.)
 
@@ -4076,7 +4076,7 @@ Supplement	Regenerated the 4.04 distribution to correct a non-
 		PA-RISC HP-UX 11.23, based on a report from John
 		Orndorff <John.Orndorff@sungard.com>.  Found that
 		neither the HP bundled C compiler nor gcc would build
-		lsof, but the the HP unbundled ANSI C compiler would.
+		lsof, but the HP unbundled ANSI C compiler would.
 		Concluded that HP bundled C compiler can't handle
 		<gssapi/gssapi.h>.  Devised a work-around to gcc's
 		omission of the rpcent structure definition of
@@ -4600,7 +4600,7 @@ Supplement	Regenerated the 4.04 distribution to correct a non-
 		Made FreeBSD 9 adjustment.
 
 		Fixed a Linux bug that prevented the display of paths for
-		abstact UNIX sockets.  Masatake Yamato <yamato@redhat.com>
+		abstract UNIX sockets.  Masatake Yamato <yamato@redhat.com>
 		reported the bug and supplied a patch.
 
 		Added compensation for the removal of RPC header files from
@@ -4752,7 +4752,7 @@ Supplement	Regenerated the 4.04 distribution to correct a non-
 		file names.  Stephane Chazelas <stephane.chazelas@gmail.com>
 		reported the problem.
 
-		Added support for Linux RDMA and CRYPTO protocal names and UNIX
+		Added support for Linux RDMA and CRYPTO protocol names and UNIX
 		socket type with code from Masatake YAMATO <yamato@redhat.com>.
 
 		Fixed field output to insure that the field descriptor field is
@@ -5522,7 +5522,7 @@ Supplement	Regenerated the 4.04 distribution to correct a non-
 
 4.99.0		November 10, 2023
 
-		[netbsd] Get device numer of tmpfs instead of reporting zero
+		[netbsd] Get device number of tmpfs instead of reporting zero
 
 
 		[openbsd] Rewrite OpenBSD support because OpenBSD disallows

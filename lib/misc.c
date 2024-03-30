@@ -1191,7 +1191,7 @@ char *Readlink(struct lsof_context *ctx,
 
 int readstdata(struct lsof_context *ctx, /* context */
                KA_T addr,                /* stdata address in kernel*/
-               struct stdata *buf)       /* buffer addess */
+               struct stdata *buf)       /* buffer address */
 {
     if (!addr || kread(ctx, addr, (char *)buf, sizeof(struct stdata))) {
         (void)snpf(Namech, Namechl, "no stream data in %s",

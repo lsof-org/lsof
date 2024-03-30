@@ -131,7 +131,7 @@ in bash.
 
 About the original test mechanism, see tests/00README.
 
-About the the github test mechanism, see tests/case-00-hello.bash .
+About the github test mechanism, see tests/case-00-hello.bash .
 You can put a test case non-dialect specific, put tests/.
 dialects/linux/tests/ is for testing linux specific code.
 

@@ -1473,7 +1473,7 @@ int ckscko; /* socket file only checking
         Lf->sz_def = 1;
     }
     /*
-     * Get the the device number from the stream head.
+     * Get the device number from the stream head.
      *
      * If the stream is a clone:
      *

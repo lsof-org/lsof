@@ -664,7 +664,7 @@ may complain that it finds errors in system header files
 Errors like the above are most likely not problems in the
 system's header files, but in the private copies of them
 that were created when gcc was made or installed.  Note
-the presense of
+the presence of
 ".../gcc-3.2.1/lib/gcc-lib/sparcv9-sun-solaris2/3.2.1/include/..."
 in the paths for user.h and task.h.  It indicates both
 header files are gcc-specific.
@@ -928,7 +928,7 @@ may be found in the answer to the "How are protocol state name
 exclusion and inclusion used?" question.
 
 Your UNIX dialect may not support "-s p:s" and its associated
-performance improvments to Internet-only file processing.  You
+performance improvements to Internet-only file processing.  You
 can find more information on those topics in the answer to the
 "Why doesn't my dialect support state name exclusion and
 inclusion?" question.
@@ -984,7 +984,7 @@ when lsof runs setuid-root, it makes sure the file's
 ownerships are changed to that of the real user and group.
 In addition, lsof checks the file carefully before using
 it (See the question "How do I disable the device cache
-file feature or alter it's behavior?" for a description of
+file feature or alter its behavior?" for a description of
 the checks.); discards the file if it fails the scrutiny;
 complains about the condition of the file; then rebuilds
 the file.
@@ -1577,7 +1577,7 @@ for the file system.
 
 If the mounted-on device is a block device (the permission
 field in output of `ls -l <device>` starts with a `b/),
-you can specify it's name, too -- e.g.,
+you can specify its name, too -- e.g.,
 
 	$ lsof /dev/sd0a
 
@@ -2299,7 +2299,7 @@ command RE, you'll get this response:
 	$ lsof -s/.\// ...
 	lsof: invalid regexp modifier: /
 
-Lsof is complaining the the first character it found after
+Lsof is complaining the first character it found after
 the second slash isn't an lsof command RE modifier -- 'b',
 'i', or 'x'.
 

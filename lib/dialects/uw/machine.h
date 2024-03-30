@@ -259,7 +259,7 @@
 /* #define	NCACHELDSFX	??? */
 
 /*
- * HASNLIST is defined for those systems that use nlist() to acccess
+ * HASNLIST is defined for those systems that use nlist() to access
  * kernel symbols.
  */
 

@@ -21,7 +21,7 @@ H=$1
 D=$2
 S=$3
 
-# Test the shell and define it's full path, as required.
+# Test the shell and define its full path, as required.
 
 if test "X$S" = "Xrsh"
 then

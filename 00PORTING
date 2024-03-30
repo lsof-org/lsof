@@ -1195,7 +1195,7 @@ possibilities
 
     HASTCPUDPSTATE	is defined when the dialect has support for
 			TCP and UDP state, including the "-s p:s"
-			option and associated speed ehancements.
+			option and associated speed enhancements.
 
     HASTFS		indicates that the Pyramid dialect has TFS
 			file system support.
@@ -1390,7 +1390,7 @@ possibilities
 
     NOWARNBLKDEV        specifies that no warning is to be issued
 			when no block devices are found.  This
-			definiton is used only when HASBLKDEV is
+			definition is used only when HASBLKDEV is
 			also defined.
 
     OFFDECDIG           specifies how many decimal digits will be

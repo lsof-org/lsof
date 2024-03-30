@@ -279,7 +279,7 @@ typedef _Bool bool;
 /* #define	NCACHELDSFX	??? */
 
 /*
- * HASNLIST is defined for those dialects that use nlist() to acccess
+ * HASNLIST is defined for those dialects that use nlist() to access
  * kernel symbols.
  */
 

@@ -934,7 +934,7 @@ cleanup:
     return ret;
 }
 
-/* Internel helper for lsof_select_pid/pgid */
+/* Internal helper for lsof_select_pid/pgid */
 enum lsof_error lsof_select_pid_pgid(struct lsof_context *ctx, int32_t id,
                                      struct int_lst **sel, int *cap, int *size,
                                      int *incl_num, int *excl_num, int exclude,
