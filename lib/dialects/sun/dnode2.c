@@ -232,7 +232,7 @@ static char *getioffs(char **vx,  /* pointer to allocated vx_inode space */
 
 #        if defined(HASVXFSRNL)
 
-#            define RNLCINIT 64 /* inital RNL cache size */
+#            define RNLCINIT 64 /* initial RNL cache size */
 #            define RNLCINCR 32 /* RNL cache increment */
 
 /*

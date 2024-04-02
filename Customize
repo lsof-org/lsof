@@ -641,7 +641,7 @@ users.  Press ENTER to use the current value of HASENVDC:
 HASPERSDC is a format that specifies how the personal device cache
 path is constructed.  Consult the 00DCACHE and 00FAQ files of the
 lsof distribution for information on the conversions supported in
-HASPERSDC.  Press ENTER to use the curent HASPERSDC format:
+HASPERSDC.  Press ENTER to use the current HASPERSDC format:
 
 .CAT_MARK
 

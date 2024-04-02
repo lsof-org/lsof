@@ -9,7 +9,7 @@
 #   ident   stream  tcp     nowait  root    /usr/local/bin/identd.pl -t200
 #
 # - Multiple instances of the server are not a performance penalty
-#   since they shall use lsof's cacheing mechanism. (compare with
+#   since they shall use lsof's caching mechanism. (compare with
 #   Peter Eriksson's pidentd)
 # - Command line arguments :
 #   -t TIMEOUT Number of seconds to wait for a query before aborting.

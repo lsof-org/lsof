@@ -426,7 +426,7 @@ information for the lsof ${V} bzip2, gzip and compressed distribution
 files.
 
 There are additional opportunities to validate the lsof distribution
-with infomation found inside it.  Consult the file ${R}
+with information found inside it.  Consult the file ${R}
 inside the distribution.
 
 MD5 Checksums

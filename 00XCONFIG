@@ -33,7 +33,7 @@ Marty says:
 
 	LINUX_KERNEL=/some/other/kernel LSOF_VERS=2142 ./Configure linux
 
-     Comments?  Its very convenient when running multiple kernels.
+     Comments?  It's very convenient when running multiple kernels.
      (It would be (have been) very handy when the structures changed
      between 2.0.2* and 2.0.30 , or whatever.)
 
@@ -151,7 +151,7 @@ LSOF_HOST       may be used to specify a value in lsof's -v output
 			 hostname or uname -n
 
 LSOF_INCLUDE    is the path to a tree of header files that is an exact
-		image of the the standard header file tree for the
+		image of the standard header file tree for the
 		target dialect.  You may need to specify it if you
 		want Configure to test header files in a tree different
 		from /usr/include and compile its test programs with
@@ -181,7 +181,7 @@ LSOF_LOGNAME    may be used to specify a value in lsof's -v output
 
 LSOF_MAKE	is the path to the make command.
 
-		deafult: the output of `which make`, if it is not NULL;
+		default: the output of `which make`, if it is not NULL;
 			 otherwise the string "make".
 
 LSOF_MKC        may be used to specify an alternate method of
@@ -527,7 +527,7 @@ LINUX_CONF_CC		specifies the location of the C compiler to use during
 LINUX_HASSELINUX	If this environment variable has a value of "Y" or "y",
 			Configure unconditionally activates SELinux support.
 			If it has any other value, Configure unconditionally
-			inhibits SELinux suport.
+			inhibits SELinux support.
 
 			Default: assumed to be "Y" if <selinux/selinux.h>
 				 exists

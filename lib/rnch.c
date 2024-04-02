@@ -77,7 +77,7 @@
  *				ncache structure that contains the
  *				name length.
  *
- *				Deafult: namlen
+ *				Default: namlen
  *
  *	Define NCACHE_NEGVN	as the name of the name list element
  *				whose value is a vnode address to
@@ -239,7 +239,7 @@ static int ncache_isroot(KA_T va,  /* kernel vnode address */
      *
      * If it isn't, and if the file has an inode number, search the mount table
      * and see if the file system's inode number is known.  If it is, form the
-     * possible full path, safely stat() it, and see if it's inode number
+     * possible full path, safely stat() it, and see if its inode number
      * matches the one we have for this file.  If it does, then the path is
      * complete.
      */

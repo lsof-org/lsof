@@ -264,7 +264,7 @@
 /* #define	NCACHELDSFX	??? */
 
 /*
- * HASNLIST is defined for those dialects that use nlist() to acccess
+ * HASNLIST is defined for those dialects that use nlist() to access
  * kernel symbols.
  */
 
@@ -556,7 +556,7 @@
  * when lsof can't access /dev (or /device) or one of its sub-directories.
  * The warning can be inhibited by the lsof caller with the -w option.
  *
- * CAUTION!!!  Don't enable the WARNDEVACCESS definiton for /proc-based Linux
+ * CAUTION!!!  Don't enable the WARNDEVACCESS definition for /proc-based Linux
  *	       lsof; it doesn't process /dev at all.
  *
  * The presence of NEVER_WARNDEVACCESS in this comment prevents the Customize

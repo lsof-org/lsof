@@ -1,6 +1,6 @@
 
 /*
- * hash.sh - utilty functions for hash tables
+ * hash.sh - utility functions for hash tables
  */
 
 /*

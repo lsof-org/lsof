@@ -485,7 +485,7 @@ Table of Contents:
 17.26.1	Why doesn't lsof report size, link count and node number for
 	Solaris 10 contract files?
 17.26.2 Why can't lsof locate a Solaris 10 contract file by path name?
-17.27	Solaris 10 and above ZFS probblems
+17.27	Solaris 10 and above ZFS problems
 17.27.1	Why does Configure warn that ZFS support is not enabled?
 17.28	Problems with Solaris 9 and above
 17.28.1	Why does the compiler complain about lgrp_root on Solaris 9
@@ -495,7 +495,7 @@ Table of Contents:
 18.1	Why doesn't lsof doesn't report on /proc entries on my
 	system?
 18.2	How do I disable the device cache file feature or alter
-	it's behavior?
+	its behavior?
 18.2.1	What's the risk with a perverted device cache file?
 18.2.2	How do I put the full host name in a personal device cache file
 	path?
@@ -973,7 +973,7 @@ ______________________________________________________________________
 	The vendor additions are significant to lsof because they
 	affect the internal kernel structures with which lsof does
 	business.  While some vendor derivatives of SVR4 are similar,
-	each one I have encounted so far has been different enough
+	each one I have encountered so far has been different enough
 	from its siblings to require special source code.
 
 	If you're interested in an SVR4 version of lsof, here are
@@ -1140,7 +1140,7 @@ ______________________________________________________________________
 	Errors like the above are most likely not problems in the
 	system's header files, but in the private copies of them
 	that were created when gcc was made or installed.  Note
-	the presense of
+	the presence of
 	".../gcc-3.2.1/lib/gcc-lib/sparcv9-sun-solaris2/3.2.1/include/..."
 	in the paths for user.h and task.h.  It indicates both
 	header files are gcc-specific.
@@ -1404,7 +1404,7 @@ ______________________________________________________________________
 	exclusion and inclusion used?" question.
 
 	Your UNIX dialect may not support "-s p:s" and its associated
-	performance improvments to Internet-only file processing.  You
+	performance improvements to Internet-only file processing.  You
 	can find more information on those topics in the answer to the
 	"Why doesn't my dialect support state name exclusion and
 	inclusion?" question.
@@ -1460,7 +1460,7 @@ ______________________________________________________________________
 	ownerships are changed to that of the real user and group.
 	In addition, lsof checks the file carefully before using
 	it (See the question "How do I disable the device cache
-	file feature or alter it's behavior?" for a description of
+	file feature or alter its behavior?" for a description of
 	the checks.); discards the file if it fails the scrutiny;
 	complains about the condition of the file; then rebuilds
 	the file.
@@ -2055,7 +2055,7 @@ ______________________________________________________________________
 
 	If the mounted-on device is a block device (the permission
 	field in output of `ls -l <device>` starts with a `b/),
-	you can specify it's name, too -- e.g.,
+	you can specify its name, too -- e.g.,
 
 	    $ lsof /dev/sd0a
 
@@ -2783,7 +2783,7 @@ ______________________________________________________________________
 	    $ lsof -s/.\// ...
 	    lsof: invalid regexp modifier: /
 
-	Lsof is complaining the the first character it found after
+	Lsof is complaining the first character it found after
 	the second slash isn't an lsof command RE modifier -- 'b',
 	'i', or 'x'.
 
@@ -4067,7 +4067,7 @@ ______________________________________________________________________
 
 	At an upcoming release lsof will use a library called libproc
 	to obtain information about open files.  That version of lsof
-	wil be called libproc-based lsof.
+	will be called libproc-based lsof.
 
 	The /dev/kmem-based lsof sources may be found in the kmem
 	subdirectory of the dialects/darwin branch of the lsof source
@@ -5511,7 +5511,7 @@ ______________________________________________________________________
 	subdirectory of a process' /proc/<PID> directory, it reports a
 	single file of the type ``NOFD'' (for no file descriptors).
 
-	Lsof reports the the /proc/<PID>/path in the NAME column,
+	Lsof reports the /proc/<PID>/path in the NAME column,
 	followed by "(opendir: xxx)", where ``xxx'' is the error
 	message returned by opendir().
 
@@ -7523,7 +7523,7 @@ ______________________________________________________________________
 	applying stat(2) to the contract file path name with what it
 	finds in kernel data.
 
-17.27	Solaris 10 and above ZFS probblems
+17.27	Solaris 10 and above ZFS problems
 
 17.27.1	Why does Configure warn that ZFS support is not enabled?
 
@@ -7578,7 +7578,7 @@ ______________________________________________________________________
 	-- usually called prdata.h.
 
 18.2	How do I disable the device cache file feature or alter
-	it's behavior?
+	its behavior?
 
 	To disable the device cache file feature for a dialect,
 	remove the HASDCACHE definition from the machine.h file of

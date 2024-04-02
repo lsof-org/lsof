@@ -244,7 +244,7 @@ static int get_clonemaj(struct lsof_context *ctx) {
         return (rv);
     }
     /*
-     * Scan the cdevsw[], reading it's names, looking for "clone".
+     * Scan the cdevsw[], reading its names, looking for "clone".
      * Record its cdevsw[] index (i.e., major device number).
      */
     len = sizeof(buf) - 1;

@@ -94,7 +94,7 @@ struct mounts *readmnt(struct lsof_context *ctx) {
 
 #    if defined(MNTSKIP)
         /*
-         * Specfy in the MNTSKIP macro the decisions needed to determine
+         * Specify in the MNTSKIP macro the decisions needed to determine
          * that this entry should be skipped.
          *
          * Typically entries whose mnt_type is MNTTYPE_IGNORE are skipped.

@@ -6,7 +6,7 @@
  * Control Block).  The ipc_s holds the TCP/IP address for a stream.
  *
  * The original HP-UX 11 distribution has a flat ipc_s structure, with hash
- * links to other ipc_s structures, and direct links to the the read and write
+ * links to other ipc_s structures, and direct links to the read and write
  * sections of the stream.
  *
  * After patch bundle B11.00.43 the ipc_s structure definition requires

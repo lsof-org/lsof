@@ -24,7 +24,7 @@ $TARGET | {
 	eval "$k=$v"
     done
     #
-    # An exapmle of lsof output:
+    # An example of lsof output:
     #
     # COMMAND     PID USER   FD   TYPE             DEVICE SIZE/OFF     NODE NAME
     # ux      1445917  jet    3u  unix 0x000000002d21092b      0t0 75849115 /tmp/lsof-test-ux-1445917.s type=STREAM ->INO=75843930 1445919,ux,5u
@@ -43,7 +43,7 @@ $TARGET | {
     if $lsof +E $path > $out; then
 	kill -CONT $ppid
 	if [[ $(wc -l < $out) != $(( 1 + 4 )) ]]; then
-	    echo "Too many file descriptors are found (the expection is 4 but got $(wc -l < $out)):" >> $report
+	    echo "Too many file descriptors are found (the expectation is 4 but got $(wc -l < $out)):" >> $report
 	    cat $out >> $report
 	    rm $out
 	    exit 1

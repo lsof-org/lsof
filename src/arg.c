@@ -2070,7 +2070,7 @@ static char *isIPv4addr(char *hn,         /* host name */
                         int al)           /* address receptor length */
 {
     int dc = 0;          /* dot count */
-    int i;               /* temorary index */
+    int i;               /* temporary index */
     int ov[MIN_AF_ADDR]; /* octet values */
     int ovx = 0;         /* ov[] index */
                          /*

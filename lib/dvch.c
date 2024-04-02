@@ -273,7 +273,7 @@ int dcpath(struct lsof_context *ctx, int rw, /* read (1) or write (2) mode */
         DCpath[3] = (char *)NULL;
     }
     /*
-     * If a path was specified via -D, it's character address will have been
+     * If a path was specified via -D, its character address will have been
      * stored in DCpathArg by ctrl_dcache().  Use that address if the real UID
      * of this process is root, or the mode is read, or the process is neither
      * setuid-root nor setgid.
@@ -546,7 +546,7 @@ int dcpath(struct lsof_context *ctx, int rw, /* read (1) or write (2) mode */
          * If there was an intermediate error of some type, handle it.
          * A type 1 intermediate error has already been noted with a
          * warning message.  A type 2 intermediate error requires the
-         * issuing of a buffer overlow warning message.
+         * issuing of a buffer overflow warning message.
          */
         if (ierr == 2 && !Fwarn)
             (void)fprintf(stderr,

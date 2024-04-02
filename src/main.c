@@ -88,7 +88,7 @@ int main(int argc, char *argv[]) {
 
 #if defined(HASSELINUX)
     /*
-     * This stanza must be immediately before the "Save progam name." code,
+     * This stanza must be immediately before the "Save program name." code,
      * since it contains code itself.
      */
     cntxlist_t *cntxp;

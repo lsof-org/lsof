@@ -45,7 +45,7 @@ static char copyright[] =
  *
  * These structure definitions may look like kernel structures, but they
  * are not.  They have been defined to have member names that duplicate
- * those used by the kernel that are of interest to lsof.  Member valuess
+ * those used by the kernel that are of interest to lsof.  Member values
  * are obtained via the CTF library, libctf.
  *
  * Robert Byrnes developed the CTF library access code and contributed it
@@ -59,7 +59,7 @@ static char copyright[] =
 typedef struct icmp_s {
     uint_t icmp_state;           /* TPI state */
     KA_T *icmp_connp;            /* connection structure pointer */
-    in6_addr_t icmp_bound_v6src; /* Explicitely bound to address */
+    in6_addr_t icmp_bound_v6src; /* Explicitly bound to address */
     in6_addr_t icmp_v6src;       /* Source address of this stream */
     union {
         uint_t icmp_dummy;
@@ -760,7 +760,7 @@ int process_VSOCK(struct lsof_context *ctx, /* context */
                 return (1);
             }
             /*
-             * Set TCP protcol name in Lf->iproto[].
+             * Set TCP protocol name in Lf->iproto[].
              */
             (void)snpf(Lf->iproto, IPROTOL - 1, "%s", "TCP");
             Lf->iproto[IPROTOL - 1] = '\0';
@@ -867,7 +867,7 @@ int process_VSOCK(struct lsof_context *ctx, /* context */
                 return (1);
             }
             /*
-             * Set UDP protcol name in Lf->iproto[].
+             * Set UDP protocol name in Lf->iproto[].
              */
             (void)snpf(Lf->iproto, IPROTOL - 1, "%s", "UDP");
             Lf->iproto[IPROTOL - 1] = '\0';
@@ -1764,7 +1764,7 @@ static int read_rts_t(struct lsof_context *ctx, /* context */
 
 #    if defined(HAS_CONN_NEW)
     struct conn_s cs; /* connextion structure */
-    KA_T ka;          /* kernal address */
+    KA_T ka;          /* kernel address */
 
     zeromem((char *)rt, sizeof(rts_t));
 #    endif /* defined(HAS_CONN_NEW) */

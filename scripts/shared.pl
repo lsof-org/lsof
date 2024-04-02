@@ -338,7 +338,7 @@ sub Print_block {
 	    if ($tW > $InoW) { $InoW = $tW; }
 	} else { printf " %${InoW}.${InoW}s", $t; }
 
-    # Print name and line terminater, if this is a print pass.
+    # Print name and line terminator, if this is a print pass.
 
 	if ($pass) {
 	    if (defined($Name{$key})) { print " $Name{$key}\n"; }

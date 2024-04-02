@@ -36,7 +36,7 @@
 #    define AIX_LSOF_H 1
 
 /*
- * AIXA stands for AIX architecure.  It is given these values in the
+ * AIXA stands for AIX architecture.  It is given these values in the
  * aix stanza of the lsof Configure script:
  *
  *     0	The AIX version is < 5, or the AIX architecture is power and

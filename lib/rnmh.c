@@ -237,7 +237,7 @@ static int ncache_isroot(struct lsof_context *ctx,
      *
      * If it isn't, and if the file has an inode number, search the mount table
      * and see if the file system's inode number is known.  If it is, form the
-     * possible full path, safely stat() it, and see if it's inode number
+     * possible full path, safely stat() it, and see if its inode number
      * matches the one we have for this file.  If it does, then the path is
      * complete.
      */

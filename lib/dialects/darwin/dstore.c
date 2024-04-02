@@ -39,7 +39,7 @@ static char copyright[] = "@(#) Copyright 2005 Apple Computer, Inc. and Purdue "
 
 #include "common.h"
 
-struct file *Cfp; /* curent file's file struct pointer */
+struct file *Cfp; /* current file's file struct pointer */
 
 #if defined(HASFSTRUCT)
 /*

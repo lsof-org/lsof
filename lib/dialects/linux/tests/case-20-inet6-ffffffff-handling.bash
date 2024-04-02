@@ -7,7 +7,7 @@ if [[ $(id -u) != 0 ]]; then
 fi
 
 #
-# Derrived from the issue #102 opened by @zhrf2020.
+# Derived from the issue #102 opened by @zhrf2020.
 #
 
 v6addr=abcd:ef10:ffff:ffff:ffff:ffff:ffff:ff62
