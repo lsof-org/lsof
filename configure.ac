@@ -242,8 +242,10 @@ AM_CONDITIONAL([SOLARIS], [test x$LSOF_DIALECT_DIR = xsun])
 AM_CONDITIONAL([AIX], [test x$LSOF_DIALECT_DIR = xaix])
 
 # Pass OS version
-LSOF_TMP=$(echo $LSOF_VSTR | sed 's/(/\\\\(/g' | sed 's/)/\\\\)/g')
-CFLAGS="$CFLAGS -DLSOF_VSTR=\\\"$LSOF_TMP\\\""
+AS_IF([test x$LSOF_DIALECT_DIR != xlinux], [
+	LSOF_TMP=$(echo $LSOF_VSTR | sed 's/(/\\\\(/g' | sed 's/)/\\\\)/g')
+	CFLAGS="$CFLAGS -DLSOF_VSTR=\\\"$LSOF_TMP\\\""
+])
 
 # Pass LSOF_DIALECT/LSOF_DIALECT_DIR to Makefile.am
 AC_SUBST([LSOF_DIALECT])
