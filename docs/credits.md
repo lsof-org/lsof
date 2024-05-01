@@ -584,8 +584,12 @@ provided test systems where I was able to do development work.
 	Subhaditya Nath (@subnut)
 	Linjie Li (@uniontech-lilinjie)
 	Clement Martin (@clementmartin)
-	Kalin KOZHUHAROV (@thinrope) and
+	Kalin KOZHUHAROV (@thinrope)
 	Rui Chen (@chenrui333)
+	@AngryLoki
+	Peter Marquardt (@wwwutz)
+	Bjorn Helgaas (@bjorn-helgaas) and
+	@OstCollector
 
 If I have omitted a contributor's name, the fault is wholly mine,
 and I apologize for the error.

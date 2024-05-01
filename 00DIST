@@ -5587,6 +5587,25 @@ Supplement	Regenerated the 4.04 distribution to correct a non-
 
 		fix 00DIST file <space> -> tabs
 
+4.9?.?		????????? ??, ????
+
+		fix version parser for clang (lsof-org#305) (#306)
+
+		In lsof manapge: mention /etc/services for -P option (#309)
+
+		[freebsd] don't use kf_sock_inpcb on modern versions. In
+		FreeBSD 14 and after the generic internet protocol control
+		block and protocol specific (TCP) control block are the same
+		pointer.  The latter embeds the former. The kf_sock_inpcb is
+		planned for removal in FreeBSD 15.
+
+		[freebsd] Recognize FreeBSD 15
+
+		Fix typos in docs (#314)
+
+		[linux] Do not embed kernel version in CFLAGS (#314)
+
+
 Vic Abell <abe@purdue.edu>
 July 14, 2018
 
