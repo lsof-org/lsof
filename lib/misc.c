@@ -227,7 +227,28 @@ void closefrom_shim(struct lsof_context *ctx, int low) {
     if (MaxFd > low && syscall(SYS_close_range, low, MaxFd - 1, 0) == 0)
         return;
 #    endif
-    /* slow fallback */
+#    if defined(LINUX_LSOF_H)
+    /* optimized fallback for Linux:
+     * iterate /proc/self/fd and close fd's that are not that directory itself
+     */
+    long fd;
+    char *endp;
+    struct dirent *dent;
+    DIR *dirp;
+
+    dirp = opendir("/proc/self/fd");
+    if (dirp) {
+        while ((dent = readdir(dirp)) != NULL) {
+            fd = strtol(dent->d_name, &endp, 10);
+            if (dent->d_name != endp && *endp == '\0' && fd >= 0 &&
+                fd < INT_MAX && fd >= low && fd != dirfd(dirp))
+                (void)close((int)fd);
+        }
+        (void)closedir(dirp);
+        return;
+    }
+#    endif
+    /* slow brute force fallback */
     for (i = low; i < MaxFd; i++)
         (void)close(i);
 #endif /* !defined(HAS_CLOSEFROM) */
