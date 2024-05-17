@@ -1273,6 +1273,10 @@ static int process_id(struct lsof_context *ctx, /* context */
 #endif     /* defined(HASEPTOPTS) */
                 if (rest && rest[0] == '[' && rest[1] == 'p')
                     fdinfo_mask |= FDINFO_PID;
+                else if (Lf->ntype == N_REGLR && rest && *rest && strcmp(pbuf, "pidfd") == 0) {
+                    // https://github.com/lsof-org/lsof/issues/317
+                    fdinfo_mask |= FDINFO_PID;
+                }
 
                 if ((av = get_fdinfo(ctx, pathi, fdinfo_mask, &fi)) &
                     FDINFO_POS) {
@@ -1338,6 +1342,15 @@ static int process_id(struct lsof_context *ctx, /* context */
                     Lf->sf |= SELPTYINFO;
                 }
 #endif /* defined(HASEPTOPTS) && defined(HASPTYEPT) */
+                else if (Lf->ntype == N_REGLR && rest && *rest && Lf->nm &&
+                         strcmp(Lf->nm, "pidfd") == 0) {
+                    // https://github.com/lsof-org/lsof/issues/317
+                    // pidfd since Linux 6.9 becomes a regular file:
+                    // /proc/PID/fd/FD -> pidfd:[INODE]
+                    (void)snpf(rest, sizeof(pbuf) - (rest - pbuf),
+                                "[pidfd:%d]", fi.pid);
+                    enter_nm(ctx, rest);
+                }
 
                 if (Lf->sf)
                     link_lfile(ctx);
