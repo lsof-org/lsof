@@ -5605,6 +5605,9 @@ Supplement	Regenerated the 4.04 distribution to correct a non-
 
 		[linux] Do not embed kernel version in CFLAGS (#314)
 
+		[linux] Linux 6.9 changed the pidfs appearence in procfs. Try
+		to maintain original output in lsof (#317)
+
 
 Vic Abell <abe@purdue.edu>
 July 14, 2018
