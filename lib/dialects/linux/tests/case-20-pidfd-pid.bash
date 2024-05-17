@@ -11,7 +11,8 @@ $TARGET | (
         exit 77
     fi
     line=$($lsof -p $pid -a -d $fd -F pfn| tr '\n' ' ')
-    if ! grep -Fq "p${pid} f${fd} n[pidfd:$pid]" <<<"$line"; then
+    if ! grep -Fq "p${pid} f${fd} n[pidfd:$pid]" <<<"$line" &&
+       ! grep -Fq "p${pid} f${fd} npidfd" <<<"$line"; then
 	$lsof -p $pid -a -d $fd -F pfn
 	echo
 	echo $line
