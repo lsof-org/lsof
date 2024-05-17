@@ -30,7 +30,7 @@ expectation="n[${v6addr}]:$port"
 result=1
 if "${lsof}" -p "${pid}" -a -d fd -P -n -F n \
     | tee -a "${report}" \
-    | fgrep -q "$expectation"; then
+    | grep -Fq "$expectation"; then
     result=0
 fi
 
