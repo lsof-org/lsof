@@ -4,7 +4,7 @@ task:
     matrix:
       - image_family: freebsd-15-0-snap
       - image_family: freebsd-14-0
-      - image_family: freebsd-13-2
+      - image_family: freebsd-13-3
   install_script: pkg install -y bash git autoconf automake libtool groff pkgconf
   build_script:
     - ./Configure -n freebsd
