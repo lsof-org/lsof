@@ -145,6 +145,7 @@ jobs:
             autoreconf -vif
             ./configure
             make
+            mkdir -p $PWD/install
             DESTDIR=$PWD/install make install
             make check
       - run:
