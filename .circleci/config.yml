@@ -117,9 +117,9 @@ jobs:
           command: |
             nix-channel --update
             nix-build
-  bigsur:
+  ventura:
     macos:
-      xcode: 12.5.1
+      xcode: 13.4.1
     steps:
       - checkout
       - run:
