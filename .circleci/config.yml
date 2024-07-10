@@ -170,4 +170,4 @@ workflows:
             parameters:
               distro: [fedora37, fedora38, centos8, centos9, debian11, ubuntu2204, archlinux, opensuse15, alpine317]
       - nixos
-      - bigsur
+      - ventura
