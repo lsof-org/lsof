@@ -18,15 +18,15 @@ executors:
   debian11:
     docker:
       - image: docker.io/debian:11
+  debian12:
+    docker:
+      - image: docker.io/debian:12
   fedora37:
     docker:
       - image: docker.io/fedora:37
   fedora38:
     docker:
       - image: docker.io/fedora:38
-  centos8:
-    docker:
-      - image: quay.io/centos/centos:stream8
   centos9:
     docker:
       - image: quay.io/centos/centos:stream9
@@ -117,15 +117,15 @@ jobs:
           command: |
             nix-channel --update
             nix-build
-  bigsur:
+  ventura:
     macos:
-      xcode: 12.5.1
+      xcode: 13.4.1
     steps:
       - checkout
       - run:
           name: Install pkg-config
           command: |
-            brew install pkg-config libtool
+            brew install pkg-config libtool autoconf automake
       - run:
           name: Configure
           command: |
@@ -145,7 +145,7 @@ jobs:
             autoreconf -vif
             ./configure
             make
-            make install
+            DESTDIR=$PWD/prefix make install
             make check
       - run:
           name: Rebuild and test using distribution tarball
@@ -157,7 +157,7 @@ jobs:
             cd lsof-*
             ./configure
             make
-            make install
+            DESTDIR=$PWD/prefix make install
             make check
 
 # Invoke jobs via workflows
@@ -168,6 +168,6 @@ workflows:
       - linux:
           matrix:
             parameters:
-              distro: [fedora37, fedora38, centos8, centos9, debian11, ubuntu2204, archlinux, opensuse15, alpine317]
+              distro: [fedora37, fedora38, centos9, debian11, debian12, ubuntu2204, archlinux, opensuse15, alpine317]
       - nixos
-      - bigsur
+      - ventura

@@ -36,5 +36,5 @@ six==1.16.0
     # via python-dateutil
 watchdog==2.2.1
     # via mkdocs
-zipp==3.11.0
+zipp==3.19.1
     # via importlib-metadata
