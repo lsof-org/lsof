@@ -145,7 +145,7 @@ jobs:
             autoreconf -vif
             ./configure
             make
-            make install
+            DESTDIR=$PWD/install make install
             make check
       - run:
           name: Rebuild and test using distribution tarball
@@ -157,7 +157,7 @@ jobs:
             cd lsof-*
             ./configure
             make
-            make install
+            DESTDIR=$PWD/install make install
             make check
 
 # Invoke jobs via workflows
