@@ -18,6 +18,9 @@ executors:
   debian11:
     docker:
       - image: docker.io/debian:11
+  debian12:
+    docker:
+      - image: docker.io/debian:12
   fedora37:
     docker:
       - image: docker.io/fedora:37
@@ -165,6 +168,6 @@ workflows:
       - linux:
           matrix:
             parameters:
-              distro: [fedora37, fedora38, centos9, debian11, ubuntu2204, archlinux, opensuse15, alpine317]
+              distro: [fedora37, fedora38, centos9, debian11, debian12, ubuntu2204, archlinux, opensuse15, alpine317]
       - nixos
       - ventura
