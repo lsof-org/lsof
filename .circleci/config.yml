@@ -24,9 +24,6 @@ executors:
   fedora38:
     docker:
       - image: docker.io/fedora:38
-  centos8:
-    docker:
-      - image: quay.io/centos/centos:stream8
   centos9:
     docker:
       - image: quay.io/centos/centos:stream9
@@ -168,6 +165,6 @@ workflows:
       - linux:
           matrix:
             parameters:
-              distro: [fedora37, fedora38, centos8, centos9, debian11, ubuntu2204, archlinux, opensuse15, alpine317]
+              distro: [fedora37, fedora38, centos9, debian11, ubuntu2204, archlinux, opensuse15, alpine317]
       - nixos
       - ventura
