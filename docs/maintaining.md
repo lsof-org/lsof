@@ -15,7 +15,6 @@ FreeBSD
 Linux
 	
 	@dilinger
-	@masatake
 	@jiegec
 
 NetBSD
@@ -35,8 +34,6 @@ Solaris/OpenIndiana
 
 	@jiegec
 
-
-@masatake is going to step down. See https://github.com/lsof-org/lsof/issues/192 .
 
 If you find a good person who has interested in maintain a dialect
 that none maintains, you can invite the person to the lsof-org
