@@ -1,4 +1,4 @@
-AC_INIT([lsof],[4.99.3])
+AC_INIT([lsof],m4_bregexp(m4_quote(m4_include([version])), [[0-9]+\.[0-9]+\.[0-9]+], [\&]))
 AM_INIT_AUTOMAKE([subdir-objects])
 LT_INIT([disable-fast-install]) # avoid lt-lsof naming
 # Locate custom m4 macros
@@ -576,9 +576,6 @@ AS_IF([test "X$SOURCE_DATE_EPOCH" = "X"], [
 
 # Generate version.h/autotools.h
 AC_CONFIG_FILES([autotools/version.h autotools/autotools.h])
-
-# Generate version
-AC_CONFIG_FILES([version])
 
 # Generate config.h
 AC_CONFIG_HEADERS([config.h])
