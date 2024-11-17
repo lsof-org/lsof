@@ -56,7 +56,7 @@ static void closePipes(void);
 static int dolstat(char *path, char *buf, int len);
 static int dostat(char *path, char *buf, int len);
 static int doreadlink(char *path, char *buf, int len);
-static int doinchild(struct lsof_context *ctx, int (*fn)(), char *fp,
+static int doinchild(struct lsof_context *ctx, int (*fn)(char *path, char *buf, int len), char *fp,
                      char *rbuf, int rbln);
 
 #if defined(HASINTSIGNAL)
@@ -259,7 +259,7 @@ void closefrom_shim(struct lsof_context *ctx, int low) {
  */
 
 static int doinchild(struct lsof_context *ctx,
-                     int (*fn)(), /* function to perform */
+                     int (*fn)(char *path, char *buf, int len), /* function to perform */
                      char *fp,    /* function parameter */
                      char *rbuf,  /* response buffer */
                      int rbln)    /* response buffer length */
@@ -321,7 +321,7 @@ static int doinchild(struct lsof_context *ctx,
                      */
                     struct stat _;
                 } r;
-                int (*r_fn)();
+                int (*r_fn)(char *path, char *buf, int len);
                 /*
                  * Close sufficient open file descriptors except Pipes[0] and
                  * Pipes[3].
