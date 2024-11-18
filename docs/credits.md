@@ -588,8 +588,10 @@ provided test systems where I was able to do development work.
 	Rui Chen (@chenrui333)
 	@AngryLoki
 	Peter Marquardt (@wwwutz)
-	Bjorn Helgaas (@bjorn-helgaas) and
+	Bjorn Helgaas (@bjorn-helgaas)
 	@OstCollector
+	Jiri Slaby and
+	Marc (@MarT512)
 
 If I have omitted a contributor's name, the fault is wholly mine,
 and I apologize for the error.
