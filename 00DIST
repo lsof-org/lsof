@@ -5608,6 +5608,13 @@ Supplement	Regenerated the 4.04 distribution to correct a non-
 		[linux] Linux 6.9 changed the pidfs appearence in procfs. Try
 		to maintain original output in lsof (#317)
 
+		[linux] closefrom_shim: Add optimized fallback for platforms
+		without closefrom or close_range (#316)
+
+		lib/misc.c: fix build against -std=c23 (`void (*)()`) changed
+		the meaning) (#327)
+
+
 
 Vic Abell <abe@purdue.edu>
 July 14, 2018
