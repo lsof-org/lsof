@@ -1,4 +1,4 @@
-AC_INIT([lsof],[4.99.3])
+AC_INIT([lsof],[4.99.4])
 AM_INIT_AUTOMAKE([subdir-objects])
 LT_INIT([disable-fast-install]) # avoid lt-lsof naming
 # Locate custom m4 macros
