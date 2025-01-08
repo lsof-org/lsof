@@ -1370,14 +1370,14 @@ static int compare_mntns(int pid) /* pid of the target process */
     int ret;
 
     if (stat("/proc/self/ns/mnt", &sb_self))
-        return -1;
+        return 0;
 
     ret = snprintf(nspath, sizeof(nspath), "/proc/%d/ns/mnt", pid);
     if (ret >= sizeof(nspath) || ret <= 0)
-        return -1;
+        return 0;
 
     if (stat(nspath, &sb_target))
-        return -1;
+        return 0;
 
     if (sb_self.st_ino != sb_target.st_ino)
         return -1;
