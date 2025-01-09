@@ -1361,7 +1361,17 @@ static int process_id(struct lsof_context *ctx, /* context */
     return (0);
 }
 
-/* compare mount namespace of this lsof process and the target process */
+/*
+ * compare_mntns() - compare mount namespace of this lsof process and the
+ *                   target process
+ * 
+ * Note: mount namespace path might not be found with legacy linux kernel (e.g.
+ * linux-2.6) which does not have path "/proc/self/ns" or "/proc/${pid}/ns",
+ * see Commit 6b4e306aa3dc ("ns: proc files for namespace naming policy.")
+ *
+ * return:  0 == mount namespace is the same, or path is not found.
+ *          1 == mount namespace is different.
+ */
 
 static int compare_mntns(int pid) /* pid of the target process */
 {
@@ -1369,9 +1379,17 @@ static int compare_mntns(int pid) /* pid of the target process */
     struct stat sb_self, sb_target;
     int ret;
 
+    /*
+     * Get mount namespace of this lsof process, early return if path is not
+     * found.
+     */
     if (stat("/proc/self/ns/mnt", &sb_self))
         return 0;
 
+    /*
+     * Get mount namespace of the target process, early return if path is not
+     * found.
+     */
     ret = snprintf(nspath, sizeof(nspath), "/proc/%d/ns/mnt", pid);
     if (ret >= sizeof(nspath) || ret <= 0)
         return 0;
@@ -1379,9 +1397,16 @@ static int compare_mntns(int pid) /* pid of the target process */
     if (stat(nspath, &sb_target))
         return 0;
 
+    /*
+     * Compare the inode number of mount namespace, to see if target process
+     * is in a different mount namespace from lsof process.
+     */
     if (sb_self.st_ino != sb_target.st_ino)
-        return -1;
+        return 1;
 
+    /*
+     * mount namespace is the same.
+     */
     return 0;
 }
 
