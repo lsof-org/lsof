@@ -590,8 +590,9 @@ provided test systems where I was able to do development work.
 	Peter Marquardt (@wwwutz)
 	Bjorn Helgaas (@bjorn-helgaas)
 	@OstCollector
-	Jiri Slaby and
-	Marc (@MarT512)
+	Jiri Slaby
+	Marc (@MarT512) and
+	@momo-trip
 
 If I have omitted a contributor's name, the fault is wholly mine,
 and I apologize for the error.
