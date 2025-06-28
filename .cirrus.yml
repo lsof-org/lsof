@@ -5,6 +5,13 @@ task:
       - image_family: freebsd-15-0-snap
       - image_family: freebsd-14-2
   install_script: pkg install -y bash git autoconf automake libtool groff pkgconf
+  kernel_src_script: |
+    uname -r
+    if [[ $(uname -r) == "14.2-RELEASE" ]]; then
+      git clone --branch releng/14.2 https://git.FreeBSD.org/src.git /usr/src
+    else
+      git clone --branch main https://git.FreeBSD.org/src.git /usr/src
+    fi;
   build_script:
     - ./Configure -n freebsd
     - make
