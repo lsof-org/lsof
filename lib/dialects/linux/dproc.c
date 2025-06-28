@@ -1273,7 +1273,7 @@ static int process_id(struct lsof_context *ctx, /* context */
 #endif     /* defined(HASEPTOPTS) */
                 if (rest && rest[0] == '[' && rest[1] == 'p')
                     fdinfo_mask |= FDINFO_PID;
-                else if (Lf->ntype == N_REGLR && rest && *rest && strcmp(pbuf, "pidfd") == 0) {
+                else if (Lf && Lf->ntype == N_REGLR && rest && *rest && strcmp(pbuf, "pidfd") == 0) {
                     // https://github.com/lsof-org/lsof/issues/317
                     fdinfo_mask |= FDINFO_PID;
                 }
