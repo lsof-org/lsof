@@ -5614,6 +5614,11 @@ Supplement	Regenerated the 4.04 distribution to correct a non-
 		lib/misc.c: fix build against -std=c23 (`void (*)()`) changed
 		the meaning) (#327)
 
+4.99.5		July 1, 2025
+
+		[linux] fix legacy linux kernel compatibility due to missing
+		/proc/self/ns (#329)
+
 		[linux] fix potential null pointer deference, reported by
 		@mono-trip (#332)
 
