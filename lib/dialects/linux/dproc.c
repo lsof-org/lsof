@@ -1184,6 +1184,7 @@ static int process_id(struct lsof_context *ctx, /* context */
             continue;
         (void)make_proc_path(ctx, dpath, i, &path, &pathl, fp->d_name);
         (void)alloc_lfile(ctx, LSOF_FD_NUMERIC, fd);
+        efs = 0;
         if (getlinksrc(path, pbuf, sizeof(pbuf), &rest) < 1) {
             zeromem((char *)&sb, sizeof(sb));
             lnk = ss = 0;
