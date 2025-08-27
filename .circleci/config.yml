@@ -117,9 +117,9 @@ jobs:
           command: |
             nix-channel --update
             nix-build
-  ventura:
+  monterey:
     macos:
-      xcode: 13.4.1
+      xcode: 14.2.0
     steps:
       - checkout
       - run:
@@ -170,4 +170,4 @@ workflows:
             parameters:
               distro: [fedora37, fedora38, centos9, debian11, debian12, ubuntu2204, archlinux, opensuse15, alpine317]
       - nixos
-      - ventura
+      - monterey
