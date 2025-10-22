@@ -65,7 +65,19 @@
 #        include <sys/types.h>
 
 #        if AIXA > 0
+/*
+ * Work around conflict between GCC fixed headers and AIX system headers.
+ * The global 'time' variable in sys/time.h conflicts with the time()
+ * function. We rename it during inclusion.
+ */
+#            if defined(__GNUC__)
+#                include <time.h>
+#                define time aix_global_time_variable
+#            endif
 #            include <sys/resource.h>
+#            if defined(__GNUC__)
+#                undef time
+#            endif
 #        endif /* AIXA>0 */
 
 #        if defined(__GNUC__)
@@ -292,10 +304,12 @@ typedef long long aligned_offset_t __attribute__((aligned(8)));
 
 /*
  * HASNLIST is defined for those dialects that use nlist() to access
- * kernel symbols.  (AIX lsof doesn't use nlist, it uses knlist.)
+ * kernel symbols.  AIX uses knlist() which is similar.
  */
 
-/* #define	HASNLIST	1 */
+#define	HASNLIST	1
+#define NLIST_TYPE	nlist
+#define NL_NAME		n_name
 
 /*
  * HASPIPEFN is defined for those dialects that have a special function to

@@ -306,9 +306,6 @@ struct clone {
     struct l_dev cd;    /* device, inode, name, verify status */
     struct clone *next; /* next entry */
 };
-extern struct clone *Clone;
-extern int CloneMaj;
-extern int ClonePtc;
 #    endif /* AIXV>=4140 */
 
 /*
@@ -339,7 +336,6 @@ struct l_vfs {
     int vmt_gfstype;    /* vmount gfs type */
     struct l_vfs *next; /* forward link */
 };
-extern struct l_vfs *Lvfs;
 
 /*
  * Local mount information
@@ -363,7 +359,6 @@ struct mounts {
 
     struct mounts *next; /* forward link */
 };
-extern struct mounts *Mtab;
 
 /*
  * Search file information
@@ -396,12 +391,7 @@ extern struct nlist AFSnl[]; /* AFS kernel symbol name list table */
 extern char *AFSApath; /* alternate AFS name list path (from -a) */
 #        endif         /* defined(HASAOPT) */
 
-extern KA_T AFSVfsp; /* AFS struct vfs kernel pointer */
 #    endif           /* defined(HAS_AFS) */
-
-extern int Kd;
-extern int Km;
-extern struct nlist Nl[];
 
 #    if defined(TCPSTATES) && AIXV <= 3250
 /*
@@ -427,6 +417,37 @@ static char *tcpstates[] = {"CLOSED",     "LISTEN",      "SYN_SENT",
                         * in libc.so */
 #    endif             /* AIXA>1 */
 
-struct lsof_context_dialect {};
+struct lsof_context_dialect {
+    int kd;               /* /dev/kmem file descriptor */
+    int km;               /* /dev/mem file descriptor */
+    struct l_vfs *lvfs;   /* local vfs structure table */
+    struct mounts *mtab;  /* local mount table */
+
+#if AIXV >= 4140
+    struct clone *clone;  /* local clone information */
+    int clone_maj;        /* clone major device number */
+    int clone_ptc;        /* /dev/ptc minor device number */
+#endif /* AIXV>=4140 */
+
+#if defined(HAS_AFS)
+    KA_T afs_vfsp;        /* AFS vfs struct kernel pointer */
+#endif /* defined(HAS_AFS) */
+};
+
+/* Convenience macros to access dialect-specific context */
+#define Kd (ctx->dialect.kd)
+#define Km (ctx->dialect.km)
+#define Lvfs (ctx->dialect.lvfs)
+#define Mtab (ctx->dialect.mtab)
+
+#if AIXV >= 4140
+#define Clone (ctx->dialect.clone)
+#define CloneMaj (ctx->dialect.clone_maj)
+#define ClonePtc (ctx->dialect.clone_ptc)
+#endif /* AIXV>=4140 */
+
+#if defined(HAS_AFS)
+#define AFSVfsp (ctx->dialect.afs_vfsp)
+#endif /* defined(HAS_AFS) */
 
 #endif /* AIX_LSOF_H */

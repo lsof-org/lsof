@@ -634,7 +634,7 @@ int rw_clone_sect(struct lsof_context *ctx, /* context */
         for (c = Clone, n = 0; c; c = c->next, n++)
             ;
         (void)snpf(buf, sizeof(buf), "clone section: %d\n", n);
-        if (wr2DCfd(buf, &DCcksum))
+        if (wr2DCfd(ctx, buf, &DCcksum))
             return (1);
         /*
          * Write the clone section lines.
@@ -642,7 +642,7 @@ int rw_clone_sect(struct lsof_context *ctx, /* context */
         for (c = Clone; c; c = c->next) {
             (void)snpf(buf, sizeof(buf), "%x %ld %s\n", c->cd.rdev,
                        (long)c->cd.inode, c->cd.name);
-            if (wr2DCfd(buf, &DCcksum))
+            if (wr2DCfd(ctx, buf, &DCcksum))
                 return (1);
         }
         return (0);

@@ -34,6 +34,12 @@ static char copyright[] =
 #endif
 
 #include "common.h"
+#include <fcntl.h>
+
+#if defined(SIGDANGER)
+/* Static context pointer for signal handler */
+static struct lsof_context *signal_ctx = NULL;
+#endif
 
 static void get_kernel_access(struct lsof_context *ctx);
 
@@ -45,7 +51,7 @@ static struct le *getle(struct lsof_context *ctx, KA_T a, KA_T sid, char **err);
 static void getlenm(struct lsof_context *ctx, struct le *le, KA_T sid);
 #endif /* AIXV>=4110 */
 
-static int kreadx(KA_T addr, char *buf, int len, KA_T sid);
+static int kreadx(struct lsof_context *ctx, KA_T addr, char *buf, int len, KA_T sid);
 
 #if AIXA < 2
 static void process_text(struct lsof_context *ctx, KA_T sid);
@@ -56,9 +62,9 @@ static void process_text(struct lsof_context *ctx, pid_t pid);
 
 #if defined(SIGDANGER)
 #    if defined(HASINTSIGNAL)
-static int lowpgsp(struct lsof_context *ctx, int sig);
+static int lowpgsp(int sig);
 #    else  /* !defined(HASINTSIGNAL) */
-static void lowpgsp(struct lsof_context *ctx, int sig);
+static void lowpgsp(int sig);
 #    endif /* defined(HASINTSIGNAL) */
 #endif     /* defined(SIGDANGER) */
 
@@ -487,7 +493,7 @@ void gather_proc_info(struct lsof_context *ctx) {
              */
 
 #    if AIXV >= 4110
-        if (Fxopt && kreadx(Uo, (char *)Up, U_SIZE, (KA_T)p->pi_adspace) == 0)
+        if (Fxopt && kreadx(ctx, Uo, (char *)Up, U_SIZE, (KA_T)p->pi_adspace) == 0)
             i = 1;
         else
             i = 0;
@@ -574,7 +580,7 @@ void gather_proc_info(struct lsof_context *ctx) {
                 /*
                  * Read the AIX 4.3.3 U_loader pointers.
                  */
-                if (kreadx((KA_T)((char *)Uo + offsetof(struct user, U_loader) +
+                if (kreadx(ctx, (KA_T)((char *)Uo + offsetof(struct user, U_loader) +
                                   uo),
                            (char *)&Up->U_loader, sizeof(struct la),
                            (KA_T)p->pi_adspace))
@@ -594,7 +600,7 @@ void gather_proc_info(struct lsof_context *ctx) {
                  * user structs, so the U_loader offset should be the same as
                  * the U_maxofile offset.
                  */
-                if (!kreadx((KA_T)((char *)Uo +
+                if (!kreadx(ctx, (KA_T)((char *)Uo +
                                    offsetof(struct user, U_maxofile) + uo),
                             (char *)&mxof, sizeof(mxof), (KA_T)p->pi_adspace) &&
                     (mxof == p->pi_maxofile)) {
@@ -619,7 +625,7 @@ void gather_proc_info(struct lsof_context *ctx) {
         }
 #    else  /* AIXV!=4330 */
         if (Fxopt &&
-            kreadx((KA_T)((char *)Uo + offsetof(struct user, U_loader)),
+            kreadx(ctx, (KA_T)((char *)Uo + offsetof(struct user, U_loader)),
                    (char *)&Up->U_loader, sizeof(struct la),
                    (KA_T)p->pi_adspace) == 0)
             hl = 1;
@@ -864,7 +870,7 @@ static void get_kernel_access(struct lsof_context *ctx) {
 
         if (nlist(N_UNIX, ll) == 0 && ll[0].n_value != (long)0 &&
             ll[1].n_value != (long)0 &&
-            kreadx((KA_T)(ll[1].n_value & RDXMASK), (char *)&Soff, sizeof(Soff),
+            kreadx(ctx, (KA_T)(ll[1].n_value & RDXMASK), (char *)&Soff, sizeof(Soff),
                    (KA_T)0) == 0)
             Soff_stat++;
 #    endif /* AIXA<2 */
@@ -882,7 +888,9 @@ static void get_kernel_access(struct lsof_context *ctx) {
 #if defined(SIGDANGER)
     /*
      * If SIGDANGER is defined, enable its handler.
+     * Store context in static variable for signal handler to use.
      */
+    signal_ctx = ctx;
     (void)signal(SIGDANGER, lowpgsp);
 #endif /* defined(SIGDANGER) */
 }
@@ -918,11 +926,11 @@ static struct le *getle(struct lsof_context *ctx, /* context */
         if (!kread(ctx, a, (char *)&le, sizeof(le)))
             return (&le);
     } else {
-        if (!kreadx((KA_T)(a & RDXMASK), (char *)&le, sizeof(le), (KA_T)sid))
+        if (!kreadx(ctx, (KA_T)(a & RDXMASK), (char *)&le, sizeof(le), (KA_T)sid))
             return (&le);
     }
 #    else  /* AIXV<4110 */
-    if (!kreadx((KA_T)a, (char *)&le, sizeof(le), (KA_T)sid))
+    if (!kreadx(ctx, (KA_T)a, (char *)&le, sizeof(le), (KA_T)sid))
         return (&le);
 #    endif /* AIXV>=4110 */
 
@@ -955,7 +963,7 @@ static void getlenm(struct lsof_context *ctx, /* context */
             return;
     } else {
         if (!Soff_stat || !le->nm ||
-            kreadx((KA_T)le->nm & (KA_T)RDXMASK, buf, LIBNMLN, (KA_T)Soff))
+            kreadx(ctx, (KA_T)le->nm & (KA_T)RDXMASK, buf, LIBNMLN, (KA_T)Soff))
             return;
     }
     buf[LIBNMLN - 1] = '\0';
@@ -1091,6 +1099,35 @@ static void getsoinfo() {
  */
 
 void initialize(struct lsof_context *ctx) {
+    /* Initialize name list for knlist() */
+    static struct nlist nl[] = {
+#if AIXV < 4100
+        {"u", 0, 0, 0, 0, 0},
+#else  /* AIXV>=4100 */
+        {"__ublock", 0, 0, 0, 0, 0},
+#endif /* AIXV<4100 */
+        {NULL, 0, 0, 0, 0, 0}  /* Terminator */
+    };
+
+    ctx->name_list = nl;
+    ctx->name_list_size = sizeof(nl) / sizeof(nl[0]) - 1;  /* Exclude terminator */
+
+    /* Initialize dialect-specific context fields */
+    ctx->dialect.kd = -1;
+    ctx->dialect.km = -1;
+    ctx->dialect.lvfs = NULL;
+    ctx->dialect.mtab = NULL;
+
+#if AIXV >= 4140
+    ctx->dialect.clone = NULL;
+    ctx->dialect.clone_maj = -1;
+    ctx->dialect.clone_ptc = -1;
+#endif /* AIXV>=4140 */
+
+#if defined(HAS_AFS)
+    ctx->dialect.afs_vfsp = (KA_T)NULL;
+#endif /* defined(HAS_AFS) */
+
     get_kernel_access(ctx);
 
 #if AIXA > 1
@@ -1124,10 +1161,11 @@ int kread(struct lsof_context *ctx, /* context */
  * kreadx() - read kernel segmented memory
  */
 
-int kreadx(KA_T addr, /* kernel address */
-           char *buf, /* destination buffer */
-           int len,   /* length */
-           KA_T sid)  /* segment ID */
+int kreadx(struct lsof_context *ctx, /* context */
+           KA_T addr,                 /* kernel address */
+           char *buf,                 /* destination buffer */
+           int len,                   /* length */
+           KA_T sid)                  /* segment ID */
 {
     int br;
 
@@ -1144,7 +1182,10 @@ int kreadx(KA_T addr, /* kernel address */
 
 #if defined(SIGDANGER)
 /*
- * lowpgsp() - hangle a SIGDANGER signal about low paging space
+ * lowpgsp() - handle a SIGDANGER signal about low paging space
+ *
+ * Note: Signal handlers cannot take a context parameter, so we use a
+ * static pointer set in get_kernel_access().
  */
 
 #    if defined(HASINTSIGNAL)
@@ -1153,9 +1194,15 @@ static int
 static void
 #    endif /* defined(HASINTSIGNAL) */
 
-lowpgsp(struct lsof_context *ctx, int sig) {
-    (void)fprintf(stderr, "%s: FATAL: system paging space is low.\n", Pn);
-    Error(ctx);
+lowpgsp(int sig) {
+    if (signal_ctx && signal_ctx->err) {
+        (void)fprintf(signal_ctx->err, "%s: FATAL: system paging space is low.\n",
+                      signal_ctx->program_name ? signal_ctx->program_name : "lsof");
+    }
+    if (signal_ctx) {
+        Error(signal_ctx);
+    }
+    exit(LSOF_EXIT_ERROR);
 }
 #endif /* defined(SIGDANGER) */
 
