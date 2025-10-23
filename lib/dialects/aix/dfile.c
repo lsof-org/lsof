@@ -383,6 +383,227 @@ char *print_dev(struct lfile *lf, /* file whose device to be printed */
 }
 
 /*
+ * process_file() - process file structure
+ */
+
+void process_file(struct lsof_context *ctx, /* context */
+                  KA_T fp) /* kernel file structure address */
+{
+    struct file f;
+    int flag;
+    char tbuf[32];
+    struct vnode v;
+    struct gnode g;
+
+#if defined(FILEPTR)
+    /*
+     * Save file structure address for process_node().
+     */
+    FILEPTR = &f;
+#endif /* defined(FILEPTR) */
+
+    /*
+     * Read file structure.
+     */
+    if (kread(ctx, (KA_T)fp, (char *)&f, sizeof(f))) {
+        (void)snpf(Namech, Namechl, "can't read file struct from %s",
+                   print_kptr(fp, (char *)NULL, 0));
+        enter_nm(ctx, Namech);
+        return;
+    }
+    Lf->off = (SZOFFTYPE)f.f_offset;
+    Lf->off_def = 1;
+    if (f.f_count) {
+
+        /*
+         * Construct access code.
+         */
+        if ((flag = (f.f_flag & (FREAD | FWRITE))) == FREAD)
+            Lf->access = LSOF_FILE_ACCESS_READ;
+        else if (flag == FWRITE)
+            Lf->access = LSOF_FILE_ACCESS_WRITE;
+        else if (flag == (FREAD | FWRITE))
+            Lf->access = LSOF_FILE_ACCESS_READ_WRITE;
+
+#if defined(HASFSTRUCT)
+        /*
+         * Save file structure values.
+         */
+
+#if !defined(HASNOFSCOUNT)
+        Lf->fct = (long)f.f_count;
+        Lf->fsv |= FSV_CT;
+#endif /* !defined(HASNOFSCOUNT) */
+
+#if !defined(HASNOFSADDR)
+        Lf->fsa = fp;
+        Lf->fsv |= FSV_FA;
+#endif /* !defined(HASNOFSADDR) */
+
+#if !defined(HASNOFSFLAGS)
+        Lf->ffg = (long)f.f_flag;
+        Lf->fsv |= FSV_FG;
+#endif /* !defined(HASNOFSFLAGS) */
+
+#if !defined(HASNOFSNADDR)
+        Lf->fna = (KA_T)f.f_data;
+        Lf->fsv |= FSV_NI;
+#endif /* !defined(HASNOFSNADDR) */
+#endif /* defined(HASFSTRUCT) */
+
+        /*
+         * Process structure by its type.
+         */
+        switch (f.f_type) {
+
+#if defined(DTYPE_PIPE)
+        case DTYPE_PIPE:
+#if defined(HASPIPEFN)
+            if (!Selinet)
+                HASPIPEFN(ctx, (KA_T)f.f_data);
+#endif /* defined(HASPIPEFN) */
+            return;
+#endif /* defined(DTYPE_PIPE) */
+
+#if defined(DTYPE_PTS)
+        case DTYPE_PTS:
+#if defined(HASPTSFN)
+            HASPTSFN(ctx, (KA_T)f.f_data);
+#endif /* defined(HASPTSFN) */
+            return;
+#endif /* defined(DTYPE_PTS) */
+
+#if defined(DTYPE_FIFO)
+        case DTYPE_FIFO:
+#endif /* defined(DTYPE_FIFO) */
+
+#if defined(DTYPE_GNODE)
+        case DTYPE_GNODE:
+#endif /* defined(DTYPE_GNODE) */
+
+#if defined(DTYPE_INODE)
+        case DTYPE_INODE:
+#endif /* defined(DTYPE_INODE) */
+
+#if defined(DTYPE_PORT)
+        case DTYPE_PORT:
+#endif /* defined(DTYPE_PORT) */
+
+#if defined(DTYPE_VNODE)
+        case DTYPE_VNODE:
+            /*
+             * AIX-specific: Capture filename from file structure.
+             *
+             * AIX limitation: The kernel doesn't provide an accessible name cache,
+             * so we can only obtain the leaf filename from f_fnamep. We'll combine
+             * this with the filesystem mount point (if available) after calling
+             * process_node() to provide partial path context.
+             *
+             * Full path reconstruction is not possible on AIX without expensive
+             * userspace filesystem scanning.
+             */
+            {
+                char leafname[MAXPATHLEN];
+                int have_leaf = 0;
+
+                /* Try to read the leaf filename from the file structure */
+                if (f.f_vnode && f.f_fnamep
+                    && !kread(ctx, (KA_T)f.f_vnode, (char *)&v, sizeof(v))
+                    && v.v_gnode && !kread(ctx, (KA_T)v.v_gnode, (char *)&g, sizeof(g))
+                    && (g.gn_type == VREG || g.gn_type == VDIR)) {
+                    if (!kread(ctx, (KA_T)f.f_fnamep, leafname, sizeof(leafname)-1)) {
+                        leafname[sizeof(leafname)-1] = '\0';
+                        /* Only use if we got a non-empty string */
+                        if (leafname[0]) {
+                            have_leaf = 1;
+                        }
+                    }
+                }
+
+                /* Process the node to get vfs/mount info and other metadata */
+#if defined(HASF_VNODE)
+                process_node(ctx, (KA_T)f.f_vnode);
+#else  /* !defined(HASF_VNODE) */
+                process_node(ctx, (KA_T)f.f_data);
+#endif /* defined(HASF_VNODE) */
+
+                /*
+                 * If we have a leaf name, combine it with mount point info.
+                 * This provides better context than just the leaf name alone.
+                 * Use ellipsis (...) to indicate missing path components between
+                 * the mount point and the leaf filename.
+                 */
+                if (have_leaf) {
+                    if (Lf->fsdir && Lf->fsdir[0] && strcmp(Lf->fsdir, "/") != 0) {
+                        /* We have a non-root mount point, show mount/.../leaf */
+                        (void)snpf(Namech, Namechl, "%s/.../%s", Lf->fsdir, leafname);
+                    } else if (Lf->fsdir && strcmp(Lf->fsdir, "/") == 0) {
+                        /* Root filesystem, show /.../leaf */
+                        (void)snpf(Namech, Namechl, "/.../%s", leafname);
+                    } else {
+                        /* No mount point info, just show .../leaf */
+                        (void)snpf(Namech, Namechl, ".../%s", leafname);
+                    }
+                    /* Enter the name we constructed */
+                    enter_nm(ctx, Namech);
+                }
+            }
+#endif /* defined(DTYPE_VNODE) */
+
+            return;
+        case DTYPE_SOCKET:
+            process_socket(ctx, (KA_T)f.f_data);
+            return;
+
+#if defined(HASKQUEUE)
+        case DTYPE_KQUEUE:
+            process_kqueue(ctx, (KA_T)f.f_data);
+            return;
+#endif /* defined(HASKQUEUE) */
+
+#if defined(HASPSXSEM)
+        case DTYPE_PSXSEM:
+            process_psxsem(ctx, (KA_T)f.f_data);
+            return;
+#endif /* defined(HASPSXSEM) */
+
+#if defined(HASPSXSHM)
+        case DTYPE_PSXSHM:
+            process_psxshm(ctx, (KA_T)f.f_data);
+            return;
+#endif /* defined(HASPSXSHM) */
+
+#if defined(HASPRIVFILETYPE)
+        case PRIVFILETYPE:
+            HASPRIVFILETYPE(ctx, (KA_T)f.f_data);
+            return;
+#endif /* defined(HASPRIVFILETYPE) */
+
+        default:
+
+#if defined(X_BADFILEOPS)
+            if (X_bfopsa && f.f_ops && (X_bfopsa == (KA_T)f.f_ops)) {
+                (void)snpf(Namech, Namechl,
+                           "no more information; ty=%d file may be closing",
+                           (int)f.f_type);
+                enter_nm(ctx, Namech);
+                return;
+            }
+#endif /* defined(X_BADFILEOPS) */
+
+            if (f.f_type || f.f_ops) {
+                (void)snpf(Namech, Namechl, "%s file struct, ty=%d, op=%s",
+                           print_kptr(fp, tbuf, sizeof(tbuf)), (int)f.f_type,
+                           print_kptr((KA_T)f.f_ops, (char *)NULL, 0));
+                enter_nm(ctx, Namech);
+                return;
+            }
+        }
+    }
+    enter_nm(ctx, "no more information");
+}
+
+/*
  * readvfs() - read vfs structure
  */
 
