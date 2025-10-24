@@ -49,30 +49,7 @@ struct nlist AFSnl[] = {
 char *AFSApath = (char *)NULL; /* alternate AFS name list path
                                 * (from -a) */
 #    endif                     /* defined(HASAOPT) */
-
-KA_T AFSVfsp = (KA_T)NULL; /* AFS vfs struct kernel address */
 #endif                     /* defined(HAS_AFS) */
-
-#if AIXV >= 4140
-struct clone *Clone = (struct clone *)NULL;
-/* local clone information */
-int CloneMaj = -1; /* clone major device number */
-int ClonePtc = -1; /* /dev/ptc minor device number */
-#endif             /* AIXV>=4140 */
-
-int Kd = -1;               /* /dev/kmem file descriptor */
-struct l_vfs *Lvfs = NULL; /* local vfs structure table */
-int Km = -1;               /* /dev/mem file descriptor */
-
-struct nlist Nl[] = {
-
-#if AIXV < 4100
-    {"u", 0, 0, 0, 0, 0},
-#else  /* AIXV>=4100 */
-    {"__ublock", 0, 0, 0, 0, 0},
-#endif /* AIXV<4100 */
-
-};
 
 #if defined(HASFSTRUCT)
 /*

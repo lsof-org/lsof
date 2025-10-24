@@ -35,11 +35,11 @@
 #if !defined(COMMON_H)
 #    define COMMON_H 1
 
-#    include "lsof.h"
 #    if defined(AUTOTOOLS)
 #        include "autotools.h"
 #    endif
 #    include "machine.h"
+#    include "lsof.h"
 
 #    if !defined(FSV_DEFAULT)
 #        define FSV_DEFAULT 0

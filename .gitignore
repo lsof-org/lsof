@@ -101,6 +101,7 @@ lib/dialects/netbsd/include
 /dmnt.c
 /dnode.c
 /dnode1.c
+/dnode2.c
 /dproc.c
 /dproto.h
 /dsock.c

@@ -50,7 +50,7 @@ extern int readj2lino(struct lsof_context *ctx, struct gnode *ga, struct l_ino *
 
 extern int getchan(char *p);
 extern int is_file_named(struct lsof_context *ctx, char *p, enum vtype ty, chan_t ch, int ic);
-extern char isglocked(struct lsof_context *ctx, struct gnode *ga);
+extern enum lsof_lock_mode isglocked(struct lsof_context *ctx, struct gnode *ga);
 extern int readlino(struct lsof_context *ctx, struct gnode *ga, struct l_ino *li);
 extern struct l_vfs *readvfs(struct lsof_context *ctx, struct vnode *vn);
 

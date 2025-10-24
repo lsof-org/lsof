@@ -495,7 +495,7 @@ void process_node(struct lsof_context *ctx, /* context */
                                  */
                                 Namech[0] = '\0';
                                 Lf->inp_ty = 0;
-                                (void)process_socket(ka);
+                                (void)process_socket(ctx, ka);
                                 return;
                             }
                             /*
