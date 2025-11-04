@@ -886,8 +886,8 @@ AIX version.
 
 When Configure must use ``uname -rv'' on AIX less than 5 to determine
 the AIX version, the result will lack a correct third component --
-e.g., the `4' of ``4.1.4''.  If your AIX less than 5 system lacks lacks
-an executable oslevel, I suggest you edit the Configure-produced
+e.g., the `4' of ``4.1.4''.  If your AIX less than 5 system lacks
+an executable oslevel, I suggest you to edit the Configure-produced
 Makefile and complete the _AIXV definition in the CFGF string.
 
 By default lsof avoids using the kernel's readx() function, causing
