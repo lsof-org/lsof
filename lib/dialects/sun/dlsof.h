@@ -337,7 +337,9 @@ struct lock_descriptor {
 #    if solaris >= 100000
 #        include <nfs/mount.h>
 #        include <nfs/nfs4.h>
+#        define xvattr_t vattr_t
 #        include <nfs/rnode4.h>
+#        undef xvattr_t
 #    endif /* solaris>=100000 */
 
 #    if solaris >= 100000
