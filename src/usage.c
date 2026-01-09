@@ -299,7 +299,7 @@ void usage(struct lsof_context *ctx, /* context */
         (void)fprintf(stderr, " latest FAQ: %s\n", LSOF_FAQ_URL);
         (void)fprintf(stderr, " latest (non-formatted) man page: %s\n",
                       LSOF_MAN_URL);
-        (void)fprintf(stderr, " usage: [-?ab%shH%slnNoOP%s%stUvV%s]",
+        (void)fprintf(stderr, " usage: [-?ab%shH%slnNoyOP%s%stUvV%s]",
 
 #if defined(HASNCACHE)
                       "C",
@@ -513,6 +513,7 @@ void usage(struct lsof_context *ctx, /* context */
         col = print_in_col(col, "-l list UID numbers");
         col = print_in_col(col, "-n no host names");
         col = print_in_col(col, "-N select NFS files");
+        col = print_in_col(col, "-y select stale file handles (ESTALE)");
         col = print_in_col(col, "-o list file offset");
         col = print_in_col(col, "-O no overhead *RISKY*");
         col = print_in_col(col, "-P no port names");

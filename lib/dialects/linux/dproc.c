@@ -917,6 +917,8 @@ static int process_id(struct lsof_context *ctx, /* context */
     static int pathil = 0;
     char *rest;
     int txts = 0;
+    int enss_fd = 0;
+    int enls_fd = 0;
 
 #if defined(HASSELINUX)
     cntxlist_t *cntxp;
@@ -1206,6 +1208,7 @@ static int process_id(struct lsof_context *ctx, /* context */
             } else {
                 if (HasNFS) {
                     if (lstatsafely(ctx, path, &lsb)) {
+                        enls_fd = errno;
                         (void)statEx(ctx, pbuf, &lsb, &ls);
                         enls = errno;
                     } else {
@@ -1213,6 +1216,7 @@ static int process_id(struct lsof_context *ctx, /* context */
                         ls = SB_ALL;
                     }
                     if (statsafely(ctx, path, &sb)) {
+                        enss_fd = errno;
                         (void)statEx(ctx, pbuf, &sb, &ss);
                         enss = errno;
                     } else {
@@ -1352,7 +1356,11 @@ static int process_id(struct lsof_context *ctx, /* context */
                                 "[pidfd:%d]", fi.pid);
                     enter_nm(ctx, rest);
                 }
-
+                if ((Selflags & SELSTALE) &&
+                    (enss_fd == ESTALE || enls_fd == ESTALE)) {
+                    Lf->sf |= SELSTALE;
+                    (void)add_nma(ctx, " (STALE)", 8);
+                }
                 if (Lf->sf)
                     link_lfile(ctx);
             }
