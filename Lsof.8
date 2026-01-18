@@ -1302,6 +1302,10 @@ It is also useful when host name lookup is not working properly.
 .B \-N
 selects the listing of NFS files.
 .TP \w'names'u+4
+.B \-y
+selects the listing of files whose stat(2)/lstat(2) fails with
+ESTALE ("Stale file handle"), e.g., stale NFS file handles.
+.TP \w'names'u+4
 .BI \-o
 directs
 .I lsof

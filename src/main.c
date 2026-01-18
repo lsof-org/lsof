@@ -151,7 +151,7 @@ int main(int argc, char *argv[]) {
      * Create option mask.
      */
     (void)snpf(options, sizeof(options),
-               "?a%sbc:%sD:d:%s%sf:F:g:hHi:%s%slL:%s%snNo:Op:QPr:%ss:S:tT:u:"
+               "?a%sbc:%sD:d:%s%sf:F:g:hHi:%s%slL:%s%snNyo:Op:QPr:%ss:S:tT:u:"
                "UvVwx:%s%s%s",
 
 #if defined(HAS_AFS) && defined(HASAOPT)
@@ -699,6 +699,9 @@ int main(int argc, char *argv[]) {
             break;
         case 'N':
             Fnfs = 1;
+            break;
+        case 'y':
+            Selflags |= SELSTALE;
             break;
         case 'o':
             if (!GOv || *GOv == '-' || *GOv == '+') {

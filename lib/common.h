@@ -569,14 +569,15 @@ extern int ZoneColW;
 #    define SELEVTFDINFO                                                       \
         0x200000 /* selected for evetnfd info;                                 \
                   * cleared in link_lfile() */
+#    define SELSTALE 0x400000 /* select files with ESTALE (stale file handle) */
 
 #    define SELALL                                                             \
         (SELCMD | SELCNTX | SELFD | SELNA | SELNET | SELNM | SELNFS | SELPID | \
-         SELUID | SELUNX | SELZONE | SELTASK)
+         SELUID | SELUNX | SELZONE | SELTASK | SELSTALE)
 #    define SELPROC                                                            \
         (SELCMD | SELCNTX | SELPGID | SELPID | SELUID | SELZONE | SELTASK)
 /* process selecters */
-#    define SELFILE (SELFD | SELNFS | SELNLINK | SELNM) /* file selecters */
+#    define SELFILE (SELFD | SELNFS | SELNLINK | SELNM | SELSTALE) /* file selecters */
 #    define SELNW (SELNA | SELNET | SELUNX)             /* network selecters */
 
 /*
