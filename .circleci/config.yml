@@ -123,9 +123,9 @@ jobs:
     steps:
       - checkout
       - run:
-          name: Install pkg-config
+          name: Install packages
           command: |
-            brew install pkg-config libtool autoconf automake || true
+            brew install pkg-config libtool autoconf automake groff || true
       - run:
           name: Configure
           command: |
