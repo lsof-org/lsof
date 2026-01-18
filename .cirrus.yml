@@ -7,11 +7,8 @@ task:
   install_script: pkg install -y bash git autoconf automake libtool groff pkgconf
   kernel_src_script: |
     uname -r
-    rm -rf /usr/src
     if [[ $(uname -r) == "14.3-RELEASE" ]]; then
       git clone --branch releng/14.3 https://git.FreeBSD.org/src.git /usr/src
-    else
-      git clone --branch releng/15.0 https://git.FreeBSD.org/src.git /usr/src
     fi;
   build_script:
     - ./Configure -n freebsd
