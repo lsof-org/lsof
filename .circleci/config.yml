@@ -117,15 +117,15 @@ jobs:
           command: |
             nix-channel --update
             nix-build
-  monterey:
+  macos:
     macos:
-      xcode: 14.2.0
+      xcode: 15.4.0
     steps:
       - checkout
       - run:
-          name: Install pkg-config
+          name: Install packages
           command: |
-            brew install pkg-config libtool autoconf automake
+            brew install pkg-config libtool autoconf automake groff || true
       - run:
           name: Configure
           command: |
@@ -170,4 +170,4 @@ workflows:
             parameters:
               distro: [fedora37, fedora38, centos9, debian11, debian12, ubuntu2204, archlinux, opensuse15, alpine317]
       - nixos
-      - monterey
+      - macos
