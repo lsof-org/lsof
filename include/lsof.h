@@ -212,6 +212,7 @@ enum lsof_file_type {
                               type */
     LSOF_FILE_SCO_SEMA,    /**< SCO OpenServer Xenix semaphore file */
     LSOF_FILE_SCO_SHARED,  /**< SCO OpenServer Xenix shared data file */
+    LSOF_FILE_NPOLICY,     /**< Darwin Netpolicy */
     LSOF_FILE_UNSUPPORTED, /**< unsupported file type */
 
     /* types from struct vnode */
