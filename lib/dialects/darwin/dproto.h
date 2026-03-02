@@ -52,6 +52,7 @@ extern void process_psem(struct lsof_context *ctx, int pid, int32_t fd);
 extern void process_pshm(struct lsof_context *ctx, int pid, int32_t fd);
 extern void process_socket(struct lsof_context *ctx, int pid, int32_t fd);
 extern void process_vnode(struct lsof_context *ctx, int pid, int32_t fd);
+extern void process_netpolicy(struct lsof_context *ctx, int pid, int32_t fd);
 #if defined(PROC_PIDLISTFILEPORTS)
 extern void process_fileport_pipe(struct lsof_context *ctx, int pid,
                                   uint32_t fileport);

@@ -537,6 +537,9 @@ static void process_fds(struct lsof_context *ctx, /* context */
         case PROX_FDTYPE_VNODE:
             (void)process_vnode(ctx, pid, fdp->proc_fd);
             break;
+        case PROX_FDTYPE_NETPOLICY:
+            (void)process_netpolicy(ctx, pid, fdp->proc_fd);
+            break;
         default:
             (void)snpf(Namech, Namechl - 1, "unknown file type: %d",
                        fdp->proc_fdtype);

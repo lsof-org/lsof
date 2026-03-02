@@ -274,6 +274,20 @@ void process_fsevents(struct lsof_context *ctx, /* context */
 }
 
 /*
+ *
+ * process_fsevents() -- process a network policy file
+ * see also -
+ https://github.com/apple-opensource/lsof/blob/da09c8c6436286e5bd8c400b42e86b54404f12a7/lsof/dialects/darwin/libproc/dnetpolicy.c
+ */
+
+void process_netpolicy(struct lsof_context *ctx, /* context */
+                       int pid,                  /* PID */
+                       int32_t fp)               /* fd */
+{
+    Lf->type = LSOF_FILE_NPOLICY;
+}
+
+/*
  * process_kqueue() -- process a kernel queue file
  */
 void process_kqueue(struct lsof_context *ctx, /* context */
@@ -612,3 +626,4 @@ void process_fileport_vnode(struct lsof_context *ctx, /* context */
     process_vnode_common(ctx, &vi);
 }
 #endif /* PROC_PIDLISTFILEPORTS */
+

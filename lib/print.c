@@ -394,6 +394,9 @@ void file_type_to_string(enum lsof_file_type type,
     case LSOF_FILE_SCO_SHARED:
         (void)snpf(buf, buf_len, "XSD");
         break;
+    case LSOF_FILE_NPOLICY:
+        (void)snpf(buf, buf_len, "NPOLICY");
+        break;
     case LSOF_FILE_UNSUPPORTED:
         (void)snpf(buf, buf_len, "UNSP");
         break;
