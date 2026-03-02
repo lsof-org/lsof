@@ -107,7 +107,7 @@ enum lsof_error lsof_avoid_blocking(struct lsof_context *ctx, int avoid) {
         return LSOF_ERROR_INVALID_ARGUMENT;
     }
     Fblock = avoid;
-    return LSOF_EXIT_SUCCESS;
+    return LSOF_SUCCESS;
 }
 
 API_EXPORT
