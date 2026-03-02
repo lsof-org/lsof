@@ -5624,6 +5624,24 @@ Supplement	Regenerated the 4.04 distribution to correct a non-
 
 4.9?.?		????????? ??, ????
 
+		[darwin] parse and print NETPOLICY FDTYPE properly by @neek78 (#347)
+
+		[linux] Treat NFS ESTALE fds as unlinked for +L selection by @x-lugoo
+		(#345)
+
+		[solaris] Update dlsof.h for Solaris NFS rnode4.h issues by
+		@nic-kulowiec (#342)
+
+		[doc] fix minor doc errors in 00README by @nic-kulowiec (#340)
+
+		[aix] Add AIX platform-specific process_file() with filename capture by @ uptycs-rmack (#339)
+
+		[aix] Fix AIX dialect to work with context refactor by @uptycs-rmack
+		(#338)
+
+		[freebsd] Update supported FreeBSD versions] by @yasuhirokimura (#337)
+
+		Fix null pointer exception by @admardare-cyber (#336)
 
 Vic Abell <abe@purdue.edu>
 July 14, 2018

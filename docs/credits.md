@@ -591,8 +591,14 @@ provided test systems where I was able to do development work.
 	Bjorn Helgaas (@bjorn-helgaas)
 	@OstCollector
 	Jiri Slaby
-	Marc (@MarT512) and
-	@momo-trip
+	Marc (@MarT512)
+	Adrian Mardare (@admardare-cyber)
+	Yasuhiro Kimura (@yasuhirokimura)
+	Ryan Mack (@uptycs-rmack)
+	Chelsy Ratnawat (@ChelsyRatnawat)
+	@nic-kulowiec
+	Jeff Xie (@x-lugoo) and
+	Nick Begg (@momo-trip)
 
 If I have omitted a contributor's name, the fault is wholly mine,
 and I apologize for the error.
