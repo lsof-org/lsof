@@ -153,7 +153,7 @@ void enter_vnode_info(
      */
     vip->vip_path[sizeof(vip->vip_path) - 1] = '\0';
     if (vip->vip_path[0] != '\0') {
-        Lf->V_path = mkstrcpy(vip->vip_path, (MALLOC_S *)NULL);
+        enter_nm(ctx, vip->vip_path);
     }
     /*
      * Save node number.
@@ -239,17 +239,6 @@ void err2nm(struct lsof_context *ctx, /* context */
     }
     (void)snpf(Namech, Namechl, "%s: %s", pfx, sfx);
     enter_nm(ctx, Namech);
-}
-
-/*
- * print_v_path() -- print vnode's path
- */
-int print_v_path(struct lsof_context *ctx, struct lfile *lf) {
-    if (lf->V_path) {
-        safestrprt(lf->V_path, stdout, 0);
-        return (1);
-    }
-    return (0);
 }
 
 /*

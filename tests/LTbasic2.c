@@ -95,7 +95,8 @@ int main(int argc, char **argv) {
                 }
             } else if (f->fd_type == LSOF_FD_NUMERIC) {
                 /* check if fd matches */
-                if (f->fd_num == fd && strstr(f->name, "LTbasic2-tmp")) {
+                if (f->fd_num == fd && f->name &&
+                    strstr(f->name, "LTbasic2-tmp")) {
                     fd_found = 1;
                 }
             }
