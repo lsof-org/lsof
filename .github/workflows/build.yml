@@ -6,7 +6,7 @@ on:
     branches: [ "master" ]
 
 jobs:
-  build:
+  linux:
     strategy:
       matrix:
         os: [ubuntu-24.04, ubuntu-22.04]
@@ -25,3 +25,35 @@ jobs:
       run: make check
     - name: make distcheck
       run: make distcheck
+
+  macos:
+    runs-on: macos-latest
+    steps:
+    - uses: actions/checkout@v3
+    - name: install dependencies
+      run: brew install pkg-config libtool autoconf automake groff
+    - name: configure
+      run: LSOF_INCLUDE=/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include ./Configure -n darwin
+    - name: make
+      run: make -j 2
+    - name: test
+      run: bash ./check.bash darwin
+    - name: autotools build
+      run: |
+        git clean -fdx .
+        autoreconf -vif
+        ./configure
+        make
+        DESTDIR=$PWD/prefix make install
+        make check
+    - name: dist build and test
+      run: |
+        make dist
+        mkdir temp
+        cd temp
+        tar xvf ../lsof-*.tar.gz
+        cd lsof-*
+        ./configure
+        make
+        DESTDIR=$PWD/prefix make install
+        make check
