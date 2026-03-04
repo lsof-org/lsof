@@ -218,18 +218,12 @@
  */
 
 #    define HASLFILEADD                                                        \
-        char *V_path;                                                          \
         mach_port_t fileport;                                                  \
         uint32_t guardflags;
 #    define CLRLFILEADD(lf)                                                    \
-        if (lf->V_path) {                                                      \
-            (void)free((FREE_P *)lf->V_path);                                  \
-            lf->V_path = (char *)NULL;                                         \
-        }                                                                      \
         lf->fileport = MACH_PORT_NULL;                                         \
         lf->guardflags = 0;
 #    define SETLFILEADD                                                        \
-        Lf->V_path = (char *)NULL;                                             \
         Lf->fileport = MACH_PORT_NULL;                                         \
         Lf->guardflags = 0;
 
@@ -338,7 +332,7 @@
  * returns non-zero if it prints a name to stdout.
  */
 
-#    define HASPRIVNMCACHE print_v_path
+/* #define	HASPRIVNMCACHE	<function name>	*/
 
 /*
  * HASPRIVPRIPP is defined for dialects that have a private function for

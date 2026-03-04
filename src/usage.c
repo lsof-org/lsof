@@ -221,9 +221,9 @@ static void report_HASDCACHE(struct lsof_context *ctx, /* context */
  * report_HASKERNIDCK() -- report HASKERNIDCK state
  */
 
-static void report_HASKERNIDCK(pfx, verb) char *pfx; /* prefix (NULL if none) */
-char *verb;                                          /* verb (NULL if none) */
-{
+static void report_HASKERNIDCK(char *pfx, /* prefix (NULL if none) */
+                               char *verb /* verb (NULL if none) */
+) {
     (void)fprintf(stderr, "%sernel ID check %s%s%s.\n", pfx ? pfx : "",
                   verb ? verb : "", verb ? " " : "",
 
@@ -240,10 +240,10 @@ char *verb;                                          /* verb (NULL if none) */
  * report_SECURITY() -- report *SECURITY states
  */
 
-static void report_SECURITY(pfx, punct) char *pfx; /* prefix (NULL if none) */
-char *punct;                                       /* short foem punctuation
-                                                    * (NULL if none) */
-{
+static void report_SECURITY(char *pfx,  /* prefix (NULL if none) */
+                            char *punct /* short foem punctuation
+                                         * (NULL if none) */
+) {
     fprintf(stderr, "%s%s can list all files%s", pfx ? pfx : "",
 
 #if defined(HASSECURITY)
@@ -264,11 +264,10 @@ char *punct;                                       /* short foem punctuation
  * report_WARNDEVACCESS() -- report WEARNDEVACCESS state
  */
 
-static void report_WARNDEVACCESS(pfx, verb,
-                                 punct) char *pfx; /* prefix (NULL if none) */
-char *verb;                                        /* verb (NULL if none) */
-char *punct;                                       /* punctuation */
-{
+static void report_WARNDEVACCESS(char *pfx,  /* prefix (NULL if none) */
+                                 char *verb, /* verb (NULL if none) */
+                                 char *punct /* punctuation */
+) {
     (void)fprintf(stderr, "%s/dev warnings %s%s%s%s", pfx ? pfx : "",
                   verb ? verb : "", verb ? " " : "",
 

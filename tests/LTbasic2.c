@@ -2,7 +2,7 @@
  * LTbasic2.c -- Lsof Test basic tests 2
  *
  * The basic tests measure the finding by liblsof of its own open CWD, open
- * executable (when possible).
+ * executable (when possible) and opened regular file.
  *
  * V. Abell
  * Purdue University
@@ -36,6 +36,9 @@
 
 #include "lsof.h"
 #include <stdio.h>
+#include <fcntl.h>
+#include <string.h>
+#include <unistd.h>
 #include <sys/stat.h>
 
 int main(int argc, char **argv) {
@@ -47,8 +50,11 @@ int main(int argc, char **argv) {
     char buffer[128];
     int exec_found = 0; /* executable found in result */
     int cwd_found = 0;  /* cwd found in result */
+    int fd_found = 0;   /* opened fd found in result */
     struct stat exec_stat;
     struct stat cwd_stat;
+    int fd = -1;
+    int tmpfile_created = 0;
     if (stat(argv[0], &exec_stat)) {
         fprintf(stderr, "Cannot stat %s, skipping executable check\n", argv[0]);
         exec_found = 1;
@@ -56,6 +62,11 @@ int main(int argc, char **argv) {
     if (stat(".", &cwd_stat)) {
         fprintf(stderr, "Cannot stat '.', skipping cwd check\n");
         cwd_found = 1;
+    }
+    if ((fd = open("LTbasic2-tmp", O_CREAT, 0644)) < 0) {
+        fprintf(stderr, "Cannot create 'LTbasic2-tmp' in current directory, "
+                        "skipping fd check\n");
+        fd_found = 1;
     }
 
     ctx = lsof_new();
@@ -82,6 +93,12 @@ int main(int argc, char **argv) {
                     f->dev == cwd_stat.st_dev && f->inode == cwd_stat.st_ino) {
                     cwd_found = 1;
                 }
+            } else if (f->fd_type == LSOF_FD_NUMERIC) {
+                /* check if fd matches */
+                if (f->fd_num == fd && f->name &&
+                    strstr(f->name, "LTbasic2-tmp")) {
+                    fd_found = 1;
+                }
             }
         }
     }
@@ -95,5 +112,10 @@ int main(int argc, char **argv) {
     if (!cwd_found) {
         fprintf(stderr, "ERROR!!!  current working directory wasn't found.\n");
     }
-    return !(exec_found && cwd_found);
+    if (!fd_found) {
+        fprintf(stderr, "ERROR!!!  opened regular file wasn't found.\n");
+    }
+    /* cleanup created temporary file */
+    unlink("LTbasic2-tmp");
+    return !(exec_found && cwd_found && fd_found);
 }

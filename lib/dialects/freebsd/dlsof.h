@@ -168,9 +168,48 @@ int getmntinfo(struct statfs **, int);
 
 #    include <sys/domain.h>
 #    define pmap RPC_pmap
+/* fix missing sysctl_ctx_list definition in FreeBSD 15 */
+#    if FREEBSDV >= 15000
+#        define _KERNEL
+#        include <sys/sysctl.h>
+#        undef _KERNEL
+#    endif
 #    include <rpc/rpc.h>
 #    include <rpc/pmap_prot.h>
 #    undef pmap
+
+#    if FREEBSDV >= 15000
+/* The kernel headers dropped user space libc header compat in commit 3a0cdb2,
+ * undo it. The following code is copied and modified from
+ * /usr/src/include/rpc/clnt.h. */
+typedef struct __rpc_client_user {
+    AUTH *cl_auth; /* authenticator */
+    struct clnt_ops_user {
+        /* call remote procedure */
+        enum clnt_stat (*cl_call)(struct __rpc_client *, rpcproc_t, xdrproc_t,
+                                  void *, xdrproc_t, void *, struct timeval);
+        /* abort a call */
+        void (*cl_abort)(struct __rpc_client *);
+        /* get specific error code */
+        void (*cl_geterr)(struct __rpc_client *, struct rpc_err *);
+        /* frees results */
+        bool_t (*cl_freeres)(struct __rpc_client *, xdrproc_t, void *);
+        /* destroy this structure */
+        void (*cl_destroy)(struct __rpc_client *);
+        /* the ioctl() of rpc */
+        bool_t (*cl_control)(struct __rpc_client *, u_int, void *);
+    } *cl_ops;
+    void *cl_private; /* private stuff */
+    char *cl_netid;   /* network token */
+    char *cl_tp;      /* device name */
+} CLIENT_USER;
+#        define CLIENT CLIENT_USER
+#        undef clnt_call
+#        define clnt_call(rh, proc, xargs, argsp, xres, resp, secs)            \
+            ((*(rh)->cl_ops->cl_call)(rh, proc, xargs, argsp, xres, resp, secs))
+extern CLIENT *clnt_create(const char *, const rpcprog_t, const rpcvers_t,
+                           const char *);
+#    endif
 
 #    include <paths.h>
 #    include <ufs/ufs/quota.h>
