@@ -5639,7 +5639,7 @@ Supplement	Regenerated the 4.04 distribution to correct a non-
 		[aix] Fix AIX dialect to work with context refactor by @uptycs-rmack
 		(#338)
 
-		[freebsd] Update supported FreeBSD versions] by @yasuhirokimura (#337)
+		[freebsd] Update supported FreeBSD versions by @yasuhirokimura (#337)
 
 		Fix null pointer exception by @admardare-cyber (#336)
 
