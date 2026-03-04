@@ -732,6 +732,9 @@ void lsof_free_result(struct lsof_result *result) {
     int pi, fi;
     struct lsof_process *p;
     struct lsof_file *f;
+    if (!result) {
+        return;
+    }
     for (pi = 0; pi < result->num_processes; pi++) {
         p = &result->processes[pi];
         /* Free files */
