@@ -5643,6 +5643,11 @@ Supplement	Regenerated the 4.04 distribution to correct a non-
 
 		Fix null pointer exception by @admardare-cyber (#336)
 
+		[freebsd] Fix freebsd 15 compat due to rpc and sysctl changes in kernel
+		headers
+
+		[darwin] File name is now properly saved in liblsof (#348)
+
 Vic Abell <abe@purdue.edu>
 July 14, 2018
 
