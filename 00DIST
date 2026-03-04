@@ -5622,7 +5622,7 @@ Supplement	Regenerated the 4.04 distribution to correct a non-
 		[linux] fix potential null pointer deference, reported by
 		@mono-trip (#332)
 
-4.9?.?		????????? ??, ????
+4.99.6		March 4, 2026
 
 		[darwin] parse and print NETPOLICY FDTYPE properly by @neek78 (#347)
 
@@ -5647,6 +5647,8 @@ Supplement	Regenerated the 4.04 distribution to correct a non-
 		headers
 
 		[darwin] File name is now properly saved in liblsof (#348)
+
+4.9?.?		????????? ??, ????
 
 Vic Abell <abe@purdue.edu>
 July 14, 2018
