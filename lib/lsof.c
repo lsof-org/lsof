@@ -772,6 +772,8 @@ enum lsof_error lsof_select_process_regex(struct lsof_context *ctx, char *x) {
     MALLOC_S xl;
     char *xp = (char *)NULL;
     enum lsof_error ret = LSOF_SUCCESS;
+    lsof_rx_t *new_rx;
+    int new_cmdrx_cap;
 
     if (!ctx || ctx->frozen) {
         return LSOF_ERROR_INVALID_ARGUMENT;
@@ -895,13 +897,13 @@ enum lsof_error lsof_select_process_regex(struct lsof_context *ctx, char *x) {
         /*
          * More CmdRx[] space must be assigned.
          */
-        NCmdRxA += 32;
-        xl = (MALLOC_S)(ctx->cmd_regex_cap * sizeof(lsof_rx_t));
+        new_cmdrx_cap = NCmdRxA + 32;
+        xl = (MALLOC_S)(new_cmdrx_cap * sizeof(lsof_rx_t));
         if (CmdRx)
-            CmdRx = (lsof_rx_t *)realloc((MALLOC_P *)CmdRx, xl);
+            new_rx = (lsof_rx_t *)realloc((MALLOC_P *)CmdRx, xl);
         else
-            CmdRx = (lsof_rx_t *)malloc(xl);
-        if (!CmdRx) {
+            new_rx = (lsof_rx_t *)malloc(xl);
+        if (!new_rx) {
             if (ctx->err) {
                 (void)fprintf(ctx->err, "%s: no space for regexp: ", Pn);
                 safestrprt(x, ctx->err, 1);
@@ -910,9 +912,10 @@ enum lsof_error lsof_select_process_regex(struct lsof_context *ctx, char *x) {
             ret = LSOF_ERROR_NO_MEMORY;
             goto cleanup;
         }
+        CmdRx = new_rx;
+        NCmdRxA = new_cmdrx_cap;
     }
     i = NCmdRxU;
-    CmdRx[i].exp = xp;
     /*
      * Compile the expression.
      */
