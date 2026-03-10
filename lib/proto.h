@@ -214,6 +214,8 @@ extern void usage(struct lsof_context *ctx, int err, int fh, int version);
 extern int util_strftime(char *fmtr, int fmtl, char *fmt);
 extern int vfy_dev(struct lsof_context *ctx, struct l_dev *dp);
 extern char *x2dev(char *s, dev_t *d);
+extern int grow_array(void **array_ptr, int *cap, size_t elem_size,
+                      int growth_count);
 
 #    if defined(HASBLKDEV)
 extern void find_bl_ino(struct lsof_context *ctx);

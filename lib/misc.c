@@ -56,7 +56,8 @@ static void closePipes(void);
 static int dolstat(char *path, char *buf, int len);
 static int dostat(char *path, char *buf, int len);
 static int doreadlink(char *path, char *buf, int len);
-static int doinchild(struct lsof_context *ctx, int (*fn)(char *path, char *buf, int len), char *fp,
+static int doinchild(struct lsof_context *ctx,
+                     int (*fn)(char *path, char *buf, int len), char *fp,
                      char *rbuf, int rbln);
 
 #if defined(HASINTSIGNAL)
@@ -259,10 +260,11 @@ void closefrom_shim(struct lsof_context *ctx, int low) {
  */
 
 static int doinchild(struct lsof_context *ctx,
-                     int (*fn)(char *path, char *buf, int len), /* function to perform */
-                     char *fp,    /* function parameter */
-                     char *rbuf,  /* response buffer */
-                     int rbln)    /* response buffer length */
+                     int (*fn)(char *path, char *buf,
+                               int len), /* function to perform */
+                     char *fp,           /* function parameter */
+                     char *rbuf,         /* response buffer */
+                     int rbln)           /* response buffer length */
 {
     int en, rv;
 
@@ -1624,4 +1626,38 @@ char *x2dev(char *s,  /* ASCII string */
     }
     *d = r;
     return (s);
+}
+
+/*
+ * grow_array(): handle dynamic array growth
+ */
+int grow_array(void **array_ptr, int *cap, size_t elem_size, int growth_count) {
+    void *new_array;
+
+    /* Calculate new capacity */
+    int new_capacity = *cap + growth_count;
+    if (new_capacity < 0) {
+        return -1;
+    }
+    size_t new_size = (size_t)new_capacity * elem_size;
+
+    /* Check for overflow */
+    if (new_capacity < 0 || new_size / elem_size != (size_t)new_capacity) {
+        return -1;
+    }
+
+    if (*array_ptr) {
+        new_array = realloc((MALLOC_P *)*array_ptr, (MALLOC_S)new_size);
+    } else {
+        new_array = malloc((MALLOC_S)new_size);
+    }
+
+    if (!new_array) {
+        /* Allocation failed */
+        return -1;
+    }
+
+    *array_ptr = new_array;
+    *cap = new_capacity;
+    return 0;
 }

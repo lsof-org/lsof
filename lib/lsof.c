@@ -772,8 +772,6 @@ enum lsof_error lsof_select_process_regex(struct lsof_context *ctx, char *x) {
     MALLOC_S xl;
     char *xp = (char *)NULL;
     enum lsof_error ret = LSOF_SUCCESS;
-    lsof_rx_t *new_rx;
-    int new_cmdrx_cap;
 
     if (!ctx || ctx->frozen) {
         return LSOF_ERROR_INVALID_ARGUMENT;
@@ -897,13 +895,7 @@ enum lsof_error lsof_select_process_regex(struct lsof_context *ctx, char *x) {
         /*
          * More CmdRx[] space must be assigned.
          */
-        new_cmdrx_cap = NCmdRxA + 32;
-        xl = (MALLOC_S)(new_cmdrx_cap * sizeof(lsof_rx_t));
-        if (CmdRx)
-            new_rx = (lsof_rx_t *)realloc((MALLOC_P *)CmdRx, xl);
-        else
-            new_rx = (lsof_rx_t *)malloc(xl);
-        if (!new_rx) {
+        if (grow_array((void **)&CmdRx, &NCmdRxA, sizeof(lsof_rx_t), 32)) {
             if (ctx->err) {
                 (void)fprintf(ctx->err, "%s: no space for regexp: ", Pn);
                 safestrprt(x, ctx->err, 1);
@@ -912,8 +904,6 @@ enum lsof_error lsof_select_process_regex(struct lsof_context *ctx, char *x) {
             ret = LSOF_ERROR_NO_MEMORY;
             goto cleanup;
         }
-        CmdRx = new_rx;
-        NCmdRxA = new_cmdrx_cap;
     }
     i = NCmdRxU;
     /*
@@ -977,15 +967,7 @@ enum lsof_error lsof_select_pid_pgid(struct lsof_context *ctx, int32_t id,
      * Allocate table table space.
      */
     if (*size >= *cap) {
-        *cap += 10;
-        if (!(*sel))
-            *sel = (struct int_lst *)malloc(
-                (MALLOC_S)(sizeof(struct int_lst) * (*cap)));
-        else
-            *sel = (struct int_lst *)realloc(
-                (MALLOC_P *)(*sel),
-                (MALLOC_S)(sizeof(struct int_lst) * (*cap)));
-        if (!(*sel)) {
+        if (grow_array((void **)sel, cap, sizeof(struct int_lst), 10)) {
             if (ctx->err) {
                 (void)fprintf(ctx->err, "%s: no space for %d process%s IDs", Pn,
                               *cap, is_pid ? "" : " group");
@@ -1061,13 +1043,7 @@ enum lsof_error lsof_select_uid_login(struct lsof_context *ctx, uint32_t uid,
      * Allocate space for User IDentifier.
      */
     if (Nuid >= Mxuid) {
-        Mxuid += 10;
-        len = (MALLOC_S)(Mxuid * sizeof(struct seluid));
-        if (!Suid)
-            Suid = (struct seluid *)malloc(len);
-        else
-            Suid = (struct seluid *)realloc((MALLOC_P *)Suid, len);
-        if (!Suid) {
+        if (grow_array((void **)&Suid, &Mxuid, sizeof(struct seluid), 10)) {
             if (ctx->err) {
                 (void)fprintf(ctx->err, "%s: no space for UIDs", Pn);
             }
