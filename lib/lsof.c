@@ -269,6 +269,8 @@ enum lsof_error lsof_gather(struct lsof_context *ctx,
     int i;
     struct lsof_selection *selections;
     size_t num_selections = 0;
+    struct lsof_process *user_procs = NULL;
+    struct lsof_result *res = NULL;
 
     if (!result) {
         ret = LSOF_ERROR_INVALID_ARGUMENT;
@@ -298,10 +300,20 @@ enum lsof_error lsof_gather(struct lsof_context *ctx,
     }
 
     /* Fill result */
-    struct lsof_result *res =
-        (struct lsof_result *)malloc(sizeof(struct lsof_result));
-    struct lsof_process *user_procs =
+    res = (struct lsof_result *)malloc(sizeof(struct lsof_result));
+    if (!res) {
+        ret = LSOF_ERROR_NO_MEMORY;
+        goto cleanup;
+    }
+    memset(res, 0, sizeof(struct lsof_result));
+
+    user_procs =
         (struct lsof_process *)malloc(sizeof(struct lsof_process) * sel_procs);
+    if (!user_procs) {
+        ret = LSOF_ERROR_NO_MEMORY;
+        goto cleanup;
+    }
+
     memset(user_procs, 0, sizeof(struct lsof_process) * sel_procs);
 
     for (pi = 0, upi = 0; pi < ctx->procs_size; pi++) {
@@ -343,6 +355,10 @@ enum lsof_error lsof_gather(struct lsof_context *ctx,
 
             p->files = (struct lsof_file *)malloc(sizeof(struct lsof_file) *
                                                   num_files);
+            if (!p->files) {
+                ret = LSOF_ERROR_NO_MEMORY;
+                goto cleanup;
+            }
             memset(p->files, 0, sizeof(struct lsof_file) * num_files);
             p->num_files = num_files;
             for (fi = 0, lf = lp->file; lf; lf = lf_next) {
@@ -429,6 +445,7 @@ enum lsof_error lsof_gather(struct lsof_context *ctx,
     ctx->cur_proc = NULL;
 
     res->processes = user_procs;
+    user_procs = NULL;
     res->num_processes = sel_procs;
 
     ctx->procs_size = ctx->procs_cap = 0;
@@ -652,6 +669,10 @@ enum lsof_error lsof_gather(struct lsof_context *ctx,
         if (pass == 0) {
             selections = (struct lsof_selection *)malloc(
                 sizeof(struct lsof_selection) * num_selections);
+            if (!selections) {
+                ret = LSOF_ERROR_NO_MEMORY;
+                goto cleanup;
+            }
             memset(selections, 0,
                    sizeof(struct lsof_selection) * num_selections);
             res->selections = selections;
@@ -661,7 +682,21 @@ enum lsof_error lsof_gather(struct lsof_context *ctx,
 
     /* Params */
     *result = res;
+    res = NULL;
+    ret = LSOF_SUCCESS;
 
+cleanup:
+    /* Cleanup all allocated resources on failure */
+    if (user_procs) {
+        for (int j = 0; j < upi; j++) {
+            CLEAN(user_procs[j].files);
+        }
+        CLEAN(user_procs);
+    }
+    if (res) {
+        CLEAN(res->selections);
+        CLEAN(res);
+    }
     return ret;
 }
 
