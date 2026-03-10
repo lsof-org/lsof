@@ -926,6 +926,7 @@ enum lsof_error lsof_select_process_regex(struct lsof_context *ctx, char *x) {
      */
     CmdRx[i].mc = 0;
     CmdRx[i].exp = xp;
+    xp = NULL;
     NCmdRxU++;
 
     /** Update selection flags for inclusion */
