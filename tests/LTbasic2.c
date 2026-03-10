@@ -48,74 +48,97 @@ int main(int argc, char **argv) {
     struct lsof_file *f;
     int pi, fi;
     char buffer[128];
-    int exec_found = 0; /* executable found in result */
-    int cwd_found = 0;  /* cwd found in result */
-    int fd_found = 0;   /* opened fd found in result */
     struct stat exec_stat;
     struct stat cwd_stat;
-    int fd = -1;
-    int tmpfile_created = 0;
-    if (stat(argv[0], &exec_stat)) {
-        fprintf(stderr, "Cannot stat %s, skipping executable check\n", argv[0]);
-        exec_found = 1;
-    }
-    if (stat(".", &cwd_stat)) {
-        fprintf(stderr, "Cannot stat '.', skipping cwd check\n");
-        cwd_found = 1;
-    }
-    if ((fd = open("LTbasic2-tmp", O_CREAT, 0644)) < 0) {
-        fprintf(stderr, "Cannot create 'LTbasic2-tmp' in current directory, "
-                        "skipping fd check\n");
-        fd_found = 1;
-    }
+    int fd;
+    int round;
+    int exec_found; /* executable found in result */
+    int cwd_found;  /* cwd found in result */
+    int fd_found;   /* opened fd found in result */
 
-    ctx = lsof_new();
-    lsof_select_process(ctx, "LTbasic2", 0);
-    lsof_freeze(ctx);
-    lsof_gather(ctx, &result);
+    for (round = 0; round < 3; round++) {
+        printf("Testing round %d\n", round);
 
-    for (pi = 0; pi < result->num_processes; pi++) {
-        p = &result->processes[pi];
-        for (fi = 0; fi < p->num_files; fi++) {
-            f = &p->files[fi];
-            if (f->fd_type == LSOF_FD_PROGRAM_TEXT) {
-                /* check if device and inode matches */
-                if ((f->flags &
-                     (LSOF_FILE_FLAG_DEV_VALID | LSOF_FILE_FLAG_INODE_VALID)) &&
-                    f->dev == exec_stat.st_dev &&
-                    f->inode == exec_stat.st_ino) {
-                    exec_found = 1;
-                }
-            } else if (f->fd_type == LSOF_FD_CWD) {
-                /* check if device and inode matches */
-                if ((f->flags &
-                     (LSOF_FILE_FLAG_DEV_VALID | LSOF_FILE_FLAG_INODE_VALID)) &&
-                    f->dev == cwd_stat.st_dev && f->inode == cwd_stat.st_ino) {
-                    cwd_found = 1;
-                }
-            } else if (f->fd_type == LSOF_FD_NUMERIC) {
-                /* check if fd matches */
-                if (f->fd_num == fd && f->name &&
-                    strstr(f->name, "LTbasic2-tmp")) {
-                    fd_found = 1;
+        exec_found = 0;
+        cwd_found = 0;
+        fd_found = 0;
+        fd = -1;
+        if (stat(argv[0], &exec_stat)) {
+            fprintf(stderr, "Cannot stat %s, skipping executable check\n",
+                    argv[0]);
+            exec_found = 1;
+        }
+        if (stat(".", &cwd_stat)) {
+            fprintf(stderr, "Cannot stat '.', skipping cwd check\n");
+            cwd_found = 1;
+        }
+        if ((fd = open("LTbasic2-tmp", O_CREAT, 0644)) < 0) {
+            fprintf(stderr,
+                    "Cannot create 'LTbasic2-tmp' in current directory, "
+                    "skipping fd check\n");
+            fd_found = 1;
+        }
+
+        ctx = lsof_new();
+        if (round == 0) {
+            lsof_select_process(ctx, "LTbasic2", 0);
+        } else if (round == 1) {
+            lsof_select_process_regex(ctx, "/^LTbasic2$/");
+        } else if (round == 2) {
+            lsof_select_pid(ctx, getpid(), 0);
+        }
+        lsof_freeze(ctx);
+        lsof_gather(ctx, &result);
+
+        for (pi = 0; pi < result->num_processes; pi++) {
+            p = &result->processes[pi];
+            for (fi = 0; fi < p->num_files; fi++) {
+                f = &p->files[fi];
+                if (f->fd_type == LSOF_FD_PROGRAM_TEXT) {
+                    /* check if device and inode matches */
+                    if ((f->flags & (LSOF_FILE_FLAG_DEV_VALID |
+                                     LSOF_FILE_FLAG_INODE_VALID)) &&
+                        f->dev == exec_stat.st_dev &&
+                        f->inode == exec_stat.st_ino) {
+                        exec_found = 1;
+                    }
+                } else if (f->fd_type == LSOF_FD_CWD) {
+                    /* check if device and inode matches */
+                    if ((f->flags & (LSOF_FILE_FLAG_DEV_VALID |
+                                     LSOF_FILE_FLAG_INODE_VALID)) &&
+                        f->dev == cwd_stat.st_dev &&
+                        f->inode == cwd_stat.st_ino) {
+                        cwd_found = 1;
+                    }
+                } else if (f->fd_type == LSOF_FD_NUMERIC) {
+                    /* check if fd matches */
+                    if (f->fd_num == fd && f->name &&
+                        strstr(f->name, "LTbasic2-tmp")) {
+                        fd_found = 1;
+                    }
                 }
             }
         }
-    }
 
-    lsof_free_result(result);
-    lsof_destroy(ctx);
+        lsof_free_result(result);
+        lsof_destroy(ctx);
 
-    if (!exec_found) {
-        fprintf(stderr, "ERROR!!!  open LTbasic2 executable wasn't found.\n");
+        if (!exec_found) {
+            fprintf(stderr,
+                    "ERROR!!!  open LTbasic2 executable wasn't found.\n");
+        }
+        if (!cwd_found) {
+            fprintf(stderr,
+                    "ERROR!!!  current working directory wasn't found.\n");
+        }
+        if (!fd_found) {
+            fprintf(stderr, "ERROR!!!  opened regular file wasn't found.\n");
+        }
+        /* cleanup created temporary file */
+        unlink("LTbasic2-tmp");
+        if (!(exec_found && cwd_found && fd_found)) {
+            return 1;
+        }
     }
-    if (!cwd_found) {
-        fprintf(stderr, "ERROR!!!  current working directory wasn't found.\n");
-    }
-    if (!fd_found) {
-        fprintf(stderr, "ERROR!!!  opened regular file wasn't found.\n");
-    }
-    /* cleanup created temporary file */
-    unlink("LTbasic2-tmp");
-    return !(exec_found && cwd_found && fd_found);
+    return 0;
 }

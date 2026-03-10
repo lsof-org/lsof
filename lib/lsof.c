@@ -687,6 +687,11 @@ void lsof_destroy(struct lsof_context *ctx) {
     }
     CLEAN(Suid);
     CLEAN(Nmlst);
+    for (i = 0; i < NCmdRxU; i++) {
+        regfree(&CmdRx[i].cx);
+        CLEAN(CmdRx[i].exp);
+    }
+    CLEAN(CmdRx);
 
     /* Free temporary */
     CLEAN(Namech);
