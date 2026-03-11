@@ -30,5 +30,5 @@ dialect=$4
 
 # Return 0 means the case is run successfully.
 # Return 1 means the case is run in failure.
-# Return 2 means the case is skipped.
+# Return 77 means the case is skipped.
 exit 0
