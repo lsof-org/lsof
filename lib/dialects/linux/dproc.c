@@ -1230,7 +1230,7 @@ static int process_id(struct lsof_context *ctx, /* context */
                     enss = errno;
                 }
                 if (!ls && !Fwarn) {
-                    (void)snpf(nmabuf, sizeof(nmabuf), "lstat: %s)",
+                    (void)snpf(nmabuf, sizeof(nmabuf), "(lstat: %s)",
                                strerror(enls));
                     nmabuf[sizeof(nmabuf) - 1] = '\0';
                     (void)add_nma(ctx, nmabuf, strlen(nmabuf));
