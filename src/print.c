@@ -1866,6 +1866,180 @@ int human_readable_size(SZOFFTYPE sz, int print, int col) {
 }
 
 /*
+ * json_print_file() - print a single file entry as JSON fields
+ */
+static void json_print_file(struct lsof_context *ctx, int *sep) {
+    char buf[128];
+    char fd_str[FDLEN];
+    char type[TYPEL];
+    char *cp;
+    unsigned long ul;
+
+    if (FieldSel[LSOF_FIX_FD].st) {
+        if (Lf->fd_type == LSOF_FD_NUMERIC) {
+            char num_buf[32];
+            snprintf(num_buf, sizeof(num_buf), "%d", Lf->fd_num);
+            json_print_str(sep, "fd", num_buf);
+        } else {
+            fd_to_string(Lf->fd_type, Lf->fd_num, fd_str);
+            json_print_str(sep, "fd", fd_str);
+        }
+    }
+    if (FieldSel[LSOF_FIX_ACCESS].st) {
+        char a[2] = {access_to_char(Lf->access), '\0'};
+        if (a[0] != ' ')
+            json_print_str(sep, "access", a);
+    }
+    if (FieldSel[LSOF_FIX_LOCK].st) {
+        char l[2] = {lock_to_char(Lf->lock), '\0'};
+        if (l[0] != ' ')
+            json_print_str(sep, "lock", l);
+    }
+    if (FieldSel[LSOF_FIX_TYPE].st && Lf->type != LSOF_FILE_NONE) {
+        file_type_to_string(Lf->type, Lf->unknown_file_type_number, type,
+                            TYPEL);
+        json_print_str(sep, "type", type);
+    }
+    if (FieldSel[LSOF_FIX_DEVCH].st && Lf->dev_ch && Lf->dev_ch[0]) {
+        for (cp = Lf->dev_ch; *cp == ' '; cp++)
+            ;
+        if (*cp)
+            json_print_str(sep, "device", cp);
+    }
+    if (FieldSel[LSOF_FIX_DEVN].st && Lf->dev_def) {
+        if (sizeof(unsigned long) > sizeof(dev_t))
+            ul = (unsigned long)((unsigned int)Lf->dev);
+        else
+            ul = (unsigned long)Lf->dev;
+        snprintf(buf, sizeof(buf), "0x%lx", ul);
+        json_print_str(sep, "device_number", buf);
+    }
+    if (FieldSel[LSOF_FIX_RDEV].st && Lf->rdev_def) {
+        if (sizeof(unsigned long) > sizeof(dev_t))
+            ul = (unsigned long)((unsigned int)Lf->rdev);
+        else
+            ul = (unsigned long)Lf->rdev;
+        snprintf(buf, sizeof(buf), "0x%lx", ul);
+        json_print_str(sep, "raw_device", buf);
+    }
+    if (FieldSel[LSOF_FIX_SIZE].st && Lf->sz_def) {
+        json_print_uint64_str(sep, "size", (uint64_t)Lf->sz);
+    }
+    if (FieldSel[LSOF_FIX_OFFSET].st && Lf->off_def) {
+        json_print_uint64_str(sep, "offset", (uint64_t)Lf->off);
+    }
+    if (FieldSel[LSOF_FIX_INODE].st && Lf->inp_ty == 1) {
+        json_print_uint64_str(sep, "inode", (uint64_t)Lf->inode);
+    }
+    if (FieldSel[LSOF_FIX_NLINK].st && Lf->nlink_def) {
+        json_print_long(sep, "nlink", Lf->nlink);
+    }
+    if (FieldSel[LSOF_FIX_PROTO].st && Lf->inp_ty == 2) {
+        for (cp = Lf->iproto; *cp == ' '; cp++)
+            ;
+        if (*cp)
+            json_print_str(sep, "protocol", cp);
+    }
+
+#if defined(HASFSTRUCT)
+    if (FieldSel[LSOF_FIX_FG].st && (Fsv & FSV_FG) && (Lf->fsv & FSV_FG) &&
+        (FsvFlagX || Lf->ffg || Lf->pof)) {
+        json_print_str(sep, "flags", print_fflags(ctx, Lf->ffg, Lf->pof));
+    }
+#endif /* defined(HASFSTRUCT) */
+
+    if (FieldSel[LSOF_FIX_NAME].st && Lf->nm) {
+        json_print_str(sep, "name", Lf->nm);
+    }
+
+    /* TCP/TPI info as nested object */
+    if (Lf->lts.type >= 0 && FieldSel[LSOF_FIX_TCPTPI].st) {
+        if (*sep)
+            putchar(',');
+        printf("\"tcp_info\":{");
+        int tsep = 0;
+
+        if ((Ftcptpi & TCPTPI_STATE) && Lf->lts.type == 0) {
+            if (!TcpNstates)
+                (void)build_IPstates(ctx);
+            int s = Lf->lts.state.i;
+            if (s >= 0 && s < TcpNstates && TcpSt[s])
+                json_print_str(&tsep, "state", TcpSt[s]);
+            else {
+                snprintf(buf, sizeof(buf), "UNKNOWN_%d", s);
+                json_print_str(&tsep, "state", buf);
+            }
+        }
+#if defined(HASTCPTPIQ)
+        if (Ftcptpi & TCPTPI_QUEUES) {
+            if (Lf->lts.rqs)
+                json_print_ulong(&tsep, "recv_queue", Lf->lts.rq);
+            if (Lf->lts.sqs)
+                json_print_ulong(&tsep, "send_queue", Lf->lts.sq);
+        }
+#endif /* defined(HASTCPTPIQ) */
+#if defined(HASTCPTPIW)
+        if (Ftcptpi & TCPTPI_WINDOWS) {
+            if (Lf->lts.rws)
+                json_print_ulong(&tsep, "read_window", Lf->lts.rw);
+            if (Lf->lts.wws)
+                json_print_ulong(&tsep, "write_window", Lf->lts.ww);
+        }
+#endif /* defined(HASTCPTPIW) */
+        putchar('}');
+        *sep = 1;
+    }
+}
+
+/*
+ * json_print_proc_fields() - print process-level JSON fields
+ */
+static void json_print_proc_fields(struct lsof_context *ctx, int *sep) {
+    int ty;
+    char *cp;
+
+    if (FieldSel[LSOF_FIX_PID].st)
+        json_print_int(sep, "pid", Lp->pid);
+
+#if defined(HASTASKS)
+    if (FieldSel[LSOF_FIX_TID].st && Lp->tid)
+        json_print_int(sep, "tid", Lp->tid);
+    if (FieldSel[LSOF_FIX_TCMD].st && Lp->tcmd)
+        json_print_str(sep, "task_cmd", Lp->tcmd);
+#endif
+
+#if defined(HASZONES)
+    if (FieldSel[LSOF_FIX_ZONE].st && Fzone && Lp->zn)
+        json_print_str(sep, "zone", Lp->zn);
+#endif
+
+#if defined(HASSELINUX)
+    if (FieldSel[LSOF_FIX_CNTX].st && Fcntx && Lp->cntx && CntxStatus)
+        json_print_str(sep, "security_context", Lp->cntx);
+#endif
+
+    if (FieldSel[LSOF_FIX_PGID].st && Fpgid)
+        json_print_int(sep, "pgid", Lp->pgid);
+
+#if defined(HASPPID)
+    if (FieldSel[LSOF_FIX_PPID].st && Fppid)
+        json_print_int(sep, "ppid", Lp->ppid);
+#endif
+
+    if (FieldSel[LSOF_FIX_CMD].st)
+        json_print_str(sep, "command", Lp->cmd ? Lp->cmd : "(unknown)");
+
+    if (FieldSel[LSOF_FIX_UID].st)
+        json_print_int(sep, "uid", (int)Lp->uid);
+
+    if (FieldSel[LSOF_FIX_LOGIN].st) {
+        cp = printuid(ctx, (UID_ARG)Lp->uid, &ty);
+        if (ty == 0)
+            json_print_str(sep, "login", cp);
+    }
+}
+
+/*
  * print_proc() - print process
  */
 int print_proc(struct lsof_context *ctx) {
@@ -1897,6 +2071,56 @@ int print_proc(struct lsof_context *ctx) {
             }
         }
         return (0);
+    }
+    /*
+     * JSON output modes — only emit on PrPass 1 (actual printing pass)
+     */
+    if ((Fjson || Fjsonl) && PrPass) {
+        for (Lf = Lp->file; Lf; Lf = Lf->next) {
+            if (is_file_sel(ctx, Lp, Lf))
+                break;
+        }
+        if (!Lf)
+            return (rv);
+        rv = 1;
+
+        if (Fjson) {
+            /* Nested JSON: process object with files array */
+            if (!Fjson_first_proc)
+                putchar(',');
+            Fjson_first_proc = 0;
+            int sep = 0;
+            putchar('{');
+            json_print_proc_fields(ctx, &sep);
+            if (sep)
+                putchar(',');
+            printf("\"files\":[");
+            int first_file = 1;
+            for (Lf = Lp->file; Lf; Lf = Lf->next) {
+                if (!is_file_sel(ctx, Lp, Lf))
+                    continue;
+                if (!first_file)
+                    putchar(',');
+                putchar('{');
+                int fsep = 0;
+                json_print_file(ctx, &fsep);
+                putchar('}');
+                first_file = 0;
+            }
+            printf("]}");
+        } else {
+            /* JSON Lines: one line per file, process fields denormalized */
+            for (Lf = Lp->file; Lf; Lf = Lf->next) {
+                if (!is_file_sel(ctx, Lp, Lf))
+                    continue;
+                int sep = 0;
+                putchar('{');
+                json_print_proc_fields(ctx, &sep);
+                json_print_file(ctx, &sep);
+                printf("}\n");
+            }
+        }
+        return (rv);
     }
     /*
      * If fields have been selected, output the process-only ones, provided
