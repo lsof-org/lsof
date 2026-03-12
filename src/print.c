@@ -1110,7 +1110,7 @@ static int printinaddr(struct lsof_context *ctx) {
              */
             if (nl < 2)
 
-            addr_too_long :
+            addr_too_long:
 
             {
                 (void)snpf(Namech, Namechl, "network addresses too long");
@@ -1892,8 +1892,12 @@ int print_proc(struct lsof_context *ctx) {
         lc = st = 0;
         if (FieldSel[LSOF_FIX_FD].st) {
 
-            fd_to_string(Lf->fd_type, Lf->fd_num, fd);
-            (void)printf("%c%s%c", LSOF_FID_FD, fd, Terminator);
+            if (Lf->fd_type == LSOF_FD_NUMERIC)
+                (void)printf("%c%d%c", LSOF_FID_FD, Lf->fd_num, Terminator);
+            else {
+                fd_to_string(Lf->fd_type, Lf->fd_num, fd);
+                (void)printf("%c%s%c", LSOF_FID_FD, fd, Terminator);
+            }
             lc++;
         }
         /*
