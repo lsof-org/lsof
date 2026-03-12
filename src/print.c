@@ -31,6 +31,7 @@
 #include "common.h"
 #include "cli.h"
 #include "proto.h"
+#include <inttypes.h>
 
 /*
  * Local definitions, structures and function prototypes
@@ -92,6 +93,83 @@ static char *lkup_svcnam(struct lsof_context *ctx, int h, int p, int pr,
                          int ss);
 static int printinaddr(struct lsof_context *ctx);
 static int human_readable_size(SZOFFTYPE sz, int print, int col);
+
+/*
+ * JSON output helpers
+ */
+
+static void json_puts_escaped(const char *s) {
+    const unsigned char *p = (const unsigned char *)s;
+    while (*p) {
+        switch (*p) {
+        case '"':
+            fputs("\\\"", stdout);
+            break;
+        case '\\':
+            fputs("\\\\", stdout);
+            break;
+        case '\b':
+            fputs("\\b", stdout);
+            break;
+        case '\f':
+            fputs("\\f", stdout);
+            break;
+        case '\n':
+            fputs("\\n", stdout);
+            break;
+        case '\r':
+            fputs("\\r", stdout);
+            break;
+        case '\t':
+            fputs("\\t", stdout);
+            break;
+        default:
+            if (*p < 0x20)
+                printf("\\u%04x", (unsigned int)*p);
+            else
+                putchar(*p);
+            break;
+        }
+        p++;
+    }
+}
+
+static void json_print_str(int *sep, const char *key, const char *val) {
+    if (*sep)
+        putchar(',');
+    printf("\"%s\":\"", key);
+    json_puts_escaped(val);
+    putchar('"');
+    *sep = 1;
+}
+
+static void json_print_int(int *sep, const char *key, int val) {
+    if (*sep)
+        putchar(',');
+    printf("\"%s\":%d", key, val);
+    *sep = 1;
+}
+
+static void json_print_uint64_str(int *sep, const char *key, uint64_t val) {
+    if (*sep)
+        putchar(',');
+    printf("\"%s\":\"%" PRIu64 "\"", key, val);
+    *sep = 1;
+}
+
+static void json_print_long(int *sep, const char *key, long val) {
+    if (*sep)
+        putchar(',');
+    printf("\"%s\":%ld", key, val);
+    *sep = 1;
+}
+
+static void json_print_ulong(int *sep, const char *key, unsigned long val) {
+    if (*sep)
+        putchar(',');
+    printf("\"%s\":%lu", key, val);
+    *sep = 1;
+}
 
 #if !defined(HASNORPC_H)
 /*
