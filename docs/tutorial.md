@@ -602,7 +602,30 @@ homogeneous across Unix dialects.  Thus, if you write a script
 to post-process field output for AIX, it probably will work for
 HP-UX, Solaris, and Ultrix as well.
 
-Support for other formats e.g. JSON is planned.
+### JSON Output
+
+Lsof supports two JSON output modes:
+
+- **`-J`** (nested JSON) — produces a single JSON object containing a
+  `processes` array, where each process has a `files` array of open-file
+  entries.  Suitable for tools that consume a complete document (e.g.
+  `python3 -m json.tool`, `jq`).
+
+- **`-j`** (JSON Lines) — produces one JSON object per line, combining
+  process and file fields in a single denormalized record.  Suitable for
+  streaming pipelines, log ingestion (Splunk, Datadog, Elastic Stack),
+  and line-oriented tools.
+
+Both modes reuse the `-F` field-selection mechanism.  For example,
+`lsof -J -Fpcfn` limits output to PID, command, fd, and name fields.
+
+**Encoding caveat:** JSON (RFC 8259) requires strings to be valid UTF-8,
+but Unix file names are arbitrary byte sequences.  When file names
+contain non-UTF-8 bytes, lsof passes them through unchanged — the output
+is technically not valid JSON, but preserves the original file name.
+This is the same approach taken by `lsfd`, `ip -j`, and most Linux tools
+that produce JSON.  If your consumer requires strict UTF-8, use a filter
+such as `iconv` or Python's `surrogateescape` codec error handler.
 
 ## The Lsof Exit Code and Shell Scripts
 
