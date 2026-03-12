@@ -32,6 +32,7 @@
 
 #include "common.h"
 #include "cli.h"
+#include "version.h"
 
 /*
  * Local definitions
@@ -1390,6 +1391,10 @@ int main(int argc, char *argv[]) {
             (void)qsort((QSORT_P *)slp, (size_t)Nlproc,
                         (size_t)sizeof(struct lproc *), comppid);
         }
+        if (Fjson) {
+            printf("{\"lsof_version\":\"%s\",\"processes\":[", LSOF_VERSION);
+            Fjson_first_proc = 1;
+        }
         if ((n = Nlproc)) {
 
 #if defined(HASNCACHE)
@@ -1546,6 +1551,11 @@ int main(int argc, char *argv[]) {
             }
             Lf = lf;
         }
+        if (Fjson) {
+            printf("]}\n");
+        } else if (Fjsonl && RptTm) {
+            putchar('\n');
+        }
         /*
          * If a repeat time is set, sleep for the specified time.
          *
@@ -1593,7 +1603,9 @@ int main(int argc, char *argv[]) {
             }
 #endif /* defined(HAS_STRFTIME) */
 
-            if (Ffield) {
+            if (Fjson || Fjsonl) {
+                /* JSON modes handle their own cycle separation */
+            } else if (Ffield) {
                 putchar(LSOF_FID_MARK);
 
 #if defined(HAS_STRFTIME)
