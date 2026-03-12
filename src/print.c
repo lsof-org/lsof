@@ -135,41 +135,57 @@ static void json_puts_escaped(const char *s) {
     }
 }
 
-static void json_print_str(int *sep, const char *key, const char *val) {
+/*
+ * json_print_key() - print comma separator and escaped JSON key
+ */
+static void json_print_key(int *sep, const char *key) {
     if (*sep)
         putchar(',');
-    printf("\"%s\":\"", key);
+    putchar('"');
+    json_puts_escaped(key);
+    printf("\":");
+    *sep = 1;
+}
+
+static void json_print_str(int *sep, const char *key, const char *val) {
+    json_print_key(sep, key);
+    putchar('"');
     json_puts_escaped(val);
     putchar('"');
-    *sep = 1;
+}
+
+static void json_print_char(int *sep, const char *key, char val) {
+    json_print_key(sep, key);
+    putchar('"');
+    if (val == '"')
+        fputs("\\\"", stdout);
+    else if (val == '\\')
+        fputs("\\\\", stdout);
+    else if (val < 0x20)
+        printf("\\u%04x", (unsigned int)(unsigned char)val);
+    else
+        putchar(val);
+    putchar('"');
 }
 
 static void json_print_int(int *sep, const char *key, int val) {
-    if (*sep)
-        putchar(',');
-    printf("\"%s\":%d", key, val);
-    *sep = 1;
+    json_print_key(sep, key);
+    printf("%d", val);
 }
 
 static void json_print_uint64_str(int *sep, const char *key, uint64_t val) {
-    if (*sep)
-        putchar(',');
-    printf("\"%s\":\"%" PRIu64 "\"", key, val);
-    *sep = 1;
+    json_print_key(sep, key);
+    printf("\"%" PRIu64 "\"", val);
 }
 
 static void json_print_long(int *sep, const char *key, long val) {
-    if (*sep)
-        putchar(',');
-    printf("\"%s\":%ld", key, val);
-    *sep = 1;
+    json_print_key(sep, key);
+    printf("%ld", val);
 }
 
 static void json_print_ulong(int *sep, const char *key, unsigned long val) {
-    if (*sep)
-        putchar(',');
-    printf("\"%s\":%lu", key, val);
-    *sep = 1;
+    json_print_key(sep, key);
+    printf("%lu", val);
 }
 
 #if !defined(HASNORPC_H)
@@ -1902,14 +1918,14 @@ static void json_print_file(struct lsof_context *ctx, int *sep) {
         }
     }
     if (FieldSel[LSOF_FIX_ACCESS].st) {
-        char a[2] = {access_to_char(Lf->access), '\0'};
-        if (a[0] != ' ')
-            json_print_str(sep, "access", a);
+        char a = access_to_char(Lf->access);
+        if (a != ' ')
+            json_print_char(sep, "access", a);
     }
     if (FieldSel[LSOF_FIX_LOCK].st) {
-        char l[2] = {lock_to_char(Lf->lock), '\0'};
-        if (l[0] != ' ')
-            json_print_str(sep, "lock", l);
+        char l = lock_to_char(Lf->lock);
+        if (l != ' ')
+            json_print_char(sep, "lock", l);
     }
     if (FieldSel[LSOF_FIX_TYPE].st && Lf->type != LSOF_FILE_NONE) {
         file_type_to_string(Lf->type, Lf->unknown_file_type_number, type,

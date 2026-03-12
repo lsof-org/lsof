@@ -48,6 +48,58 @@ static int GetOpt(struct lsof_context *ctx, int ct, char *opt[], char *rules,
 static char *sv_fmt_str(struct lsof_context *ctx, char *f);
 
 /*
+ * select_default_fields() - enable the default set of FieldSel entries
+ *
+ * Shared by -F (with no field chars) and -J/-j (when no -F given).
+ */
+static void select_default_fields(void) {
+    int i;
+    for (i = 0; FieldSel[i].nm; i++) {
+
+#if !defined(HASPPID)
+        if (FieldSel[i].id == LSOF_FID_PPID)
+            continue;
+#endif /* !defined(HASPPID) */
+
+#if !defined(HASTASKS)
+        if (FieldSel[i].id == LSOF_FID_TCMD)
+            continue;
+#endif /* !defined(HASTASKS) */
+
+#if !defined(HASFSTRUCT)
+        if (FieldSel[i].id == LSOF_FID_CT || FieldSel[i].id == LSOF_FID_FA ||
+            FieldSel[i].id == LSOF_FID_FG || FieldSel[i].id == LSOF_FID_NI)
+            continue;
+#endif /* !defined(HASFSTRUCT) */
+
+#if defined(HASSELINUX)
+        if ((FieldSel[i].id == LSOF_FID_CNTX) && !CntxStatus)
+            continue;
+#else  /* !defined(HASSELINUX) */
+        if (FieldSel[i].id == LSOF_FID_CNTX)
+            continue;
+#endif /* !defined(HASSELINUX) */
+
+        if (FieldSel[i].id == LSOF_FID_RDEV)
+            continue; /* for compatibility */
+
+#if !defined(HASTASKS)
+        if (FieldSel[i].id == LSOF_FID_TID)
+            continue;
+#endif /* !defined(HASTASKS) */
+
+#if !defined(HASZONES)
+        if (FieldSel[i].id == LSOF_FID_ZONE)
+            continue;
+#endif /* !defined(HASZONES) */
+
+        FieldSel[i].st = 1;
+        if (FieldSel[i].opt && FieldSel[i].ov)
+            *(FieldSel[i].opt) |= FieldSel[i].ov;
+    }
+}
+
+/*
  * main() - main function for lsof
  */
 
@@ -429,51 +481,7 @@ int main(int argc, char *argv[]) {
                     } else if (*GOv == '0')
                         Terminator = '\0';
                 }
-                for (i = 0; FieldSel[i].nm; i++) {
-
-#if !defined(HASPPID)
-                    if (FieldSel[i].id == LSOF_FID_PPID)
-                        continue;
-#endif /* !defined(HASPPID) */
-
-#if !defined(HASTASKS)
-                    if (FieldSel[i].id == LSOF_FID_TCMD)
-                        continue;
-#endif /* !defined(HASTASKS) */
-
-#if !defined(HASFSTRUCT)
-                    if (FieldSel[i].id == LSOF_FID_CT ||
-                        FieldSel[i].id == LSOF_FID_FA ||
-                        FieldSel[i].id == LSOF_FID_FG ||
-                        FieldSel[i].id == LSOF_FID_NI)
-                        continue;
-#endif /* !defined(HASFSTRUCT) */
-
-#if defined(HASSELINUX)
-                    if ((FieldSel[i].id == LSOF_FID_CNTX) && !CntxStatus)
-                        continue;
-#else  /* !defined(HASSELINUX) */
-                    if (FieldSel[i].id == LSOF_FID_CNTX)
-                        continue;
-#endif /* !defined(HASSELINUX) */
-
-                    if (FieldSel[i].id == LSOF_FID_RDEV)
-                        continue; /* for compatibility */
-
-#if !defined(HASTASKS)
-                    if (FieldSel[i].id == LSOF_FID_TID)
-                        continue;
-#endif /* !defined(HASTASKS) */
-
-#if !defined(HASZONES)
-                    if (FieldSel[i].id == LSOF_FID_ZONE)
-                        continue;
-#endif /* !defined(HASZONES) */
-
-                    FieldSel[i].st = 1;
-                    if (FieldSel[i].opt && FieldSel[i].ov)
-                        *(FieldSel[i].opt) |= FieldSel[i].ov;
-                }
+                select_default_fields();
 
 #if defined(HASFSTRUCT)
                 Ffield = FsvFlagX = 1;
@@ -1166,42 +1174,8 @@ int main(int argc, char *argv[]) {
                 break;
             }
         }
-        if (!has_fields) {
-            for (i = 0; FieldSel[i].nm; i++) {
-#if !defined(HASPPID)
-                if (FieldSel[i].id == LSOF_FID_PPID)
-                    continue;
-#endif
-#if !defined(HASTASKS)
-                if (FieldSel[i].id == LSOF_FID_TCMD ||
-                    FieldSel[i].id == LSOF_FID_TID)
-                    continue;
-#endif
-#if !defined(HASFSTRUCT)
-                if (FieldSel[i].id == LSOF_FID_CT ||
-                    FieldSel[i].id == LSOF_FID_FA ||
-                    FieldSel[i].id == LSOF_FID_FG ||
-                    FieldSel[i].id == LSOF_FID_NI)
-                    continue;
-#endif
-#if defined(HASSELINUX)
-                if ((FieldSel[i].id == LSOF_FID_CNTX) && !CntxStatus)
-                    continue;
-#else
-                if (FieldSel[i].id == LSOF_FID_CNTX)
-                    continue;
-#endif
-                if (FieldSel[i].id == LSOF_FID_RDEV)
-                    continue;
-#if !defined(HASZONES)
-                if (FieldSel[i].id == LSOF_FID_ZONE)
-                    continue;
-#endif
-                FieldSel[i].st = 1;
-                if (FieldSel[i].opt && FieldSel[i].ov)
-                    *(FieldSel[i].opt) |= FieldSel[i].ov;
-            }
-        }
+        if (!has_fields)
+            select_default_fields();
     }
 
     if (DChelp || err || Fhelp || fh || version)
