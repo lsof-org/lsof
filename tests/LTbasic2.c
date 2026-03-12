@@ -50,6 +50,7 @@ int main(int argc, char **argv) {
     char buffer[128];
     struct stat exec_stat;
     struct stat cwd_stat;
+    struct stat tmp_stat;
     int fd;
     int round;
     int exec_found; /* executable found in result */
@@ -77,6 +78,10 @@ int main(int argc, char **argv) {
                     "Cannot create 'LTbasic2-tmp' in current directory, "
                     "skipping fd check\n");
             fd_found = 1;
+        } else {
+            /* on FreeBSD 14.3, the path for newly created file is not returned
+             * immediately, so let's trigger it */
+            stat("LTbasic2-tmp", &tmp_stat);
         }
 
         ctx = lsof_new();
@@ -135,7 +140,10 @@ int main(int argc, char **argv) {
             fprintf(stderr, "ERROR!!!  opened regular file wasn't found.\n");
         }
         /* cleanup created temporary file */
-        unlink("LTbasic2-tmp");
+        if (fd >= 0) {
+            close(fd);
+            unlink("LTbasic2-tmp");
+        }
         if (!(exec_found && cwd_found && fd_found)) {
             return 1;
         }
