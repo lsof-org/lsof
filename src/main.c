@@ -151,7 +151,7 @@ int main(int argc, char *argv[]) {
      * Create option mask.
      */
     (void)snpf(options, sizeof(options),
-               "?a%sbc:%sD:d:%s%sf:F:g:hHi:%s%slL:%s%snNo:Op:QPr:%ss:S:tT:u:"
+               "?a%sbc:%sD:d:%s%sf:F:g:hHi:%s%sJjlL:%s%snNo:Op:QPr:%ss:S:tT:u:"
                "UvVwx:%s%s%s",
 
 #if defined(HAS_AFS) && defined(HASAOPT)
@@ -555,6 +555,24 @@ int main(int argc, char *argv[]) {
         case 'h':
         case '?':
             Fhelp = 1;
+            break;
+        case 'J':
+            if (GOp == '+') {
+                (void)fprintf(stderr, "%s: +J is not supported\n", Pn);
+                err = 1;
+                break;
+            }
+            Fjson = 1;
+            Ffield = 1;
+            break;
+        case 'j':
+            if (GOp == '+') {
+                (void)fprintf(stderr, "%s: +j is not supported\n", Pn);
+                err = 1;
+                break;
+            }
+            Fjsonl = 1;
+            Ffield = 1;
             break;
         case 'i':
             if (!GOv || *GOv == '-' || *GOv == '+') {
@@ -1097,6 +1115,14 @@ int main(int argc, char *argv[]) {
         (void)fprintf(stderr, "%s: -x must accompany +d or +D\n", Pn);
         err++;
     }
+    if (Fjson && Fjsonl) {
+        (void)fprintf(stderr, "%s: -J and -j are mutually exclusive\n", Pn);
+        err++;
+    }
+    if ((Fjson || Fjsonl) && Fterse) {
+        (void)fprintf(stderr, "%s: -J/-j and -t are mutually exclusive\n", Pn);
+        err++;
+    }
 
 #if defined(HASEOPT)
     if (Efsysl) {
@@ -1125,6 +1151,58 @@ int main(int argc, char *argv[]) {
         }
     }
 #endif /* defined(HASEOPT) */
+
+    /*
+     * If -J/-j was given, ensure field selections are set.
+     * If -F was also given with field chars, those selections are already
+     * in FieldSel[]. Otherwise, enable the default field set.
+     */
+    if (Fjson || Fjsonl) {
+        int has_fields = 0;
+        for (i = 0; FieldSel[i].nm; i++) {
+            if (FieldSel[i].st && FieldSel[i].id != LSOF_FID_PID &&
+                FieldSel[i].id != LSOF_FID_MARK) {
+                has_fields = 1;
+                break;
+            }
+        }
+        if (!has_fields) {
+            for (i = 0; FieldSel[i].nm; i++) {
+#if !defined(HASPPID)
+                if (FieldSel[i].id == LSOF_FID_PPID)
+                    continue;
+#endif
+#if !defined(HASTASKS)
+                if (FieldSel[i].id == LSOF_FID_TCMD ||
+                    FieldSel[i].id == LSOF_FID_TID)
+                    continue;
+#endif
+#if !defined(HASFSTRUCT)
+                if (FieldSel[i].id == LSOF_FID_CT ||
+                    FieldSel[i].id == LSOF_FID_FA ||
+                    FieldSel[i].id == LSOF_FID_FG ||
+                    FieldSel[i].id == LSOF_FID_NI)
+                    continue;
+#endif
+#if defined(HASSELINUX)
+                if ((FieldSel[i].id == LSOF_FID_CNTX) && !CntxStatus)
+                    continue;
+#else
+                if (FieldSel[i].id == LSOF_FID_CNTX)
+                    continue;
+#endif
+                if (FieldSel[i].id == LSOF_FID_RDEV)
+                    continue;
+#if !defined(HASZONES)
+                if (FieldSel[i].id == LSOF_FID_ZONE)
+                    continue;
+#endif
+                FieldSel[i].st = 1;
+                if (FieldSel[i].opt && FieldSel[i].ov)
+                    *(FieldSel[i].opt) |= FieldSel[i].ov;
+            }
+        }
+    }
 
     if (DChelp || err || Fhelp || fh || version)
         usage(ctx, err ? 1 : 0, fh, version);

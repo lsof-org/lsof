@@ -72,6 +72,9 @@ int NcacheReload = 1; /* 1 == call ncache_load() */
 #endif                /* defined(HASNCACHE) */
 
 int Ffield = 0;  /* -f and -F status */
+int Fjson = 0;   /* -J JSON output status */
+int Fjsonl = 0;  /* -j JSON Lines output status */
+int Fjson_first_proc = 1; /* first process flag for JSON comma handling */
 int FgColW;      /* FILE-FLAG column width */
 int Fhelp = 0;   /* -h option status */
 int Fhost = 1;   /* -H option status */
