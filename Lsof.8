@@ -900,6 +900,47 @@ When specified without a PGID set that's all it does.
 .B \-H
 directs lsof to print human readable sizes, e.g. 123.4K 456.7M.
 .TP \w'names'u+4
+.B \-J
+selects JSON output mode.  Instead of the traditional tabular or
+.B \-F
+field output, lsof produces a single JSON object on stdout containing
+a
+.B "processes"
+array.  Each process object contains its fields and a
+.B "files"
+array of open file entries.
+.IP
+Field selection follows the same rules as
+.BR \-F :
+use
+.B \-F
+with field characters to select which fields appear in the JSON output.
+Without
+.BR \-F ,
+the default field set is used.
+.IP
+.B \-J
+is mutually exclusive with
+.B \-j
+and
+.BR \-t .
+Warnings and errors are sent to stderr; stdout is always valid JSON.
+.TP \w'names'u+4
+.B \-j
+selects JSON Lines output mode.  Each open file produces one JSON
+object per line, combining process and file fields in a single
+denormalized record.  This format is suitable for streaming pipelines,
+log ingestion (Splunk, Datadog, Elastic), and line\-oriented tools.
+.IP
+Field selection follows the same rules as
+.BR \-J .
+.IP
+.B \-j
+is mutually exclusive with
+.B \-J
+and
+.BR \-t .
+.TP \w'names'u+4
 .BI \-i " [i]"
 selects the listing of files any of whose Internet address
 matches the address specified in \fIi\fP.
