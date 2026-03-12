@@ -32,7 +32,6 @@
 
 #include "common.h"
 #include "cli.h"
-#include "version.h"
 
 /*
  * Local definitions
@@ -1392,8 +1391,7 @@ int main(int argc, char *argv[]) {
                         (size_t)sizeof(struct lproc *), comppid);
         }
         if (Fjson) {
-            printf("{\"lsof_version\":\"%s\",\"processes\":[", LSOF_VERSION);
-            Fjson_first_proc = 1;
+            json_open_envelope();
         }
         if ((n = Nlproc)) {
 
@@ -1552,7 +1550,7 @@ int main(int argc, char *argv[]) {
             Lf = lf;
         }
         if (Fjson) {
-            printf("]}\n");
+            json_close_envelope();
         } else if (Fjsonl && RptTm) {
             putchar('\n');
         }

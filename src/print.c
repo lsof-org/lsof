@@ -31,6 +31,7 @@
 #include "common.h"
 #include "cli.h"
 #include "proto.h"
+#include "version.h"
 #include <inttypes.h>
 
 /*
@@ -1863,6 +1864,21 @@ int human_readable_size(SZOFFTYPE sz, int print, int col) {
         printf("%*s", col, buf);
     }
     return strlen(buf);
+}
+
+/*
+ * json_open_envelope() - emit JSON opening envelope for -J mode
+ */
+void json_open_envelope(void) {
+    printf("{\"lsof_version\":\"%s\",\"processes\":[", LSOF_VERSION);
+    Fjson_first_proc = 1;
+}
+
+/*
+ * json_close_envelope() - emit JSON closing envelope for -J mode
+ */
+void json_close_envelope(void) {
+    printf("]}\n");
 }
 
 /*

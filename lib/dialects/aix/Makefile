@@ -155,7 +155,7 @@ misc.o:		${HDR} misc.c
 
 node.o:		${HDR} node.c
 
-print.o:	${HDR} print.c
+print.o:	${HDR} version.h print.c
 
 proc.o:		${HDR} proc.c
 

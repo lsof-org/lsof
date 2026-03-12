@@ -187,6 +187,8 @@ extern void print_init(struct lsof_context *ctx);
 extern void printname(struct lsof_context *ctx, int nl);
 extern char *print_kptr(KA_T kp, char *buf, size_t bufl);
 extern int print_proc(struct lsof_context *ctx);
+extern void json_open_envelope(void);
+extern void json_close_envelope(void);
 extern void fd_to_string(enum lsof_fd_type fd_type, int fd_num, char *buf);
 extern void printrawaddr(struct lsof_context *ctx, struct sockaddr *sa);
 extern void print_tcptpi(struct lsof_context *ctx, int nl);
