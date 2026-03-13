@@ -77,15 +77,25 @@ void print_tcptpi(struct lsof_context *ctx, /* context */
         print_unix(ctx, nl);
         return;
     }
-    if ((Ftcptpi & TCPTPI_STATE) && Lf->lts.type == 0) {
+    if ((Ftcptpi & TCPTPI_STATE) && Lf->lts.type >= 0) {
         if (!TcpSt)
             (void)build_IPstates(ctx);
-        if ((s = Lf->lts.state.i + TcpStOff) < 0 || s >= TcpNstates) {
-            (void)snpf(buf, sizeof(buf), "UNKNOWN_TCP_STATE_%d",
-                       Lf->lts.state.i);
-            cp = buf;
-        } else
-            cp = TcpSt[s];
+        switch (Lf->lts.type) {
+        case 0: /* TCP */
+            if ((s = Lf->lts.state.i + TcpStOff) < 0 || s >= TcpNstates) {
+                (void)snpf(buf, sizeof(buf), "UNKNOWN_TCP_STATE_%d",
+                           Lf->lts.state.i);
+                cp = buf;
+            } else
+                cp = TcpSt[s];
+            break;
+        case 1: /* UDP */
+            if (!UdpSt)
+                (void)build_IPstates(ctx);
+            if ((s = Lf->lts.state.i + UdpStOff) >= 0 && s < UdpNstates)
+                cp = UdpSt[s];
+            break;
+        }
         if (cp) {
             if (Ffield)
                 (void)printf("%cST=%s%c", LSOF_FID_TCPTPI, cp, Terminator);

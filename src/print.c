@@ -2001,16 +2001,28 @@ static void json_print_file(struct lsof_context *ctx, int *sep) {
         printf("\"tcp_info\":{");
         int tsep = 0;
 
-        if ((Ftcptpi & TCPTPI_STATE) && Lf->lts.type == 0) {
+        if ((Ftcptpi & TCPTPI_STATE) && Lf->lts.type >= 0) {
             if (!TcpNstates)
                 (void)build_IPstates(ctx);
             int s = Lf->lts.state.i;
-            if (s >= 0 && s < TcpNstates && TcpSt[s])
-                json_print_str(&tsep, "state", TcpSt[s]);
-            else {
-                snprintf(buf, sizeof(buf), "UNKNOWN_%d", s);
-                json_print_str(&tsep, "state", buf);
+            char *st = NULL;
+            if (Lf->lts.type == 0) { /* TCP */
+                int si = s + TcpStOff;
+                if (si >= 0 && si < TcpNstates)
+                    st = TcpSt[si];
+                if (!st) {
+                    snprintf(buf, sizeof(buf), "UNKNOWN_TCP_STATE_%d", s);
+                    st = buf;
+                }
+            } else if (Lf->lts.type == 1) { /* UDP */
+                if (!UdpSt)
+                    (void)build_IPstates(ctx);
+                int si = s + UdpStOff;
+                if (si >= 0 && si < UdpNstates)
+                    st = UdpSt[si];
             }
+            if (st)
+                json_print_str(&tsep, "state", st);
         }
 #if defined(HASTCPTPIQ)
         if (Ftcptpi & TCPTPI_QUEUES) {
