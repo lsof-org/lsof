@@ -76,6 +76,23 @@ Lsof has these options to control its output format:
 - -F	produce output that can be parsed by a subsequent
 	program.
 
+- -J	produce nested JSON output.  Instead of tabular or
+	field output, lsof emits a single JSON object with a
+	`processes` array.  Field selection follows -F rules.
+	Mutually exclusive with -j and -t.
+
+- -j	produce JSON Lines output.  Each open file produces
+	one JSON object per line (denormalized with process
+	fields).  Suitable for streaming pipelines and log
+	ingestion tools.  Mutually exclusive with -J and -t.
+
+  **Note:** Unix file names are arbitrary byte sequences and may
+  contain bytes that are not valid UTF-8.  When this occurs, lsof
+  passes the raw bytes through unchanged, producing output that is
+  not strictly conformant with RFC 8259.  This matches the behavior
+  of `lsfd(1)`, `ip -j`, `systemctl --output=json`, and other Linux
+  tools.
+
 - -g	print process group (PGID) IDs.
 
 - -l	list UID numbers instead of login names.

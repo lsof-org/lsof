@@ -99,6 +99,16 @@ static int human_readable_size(SZOFFTYPE sz, int print, int col);
  * JSON output helpers
  */
 
+/*
+ * json_puts_escaped() - write a C string as a JSON string value (without
+ * the surrounding quotes).
+ *
+ * Control characters (< 0x20) are escaped as \uXXXX.  Bytes >= 0x80 are
+ * passed through unchanged.  This means non-UTF-8 file names produce
+ * output that is not strictly RFC 8259 conformant, but preserves the
+ * original byte sequence.  This is the same trade-off made by lsfd(1),
+ * ip(8) -j, and other Linux JSON-producing tools.  See issue #354.
+ */
 static void json_puts_escaped(const char *s) {
     const unsigned char *p = (const unsigned char *)s;
     while (*p) {

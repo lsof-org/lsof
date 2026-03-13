@@ -924,7 +924,10 @@ is mutually exclusive with
 .B \-j
 and
 .BR \-t .
-Warnings and errors are sent to stderr; stdout is always valid JSON.
+Warnings and errors are sent to stderr; stdout is always valid JSON
+(see
+.B "CHARACTER ENCODING NOTE"
+below).
 .TP \w'names'u+4
 .B \-j
 selects JSON Lines output mode.  Each open file produces one JSON
@@ -940,6 +943,27 @@ is mutually exclusive with
 .B \-J
 and
 .BR \-t .
+.IP
+.B "Character encoding note:"
+JSON (RFC\ 8259) mandates that strings be valid UTF\-8.
+However, file names on Unix\-like systems are arbitrary byte sequences
+and may contain bytes that are not valid UTF\-8.
+When such bytes appear,
+.B lsof
+passes them through to the output unchanged.
+This means the output is not strictly conformant JSON, but the
+original file name can be recovered.
+This is consistent with the behaviour of
+.BR lsfd (1),
+.BR ip (8)
+.RB ( \-j ),
+and other Linux utilities that produce JSON output.
+Consumers that require strict RFC\ 8259 conformance should
+filter or re\-encode such values (e.g.\& using
+.BR iconv (1)
+or Python's
+.B surrogateescape
+error handler).
 .TP \w'names'u+4
 .BI \-i " [i]"
 selects the listing of files any of whose Internet address
