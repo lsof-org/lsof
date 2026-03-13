@@ -256,20 +256,20 @@ AC_DEFINE([API_EXPORT], [__attribute__ ((visibility ("default")))],
 	[Set visibility to default for exported API functions.])
 
 # --enable-liblsof to install liblsof
-AC_ARG_ENABLE(liblsof, AS_HELP_STRING([--enable-liblsof],
-	[build and install liblsof @<:@default=yes@:>@]), [], [enable_liblsof=yes])
+AC_ARG_ENABLE(liblsof, AS_HELP_STRING([--disable-liblsof],
+	[do not build and install liblsof]), [], [enable_liblsof=yes])
 AM_CONDITIONAL([INSTALL_LIBLSOF], [test "x$enable_liblsof" = xyes])
 
 # --enable-security to define HASSECURITY
 AC_ARG_ENABLE(security, AS_HELP_STRING([--enable-security],
-	[allow only the root user to list all open files @<:@default=no@:>@]), [], [enable_security=no])
+	[allow only the root user to list all open files]), [], [enable_security=no])
 AS_IF([test "x$enable_security" = xyes], [
 	CFLAGS="$CFLAGS -DHASSECURITY"
 ])
 
 # --enable-no-sock-security to define HASNOSOCKSECURITY
 AC_ARG_ENABLE(no_sock_security, AS_HELP_STRING([--enable-no-sock-security],
-	[combined with --enable-security, allow anyone to list anyone else's socket files @<:@default=no@:>@]), [], [enable_no_sock_security=no])
+	[combined with --enable-security, allow anyone to list anyone else's socket files]), [], [enable_no_sock_security=no])
 AS_IF([test "x$enable_no_sock_security" = xyes], [
 	AS_IF([test "x$enable_security" = xyes], [
 		CFLAGS="$CFLAGS -DHASNOSOCKSECURITY"
