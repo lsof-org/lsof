@@ -11,10 +11,12 @@ if [ -z "$(nc -h 2>&1 | grep '\s\-u')" ]; then
     exit 77
 fi
 
-nc -l -u -4 127.0.0.1 10001 > /dev/null < /dev/zero &
+# Use sleep as stdin to keep nc alive without flooding data.
+# /dev/zero causes "Message too long" with ncat (nmap) on UDP.
+sleep 60 | nc -l -u -4 127.0.0.1 10001 > /dev/null &
 server=$!
 sleep 1
-nc -u -4 127.0.0.1 10001 < /dev/zero > /dev/null &
+sleep 60 | nc -u -4 127.0.0.1 10001 > /dev/null &
 client=$!
 
 sleep 1
