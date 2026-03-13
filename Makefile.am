@@ -1,13 +1,6 @@
-# liblsof
-liblsof_la_SOURCES = lib/ckkv.c lib/cvfs.c lib/dvch.c lib/fino.c lib/isfn.c lib/lkud.c lib/lsof.c lib/misc.c lib/node.c lib/pdvn.c lib/prfp.c lib/print.c lib/proc.c lib/ptti.c lib/rdev.c lib/rnmt.c lib/rmnt.c lib/rnam.c lib/rnch.c lib/rnmh.c
-liblsof_la_SOURCES += lib/common.h lib/proto.h lib/hash.h
-
-if INSTALL_LIBLSOF
-lib_LTLIBRARIES = liblsof.la
-include_HEADERS = include/lsof.h include/lsof_fields.h
-else
-noinst_LTLIBRARIES = liblsof.la
-endif
+# Shared source list for liblsof and the lsof binary
+LIBLSOF_SOURCES = lib/ckkv.c lib/cvfs.c lib/dvch.c lib/fino.c lib/isfn.c lib/lkud.c lib/lsof.c lib/misc.c lib/node.c lib/pdvn.c lib/prfp.c lib/print.c lib/proc.c lib/ptti.c lib/rdev.c lib/rnmt.c lib/rmnt.c lib/rnam.c lib/rnch.c lib/rnmh.c
+LIBLSOF_SOURCES += lib/common.h lib/proto.h lib/hash.h
 
 # Hide internal functions
 AM_CFLAGS = -fvisibility=hidden
@@ -17,7 +10,7 @@ DIALECT_PATH = $(DIALECT_ROOT)/$(LSOF_DIALECT_DIR)
 
 # Dialect specific sources
 if LINUX
-liblsof_la_SOURCES += lib/dialects/linux/dfile.c \
+LIBLSOF_SOURCES += lib/dialects/linux/dfile.c \
 		lib/dialects/linux/dmnt.c \
 		lib/dialects/linux/dnode.c \
 		lib/dialects/linux/dproc.c \
@@ -29,7 +22,7 @@ liblsof_la_SOURCES += lib/dialects/linux/dfile.c \
 endif
 
 if DARWIN
-liblsof_la_SOURCES += lib/dialects/darwin/ddev.c \
+LIBLSOF_SOURCES += lib/dialects/darwin/ddev.c \
 		lib/dialects/darwin/dfile.c \
 		lib/dialects/darwin/dmnt.c \
 		lib/dialects/darwin/dproc.c \
@@ -41,7 +34,7 @@ liblsof_la_SOURCES += lib/dialects/darwin/ddev.c \
 endif
 
 if FREEBSD
-liblsof_la_SOURCES += lib/dialects/freebsd/dmnt.c \
+LIBLSOF_SOURCES += lib/dialects/freebsd/dmnt.c \
 		lib/dialects/freebsd/dnode.c \
 		lib/dialects/freebsd/dproc.c \
 		lib/dialects/freebsd/dsock.c \
@@ -52,7 +45,7 @@ liblsof_la_SOURCES += lib/dialects/freebsd/dmnt.c \
 endif
 
 if NETBSD
-liblsof_la_SOURCES += lib/dialects/netbsd/dmnt.c \
+LIBLSOF_SOURCES += lib/dialects/netbsd/dmnt.c \
 		lib/dialects/netbsd/dnode.c \
 		lib/dialects/netbsd/dproc.c \
 		lib/dialects/netbsd/dsock.c \
@@ -63,7 +56,7 @@ liblsof_la_SOURCES += lib/dialects/netbsd/dmnt.c \
 endif
 
 if OPENBSD
-liblsof_la_SOURCES += lib/dialects/openbsd/dfile.c \
+LIBLSOF_SOURCES += lib/dialects/openbsd/dfile.c \
 		lib/dialects/openbsd/dmnt.c \
 		lib/dialects/openbsd/dnode.c \
 		lib/dialects/openbsd/dproc.c \
@@ -75,7 +68,7 @@ liblsof_la_SOURCES += lib/dialects/openbsd/dfile.c \
 endif
 
 if SOLARIS
-liblsof_la_SOURCES += lib/dialects/sun/ddev.c \
+LIBLSOF_SOURCES += lib/dialects/sun/ddev.c \
 		lib/dialects/sun/dfile.c \
 		lib/dialects/sun/dmnt.c \
 		lib/dialects/sun/dnode.c \
@@ -88,7 +81,7 @@ liblsof_la_SOURCES += lib/dialects/sun/ddev.c \
 endif
 
 if AIX
-liblsof_la_SOURCES += lib/dialects/aix/ddev.c \
+LIBLSOF_SOURCES += lib/dialects/aix/ddev.c \
 		lib/dialects/aix/dfile.c \
 		lib/dialects/aix/dmnt.c \
 		lib/dialects/aix/dnode.c \
@@ -99,6 +92,14 @@ liblsof_la_SOURCES += lib/dialects/aix/ddev.c \
 		lib/dialects/aix/dlsof.h \
 		lib/dialects/aix/dproto.h \
 		lib/dialects/aix/machine.h
+endif
+
+# liblsof shared library (only built when --enable-liblsof)
+if INSTALL_LIBLSOF
+lib_LTLIBRARIES = liblsof.la
+include_HEADERS = include/lsof.h include/lsof_fields.h
+liblsof_la_SOURCES = $(LIBLSOF_SOURCES)
+liblsof_la_CPPFLAGS = -I$(DIALECT_PATH) -Iautotools -DAUTOTOOLS -I$(top_srcdir)/lib -I$(top_srcdir)/include
 endif
 
 # Binary
@@ -114,10 +115,9 @@ if DARWIN
 lsof_SOURCES += src/dialects/darwin/dprint.c
 endif
 # TODO: link to dynamic library instead after internal functions are no longer used
-lsof_SOURCES += $(liblsof_la_SOURCES)
+lsof_SOURCES += $(LIBLSOF_SOURCES)
 #lsof_LDADD = liblsof.la
 
-liblsof_la_CPPFLAGS = -I$(DIALECT_PATH) -Iautotools -DAUTOTOOLS -I$(top_srcdir)/lib -I$(top_srcdir)/include
 lsof_CPPFLAGS = -I$(DIALECT_PATH) -Iautotools -DAUTOTOOLS -I$(top_srcdir)/lib -I$(top_srcdir)/include -I$(top_srcdir)/src
 
 # Testing scripts
@@ -204,10 +204,13 @@ tests_LTszoff_CFLAGS = @LSOF_TEST_CFLAGS@ -I$(top_srcdir)/include
 tests_LTunix_SOURCES = tests/LTunix.c tests/LTlib.c
 tests_LTunix_CFLAGS = @LSOF_TEST_CFLAGS@ -I$(top_srcdir)/include
 
+# LTbasic2 links against liblsof, only build when liblsof is enabled
+if INSTALL_LIBLSOF
 TESTS += tests/LTbasic2
 check_PROGRAMS += tests/LTbasic2
 tests_LTbasic2_CFLAGS = -I$(top_srcdir)/include
 tests_LTbasic2_LDADD = liblsof.la
+endif
 
 # Documentation
 EXTRA_DIST += 00.README.FIRST 00CREDITS 00DCACHE 00DIALECTS 00DIST 00FAQ 00LSOF-L 00MANIFEST 00PORTING 00QUICKSTART 00README 00TEST 00XCONFIG
