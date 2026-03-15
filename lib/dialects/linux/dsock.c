@@ -401,6 +401,17 @@ void build_IPstates(struct lsof_context *ctx) {
         (void)enter_IPstate(ctx, "TCP", "CLOSED", 0);
         (void)enter_IPstate(ctx, "TCP", (char *)NULL, 0);
     }
+    if (!UdpSt) {
+        /*
+         * Linux /proc/net/udp reuses TCP state enum values:
+         * TCP_ESTABLISHED (1) for connected UDP sockets,
+         * TCP_CLOSE (7) for unconnected ones.
+         * Only register ESTABLISHED — unconnected (CLOSE) is the
+         * default state and not useful to display.
+         */
+        (void)enter_IPstate(ctx, "UDP", "ESTABLISHED", TCP_ESTABLISHED);
+        (void)enter_IPstate(ctx, "UDP", (char *)NULL, 0);
+    }
 }
 
 /*
