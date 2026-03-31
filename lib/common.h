@@ -1374,6 +1374,8 @@ struct lsof_context {
 #    define Plf (ctx->prev_file)
 /* Length of local processes */
 #    define Nlproc (ctx->procs_size)
+/* Capacity of Lproc */
+#    define Mxlproc (ctx->procs_cap)
 /* Error output */
 #    define Pn (ctx->program_name)
 /* Suppress warnings */

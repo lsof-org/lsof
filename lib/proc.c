@@ -237,15 +237,15 @@ void alloc_lproc(struct lsof_context *ctx, int pid, /* Process ID */
                  int sf)                            /* process select flags */
 {
     if (!Lproc) {
-        if (grow_array((void **)&Lproc, &ctx->procs_cap, sizeof(struct lproc),
+        if (grow_array((void **)&Lproc, &Mxlproc, sizeof(struct lproc),
                        LPROCINCR)) {
             (void)fprintf(stderr,
                           "%s: no malloc space for %d local proc structures\n",
                           Pn, LPROCINCR);
             Error(ctx);
         }
-    } else if ((Nlproc + 1) > ctx->procs_cap) {
-        if (grow_array((void **)&Lproc, &ctx->procs_cap, sizeof(struct lproc),
+    } else if ((Nlproc + 1) > Mxlproc) {
+        if (grow_array((void **)&Lproc, &Mxlproc, sizeof(struct lproc),
                        LPROCINCR)) {
             (void)fprintf(
                 stderr, "%s: no realloc space for local proc structures\n", Pn);
