@@ -85,7 +85,6 @@ static int HbyMPCCt = 0; /* HbyMPC entry count */
  */
 
 void hashSfile(struct lsof_context *ctx) {
-    static int hs = 0;
     int i;
     struct sfile *s;
     struct hsfile *sh, *sn;
@@ -93,7 +92,7 @@ void hashSfile(struct lsof_context *ctx) {
      * Do nothing if there are no file search arguments cached or if the
      * hashes have already been constructed.
      */
-    if (!Sfile || hs)
+    if (!Sfile || Hs)
         return;
     /*
      * Allocate hash buckets by (device,inode), file system device, MPC device,
@@ -134,7 +133,7 @@ void hashSfile(struct lsof_context *ctx) {
                       SFNMHASH);
         Error(ctx);
     }
-    hs++;
+    Hs++;
     /*
      * Scan the Sfile chain, building file, file system, MPC file, and file
      * name hash bucket chains.
@@ -387,7 +386,7 @@ char *print_dev(struct lfile *lf, /* file whose device to be printed */
  */
 
 void process_file(struct lsof_context *ctx, /* context */
-                  KA_T fp) /* kernel file structure address */
+                  KA_T fp)                  /* kernel file structure address */
 {
     struct file f;
     int flag;
@@ -430,26 +429,26 @@ void process_file(struct lsof_context *ctx, /* context */
          * Save file structure values.
          */
 
-#if !defined(HASNOFSCOUNT)
+#    if !defined(HASNOFSCOUNT)
         Lf->fct = (long)f.f_count;
         Lf->fsv |= FSV_CT;
-#endif /* !defined(HASNOFSCOUNT) */
+#    endif /* !defined(HASNOFSCOUNT) */
 
-#if !defined(HASNOFSADDR)
+#    if !defined(HASNOFSADDR)
         Lf->fsa = fp;
         Lf->fsv |= FSV_FA;
-#endif /* !defined(HASNOFSADDR) */
+#    endif /* !defined(HASNOFSADDR) */
 
-#if !defined(HASNOFSFLAGS)
+#    if !defined(HASNOFSFLAGS)
         Lf->ffg = (long)f.f_flag;
         Lf->fsv |= FSV_FG;
-#endif /* !defined(HASNOFSFLAGS) */
+#    endif /* !defined(HASNOFSFLAGS) */
 
-#if !defined(HASNOFSNADDR)
+#    if !defined(HASNOFSNADDR)
         Lf->fna = (KA_T)f.f_data;
         Lf->fsv |= FSV_NI;
-#endif /* !defined(HASNOFSNADDR) */
-#endif /* defined(HASFSTRUCT) */
+#    endif /* !defined(HASNOFSNADDR) */
+#endif     /* defined(HASFSTRUCT) */
 
         /*
          * Process structure by its type.
@@ -458,18 +457,18 @@ void process_file(struct lsof_context *ctx, /* context */
 
 #if defined(DTYPE_PIPE)
         case DTYPE_PIPE:
-#if defined(HASPIPEFN)
+#    if defined(HASPIPEFN)
             if (!Selinet)
                 HASPIPEFN(ctx, (KA_T)f.f_data);
-#endif /* defined(HASPIPEFN) */
+#    endif /* defined(HASPIPEFN) */
             return;
 #endif /* defined(DTYPE_PIPE) */
 
 #if defined(DTYPE_PTS)
         case DTYPE_PTS:
-#if defined(HASPTSFN)
+#    if defined(HASPTSFN)
             HASPTSFN(ctx, (KA_T)f.f_data);
-#endif /* defined(HASPTSFN) */
+#    endif /* defined(HASPTSFN) */
             return;
 #endif /* defined(DTYPE_PTS) */
 
@@ -494,10 +493,10 @@ void process_file(struct lsof_context *ctx, /* context */
             /*
              * AIX-specific: Capture filename from file structure.
              *
-             * AIX limitation: The kernel doesn't provide an accessible name cache,
-             * so we can only obtain the leaf filename from f_fnamep. We'll combine
-             * this with the filesystem mount point (if available) after calling
-             * process_node() to provide partial path context.
+             * AIX limitation: The kernel doesn't provide an accessible name
+             * cache, so we can only obtain the leaf filename from f_fnamep.
+             * We'll combine this with the filesystem mount point (if available)
+             * after calling process_node() to provide partial path context.
              *
              * Full path reconstruction is not possible on AIX without expensive
              * userspace filesystem scanning.
@@ -507,12 +506,14 @@ void process_file(struct lsof_context *ctx, /* context */
                 int have_leaf = 0;
 
                 /* Try to read the leaf filename from the file structure */
-                if (f.f_vnode && f.f_fnamep
-                    && !kread(ctx, (KA_T)f.f_vnode, (char *)&v, sizeof(v))
-                    && v.v_gnode && !kread(ctx, (KA_T)v.v_gnode, (char *)&g, sizeof(g))
-                    && (g.gn_type == VREG || g.gn_type == VDIR)) {
-                    if (!kread(ctx, (KA_T)f.f_fnamep, leafname, sizeof(leafname)-1)) {
-                        leafname[sizeof(leafname)-1] = '\0';
+                if (f.f_vnode && f.f_fnamep &&
+                    !kread(ctx, (KA_T)f.f_vnode, (char *)&v, sizeof(v)) &&
+                    v.v_gnode &&
+                    !kread(ctx, (KA_T)v.v_gnode, (char *)&g, sizeof(g)) &&
+                    (g.gn_type == VREG || g.gn_type == VDIR)) {
+                    if (!kread(ctx, (KA_T)f.f_fnamep, leafname,
+                               sizeof(leafname) - 1)) {
+                        leafname[sizeof(leafname) - 1] = '\0';
                         /* Only use if we got a non-empty string */
                         if (leafname[0]) {
                             have_leaf = 1;
@@ -521,22 +522,25 @@ void process_file(struct lsof_context *ctx, /* context */
                 }
 
                 /* Process the node to get vfs/mount info and other metadata */
-#if defined(HASF_VNODE)
+#    if defined(HASF_VNODE)
                 process_node(ctx, (KA_T)f.f_vnode);
-#else  /* !defined(HASF_VNODE) */
+#    else  /* !defined(HASF_VNODE) */
                 process_node(ctx, (KA_T)f.f_data);
-#endif /* defined(HASF_VNODE) */
+#    endif /* defined(HASF_VNODE) */
 
                 /*
                  * If we have a leaf name, combine it with mount point info.
                  * This provides better context than just the leaf name alone.
-                 * Use ellipsis (...) to indicate missing path components between
-                 * the mount point and the leaf filename.
+                 * Use ellipsis (...) to indicate missing path components
+                 * between the mount point and the leaf filename.
                  */
                 if (have_leaf) {
-                    if (Lf->fsdir && Lf->fsdir[0] && strcmp(Lf->fsdir, "/") != 0) {
-                        /* We have a non-root mount point, show mount/.../leaf */
-                        (void)snpf(Namech, Namechl, "%s/.../%s", Lf->fsdir, leafname);
+                    if (Lf->fsdir && Lf->fsdir[0] &&
+                        strcmp(Lf->fsdir, "/") != 0) {
+                        /* We have a non-root mount point, show mount/.../leaf
+                         */
+                        (void)snpf(Namech, Namechl, "%s/.../%s", Lf->fsdir,
+                                   leafname);
                     } else if (Lf->fsdir && strcmp(Lf->fsdir, "/") == 0) {
                         /* Root filesystem, show /.../leaf */
                         (void)snpf(Namech, Namechl, "/.../%s", leafname);

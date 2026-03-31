@@ -96,14 +96,13 @@ int get_max_fd() {
 
 void hashSfile(struct lsof_context *ctx) {
     int cmaj, hvc, i;
-    static int hs = 0;
     struct sfile *s;
     struct hsfile *sh, *sn;
     /*
      * Do nothing if there are no file search arguments cached or if the
      * hashes have already been constructed.
      */
-    if (!Sfile || hs)
+    if (!Sfile || Hs)
         return;
     /*
      * Preset the clone major device for Solaris.
@@ -154,7 +153,7 @@ void hashSfile(struct lsof_context *ctx) {
                       SFNMHASH);
         Error(ctx);
     }
-    hs++;
+    Hs++;
     /*
      * Scan the Sfile chain, building file, file system, and file name hash
      * bucket chains.

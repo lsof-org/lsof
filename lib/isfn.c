@@ -108,7 +108,6 @@
  */
 
 void hashSfile(struct lsof_context *ctx) {
-    static int hs = 0;
     int i;
     int sfplm = 3;
     struct sfile *s;
@@ -117,7 +116,7 @@ void hashSfile(struct lsof_context *ctx) {
      * Do nothing if there are no file search arguments cached or if the
      * hashes have already been constructed.
      */
-    if (!Sfile || hs)
+    if (!Sfile || Hs)
         return;
     /*
      * Allocate hash buckets by (device,inode), file system device, and file
@@ -165,7 +164,7 @@ void hashSfile(struct lsof_context *ctx) {
                       SFNMHASH);
         Error(ctx);
     }
-    hs++;
+    Hs++;
     /*
      * Scan the Sfile chain, building file, file system, raw device, and file
      * name hash bucket chains.
