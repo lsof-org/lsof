@@ -57,37 +57,6 @@ static char copyright[] = "@(#) Copyright 2005-2007 Apple Inc. and Purdue "
 #endif                                          /* PROC_PIDLISTFILEPORTS */
 
 /*
- * Local static variables
- */
-
-static struct proc_fdinfo *Fds = (struct proc_fdinfo *)NULL; /* FD buffer */
-static int NbPids = 0;          /* bytes allocated to Pids */
-static int NbFds = 0;           /* bytes allocated to FDs */
-static int *Pids = (int *)NULL; /* PID buffer */
-
-#if DARWINV >= 900
-static int NbThreads = 0;                    /* Threads bytes allocated */
-static uint64_t *Threads = (uint64_t *)NULL; /* Thread buffer */
-#endif                                       /* DARWINV>=900 */
-
-#if defined(PROC_PIDLISTFILEPORTS)
-static struct proc_fileportinfo *Fps =
-    (struct proc_fileportinfo *)NULL; /* fileport buffer */
-static int NbFps = 0;                 /* bytes allocated to fileports */
-#endif                                /* PROC_PIDLISTFILEPORTS */
-
-/*
- * Local structure definitions
- */
-
-static struct vips_info {
-    dev_t dev;
-    ino_t ino;
-} *Vips = (struct vips_info *)NULL; /* recorded vnodes */
-static int NbVips = 0;              /* bytes allocated to Vips */
-static int NVips = 0;               /* entries allocated to Vips */
-
-/*
  * Local function prototypes
  */
 static void enter_vn_text(struct lsof_context *ctx, struct vnode_info_path *vip,
@@ -133,18 +102,11 @@ static void enter_vn_text(struct lsof_context *ctx,    /* context */
      * Record the entry of the vnode information.
      */
     if (i >= NVips) {
-
         /*
          * Allocate space for recording the vnode information.
          */
-        NVips += VIPS_INCR;
-        NbVips += (int)(VIPS_INCR * sizeof(struct vips_info));
-        if (!Vips)
-            Vips = (struct vips_info *)malloc((MALLOC_S)NbVips);
-        else
-            Vips =
-                (struct vips_info *)realloc((MALLOC_P *)Vips, (MALLOC_S)NbVips);
-        if (!Vips) {
+        if (grow_array((void **)&Vips, &NVips, sizeof(struct darwin_vips_info),
+                       VIPS_INCR)) {
             (void)fprintf(stderr, "%s: PID %d: no text recording space\n", Pn,
                           Lp->pid);
             Error(ctx);
