@@ -52,7 +52,7 @@
  * Local function prototypes
  */
 
-static void closePipes(void);
+static void closePipes(struct lsof_context *ctx);
 static int dolstat(char *path, char *buf, int len);
 static int dostat(char *path, char *buf, int len);
 static int doreadlink(char *path, char *buf, int len);
@@ -70,10 +70,7 @@ static void handleint(int sig);
  * Local variables
  */
 
-static pid_t Cpid = 0;  /* child PID */
-static jmp_buf Jmp_buf; /* jump buffer */
-static int Pipes[] =    /* pipes for child process */
-    {-1, -1, -1, -1};
+static jmp_buf Jmp_buf; /* jump buffer for child process signals */
 static int CtSigs[] = {0, SIGINT, SIGKILL};
 /* child termination signals (in order
  * of application) -- the first is a
@@ -85,9 +82,6 @@ static int CtSigs[] = {0, SIGINT, SIGKILL};
 /*
  * build-Nl() - build kernel name list table
  */
-
-static struct drive_Nl *Build_Nl = (struct drive_Nl *)NULL;
-/* the default Drive_Nl address */
 
 void build_Nl(struct lsof_context *ctx,
               struct drive_Nl *d) /* data to drive the construction */
@@ -132,7 +126,7 @@ void childx(struct lsof_context *ctx) {
          * First close the pipes to and from the child.  That should cause the
          * child to exit.  Compute alarm time shares.
          */
-        (void)closePipes();
+        (void)closePipes(ctx);
         if ((at = TmLimit / NCTSIGS) < TMLIMMIN)
             at = TMLIMMIN;
         /*
@@ -185,7 +179,7 @@ void childx(struct lsof_context *ctx) {
  * closePipes() - close open pipe file descriptors
  */
 
-static void closePipes() {
+static void closePipes(struct lsof_context *ctx) {
     int i;
 
     for (i = 0; i < 4; i++) {
@@ -1034,11 +1028,7 @@ char *Readlink(struct lsof_context *ctx,
     char *argp1, *argp2;
     int i, len, llen, slen;
     char lbuf[MAXPATHLEN + 1];
-    static char *op = (char *)NULL;
-    static int ss = 0;
     char *s1;
-    static char **stk = (char **)NULL;
-    static int sx = 0;
     char tbuf[MAXPATHLEN + 1];
     /*
      * See if avoiding kernel blocks.
@@ -1049,14 +1039,14 @@ char *Readlink(struct lsof_context *ctx,
             safestrprt(arg, stderr, 0);
             (void)fprintf(stderr, "): -b was specified.\n");
         }
-        op = (char *)NULL;
+        Readlink_op = (char *)NULL;
         return mkstrcpy(arg, NULL);
     }
     /*
      * Save the original path.
      */
-    if (!op)
-        op = arg;
+    if (!Readlink_op)
+        Readlink_op = arg;
     /*
      * Evaluate each component of the argument for a symbolic link.
      */
@@ -1068,9 +1058,9 @@ char *Readlink(struct lsof_context *ctx,
         path_too_long:
             if (!Fwarn) {
                 (void)fprintf(stderr, "%s: readlink() path too long: ", Pn);
-                safestrprt(op ? op : arg, stderr, 1);
+                safestrprt(Readlink_op ? Readlink_op : arg, stderr, 1);
             }
-            op = (char *)NULL;
+            Readlink_op = (char *)NULL;
             return ((char *)NULL);
         }
         (void)strncpy(tbuf, arg, len);
@@ -1147,13 +1137,13 @@ char *Readlink(struct lsof_context *ctx,
      * last string in the stack, and return the argument.
      */
     if (strcmp(arg, abuf) == 0) {
-        for (i = 0; i < sx; i++) {
-            if (i < (sx - 1))
-                (void)free((FREE_P *)stk[i]);
-            stk[i] = (char *)NULL;
+        for (i = 0; i < Readlink_sx; i++) {
+            if (i < (Readlink_sx - 1))
+                (void)free((FREE_P *)Readlink_stk[i]);
+            Readlink_stk[i] = (char *)NULL;
         }
-        sx = 0;
-        op = (char *)NULL;
+        Readlink_sx = 0;
+        Readlink_op = (char *)NULL;
         return mkstrcpy(arg, NULL);
     }
     /*
@@ -1168,7 +1158,7 @@ char *Readlink(struct lsof_context *ctx,
         safestrprt(abuf, stderr, 1);
         Error(ctx);
     }
-    if (sx >= MAXSYMLINKS) {
+    if (Readlink_sx >= MAXSYMLINKS) {
 
         /*
          * If there are too many symbolic links, report an error, clear
@@ -1179,31 +1169,33 @@ char *Readlink(struct lsof_context *ctx,
                 stderr,
                 "%s: too many (> %d) symbolic links in readlink() path: ", Pn,
                 MAXSYMLINKS);
-            safestrprt(op ? op : arg, stderr, 1);
+            safestrprt(Readlink_op ? Readlink_op : arg, stderr, 1);
         }
-        for (i = 0; i < sx; i++) {
-            (void)free((FREE_P *)stk[i]);
-            stk[i] = (char *)NULL;
+        for (i = 0; i < Readlink_sx; i++) {
+            (void)free((FREE_P *)Readlink_stk[i]);
+            Readlink_stk[i] = (char *)NULL;
         }
-        (void)free((FREE_P *)stk);
+        (void)free((FREE_P *)Readlink_stk);
         (void)free((FREE_P *)s1);
-        stk = (char **)NULL;
-        ss = sx = 0;
+        Readlink_stk = (char **)NULL;
+        Readlink_ss = Readlink_sx = 0;
         s1 = (char *)NULL;
-        op = (char *)NULL;
+        Readlink_op = (char *)NULL;
         return ((char *)NULL);
     }
-    if (++sx > ss) {
-        if (!stk)
-            stk = (char **)malloc((MALLOC_S)(sizeof(char *) * sx));
+    if (++Readlink_sx > Readlink_ss) {
+        if (!Readlink_stk)
+            Readlink_stk =
+                (char **)malloc((MALLOC_S)(sizeof(char *) * Readlink_sx));
         else
-            stk = (char **)realloc((MALLOC_P *)stk,
-                                   (MALLOC_S)(sizeof(char *) * sx));
-        if (!stk)
+            Readlink_stk =
+                (char **)realloc((MALLOC_P *)Readlink_stk,
+                                 (MALLOC_S)(sizeof(char *) * Readlink_sx));
+        if (!Readlink_stk)
             goto no_readlink_space;
-        ss = sx;
+        Readlink_ss = Readlink_sx;
     }
-    stk[sx - 1] = s1;
+    Readlink_stk[Readlink_sx - 1] = s1;
     return (Readlink(ctx, s1));
 }
 

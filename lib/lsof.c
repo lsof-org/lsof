@@ -54,6 +54,9 @@ struct lsof_context *lsof_new() {
     if (ctx) {
         /* Initialization */
         memset(ctx, 0, sizeof(struct lsof_context));
+        /* Initialize pipes to -1 */
+        ctx->child_pipes[0] = ctx->child_pipes[1] = ctx->child_pipes[2] =
+            ctx->child_pipes[3] = -1;
 
         if (!(Namech = (char *)malloc(MAXPATHLEN + 1))) {
             free(ctx);
