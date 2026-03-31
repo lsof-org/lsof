@@ -791,8 +791,35 @@ void lsof_destroy(struct lsof_context *ctx) {
     HbyNmCt = 0;
     Hs = 0;
 
-    /* Free process array */
-    CLEAN(Lproc);
+    /* Free process array and all associated resources */
+    if (Lproc) {
+        for (i = 0; i < Nlproc; i++) {
+            struct lproc *lp = &Lproc[i];
+            struct lfile *lf, *lf_next;
+            /* Free command name */
+            CLEAN(lp->cmd);
+#if defined(HASSELINUX)
+            CLEAN(lp->cntx);
+#endif
+#if defined(HASTASKS)
+            CLEAN(lp->tcmd);
+#endif
+#if defined(HASZONES)
+            CLEAN(lp->zn);
+#endif
+            /* Free file list */
+            for (lf = lp->file; lf; lf = lf_next) {
+                lf_next = lf->next;
+                CLEAN(lf->nm);
+                CLEAN(lf->nma);
+                CLEAN(lf->dev_ch);
+                CLEAN(lf->fsdir);
+                CLEAN(lf->fsdev);
+                CLEAN(lf);
+            }
+        }
+        CLEAN(Lproc);
+    }
     Nlproc = 0;
     ctx->procs_cap = 0;
 
