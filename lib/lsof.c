@@ -767,6 +767,35 @@ void lsof_destroy(struct lsof_context *ctx) {
     CLEAN(UdpSt);
     CLEAN(Pn);
 
+    /* Free sfile list */
+    {
+        struct sfile *sfp, *sfp_next;
+        for (sfp = Sfile; sfp; sfp = sfp_next) {
+            sfp_next = sfp->next;
+            CLEAN(sfp->aname);
+            CLEAN(sfp->name);
+            CLEAN(sfp->devnm);
+            CLEAN(sfp);
+        }
+        Sfile = NULL;
+    }
+
+    /* Free hashSfile hash buckets */
+    CLEAN(HbyFdi);
+    HbyFdiCt = 0;
+    CLEAN(HbyFrd);
+    HbyFrdCt = 0;
+    CLEAN(HbyFsd);
+    HbyFsdCt = 0;
+    CLEAN(HbyNm);
+    HbyNmCt = 0;
+    Hs = 0;
+
+    /* Free process array */
+    CLEAN(Lproc);
+    Nlproc = 0;
+    ctx->procs_cap = 0;
+
     CLEAN(ctx);
 }
 

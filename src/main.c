@@ -1353,8 +1353,9 @@ int main(int argc, char *argv[]) {
                 else
                     slp = (struct lproc **)realloc((MALLOC_P *)slp, len);
                 if (!slp) {
-                    (void)fprintf(stderr, "%s: no space for %zu sort pointers\n",
-                                  Pn, Nlproc);
+                    (void)fprintf(stderr,
+                                  "%s: no space for %zu sort pointers\n", Pn,
+                                  Nlproc);
                     Error(ctx);
                 }
             }

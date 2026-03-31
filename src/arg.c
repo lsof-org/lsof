@@ -121,6 +121,7 @@ int ck_file_arg(struct lsof_context *ctx, int i, /* first file argument index */
     char *ap, *fnm, *fsnm, *path;
     short err = 0;
     int fsm, ftype, j, k;
+    int path_allocated = 0;
     MALLOC_S l;
     struct mounts *mp;
     static struct mounts **mmp = (struct mounts **)NULL;
@@ -145,13 +146,15 @@ int ck_file_arg(struct lsof_context *ctx, int i, /* first file argument index */
      * Loop through arguments.
      */
     for (; i < ac; i++) {
-        if (rs && (ac == 1) && (i == 0))
+        if (rs && (ac == 1) && (i == 0)) {
             path = av[i];
-        else {
+            path_allocated = 0;
+        } else {
             if (!(path = Readlink(ctx, av[i]))) {
                 ErrStat = 1;
                 continue;
             }
+            path_allocated = 1;
         }
         /*
          * Remove terminating `/' characters from paths longer than one.
@@ -172,6 +175,7 @@ int ck_file_arg(struct lsof_context *ctx, int i, /* first file argument index */
                 (void)strncpy(ap, path, k);
                 ap[k] = '\0';
                 path = ap;
+                path_allocated = 1;
             }
         }
         /*
@@ -267,6 +271,8 @@ int ck_file_arg(struct lsof_context *ctx, int i, /* first file argument index */
                             (void)fprintf(stderr, ": %s\n", strerror(en));
                         }
                         Sfile = sfp->next;
+                        if (path_allocated)
+                            (void)free((FREE_P *)path);
                         (void)free((FREE_P *)sfp);
                         ErrStat = 1;
                         continue;
@@ -560,7 +566,6 @@ int ctrl_dcache(struct lsof_context *ctx, /* context */
     return (0);
 }
 #endif /* defined(HASDCACHE) */
-
 
 #if defined(HASEOPT)
 /*
@@ -2156,9 +2161,9 @@ lkup_hostnm(char *hn,       /* host name */
 
     if (!he || !he->h_addr)
         return (he);
-        /*
-         * Copy first hostname structure address to destination structure.
-         */
+    /*
+     * Copy first hostname structure address to destination structure.
+     */
 
 #if defined(HASIPv6)
     if (n->af != he->h_addrtype)

@@ -768,6 +768,7 @@ void Exit(struct lsof_context *ctx, enum ExitStatus xv) /* exit() value */
                       DCpath[DCpathX]);
 #endif /* defined(HASDCACHE) */
 
+    lsof_destroy(ctx);
     exit(xv);
 }
 
