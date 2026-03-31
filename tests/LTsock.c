@@ -784,7 +784,7 @@ static SIGHANDLER_T HandleSrvrAlarm(int sig) /* the signal (SIGALRM) */
  * StartClnt() -- start network client
  */
 
-static void StartClnt(cad) struct sockaddr_in *cad; /* connection address */
+static void StartClnt(struct sockaddr_in *cad) /* connection address */
 {
     struct sockaddr_in ba;       /* bind address */
     int br;                      /* bytes read */
