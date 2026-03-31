@@ -1331,7 +1331,7 @@ struct lsof_context {
     struct lproc *procs;
     /** Length and capacity of `procs` */
     size_t procs_size;
-    size_t procs_cap;
+    int procs_cap;
 
     /** Pointer to current file */
     struct lfile *cur_file;
