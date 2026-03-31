@@ -471,8 +471,10 @@ int main(int argc,     /* argument count */
                                "ERROR!!!  no %s socket by host and port: %s@%s",
                                PtNm[ti], host, port);
                 buf[bufl - 1] = '\0';
-                if (pem)
+                if (pem) {
                     (void)PrtMsg(pem, Pn);
+                    (void)free(pem);
+                }
                 pem = MkStrCpy(buf, &tk);
             }
             if (!(tj & LT_FBYIP)) {
@@ -484,8 +486,10 @@ int main(int argc,     /* argument count */
                                "ERROR!!!  no %s socket by IP and port: %s@%s",
                                PtNm[ti], ipaddr, port);
                 buf[bufl - 1] = '\0';
-                if (pem)
+                if (pem) {
                     (void)PrtMsg(pem, Pn);
+                    (void)free(pem);
+                }
                 pem = MkStrCpy(buf, &tk);
             }
             if (!(tj & LT_FBYPORT)) {
@@ -497,8 +501,10 @@ int main(int argc,     /* argument count */
                                "ERROR!!!  no %s socket by port: %s", PtNm[ti],
                                port);
                 buf[bufl - 1] = '\0';
-                if (pem)
+                if (pem) {
                     (void)PrtMsg(pem, Pn);
+                    (void)free(pem);
+                }
                 pem = MkStrCpy(buf, &tk);
             }
         }
@@ -563,31 +569,32 @@ static void CleanupSrvr() {
 
 static char *FindSock(int fn) /* function -- an LT_FBY* value */
 {
-    char buf[2048];           /* temporary buffer */
-    int bufl = sizeof(buf);   /* size of buf[] */
-    char *cem;                /* current error message pointer */
-    LTfldo_t *cmdp;           /* command pointer */
-    LTfldo_t *fop;            /* field output pointer */
-    int nf;                   /* number of fields */
-    int nl;                   /* name length */
-    LTfldo_t *nmp;            /* name pointer */
-    char *opv[5];             /* option vector for ExecLsof() */
-    char *pem = (char *)NULL; /* previous error message pointer */
-    pid_t pid;                /* PID */
-    int pids = 0;             /* PID found status */
-    int pl;                   /* port length */
-    int px;                   /* process index -- LT_CLNT or
-                               * LT_SRVR */
-    char *tcp, *tcp1;         /* temporary character pointers */
-    int ti, tj;               /* temporary integers */
-    LTfldo_t *typ;            /* file type pointer */
-                              /*
-                               * Check the function and determine the first lsof option from it.
-                               */
-    ti = 0;
+    char buf[2048];               /* temporary buffer */
+    int bufl = sizeof(buf);       /* size of buf[] */
+    char *cem;                    /* current error message pointer */
+    LTfldo_t *cmdp;               /* command pointer */
+    LTfldo_t *fop;                /* field output pointer */
+    int nf;                       /* number of fields */
+    int nl;                       /* name length */
+    LTfldo_t *nmp;                /* name pointer */
+    char *opv[5];                 /* option vector for ExecLsof() */
+    char *pem = (char *)NULL;     /* previous error message pointer */
+    pid_t pid;                    /* PID */
+    int pids = 0;                 /* PID found status */
+    int pl;                       /* port length */
+    int px;                       /* process index -- LT_CLNT or
+                                   * LT_SRVR */
+    char *tcp, *tcp1;             /* temporary character pointers */
+    int ti, tj, mk_start, mk_end; /* temporary integers */
+    LTfldo_t *typ;                /* file type pointer */
+                                  /*
+                                   * Check the function and determine the first lsof option from it.
+                                   */
+    ti = mk_start = 0;
     switch (fn) {
     case LT_FBYHN:
         opv[ti++] = "-P";
+        mk_start = ti;
         for (tj = 0; tj < NFDPARA; tj++) {
             (void)snprintf(buf, bufl - 1, "-i@%s:%s", FdPara[tj].host,
                            FdPara[tj].port);
@@ -597,6 +604,7 @@ static char *FindSock(int fn) /* function -- an LT_FBY* value */
         break;
     case LT_FBYIP:
         opv[ti++] = "-Pn";
+        mk_start = ti;
         for (tj = 0; tj < NFDPARA; tj++) {
             (void)snprintf(buf, bufl - 1, "-i@%s:%s", FdPara[tj].ipaddr,
                            FdPara[tj].port);
@@ -606,6 +614,7 @@ static char *FindSock(int fn) /* function -- an LT_FBY* value */
         break;
     case LT_FBYPORT:
         opv[ti++] = "-P";
+        mk_start = ti;
         for (tj = 0; tj < NFDPARA; tj++) {
             (void)snprintf(buf, bufl - 1, "-i:%s", FdPara[tj].port);
             buf[bufl - 1] = '\0';
@@ -626,9 +635,15 @@ static char *FindSock(int fn) /* function -- an LT_FBY* value */
     opv[ti++] = "-C";
 #endif /* defined(USE_LSOF_C_OPT) */
 
+    mk_end = ti;
     opv[ti] = (char *)NULL;
-    if ((cem = ExecLsof(opv)))
+    if ((cem = ExecLsof(opv))) {
+        for (tj = mk_start; tj < mk_end; tj++)
+            (void)free(opv[tj]);
         return (cem);
+    }
+    for (tj = mk_start; tj < mk_end; tj++)
+        (void)free(opv[tj]);
     /*
      * Read lsof output.
      */

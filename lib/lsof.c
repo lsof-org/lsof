@@ -767,6 +767,28 @@ void lsof_destroy(struct lsof_context *ctx) {
     CLEAN(UdpSt);
     CLEAN(Pn);
 
+    /* Free fd list */
+    {
+        struct fd_lst *flp, *flp_next;
+        for (flp = Fdl; flp; flp = flp_next) {
+            flp_next = flp->next;
+            CLEAN(flp);
+        }
+        Fdl = NULL;
+    }
+
+    /* Free network address list */
+    {
+        struct nwad *np, *np_next;
+        for (np = Nwad; np; np = np_next) {
+            np_next = np->next;
+            CLEAN(np->arg);
+            CLEAN(np->proto);
+            CLEAN(np);
+        }
+        Nwad = NULL;
+    }
+
     /* Free sfile list */
     {
         struct sfile *sfp, *sfp_next;

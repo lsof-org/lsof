@@ -305,7 +305,7 @@ int main(int argc,     /* argument count */
     /*
      * Quit (with a hint) if the test file is on an NFS file system.
      */
-    if (!tstwlsof("-wNa", " ")) {
+    if (!(tstW = tstwlsof("-wNa", " "))) {
         (void)printf("ERROR!!!  %s is NFS-mounted.\n", Path);
         MsgStat = 1;
         (void)PrtMsg("Lsof can't report lock information on files that", Pn);
@@ -316,13 +316,17 @@ int main(int argc,     /* argument count */
         (void)PrtMsgX("See 00FAQ and 00TEST for more information.", Pn, cleanup,
                       1);
     }
+    (void)free(tstW);
+    tstW = (char *)NULL;
     /*
      * Get an exclusive lock on the entire file and test it with lsof.
      */
     if ((em = lkfile(FULL_EX_LOCK)))
         (void)PrtMsgX(em, Pn, cleanup, 1);
-    if ((tstW = tstwlsof("-w", "W")))
+    if ((tstW = tstwlsof("-w", "W"))) {
         (void)PrtMsg(tstW, Pn);
+        (void)free(tstW);
+    }
     /*
      * Get a shared lock on the entire file and test it with lsof.
      */
@@ -330,8 +334,10 @@ int main(int argc,     /* argument count */
         (void)PrtMsgX(em, Pn, cleanup, 1);
     if ((em = lkfile(FULL_SH_LOCK)))
         (void)PrtMsgX(em, Pn, cleanup, 1);
-    if ((tstR = tstwlsof("-w", "R")))
+    if ((tstR = tstwlsof("-w", "R"))) {
         (void)PrtMsg(tstR, Pn);
+        (void)free(tstR);
+    }
 
 #    if defined(USE_FLOCK)
     /*
@@ -348,14 +354,18 @@ int main(int argc,     /* argument count */
         (void)PrtMsgX(em, Pn, cleanup, 1);
     if ((em = lkfile(PART_EX_LOCK)))
         (void)PrtMsgX(em, Pn, cleanup, 1);
-    if ((tstw = tstwlsof("-w", "w")))
+    if ((tstw = tstwlsof("-w", "w"))) {
         (void)PrtMsg(tstw, Pn);
+        (void)free(tstw);
+    }
     if ((em = unlkfile(PART_EX_LOCK)))
         (void)PrtMsgX(em, Pn, cleanup, 1);
     if ((em = lkfile(PART_SH_LOCK)))
         (void)PrtMsgX(em, Pn, cleanup, 1);
-    if ((tstr = tstwlsof("-w", "r")))
+    if ((tstr = tstwlsof("-w", "r"))) {
         (void)PrtMsg(tstr, Pn);
+        (void)free(tstr);
+    }
 #    endif /* defined(USE_FCNTL) */
 
     /*
@@ -414,11 +424,11 @@ static void cleanup() {
 
 static char *lkfile(int ty) /* a *_*_LOCK requested */
 {
-    char buf[2048];  /* temporary buffer */
-    int ti;          /* temporary integer */
+    char buf[2048]; /* temporary buffer */
+    int ti;         /* temporary integer */
 
 #    if defined(USE_FLOCK)
-    int flf;         /* flock() function */
+    int flf; /* flock() function */
 #    endif /* defined(USE_FLOCK) */
 
 #    if defined(USE_FCNTL)
@@ -677,8 +687,8 @@ static char *tstwlsof(char *opt, /* extra lsof options */
 
 static char *unlkfile(int ty) /* current *_*_LOCK lock typ */
 {
-    char buf[2048];  /* temporary buffer */
-    int ti;          /* temporary integer */
+    char buf[2048]; /* temporary buffer */
+    int ti;         /* temporary integer */
 
 #    if defined(USE_FCNTL)
     struct flock fl; /* flock control structure */

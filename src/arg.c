@@ -1604,6 +1604,8 @@ int enter_network_address(struct lsof_context *ctx, /* context */
     }
     if (sn)
         (void)free((FREE_P *)sn);
+    if (hn)
+        (void)free((FREE_P *)hn);
     return (0);
 }
 
