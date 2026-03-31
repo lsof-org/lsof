@@ -442,15 +442,15 @@ process_overlaid_node:
          * /original_mountpoint/path/to/file
          * ------fsname--------
          */
-         vfs_fsname_len = strlen(vfs->fsname);
-         vfs_dir_len = strlen(vfs->dir);
-         vfs_path_len = strlen(vfs_path);
- 
-         if (vfs_path_len >= vfs_dir_len) {
-             memmove(&vfs_path[vfs_fsname_len], &vfs_path[vfs_dir_len],
-             vfs_path_len - vfs_dir_len + 1);
-             memcpy(vfs_path, vfs->fsname, vfs_fsname_len);
-         }
+        vfs_fsname_len = strlen(vfs->fsname);
+        vfs_dir_len = strlen(vfs->dir);
+        vfs_path_len = strlen(vfs_path);
+
+        if (vfs_path_len >= vfs_dir_len) {
+            memmove(&vfs_path[vfs_fsname_len], &vfs_path[vfs_dir_len],
+                    vfs_path_len - vfs_dir_len + 1);
+            memcpy(vfs_path, vfs->fsname, vfs_fsname_len);
+        }
         goto process_overlaid_node;
 #endif /* defined(HASNULLFS) */
     }
@@ -528,8 +528,8 @@ process_overlaid_node:
      * Save the file system names.
      */
     if (vfs) {
-        Lf->fsdir = vfs->dir;
-        Lf->fsdev = vfs->fsname;
+        Lf->fsdir = mkstrcpy(vfs->dir, (MALLOC_S *)NULL);
+        Lf->fsdev = mkstrcpy(vfs->fsname, (MALLOC_S *)NULL);
     }
     /*
      * Save the device numbers and their states.

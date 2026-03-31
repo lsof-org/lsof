@@ -1155,8 +1155,8 @@ process_overlaid_node:
      * Save the file system names.
      */
     if (vfs) {
-        Lf->fsdir = vfs->dir;
-        Lf->fsdev = vfs->fsname;
+        Lf->fsdir = mkstrcpy(vfs->dir, (MALLOC_S *)NULL);
+        Lf->fsdev = mkstrcpy(vfs->fsname, (MALLOC_S *)NULL);
     }
     /*
      * Save the device numbers and their states.
@@ -1351,9 +1351,9 @@ process_overlaid_node:
      */
     if ((Lf->inp_ty == 0) && (type == VCHR))
         find_ch_ino(ctx);
-        /*
-         * Test for specified file.
-         */
+    /*
+     * Test for specified file.
+     */
 
 #if defined(HASPROCFS)
     if (Ntype == N_PROC) {

@@ -173,8 +173,8 @@ void enter_vnode_info(
     if (devs) {
         for (mp = readmnt(ctx); mp; mp = mp->next) {
             if (dev == mp->dev) {
-                Lf->fsdir = mp->dir;
-                Lf->fsdev = mp->fsname;
+                Lf->fsdir = mkstrcpy(mp->dir, (MALLOC_S *)NULL);
+                Lf->fsdev = mkstrcpy(mp->fsname, (MALLOC_S *)NULL);
                 if (mp->is_nfs && Fnfs)
                     Lf->sf |= SELNFS;
                 break;
@@ -615,4 +615,3 @@ void process_fileport_vnode(struct lsof_context *ctx, /* context */
     process_vnode_common(ctx, &vi);
 }
 #endif /* PROC_PIDLISTFILEPORTS */
-

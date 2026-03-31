@@ -519,13 +519,13 @@ static KA_T Vvops[VXVOP_NUM]; /* addresses of:
 
 #if defined(VOPNAME_OPEN) && solaris >= 100000
 #    define GETVOPS(name, nl, ops)                                             \
-        if (get_Nl_value(ctx, name, nl, &ops) < 0)                                  \
+        if (get_Nl_value(ctx, name, nl, &ops) < 0)                             \
             ops = (KA_T)0;                                                     \
         else if (kread(ctx, ops, (char *)&ops, sizeof(ops)))                   \
         ops = (KA_T)0
 #else /* !defined(VOPNAME_OPEN) || solaris<100000 */
 #    define GETVOPS(name, nl, ops)                                             \
-        if (get_Nl_value(ctx, name, nl, &ops) < 0)                                  \
+        if (get_Nl_value(ctx, name, nl, &ops) < 0)                             \
         ops = (KA_T)0
 #endif /* defined(VOPNAME_OPEN) && solaris>=100000 */
 
@@ -1147,9 +1147,9 @@ static struct l_dev *finddev(struct lsof_context *ctx, /* context */
 
     if (!Sdev)
         readdev(ctx, 0);
-        /*
-         * Search device table for match.
-         */
+    /*
+     * Search device table for match.
+     */
 
 #if defined(HASDCACHE)
 
@@ -1314,7 +1314,7 @@ void process_node(struct lsof_context *ctx, /* context */
     struct pairaddr {
         short f;
         unsigned short p;
-    } * pa;
+    } *pa;
     KA_T peer;
     struct sonode so;
     KA_T soa, sona;
@@ -3338,9 +3338,9 @@ void process_node(struct lsof_context *ctx, /* context */
         Lf->sf |= SELNLINK;
 
 #if defined(HASVXFS)
-        /*
-         * Record a VxFS file.
-         */
+    /*
+     * Record a VxFS file.
+     */
 
 #    if defined(HASVXFSDNLC)
     Lf->is_vxfs = (Ntype == N_VXFS) ? 1 : 0;
@@ -3416,8 +3416,8 @@ void process_node(struct lsof_context *ctx, /* context */
      * Save the file system names.
      */
     if (vfs) {
-        Lf->fsdir = vfs->dir;
-        Lf->fsdev = vfs->fsname;
+        Lf->fsdir = mkstrcpy(vfs->dir, (MALLOC_S *)NULL);
+        Lf->fsdev = mkstrcpy(vfs->fsname, (MALLOC_S *)NULL);
 
 #if defined(HASMNTSTAT)
         Lf->mnt_stat = vfs->mnt_stat;
@@ -3713,9 +3713,9 @@ void process_node(struct lsof_context *ctx, /* context */
      */
     if (Lf->inp_ty == 0 && Lf->is_stream && strcmp(Lf->iproto, "STR") == 0)
         Lf->inp_ty = 2;
-        /*
-         * Test for specified file.
-         */
+    /*
+     * Test for specified file.
+     */
 
 #if defined(HASPROCFS)
     if (Ntype == N_PROC) {

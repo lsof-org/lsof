@@ -91,7 +91,7 @@ struct rnode64 {
     struct gnode r_gnode; /* gnode for remote file */
 
 #                if AIXV < 5300
-    caddr_t r_d2[15];     /* dummies; rnode elements? */
+    caddr_t r_d2[15]; /* dummies; rnode elements? */
 #                else  /* AIXV>=5300 */
     caddr_t r_d2[11]; /* dummies; rnode elements? */
 #                endif /* AIXV<5300 */
@@ -1003,8 +1003,8 @@ void process_node(struct lsof_context *ctx, /* context */
      * Save the file system names.
      */
     if (vfs) {
-        Lf->fsdir = vfs->dir;
-        Lf->fsdev = vfs->fsname;
+        Lf->fsdir = mkstrcpy(vfs->dir, (MALLOC_S *)NULL);
+        Lf->fsdev = mkstrcpy(vfs->fsname, (MALLOC_S *)NULL);
     }
     /*
      * Save the device numbers and their states.

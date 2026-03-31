@@ -704,8 +704,8 @@ KA_T na;                /* node address */
     if (devs) {
         for (mp = readmnt(); mp; mp = mp->next) {
             if (dev == mp->dev) {
-                Lf->fsdir = mp->dir;
-                Lf->fsdev = mp->fsname;
+                Lf->fsdir = mkstrcpy(mp->dir, (MALLOC_S *)NULL);
+                Lf->fsdev = mkstrcpy(mp->fsname, (MALLOC_S *)NULL);
 
 #if defined(HASFSINO)
                 Lf->fs_ino = (unsigned long)mp->inode;

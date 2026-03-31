@@ -1479,8 +1479,8 @@ void printname(struct lsof_context *ctx, int nl) /* NL status */
          */
         for (mp = readmnt(ctx); mp; mp = mp->next) {
             if (Lf->dev == mp->dev) {
-                Lf->fsdir = mp->dir;
-                Lf->fsdev = mp->fsname;
+                Lf->fsdir = mkstrcpy(mp->dir, (MALLOC_S *)NULL);
+                Lf->fsdev = mkstrcpy(mp->fsname, (MALLOC_S *)NULL);
 
 #if defined(HASFSINO)
                 Lf->fs_ino = mp->inode;
@@ -1903,9 +1903,7 @@ void json_open_envelope(void) {
 /*
  * json_close_envelope() - emit JSON closing envelope for -J mode
  */
-void json_close_envelope(void) {
-    printf("]}\n");
-}
+void json_close_envelope(void) { printf("]}\n"); }
 
 /*
  * json_print_file() - print a single file entry as JSON fields

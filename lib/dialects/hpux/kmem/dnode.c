@@ -919,8 +919,8 @@ void process_node(va) KA_T va; /* vnode kernel space address */
      * Save the file system names.
      */
     if (vfs) {
-        Lf->fsdir = vfs->dir;
-        Lf->fsdev = vfs->fsname;
+        Lf->fsdir = mkstrcpy(vfs->dir, (MALLOC_S *)NULL);
+        Lf->fsdev = mkstrcpy(vfs->fsname, (MALLOC_S *)NULL);
 
 #if defined(HASFSINO)
         Lf->fs_ino = vfs->fs_ino;
