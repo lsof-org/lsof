@@ -22,7 +22,7 @@ mksrc() {
 }
 
 D=lib/dialects/linux
-L="dfile.c dlsof.h dmnt.c dnode.c dproc.c dproto.h dsock.c dstore.c machine.h"
+L="dfile.c dlsof.h dmnt.c dnode.c dproc.c dproto.h dsock.c dstore.c dlsof.c machine.h"
 
 mksrc
 

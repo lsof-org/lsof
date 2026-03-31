@@ -70,8 +70,8 @@ typedef struct mntsup {
  * Local static definitions
  */
 
-static mntsup_t **MSHash = (mntsup_t **)NULL;      /* mount supplement
-                                                    * hash buckets */
+static mntsup_t **MSHash = (mntsup_t **)NULL; /* mount supplement
+                                               * hash buckets */
 
 /*
  * convert_octal_escaped() -- convert octal-escaped characters in string

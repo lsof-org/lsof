@@ -39,6 +39,14 @@
 #    define API_EXPORT
 #endif
 
+/*
+ * Default weak implementation of dialect-specific cleanup.
+ * Dialects can override this with a strong implementation.
+ */
+void __attribute__((weak)) lsof_dialect_destroy(struct lsof_context *ctx) {
+    (void)ctx; /* unused in default implementation */
+}
+
 API_EXPORT
 int lsof_get_api_version() { return LSOF_API_VERSION; }
 
@@ -844,6 +852,9 @@ void lsof_destroy(struct lsof_context *ctx) {
     }
     Nlproc = 0;
     ctx->procs_cap = 0;
+
+    /* Call dialect-specific cleanup */
+    lsof_dialect_destroy(ctx);
 
     CLEAN(ctx);
 }

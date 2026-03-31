@@ -16,6 +16,7 @@ LIBLSOF_SOURCES += lib/dialects/linux/dfile.c \
 		lib/dialects/linux/dproc.c \
 		lib/dialects/linux/dsock.c \
 		lib/dialects/linux/dstore.c \
+		lib/dialects/linux/dlsof.c \
 		lib/dialects/linux/dlsof.h \
 		lib/dialects/linux/dproto.h \
 		lib/dialects/linux/machine.h

@@ -168,3 +168,6 @@ autom4te.cache
 
 # Doxygen
 /output
+
+compile_commands.json
+.cache

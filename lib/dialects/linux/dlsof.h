@@ -198,6 +198,56 @@ extern dev_t MqueueDev;
 #    define OFFSET_FDINFO 2
 extern int OffType;
 
-struct lsof_context_dialect {};
+#    define PIDBUCKS 64    /* PID hash buckets */
+#    define PINFOBUCKS 512 /* pipe info hash buckets */
+
+struct llock {
+    int pid;
+    dev_t dev;
+    INODETYPE inode;
+    enum lsof_lock_mode type;
+    struct llock *next;
+};
+
+struct lsof_context_dialect {
+    /* dnode.c - lock hash table */
+    struct llock **lock_hash;
+#    if defined(HASEPTOPTS)
+    pxinfo_t **pipe_ep_hash;
+#        if defined(HASPTYEPT)
+    pxinfo_t **pty_ep_hash;
+#        endif
+    pxinfo_t **mqueue_ep_hash;
+    pxinfo_t **eventfd_ep_hash;
+#    endif
+    /* dnode.c - field parser state */
+    char **field_ptrs;
+    int field_ptrs_alloc;
+    /* dnode.c - lock stream buffer */
+    char *lock_stream_buf;
+    size_t lock_stream_buf_sz;
+};
+
+/* Dialect-specific cleanup function */
+void lsof_dialect_destroy(struct lsof_context *ctx);
+
+/* Context field access macros */
+#    define LckH (ctx->dialect.lock_hash)
+#    if defined(HASEPTOPTS)
+#        define Pinfo (ctx->dialect.pipe_ep_hash)
+#        if defined(HASPTYEPT)
+#            define PtyInfo (ctx->dialect.pty_ep_hash)
+#        endif
+#        define PSXMQinfo (ctx->dialect.mqueue_ep_hash)
+#        define EvtFDinfo (ctx->dialect.eventfd_ep_hash)
+#    endif
+
+/* Field parser macros */
+#    define Fp (ctx->dialect.field_ptrs)
+#    define Fpa (ctx->dialect.field_ptrs_alloc)
+
+/* Lock stream buffer macros */
+#    define Vbuf (ctx->dialect.lock_stream_buf)
+#    define Vsz (ctx->dialect.lock_stream_buf_sz)
 
 #endif /* LINUX_LSOF_H	*/

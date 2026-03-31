@@ -29,6 +29,8 @@
  */
 
 #include "common.h"
+#include "dlsof.h"
+#include "proto.h"
 
 #if defined(HASEPTOPTS) && defined(HASPTYEPT)
 #    include <linux/major.h>
@@ -42,28 +44,12 @@
     ((off_t)0x7fffffff) /* this is defined in                                  \
                          * .../src/fs/locks.c and not                          \
                          * in a header file */
-#define PIDBUCKS 64     /* PID hash buckets */
-#define PINFOBUCKS 512  /* pipe info hash buckets */
 #define HASHPID(pid) (((int)((pid * 31415) >> 3)) & (PIDBUCKS - 1))
 #define HASHPINFO(ino) (((int)((ino * 31415) >> 3)) & (PINFOBUCKS - 1))
 
 /*
  * Local structure definitions
  */
-
-struct llock {
-    int pid;
-    dev_t dev;
-    INODETYPE inode;
-    enum lsof_lock_mode type;
-    struct llock *next;
-};
-
-/*
- * Local definitions
- */
-
-struct llock **LckH = (struct llock **)NULL; /* PID-hashed locks */
 
 /*
  * Local function prototypes
@@ -74,22 +60,6 @@ static void check_lock(struct lsof_context *ctx);
 #if defined(HASEPTOPTS)
 static void enter_pinfo(struct lsof_context *ctx);
 #endif /* defined(HASEPTOPTS) */
-
-/*
- * Local storage
- */
-
-#if defined(HASEPTOPTS)
-static pxinfo_t **Pinfo = (pxinfo_t **)NULL; /* pipe endpoint hash buckets */
-#    if defined(HASPTYEPT)
-static pxinfo_t **PtyInfo = (pxinfo_t **)NULL; /* pseudoterminal endpoint hash
-                                                * buckets */
-#    endif                                     /* defined(HASPTYEPT) */
-static pxinfo_t **PSXMQinfo =
-    (pxinfo_t **)NULL; /* posix msg queue endpoint hash buckets */
-static pxinfo_t **EvtFDinfo =
-    (pxinfo_t **)NULL; /* envetfd endpoint hash buckets */
-#endif                 /* defined(HASEPTOPTS) */
 
 /*
  * check_lock() - check lock for file *Lf, process *Lp
@@ -469,9 +439,6 @@ int get_fields(struct lsof_context *ctx, /* context */
 {
     char *bp, *cp, *sp;
     int i, j, n;
-    MALLOC_S len;
-    static char **fp = (char **)NULL;
-    static int nfpa = 0;
 
     for (cp = ln, n = 0; cp && *cp;) {
         for (bp = cp; *bp && (*bp == ' ' || *bp == '\t'); bp++)
@@ -535,23 +502,16 @@ int get_fields(struct lsof_context *ctx, /* context */
         }
         if (*cp)
             *cp++ = '\0';
-        if (n >= nfpa) {
-            nfpa += 32;
-            len = (MALLOC_S)(nfpa * sizeof(char *));
-            if (fp)
-                fp = (char **)realloc((MALLOC_P *)fp, len);
-            else
-                fp = (char **)malloc(len);
-            if (!fp) {
-                (void)fprintf(
-                    stderr, "%s: can't allocate %d bytes for field pointers.\n",
-                    Pn, (int)len);
+        if (n >= Fpa) {
+            if (grow_array((void **)&Fp, &Fpa, sizeof(char *), 32)) {
+                (void)fprintf(stderr,
+                              "%s: can't allocate for field pointers.\n", Pn);
                 Error(ctx);
             }
         }
-        fp[n++] = bp;
+        Fp[n++] = bp;
     }
-    *fr = fp;
+    *fr = Fp;
     return (n);
 }
 
@@ -571,8 +531,7 @@ void get_locks(struct lsof_context *ctx, /* context */
     FILE *ls;
     long maj, min;
     enum lsof_lock_mode type;
-    static char *vbuf = (char *)NULL;
-    static size_t vsz = (size_t)0;
+
     /*
      * Destroy previous lock information.
      */
@@ -601,7 +560,7 @@ void get_locks(struct lsof_context *ctx, /* context */
      * Open the /proc lock file, assign a page size buffer to its stream,
      * and read it.
      */
-    if (!(ls = open_proc_stream(ctx, p, "r", &vbuf, &vsz, 0)))
+    if (!(ls = open_proc_stream(ctx, p, "r", &Vbuf, &Vsz, 0)))
         return;
     while (fgets(buf, sizeof(buf), ls)) {
         if (get_fields(ctx, buf, ":", &fp, (int *)NULL, 0) < 10)
