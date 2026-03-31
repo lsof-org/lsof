@@ -60,7 +60,7 @@
 #        undef DEVNO64
 #        define DEVNO64 0x8000000000000000LL
 #        undef ISDEVNO64
-#        define ISDEVNO64(d) (((ulong)(d)&DEVNO64) ? 1 : 0)
+#        define ISDEVNO64(d) (((ulong)(d) & DEVNO64) ? 1 : 0)
 
 /*
  * Define major and minor extraction macros that work on 64 bit AIX
@@ -715,10 +715,10 @@ char *MkStrCpy(char *src, /* string source to copy */
  * PrtMsg() -- print message
  */
 
-void PrtMsg(mp, pn) char *mp; /* message pointer -- may be NULL to
-                               * trigger space prefix initialization
-                               */
-char *pn;                     /* program name */
+void PrtMsg(char *mp, /* message pointer -- may be NULL to
+                       * trigger space prefix initialization
+                       */
+            char *pn) /* program name */
 {
     static int pfxlen = -1;          /* prefix length, based on program */
                                      /* name -- computed on first call
@@ -763,10 +763,10 @@ char *pn;                     /* program name */
  * PrtMsgX() -- print message and exit
  */
 
-void PrtMsgX(mp, pn, f, xv) char *mp; /* message pointer */
-char *pn;                             /* program name */
-void (*f)();                          /* clean-up function pointer */
-int xv;                               /* exit value */
+void PrtMsgX(char *mp,    /* message pointer */
+             char *pn,    /* program name */
+             void (*f)(), /* clean-up function pointer */
+             int xv)      /* exit value */
 {
     if (mp)
         PrtMsg(mp, pn);
