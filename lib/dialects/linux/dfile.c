@@ -38,7 +38,6 @@
  * Local static variables
  */
 
-
 /*
  * Local definitions
  */
@@ -316,7 +315,7 @@ int is_file_named(
         }
         break;
     case 2: /* Found match by path */
-        (void)strcpy(Namech, path);
+        (void)snpf(Namech, Namechl, "%s", path);
         break;
     }
     if (s)

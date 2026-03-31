@@ -119,10 +119,10 @@ void hashSfile(struct lsof_context *ctx) {
      */
     if (!Sfile || hs)
         return;
-        /*
-         * Allocate hash buckets by (device,inode), file system device, and file
-         * name.
-         */
+    /*
+     * Allocate hash buckets by (device,inode), file system device, and file
+     * name.
+     */
 
 #    if defined(HAVECLONEMAJ)
     if (HAVECLONEMAJ) {
@@ -341,7 +341,7 @@ int is_file_named(struct lsof_context *ctx,
         }
         break;
     case 2:
-        (void)strcpy(Namech, p);
+        (void)snpf(Namech, Namechl, "%s", p);
         break;
 
 #    if defined(HAVECLONEMAJ)
