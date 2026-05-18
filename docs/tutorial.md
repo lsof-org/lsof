@@ -112,9 +112,10 @@ host don't behave as do link counts for files on local disks.
 
 ## Finding Processes Blocking Umount
 
-When you need to unmount a file system with the umount command, you may find the
-operation blocked by a process that has a file open on the file systems.  Lsof
-may be able to help you find the process.  In response to:
+When you need to unmount a file system with the `umount` command or remount it
+with `mount -o remount`, you may find the operation blocked by a process that
+has a file open on the file systems.  Lsof may be able to help you find the
+process.  In response to:
 
 ```shell
 $ lsof <file_system_name>
@@ -124,7 +125,8 @@ Lsof will display all open files on the named file system.  It will also set its
 exit code zero when it finds some open files and non-zero when it doesn't,
 making this type of lsof call useful in shell scripts.  (See section 16.)
 
-Consult the output of the df command for file system names.
+`<file_system_name>` can be a mount point or a device. Use the `df` command to
+find this information.
 
 See the caveat in the preceding section about file references that persist in
 the kernel without open file traces.  That situation may hamper lsof's ability
