@@ -6,8 +6,8 @@ Basic Installation
 
    The following shell commands:
 
-     test -f configure || ./bootstrap
-     ./configure
+     test -f Configure || ./bootstrap
+     ./Configure
      make
      make install
 
