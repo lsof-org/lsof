@@ -117,9 +117,17 @@ int main(int argc, char **argv) {
                     }
                 } else if (f->fd_type == LSOF_FD_NUMERIC) {
                     /* check if fd matches */
-                    if (f->fd_num == fd && f->name &&
-                        strstr(f->name, "LTbasic2-tmp")) {
+                    if (f->fd_num == fd && f->inode == tmp_stat.st_ino &&
+                        f->dev == tmp_stat.st_dev) {
+#ifdef NETBSDV
+                        /* on NetBSD, the file path for new created file may be
+                         * unavailable, skip validation */
                         fd_found = 1;
+#else
+                        if (f->name && strstr(f->name, "LTbasic2-tmp")) {
+                            fd_found = 1;
+                        }
+#endif
                     }
                 }
             }
