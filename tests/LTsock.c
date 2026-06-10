@@ -631,11 +631,11 @@ static char *FindSock(int fn) /* function -- an LT_FBY* value */
      * Complete the option vector and start lsof execution.
      */
 
+    mk_end = ti;
 #if defined(USE_LSOF_C_OPT)
     opv[ti++] = "-C";
 #endif /* defined(USE_LSOF_C_OPT) */
 
-    mk_end = ti;
     opv[ti] = (char *)NULL;
     if ((cem = ExecLsof(opv))) {
         for (tj = mk_start; tj < mk_end; tj++)

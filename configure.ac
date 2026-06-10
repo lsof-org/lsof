@@ -466,7 +466,7 @@ AC_CHECK_DECLS([kvm_getproc2], [], [], [#include <kvm.h>])
 # Detect fs/ptyfs/ptyfs.h header for HASPTYFS
 AC_CHECK_HEADERS([fs/ptyfs/ptyfs.h])
 
-# Detect fs/ptyfs/ptyfs.h header for HASPROCFS
+# Detect miscfs/procfs/procfs.h header for HASPROCFS
 AC_CHECK_HEADERS([miscfs/procfs/procfs.h])
 
 # Detect PFSroot enum for HASPROCFS_PFSROOT
@@ -487,6 +487,8 @@ AS_IF([test x$LSOF_DIALECT = xnetbsd], [
 
 	AC_MSG_NOTICE([lockf.h creation succeeded])
 	CFLAGS="$CFLAGS -DHAS_LOCKF_H"
+	# Hardcode some flags for latest NetBSD versions
+	CFLAGS="$CFLAGS -DHASPROCFS_PFSROOT"
 ])
 
 # Detect fdescfs version for HASFDESCFS
