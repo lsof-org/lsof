@@ -439,7 +439,7 @@ process_overlaid_node:
             ksb.st_ino = (ino_t)2;
             ksb.st_size = DEV_BSIZE;
             ksbs = 1;
-        } else if (Namech[0] && statsafely(Namech, &ksb) == 0)
+        } else if (Namech[0] && statsafely(ctx, Namech, &ksb) == 0)
             ksbs = 1;
         nty = KERNFSNODE;
         break;

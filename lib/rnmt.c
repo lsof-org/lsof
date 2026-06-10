@@ -137,13 +137,13 @@ static void ncache_walk(struct lsof_context *ctx, KA_T ncp,
     if (sanity_check_vnode_impl(&vi) == 0 && sanity_check_namecache(&nc) == 0) {
         lnc = ncache_enter_local(vp, plnc, &nc);
         if (vi.vi_vnode.v_type == VDIR && vi.vi_nc_tree.rbt_root != NULL) {
-            ncache_walk((KA_T)vi.vi_nc_tree.rbt_root, lnc);
+            ncache_walk(ctx, (KA_T)vi.vi_nc_tree.rbt_root, lnc);
         }
     }
     if (left)
-        ncache_walk(left, plnc);
+        ncache_walk(ctx, left, plnc);
     if (right)
-        ncache_walk(right, plnc);
+        ncache_walk(ctx, right, plnc);
 }
 
 void ncache_load(struct lsof_context *ctx) {
@@ -151,7 +151,7 @@ void ncache_load(struct lsof_context *ctx) {
     struct vnode_impl vi;
 
     rootvnode_addr = (KA_T)0;
-    if (get_Nl_value("rootvnode", (struct drive_Nl *)NULL, &rootvnode_addr) <
+    if (get_Nl_value(ctx, "rootvnode", (struct drive_Nl *)NULL, &rootvnode_addr) <
             0 ||
         !rootvnode_addr ||
         kread(ctx, (KA_T)rootvnode_addr, (char *)&rootvnode_addr,
@@ -161,7 +161,7 @@ void ncache_load(struct lsof_context *ctx) {
     }
 
     rb_tree_init(&lnc_rbtree, &lnc_rbtree_ops);
-    ncache_walk((KA_T)vi.vi_nc_tree.rbt_root, 0);
+    ncache_walk(ctx, (KA_T)vi.vi_nc_tree.rbt_root, 0);
 }
 
 static void build_path(char **buf, size_t *remaining, const struct lnc *lnc) {
@@ -187,7 +187,7 @@ static void build_path(char **buf, size_t *remaining, const struct lnc *lnc) {
     *buf += len;
 }
 
-char *ncache_lookup(char *buf, int blen, int *fp) {
+char *ncache_lookup(struct lsof_context *ctx, char *buf, int blen, int *fp) {
     const struct lnc *lnc;
     char *p;
     size_t remaining;
