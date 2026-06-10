@@ -39,6 +39,11 @@ struct lnc {
     char lnc_name[NCHNAMLEN + 1]; /* name */
 };
 
+/* For NetBSD 10 compat */
+#ifndef NC_NLEN
+#define	NC_NLEN(ncp)	((ncp)->nc_nlen)
+#endif
+
 static const rb_tree_ops_t lnc_rbtree_ops = {
     .rbto_compare_nodes = lnc_compare_nodes,
     .rbto_compare_key = lnc_compare_key,
@@ -84,7 +89,7 @@ static struct lnc *ncache_enter_local(KA_T vp, const struct lnc *plnc,
     }
     lnc->lnc_vp = vp;
     lnc->lnc_plnc = plnc;
-    lnc->lnc_nlen = nc->nc_nlen;
+    lnc->lnc_nlen = NC_NLEN(nc);
     memcpy(lnc->lnc_name, nc->nc_name, lnc->lnc_nlen);
     lnc->lnc_name[lnc->lnc_nlen] = 0;
 
@@ -104,13 +109,13 @@ static int sanity_check_namecache(const struct namecache *nc) {
     if (nc->nc_vp == NULL)
         return -1;
 
-    if (nc->nc_nlen > NCHNAMLEN)
+    if (NC_NLEN(nc) > NCHNAMLEN)
         return -1;
 
-    if (nc->nc_nlen == 1 && nc->nc_name[0] == '.')
+    if (NC_NLEN(nc) == 1 && nc->nc_name[0] == '.')
         return -1;
 
-    if (nc->nc_nlen == 2 && nc->nc_name[0] == '.' && nc->nc_name[1] == '.')
+    if (NC_NLEN(nc) == 2 && nc->nc_name[0] == '.' && nc->nc_name[1] == '.')
         return -1;
 
     return 0;
