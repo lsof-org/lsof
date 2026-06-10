@@ -134,6 +134,11 @@ AS_CASE([${host_os}],
 			AC_MSG_WARN([Unsupported NetBSD release: $(uname -r)])
 			AC_MSG_WARN([Configuring for NetBSD 10.0])
 			;;
+		11.*)
+			LSOF_VERS="11000000"
+			AC_MSG_WARN([Unsupported NetBSD release: $(uname -r)])
+			AC_MSG_WARN([Configuring for NetBSD 11.0])
+			;;
 		*)
 			AC_MSG_ERROR([Unknown NetBSD release: $(uname -r)])
 			;;
