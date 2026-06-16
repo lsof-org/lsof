@@ -2662,10 +2662,15 @@ return(0); }
 	echo "!!!WARNING!!!  Unsupported NetBSD version: $LSOF_VSTR"
 	echo "!!!WARNING!!!  Configuring for NetBSD 10.0"
 	;;
+      11.*)
+	LSOF_VERS="11000000"
+	echo "!!!WARNING!!!  Unsupported NetBSD version: $LSOF_VSTR"
+	echo "!!!WARNING!!!  Configuring for NetBSD 11.0"
+	;;
       *)
 	echo "Unknown NetBSD release: $LSOF_VSTR"
-	echo Assuming NetBSD 10.0
-	LSOF_VERS="10000000"
+	echo Assuming NetBSD 11.0
+	LSOF_VERS="11000000"
 	;;
       esac	# }
     fi	# }

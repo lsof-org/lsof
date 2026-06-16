@@ -39,6 +39,11 @@ struct lnc {
     char lnc_name[NCHNAMLEN + 1]; /* name */
 };
 
+/* For NetBSD 10 compat */
+#ifndef NC_NLEN
+#define	NC_NLEN(ncp)	((ncp)->nc_nlen)
+#endif
+
 static const rb_tree_ops_t lnc_rbtree_ops = {
     .rbto_compare_nodes = lnc_compare_nodes,
     .rbto_compare_key = lnc_compare_key,
@@ -84,7 +89,7 @@ static struct lnc *ncache_enter_local(KA_T vp, const struct lnc *plnc,
     }
     lnc->lnc_vp = vp;
     lnc->lnc_plnc = plnc;
-    lnc->lnc_nlen = nc->nc_nlen;
+    lnc->lnc_nlen = NC_NLEN(nc);
     memcpy(lnc->lnc_name, nc->nc_name, lnc->lnc_nlen);
     lnc->lnc_name[lnc->lnc_nlen] = 0;
 
@@ -104,13 +109,13 @@ static int sanity_check_namecache(const struct namecache *nc) {
     if (nc->nc_vp == NULL)
         return -1;
 
-    if (nc->nc_nlen > NCHNAMLEN)
+    if (NC_NLEN(nc) > NCHNAMLEN)
         return -1;
 
-    if (nc->nc_nlen == 1 && nc->nc_name[0] == '.')
+    if (NC_NLEN(nc) == 1 && nc->nc_name[0] == '.')
         return -1;
 
-    if (nc->nc_nlen == 2 && nc->nc_name[0] == '.' && nc->nc_name[1] == '.')
+    if (NC_NLEN(nc) == 2 && nc->nc_name[0] == '.' && nc->nc_name[1] == '.')
         return -1;
 
     return 0;
@@ -137,13 +142,13 @@ static void ncache_walk(struct lsof_context *ctx, KA_T ncp,
     if (sanity_check_vnode_impl(&vi) == 0 && sanity_check_namecache(&nc) == 0) {
         lnc = ncache_enter_local(vp, plnc, &nc);
         if (vi.vi_vnode.v_type == VDIR && vi.vi_nc_tree.rbt_root != NULL) {
-            ncache_walk((KA_T)vi.vi_nc_tree.rbt_root, lnc);
+            ncache_walk(ctx, (KA_T)vi.vi_nc_tree.rbt_root, lnc);
         }
     }
     if (left)
-        ncache_walk(left, plnc);
+        ncache_walk(ctx, left, plnc);
     if (right)
-        ncache_walk(right, plnc);
+        ncache_walk(ctx, right, plnc);
 }
 
 void ncache_load(struct lsof_context *ctx) {
@@ -151,7 +156,7 @@ void ncache_load(struct lsof_context *ctx) {
     struct vnode_impl vi;
 
     rootvnode_addr = (KA_T)0;
-    if (get_Nl_value("rootvnode", (struct drive_Nl *)NULL, &rootvnode_addr) <
+    if (get_Nl_value(ctx, "rootvnode", (struct drive_Nl *)NULL, &rootvnode_addr) <
             0 ||
         !rootvnode_addr ||
         kread(ctx, (KA_T)rootvnode_addr, (char *)&rootvnode_addr,
@@ -161,7 +166,7 @@ void ncache_load(struct lsof_context *ctx) {
     }
 
     rb_tree_init(&lnc_rbtree, &lnc_rbtree_ops);
-    ncache_walk((KA_T)vi.vi_nc_tree.rbt_root, 0);
+    ncache_walk(ctx, (KA_T)vi.vi_nc_tree.rbt_root, 0);
 }
 
 static void build_path(char **buf, size_t *remaining, const struct lnc *lnc) {
@@ -187,7 +192,7 @@ static void build_path(char **buf, size_t *remaining, const struct lnc *lnc) {
     *buf += len;
 }
 
-char *ncache_lookup(char *buf, int blen, int *fp) {
+char *ncache_lookup(struct lsof_context *ctx, char *buf, int blen, int *fp) {
     const struct lnc *lnc;
     char *p;
     size_t remaining;

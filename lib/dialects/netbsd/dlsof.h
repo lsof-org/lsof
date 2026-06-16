@@ -498,9 +498,9 @@ struct mounts {
 extern int Np; /* number of kernel processes */
 
 #    if defined(HASKVMGETPROC2)
-struct kinfo_proc2 *P; /* local process table copy */
+extern struct kinfo_proc2 *P; /* local process table copy */
 #    else              /* ! defined(HASKVMGETPROC2) */
-struct kinfo_proc *P;      /* local process table copy */
+extern struct kinfo_proc *P;      /* local process table copy */
 #    endif             /* defined(HASKVMGETPROC2) */
 
 extern int pgshift; /* kernel's page shift */
