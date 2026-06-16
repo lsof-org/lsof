@@ -597,8 +597,13 @@ provided test systems where I was able to do development work.
 	Ryan Mack (@uptycs-rmack)
 	Chelsy Ratnawat (@ChelsyRatnawat)
 	@nic-kulowiec
-	Jeff Xie (@x-lugoo) and
-	Nick Begg (@momo-trip)
+	Jeff Xie (@x-lugoo)
+	Momoko Shiraishi (@momo-trip)
+	Nick Begg (@neek78)
+	cui (@cuiweixie)
+	Yuriy R (@kurok)
+	Jakob Cornell (@jakobcornell) and
+	Brian Kepha (@AngelofVerdant)
 
 If I have omitted a contributor's name, the fault is wholly mine,
 and I apologize for the error.

@@ -5634,7 +5634,8 @@ Supplement	Regenerated the 4.04 distribution to correct a non-
 
 		[doc] fix minor doc errors in 00README by @nic-kulowiec (#340)
 
-		[aix] Add AIX platform-specific process_file() with filename capture by @ uptycs-rmack (#339)
+		[aix] Add AIX platform-specific process_file() with filename capture by
+		@uptycs-rmack (#339)
 
 		[aix] Fix AIX dialect to work with context refactor by @uptycs-rmack
 		(#338)
@@ -5647,6 +5648,39 @@ Supplement	Regenerated the 4.04 distribution to correct a non-
 		headers
 
 		[darwin] File name is now properly saved in liblsof (#348)
+
+4.99.7		June 16, 2026
+
+		lsof_free_result(): handle result == NULL by @neek78 (#349)
+
+		[linux] Fix missing parenthesis in lstat error message format by
+		@cuiweixie (#350)
+
+		Fix use-after-free in lsof_select_process_regex by @cuiweixie (#351)
+
+		Fix truncated fd numbers in -F field output by @kurok (#352)
+
+		Add -J/-j options for JSON and JSON Lines output format.  -J outputs a
+		JSON envelope with process and file information; -j outputs JSON Lines
+		format where each line is a JSON object representing a file descriptor.
+		by @kurok (#353)
+
+		Document non-UTF-8 encoding behavior in JSON output by @kurok (#355)
+
+		Follow autoconf conventions for --enable/--disable help output
+		by @kurok (#356)
+
+		Skip building liblsof when --disable-liblsof is given by @kurok (#357)
+
+		[linux] Display connection state for UDP sockets with -T option by
+		@kurok (#358)
+
+		Add more information to the tutorial about debugging busy
+		mounts by @jakobcornell (#360)
+
+		Fix case sensitivity in INSTALL commands by @AngelofVerdant (#361)
+
+		[netbsd] Fix support for NetBSD 10/11 by @jiegec (#363)
 
 4.9?.?		????????? ??, ????
 
