@@ -80,7 +80,8 @@ static void getmemsz(struct lsof_context *ctx, pid_t pid) {
             if (!p->P_VMSPACE ||
                 kread(ctx, (KA_T)p->P_VMSPACE, (char *)&vm, sizeof(vm)))
                 return;
-            Lf->sz = (SZOFFTYPE)ctob(vm.vm_tsize + vm.vm_dsize + vm.vm_ssize);
+            Lf->sz = (SZOFFTYPE)((vm.vm_tsize + vm.vm_dsize + vm.vm_ssize) *
+                                 sysconf(_SC_PAGESIZE));
             Lf->sz_def = 1;
             return;
         }
