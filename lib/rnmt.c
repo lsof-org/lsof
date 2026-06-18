@@ -169,6 +169,7 @@ void ncache_load(struct lsof_context *ctx) {
     ncache_walk(ctx, (KA_T)vi.vi_nc_tree.rbt_root, 0);
 }
 
+#include <assert.h>
 static void build_path(char **buf, size_t *remaining, const struct lnc *lnc) {
     size_t len;
 
@@ -176,13 +177,13 @@ static void build_path(char **buf, size_t *remaining, const struct lnc *lnc) {
         return;
 
     build_path(buf, remaining, lnc->lnc_plnc);
-    if (remaining == 0) {
+    if (*remaining == 0) {
         return;
     }
     if (lnc->lnc_plnc != NULL) {
         **buf = '/';
         (*buf)++;
-        remaining--;
+        (*remaining)--;
     }
     len = lnc->lnc_nlen;
     if (*remaining < len)
