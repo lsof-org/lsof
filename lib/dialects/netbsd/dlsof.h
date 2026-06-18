@@ -437,7 +437,7 @@ typedef u_long KA_T;
 #    endif                           /* !defined(MAXSYSCMDL) */
 
 #    if defined(N_UNIXV)
-#        define N_UNIX_TMP(x) #        x
+#        define N_UNIX_TMP(x) #x
 #        define N_UNIX_STR(x) N_UNIX_TMP(x)
 #        define N_UNIX N_UNIX_STR(N_UNIXV)
 #    endif /* defined(N_UNIXV) */
@@ -499,9 +499,9 @@ extern int Np; /* number of kernel processes */
 
 #    if defined(HASKVMGETPROC2)
 extern struct kinfo_proc2 *P; /* local process table copy */
-#    else              /* ! defined(HASKVMGETPROC2) */
-extern struct kinfo_proc *P;      /* local process table copy */
-#    endif             /* defined(HASKVMGETPROC2) */
+#    else                     /* ! defined(HASKVMGETPROC2) */
+extern struct kinfo_proc *P; /* local process table copy */
+#    endif                    /* defined(HASKVMGETPROC2) */
 
 extern int pgshift; /* kernel's page shift */
 
@@ -567,6 +567,9 @@ struct sfile {
 #        define VNODE_VFLAG v_flag
 #        define NCACHE_VROOT VROOT
 #    endif /* VV_ROOT */
+
+#    include <arpa/inet.h>               /* for inet_pton */
+extern int open(const char *, int, ...); /* for open */
 
 struct lsof_context_dialect {};
 
