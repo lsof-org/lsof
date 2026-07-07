@@ -221,11 +221,14 @@ EXTRA_DIST += 00.README.FIRST 00CREDITS 00DCACHE 00DIALECTS 00DIST 00FAQ 00LSOF-
 # Testing
 EXTRA_DIST += tests/00README tests/TestDB tests/CkTestDB tests/Makefile tests/LsofTest.h check.bash
 
+if ENABLE_MANPAGES
 # Manpages
 lsof.man: Lsof.8 version 00DIALECTS
 	soelim < Lsof.8 > $@
 man8_MANS = lsof.man
 EXTRA_DIST += Lsof.8
+endif
+
 # Fix distcheck error
 clean-local:
 	rm -rf lsof.man

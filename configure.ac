@@ -283,6 +283,11 @@ AS_IF([test "x$enable_no_sock_security" = xyes], [
 	])
 ])
 
+# --disable-manpages to stop building and installing lsof.8
+AC_ARG_ENABLE(manpages, AS_HELP_STRING([--disable-manpages],
+	[do not build and install lsof.8]), [], [enable_manpages=yes])
+AM_CONDITIONAL([ENABLE_MANPAGES], [test "x$enable_manpages" = xyes])
+
 # Check rpc/rpc.h or libtirpc
 # with_libtirpc=yes/no/auto
 AC_ARG_WITH(libtirpc, AS_HELP_STRING([--with-libtirpc],
