@@ -1330,7 +1330,7 @@ static int printinaddr(struct lsof_context *ctx) {
                 goto addr_too_long;
             (void)snpf(np, nl, ":%s", port);
             np += len + 1;
-            nl -= len - 1;
+            nl -= len + 1;
         }
     }
     if (Namech[0]) {
