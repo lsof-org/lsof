@@ -1861,7 +1861,7 @@ int enter_state_spec(struct lsof_context *ctx,
         if (tx) {
             if (UdpSt) {
                 for (i = 0; i < UdpNstates; i++) {
-                    if (!strcasecmp(ns, UdpSt[i])) {
+                    if (UdpSt[i] && !strcasecmp(ns, UdpSt[i])) {
                         f = 1;
                         break;
                     }
@@ -1870,7 +1870,7 @@ int enter_state_spec(struct lsof_context *ctx,
         } else {
             if (TcpSt) {
                 for (i = 0; i < TcpNstates; i++) {
-                    if (!strcasecmp(ns, TcpSt[i])) {
+                    if (TcpSt[i] && !strcasecmp(ns, TcpSt[i])) {
                         f = 1;
                         break;
                     }
