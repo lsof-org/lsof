@@ -94,7 +94,7 @@ struct l_fdinfo {
 
 #define EPOLL_MAX_TFDS 32
     int tfds[EPOLL_MAX_TFDS];
-    size_t tfd_count;
+    ssize_t tfd_count;
 };
 
 /*
