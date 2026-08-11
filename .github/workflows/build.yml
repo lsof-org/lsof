@@ -57,3 +57,48 @@ jobs:
         make
         DESTDIR=$PWD/prefix make install
         make check
+
+  freebsd:
+    strategy:
+      fail-fast: false
+      matrix:
+        release: ["15.1", "14.3"]
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v7
+    - name: build and test in a FreeBSD vm
+      uses: vmactions/freebsd-vm@v1
+      with:
+        release: ${{ matrix.release }}
+        usesh: true
+        copyback: false
+        prepare: |
+          pkg install -y bash git autoconf automake libtool groff pkgconf
+        run: |
+          set -e
+          src=$(pwd)
+
+          # Both build paths cut "struct lock_owner" out of the kernel sources
+          # (configure.ac: HEADER_GENERATE lockf_owner.h), and the release
+          # image ships an empty /usr/src, so configure stops with
+          #     configure: error: can't read /kern/kern_lockf.c
+          # unless the sources are there.  Unpack just usr/src/sys out of the
+          # release source set; that is ~15s and about 580MB on disk.
+          rel=$(uname -r | sed 's/-p[0-9]*$//')
+          fetch -o /tmp/src.txz "https://download.freebsd.org/releases/$(uname -m)/${rel}/src.txz"
+          tar -xf /tmp/src.txz -C / usr/src/sys
+
+          # autotools build, out of tree so the source tree stays pristine for
+          # the legacy Configure run below
+          autoreconf -vif
+          mkdir /tmp/build
+          cd /tmp/build
+          "$src"/configure
+          make
+          make check || { cat test-suite.log; exit 1; }
+          cd "$src"
+
+          # legacy Configure, the path .cirrus.yml used to cover
+          ./Configure -n freebsd
+          make
+          bash ./check.bash freebsd
