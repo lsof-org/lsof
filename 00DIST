@@ -273,8 +273,9 @@ The 00QUICKSTART file won't help you build or install lsof, but it
 will cut through the density of the lsof man page, giving you more
 readily an idea of what you can do with lsof.
 
-For information on building and installing lsof, consult the 00README
-file of the lsof distribution.
+For information on building and installing lsof, please refer to the
+INSTALL file in the distribution. It contains the recommended steps
+for building lsof on modern Linux systems.
 
 
 Limiting, Filtering, and Selecting Lsof Output
