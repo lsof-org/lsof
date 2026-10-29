@@ -33,6 +33,8 @@
 #include "lsof.h"
 #include <limits.h>
 
+extern int SoftErr;
+
 /*
  * Local definitions
  */
@@ -587,7 +589,7 @@ int enter_efsys(struct lsof_context *ctx, /* context */
             (void)fprintf(stderr,
                           "%s: -e not followed by a file system path: \"%s\"\n",
                           Pn, e);
-        return (1);
+        SoftErr = 1; return (1);
     }
     if (!(ec = mkstrcpy(e, (MALLOC_S *)NULL))) {
         (void)fprintf(stderr, "%s: no space for -e string: ", Pn);
@@ -597,8 +599,10 @@ int enter_efsys(struct lsof_context *ctx, /* context */
     if (rdlnk)
         path = ec;
     else {
-        if (!(path = Readlink(ctx, ec)))
+        if (!(path = Readlink(ctx, ec))) {
+            SoftErr = 1;
             return (1);
+        }
     }
     /*
      * Remove terminating `/' characters from paths longer than one.
@@ -734,6 +738,7 @@ static int enter_fd_lst(struct lsof_context *ctx, /* context */
                               excl ? "exclude" : "include",
                               FdlTy ? "exclude" : "include", buf);
             }
+            SoftErr = 1;
             return (1);
         }
     }
@@ -869,10 +874,12 @@ int enter_dir(struct lsof_context *ctx, /* context */
         if (!Fwarn)
             (void)fprintf(stderr, "%s: +d not followed by a directory path\n",
                           Pn);
+        SoftErr = 1; return (1);
+    }
+    if (!(dn = Readlink(ctx, d))) {
+        SoftErr = 1;
         return (1);
     }
-    if (!(dn = Readlink(ctx, d)))
-        return (1);
     if (statsafely(ctx, dn, &sb)) {
         if (!Fwarn) {
             en = errno;
@@ -884,7 +891,7 @@ int enter_dir(struct lsof_context *ctx, /* context */
             (void)free((FREE_P *)dn);
             dn = (char *)NULL;
         }
-        return (1);
+        SoftErr = 1; return (1);
     }
     if ((sb.st_mode & S_IFMT) != S_IFDIR) {
         if (!Fwarn) {
@@ -895,7 +902,7 @@ int enter_dir(struct lsof_context *ctx, /* context */
             (void)free((FREE_P *)dn);
             dn = (char *)NULL;
         }
-        return (1);
+        SoftErr = 1; return (1);
     }
 
 #if defined(HASSPECDEVD)
@@ -1114,7 +1121,7 @@ int enter_dir(struct lsof_context *ctx, /* context */
                           "%s: WARNING: no files found in directory: ", Pn);
             safestrprt(d, stderr, 1);
         }
-        return (1);
+        SoftErr = 1; return (1);
     }
     return (0);
 }

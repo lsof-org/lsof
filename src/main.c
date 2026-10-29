@@ -103,6 +103,8 @@ static void select_default_fields(void) {
  * main() - main function for lsof
  */
 
+int SoftErr = 0;
+
 int main(int argc, char *argv[]) {
     enum ExitStatus rv;
     int gopt_rv;
@@ -1178,6 +1180,8 @@ int main(int argc, char *argv[]) {
             select_default_fields();
     }
 
+    if (err && Fwarn && SoftErr && !Fhelp && !fh && !version && !DChelp)
+        Error(ctx);
     if (DChelp || err || Fhelp || fh || version)
         usage(ctx, err ? 1 : 0, fh, version);
     /*
