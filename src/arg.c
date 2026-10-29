@@ -1604,6 +1604,8 @@ int enter_network_address(struct lsof_context *ctx, /* context */
     }
     if (sn)
         (void)free((FREE_P *)sn);
+    if (n.proto)
+        (void)free((FREE_P *)n.proto);
     if (hn)
         (void)free((FREE_P *)hn);
     return (0);
@@ -1627,18 +1629,6 @@ static int enter_nwad(struct lsof_context *ctx, /* context */
     static int na = 0;
     struct nwad nc;
     struct nwad *np;
-    /*
-     * Allocate space for the argument specification.
-     */
-    if (strlen(s)) {
-        if (!(n->arg = mkstrcpy(s, (MALLOC_S *)NULL))) {
-            (void)fprintf(stderr, "%s: no space for Internet argument: -i ",
-                          Pn);
-            safestrprt(s, stderr, 1);
-            Error(ctx);
-        }
-    } else
-        n->arg = (char *)NULL;
     /*
      * Loop through all hostent addresses.
      */
@@ -1687,8 +1677,35 @@ static int enter_nwad(struct lsof_context *ctx, /* context */
         }
         /*
          * Construct and link the address specification.
+         *
+         * Each nwad owns copies of its argument and protocol strings.  A
+         * hostent may contain several addresses, so sharing the strings
+         * between the resulting nwad entries would make lsof_destroy() free
+         * the same allocation more than once.
          */
         *np = nc;
+        np->arg = (char *)NULL;
+        if (strlen(s)) {
+            if (!(np->arg = mkstrcpy(s, (MALLOC_S *)NULL))) {
+                (void)fprintf(stderr,
+                              "%s: no space for Internet argument: -i ", Pn);
+                safestrprt(s, stderr, 1);
+                (void)free((FREE_P *)np);
+                Error(ctx);
+            }
+        }
+        if (n->proto) {
+            if (!(np->proto = mkstrcpy(n->proto, (MALLOC_S *)NULL))) {
+                (void)fprintf(stderr, "%s: no space for protocol name: -i ",
+                              Pn);
+                safestrprt(s, stderr, 1);
+                if (np->arg)
+                    (void)free((FREE_P *)np->arg);
+                (void)free((FREE_P *)np);
+                Error(ctx);
+            }
+        } else
+            np->proto = (char *)NULL;
         np->sport = sp;
         np->eport = ep;
         np->f = 0;
