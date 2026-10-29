@@ -62,7 +62,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        release: ["15.1", "14.3"]
+        release: ["15.1", "14.5"]
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v7
@@ -85,7 +85,15 @@ jobs:
           # unless the sources are there.  Unpack just usr/src/sys out of the
           # release source set; that is ~15s and about 580MB on disk.
           rel=$(uname -r | sed 's/-p[0-9]*$//')
-          fetch -o /tmp/src.txz "https://download.freebsd.org/releases/$(uname -m)/${rel}/src.txz"
+          if ! fetch -o /tmp/src.txz "https://download.freebsd.org/releases/$(uname -m)/${rel}/src.txz"; then
+            # FreeBSD removes release artifacts from download.freebsd.org
+            # once a release reaches EOL, but the old-releases archive keeps
+            # them.  Fall back there so a release removed from the main
+            # mirror can still provide its sources.
+            echo "warning: source set not on download.freebsd.org, trying archive.freebsd.org"
+            rm -f /tmp/src.txz
+            fetch -o /tmp/src.txz "https://archive.freebsd.org/old-releases/$(uname -m)/${rel}/src.txz"
+          fi
           tar -xf /tmp/src.txz -C / usr/src/sys
 
           # autotools build, out of tree so the source tree stays pristine for
