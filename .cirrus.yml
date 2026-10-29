@@ -2,13 +2,15 @@ task:
   freebsd_instance:
     cpu: 1
     matrix:
-      - image_family: freebsd-15-0-amd64-zfs
-      - image_family: freebsd-14-3
+      - image_name: freebsd-15-1-release-amd64-ufs
+      - image_name: freebsd-14-5-release-amd64-ufs
   install_script: pkg install -y bash git autoconf automake libtool groff pkgconf
   kernel_src_script: |
     uname -r
-    if [[ $(uname -r) == "14.3-RELEASE" ]]; then
-      git clone --branch releng/14.3 https://git.FreeBSD.org/src.git /usr/src
+    if [ ! -f /usr/src/sys/kern/kern_lockf.c ]; then
+      rm -rf /usr/src
+      rel=$(uname -r | sed 's/-p[0-9]*$//; s/-RELEASE$//')
+      git clone --branch "releng/${rel}" https://git.FreeBSD.org/src.git /usr/src
     fi;
   build_script:
     - ./Configure -n freebsd
