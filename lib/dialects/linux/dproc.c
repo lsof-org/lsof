@@ -891,6 +891,7 @@ static int process_id(struct lsof_context *ctx, /* context */
 
 #if defined(HASSELINUX)
     cntxlist_t *cntxp;
+    char *cntx;
 #endif /* defined(HASSELINUX) */
 
     /*
@@ -1095,13 +1096,15 @@ static int process_id(struct lsof_context *ctx, /* context */
 #if defined(HASSELINUX)
     /*
      * Process the PID's SELinux context.
+     *
+     * getpidcon() allocates a context that must be released with freecon().
+     * Copy it into a plain malloc'd string so every Lp->cntx value has the
+     * same ownership and can be released with free().
      */
-    /*
-     * match the valid contexts.
-     */
+    Lp->cntx = (char *)NULL;
+    cntx = (char *)NULL;
     errno = 0;
-    if (getpidcon(pid, &Lp->cntx) == -1) {
-        Lp->cntx = (char *)NULL;
+    if (getpidcon(pid, &cntx) == -1) {
         if (!Fwarn) {
             (void)snpf(nmabuf, sizeof(nmabuf), "(getpidcon: %s)",
                        strerror(errno));
@@ -1111,17 +1114,26 @@ static int process_id(struct lsof_context *ctx, /* context */
                 Error(ctx);
             }
         }
-    } else if (CntxArg) {
+    } else {
+        Lp->cntx = strdup(cntx);
+        freecon(cntx);
+        if (!Lp->cntx) {
+            (void)fprintf(stderr, "%s: no context space: PID %ld", Pn,
+                          (long)Lp->pid);
+            Error(ctx);
+        }
+        if (CntxArg) {
 
-        /*
-         * See if context includes the process.
-         */
-        for (cntxp = CntxArg; cntxp; cntxp = cntxp->next) {
-            if (cmp_cntx_eq(Lp->cntx, cntxp->cntx)) {
-                cntxp->f = 1;
-                Lp->pss |= PS_PRI;
-                Lp->sf |= SELCNTX;
-                break;
+            /*
+             * See if context includes the process.
+             */
+            for (cntxp = CntxArg; cntxp; cntxp = cntxp->next) {
+                if (cmp_cntx_eq(Lp->cntx, cntxp->cntx)) {
+                    cntxp->f = 1;
+                    Lp->pss |= PS_PRI;
+                    Lp->sf |= SELCNTX;
+                    break;
+                }
             }
         }
     }

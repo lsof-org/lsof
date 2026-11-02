@@ -500,6 +500,9 @@ void free_lproc(struct lproc *lp) {
         lp->tcmd = (char *)NULL;
     }
 #endif /* defined(HASTASKS) */
+#if defined(HASSELINUX)
+    CLEAN(lp->cntx);
+#endif /* defined(HASSELINUX) */
 }
 
 /*
