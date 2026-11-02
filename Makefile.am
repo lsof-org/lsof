@@ -213,7 +213,7 @@ tests_LTunix_CFLAGS = @LSOF_TEST_CFLAGS@ -I$(top_srcdir)/include
 if INSTALL_LIBLSOF
 TESTS += tests/LTbasic2
 check_PROGRAMS += tests/LTbasic2
-tests_LTbasic2_CFLAGS = -I$(top_srcdir)/include
+tests_LTbasic2_CFLAGS = @LSOF_TEST_CFLAGS@ -I$(top_srcdir)/include
 tests_LTbasic2_LDADD = liblsof.la
 endif
 
