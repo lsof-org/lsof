@@ -560,7 +560,7 @@ enum lsof_error lsof_freeze(struct lsof_context *ctx);
  *
  * If the context is not frozen, lsof_freeze() will be called.
  *
- * \return LSOF_INVALID_ARGUMENT if either pointer argument is NULL
+ * \return LSOF_ERROR_INVALID_ARGUMENT if either pointer argument is NULL
  *
  * \since API version 1
  */
