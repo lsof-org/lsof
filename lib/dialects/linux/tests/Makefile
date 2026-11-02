@@ -7,6 +7,7 @@ HELPERS = \
 	pipe \
 	pty \
 	ux \
+	udp_state \
 	mmap \
 	unbal_parens \
 	\
