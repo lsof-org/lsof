@@ -65,8 +65,9 @@ int main(int argc, char *argv[]) {
                     fprintf(stderr, "filtered FD returned by gather\n");
                     goto cleanup;
                 }
+                /* NAME may include filesystem details after the pathname. */
                 if (file->fd_type == LSOF_FD_NUMERIC && file->fd_num == fd &&
-                    file->name && !strcmp(file->name, resolved))
+                    file->name && strstr(file->name, resolved))
                     found = 1;
             }
         }
