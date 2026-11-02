@@ -700,7 +700,12 @@ cleanup:
     /* Cleanup all allocated resources on failure */
     if (user_procs) {
         for (int j = 0; j < upi; j++) {
-            CLEAN(user_procs[j].files);
+            if (user_procs[j].files) {
+                for (size_t k = 0; k < user_procs[j].num_files; k++) {
+                    CLEAN(user_procs[j].files[k].name);
+                }
+                CLEAN(user_procs[j].files);
+            }
             CLEAN(user_procs[j].command);
             CLEAN(user_procs[j].task_cmd);
             CLEAN(user_procs[j].solaris_zone);
@@ -709,8 +714,7 @@ cleanup:
         CLEAN(user_procs);
     }
     if (res) {
-        CLEAN(res->selections);
-        CLEAN(res);
+        lsof_free_result(res);
     }
     return ret;
 }
