@@ -383,6 +383,51 @@ static int hex_ipv6_to_in6(char *as, struct in6_addr *ad);
 #endif /* defined(HASIPv6) */
 
 /*
+ * excluded_by_state() -- check a TCP or UDP /proc record against the -s
+ *			  state inclusions and exclusions of its protocol
+ * return: 1 == exclude the file
+ *	   0 == keep processing it
+ */
+static int excluded_by_state(struct lsof_context *ctx, /* context */
+                             int proto, /* 0 = TCP, else UDP or UDPLITE */
+                             int state) /* state from the /proc record */
+{
+    unsigned char *inc, *exc;
+    int i, inn, excn, n, other_inn;
+
+    if (proto == 0) {
+        i = state + TcpStOff;
+        n = TcpNstates;
+        inc = TcpStI;
+        exc = TcpStX;
+        inn = TcpStIn;
+        excn = TcpStXn;
+        other_inn = UdpStIn;
+    } else {
+        i = state + UdpStOff;
+        n = UdpNstates;
+        inc = UdpStI;
+        exc = UdpStX;
+        inn = UdpStIn;
+        excn = UdpStXn;
+        other_inn = TcpStIn;
+    }
+    if (excn && i >= 0 && i < n && exc[i])
+        return (1);
+    if (inn) {
+        if (i >= 0 && i < n && inc[i]) {
+            inc[i] = 2;
+            return (0);
+        }
+        return (1);
+    }
+    /*
+     * Only states of the other protocol were asked for.
+     */
+    return (other_inn ? 1 : 0);
+}
+
+/*
  * build_IPstates() -- build the TCP and UDP state tables
  */
 void build_IPstates(struct lsof_context *ctx) {
@@ -3853,32 +3898,9 @@ void process_proc_sock(struct lsof_context *ctx, /* context */
          * and foreign IPv6 addresses; save the type and protocol; and
          * (optionally) save the queue sizes.
          */
-        i = tp6->state + TcpStOff;
-        if (TcpStXn) {
-
-            /*
-             * Check for state exclusion.
-             */
-            if (i >= 0 && i < TcpNstates) {
-                if (TcpStX[i]) {
-                    Lf->sf |= SELEXCLF;
-                    return;
-                }
-            }
-        }
-        if (TcpStIn) {
-
-            /*
-             * Check for state inclusion.
-             */
-            if (i >= 0 && i < TcpNstates) {
-                if (TcpStI[i])
-                    TcpStI[i] = 2;
-                else {
-                    Lf->sf |= SELEXCLF;
-                    return;
-                }
-            }
+        if (excluded_by_state(ctx, tp6->proto, tp6->state)) {
+            Lf->sf |= SELEXCLF;
+            return;
         }
         if (Fnet && (FnetTy != 4))
             Lf->sf |= SELNET;
@@ -3961,32 +3983,9 @@ void process_proc_sock(struct lsof_context *ctx, /* context */
          * save the local and foreign IPv4 addresses; save the type and
          * protocol; and (optionally) save the queue sizes.
          */
-        i = tp->state + TcpStOff;
-        if (TcpStXn) {
-
-            /*
-             * Check for state exclusion.
-             */
-            if (i >= 0 && i < TcpNstates) {
-                if (TcpStX[i]) {
-                    Lf->sf |= SELEXCLF;
-                    return;
-                }
-            }
-        }
-        if (TcpStIn) {
-
-            /*
-             * Check for state inclusion.
-             */
-            if (i >= 0 && i < TcpNstates) {
-                if (TcpStI[i])
-                    TcpStI[i] = 2;
-                else {
-                    Lf->sf |= SELEXCLF;
-                    return;
-                }
-            }
+        if (excluded_by_state(ctx, tp->proto, tp->state)) {
+            Lf->sf |= SELEXCLF;
+            return;
         }
         if (Fnet && (FnetTy != 6))
             Lf->sf |= SELNET;
