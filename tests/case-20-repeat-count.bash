@@ -16,4 +16,11 @@ if [ $(echo "$output" | grep -e '=======' | wc -l) != 5 ]; then
     exit 1
 fi
 
+# The count must not be parsed again as a -c option
+output=$(${lsof} -r1c2 -a -p $$ -Fp)
+echo "$output" >> $report
+if [ $(echo "$output" | grep -e "^p$$\$" | wc -l) != 2 ]; then
+    exit 1
+fi
+
 exit 0

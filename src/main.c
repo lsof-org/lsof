@@ -800,6 +800,9 @@ int main(int argc, char *argv[]) {
                 RptMaxCount = i;
             }
 
+            if (!*cp)
+                break;
+
             if (*cp != LSOF_FID_MARK) {
                 GOx1 = GObk[0];
                 GOx2 = GObk[1] + n;

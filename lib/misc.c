@@ -1061,6 +1061,11 @@ char *Readlink(struct lsof_context *ctx,
                 (void)fprintf(stderr, "%s: readlink() path too long: ", Pn);
                 safestrprt(Readlink_op ? Readlink_op : arg, stderr, 1);
             }
+            for (i = 0; i < Readlink_sx; i++) {
+                (void)free((FREE_P *)Readlink_stk[i]);
+                Readlink_stk[i] = (char *)NULL;
+            }
+            Readlink_sx = 0;
             Readlink_op = (char *)NULL;
             return ((char *)NULL);
         }
@@ -1134,18 +1139,19 @@ char *Readlink(struct lsof_context *ctx,
         alen += (llen + slen - 1);
     }
     /*
-     * If the assembled path and argument are the same, free all but the
-     * last string in the stack, and return the argument.
+     * If the assembled path and argument are the same, return a copy of the
+     * argument and release all strings accumulated on the Readlink stack.
      */
     if (strcmp(arg, abuf) == 0) {
+        char *result = mkstrcpy(arg, NULL);
+
         for (i = 0; i < Readlink_sx; i++) {
-            if (i < (Readlink_sx - 1))
-                (void)free((FREE_P *)Readlink_stk[i]);
+            (void)free((FREE_P *)Readlink_stk[i]);
             Readlink_stk[i] = (char *)NULL;
         }
         Readlink_sx = 0;
         Readlink_op = (char *)NULL;
-        return mkstrcpy(arg, NULL);
+        return (result);
     }
     /*
      * If the assembled path and argument are different, add it to the

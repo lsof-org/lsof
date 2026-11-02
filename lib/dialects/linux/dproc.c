@@ -208,7 +208,7 @@ static MALLOC_S alloc_cbf(struct lsof_context *ctx, /* context */
  */
 
 void gather_proc_info(struct lsof_context *ctx) {
-    char *cmd = NULL, *tcmd;
+    char *cmd = NULL, *tcmd = NULL;
     struct dirent *dp;
     unsigned char ht, pidts;
     int n, nl, pgid, pid, ppid, prv, rv, tid, tpgid, tppid, tx;
@@ -395,8 +395,10 @@ void gather_proc_info(struct lsof_context *ctx) {
                      * Check the task state.
                      */
                     rv = read_id_stat(ctx, tidpath, tid, &tcmd, &tppid, &tpgid);
-                    if ((rv < 0) || (rv == 1))
+                    if ((rv < 0) || (rv == 1)) {
+                        CLEAN(tcmd);
                         continue;
+                    }
                     /*
                      * Attempt to record the task.
                      */
@@ -404,6 +406,7 @@ void gather_proc_info(struct lsof_context *ctx) {
                                     pid, tppid, tpgid, tid, tcmd)) {
                         ht = 1;
                     }
+                    CLEAN(tcmd);
                 }
                 (void)closedir(ts);
             }
@@ -434,6 +437,7 @@ void gather_proc_info(struct lsof_context *ctx) {
     CLEAN(taskpath);
     CLEAN(tidpath);
     CLEAN(cmd);
+    CLEAN(tcmd);
     if (ps) {
         closedir(ps);
         ps = NULL;
@@ -891,6 +895,7 @@ static int process_id(struct lsof_context *ctx, /* context */
 
 #if defined(HASSELINUX)
     cntxlist_t *cntxp;
+    char *cntx;
 #endif /* defined(HASSELINUX) */
 
     /*
@@ -1095,13 +1100,15 @@ static int process_id(struct lsof_context *ctx, /* context */
 #if defined(HASSELINUX)
     /*
      * Process the PID's SELinux context.
+     *
+     * getpidcon() allocates a context that must be released with freecon().
+     * Copy it into a plain malloc'd string so every Lp->cntx value has the
+     * same ownership and can be released with free().
      */
-    /*
-     * match the valid contexts.
-     */
+    Lp->cntx = (char *)NULL;
+    cntx = (char *)NULL;
     errno = 0;
-    if (getpidcon(pid, &Lp->cntx) == -1) {
-        Lp->cntx = (char *)NULL;
+    if (getpidcon(pid, &cntx) == -1) {
         if (!Fwarn) {
             (void)snpf(nmabuf, sizeof(nmabuf), "(getpidcon: %s)",
                        strerror(errno));
@@ -1111,17 +1118,26 @@ static int process_id(struct lsof_context *ctx, /* context */
                 Error(ctx);
             }
         }
-    } else if (CntxArg) {
+    } else {
+        Lp->cntx = strdup(cntx);
+        freecon(cntx);
+        if (!Lp->cntx) {
+            (void)fprintf(stderr, "%s: no context space: PID %ld", Pn,
+                          (long)Lp->pid);
+            Error(ctx);
+        }
+        if (CntxArg) {
 
-        /*
-         * See if context includes the process.
-         */
-        for (cntxp = CntxArg; cntxp; cntxp = cntxp->next) {
-            if (cmp_cntx_eq(Lp->cntx, cntxp->cntx)) {
-                cntxp->f = 1;
-                Lp->pss |= PS_PRI;
-                Lp->sf |= SELCNTX;
-                break;
+            /*
+             * See if context includes the process.
+             */
+            for (cntxp = CntxArg; cntxp; cntxp = cntxp->next) {
+                if (cmp_cntx_eq(Lp->cntx, cntxp->cntx)) {
+                    cntxp->f = 1;
+                    Lp->pss |= PS_PRI;
+                    Lp->sf |= SELCNTX;
+                    break;
+                }
             }
         }
     }
@@ -1672,6 +1688,8 @@ static int read_id_stat(struct lsof_context *ctx, /* context */
     int cbfa = 0;
     FILE *fs;
     int ret = 0;
+
+    CLEAN(*cmd);
     /*
      * Open the stat file path, assign a page size buffer to its stream,
      * and read the entire file.
@@ -1768,6 +1786,7 @@ read_id_stat_exit:
     CLEAN(cbf);
     if (fs)
         (void)fclose(fs);
+    CLEAN(*cmd);
     return (-1);
 }
 

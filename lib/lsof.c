@@ -700,13 +700,21 @@ cleanup:
     /* Cleanup all allocated resources on failure */
     if (user_procs) {
         for (int j = 0; j < upi; j++) {
-            CLEAN(user_procs[j].files);
+            if (user_procs[j].files) {
+                for (size_t k = 0; k < user_procs[j].num_files; k++) {
+                    CLEAN(user_procs[j].files[k].name);
+                }
+                CLEAN(user_procs[j].files);
+            }
+            CLEAN(user_procs[j].command);
+            CLEAN(user_procs[j].task_cmd);
+            CLEAN(user_procs[j].solaris_zone);
+            CLEAN(user_procs[j].selinux_context);
         }
         CLEAN(user_procs);
     }
     if (res) {
-        CLEAN(res->selections);
-        CLEAN(res);
+        lsof_free_result(res);
     }
     return ret;
 }
@@ -762,6 +770,16 @@ void lsof_destroy(struct lsof_context *ctx) {
         Lmist = 0;
     }
 
+    /* Free Readlink() stack */
+    if (Readlink_stk) {
+        for (i = 0; i < Readlink_sx; i++) {
+            CLEAN(Readlink_stk[i]);
+        }
+        CLEAN(Readlink_stk);
+    }
+    Readlink_ss = Readlink_sx = 0;
+    Readlink_op = (char *)NULL;
+
     /* state table */
 #if !defined(USE_LIB_PRINT_TCPTPI)
     for (i = 0; i < TcpNstates; i++) {
@@ -769,10 +787,14 @@ void lsof_destroy(struct lsof_context *ctx) {
     }
     CLEAN(TcpSt);
 #endif /* !defined(USE_LIB_PRINT_TCPTPI) */
+    CLEAN(TcpStI);
+    CLEAN(TcpStX);
     for (i = 0; i < UdpNstates; i++) {
         CLEAN(UdpSt[i]);
     }
     CLEAN(UdpSt);
+    CLEAN(UdpStI);
+    CLEAN(UdpStX);
     CLEAN(Pn);
 
     /* Free fd list */
@@ -810,16 +832,62 @@ void lsof_destroy(struct lsof_context *ctx) {
         Sfile = NULL;
     }
 
+    /* Free -e filesystem list */
+    {
+        efsys_list_t *ep, *ep_next;
+        for (ep = Efsysl; ep; ep = ep_next) {
+            ep_next = ep->next;
+            CLEAN(ep->path);
+            CLEAN(ep);
+        }
+        Efsysl = NULL;
+    }
+
+#if defined(HASSELINUX)
+    /* Free SELinux context selection list */
+    {
+        cntxlist_t *cntxp, *cntx_next;
+        for (cntxp = CntxArg; cntxp; cntxp = cntx_next) {
+            cntx_next = cntxp->next;
+            CLEAN(cntxp);
+        }
+        CntxArg = NULL;
+    }
+#endif /* defined(HASSELINUX) */
+
+#if defined(HASZONES)
+    /* Free zone selection list */
+    if (ZoneArg) {
+        int zh;
+        znhash_t *zp, *zp_next;
+        for (zh = 0; zh < HASHZONE; zh++) {
+            for (zp = ZoneArg[zh]; zp; zp = zp_next) {
+                zp_next = zp->next;
+                CLEAN(zp);
+            }
+        }
+        CLEAN(ZoneArg);
+    }
+#endif /* defined(HASZONES) */
+
+#if defined(HASPROCFS)
+    /* Free procfs selection list */
+    {
+        struct procfsid *pfi, *pfi_next;
+        for (pfi = Procfsid; pfi; pfi = pfi_next) {
+            pfi_next = pfi->next;
+            CLEAN(pfi->nm);
+            CLEAN(pfi);
+        }
+        Procfsid = NULL;
+    }
+#endif /* defined(HASPROCFS) */
+
     /* Free hashSfile hash buckets */
-    CLEAN(HbyFdi);
-    HbyFdiCt = 0;
-    CLEAN(HbyFrd);
-    HbyFrdCt = 0;
-    CLEAN(HbyFsd);
-    HbyFsdCt = 0;
-    CLEAN(HbyNm);
-    HbyNmCt = 0;
-    Hs = 0;
+    free_hashSfile(ctx);
+
+    /* Free device cache path argument */
+    CLEAN(DCpathArg);
 
     /* Free process array and all associated resources */
     if (Lproc) {
