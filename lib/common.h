@@ -591,6 +591,13 @@ enum ExitStatus {
         (FsearchErr ? LSOF_EXIT_ERROR : LSOF_EXIT_SUCCESS)
 
 /*
+ * Argument helper results: 0 = success, 1 = hard error,
+ * SOFT_ERR = warning-level failure.  Hard errors take precedence
+ * when combining results.
+ */
+enum { SOFT_ERR = 2 };
+
+/*
  * Structure definitions
  */
 
