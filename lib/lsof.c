@@ -431,8 +431,11 @@ enum lsof_error lsof_gather(struct lsof_context *ctx,
         for (lf = lp->file; lf; lf = lf_next) {
             /* free lf */
             lf_next = lf->next;
+            CLEAN(lf->nm); /* selected names were transferred to the result */
             CLEAN(lf->nma);
             CLEAN(lf->dev_ch);
+            CLEAN(lf->fsdir);
+            CLEAN(lf->fsdev);
 #if defined(CLRLFILEADD)
             CLRLFILEADD(lf)
 #endif /* defined(CLRLFILEADD) */

@@ -113,6 +113,7 @@ lib/dialects/netbsd/include
 #
 LTbasic
 LTbasic2
+LTfilemeta
 LTbigf
 LTdnlc
 LTlock

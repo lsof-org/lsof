@@ -3431,7 +3431,8 @@ void process_node(struct lsof_context *ctx, /* context */
              * Set the file system device to the file system type and clear
              * the doubtful device numbers.
              */
-            Lf->fsdev = Fsinfo[fx];
+            /* Like other fsdev values, this must be owned by the file. */
+            Lf->fsdev = mkstrcpy(Fsinfo[fx], (MALLOC_S *)NULL);
             devs = 0;
             rdevs = 0;
         }
