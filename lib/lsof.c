@@ -821,15 +821,7 @@ void lsof_destroy(struct lsof_context *ctx) {
     }
 
     /* Free hashSfile hash buckets */
-    CLEAN(HbyFdi);
-    HbyFdiCt = 0;
-    CLEAN(HbyFrd);
-    HbyFrdCt = 0;
-    CLEAN(HbyFsd);
-    HbyFsdCt = 0;
-    CLEAN(HbyNm);
-    HbyNmCt = 0;
-    Hs = 0;
+    free_hashSfile(ctx);
 
     /* Free process array and all associated resources */
     if (Lproc) {

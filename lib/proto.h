@@ -153,6 +153,7 @@ extern char *gethostnm(struct lsof_context *ctx, unsigned char *ia, int af);
 #    endif /* !defined(GET_MAX_FD) */
 
 extern int hashbyname(char *nm, int mod);
+extern void free_hashSfile(struct lsof_context *ctx);
 extern void hashSfile(struct lsof_context *ctx);
 extern void initialize(struct lsof_context *ctx);
 extern int is_cmd_excl(struct lsof_context *ctx, char *cmd, short *pss,

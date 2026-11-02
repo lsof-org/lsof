@@ -177,6 +177,57 @@ void hashSfile(struct lsof_context *ctx) {
 }
 
 /*
+ * free_hashSfile() - free the Sfile hash buckets and chain entries
+ */
+
+void free_hashSfile(struct lsof_context *ctx) {
+    int i;
+    struct hsfile *sn;
+
+    if (HbyFdi) {
+        for (i = 0; i < SFDIHASH; i++) {
+            while ((sn = HbyFdi[i].next)) {
+                HbyFdi[i].next = sn->next;
+                CLEAN(sn);
+            }
+        }
+        CLEAN(HbyFdi);
+    }
+    HbyFdiCt = 0;
+    if (HbyFrd) {
+        for (i = 0; i < SFRDHASH; i++) {
+            while ((sn = HbyFrd[i].next)) {
+                HbyFrd[i].next = sn->next;
+                CLEAN(sn);
+            }
+        }
+        CLEAN(HbyFrd);
+    }
+    HbyFrdCt = 0;
+    if (HbyFsd) {
+        for (i = 0; i < SFFSHASH; i++) {
+            while ((sn = HbyFsd[i].next)) {
+                HbyFsd[i].next = sn->next;
+                CLEAN(sn);
+            }
+        }
+        CLEAN(HbyFsd);
+    }
+    HbyFsdCt = 0;
+    if (HbyNm) {
+        for (i = 0; i < SFNMHASH; i++) {
+            while ((sn = HbyNm[i].next)) {
+                HbyNm[i].next = sn->next;
+                CLEAN(sn);
+            }
+        }
+        CLEAN(HbyNm);
+    }
+    HbyNmCt = 0;
+    Hs = 0;
+}
+
+/*
  * is_file_named() - is this file named?
  */
 int is_file_named(
