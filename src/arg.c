@@ -229,6 +229,10 @@ int ck_file_arg(struct lsof_context *ctx, int i, /* first file argument index */
                 (void)fprintf(stderr, "%s: not a file system: ", Pn);
                 safestrprt(av[i], stderr, 1);
             }
+            if (path_allocated) {
+                (void)free((FREE_P *)path);
+                path_allocated = 0;
+            }
             ErrStat = 1;
             continue;
         }
@@ -271,8 +275,10 @@ int ck_file_arg(struct lsof_context *ctx, int i, /* first file argument index */
                             (void)fprintf(stderr, ": %s\n", strerror(en));
                         }
                         Sfile = sfp->next;
-                        if (path_allocated)
+                        if (path_allocated) {
                             (void)free((FREE_P *)path);
+                            path_allocated = 0;
+                        }
                         (void)free((FREE_P *)sfp);
                         ErrStat = 1;
                         continue;
@@ -346,8 +352,8 @@ int ck_file_arg(struct lsof_context *ctx, int i, /* first file argument index */
                      * Store the file name and file system name pointers in the sfile
                      * structure, allocating space as necessary.
                      */
-            if (!fnm || fnm == path) {
-                sfp->name = fnm;
+            if (!fnm) {
+                sfp->name = (char *)NULL;
 
 #if defined(HASPROCFS)
                 an = 0;
@@ -364,8 +370,8 @@ int ck_file_arg(struct lsof_context *ctx, int i, /* first file argument index */
                 an = 1;
 #endif /* defined(HASPROCFS) */
             }
-            if (!fsnm || fsnm == path) {
-                sfp->devnm = fsnm;
+            if (!fsnm) {
+                sfp->devnm = (char *)NULL;
 
 #if defined(HASPROCFS)
                 ad = 0;
@@ -462,6 +468,10 @@ int ck_file_arg(struct lsof_context *ctx, int i, /* first file argument index */
 #endif /* defined(HASPROCFS) */
 
         } while (mx < nm);
+        if (path_allocated) {
+            (void)free((FREE_P *)path);
+            path_allocated = 0;
+        }
     }
 
     if (accept_deleted_file) {
@@ -597,8 +607,13 @@ int enter_efsys(struct lsof_context *ctx, /* context */
     if (rdlnk)
         path = ec;
     else {
-        if (!(path = Readlink(ctx, ec)))
+        if (!(path = Readlink(ctx, ec))) {
+            (void)free((FREE_P *)ec);
             return (1);
+        }
+        if (Readlink_op == ec)
+            Readlink_op = (char *)NULL;
+        (void)free((FREE_P *)ec);
     }
     /*
      * Remove terminating `/' characters from paths longer than one.
@@ -913,8 +928,11 @@ int enter_dir(struct lsof_context *ctx, /* context */
     av[1] = (char *)NULL;
     dn = (char *)NULL;
     if (!ck_file_arg(ctx, 0, 1, av, 1, 1, &sb, 0)) {
-        av[0] = (char *)NULL;
         fct++;
+    }
+    if (av[0]) {
+        (void)free((FREE_P *)av[0]);
+        av[0] = (char *)NULL;
     }
     /*
      * Unstack the next directory and examine it.
@@ -1075,8 +1093,11 @@ int enter_dir(struct lsof_context *ctx, /* context */
              * to consider the entry a file, not a file system.
              */
             if (!ck_file_arg(ctx, 0, 1, av, 1, 1, &sb, 0)) {
-                av[0] = (char *)NULL;
                 fct++;
+            }
+            if (av[0]) {
+                (void)free((FREE_P *)av[0]);
+                av[0] = (char *)NULL;
             }
         }
         (void)CloseDir(dfp);
