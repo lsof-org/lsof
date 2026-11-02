@@ -208,7 +208,7 @@ static MALLOC_S alloc_cbf(struct lsof_context *ctx, /* context */
  */
 
 void gather_proc_info(struct lsof_context *ctx) {
-    char *cmd = NULL, *tcmd;
+    char *cmd = NULL, *tcmd = NULL;
     struct dirent *dp;
     unsigned char ht, pidts;
     int n, nl, pgid, pid, ppid, prv, rv, tid, tpgid, tppid, tx;
@@ -395,8 +395,10 @@ void gather_proc_info(struct lsof_context *ctx) {
                      * Check the task state.
                      */
                     rv = read_id_stat(ctx, tidpath, tid, &tcmd, &tppid, &tpgid);
-                    if ((rv < 0) || (rv == 1))
+                    if ((rv < 0) || (rv == 1)) {
+                        CLEAN(tcmd);
                         continue;
+                    }
                     /*
                      * Attempt to record the task.
                      */
@@ -404,6 +406,7 @@ void gather_proc_info(struct lsof_context *ctx) {
                                     pid, tppid, tpgid, tid, tcmd)) {
                         ht = 1;
                     }
+                    CLEAN(tcmd);
                 }
                 (void)closedir(ts);
             }
@@ -434,6 +437,7 @@ void gather_proc_info(struct lsof_context *ctx) {
     CLEAN(taskpath);
     CLEAN(tidpath);
     CLEAN(cmd);
+    CLEAN(tcmd);
     if (ps) {
         closedir(ps);
         ps = NULL;
@@ -1684,6 +1688,8 @@ static int read_id_stat(struct lsof_context *ctx, /* context */
     int cbfa = 0;
     FILE *fs;
     int ret = 0;
+
+    CLEAN(*cmd);
     /*
      * Open the stat file path, assign a page size buffer to its stream,
      * and read the entire file.
@@ -1780,6 +1786,7 @@ read_id_stat_exit:
     CLEAN(cbf);
     if (fs)
         (void)fclose(fs);
+    CLEAN(*cmd);
     return (-1);
 }
 
