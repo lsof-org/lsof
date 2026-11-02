@@ -762,6 +762,16 @@ void lsof_destroy(struct lsof_context *ctx) {
         Lmist = 0;
     }
 
+    /* Free Readlink() stack */
+    if (Readlink_stk) {
+        for (i = 0; i < Readlink_sx; i++) {
+            CLEAN(Readlink_stk[i]);
+        }
+        CLEAN(Readlink_stk);
+    }
+    Readlink_ss = Readlink_sx = 0;
+    Readlink_op = (char *)NULL;
+
     /* state table */
 #if !defined(USE_LIB_PRINT_TCPTPI)
     for (i = 0; i < TcpNstates; i++) {
