@@ -33,8 +33,6 @@
 #include "lsof.h"
 #include <limits.h>
 
-extern int SoftErr;
-
 /*
  * Local definitions
  */
@@ -599,7 +597,7 @@ int enter_efsys(struct lsof_context *ctx, /* context */
             (void)fprintf(stderr,
                           "%s: -e not followed by a file system path: \"%s\"\n",
                           Pn, e);
-        SoftErr = 1; return (1);
+        return (SOFT_ERR);
     }
     if (!(ec = mkstrcpy(e, (MALLOC_S *)NULL))) {
         (void)fprintf(stderr, "%s: no space for -e string: ", Pn);
@@ -610,9 +608,8 @@ int enter_efsys(struct lsof_context *ctx, /* context */
         path = ec;
     else {
         if (!(path = Readlink(ctx, ec))) {
-            SoftErr = 1;
             (void)free((FREE_P *)ec);
-            return (1);
+            return (SOFT_ERR);
         }
         if (Readlink_op == ec)
             Readlink_op = (char *)NULL;
@@ -656,6 +653,7 @@ int enter_fd(struct lsof_context *ctx, /* context */
 {
     char c, *cp1, *cp2, *dash;
     int err, excl, hi, lo;
+    int result, soft_err = 0;
     char *fc;
     /*
      *  Check for non-empty list and make a copy.
@@ -696,11 +694,17 @@ int enter_fd(struct lsof_context *ctx, /* context */
                 if (ckfd_range(ctx, cp1, dash, cp2, &lo, &hi))
                     err = 1;
                 else {
-                    if (enter_fd_lst(ctx, (char *)NULL, lo, hi, excl))
+                    result = enter_fd_lst(ctx, (char *)NULL, lo, hi, excl);
+                    if (result == SOFT_ERR)
+                        soft_err = 1;
+                    else if (result)
                         err = 1;
                 }
             } else {
-                if (enter_fd_lst(ctx, cp1, 0, 0, excl))
+                result = enter_fd_lst(ctx, cp1, 0, 0, excl);
+                if (result == SOFT_ERR)
+                    soft_err = 1;
+                else if (result)
                     err = 1;
             }
         }
@@ -709,7 +713,7 @@ int enter_fd(struct lsof_context *ctx, /* context */
         cp1 = cp2 + 1;
     }
     (void)free((FREE_P *)fc);
-    return (err);
+    return (err ? 1 : (soft_err ? SOFT_ERR : 0));
 }
 
 /*
@@ -752,8 +756,7 @@ static int enter_fd_lst(struct lsof_context *ctx, /* context */
                               excl ? "exclude" : "include",
                               FdlTy ? "exclude" : "include", buf);
             }
-            SoftErr = 1;
-            return (1);
+            return (SOFT_ERR);
         }
     }
     /*
@@ -888,12 +891,10 @@ int enter_dir(struct lsof_context *ctx, /* context */
         if (!Fwarn)
             (void)fprintf(stderr, "%s: +d not followed by a directory path\n",
                           Pn);
-        SoftErr = 1; return (1);
+        return (SOFT_ERR);
     }
-    if (!(dn = Readlink(ctx, d))) {
-        SoftErr = 1;
-        return (1);
-    }
+    if (!(dn = Readlink(ctx, d)))
+        return (SOFT_ERR);
     if (statsafely(ctx, dn, &sb)) {
         if (!Fwarn) {
             en = errno;
@@ -905,7 +906,7 @@ int enter_dir(struct lsof_context *ctx, /* context */
             (void)free((FREE_P *)dn);
             dn = (char *)NULL;
         }
-        SoftErr = 1; return (1);
+        return (SOFT_ERR);
     }
     if ((sb.st_mode & S_IFMT) != S_IFDIR) {
         if (!Fwarn) {
@@ -916,7 +917,7 @@ int enter_dir(struct lsof_context *ctx, /* context */
             (void)free((FREE_P *)dn);
             dn = (char *)NULL;
         }
-        SoftErr = 1; return (1);
+        return (SOFT_ERR);
     }
 
 #if defined(HASSPECDEVD)
@@ -1141,7 +1142,7 @@ int enter_dir(struct lsof_context *ctx, /* context */
                           "%s: WARNING: no files found in directory: ", Pn);
             safestrprt(d, stderr, 1);
         }
-        SoftErr = 1; return (1);
+        return (SOFT_ERR);
     }
     return (0);
 }

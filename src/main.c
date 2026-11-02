@@ -103,14 +103,14 @@ static void select_default_fields(void) {
  * main() - main function for lsof
  */
 
-int SoftErr = 0;
-
 int main(int argc, char *argv[]) {
     enum ExitStatus rv;
     int gopt_rv;
     int ad, c, i, n, se1, se2, ss;
+    int arg_result;
     char *cp;
     int err = 0;
+    int soft_err = 0;
     enum ExitStatus ev = LSOF_EXIT_SUCCESS;
     int fh = 0;
     char *fmtr = (char *)NULL;
@@ -357,20 +357,29 @@ int main(int argc, char *argv[]) {
 #endif /* defined(HASNCACHE) */
         case 'd':
             if (GOp == '+') {
-                if (enter_dir(ctx, GOv, 0))
+                arg_result = enter_dir(ctx, GOv, 0);
+                if (arg_result == SOFT_ERR)
+                    soft_err = 1;
+                else if (arg_result)
                     err = 1;
                 else {
                     Selflags |= SELNM;
                     xover = 1;
                 }
             } else {
-                if (enter_fd(ctx, GOv))
+                arg_result = enter_fd(ctx, GOv);
+                if (arg_result == SOFT_ERR)
+                    soft_err = 1;
+                else if (arg_result)
                     err = 1;
             }
             break;
         case 'D':
             if (GOp == '+') {
-                if (enter_dir(ctx, GOv, 1))
+                arg_result = enter_dir(ctx, GOv, 1);
+                if (arg_result == SOFT_ERR)
+                    soft_err = 1;
+                else if (arg_result)
                     err = 1;
                 else {
                     Selflags |= SELNM;
@@ -390,7 +399,10 @@ int main(int argc, char *argv[]) {
 
 #if defined(HASEOPT)
         case 'e':
-            if (enter_efsys(ctx, GOv, ((GOp == '+') ? 1 : 0)))
+            arg_result = enter_efsys(ctx, GOv, ((GOp == '+') ? 1 : 0));
+            if (arg_result == SOFT_ERR)
+                soft_err = 1;
+            else if (arg_result)
                 err = 1;
             break;
 #endif /* defined(HASEOPT) */
@@ -1183,10 +1195,19 @@ int main(int argc, char *argv[]) {
             select_default_fields();
     }
 
-    if (err && Fwarn && SoftErr && !Fhelp && !fh && !version && !DChelp)
-        Error(ctx);
+    /*
+     * Preserve usage output for unsuppressed soft failures.
+     * Hard errors and explicit help requests always reach usage().
+     */
+    if (soft_err && !Fwarn)
+        err = 1;
     if (DChelp || err || Fhelp || fh || version)
         usage(ctx, err ? 1 : 0, fh, version);
+    /*
+     * Suppressing warnings does not make the failed argument valid.
+     */
+    if (soft_err)
+        Error(ctx);
     /*
      * Reduce the size of Suid[], if necessary.
      */
