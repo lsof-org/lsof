@@ -119,9 +119,10 @@ int main(int argc, char **argv) {
                     /* check if fd matches */
                     if (f->fd_num == fd && f->inode == tmp_stat.st_ino &&
                         f->dev == tmp_stat.st_dev) {
-#ifdef NETBSDV
-                        /* on NetBSD, the file path for new created file may be
-                         * unavailable, skip validation */
+#if defined(LT_DIAL_netbsd) || defined(LT_DIAL_openbsd)
+                        /* OpenBSD cannot report regular-file paths; NetBSD
+                         * may not report paths for newly created files.
+                         * Descriptor, inode, and device must still match. */
                         fd_found = 1;
 #else
                         if (f->name && strstr(f->name, "LTbasic2-tmp")) {

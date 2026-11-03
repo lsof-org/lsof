@@ -129,17 +129,15 @@ jobs:
           export AUTOCONF_VERSION=2.72
           export AUTOMAKE_VERSION=1.18
 
-          # autotools path: build only.  "make check" additionally fails
-          # tests/LTbasic2 here with "opened regular file wasn't found";
-          # that test is not part of the legacy suite below and is left
-          # for a separate fix.  libtool has to come from packages -- the
-          # base /usr/bin/libtool is a different program and aclocal
+          # autotools build and tests.  libtool has to come from packages --
+          # the base /usr/bin/libtool is a different program and aclocal
           # cannot find LT_INIT without the package's m4 files.
           autoreconf -vif
           mkdir /tmp/build
           cd /tmp/build
           "$src"/configure
           make
+          make check || { cat test-suite.log; exit 1; }
           cd "$src"
 
           # legacy Configure, the path .builds/openbsd.yml covered
