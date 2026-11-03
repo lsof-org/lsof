@@ -427,6 +427,8 @@ struct lsof_context *lsof_new();
  * By default, the output is suppressed. You can set fp to NULL to suppress
  * output.
  *
+ * \return LSOF_ERROR_INVALID_ARGUMENT if ctx is NULL
+ *
  * \since API version 1
  */
 enum lsof_error lsof_set_output_stream(struct lsof_context *ctx, FILE *fp,
@@ -437,6 +439,8 @@ enum lsof_error lsof_set_output_stream(struct lsof_context *ctx, FILE *fp,
  * lsof may block when calling lstat(), readlink() or stat(). Call this function
  * with `avoid=1` to let lsof avoid calling these functions.
  *
+ * \return LSOF_ERROR_INVALID_ARGUMENT if ctx is NULL or frozen
+ *
  * \since API version 1
  */
 enum lsof_error lsof_avoid_blocking(struct lsof_context *ctx, int avoid);
@@ -445,6 +449,8 @@ enum lsof_error lsof_avoid_blocking(struct lsof_context *ctx, int avoid);
  *
  * To avoid being blocked by some kernel operations, liblsof does them in forked
  * child processes. Call this function to change this behavior.
+ *
+ * \return LSOF_ERROR_INVALID_ARGUMENT if ctx is NULL or frozen
  *
  * \since API version 1
  */
@@ -457,6 +463,8 @@ enum lsof_error lsof_avoid_forking(struct lsof_context *ctx, int avoid);
  * sockets OR open files by the user. If lsof_logic_and() is called, it will
  * report unix sockets open by the specified user.
  *
+ * \return LSOF_ERROR_INVALID_ARGUMENT if ctx is NULL or frozen
+ *
  * \since API version 1
  */
 enum lsof_error lsof_logic_and(struct lsof_context *ctx);
@@ -467,6 +475,9 @@ enum lsof_error lsof_logic_and(struct lsof_context *ctx);
  * `command`. You can specify exclusion by setting `exclude` to 1.
  *
  * You can call this function multiple times to add more search conditions.
+ *
+ * \return LSOF_ERROR_INVALID_ARGUMENT if ctx is NULL or frozen, command is
+ * both included and excluded, or command exceeds the system's supported length
  *
  * \since API version 1
  */
@@ -488,6 +499,9 @@ enum lsof_error lsof_select_process(struct lsof_context *ctx, char *command,
  *
  * You can call this function multiple times to add more search conditions.
  *
+ * \return LSOF_ERROR_INVALID_ARGUMENT if ctx is NULL or frozen, or the regular
+ * expression or its modifiers are invalid
+ *
  * \since API version 1
  */
 enum lsof_error lsof_select_process_regex(struct lsof_context *ctx,
@@ -499,6 +513,9 @@ enum lsof_error lsof_select_process_regex(struct lsof_context *ctx,
  * `exclude` to 1.
  *
  * You can call this function multiple times to add more search conditions.
+ *
+ * \return LSOF_ERROR_INVALID_ARGUMENT if ctx is NULL or frozen, or pid is
+ * both included and excluded
  *
  * \since API version 1
  */
@@ -512,6 +529,9 @@ enum lsof_error lsof_select_pid(struct lsof_context *ctx, uint32_t pid,
  *
  * You can call this function multiple times to add more search conditions.
  *
+ * \return LSOF_ERROR_INVALID_ARGUMENT if ctx is NULL or frozen, or pgid is
+ * both included and excluded
+ *
  * \since API version 1
  */
 enum lsof_error lsof_select_pgid(struct lsof_context *ctx, uint32_t pgid,
@@ -522,6 +542,9 @@ enum lsof_error lsof_select_pgid(struct lsof_context *ctx, uint32_t pgid,
  * Select process whose user id equals to or not equals to `uid`
  *
  * You can call this function multiple times to add more search conditions.
+ *
+ * \return LSOF_ERROR_INVALID_ARGUMENT if ctx is NULL or frozen, or uid is
+ * both included and excluded
  *
  * \since API version 1
  */
@@ -534,6 +557,9 @@ enum lsof_error lsof_select_uid(struct lsof_context *ctx, uint32_t uid,
  *
  * You can call this function multiple times to add more search conditions.
  *
+ * \return LSOF_ERROR_INVALID_ARGUMENT if ctx is NULL or frozen, login cannot
+ * be resolved to a UID, or that UID is both included and excluded
+ *
  * \since API version 1
  */
 enum lsof_error lsof_select_login(struct lsof_context *ctx, char *login,
@@ -545,6 +571,8 @@ enum lsof_error lsof_select_login(struct lsof_context *ctx, char *login,
  * be changed.
  *
  * The function allows liblsof to do some preprocessing to improve performance.
+ *
+ * \return LSOF_ERROR_INVALID_ARGUMENT if ctx is NULL or already frozen
  *
  * \since API version 1
  */
