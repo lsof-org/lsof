@@ -137,6 +137,7 @@ lib/dialects/linux/tests/pidfd
 lib/dialects/linux/tests/pipe
 lib/dialects/linux/tests/pty
 lib/dialects/linux/tests/ux
+lib/dialects/linux/tests/udp_state
 lib/dialects/linux/tests/mmap
 lib/dialects/linux/tests/unbal_parens
 

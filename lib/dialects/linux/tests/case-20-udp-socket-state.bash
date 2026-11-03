@@ -38,6 +38,24 @@ if ! cat $fclient | grep -q "UDP.*127.0.0.1:.*->127.0.0.1:10001 (ESTABLISHED)"; 
     exit 1
 fi
 
+$lsof -n -P -p $client -a -i UDP -s UDP:ESTABLISHED > $fclient
+if ! cat $fclient | grep -q "UDP.*127.0.0.1:.*->127.0.0.1:10001 (ESTABLISHED)"; then
+    echo "connected UDP socket missing with -s UDP:ESTABLISHED" >> $report
+    cat $fclient >> $report
+    killBoth $client $server
+    rm -f $fclient
+    exit 1
+fi
+
+$lsof -n -P -p $client -a -i UDP -s UDP:^ESTABLISHED > $fclient
+if cat $fclient | grep -q "UDP"; then
+    echo "connected UDP socket listed with -s UDP:^ESTABLISHED" >> $report
+    cat $fclient >> $report
+    killBoth $client $server
+    rm -f $fclient
+    exit 1
+fi
+
 rm -f $fclient
 killBoth $client $server
 

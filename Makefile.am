@@ -157,6 +157,7 @@ LINUX_TESTS = lib/dialects/linux/tests/case-10-mqueue.bash \
 	lib/dialects/linux/tests/case-20-inet-socket-endpoint.bash \
 	lib/dialects/linux/tests/case-20-mmap.bash \
 	lib/dialects/linux/tests/case-20-udp-socket-state.bash \
+	lib/dialects/linux/tests/case-20-udp-state-filter.bash \
 	lib/dialects/linux/tests/case-20-mqueue-endpoint.bash \
 	lib/dialects/linux/tests/case-20-open-flags-cx.bash \
 	lib/dialects/linux/tests/case-20-open-flags-path.bash \
@@ -180,6 +181,7 @@ check_PROGRAMS += lib/dialects/linux/tests/epoll \
 	lib/dialects/linux/tests/pipe \
 	lib/dialects/linux/tests/pty \
 	lib/dialects/linux/tests/ux \
+	lib/dialects/linux/tests/udp_state \
 	lib/dialects/linux/tests/unbal_parens
 lib_dialects_linux_tests_mq_fork_LDADD = -lrt
 lib_dialects_linux_tests_mq_open_LDADD = -lrt
