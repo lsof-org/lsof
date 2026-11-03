@@ -2019,7 +2019,7 @@ int enter_uid(struct lsof_context *ctx, /* context */
     char *s, *st;
     uid_t uid;
 
-    if (!us) {
+    if (!us || !*us) {
         (void)fprintf(stderr, "%s: no UIDs specified\n", Pn);
         return (1);
     }

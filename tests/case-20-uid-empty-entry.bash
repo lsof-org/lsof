@@ -3,7 +3,7 @@
 source tests/common.bash
 
 {
-    for spec in ",99999" "^"; do
+    for spec in "" ",99999" "^"; do
         output=$($lsof -u "$spec" -F u 2>/dev/null)
         status=$?
         if echo "$output" | grep -q '^u0$'; then
