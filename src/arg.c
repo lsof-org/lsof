@@ -2019,7 +2019,7 @@ int enter_uid(struct lsof_context *ctx, /* context */
     char *s, *st;
     uid_t uid;
 
-    if (!us) {
+    if (!us || !*us) {
         (void)fprintf(stderr, "%s: no UIDs specified\n", Pn);
         return (1);
     }
@@ -2063,6 +2063,17 @@ int enter_uid(struct lsof_context *ctx, /* context */
             s++;
         if (j)
             continue;
+        if (!lnml) {
+
+            /*
+             * An empty entry (e.g. from ",99" or "^") would otherwise be
+             * taken as UID 0.
+             */
+            (void)fprintf(stderr, "%s: empty -u UID or login name: ", Pn);
+            safestrprt(us, stderr, 1);
+            err = 1;
+            continue;
+        }
         if (nn) {
             lnm[lnml++] = '\0';
             if ((pw = getpwnam(lnm)) == NULL) {
