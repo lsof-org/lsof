@@ -597,7 +597,7 @@ int enter_efsys(struct lsof_context *ctx, /* context */
             (void)fprintf(stderr,
                           "%s: -e not followed by a file system path: \"%s\"\n",
                           Pn, e);
-        return (SOFT_ERR);
+        return (1);
     }
     if (!(ec = mkstrcpy(e, (MALLOC_S *)NULL))) {
         (void)fprintf(stderr, "%s: no space for -e string: ", Pn);
@@ -653,7 +653,6 @@ int enter_fd(struct lsof_context *ctx, /* context */
 {
     char c, *cp1, *cp2, *dash;
     int err, excl, hi, lo;
-    int result, soft_err = 0;
     char *fc;
     /*
      *  Check for non-empty list and make a copy.
@@ -694,17 +693,11 @@ int enter_fd(struct lsof_context *ctx, /* context */
                 if (ckfd_range(ctx, cp1, dash, cp2, &lo, &hi))
                     err = 1;
                 else {
-                    result = enter_fd_lst(ctx, (char *)NULL, lo, hi, excl);
-                    if (result == SOFT_ERR)
-                        soft_err = 1;
-                    else if (result)
+                    if (enter_fd_lst(ctx, (char *)NULL, lo, hi, excl))
                         err = 1;
                 }
             } else {
-                result = enter_fd_lst(ctx, cp1, 0, 0, excl);
-                if (result == SOFT_ERR)
-                    soft_err = 1;
-                else if (result)
+                if (enter_fd_lst(ctx, cp1, 0, 0, excl))
                     err = 1;
             }
         }
@@ -713,7 +706,7 @@ int enter_fd(struct lsof_context *ctx, /* context */
         cp1 = cp2 + 1;
     }
     (void)free((FREE_P *)fc);
-    return (err ? 1 : (soft_err ? SOFT_ERR : 0));
+    return (err);
 }
 
 /*
@@ -756,7 +749,7 @@ static int enter_fd_lst(struct lsof_context *ctx, /* context */
                               excl ? "exclude" : "include",
                               FdlTy ? "exclude" : "include", buf);
             }
-            return (SOFT_ERR);
+            return (1);
         }
     }
     /*
@@ -891,7 +884,7 @@ int enter_dir(struct lsof_context *ctx, /* context */
         if (!Fwarn)
             (void)fprintf(stderr, "%s: +d not followed by a directory path\n",
                           Pn);
-        return (SOFT_ERR);
+        return (1);
     }
     if (!(dn = Readlink(ctx, d)))
         return (SOFT_ERR);
@@ -1132,6 +1125,13 @@ int enter_dir(struct lsof_context *ctx, /* context */
         (void)free((FREE_P *)Dstk);
         Dstk = (char **)NULL;
     }
+    /*
+     * Test-only hook: a valid directory always records itself via
+     * ck_file_arg(), so the "no files found" path below is otherwise
+     * unreachable.  Allow the regression suite to force it.
+     */
+    if (getenv("LSOF_TEST_FORCE_NO_FILES_IN_DIR"))
+        fct = 0;
     if (!fct) {
 
         /*

@@ -367,10 +367,7 @@ int main(int argc, char *argv[]) {
                     xover = 1;
                 }
             } else {
-                arg_result = enter_fd(ctx, GOv);
-                if (arg_result == SOFT_ERR)
-                    soft_err = 1;
-                else if (arg_result)
+                if (enter_fd(ctx, GOv))
                     err = 1;
             }
             break;
