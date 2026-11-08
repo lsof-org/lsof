@@ -228,7 +228,7 @@ enum lsof_error lsof_set_output_stream(struct lsof_context *ctx, FILE *fp,
 
 API_EXPORT
 enum lsof_error lsof_freeze(struct lsof_context *ctx) {
-    if (ctx->frozen) {
+    if (!ctx || ctx->frozen) {
         return LSOF_ERROR_INVALID_ARGUMENT;
     }
 
@@ -283,7 +283,7 @@ enum lsof_error lsof_gather(struct lsof_context *ctx,
     struct lsof_process *user_procs = NULL;
     struct lsof_result *res = NULL;
 
-    if (!result) {
+    if (!ctx || !result) {
         ret = LSOF_ERROR_INVALID_ARGUMENT;
         return ret;
     } else if (!ctx->frozen) {
@@ -1192,8 +1192,12 @@ enum lsof_error lsof_select_pid_pgid(struct lsof_context *ctx, int32_t id,
 API_EXPORT
 enum lsof_error lsof_select_pid(struct lsof_context *ctx, uint32_t pid,
                                 int exclude) {
-    enum lsof_error res = lsof_select_pid_pgid(ctx, pid, &Spid, &Mxpid, &Npid,
-                                               &Npidi, &Npidx, exclude, 1);
+    enum lsof_error res;
+    if (!ctx) {
+        return LSOF_ERROR_INVALID_ARGUMENT;
+    }
+    res = lsof_select_pid_pgid(ctx, pid, &Spid, &Mxpid, &Npid, &Npidi, &Npidx,
+                               exclude, 1);
     /* Record number of unselected PIDs for optimization */
     Npuns = Npid;
     return res;
@@ -1202,6 +1206,9 @@ enum lsof_error lsof_select_pid(struct lsof_context *ctx, uint32_t pid,
 API_EXPORT
 enum lsof_error lsof_select_pgid(struct lsof_context *ctx, uint32_t pgid,
                                  int exclude) {
+    if (!ctx) {
+        return LSOF_ERROR_INVALID_ARGUMENT;
+    }
     return lsof_select_pid_pgid(ctx, pgid, &Spgid, &Mxpgid, &Npgid, &Npgidi,
                                 &Npgidx, exclude, 0);
 }

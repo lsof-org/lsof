@@ -212,12 +212,14 @@ tests_LTszoff_CFLAGS = @LSOF_TEST_CFLAGS@ -I$(top_srcdir)/include
 tests_LTunix_SOURCES = tests/LTunix.c tests/LTlib.c
 tests_LTunix_CFLAGS = @LSOF_TEST_CFLAGS@ -I$(top_srcdir)/include
 
-# LTbasic2 links against liblsof, only build when liblsof is enabled
+# Library tests, only build when liblsof is enabled
 if INSTALL_LIBLSOF
-TESTS += tests/LTbasic2
-check_PROGRAMS += tests/LTbasic2
+TESTS += tests/LTbasic2 tests/LTnull
+check_PROGRAMS += tests/LTbasic2 tests/LTnull
 tests_LTbasic2_CFLAGS = @LSOF_TEST_CFLAGS@ -I$(top_srcdir)/include
 tests_LTbasic2_LDADD = liblsof.la
+tests_LTnull_CFLAGS = -I$(top_srcdir)/include
+tests_LTnull_LDADD = liblsof.la
 endif
 
 # Documentation
