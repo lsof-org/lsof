@@ -155,6 +155,7 @@ LINUX_TESTS = lib/dialects/linux/tests/case-10-mqueue.bash \
 	lib/dialects/linux/tests/case-20-inet6-ffffffff-handling.bash \
 	lib/dialects/linux/tests/case-20-inet6-socket-endpoint.bash \
 	lib/dialects/linux/tests/case-20-inet-socket-endpoint.bash \
+	lib/dialects/linux/tests/case-20-inet-version-after-all.bash \
 	lib/dialects/linux/tests/case-20-mmap.bash \
 	lib/dialects/linux/tests/case-20-udp-socket-state.bash \
 	lib/dialects/linux/tests/case-20-udp-state-filter.bash \

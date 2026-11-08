@@ -1265,13 +1265,13 @@ int enter_network_address(struct lsof_context *ctx, /* context */
             if (!Fnet) {
                 Fnet = 1;
                 FnetTy = ft;
-            } else {
-                if (FnetTy) {
-                    if (FnetTy != ft)
-                        FnetTy = 0;
-                } else
-                    FnetTy = ft;
+            } else if (FnetTy && FnetTy != ft) {
+                FnetTy = 0;
             }
+            /*
+             * Otherwise all IP versions (a previous -i) or this one are
+             * already selected.
+             */
             return (0);
         }
     } else if (Fnet)
