@@ -3093,9 +3093,9 @@ static void get_tcpudp6(struct lsof_context *ctx, /* context */
 static void get_unix(struct lsof_context *ctx, /* context */
                      char *p)                  /* /proc/net/unix path */
 {
-    char buf[MAXPATHLEN], *ep, **fp, *path, *pcb;
+    char buf[MAXPATHLEN], *cp, *ep, **fp, *path, *pcb, *up_path;
     int fl = 1; /* First line */
-    int h, nf;
+    int h, i, nf;
     INODETYPE inode;
     MALLOC_S len;
     uxsin_t *np, *up;
@@ -3145,6 +3145,24 @@ static void get_unix(struct lsof_context *ctx, /* context */
     if (!(us = open_proc_stream(ctx, p, "r", 0)))
         return;
     while (fgets(buf, sizeof(buf) - 1, us)) {
+        /*
+         * The path is printed last, after a single blank, and may contain
+         * any character except a newline (blanks, TABs and ':' included).
+         * Cut it off the line before splitting the other fields.
+         */
+        up_path = (char *)NULL;
+        for (cp = buf, i = 0; *cp && i < 7; i++) {
+            while (*cp == ' ' || *cp == '\t')
+                cp++;
+            while (*cp && *cp != ' ' && *cp != '\t' && *cp != '\n')
+                cp++;
+        }
+        if (i == 7 && *cp == ' ') {
+            *cp++ = '\0';
+            up_path = cp;
+            if ((cp = strchr(up_path, '\n')))
+                *cp = '\0';
+        }
         if ((nf = get_fields(ctx, buf, ":", &fp, (int *)NULL, 0)) < 7)
             continue;
         if (fl) {
@@ -3157,7 +3175,7 @@ static void get_unix(struct lsof_context *ctx, /* context */
                 strcmp(fp[2], "Protocol") || !fp[3] || strcmp(fp[3], "Flags") ||
                 !fp[4] || strcmp(fp[4], "Type") || !fp[5] ||
                 strcmp(fp[5], "St") || !fp[6] || strcmp(fp[6], "Inode") ||
-                nf < 8 || !fp[7] || strcmp(fp[7], "Path")) {
+                !up_path || strcmp(up_path, "Path")) {
                 if (!Fwarn) {
                     (void)fprintf(
                         stderr, "%s: WARNING: unsupported format: %s\n", Pn, p);
@@ -3190,15 +3208,15 @@ static void get_unix(struct lsof_context *ctx, /* context */
             }
             (void)snpf(pcb, len + 1, "0x%s", fp[0]);
         }
-        if (nf >= 8 && fp[7] && *fp[7] && (len = strlen(fp[7]))) {
+        if (up_path && (len = strlen(up_path))) {
             if (!(path = (char *)malloc(len + 1))) {
                 (void)fprintf(
                     stderr,
                     "%s: can't allocate %d bytes for UNIX path \"%s\"\n", Pn,
-                    (int)(len + 1), fp[7]);
+                    (int)(len + 1), up_path);
                 Error(ctx);
             }
-            (void)snpf(path, len + 1, "%s", fp[7]);
+            (void)snpf(path, len + 1, "%s", up_path);
         } else
             path = (char *)NULL;
         /*
