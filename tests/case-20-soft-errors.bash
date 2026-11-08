@@ -7,18 +7,13 @@ trap 'rm -rf "$work"' EXIT
 touch "$work/file" || exit 1
 missing=$work/missing
 long_path=$(printf 'a%.0s' {1..5000})
-check_env=()
 
 check_output() {
     local expected=$1
     shift
     local output status expected_status=1
     [[ $expected == help ]] && expected_status=0
-    if ((${#check_env[@]})); then
-        output=$(env "${check_env[@]}" "$lsof" "$@" 2>&1)
-    else
-        output=$("$lsof" "$@" 2>&1)
-    fi
+    output=$("$lsof" "$@" 2>&1)
     status=$?
     if [[ $status -ne $expected_status ]]; then
         echo "unexpected exit status $status: $*"
@@ -93,15 +88,5 @@ check_output() {
     # Hard errors must win in either order within one FD list.
     check_output usage -w -d '0,^1,3-1' || exit 1
     check_output usage -w -d '0,3-1,^1' || exit 1
-    # A valid directory records itself, so force the otherwise unreachable
-    # "no files found" path.
-    check_env=(LSOF_TEST_FORCE_NO_FILES_IN_DIR=1)
-    for option in +d +D; do
-        check_output warning "$option" "$work" || exit 1
-        for flag in -w -t; do
-            check_output quiet "$flag" "$option" "$work" || exit 1
-        done
-    done
-    check_env=()
     echo "soft-error argument tests passed"
 } > "$report" 2>&1

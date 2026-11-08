@@ -1125,13 +1125,6 @@ int enter_dir(struct lsof_context *ctx, /* context */
         (void)free((FREE_P *)Dstk);
         Dstk = (char **)NULL;
     }
-    /*
-     * Test-only hook: a valid directory always records itself via
-     * ck_file_arg(), so the "no files found" path below is otherwise
-     * unreachable.  Allow the regression suite to force it.
-     */
-    if (getenv("LSOF_TEST_FORCE_NO_FILES_IN_DIR"))
-        fct = 0;
     if (!fct) {
 
         /*
