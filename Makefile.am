@@ -130,6 +130,7 @@ DIALECT_NEUTRAL_TESTS = tests/case-00-hello.bash \
 	tests/case-20-exit-status.bash \
 	tests/case-20-fd-only-inclusion.bash \
 	tests/case-20-handle-missing-files.bash \
+	tests/case-20-soft-errors.bash \
 	tests/case-20-offset-field.bash \
 	tests/case-20-repeat-count.bash \
 	tests/case-20-uid-empty-entry.bash \

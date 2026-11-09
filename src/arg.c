@@ -609,7 +609,7 @@ int enter_efsys(struct lsof_context *ctx, /* context */
     else {
         if (!(path = Readlink(ctx, ec))) {
             (void)free((FREE_P *)ec);
-            return (1);
+            return (SOFT_ERR);
         }
         if (Readlink_op == ec)
             Readlink_op = (char *)NULL;
@@ -887,7 +887,7 @@ int enter_dir(struct lsof_context *ctx, /* context */
         return (1);
     }
     if (!(dn = Readlink(ctx, d)))
-        return (1);
+        return (SOFT_ERR);
     if (statsafely(ctx, dn, &sb)) {
         if (!Fwarn) {
             en = errno;
@@ -899,7 +899,7 @@ int enter_dir(struct lsof_context *ctx, /* context */
             (void)free((FREE_P *)dn);
             dn = (char *)NULL;
         }
-        return (1);
+        return (SOFT_ERR);
     }
     if ((sb.st_mode & S_IFMT) != S_IFDIR) {
         if (!Fwarn) {
@@ -910,7 +910,7 @@ int enter_dir(struct lsof_context *ctx, /* context */
             (void)free((FREE_P *)dn);
             dn = (char *)NULL;
         }
-        return (1);
+        return (SOFT_ERR);
     }
 
 #if defined(HASSPECDEVD)
@@ -1135,7 +1135,7 @@ int enter_dir(struct lsof_context *ctx, /* context */
                           "%s: WARNING: no files found in directory: ", Pn);
             safestrprt(d, stderr, 1);
         }
-        return (1);
+        return (SOFT_ERR);
     }
     return (0);
 }
