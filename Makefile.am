@@ -169,6 +169,7 @@ LINUX_TESTS = lib/dialects/linux/tests/case-10-mqueue.bash \
 	lib/dialects/linux/tests/case-20-pty-endpoint.bash \
 	lib/dialects/linux/tests/case-20-ux-socket-endpoint.bash \
 	lib/dialects/linux/tests/case-20-ux-socket-endpoint-unaccepted.bash \
+	lib/dialects/linux/tests/case-20-ux-socket-path-space.bash \
 	lib/dialects/linux/tests/case-20-unbal-parens.bash
 EXTRA_DIST += $(LINUX_TESTS) lib/dialects/linux/tests/Makefile lib/dialects/linux/tests/case-00-linux-hello.bash
 if LINUX
