@@ -447,6 +447,12 @@ process_overlaid_node:
         vfs_path_len = strlen(vfs_path);
 
         if (vfs_path_len >= vfs_dir_len) {
+            if (vfs_fsname_len + vfs_path_len - vfs_dir_len >=
+                sizeof(vfs_path)) {
+                (void)snpf(Namech, Namechl, "nullfs path too long");
+                enter_nm(ctx, Namech);
+                return;
+            }
             memmove(&vfs_path[vfs_fsname_len], &vfs_path[vfs_dir_len],
                     vfs_path_len - vfs_dir_len + 1);
             memcpy(vfs_path, vfs->fsname, vfs_fsname_len);
