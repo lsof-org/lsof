@@ -299,6 +299,8 @@ enum lsof_error lsof_gather(struct lsof_context *ctx,
         CLEAN(ctx->cur_file->dev_ch);
         CLEAN(ctx->cur_file->nm);
         CLEAN(ctx->cur_file->nma);
+        CLEAN(ctx->cur_file->fsdir);
+        CLEAN(ctx->cur_file->fsdev);
         CLEAN(ctx->cur_file);
     }
 

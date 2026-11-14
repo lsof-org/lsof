@@ -214,6 +214,17 @@ tests_LTszoff_CFLAGS = @LSOF_TEST_CFLAGS@ -I$(top_srcdir)/include
 tests_LTunix_SOURCES = tests/LTunix.c tests/LTlib.c
 tests_LTunix_CFLAGS = @LSOF_TEST_CFLAGS@ -I$(top_srcdir)/include
 
+# Internal cleanup tests also run when the shared library is disabled.
+check_LIBRARIES = tests/liblsof_test.a
+tests_liblsof_test_a_SOURCES = $(LIBLSOF_SOURCES)
+tests_liblsof_test_a_CPPFLAGS = $(lsof_CPPFLAGS)
+TESTS += tests/LTfsnames
+check_PROGRAMS += tests/LTfsnames
+tests_LTfsnames_SOURCES = tests/LTfsnames.c
+tests_LTfsnames_CPPFLAGS = $(lsof_CPPFLAGS)
+tests_LTfsnames_LDADD = tests/liblsof_test.a
+tests/LTfsnames-LTfsnames.$(OBJEXT): $(top_srcdir)/lib/proc.c $(top_srcdir)/lib/lsof.c
+
 # Library tests, only build when liblsof is enabled
 if INSTALL_LIBLSOF
 TESTS += tests/LTbasic2 tests/LTnull
