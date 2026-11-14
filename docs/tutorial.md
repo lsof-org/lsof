@@ -147,6 +147,12 @@ files.  You can add network names or addresses, protocol names, and service
 names or port numbers to the -i option to refine the search.  (See the next
 section.)
 
+To list only listening TCP sockets, using numeric addresses and ports:
+
+```shell
+$ lsof -nP -iTCP -sTCP:LISTEN
+```
+
 ## Finding a Particular Network Connection
 
 When you know the source or destination of a network connection whose open files

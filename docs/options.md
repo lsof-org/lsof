@@ -136,7 +136,7 @@ include:
 	conversion is slow or inoperative.
 
 - -n	tells lsof to avoid converting Internet addresses
-	to host numbers.  This might be useful when your
+	to host names.  This might be useful when your
 	host name lookup (e.g., DNS) is inoperative.
 
 - -O      tells lsof to avoid its strategy of forking to
@@ -160,12 +160,10 @@ include:
 
 		$ lsof -S2
 
-- -w	tells lsof to avoid issuing warning messages, if
-	they are enabled by default, or enable them if they
-	are disabled by default.  Check the -h (help) output
-	to determine their status.  If it says `-w enable warnings`, then warning messages are disabled by
-	default; `-w disable warnings`, they are enabled
-	by default.
+- -w	tells lsof to suppress warning messages; +w enables
+	them, regardless of the default.  Check the -h (help)
+	output for the default: `Warnings (+)` means enabled,
+	and `Warnings (-)` means disabled.
 
 	This may be a useful option, for example, when you
 	specify -b, if warning messages are enabled, because
