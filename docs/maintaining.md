@@ -130,7 +130,7 @@ About the original test mechanism, see tests/00README.
 
 About the github test mechanism, see tests/case-00-hello.bash .
 You can put a test case non-dialect specific, put tests/.
-dialects/linux/tests/ is for testing linux specific code.
+lib/dialects/linux/tests/ is for testing linux specific code.
 
 ## Releasing
 
@@ -159,7 +159,7 @@ You should update the version and release date in the following files:
 - version
 - configure.ac
 
-And then re-generated `docs/manpapage.md` by running `manpage.sh` in `docs` folder.
+And then re-generated `docs/manpage.md` by running `manpage.sh` in `docs` folder.
 
 The version number has following form MAJOR.MINOR.MICRO.  When making a
 release, update the version number.  If the change from the last release
