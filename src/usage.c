@@ -298,7 +298,7 @@ void usage(struct lsof_context *ctx, /* context */
         (void)fprintf(stderr, " latest FAQ: %s\n", LSOF_FAQ_URL);
         (void)fprintf(stderr, " latest (non-formatted) man page: %s\n",
                       LSOF_MAN_URL);
-        (void)fprintf(stderr, " usage: [-?ab%shH%slnNoOP%s%stUvV%s]",
+        (void)fprintf(stderr, " usage: [-?ab%shHJj%slnNoOPQ%s%stUvV%s]",
 
 #if defined(HASNCACHE)
                       "C",
@@ -503,6 +503,9 @@ void usage(struct lsof_context *ctx, /* context */
         );
         col = print_in_col(col, buf);
 
+        col = print_in_col(col, "-J nested JSON output");
+        col = print_in_col(col, "-j JSON Lines output");
+
 #if defined(HASTASKS)
         /* DEBUG	    col = print_in_col(col, "-K list tasKs (threads)");
          */
@@ -653,6 +656,8 @@ void usage(struct lsof_context *ctx, /* context */
         putc('\n', stderr);
 #endif /* defined(HASKOPT) */
 
+        (void)fprintf(stderr, "  -J, -j and -t are mutually exclusive\n");
+
         (void)fprintf(stderr,
                       "  +|-L [l] list (+) suppress (-) link counts < l (0 "
                       "= all; default = 0)\n");
@@ -763,12 +768,16 @@ void usage(struct lsof_context *ctx, /* context */
         (void)fprintf(stderr, "  +|-r [%s] repeat every t seconds (%d); %s",
 
 #if defined(HAS_STRFTIME)
-                      "t[m<fmt>]",
+                      "t[c<count>][m<fmt>]",
 #else  /* !defined(has_STRFTIME) */
-                      "t",
+                      "t[c<count>]",
 #endif /* defined(HAS_STRFTIME) */
 
                       RPTTM, " + until no files, - forever.\n");
+
+        (void)fprintf(stderr,
+                      "      c<count> limits the number of scans; -r1c5 scans "
+                      "five times\n      at one-second intervals.\n");
 
 #if defined(HAS_STRFTIME)
         (void)fprintf(
