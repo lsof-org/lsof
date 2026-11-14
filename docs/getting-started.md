@@ -11,7 +11,7 @@ If the prebuilt binary from package manager misses some feature or malfunctions,
 You can retrieve lsof sources from [GitHub Releases](https://github.com/lsof-org/lsof/releases) or via git. lsof currently uses two build systems:
 
 - Legacy: supports more OSes
-- Autotools(experimental): supports Linux/Darwin/FreeBSD
+- Autotools(experimental): supports Linux/Darwin/FreeBSD/NetBSD/OpenBSD/Solaris/AIX
 
 ### Legacy build system
 
@@ -51,22 +51,30 @@ Since 4.97.0, lsof introduces a new experimental autotools-based build system. I
 - Darwin
 - FreeBSD
 - NetBSD
+- OpenBSD
+- Solaris
+- AIX
 
 Build dependencies:
 
 - c compiler: gcc/clang/etc
-- autotools: autoconf/automake
+- autotools: autoconf/automake/GNU Libtool (for git sources)
 - make
 - pkg-config: for package detection
 - groff: to process manpages
 - libtirpc(optional): if your libc does not provide rpc
 - nc/iproute2(optional): for testing
+- matching kernel sources in `/usr/src/sys` (FreeBSD/NetBSD; FreeBSD also accepts `/sys`)
+
+If you are building from git sources, first generate the build system:
+
+```shell
+autoreconf -vif
+```
 
 You can build lsof with the following commands:
 
 ```shell
-# If you are building from git sources
-# autoreconf -vif
 ./configure
 make
 make install
