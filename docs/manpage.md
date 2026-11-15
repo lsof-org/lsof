@@ -6,7 +6,7 @@ NAME
        lsof - list open files
 
 SYNOPSIS
-       lsof  [  -?abChHlnNOPQRtUvVX  ] [ -A A ] [ -c c ] [ +c c ] [ +|-d d ] [
+       lsof  [  -?abChHJjlnNOPQRtUvVX  ] [ -A A ] [ -c c ] [ +c c ] [ +|-d d ] [
        +|-D D ] [ +|-e s ] [ +|-E ] [ +|-f [cfgGn] ] [ -F [f] ] [ -g [s]  ]  [
        -i  [i] ] [ -k k ] [ -K k ] [ +|-L [l] ] [ +|-m m ] [ +|-M ] [ -o [o] ]
        [ -p s ] [ +|-r [t[m<fmt>]] ] [ -s [p:s] ] [ -S [t] ] [ -T [t] ] [ -u s
