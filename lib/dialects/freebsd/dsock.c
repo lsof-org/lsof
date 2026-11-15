@@ -121,6 +121,7 @@ static int cmp_xinpcb_sock_pcb(const void *a, const void *b) {
         return 0;
 }
 
+/* PCB buffers are owned by the caller, including on failure. */
 static int get_unix_pcbs(const char *name, struct xunpcb **pcbs,
                          size_t *n_pcbs) {
     size_t len;
@@ -149,8 +150,6 @@ static int get_unix_pcbs(const char *name, struct xunpcb **pcbs,
 end:
     *pcbs = (struct xunpcb *)buffer;
     *n_pcbs = count;
-    if (ret)
-        free(buffer);
     return ret;
 }
 
@@ -181,8 +180,6 @@ static int get_tcp_pcbs(struct xtcpcb **pcbs, size_t *n_pcbs) {
 end:
     *pcbs = (struct xtcpcb *)buffer;
     *n_pcbs = count;
-    if (ret)
-        free(buffer);
     return ret;
 }
 
@@ -213,9 +210,7 @@ static int get_udp_pcbs(struct xinpcb **pcbs, size_t *n_pcbs) {
 end:
     *pcbs = (struct xinpcb *)buffer;
     *n_pcbs = count;
-    if (ret)
-        free(buffer);
-    return 0;
+    return ret;
 }
 
 struct pcb_lists *read_pcb_lists(void) {
