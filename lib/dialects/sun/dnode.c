@@ -2684,7 +2684,7 @@ void process_node(struct lsof_context *ctx, /* context */
                     ua.sun_path[sizeof(ua.sun_path) - 1] = '\0';
                     if (ua.sun_path[0]) {
                         if (Sfile &&
-                            is_file_named(ctx, ua.sun_path, Ntype, type, 0))
+                            is_file_named(ctx, ua.sun_path, Ntype, VSOCK, 0))
                             Lf->sf |= SELNM;
                         len = (int)strlen(ua.sun_path);
                         nl = (int)strlen(Namech);
