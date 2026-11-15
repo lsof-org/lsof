@@ -52,6 +52,7 @@ int main(int argc, char **argv) {
     struct stat cwd_stat;
     struct stat tmp_stat;
     int fd;
+    int pipefd[2], pipes_found;
     int round;
     int exec_found; /* executable found in result */
     int cwd_found;  /* cwd found in result */
@@ -64,6 +65,11 @@ int main(int argc, char **argv) {
         cwd_found = 0;
         fd_found = 0;
         fd = -1;
+        pipes_found = 0;
+        if (pipe(pipefd)) {
+            perror("pipe");
+            return 1;
+        }
         if (stat(argv[0], &exec_stat)) {
             fprintf(stderr, "Cannot stat %s, skipping executable check\n",
                     argv[0]);
@@ -116,6 +122,19 @@ int main(int argc, char **argv) {
                         cwd_found = 1;
                     }
                 } else if (f->fd_type == LSOF_FD_NUMERIC) {
+                    /* Use the actual modes: Solaris pipes are bidirectional. */
+                    for (int i = 0; i < 2; i++) {
+                        if (p->pid == getpid() && f->fd_num == pipefd[i]) {
+                            int flags = fcntl(pipefd[i], F_GETFL);
+                            int mode = flags & O_ACCMODE;
+                            enum lsof_file_access_mode access =
+                                mode == O_RDONLY ? LSOF_FILE_ACCESS_READ :
+                                mode == O_WRONLY ? LSOF_FILE_ACCESS_WRITE :
+                                                   LSOF_FILE_ACCESS_READ_WRITE;
+                            if (flags != -1 && f->access == access)
+                                pipes_found |= 1 << i;
+                        }
+                    }
                     /* check if fd matches */
                     if (f->fd_num == fd && f->inode == tmp_stat.st_ino &&
                         f->dev == tmp_stat.st_dev) {
@@ -148,12 +167,16 @@ int main(int argc, char **argv) {
         if (!fd_found) {
             fprintf(stderr, "ERROR!!!  opened regular file wasn't found.\n");
         }
+        if (pipes_found != 3)
+            fprintf(stderr, "ERROR!!!  pipe access modes missing or incorrect.\n");
         /* cleanup created temporary file */
         if (fd >= 0) {
             close(fd);
             unlink("LTbasic2-tmp");
         }
-        if (!(exec_found && cwd_found && fd_found)) {
+        close(pipefd[0]);
+        close(pipefd[1]);
+        if (!(exec_found && cwd_found && fd_found && pipes_found == 3)) {
             return 1;
         }
     }
