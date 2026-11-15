@@ -101,6 +101,8 @@ void alloc_lfile(struct lsof_context *ctx,
             (void)free((FREE_P *)Lf->nm);
         if (Lf->nma)
             (void)free((FREE_P *)Lf->nma);
+        CLEAN(Lf->fsdir);
+        CLEAN(Lf->fsdev);
 
 #if defined(HASLFILEADD) && defined(CLRLFILEADD)
         CLRLFILEADD(Lf)
@@ -480,6 +482,8 @@ void free_lproc(struct lproc *lp) {
             (void)free((FREE_P *)lf->nma);
             lf->nma = (char *)NULL;
         }
+        CLEAN(lf->fsdir);
+        CLEAN(lf->fsdev);
 
 #if defined(HASLFILEADD) && defined(CLRLFILEADD)
         CLRLFILEADD(lf)
