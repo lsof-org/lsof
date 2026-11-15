@@ -696,7 +696,7 @@ static void process_threads(struct lsof_context *ctx, /* context */
     /*
      * Make sure a thread buffer has been allocated.
      */
-    n += 10;
+    n = (n + 10) * sizeof(uint64_t);
     if (n > NbThreads) {
         while (n > NbThreads) {
             NbThreads += THREADS_INCR;
