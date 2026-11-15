@@ -6,14 +6,14 @@ NAME
        lsof - list open files
 
 SYNOPSIS
-       lsof  [  -?abChHJjlnNOPQRtUvVX  ] [ -A A ] [ -c c ] [ +c c ] [ +|-d d ] [
+       lsof  [ -?abChHJjlnNOPQRtUvVX ] [ -A A ] [ -c c ] [ +c c ] [ +|-d d ] [
        +|-D D ] [ +|-e s ] [ +|-E ] [ +|-f [cfgGn] ] [ -F [f] ] [ -g [s]  ]  [
        -i  [i] ] [ -k k ] [ -K k ] [ +|-L [l] ] [ +|-m m ] [ +|-M ] [ -o [o] ]
        [ -p s ] [ +|-r [t[m<fmt>]] ] [ -s [p:s] ] [ -S [t] ] [ -T [t] ] [ -u s
        ] [ +|-w ] [ -x [fl] ] [ -z [z] ] [ -Z [Z] ] [ -- ] [names]
 
 DESCRIPTION
-       Lsof  revision  4.99.0  lists  on  its standard output file information
+       Lsof revision 4.99.7 lists on  its  standard  output  file  information
        about files opened by processes for the following UNIX dialects:
 
             Apple Darwin 9, Mac OS X 10, macOS 11 and above
@@ -24,16 +24,16 @@ DESCRIPTION
             Solaris 9, 10 and 11 and above
             OpenIndiana 5.11 and above
 
-       (See the DISTRIBUTION section of this manual page  for  information  on
+       (See  the  DISTRIBUTION  section of this manual page for information on
        how to obtain the latest lsof revision.)
 
-       An  open file may be a regular file, a directory, a block special file,
-       a character special file, an executing text  reference,  a  library,  a
-       stream  or  a  network  file  (Internet socket, NFS file or UNIX domain
-       socket.)  A specific file or all the files in a file system may be  se‐
+       An open file may be a regular file, a directory, a block special  file,
+       a  character  special  file,  an executing text reference, a library, a
+       stream or a network file (Internet socket,  NFS  file  or  UNIX  domain
+       socket.)   A specific file or all the files in a file system may be se‐
        lected by path.
 
-       Instead  of  a  formatted display, lsof will produce output that can be
+       Instead of a formatted display, lsof will produce output  that  can  be
        parsed by other programs.  See the -F, option description, and the OUT‐
        PUT FOR OTHER PROGRAMS section for more information.
 
@@ -78,7 +78,7 @@ OPTIONS
        ing -a, -U, and -ufoo produces a listing of only UNIX socket files that
        belong to processes owned by user ``foo''.
 
-       Caution:  the  -a option causes all list selection options to be ANDed;
+       Caution: the -a option causes all list selection options to  be  ANDed;
        it can't be used to cause ANDing of selected pairs of selection options
        by  placing it between them, even though its placement there is accept‐
        able.  Wherever -a is placed, it causes the ANDing of all selection op‐
@@ -112,19 +112,19 @@ OPTIONS
        +|-M; ``-iM'' is not the same request as ``-i +M''.  When in doubt, use
        separate options with appropriate prefixes.
 
-       -? -h    These  two  equivalent  options  select  a usage (help) output
-                list.  Lsof displays a shortened form of this output  when  it
-                detects  an  error in the options supplied to it, after it has
-                displayed messages explaining each  error.   (Escape  the  `?'
+       -? -h    These two equivalent options  select  a  usage  (help)  output
+                list.   Lsof  displays a shortened form of this output when it
+                detects an error in the options supplied to it, after  it  has
+                displayed  messages  explaining  each  error.  (Escape the `?'
                 character as your shell requires.)
 
        -a       causes list selection options to be ANDed, as described above.
 
-       -A A     is  available  on  systems configured for AFS whose AFS kernel
-                code is implemented via dynamic modules.  It allows  the  lsof
-                user  to  specify  A  as an alternate name list file where the
-                kernel addresses of the dynamic modules might be  found.   See
-                the  lsof  FAQ (The FAQ section gives its location.)  for more
+       -A A     is available on systems configured for AFS  whose  AFS  kernel
+                code  is  implemented via dynamic modules.  It allows the lsof
+                user to specify A as an alternate name  list  file  where  the
+                kernel  addresses  of the dynamic modules might be found.  See
+                the lsof FAQ (The FAQ section gives its location.)   for  more
                 information about dynamic modules, their symbols, and how they
                 affect lsof.
 
@@ -140,11 +140,11 @@ OPTIONS
                 in a single ORed set before participating in AND option selec‐
                 tion.
 
-                If  c begins with a `^', then the following characters specify
+                If c begins with a `^', then the following characters  specify
                 a command name whose processes are to be ignored (excluded.)
 
-                If c begins and ends with a slash ('/'),  the  characters  be‐
-                tween  the  slashes  are  interpreted as a regular expression.
+                If  c  begins  and ends with a slash ('/'), the characters be‐
+                tween the slashes are interpreted  as  a  regular  expression.
                 Shell meta-characters in the regular expression must be quoted
                 to  prevent  their  interpretation  by the shell.  The closing
                 slash may be followed by these modifiers:
@@ -159,20 +159,20 @@ OPTIONS
 
                 The  simple  command  specification  is tested first.  If that
                 test fails, the command regular expression is applied.  If the
-                simple  command  test succeeds, the command regular expression
-                test isn't made.  This may result in ``no  command  found  for
+                simple command test succeeds, the command  regular  expression
+                test  isn't  made.   This may result in ``no command found for
                 regex:'' messages when lsof's -V option is specified.
 
-       +c w     defines  the maximum number of initial characters of the name,
-                supplied by the UNIX dialect, of the UNIX  command  associated
+       +c w     defines the maximum number of initial characters of the  name,
+                supplied  by  the UNIX dialect, of the UNIX command associated
                 with a process to be printed in the COMMAND column.  (The lsof
                 default is nine.)
 
                 Note that many UNIX dialects do not supply  all  command  name
                 characters to lsof in the files and structures from which lsof
-                obtains command name.  Often  dialects  limit  the  number  of
-                characters  supplied  in  those  sources.   For example, Linux
-                2.4.27 and Solaris 9 both limit  command  name  length  to  16
+                obtains  command  name.   Often  dialects  limit the number of
+                characters supplied in  those  sources.   For  example,  Linux
+                2.4.27  and  Solaris  9  both  limit command name length to 16
                 characters.
 
                 If w is zero ('0'), all command characters supplied to lsof by
@@ -181,27 +181,27 @@ OPTIONS
                 If w is less than the length of the column title, ``COMMAND'',
                 it will be raised to that length.
 
-       -C       disables  the  reporting  of any path name components from the
-                kernel's name cache.  See the KERNEL NAME  CACHE  section  for
+       -C       disables the reporting of any path name  components  from  the
+                kernel's  name  cache.   See the KERNEL NAME CACHE section for
                 more information.
 
-       +d s     causes  lsof  to  search for all open instances of directory s
-                and the files and directories it contains at  its  top  level.
+       +d s     causes lsof to search for all open instances  of  directory  s
+                and  the  files  and directories it contains at its top level.
                 +d does NOT descend the directory tree, rooted at s.  The +D D
                 option may be used to request a  full-descent  directory  tree
                 search, rooted at directory D.
 
                 Processing  of  the  +d  option does not follow symbolic links
                 within s unless the -x or -x  l option is also specified.  Nor
-                does  it  search for open files on file system mount points on
-                subdirectories of s unless the -x or  -x   f  option  is  also
+                does it search for open files on file system mount  points  on
+                subdirectories  of  s  unless  the  -x or -x  f option is also
                 specified.
 
-                Note:  the  authority  of the user of this option limits it to
-                searching for files that the user has  permission  to  examine
+                Note: the authority of the user of this option  limits  it  to
+                searching  for  files  that the user has permission to examine
                 with the system stat(2) function.
 
-       -d s     specifies  a list of file descriptors (FDs) to exclude from or
+       -d s     specifies a list of file descriptors (FDs) to exclude from  or
                 include in the output listing.  The file descriptors are spec‐
                 ified  in  the  comma-separated  set  s  -  e.g., ``cwd,1,3'',
                 ``^6,^2''.  (There should be no spaces in the set.)
@@ -232,11 +232,11 @@ OPTIONS
                 range of possible file descriptor numbers.  fd does not appear
                 in FD column of output.
 
-       +D D     causes lsof to search for all open instances  of  directory  D
-                and  all the files and directories it contains to its complete
+       +D D     causes  lsof  to  search for all open instances of directory D
+                and all the files and directories it contains to its  complete
                 depth.
 
-                Processing of the +D option does  not  follow  symbolic  links
+                Processing  of  the  +D  option does not follow symbolic links
                 within D unless the -x or -x  l option is also specified.  Nor
                 does it search for open files on file system mount  points  on
                 subdirectories  of  D  unless  the  -x or -x  f option is also
@@ -248,19 +248,19 @@ OPTIONS
 
                 Further note: lsof may process this option slowly and  require
                 a large amount of dynamic memory to do it.  This is because it
-                must descend the entire directory tree, rooted at  D,  calling
-                stat(2)  for  each  file and directory, building a list of all
-                the files it finds, and searching that list for a  match  with
-                every  open  file.  When directory D is large, these steps can
+                must  descend  the entire directory tree, rooted at D, calling
+                stat(2) for each file and directory, building a  list  of  all
+                the  files  it finds, and searching that list for a match with
+                every open file.  When directory D is large, these  steps  can
                 take a long time, so use this option prudently.
 
-       -D D     directs lsof's use of the device cache file.  The use of  this
-                option  is  sometimes  restricted.   See the DEVICE CACHE FILE
-                section and the sections that follow it for  more  information
+       -D D     directs  lsof's use of the device cache file.  The use of this
+                option is sometimes restricted.  See  the  DEVICE  CACHE  FILE
+                section  and  the sections that follow it for more information
                 on this option.
 
-                -D  must be followed by a function letter; the function letter
-                may optionally be followed by a path  name.   Lsof  recognizes
+                -D must be followed by a function letter; the function  letter
+                may  optionally  be  followed by a path name.  Lsof recognizes
                 these function letters:
 
                      ? - report device cache file paths
@@ -269,25 +269,25 @@ OPTIONS
                      r - read the device cache file
                      u - read and update the device cache file
 
-                The  b,  r,  and  u functions, accompanied by a path name, are
-                sometimes restricted.  When these  functions  are  restricted,
-                they  will not appear in the description of the -D option that
-                accompanies -h or -?  option output.   See  the  DEVICE  CACHE
+                The b, r, and u functions, accompanied by  a  path  name,  are
+                sometimes  restricted.   When  these functions are restricted,
+                they will not appear in the description of the -D option  that
+                accompanies  -h  or  -?   option output.  See the DEVICE CACHE
                 FILE section and the sections that follow it for more informa‐
                 tion on these functions and when they're restricted.
 
                 The ?  function reports the read-only  and  write  paths  that
                 lsof can use for the device cache file, the names of any envi‐
-                ronment variables whose values lsof will examine when  forming
-                the  device  cache  file path, and the format for the personal
-                device cache file path.  (Escape the  `?'  character  as  your
+                ronment  variables whose values lsof will examine when forming
+                the device cache file path, and the format  for  the  personal
+                device  cache  file  path.   (Escape the `?' character as your
                 shell requires.)
 
-                When  available,  the b, r, and u functions may be followed by
+                When available, the b, r, and u functions may be  followed  by
                 the  device  cache  file's  path.   The  standard  default  is
-                .lsof_hostname  in the home directory of the real user ID that
-                executes lsof, but this could have been changed when lsof  was
-                configured  and  compiled.   (The output of the -h and -?  op‐
+                .lsof_hostname in the home directory of the real user ID  that
+                executes  lsof, but this could have been changed when lsof was
+                configured and compiled.  (The output of the -h  and  -?   op‐
                 tions show the current default prefix - e.g., ``.lsof''.)  The
                 suffix,  hostname,  is  the first component of the host's name
                 returned by gethostname(2).
@@ -299,14 +299,14 @@ OPTIONS
                 file and obtain its information about devices via direct calls
                 to the kernel.
 
-                The  r  function  directs lsof to read the device cache at the
+                The r function directs lsof to read the device  cache  at  the
                 default or specified path, but prevents it from creating a new
                 device  cache file when none exists or the existing one is im‐
                 properly structured.  The r function, when specified without a
-                path  name,  prevents  lsof from updating an incorrect or out‐
-                dated device cache file, or creating a new one in  its  place.
-                The  r function is always available when it is specified with‐
-                out a path name argument; it may be restricted by the  permis‐
+                path name, prevents lsof from updating an  incorrect  or  out‐
+                dated  device  cache file, or creating a new one in its place.
+                The r function is always available when it is specified  with‐
+                out  a path name argument; it may be restricted by the permis‐
                 sions of the lsof process.
 
                 When available, the u function directs lsof to read the device
@@ -314,31 +314,31 @@ OPTIONS
                 to rebuild it, if necessary.  This is the default device cache
                 file function when no -D option has been specified.
 
-       +|-e s   exempts the file system whose path name is s from  being  sub‐
-                jected  to kernel function calls that might block.  The +e op‐
-                tion exempts stat(2), lstat(2)  and  most  readlink(2)  kernel
-                function  calls.   The  -e  option  exempts  only  stat(2) and
-                lstat(2) kernel function calls.  Multiple file systems may  be
-                specified  with separate +|-e specifications and each may have
+       +|-e s   exempts  the  file system whose path name is s from being sub‐
+                jected to kernel function calls that might block.  The +e  op‐
+                tion  exempts  stat(2),  lstat(2)  and most readlink(2) kernel
+                function calls.   The  -e  option  exempts  only  stat(2)  and
+                lstat(2)  kernel function calls.  Multiple file systems may be
+                specified with separate +|-e specifications and each may  have
                 readlink(2) calls exempted or not.
 
                 This option is currently implemented only for Linux.
 
-                CAUTION: this option can easily be mis-applied to  other  than
-                the  file system of interest, because it uses path name rather
-                than the more reliable device and inode numbers.  (Device  and
+                CAUTION:  this  option can easily be mis-applied to other than
+                the file system of interest, because it uses path name  rather
+                than  the more reliable device and inode numbers.  (Device and
                 inode  numbers  are  acquired  via  the  potentially  blocking
-                stat(2) kernel call and are thus not available,  but  see  the
-                +|-m  m  option as a possible alternative way to supply device
-                numbers.)  Use this option with great care and  fully  specify
+                stat(2)  kernel  call  and are thus not available, but see the
+                +|-m m option as a possible alternative way to  supply  device
+                numbers.)   Use  this option with great care and fully specify
                 the path name of the file system to be exempted.
 
-                When  open files on exempted file systems are reported, it may
-                not be possible to obtain all their  information.   Therefore,
-                some   information  columns  will  be  blank,  the  characters
-                ``UNKN'' preface the values in the TYPE column, and the appli‐
-                cable  exemption  option is added in parentheses to the end of
-                the NAME column.  (Some device  number  information  might  be
+                When open files on exempted file systems are reported, it  may
+                not  be  possible to obtain all their information.  Therefore,
+                some  information  columns  will  be  blank,  the   characters
+                ``UNKN''  preface  the  values in the TYPE column, and the ap‐
+                plicable exemption option is added in parentheses to  the  end
+                of  the NAME column.  (Some device number information might be
                 made available via the +|-m m option.)
 
        +|-E     +E specifies that Linux pipe, Linux UNIX socket, Linux INET(6)
@@ -352,10 +352,10 @@ OPTIONS
                 sockept, and psudoterminal endpoint information is only avail‐
                 able when the features enabled line contains ptyept.
 
-                Note 2: POSIX Message Queue file endpoint information is  only
+                Note  2: POSIX Message Queue file endpoint information is only
                 available when mqueue file system is mounted.
 
-                Pipe  endpoint  information is displayed in the NAME column in
+                Pipe endpoint information is displayed in the NAME  column  in
                 the form ``PID,cmd,FDmode'', where PID is the endpoint process
                 ID;  cmd  is  the endpoint process command; FD is the endpoint
                 file's descriptor; and mode  is  the  endpoint  file's  access
@@ -365,19 +365,19 @@ OPTIONS
                 column as  ``->/dev/ptsmin PID,cmd,FDmode''  or  ``PID,cmd,FD‐
                 mode''.   The  first  form is for a master device; the second,
                 for a slave device.  min is a slave device's minor device num‐
-                ber;  and PID, cmd, FD and mode are the same as with pipe end‐
-                point information.  Note: psudoterminal  endpoint  information
-                is  only available when the features enabled line of -v output
+                ber; and PID, cmd, FD and mode are the same as with pipe  end‐
+                point  information.   Note: psudoterminal endpoint information
+                is only available when the features enabled line of -v  output
                 contains ptyept. In addition, this feature works on Linux ker‐
                 nels above 4.13.0.
 
                 UNIX socket file endpoint information is displayed in the NAME
                 column in the form
-                ``type=TYPE ->INO=INODE PID,cmd,FDmode'', where  TYPE  is  the
-                socket  type;  INODE  is  the  i-node  number of the connected
-                socket; and PID, cmd, FD and mode are the same  as  with  pipe
-                endpoint  information.  Note: UNIX socket file endpoint infor‐
-                mation is available only when the features enabled line of  -v
+                ``type=TYPE ->INO=INODE PID,cmd,FDmode'',  where  TYPE  is the
+                socket type; INODE is  the  i-node  number  of  the  connected
+                socket;  and  PID,  cmd, FD and mode are the same as with pipe
+                endpoint information.  Note: UNIX socket file endpoint  infor‐
+                mation  is available only when the features enabled line of -v
                 output contains uxsockept.
 
                 INET socket file endpoint information is inserted to the value
@@ -411,17 +411,17 @@ OPTIONS
                 mount(8),  or  if  it  represents a block device, named in the
                 mount output and associated with  a  mounted  directory  name.
                 When +f is specified, all path name arguments will be taken to
-                be file system names, and lsof will complain if any  are  not.
-                This  can  be  useful,  for example, when the file system name
-                (mounted-on device) isn't a block device.   This  happens  for
+                be  file  system names, and lsof will complain if any are not.
+                This can be useful, for example, when  the  file  system  name
+                (mounted-on  device)  isn't  a block device.  This happens for
                 some CD-ROM file systems.
 
-                When  -f  is specified by itself, all path name arguments will
-                be taken to be simple files.  Thus, for example,  the  ``-f --
-                /''  arguments direct lsof to search for open files with a `/'
+                When -f is specified by itself, all path name  arguments  will
+                be  taken  to be simple files.  Thus, for example, the ``-f --
+                /'' arguments direct lsof to search for open files with a  `/'
                 path name, not all open files in the `/' (root) file system.
 
-                Be careful to make sure +f and -f are properly terminated  and
+                Be  careful to make sure +f and -f are properly terminated and
                 aren't followed by a character (e.g., of the file or file sys‐
                 tem name) that might be taken as a  parameter.   For  example,
                 use ``--'' after +f and -f as in these examples.
@@ -433,7 +433,7 @@ OPTIONS
                 quested with the +f [cfgGn] option form,  is  normally  inhib‐
                 ited,  and is not available in whole or part for some dialects
                 - e.g., /proc-based Linux kernels below 2.6.22.  When the pre‐
-                fix  to  f is a plus sign (`+'), these characters request file
+                fix to f is a plus sign (`+'), these characters  request  file
                 structure information:
 
                      c    file structure use count (not Linux)
@@ -470,27 +470,27 @@ OPTIONS
 
                 File  structure  addresses,  use  counts,  flags, and node ad‐
                 dresses may be used to detect more readily identical files in‐
-                herited  by child processes and identical files in use by dif‐
-                ferent processes.  Lsof column output can be sorted by  output
-                columns  holding  the  values and listed to identify identical
+                herited by child processes and identical files in use by  dif‐
+                ferent  processes.  Lsof column output can be sorted by output
+                columns holding the values and listed  to  identify  identical
                 file use, or lsof field output can be parsed by an AWK or Perl
                 post-filter script, or by a C program.
 
        -F f     specifies  a  character list, f, that selects the fields to be
                 output for processing by another program,  and  the  character
                 that terminates each output field.  Each field to be output is
-                specified with a single character in f.  The field  terminator
+                specified  with a single character in f.  The field terminator
                 defaults to NL, but may be changed to NUL (000).  See the OUT‐
                 PUT FOR OTHER PROGRAMS section for a description of the  field
                 identification characters and the field output process.
 
                 When the field selection character list is empty, all standard
-                fields are selected (except the  raw  device  field,  security
-                context  and  zone field for compatibility reasons) and the NL
+                fields  are  selected  (except  the raw device field, security
+                context and zone field for compatibility reasons) and  the  NL
                 field terminator is used.
 
-                When the field selection character list contains only  a  zero
-                (`0'),  all  fields  are selected (except the raw device field
+                When  the  field selection character list contains only a zero
+                (`0'), all fields are selected (except the  raw  device  field
                 for compatibility reasons) and the NUL terminator character is
                 used.
 
@@ -503,12 +503,12 @@ OPTIONS
                 tion of the field character - e.g., ``-FR'' - also selects the
                 listing of the item.
 
-                When the field selection character list  contains  the  single
-                character  `?',  lsof  will  display  a help list of the field
-                identification characters.  (Escape the `?' character as  your
+                When  the  field  selection character list contains the single
+                character `?', lsof will display a  help  list  of  the  field
+                identification  characters.  (Escape the `?' character as your
                 shell requires.)
 
-       -g [s]   excludes  or  selects  the  listing of files for the processes
+       -g [s]   excludes or selects the listing of  files  for  the  processes
                 whose optional process group IDentification (PGID) numbers are
                 in  the comma-separated set s - e.g., ``123'' or ``123,^456''.
                 (There should be no spaces in the set.)
@@ -524,17 +524,52 @@ OPTIONS
                 The -g option also enables the output display of PGID numbers.
                 When specified without a PGID set that's all it does.
 
-       -H       directs  lsof  to  print  human  readable  sizes,  e.g. 123.4K
+       -H       directs lsof  to  print  human  readable  sizes,  e.g.  123.4K
                 456.7M.
+
+       -J       selects  JSON output mode.  Instead of the traditional tabular
+                or -F field output, lsof produces a single JSON object on std‐
+                out containing a processes array.  Each  process  object  con‐
+                tains its fields and a files array of open file entries.
+
+                Field  selection  follows  the  same  rules as -F: use -F with
+                field characters to select which fields  appear  in  the  JSON
+                output.  Without -F, the default field set is used.
+
+                -J  is mutually exclusive with -j and -t.  Warnings and errors
+                are sent to stderr; stdout is always valid JSON (see CHARACTER
+                ENCODING NOTE below).
+
+       -j       selects JSON Lines output mode.  Each open file  produces  one
+                JSON  object  per line, combining process and file fields in a
+                single denormalized  record.   This  format  is  suitable  for
+                streaming pipelines, log ingestion (Splunk, Datadog, Elastic),
+                and line-oriented tools.
+
+                Field selection follows the same rules as -J.
+
+                -j is mutually exclusive with -J and -t.
+
+                Character encoding note: JSON (RFC 8259) mandates that strings
+                be  valid UTF-8.  However, file names on Unix-like systems are
+                arbitrary byte sequences and may contain bytes  that  are  not
+                valid UTF-8.  When such bytes appear, lsof passes them through
+                to  the  output  unchanged.   This  means  the  output  is not
+                strictly conformant JSON, but the original file  name  can  be
+                recovered.   This is consistent with the behaviour of lsfd(1),
+                ip(8) (-j), and other Linux utilities that produce  JSON  out‐
+                put.   Consumers  that  require  strict  RFC 8259  conformance
+                should filter or re-encode such values (e.g. using iconv(1) or
+                Python's surrogateescape error handler).
 
        -i [i]   selects the listing of files any  of  whose  Internet  address
                 matches  the  address specified in i.  If no address is speci‐
                 fied, this option selects the listing of all Internet and x.25
                 (HP-UX) network files.
 
-                If  -i4  or  -i6  is specified with no following address, only
-                files of the indicated IP version,  IPv4  or  IPv6,  are  dis‐
-                played.   (An  IPv6  specification may be used only if the di‐
+                If -i4 or -i6 is specified with  no  following  address,  only
+                files  of  the  indicated  IP  version, IPv4 or IPv6, are dis‐
+                played.  (An IPv6 specification may be used only  if  the  di‐
                 alects supports IPv6, as indicated by ``[46]'' and ``IPv[46]''
                 in  lsof's  -h  or  -?  output.)  Sequentially specifying -i4,
                 followed by -i6 is the same as specifying -i, and  vice-versa.
@@ -546,7 +581,7 @@ OPTIONS
                 range is counted as one address.)  They are joined in a single
                 ORed set before participating in AND option selection.
 
-                An  Internet address is specified in the form (Items in square
+                An Internet address is specified in the form (Items in  square
                 brackets are optional.):
 
                 [46][protocol][@hostname|hostaddr][:service|port]
@@ -573,28 +608,28 @@ OPTIONS
                           or a list of them.
                      port is a port number, or a list of them.
 
-                IPv6 options may be used only if  the  UNIX  dialect  supports
+                IPv6  options  may  be  used only if the UNIX dialect supports
                 IPv6.  To see if the dialect supports IPv6, run lsof and spec‐
                 ify the -h or -?  (help) option.  If the displayed description
-                of  the  -i  option contains ``[46]'' and ``IPv[46]'', IPv6 is
+                of the -i option contains ``[46]'' and  ``IPv[46]'',  IPv6  is
                 supported.
 
-                IPv4 host names and addresses may not be specified if  network
-                file  selection is limited to IPv6 with -i 6.  IPv6 host names
-                and addresses may not be specified if network  file  selection
-                is  limited  to  IPv4  with  -i  4.  When an open IPv4 network
-                file's address is mapped in an IPv6 address, the  open  file's
-                type  will be IPv6, not IPv4, and its display will be selected
+                IPv4  host names and addresses may not be specified if network
+                file selection is limited to IPv6 with -i 6.  IPv6 host  names
+                and  addresses  may not be specified if network file selection
+                is limited to IPv4 with -i  4.   When  an  open  IPv4  network
+                file's  address  is mapped in an IPv6 address, the open file's
+                type will be IPv6, not IPv4, and its display will be  selected
                 by '6', not '4'.
 
-                At least one address component -  4,  6,  protocol,  hostname,
-                hostaddr,  or  service - must be supplied.  The `@' character,
-                leading the host specification, is always required; as is  the
-                `:',  leading the port specification.  Specify either hostname
-                or hostaddr.  Specify either service name list or port  number
-                list.   If  a service name list is specified, the protocol may
-                also need to be specified if the TCP,  UDP  and  UDPLITE  port
-                numbers  for  the  service name are different.  Use any case -
+                At  least  one  address  component - 4, 6, protocol, hostname,
+                hostaddr, or service - must be supplied.  The  `@'  character,
+                leading  the host specification, is always required; as is the
+                `:', leading the port specification.  Specify either  hostname
+                or  hostaddr.  Specify either service name list or port number
+                list.  If a service name list is specified, the  protocol  may
+                also  need  to  be  specified if the TCP, UDP and UDPLITE port
+                numbers for the service name are different.  Use  any  case  -
                 lower or upper - for protocol.
 
                 Service names and port numbers may be combined in a list whose
@@ -630,8 +665,8 @@ OPTIONS
                 list-everything case when no other options are specified.
 
                 When -K and -a are both specified on Linux, and the tasks of a
-                main  process  are selected by other options, the main process
-                will also be listed as though it were a task,  but  without  a
+                main process are selected by other options, the  main  process
+                will  also  be  listed as though it were a task, but without a
                 task ID.  (See the description of the TID column in the OUTPUT
                 section.)
 
@@ -642,15 +677,15 @@ OPTIONS
                 but may close some and open others, so lsof always reports all
                 the open files of threads and tasks.
 
-       -k k     specifies  a  kernel  name  list file, k, in place of /vmunix,
-                /mach, etc.   -k  is  not  available  under  AIX  on  the  IBM
+       -k k     specifies a kernel name list file, k,  in  place  of  /vmunix,
+                /mach,  etc.   -k  is  not  available  under  AIX  on  the IBM
                 RISC/System 6000.
 
        -l       inhibits the conversion of user ID numbers to login names.  It
                 is also useful when login name lookup is working improperly or
                 slowly.
 
-       +|-L [l] enables  (`+')  or  disables  (`-')  the  listing of file link
+       +|-L [l] enables (`+') or disables  (`-')  the  listing  of  file  link
                 counts, where they are available - e.g., they aren't available
                 for sockets, or most FIFOs and pipes.
 
@@ -658,10 +693,10 @@ OPTIONS
                 counts will be listed.  When -L is specified (the default), no
                 link counts will be listed.
 
-                When  +L  is  followed  by  a number, only files having a link
-                count less than that number will be listed.   (No  number  may
-                follow  -L.)   A specification of the form ``+L1'' will select
-                open files that have been unlinked.  A  specification  of  the
+                When +L is followed by a number,  only  files  having  a  link
+                count  less  than  that number will be listed.  (No number may
+                follow -L.)  A specification of the form ``+L1''  will  select
+                open  files  that  have been unlinked.  A specification of the
                 form ``+aL1 <file_system>'' will select unlinked open files on
                 the specified file system.
 
@@ -680,38 +715,38 @@ OPTIONS
 
                 There  will  be  a  line in the mount supplement file for each
                 mounted file system, containing the mounted file system direc‐
-                tory,  followed by a single space, followed by the device num‐
+                tory, followed by a single space, followed by the device  num‐
                 ber in hexadecimal "0x" format - e.g.,
 
                      / 0x801
 
-                Lsof can use the mount supplement file to get  device  numbers
-                for  file  systems  when  it  can't  get  them  via stat(2) or
+                Lsof  can  use the mount supplement file to get device numbers
+                for file systems  when  it  can't  get  them  via  stat(2)  or
                 lstat(2).
 
                 The option form +m m identifies m as a mount supplement file.
 
-                Note: the +m and +m m options are not available for  all  sup‐
+                Note:  the  +m and +m m options are not available for all sup‐
                 ported dialects.  Check the output of lsof's -h or -?  options
                 to see if the +m and +m m options are available.
 
        +|-M     Enables (+) or disables (-) the reporting of portmapper regis‐
                 trations for local TCP, UDP and UDPLITE ports, where port map‐
                 ping is supported.  (See the last paragraph of this option de‐
-                scription  for information about where portmapper registration
+                scription for information about where portmapper  registration
                 reporting is supported.)
 
                 The default reporting mode is set by the lsof builder with the
                 HASPMAPENABLED #define in the dialect's machine.h header file;
-                lsof is distributed with the  HASPMAPENABLED  #define  deacti‐
+                lsof  is  distributed  with the HASPMAPENABLED #define deacti‐
                 vated, so portmapper reporting is disabled by default and must
                 be requested with +M.  Specifying lsof's -h or -?  option will
-                report  the  default  mode.  Disabling portmapper registration
-                when it is already disabled or enabling it  when  already  en‐
-                abled  is  acceptable.  When portmapper registration reporting
+                report the default mode.   Disabling  portmapper  registration
+                when  it  is  already disabled or enabling it when already en‐
+                abled is acceptable.  When portmapper  registration  reporting
                 is enabled, lsof displays the portmapper registration (if any)
                 for local TCP, UDP or UDPLITE ports in square brackets immedi‐
-                ately following the port numbers  or  service  names  -  e.g.,
+                ately  following  the  port  numbers  or service names - e.g.,
                 ``:1234[name]'' or ``:name[100083]''.  The registration infor‐
                 mation may be a name or number, depending on what  the  regis‐
                 tering  program  supplied to the portmapper when it registered
@@ -719,12 +754,12 @@ OPTIONS
 
                 When portmapper registration reporting is  enabled,  lsof  may
                 run a little more slowly or even become blocked when access to
-                the portmapper becomes congested or stopped.  Reverse the  re‐
+                the  portmapper becomes congested or stopped.  Reverse the re‐
                 porting mode to determine if portmapper registration reporting
                 is slowing or blocking lsof.
 
                 For purposes of portmapper registration reporting lsof consid‐
-                ers  a  TCP,  UDP or UDPLITE port local if: it is found in the
+                ers a TCP, UDP or UDPLITE port local if: it is  found  in  the
                 local part of its containing kernel structure; or if it is lo‐
                 cated  in  the foreign part of its containing kernel structure
                 and the local and foreign Internet addresses are the same;  or
@@ -755,8 +790,8 @@ OPTIONS
        -o       directs  lsof  to display file offset at all times.  It causes
                 the SIZE/OFF output column title  to  be  changed  to  OFFSET.
                 Note: on some UNIX dialects lsof can't obtain accurate or con‐
-                sistent file offset information from its kernel data  sources,
-                sometimes  just  for  particular  kinds of files (e.g., socket
+                sistent  file offset information from its kernel data sources,
+                sometimes just for particular kinds  of  files  (e.g.,  socket
                 files.)  Consult the lsof FAQ (The FAQ section gives its loca‐
                 tion.)  for more information.
 
@@ -765,8 +800,8 @@ OPTIONS
                 ever value - size or offset - is appropriate and available for
                 the type of the file.
 
-       -o o     defines the number of decimal digits (o) to be  printed  after
-                the  ``0t''  for  a file offset before the form is switched to
+       -o o     defines  the  number of decimal digits (o) to be printed after
+                the ``0t'' for a file offset before the form  is  switched  to
                 ``0x...''.  An o value of zero (unlimited) directs lsof to use
                 the ``0t'' form for all offset output.
 
@@ -781,38 +816,39 @@ OPTIONS
                 or
                      -oo10
 
-                The default number of digits allowed after ``0t'' is  normally
+                The  default number of digits allowed after ``0t'' is normally
                 8, but may have been changed by the lsof builder.  Consult the
                 description of the -o o option in the output of the -h  or  -?
                 option to determine the default that is in effect.
 
        -O       directs  lsof  to  bypass  the strategy it uses to avoid being
                 blocked by some kernel operations - i.e., doing them in forked
-                child  processes.   See  the  BLOCKS AND TIMEOUTS and AVOIDING
-                KERNEL BLOCKS sections for more information on  kernel  opera‐
+                child processes.  See the BLOCKS  AND  TIMEOUTS  and  AVOIDING
+                KERNEL  BLOCKS  sections for more information on kernel opera‐
                 tions that may block lsof.
 
                 While use of this option will reduce lsof startup overhead, it
                 may also cause lsof to hang when the kernel doesn't respond to
                 a function.  Use this option cautiously.
 
-       -p s     excludes  or  selects  the  listing of files for the processes
+       -p s     excludes or selects the listing of  files  for  the  processes
                 whose optional process IDentification (PID) numbers are in the
                 comma-separated set s - e.g., ``123'' or ``123,^456''.  (There
                 should be no spaces in the set.)
 
-                PID numbers that begin with `^'  (negation)  represent  exclu‐
+                PID  numbers  that  begin with `^' (negation) represent exclu‐
                 sions.
 
-                Multiple  process  ID  numbers are joined in a single ORed set
-                before participating in AND option  selection.   However,  PID
+                Multiple process ID numbers are joined in a  single  ORed  set
+                before  participating  in  AND option selection.  However, PID
                 exclusions are applied without ORing or ANDing and take effect
                 before other selection criteria are applied.
 
        -P       inhibits the conversion of port numbers to port names for net‐
-                work  files.   Inhibiting  the  conversion may make lsof run a
-                little faster.  It is also useful when port name lookup is not
-                working properly.
+                work files (the mapping is  commonly  learned  from  /etc/ser‐
+                vices).   Inhibiting the conversion may make lsof run a little
+                faster.  It is also useful when port name lookup is not  work‐
+                ing properly.
 
        -Q       ignore  failed  search  terms. When lsof is told to search for
                 users of a file, or for users of a device, or for  a  specific
@@ -860,23 +896,23 @@ OPTIONS
                 propriately.
 
                 Repeat mode reduces lsof startup overhead, so it is more effi‐
-                cient to use this mode than to call lsof repetitively  from  a
+                cient  to  use this mode than to call lsof repetitively from a
                 shell script, for example.
 
                 To use repeat mode most efficiently, accompany +|-r with spec‐
                 ification of other lsof selection options, so  the  amount  of
                 kernel memory access lsof does will be kept to a minimum.  Op‐
-                tions that filter at the process level - e.g., -c, -g, -p,  -u
+                tions  that filter at the process level - e.g., -c, -g, -p, -u
                 - are the most efficient selectors.
 
-                Repeat  mode is useful when coupled with field output (see the
-                -F, option description) and a supervising awk or Perl  script,
+                Repeat mode is useful when coupled with field output (see  the
+                -F,  option description) and a supervising awk or Perl script,
                 or a C program.
 
-       -R       directs  lsof to list the Parent Process IDentification number
+       -R       directs lsof to list the Parent Process IDentification  number
                 in the PPID column.
 
-       -s [p:s] s alone directs lsof to display file size at  all  times.   It
+       -s [p:s] s  alone  directs  lsof to display file size at all times.  It
                 causes the SIZE/OFF output column title to be changed to SIZE.
                 If the file does not have a size, nothing is displayed.
 
@@ -906,7 +942,7 @@ OPTIONS
 
                 If only TCP and UDP files are to be listed, as  controlled  by
                 the specified exclusions and inclusions, the -i option must be
-                specified, too.  If only a single protocol's files are  to  be
+                specified,  too.   If only a single protocol's files are to be
                 listed, add its name as an argument to the -i option.
 
                 For example, to list only network files with TCP state LISTEN,
@@ -919,21 +955,22 @@ OPTIONS
 
                      -iUDP -sUDP:^Idle
 
-                State  names  vary with UNIX dialects, so it's not possible to
-                provide a complete list.  Some common  TCP  state  names  are:
-                CLOSED,  IDLE, BOUND, LISTEN, ESTABLISHED, SYN_SENT, SYN_RCDV,
+                State names vary with UNIX dialects, so it's not  possible  to
+                provide  a  complete  list.   Some common TCP state names are:
+                CLOSED, IDLE, BOUND, LISTEN, ESTABLISHED, SYN_SENT,  SYN_RCDV,
                 ESTABLISHED,   CLOSE_WAIT,   FIN_WAIT1,   CLOSING,   LAST_ACK,
                 FIN_WAIT_2, and TIME_WAIT.  Two common UDP state names are Un‐
-                bound and Idle.
+                bound and Idle.  Apple Darwin does not provide UDP state  info
+                to lsof.
 
-                See the lsof FAQ (The FAQ section gives  its  location.)   for
-                more  information  on  how to use protocol state exclusion and
+                See  the  lsof  FAQ (The FAQ section gives its location.)  for
+                more information on how to use protocol  state  exclusion  and
                 inclusion, including examples.
 
                 The -o (without a following decimal digit count) and -s option
                 (without  a  following protocol and state name list) are mutu‐
                 ally exclusive; they can't both be specified.  When neither is
-                specified,  lsof displays whatever value - size or offset - is
+                specified, lsof displays whatever value - size or offset -  is
                 appropriate and available for the type of file.
 
                 Since some types of files don't have true sizes - sockets, FI‐
@@ -942,15 +979,15 @@ OPTIONS
 
        -S [t]   specifies an optional time-out seconds value for kernel  func‐
                 tions - lstat(2), readlink(2), and stat(2) - that might other‐
-                wise deadlock.  The minimum for t is two;  the  default,  fif‐
+                wise  deadlock.   The  minimum for t is two; the default, fif‐
                 teen; when no value is specified, the default is used.
 
                 See the BLOCKS AND TIMEOUTS section for more information.
 
-       -T [t]   controls  the  reporting of some TCP/TPI information, also re‐
-                ported by netstat(1), following  the  network  addresses.   In
-                normal  output  the  information  appears in parentheses, each
-                item except TCP or TPI state name  identified  by  a  keyword,
+       -T [t]   controls the reporting of some TCP/TPI information,  also  re‐
+                ported  by  netstat(1),  following  the network addresses.  In
+                normal output the information  appears  in  parentheses,  each
+                item  except  TCP  or  TPI state name identified by a keyword,
                 followed by `=', separated from others by a single space:
 
                      <TCP or TPI state name>
@@ -982,8 +1019,8 @@ OPTIONS
                      s    selects connection state reporting.
                      w    selects window size reporting.
 
-                Not all selections are enabled for some UNIX dialects.   State
-                may  be  selected for all dialects and is reported by default.
+                Not  all selections are enabled for some UNIX dialects.  State
+                may be selected for all dialects and is reported  by  default.
                 The -h or -?  help output for the -T option will show what se‐
                 lections may be used with the UNIX dialect.
 
@@ -1002,11 +1039,11 @@ OPTIONS
                 <netinet/tcp_var.h>.  Consult those header files for the mean‐
                 ing of the flags, options, states and values.
 
-                ``SO='' precedes socket options and  values;  ``SS='',  socket
+                ``SO=''  precedes  socket  options and values; ``SS='', socket
                 states; and ``TF='', TCP flags and values.
 
-                If  a flag or option has a value, the value will follow an '='
-                and  the  name  --   e.g.,   ``SO=LINGER=5'',   ``SO=QLIM=5'',
+                If a flag or option has a value, the value will follow an  '='
+                and   the   name   --  e.g.,  ``SO=LINGER=5'',  ``SO=QLIM=5'',
                 ``TF=MSS=512''.  The following seven values may be reported:
 
                      Name
@@ -1021,9 +1058,9 @@ OPTIONS
                      RCVBUF    receive buffer length (SO_RCVBUF)
                      SNDBUF    send buffer length (SO_SNDBUF)
 
-                Details  on what socket options and values, socket states, and
-                TCP flags and values may be displayed for particular UNIX  di‐
-                alects  may  be  found in the answer to the ``Why doesn't lsof
+                Details on what socket options and values, socket states,  and
+                TCP  flags and values may be displayed for particular UNIX di‐
+                alects may be found in the answer to the  ``Why  doesn't  lsof
                 report socket options, socket states, and TCP flags and values
                 for  my  dialect?''  and ``Why doesn't lsof report the partial
                 listen queue connection count for my dialect?''  questions  in
@@ -1048,8 +1085,8 @@ OPTIONS
                 The -t option implies the -w option.
 
        -u s     selects the listing of files for the user whose login names or
-                user  ID  numbers  are  in  the  comma-separated set s - e.g.,
-                ``abe'', or ``548,root''.  (There should be no spaces  in  the
+                user ID numbers are in  the  comma-separated  set  s  -  e.g.,
+                ``abe'',  or  ``548,root''.  (There should be no spaces in the
                 set.)
 
                 Multiple login names or user ID numbers are joined in a single
@@ -1060,16 +1097,16 @@ OPTIONS
                 user ID will never be listed.  A negated login name or user ID
                 selection  is neither ANDed nor ORed with other selections; it
                 is applied before all other selections and absolutely excludes
-                the  listing of the files of the process.  For example, to di‐
-                rect lsof to exclude the listing of files  belonging  to  root
+                the listing of the files of the process.  For example, to  di‐
+                rect  lsof  to  exclude the listing of files belonging to root
                 processes, specify ``-u^root'' or ``-u^0''.
 
        -U       selects the listing of UNIX domain socket files.
 
-       -v       selects  the  listing  of lsof version information, including:
-                revision number; when the lsof  binary  was  constructed;  who
-                constructed  the  binary  and  where; the name of the compiler
-                used to construct the lsof binary; the version number  of  the
+       -v       selects the listing of lsof  version  information,  including:
+                revision  number;  when  the  lsof binary was constructed; who
+                constructed the binary and where; the  name  of  the  compiler
+                used  to  construct the lsof binary; the version number of the
                 compiler when readily available; the compiler and loader flags
                 used to construct the lsof  binary;  and  system  information,
                 typically the output of uname's -a option.
@@ -1078,7 +1115,7 @@ OPTIONS
                 failed to find - command names, file names, Internet addresses
                 or files, login names, NFS files, PIDs, PGIDs, and UIDs.
 
-                When  other  options  are  ANDed  to  search  options, or com‐
+                When other options  are  ANDed  to  search  options,  or  com‐
                 pile-time options restrict the listing of some files, lsof may
                 not  report that it failed to find a search item when an ANDed
                 option or compile-time option prevents the listing of the open
@@ -1103,7 +1140,7 @@ OPTIONS
                 The -t option implies the -w option.
 
        -x [fl]  may accompany the +d and +D options to direct their processing
-                to cross over symbolic links and|or file system  mount  points
+                to  cross  over symbolic links and|or file system mount points
                 encountered when scanning the directory (+d) or directory tree
                 (+D).
 
@@ -1112,11 +1149,11 @@ OPTIONS
                 mount points is enabled.  Note that when -x is specified with‐
                 out a parameter, the next argument must begin with '-' or '+'.
 
-                The  optional  'f'  parameter  enables file system mount point
-                cross-over processing; 'l', symbolic link cross-over  process‐
+                The optional 'f' parameter enables  file  system  mount  point
+                cross-over  processing; 'l', symbolic link cross-over process‐
                 ing.
 
-                The  -x option may not be supplied without also supplying a +d
+                The -x option may not be supplied without also supplying a  +d
                 or +D option.
 
        -X       This is a dialect-specific option.
@@ -1126,8 +1163,8 @@ OPTIONS
                 executed text file and shared library references.
 
                 WARNING: because this option uses the kernel readx() function,
-                its use on a  busy  AIX  system  might  cause  an  application
-                process  to  hang  so completely that it can neither be killed
+                its  use  on  a  busy  AIX  system  might cause an application
+                process to hang so completely that it can  neither  be  killed
                 nor stopped.  I have never seen this happen or had a report of
                 its  happening,  but  I think there is a remote possibility it
                 could happen.
@@ -1139,55 +1176,55 @@ OPTIONS
                 The lsof builder may specify that the -X option be  restricted
                 to  processes  whose real UID is root.  If that has been done,
                 the -X option will not appear in the -h or -?  help output un‐
-                less  the  real  UID of the lsof process is root.  The default
-                lsof distribution allows any UID to specify -X, so by  default
+                less the real UID of the lsof process is  root.   The  default
+                lsof  distribution allows any UID to specify -X, so by default
                 it will appear in the help output.
 
-                When  AIX readx() use is disabled, lsof may not be able to re‐
-                port information for all text and loader file references,  but
-                it  may also avoid exacerbating an AIX kernel directory search
+                When AIX readx() use is disabled, lsof may not be able to  re‐
+                port  information for all text and loader file references, but
+                it may also avoid exacerbating an AIX kernel directory  search
                 kernel error, known as the Stale Segment ID bug.
 
                 The readx() function, used by lsof or any other program to ac‐
                 cess  some  sections of kernel virtual memory, can trigger the
                 Stale Segment ID bug.  It can cause the kernel's  dir_search()
                 function to believe erroneously that part of an in-memory copy
-                of a file system directory has been zeroed.  Another  applica‐
-                tion  process, distinct from lsof, asking the kernel to search
-                the  directory  -  e.g.,  by  using  open(2)   -   can   cause
-                dir_search()  to  loop  forever,  thus hanging the application
+                of  a file system directory has been zeroed.  Another applica‐
+                tion process, distinct from lsof, asking the kernel to  search
+                the   directory   -   e.g.,  by  using  open(2)  -  can  cause
+                dir_search() to loop forever,  thus  hanging  the  application
                 process.
 
-                Consult the lsof FAQ (The FAQ  section  gives  its  location.)
+                Consult  the  lsof  FAQ  (The FAQ section gives its location.)
                 and the 00README file of the lsof distribution for a more com‐
                 plete description of the Stale Segment ID bug, its  APAR,  and
                 methods for defining readx() use when compiling lsof.
 
            Linux:
                 This Linux option requests that lsof skip the reporting of in‐
-                formation on all open TCP,  UDP  and  UDPLITE  IPv4  and  IPv6
+                formation  on  all  open  TCP,  UDP  and UDPLITE IPv4 and IPv6
                 files.
 
-                This  Linux  option  is most useful when the system has an ex‐
-                tremely large number of open TCP, UDP and UDPLITE  files,  the
-                processing  of  whose  information  in  the /proc/net/tcp* and
-                /proc/net/udp* files would take lsof a long  time,  and  whose
+                This Linux option is most useful when the system  has  an  ex‐
+                tremely  large  number of open TCP, UDP and UDPLITE files, the
+                processing of whose  information  in  the  /proc/net/tcp*  and
+                /proc/net/udp*  files  would  take lsof a long time, and whose
                 reporting is not of interest.
 
-                Use  this option with care and only when you are sure that the
-                information you want lsof to  display  isn't  associated  with
+                Use this option with care and only when you are sure that  the
+                information  you  want  lsof  to display isn't associated with
                 open TCP, UDP or UDPLITE socket files.
 
            Solaris 10 and above:
-                This  Solaris  10  and  above option requests the reporting of
-                cached paths for files that have been deleted - i.e.,  removed
+                This Solaris 10 and above option  requests  the  reporting  of
+                cached  paths for files that have been deleted - i.e., removed
                 with rm(1) or unlink(2).
 
-                The  cached  path  is followed by the string `` (deleted)'' to
-                indicate that the path by which the file was opened  has  been
+                The cached path is followed by the  string  `` (deleted)''  to
+                indicate  that  the path by which the file was opened has been
                 deleted.
 
-                Because  intervening  changes made to the path - i.e., renames
+                Because intervening changes made to the path -  i.e.,  renames
                 with mv(1) or rename(2) - are not recorded in the cached path,
                 what  lsof  reports  is  only  the  path by which the file was
                 opened, not its possibly different final path.
@@ -1201,64 +1238,64 @@ OPTIONS
 
                 The  -z option may be followed by a zone name, z.  That causes
                 lsof to list only open files for processes in that zone.  Mul‐
-                tiple  -z z option and argument pairs may be specified to form
+                tiple -z z option and argument pairs may be specified to  form
                 a list of named zones.  Any open file of any process in any of
                 the  zones  will be listed, subject to other conditions speci‐
                 fied by other options and arguments.
 
        -Z [Z]   specifies how SELinux security contexts are to be handled.  It
-                and  'Z'  field  output  character  support are inhibited when
-                SELinux is disabled in the running Linux kernel.   See  OUTPUT
-                FOR  OTHER PROGRAMS for more information on the 'Z' field out‐
+                and 'Z' field output  character  support  are  inhibited  when
+                SELinux  is  disabled in the running Linux kernel.  See OUTPUT
+                FOR OTHER PROGRAMS for more information on the 'Z' field  out‐
                 put character.
 
-                Without a following argument - e.g., NO Z - the option  speci‐
-                fies  that  security  contexts  are  to be listed in the SECU‐
+                Without  a following argument - e.g., NO Z - the option speci‐
+                fies that security contexts are to  be  listed  in  the  SECU‐
                 RITY-CONTEXT output column.
 
-                The -Z option may be followed by a wildcard  security  context
-                name,  Z.   That  causes lsof to list only open files for pro‐
-                cesses in that security context.  Multiple -Z Z option and ar‐
-                gument  pairs may be specified to form a list of security con‐
-                texts.  Any open file of any process in any  of  the  security
+                The  -Z  option may be followed by a wildcard security context
+                name, Z.  That  causes  lsof  to  list  only  open  files  for
+                processes  in that security context.  Multiple -Z Z option and
+                argument pairs may be specified to form  a  list  of  security
+                contexts.  Any open file of any process in any of the security
                 contexts will be listed, subject to other conditions specified
-                by other options and arguments.  Note that Z can be  A:B:C  or
+                by  other  options and arguments.  Note that Z can be A:B:C or
                 *:B:C or A:B:* or *:*:C to match against the A:B:C context.
 
-       --       The  double minus sign option is a marker that signals the end
-                of the keyed options.  It may be used, for example,  when  the
+       --       The double minus sign option is a marker that signals the  end
+                of  the  keyed options.  It may be used, for example, when the
                 first file name begins with a minus sign.  It may also be used
                 when the absence of a value for the last keyed option must  be
                 signified by the presence of a minus sign in the following op‐
                 tion and before the start of the file names.
 
-       names    These are path names of  specific  files  to  list.   Symbolic
-                links  are  resolved  before use.  The first name may be sepa‐
+       names    These  are  path  names  of  specific files to list.  Symbolic
+                links are resolved before use.  The first name  may  be  sepa‐
                 rated from the preceding options with the ``--'' option.
 
-                If a name is the mounted-on directory of a file system or  the
-                device  of  the file system, lsof will list all the files open
-                on the file system.  To be considered a file system, the  name
-                must  match a mounted-on directory name in mount(8) output, or
-                match the name of a block device associated with a  mounted-on
-                directory  name.  The +|-f option may be used to force lsof to
+                If  a name is the mounted-on directory of a file system or the
+                device of the file system, lsof will list all the  files  open
+                on  the file system.  To be considered a file system, the name
+                must match a mounted-on directory name in mount(8) output,  or
+                match  the name of a block device associated with a mounted-on
+                directory name.  The +|-f option may be used to force lsof  to
                 consider a name a file system identifier (+f) or a simple file
                 (-f).
 
                 If  name  is  a path to a directory that is not the mounted-on
                 directory name of a file system, it is treated just as a regu‐
-                lar  file is treated - i.e., its listing is restricted to pro‐
-                cesses that have it open as a file or  as  a  process-specific
+                lar file is treated -  i.e.,  its  listing  is  restricted  to
+                processes that have it open as a file or as a process-specific
                 directory,  such as the root or current working directory.  To
                 request that lsof look for open files inside a directory name,
                 use the +d s and +D D options.
 
-                If  a name is the base name of a family of multiplexed files -
-                e.g, AIX's /dev/pt[cs] - lsof will  list  all  the  associated
+                If a name is the base name of a family of multiplexed files  -
+                e.g,  AIX's  /dev/pt[cs]  -  lsof will list all the associated
                 multiplexed  files  on  the  device  that  are  open  -  e.g.,
                 /dev/pt[cs]/1, /dev/pt[cs]/2, etc.
 
-                If a name is a UNIX domain  socket  name,  lsof  will  usually
+                If  a  name  is  a  UNIX domain socket name, lsof will usually
                 search for it by the characters of the name alone - exactly as
                 it is specified and is recorded in the  kernel  socket  struc‐
                 ture.   (See  the next paragraph for an exception to that rule
@@ -1268,7 +1305,7 @@ OPTIONS
                 what it finds in the kernel UNIX domain socket structures.
 
                 If a name is a Linux UNIX domain socket name, in one case lsof
-                is able to search for it by its device and inode  number,  al‐
+                is  able  to search for it by its device and inode number, al‐
                 lowing name to be a relative path.  The case requires that the
                 absolute path -- i.e., one beginning with  a  slash  ('/')  be
                 used  by  the  process  that  created the socket, and hence be
@@ -1277,7 +1314,7 @@ OPTIONS
                 solute path in /proc/net/unix and name via successful  stat(2)
                 system  calls.   When  those  conditions are met, lsof will be
                 able to search for the UNIX domain socket when some path to it
-                is  is  specified  in name.  Thus, for example, if the path is
+                is is specified in name.  Thus, for example, if  the  path  is
                 /dev/log, and an lsof search is initiated when the working di‐
                 rectory is /dev, then name could be ./log.
 
@@ -1286,7 +1323,7 @@ OPTIONS
 
                 If you have also specified the -b option, the only  names  you
                 may safely specify are file systems for which your mount table
-                supplies alternate device numbers.  See  the  AVOIDING  KERNEL
+                supplies  alternate  device  numbers.  See the AVOIDING KERNEL
                 BLOCKS and ALTERNATE DEVICE NUMBERS sections for more informa‐
                 tion.
 
@@ -1303,8 +1340,8 @@ AFS
             Solaris 2.[56] (AFS 3.4a)
 
        It may recognize AFS files on other versions of these dialects, but has
-       not  been  tested there.  Depending on how AFS is implemented, lsof may
-       recognize AFS files in other dialects, or may have difficulties  recog‐
+       not been tested there.  Depending on how AFS is implemented,  lsof  may
+       recognize  AFS files in other dialects, or may have difficulties recog‐
        nizing AFS files in the supported dialects.
 
        Lsof may have trouble identifying all aspects of AFS files in supported
@@ -1317,7 +1354,7 @@ AFS
 
        The  -A  A  option is available in some dialect implementations of lsof
        for specifying the name list file where dynamic module kernel addresses
-       may  be found.  When this option is available, it will be listed in the
+       may be found.  When this option is available, it will be listed in  the
        lsof help output, presented in response to the -h or -?
 
        See the lsof FAQ (The FAQ section gives its location.)  for more infor‐
@@ -1325,15 +1362,15 @@ AFS
        options.
 
        Because AFS path lookups don't seem to participate in the kernel's name
-       cache  operations,  lsof  can't  identify  path name components for AFS
+       cache operations, lsof can't identify  path  name  components  for  AFS
        files.
 
 SECURITY
-       Lsof has three features that may cause security concerns.   First,  its
-       default  compilation mode allows anyone to list all open files with it.
-       Second, by default it creates a user-readable and user-writable  device
-       cache  file  in  the  home  directory of the real user ID that executes
-       lsof.  (The list-all-open-files and device cache features may  be  dis‐
+       Lsof  has  three features that may cause security concerns.  First, its
+       default compilation mode allows anyone to list all open files with  it.
+       Second,  by default it creates a user-readable and user-writable device
+       cache file in the home directory of the  real  user  ID  that  executes
+       lsof.   (The  list-all-open-files and device cache features may be dis‐
        abled when lsof is compiled.)  Third, its -k and -m options name alter‐
        nate kernel name list or memory files.
 
@@ -1358,20 +1395,20 @@ SECURITY
        CURITY options enabled.
 
        Creation and use of a user-readable and user-writable device cache file
-       is  controlled  by  the  compile-time HASDCACHE option.  See the DEVICE
-       CACHE FILE section and the sections that follow it for details  on  how
-       its  path  is  formed.   For security considerations it is important to
-       note that in the default lsof distribution, if the real user  ID  under
-       which  lsof  is executed is root, the device cache file will be written
+       is controlled by the compile-time HASDCACHE  option.   See  the  DEVICE
+       CACHE  FILE  section and the sections that follow it for details on how
+       its path is formed.  For security considerations  it  is  important  to
+       note  that  in the default lsof distribution, if the real user ID under
+       which lsof is executed is root, the device cache file will  be  written
        in root's home directory - e.g., / or /root.  When HASDCACHE is not de‐
        fined, lsof does not write or attempt to read a device cache file.
 
        When  HASDCACHE is defined, the lsof help output, presented in response
        to the -h, -D?, or -?  options, will provide device cache file handling
-       information.   When HASDCACHE is not defined, the -h or -?  output will
+       information.  When HASDCACHE is not defined, the -h or -?  output  will
        have no -D option description.
 
-       Before you decide to disable the device cache file feature  -  enabling
+       Before  you  decide to disable the device cache file feature - enabling
        it improves the performance of lsof by reducing the startup overhead of
        examining all the nodes in /dev (or /devices) - read the discussion  of
        it  in the 00DCACHE file of the lsof distribution and the lsof FAQ (The
@@ -1381,8 +1418,8 @@ SECURITY
        FILE WITH THE -Di OPTION.
 
        When lsof user declares alternate kernel name list or memory files with
-       the -k and -m options, lsof checks the user's authority  to  read  them
-       with  access(2).   This  is  intended to prevent whatever special power
+       the  -k  and  -m options, lsof checks the user's authority to read them
+       with access(2).  This is intended to  prevent  whatever  special  power
        lsof's modes might confer on it from letting it read files not normally
        accessible via the authority of the real user ID.
 
@@ -1391,29 +1428,29 @@ OUTPUT
        See the OUTPUT FOR OTHER PROGRAMS section for additional information on
        output that can be processed by another program.
 
-       Lsof  only  outputs printable (declared so by isprint(3)) 8 bit charac‐
-       ters.  Non-printable characters are printed in one of three forms:  the
-       C  ``\[bfrnt]'' form; the control character `^' form (e.g., ``^@''); or
-       hexadecimal leading ``\x'' form (e.g., ``\xab'').  Space is  non-print‐
+       Lsof only outputs printable (declared so by isprint(3)) 8  bit  charac‐
+       ters.   Non-printable characters are printed in one of three forms: the
+       C ``\[bfrnt]'' form; the control character `^' form (e.g., ``^@'');  or
+       hexadecimal  leading ``\x'' form (e.g., ``\xab'').  Space is non-print‐
        able in the COMMAND column (``\x20'') and printable elsewhere.
 
-       For  some  dialects  -  if HASSETLOCALE is defined in the dialect's ma‐
-       chine.h header file - lsof will print the extended 8 bit characters  of
+       For some dialects - if HASSETLOCALE is defined  in  the  dialect's  ma‐
+       chine.h  header file - lsof will print the extended 8 bit characters of
        a language locale.  The lsof process must be supplied a language locale
        environment variable (e.g., LANG) whose value represents a  known  lan‐
        guage  locale in which the extended characters are considered printable
        by isprint(3).  Otherwise lsof considers the extended  characters  non-
        printable  and  prints  them  according  to its rules for non-printable
        characters, stated above.  Consult your dialect's setlocale(3) man page
-       for  the names of other environment variables that may be used in place
+       for the names of other environment variables that may be used in  place
        of LANG - e.g., LC_ALL, LC_CTYPE, etc.
 
-       Lsof's language locale support for a dialect also covers  wide  charac‐
-       ters  -  e.g., UTF-8 - when HASSETLOCALE and HASWIDECHAR are defined in
-       the dialect's machine.h header file, and when a suitable  language  lo‐
-       cale  has  been defined in the appropriate environment variable for the
-       lsof process.  Wide characters are printable under those conditions  if
-       iswprint(3)  reports  them  to  be.  If HASSETLOCALE, HASWIDECHAR and a
+       Lsof's  language  locale support for a dialect also covers wide charac‐
+       ters - e.g., UTF-8 - when HASSETLOCALE and HASWIDECHAR are  defined  in
+       the  dialect's  machine.h header file, and when a suitable language lo‐
+       cale has been defined in the appropriate environment variable  for  the
+       lsof  process.  Wide characters are printable under those conditions if
+       iswprint(3) reports them to be.  If  HASSETLOCALE,  HASWIDECHAR  and  a
        suitable language locale aren't defined, or if iswprint(3) reports wide
        characters  that  aren't  printable, lsof considers the wide characters
        non-printable and prints each of their 8 bits according  to  its  rules
@@ -1423,22 +1460,22 @@ OUTPUT
        lsof FAQ (The FAQ section gives its location.) for more information.
 
        Lsof dynamically sizes the output columns each time it runs, guarantee‐
-       ing  that  each column is a minimum size.  It also guarantees that each
+       ing that each column is a minimum size.  It also guarantees  that  each
        column is separated from its predecessor by at least one space.
 
-       COMMAND    contains the first nine characters of the name of  the  UNIX
-                  command  associated with the process.  If a non-zero w value
-                  is specified to the +c w option,  the  column  contains  the
-                  first  w  characters of the name of the UNIX command associ‐
+       COMMAND    contains  the  first nine characters of the name of the UNIX
+                  command associated with the process.  If a non-zero w  value
+                  is  specified  to  the  +c w option, the column contains the
+                  first w characters of the name of the UNIX  command  associ‐
                   ated with the process up to the limit of characters supplied
                   to lsof by the UNIX dialect.  (See the description of the +c
-                  w command or the lsof FAQ for  more  information.   The  FAQ
+                  w  command  or  the  lsof FAQ for more information.  The FAQ
                   section gives its location.)
 
-                  If  w  is  less  than the length of the column title, ``COM‐
+                  If w is less than the length of  the  column  title,  ``COM‐
                   MAND'', it will be raised to that length.
 
-                  If a zero w value is specified to the +c w option, the  col‐
+                  If  a zero w value is specified to the +c w option, the col‐
                   umn contains all the characters of the name of the UNIX com‐
                   mand associated with the process.
 
@@ -1754,6 +1791,8 @@ OUTPUT
 
                   or ``XSD'' for an OpenServer Xenix shared data file;
 
+                  or ``NPOLICY'' for Darwin network policy;
+
                   or ``UNSP'' for an unsupported file;
 
                   or the four type number octets  if  the  corresponding  name
@@ -1855,14 +1894,14 @@ OUTPUT
                        VTXT      virtual text
                        XL        exclusive lock
 
-                  this list of names was derived from F* #define's in  dialect
-                  header   files   <fcntl.h>,   <linux</fs.h>,  <sys/fcntl.c>,
-                  <sys/fcntlcom.h>, and <sys/file.h>; see the common.h  header
+                  this  list of names was derived from F* #define's in dialect
+                  header  files   <fcntl.h>,   <linux</fs.h>,   <sys/fcntl.c>,
+                  <sys/fcntlcom.h>,  and <sys/file.h>; see the common.h header
                   file for a list showing the correspondence between the above
                   short-hand names and the header file definitions;
 
                   the second list (after the semicolon) may contain short-hand
-                  names  for  kernel per-process open file flags from this ta‐
+                  names for kernel per-process open file flags from  this  ta‐
                   ble:
 
                        ALLC      allocated
@@ -1878,8 +1917,8 @@ OUTPUT
                        SHMT      UF_FSHMAT set (AIX)
                        USE       in use (multi-threaded)
 
-       NODE-ID    (or INODE-ADDR for some dialects) contains a unique  identi‐
-                  fier  for  the  file node (usually the kernel vnode or inode
+       NODE-ID    (or  INODE-ADDR for some dialects) contains a unique identi‐
+                  fier for the file node (usually the kernel  vnode  or  inode
                   address, but also occasionally a concatenation of device and
                   node number) when n has been specified to +f;
 
@@ -1909,34 +1948,34 @@ OUTPUT
                   Lsof displays whatever value - size or offset - is appropri‐
                   ate for the type of the file and the version of lsof.
 
-                  On some UNIX dialects lsof can't obtain accurate or  consis‐
-                  tent  file  offset information from its kernel data sources,
-                  sometimes just for particular kinds of files  (e.g.,  socket
+                  On  some UNIX dialects lsof can't obtain accurate or consis‐
+                  tent file offset information from its kernel  data  sources,
+                  sometimes  just  for particular kinds of files (e.g., socket
                   files.)  In other cases, files don't have true sizes - e.g.,
                   sockets, FIFOs, pipes - so lsof displays for their sizes the
-                  content  amounts it finds in their kernel buffer descriptors
-                  (e.g., socket buffer size counts or  TCP/IP  window  sizes.)
-                  Consult  the  lsof FAQ (The FAQ section gives its location.)
+                  content amounts it finds in their kernel buffer  descriptors
+                  (e.g.,  socket  buffer  size counts or TCP/IP window sizes.)
+                  Consult the lsof FAQ (The FAQ section gives  its  location.)
                   for more information.
 
-                  The file size is displayed in decimal; the  offset  is  nor‐
-                  mally  displayed in decimal with a leading ``0t'' if it con‐
+                  The  file  size  is displayed in decimal; the offset is nor‐
+                  mally displayed in decimal with a leading ``0t'' if it  con‐
                   tains 8 digits or less; in hexadecimal with a leading ``0x''
                   if it is longer than 8 digits.  (Consult the -o o option de‐
-                  scription for information on when 8 might  default  to  some
+                  scription  for  information  on when 8 might default to some
                   other value.)
 
-                  Thus  the  leading ``0t'' and ``0x'' identify an offset when
-                  the column may contain both a size and an offset (i.e.,  its
+                  Thus the leading ``0t'' and ``0x'' identify an  offset  when
+                  the  column may contain both a size and an offset (i.e., its
                   title is SIZE/OFF).
 
                   If the -o option is specified, lsof always displays the file
                   offset (or nothing if no offset is available) and labels the
-                  column  OFFSET.   The  offset  always  begins with ``0t'' or
+                  column OFFSET.  The offset  always  begins  with  ``0t''  or
                   ``0x'' as described above.
 
-                  The lsof user can control the switch from ``0t''  to  ``0x''
-                  with  the -o o option.  Consult its description for more in‐
+                  The  lsof  user can control the switch from ``0t'' to ``0x''
+                  with the -o o option.  Consult its description for more  in‐
                   formation.
 
                   If the -s option is specified, lsof always displays the file
@@ -1949,7 +1988,7 @@ OUTPUT
 
                   For files that don't have a fixed size - e.g., don't  reside
                   on a disk device - lsof will display appropriate information
-                  about the current size or position of  the  file  if  it  is
+                  about  the  current  size  or  position of the file if it is
                   available in the kernel structures that define the file.
 
        NLINK      contains the file link count when +L has been specified;
@@ -1966,17 +2005,17 @@ OUTPUT
 
                   or the IRQ or inode number of a Linux AX.25 socket device.
 
-       NAME       is  the name of the mount point and file system on which the
+       NAME       is the name of the mount point and file system on which  the
                   file resides;
 
-                  or the name of a file specified in the names  option  (after
+                  or  the  name of a file specified in the names option (after
                   any symbolic links have been resolved);
 
                   or the name of a character special or block special device;
 
-                  or  the  local  and  remote  Internet addresses of a network
-                  file; the local host name or IP  number  is  followed  by  a
-                  colon  (':'),  the port, ``->'', and the two-part remote ad‐
+                  or the local and remote  Internet  addresses  of  a  network
+                  file;  the  local  host  name  or IP number is followed by a
+                  colon (':'), the port, ``->'', and the two-part  remote  ad‐
                   dress; IP addresses may be reported as numbers or names, de‐
                   pending  on  the  +|-M,  -n, and -P options; colon-separated
                   IPv6 numbers are  enclosed  in  square  brackets;  IPv4  IN‐
@@ -1993,16 +2032,16 @@ OUTPUT
                   formation on state, queue size, and window size;
 
                   or the address or name of a UNIX domain socket, possibly in‐
-                  cluding a stream clone device name, a file  system  object's
-                  path  name,  local and foreign kernel addresses, socket pair
+                  cluding  a  stream clone device name, a file system object's
+                  path name, local and foreign kernel addresses,  socket  pair
                   information, and a bound vnode address;
 
                   or the local and remote mount point names of an NFS file;
 
                   or ``STR'', followed by the stream name;
 
-                  or a stream character device name, followed  by  ``->''  and
-                  the  stream name or a list of stream module names, separated
+                  or  a  stream  character device name, followed by ``->'' and
+                  the stream name or a list of stream module names,  separated
                   by ``->'';
 
                   or ``STR:'' followed by the SCO OpenServer stream device and
@@ -2016,15 +2055,15 @@ OUTPUT
                   or ``PIPE->'', followed by a Solaris kernel pipe destination
                   address;
 
-                  or  ``COMMON:'',  followed  by  the vnode device information
+                  or ``COMMON:'', followed by  the  vnode  device  information
                   structure's device name, for a Solaris common vnode;
 
-                  or the address family, followed by a slash  (`/'),  followed
-                  by  fourteen  comma-separated  bytes  of  a non-Internet raw
+                  or  the  address family, followed by a slash (`/'), followed
+                  by fourteen comma-separated  bytes  of  a  non-Internet  raw
                   socket address;
 
-                  or the HP-UX x.25 local address,  followed  by  the  virtual
-                  connection  number  (if any), followed by the remote address
+                  or  the  HP-UX  x.25  local address, followed by the virtual
+                  connection number (if any), followed by the  remote  address
                   (if any);
 
                   or ``(dead)'' for disassociated Tru64 UNIX files - typically
@@ -2034,7 +2073,7 @@ OUTPUT
                   or ``rd=<offset>'' and ``wr=<offset>'' for the values of the
                   read and write offsets of a FIFO;
 
-                  or  ``clone n:/dev/event'' for SCO OpenServer file clones of
+                  or ``clone n:/dev/event'' for SCO OpenServer file clones  of
                   the /dev/event device, where n is the minor device number of
                   the file;
 
@@ -2049,14 +2088,14 @@ OUTPUT
                   disabled (e.g., by the shutdown(2) function);
 
                   or the local and remote addresses of a Linux IPX socket file
-                  in the form <net>:[<node>:]<port>, followed  in  parentheses
-                  by  the transmit and receive queue sizes, and the connection
+                  in  the  form <net>:[<node>:]<port>, followed in parentheses
+                  by the transmit and receive queue sizes, and the  connection
                   state;
 
-                  or ``dgram'' or ``stream'' for the type UnixWare  7.1.1  and
-                  above  in-kernel  UNIX  domain  sockets, followed by a colon
-                  (':') and the local path name when  available,  followed  by
-                  ``->''  and the remote path name or kernel socket address in
+                  or  ``dgram''  or ``stream'' for the type UnixWare 7.1.1 and
+                  above in-kernel UNIX domain sockets,  followed  by  a  colon
+                  (':')  and  the  local path name when available, followed by
+                  ``->'' and the remote path name or kernel socket address  in
                   hexadecimal when available;
 
                   or the association value, association index, endpoint value,
@@ -2070,12 +2109,12 @@ OUTPUT
        to be attached to another with fattach(3C), lsof  will  add  ``(FA:<ad‐
        dress1><direction><address2>)''  to  the  NAME  column.  <address1> and
        <address2> are hexadecimal vnode addresses.  <direction> will be ``<-''
-       if  <address2>  has been fattach'ed to this vnode whose address is <ad‐
+       if <address2> has been fattach'ed to this vnode whose address  is  <ad‐
        dress1>; and ``->'' if <address1>, the vnode address of this vnode, has
        been fattach'ed to <address2>.  <address1> may be omitted if it already
        appears in the DEVICE column.
 
-       Lsof may add two parenthetical notes to the NAME column  for  open  So‐
+       Lsof  may  add  two parenthetical notes to the NAME column for open So‐
        laris 10 files: ``(?)'' if lsof considers the path name of questionable
        accuracy; and ``(deleted)'' if the -X option  has  been  specified  and
        lsof  detects  the open file's path name has been deleted.  Consult the
@@ -2083,25 +2122,25 @@ OUTPUT
        these NAME column additions.
 
 LOCKS
-       Lsof  can't  adequately  report  the  wide variety of UNIX dialect file
-       locks in a single character.  What it reports in a single character  is
-       a  compromise  between  the  information it finds in the kernel and the
+       Lsof can't adequately report the wide  variety  of  UNIX  dialect  file
+       locks  in a single character.  What it reports in a single character is
+       a compromise between the information it finds in  the  kernel  and  the
        limitations of the reporting format.
 
        Moreover, when a process holds several byte level locks on a file, lsof
        only  reports  the  status of the first lock it encounters.  If it is a
        byte level lock, then the lock character will be reported in lower case
-       -  i.e.,  `r',  `w', or `x' - rather than the upper case equivalent re‐
+       - i.e., `r', `w', or `x' - rather than the upper  case  equivalent  re‐
        ported for a full file lock.
 
-       Generally lsof can only report on locks held by local processes on  lo‐
-       cal  files.   When  a  local  process sets a lock on a remotely mounted
-       (e.g., NFS) file, the remote  server  host  usually  records  the  lock
-       state.   One exception is Solaris - at some patch levels of 2.3, and in
-       all versions above 2.4, the Solaris kernel records information  on  re‐
+       Generally  lsof can only report on locks held by local processes on lo‐
+       cal files.  When a local process sets a  lock  on  a  remotely  mounted
+       (e.g.,  NFS)  file,  the  remote  server  host usually records the lock
+       state.  One exception is Solaris - at some patch levels of 2.3, and  in
+       all  versions  above 2.4, the Solaris kernel records information on re‐
        mote locks in local structures.
 
-       Lsof  has  trouble reporting locks for some UNIX dialects.  Consult the
+       Lsof has trouble reporting locks for some UNIX dialects.   Consult  the
        BUGS section of this manual page or the lsof FAQ (The FAQ section gives
        its location.)  for more information.
 
@@ -2113,21 +2152,21 @@ OUTPUT FOR OTHER PROGRAMS
        Each unit of information is output in a field that is identified with a
        leading character and terminated by a NL (012) (or a NUL (000) if the 0
        (zero) field identifier character is specified.)  The data of the field
-       follows immediately after the field identification  character  and  ex‐
+       follows  immediately  after  the field identification character and ex‐
        tends to the field terminator.
 
-       It  is  possible  to think of field output as process and file sets.  A
-       process set begins with a field whose identifier is  `p'  (for  process
-       IDentifier  (PID)).   It extends to the beginning of the next PID field
-       or the beginning of the first file set of the process, whichever  comes
-       first.   Included  in the process set are fields that identify the com‐
+       It is possible to think of field output as process and  file  sets.   A
+       process  set  begins  with a field whose identifier is `p' (for process
+       IDentifier (PID)).  It extends to the beginning of the next  PID  field
+       or  the beginning of the first file set of the process, whichever comes
+       first.  Included in the process set are fields that identify  the  com‐
        mand, the process group IDentification (PGID) number, the task (thread)
        ID (TID), and the user ID (UID) number or login name.
 
        A  file  set  begins with a field whose identifier is `f' (for file de‐
        scriptor).  It is followed by lines that  describe  the  file's  access
        mode, lock state, type, device, size, offset, inode, protocol, name and
-       stream module names.  It extends to the beginning of the next  file  or
+       stream  module  names.  It extends to the beginning of the next file or
        process set, whichever comes first.
 
        When the NUL (000) field terminator has been selected with the 0 (zero)
@@ -2141,7 +2180,7 @@ OUTPUT FOR OTHER PROGRAMS
        not normally list - e.g., PPID, selected with -R - specification of the
        field character - e.g., ``-FR'' - also selects the listing of the item.
 
-       Lsof version from 4.88 to 4.93.2 always produced one  more  field,  the
+       Lsof  version  from  4.88 to 4.93.2 always produced one more field, the
        file descriptor (`f') field. However, lsof in this version doesn't pro‐
        duce it. This change is for supporting the use case that a  user  needs
        only the PID field, and doesn't need the file descriptor field. Specify
@@ -2149,13 +2188,13 @@ OUTPUT FOR OTHER PROGRAMS
 
        It is entirely possible to select a set of fields that cannot easily be
        parsed - e.g., if the field descriptor field is not selected, it may be
-       difficult to identify file sets.  To help you  avoid  this  difficulty,
-       lsof  supports  the -F option; it selects the output of all fields with
-       NL terminators (the -F0 option pair selects the output  of  all  fields
-       with  NUL  terminators).   For compatibility reasons neither -F nor -F0
+       difficult  to  identify  file sets.  To help you avoid this difficulty,
+       lsof supports the -F option; it selects the output of all  fields  with
+       NL  terminators  (the  -F0 option pair selects the output of all fields
+       with NUL terminators).  For compatibility reasons neither  -F  nor  -F0
        select the raw device field.
 
-       These are the fields that lsof  will  produce.   The  single  character
+       These  are  the  fields  that  lsof will produce.  The single character
        listed first is the field identifier.
 
             a    file access mode
@@ -2207,7 +2246,7 @@ OUTPUT FOR OTHER PROGRAMS
                  of -F? identifies the information to be found
                  in dialect-specific fields.)
 
-       You  can get on-line help information on these characters and their de‐
+       You can get on-line help information on these characters and their  de‐
        scriptions by specifying the -F?  option pair.  (Escape the `?' charac‐
        ter  as  your shell requires.)  Additional information on field content
        can be found in the OUTPUT section.
@@ -2219,79 +2258,79 @@ OUTPUT FOR OTHER PROGRAMS
 
        Lsof  doesn't  produce  all  fields for every process or file set, only
        those that are available.  Some fields are mutually exclusive: file de‐
-       vice  characters and file major/minor device numbers; file inode number
-       and protocol name; file name and stream identification; file  size  and
-       offset.   One or the other member of these mutually exclusive sets will
+       vice characters and file major/minor device numbers; file inode  number
+       and  protocol  name; file name and stream identification; file size and
+       offset.  One or the other member of these mutually exclusive sets  will
        appear in field output, but not both.
 
-       Normally lsof ends each field with a NL (012) character.  The 0  (zero)
-       field  identifier character may be specified to change the field termi‐
-       nator character to a NUL (000).  A NUL  terminator  may  be  easier  to
-       process  with  xargs  (1),  for example, or with programs whose quoting
-       mechanisms may not easily cope with the  range  of  characters  in  the
-       field  output.  When the NUL field terminator is in use, lsof ends each
+       Normally  lsof ends each field with a NL (012) character.  The 0 (zero)
+       field identifier character may be specified to change the field  termi‐
+       nator  character  to  a  NUL  (000).  A NUL terminator may be easier to
+       process with xargs (1), for example, or  with  programs  whose  quoting
+       mechanisms  may  not  easily  cope  with the range of characters in the
+       field output.  When the NUL field terminator is in use, lsof ends  each
        process and file set with a NL (012).
 
        Three aids to producing programs that can process lsof field output are
        included  in  the  lsof  distribution.   The  first is a C header file,
        lsof_fields.h, that contains symbols for the field identification char‐
-       acters,  indexes  for  storing them in a table, and explanation strings
+       acters, indexes for storing them in a table,  and  explanation  strings
        that may be compiled into programs.  Lsof uses this header file.
 
-       The second aid is a set of sample scripts that  process  field  output,
-       written  in  awk,  Perl  4, and Perl 5.  They're located in the scripts
+       The  second  aid  is a set of sample scripts that process field output,
+       written in awk, Perl 4, and Perl 5.  They're  located  in  the  scripts
        subdirectory of the lsof distribution.
 
-       The third aid is the C library used for the lsof test suite.  The  test
+       The  third aid is the C library used for the lsof test suite.  The test
        suite is written in C and uses field output to validate the correct op‐
        eration of lsof.  The library can be found in the tests/LTlib.c file of
-       the   lsof   distribution.    The  library  uses  the  first  aid,  the
+       the  lsof  distribution.   The  library  uses  the   first   aid,   the
        lsof_fields.h header file.
 
 BLOCKS AND TIMEOUTS
-       Lsof can be blocked by some kernel functions that it uses  -  lstat(2),
-       readlink(2),  and  stat(2).  These functions are stalled in the kernel,
-       for example, when the hosts where mounted NFS file systems  reside  be‐
+       Lsof  can  be blocked by some kernel functions that it uses - lstat(2),
+       readlink(2), and stat(2).  These functions are stalled in  the  kernel,
+       for  example,  when the hosts where mounted NFS file systems reside be‐
        come inaccessible.
 
-       Lsof  attempts  to  break these blocks with timers and child processes,
-       but the techniques are not wholly reliable.  When lsof does  manage  to
-       break  a  block,  it  will report the break with an error message.  The
+       Lsof attempts to break these blocks with timers  and  child  processes,
+       but  the  techniques are not wholly reliable.  When lsof does manage to
+       break a block, it will report the break with  an  error  message.   The
        messages may be suppressed with the -t and -w options.
 
-       The default timeout value may be displayed with the -h or  -?   option,
+       The  default  timeout value may be displayed with the -h or -?  option,
        and it may be changed with the -S [t] option.  The minimum for t is two
        seconds, but you should avoid small values, since slow  system  respon‐
        siveness  can  cause  short timeouts to expire unexpectedly and perhaps
        stop lsof before it can produce any output.
 
        When lsof has to break a block during its access of mounted file system
-       information,  it  normally  continues,  although  with less information
+       information, it normally  continues,  although  with  less  information
        available to display about open files.
 
-       Lsof can also be directed to avoid the protection of timers  and  child
-       processes  when using the kernel functions that might block by specify‐
-       ing the -O option.  While this will allow lsof to start  up  with  less
-       overhead,  it  exposes  lsof  completely  to the kernel situations that
+       Lsof  can  also be directed to avoid the protection of timers and child
+       processes when using the kernel functions that might block by  specify‐
+       ing  the  -O  option.  While this will allow lsof to start up with less
+       overhead, it exposes lsof completely  to  the  kernel  situations  that
        might block it.  Use this option cautiously.
 
 AVOIDING KERNEL BLOCKS
-       You can use the -b option to tell lsof to avoid using kernel  functions
+       You  can use the -b option to tell lsof to avoid using kernel functions
        that would block.  Some cautions apply.
 
-       First,  using  this option usually requires that your system supply al‐
-       ternate device numbers in place of the device numbers that  lsof  would
-       normally  obtain  with  the lstat(2) and stat(2) kernel functions.  See
-       the ALTERNATE DEVICE NUMBERS section for more information on  alternate
+       First, using this option usually requires that your system  supply  al‐
+       ternate  device  numbers in place of the device numbers that lsof would
+       normally obtain with the lstat(2) and stat(2)  kernel  functions.   See
+       the  ALTERNATE DEVICE NUMBERS section for more information on alternate
        device numbers.
 
-       Second,  you can't specify names for lsof to locate unless they're file
-       system names.  This is because lsof needs to know the device and  inode
-       numbers  of files listed with names in the lsof options, and the -b op‐
-       tion prevents lsof from obtaining them.  Moreover, since lsof only  has
-       device  numbers  for the file systems that have alternates, its ability
-       to locate files on file systems depends completely on the  availability
-       and  accuracy of the alternates.  If no alternates are available, or if
+       Second, you can't specify names for lsof to locate unless they're  file
+       system  names.  This is because lsof needs to know the device and inode
+       numbers of files listed with names in the lsof options, and the -b  op‐
+       tion  prevents lsof from obtaining them.  Moreover, since lsof only has
+       device numbers for the file systems that have alternates,  its  ability
+       to  locate files on file systems depends completely on the availability
+       and accuracy of the alternates.  If no alternates are available, or  if
        they're incorrect, lsof won't be able to locate files on the named file
        systems.
 
@@ -2302,36 +2341,36 @@ AVOIDING KERNEL BLOCKS
        links.
 
        Finally, using the -b option causes lsof to issue warning messages when
-       it needs to use the kernel functions that the -b option directs  it  to
-       avoid.   You  can  suppress these messages by specifying the -w option,
-       but if you do, you won't see the alternate device numbers  reported  in
+       it  needs  to use the kernel functions that the -b option directs it to
+       avoid.  You can suppress these messages by specifying  the  -w  option,
+       but  if  you do, you won't see the alternate device numbers reported in
        the warning messages.
 
 ALTERNATE DEVICE NUMBERS
-       On  some  dialects, when lsof has to break a block because it can't get
-       information about a mounted file system via the  lstat(2)  and  stat(2)
-       kernel  functions, or because you specified the -b option, lsof can ob‐
-       tain some of the information it needs - the device number and  possibly
-       the  file system type - from the system mount table.  When that is pos‐
-       sible, lsof will report the device number it obtained.  (You  can  sup‐
+       On some dialects, when lsof has to break a block because it  can't  get
+       information  about  a  mounted file system via the lstat(2) and stat(2)
+       kernel functions, or because you specified the -b option, lsof can  ob‐
+       tain  some of the information it needs - the device number and possibly
+       the file system type - from the system mount table.  When that is  pos‐
+       sible,  lsof  will report the device number it obtained.  (You can sup‐
        press the report by specifying the -w option.)
 
-       You  can  assist  this process if your mount table is supported with an
-       /etc/mtab or /etc/mnttab file that contains an options field by  adding
+       You can assist this process if your mount table is  supported  with  an
+       /etc/mtab  or /etc/mnttab file that contains an options field by adding
        a ``dev=xxxx'' field for mount points that do not have one in their op‐
        tions strings.  Note: you must be able to edit the file  -  i.e.,  some
        mount  tables like recent Solaris /etc/mnttab or Linux /proc/mounts are
        read-only and can't be modified.
 
        You may also be able to supply device numbers using the +m and +m m op‐
-       tions,  provided  they are supported by your dialect.  Check the output
-       of lsof's -h or -?  options to see if the  +m  and  +m  m  options  are
+       tions, provided they are supported by your dialect.  Check  the  output
+       of  lsof's  -h  or  -?   options  to see if the +m and +m m options are
        available.
 
-       The  ``xxxx'' portion of the field is the hexadecimal value of the file
+       The ``xxxx'' portion of the field is the hexadecimal value of the  file
        system's device number.  (Consult the st_dev field of the output of the
        lstat(2) and stat(2) functions for the appropriate values for your file
-       systems.)  Here's an example from a Sun Solaris 2.6 /etc/mnttab  for  a
+       systems.)   Here's  an example from a Sun Solaris 2.6 /etc/mnttab for a
        file system remotely mounted via NFS:
 
             nfs  ignore,noquota,dev=2a40001
@@ -2341,53 +2380,53 @@ ALTERNATE DEVICE NUMBERS
        servers.   When  a  remote  server crashes and you want to identify its
        users by running lsof on one of its clients,  lsof  probably  won't  be
        able to get output from the lstat(2) and stat(2) functions for the file
-       system.  If it can obtain the file  system's  device  number  from  the
-       mount  table,  it will be able to display the files open on the crashed
+       system.   If  it  can  obtain  the file system's device number from the
+       mount table, it will be able to display the files open on  the  crashed
        NFS server.
 
-       Some dialects that do not use an ASCII /etc/mtab  or  /etc/mnttab  file
-       for  the  mount table may still provide an alternative device number in
+       Some  dialects  that  do not use an ASCII /etc/mtab or /etc/mnttab file
+       for the mount table may still provide an alternative device  number  in
        their internal mount tables.  This includes AIX, Apple Darwin, FreeBSD,
        NetBSD, OpenBSD, and Tru64 UNIX.  Lsof knows how to obtain the alterna‐
-       tive device number for these dialects and uses it when its  attempt  to
+       tive  device  number for these dialects and uses it when its attempt to
        lstat(2) or stat(2) the file system is blocked.
 
-       If  you're  not sure your dialect supplies alternate device numbers for
-       file systems from its mount table, use this lsof incantation to see  if
+       If you're not sure your dialect supplies alternate device  numbers  for
+       file  systems from its mount table, use this lsof incantation to see if
        it reports any alternate device numbers:
 
               lsof -b
 
-       Look  for  standard  error  file warning messages that begin ``assuming
+       Look for standard error file warning  messages  that  begin  ``assuming
        "dev=xxxx" from ...''.
 
 KERNEL NAME CACHE
        Lsof is able to examine the kernel's name cache or use other kernel fa‐
        cilities  (e.g., the ADVFS 4.x tag_to_path() function under Tru64 UNIX)
        on some dialects for most file system types, excluding AFS, and extract
-       recently  used  path  name  components  from it.  (AFS file system path
-       lookups don't use the kernel's name cache; some Solaris VxFS file  sys‐
+       recently used path name components from  it.   (AFS  file  system  path
+       lookups  don't use the kernel's name cache; some Solaris VxFS file sys‐
        tem operations apparently don't use it, either.)
 
-       Lsof  reports  the complete paths it finds in the NAME column.  If lsof
-       can't report all components in a path, it reports in  the  NAME  column
-       the  file system name, followed by a space, two `-' characters, another
-       space, and the name components it has located,  separated  by  the  `/'
+       Lsof reports the complete paths it finds in the NAME column.   If  lsof
+       can't  report  all  components in a path, it reports in the NAME column
+       the file system name, followed by a space, two `-' characters,  another
+       space,  and  the  name  components it has located, separated by the `/'
        character.
 
-       When  lsof is run in repeat mode - i.e., with the -r option specified -
-       the extent to which it can report path name  components  for  the  same
-       file  may  vary from cycle to cycle.  That's because other running pro‐
-       cesses can cause the kernel to remove entries from its name  cache  and
-       replace them with others.
+       When lsof is run in repeat mode - i.e., with the -r option specified  -
+       the  extent  to  which  it can report path name components for the same
+       file may vary from  cycle  to  cycle.   That's  because  other  running
+       processes  can  cause  the kernel to remove entries from its name cache
+       and replace them with others.
 
-       Lsof's  use of the kernel name cache to identify the paths of files can
-       lead it to report incorrect components under some circumstances.   This
-       can  happen when the kernel name cache uses device and node number as a
-       key (e.g., SCO OpenServer) and a key on a rapidly changing file  system
-       is  reused.   If the UNIX dialect's kernel doesn't purge the name cache
-       entry for a file when it is unlinked, lsof may find a reference to  the
-       wrong  entry in the cache.  The lsof FAQ (The FAQ section gives its lo‐
+       Lsof's use of the kernel name cache to identify the paths of files  can
+       lead  it to report incorrect components under some circumstances.  This
+       can happen when the kernel name cache uses device and node number as  a
+       key  (e.g., SCO OpenServer) and a key on a rapidly changing file system
+       is reused.  If the UNIX dialect's kernel doesn't purge the  name  cache
+       entry  for a file when it is unlinked, lsof may find a reference to the
+       wrong entry in the cache.  The lsof FAQ (The FAQ section gives its  lo‐
        cation.)  has more information on this situation.
 
        Lsof can report path name components for these dialects:
@@ -2415,9 +2454,9 @@ DEVICE CACHE FILE
        lsof needs - device number, inode number, and path - rarely changes.
 
        Consequently, lsof normally maintains an ASCII text file of cached /dev
-       (or /devices) information (exception: the /proc-based Linux lsof  where
-       it's  not  needed.)  The local system administrator who builds lsof can
-       control the way the device cache file path is  formed,  selecting  from
+       (or  /devices) information (exception: the /proc-based Linux lsof where
+       it's not needed.)  The local system administrator who builds  lsof  can
+       control  the  way  the device cache file path is formed, selecting from
        these options:
 
             Path from the -D option;
@@ -2430,30 +2469,30 @@ DEVICE CACHE FILE
        state of device cache support.   The  help  output  lists  the  default
        read-mode  device cache file path that is in effect for the current in‐
        vocation of lsof.  The -D?  option output lists the read-only and write
-       device  cache file paths, the names of any applicable environment vari‐
+       device cache file paths, the names of any applicable environment  vari‐
        ables, and the personal device cache path format.
 
-       Lsof can detect that the current device cache file  has  been  acciden‐
+       Lsof  can  detect  that the current device cache file has been acciden‐
        tally or maliciously modified by integrity checks, including the compu‐
        tation and verification of a sixteen bit Cyclic Redundancy Check  (CRC)
        sum  on the file's contents.  When lsof senses something wrong with the
        file, it issues a warning and attempts to remove the current cache file
-       and  create a new copy, but only to a path that the process can legiti‐
+       and create a new copy, but only to a path that the process can  legiti‐
        mately write.
 
-       The path from which a lsof process may attempt to read a  device  cache
-       file  may  not  be  the  same  as the path to which it can legitimately
-       write.  Thus when lsof senses that it needs to update the device  cache
-       file,  it may choose a different path for writing it from the path from
+       The  path  from which a lsof process may attempt to read a device cache
+       file may not be the same as the  path  to  which  it  can  legitimately
+       write.   Thus when lsof senses that it needs to update the device cache
+       file, it may choose a different path for writing it from the path  from
        which it read an incorrect or outdated version.
 
-       If available, the -Dr option will inhibit the writing of a  new  device
-       cache  file.  (It's always available when specified without a path name
+       If  available,  the -Dr option will inhibit the writing of a new device
+       cache file.  (It's always available when specified without a path  name
        argument.)
 
-       When a new device is added to the system, the  device  cache  file  may
-       need  to  be  recreated.   Since  lsof compares the mtime of the device
-       cache file with the mtime and ctime of the /dev  (or  /devices)  direc‐
+       When  a  new  device  is added to the system, the device cache file may
+       need to be recreated.  Since lsof compares  the  mtime  of  the  device
+       cache  file  with  the mtime and ctime of the /dev (or /devices) direc‐
        tory, it usually detects that a new device has been added; in that case
        lsof issues a warning message and attempts to rebuild the device  cache
        file.
@@ -2520,7 +2559,7 @@ DEVICE CACHE FILE PATH FROM THE -D OPTION
        stricted when the lsof process is setuid-root.  The path specified with
        the r function is always read-only, even when it is available.
 
-       The b, r, and u functions are also restricted  when  the  lsof  process
+       The  b,  r,  and  u functions are also restricted when the lsof process
        runs setgid and lsof doesn't surrender the setgid permission.  (See the
        LSOF PERMISSIONS THAT AFFECT DEVICE CACHE FILE  ACCESS  section  for  a
        list of implementations that normally don't surrender their setgid per‐
@@ -2528,7 +2567,7 @@ DEVICE CACHE FILE PATH FROM THE -D OPTION
 
        A further -D function, i (for ignore), is always available.
 
-       When available, the b function tells lsof to  read  device  information
+       When  available,  the  b function tells lsof to read device information
        from the kernel with the stat(2) function and build a device cache file
        at the indicated path.
 
@@ -2536,23 +2575,23 @@ DEVICE CACHE FILE PATH FROM THE -D OPTION
        file,  but  not  update  it.   When a path argument accompanies -Dr, it
        names the device cache file path.  The r function is  always  available
        when it is specified without a path name argument.  If lsof is not run‐
-       ning setuid-root and surrenders its setgid permission, a path name  ar‐
+       ning  setuid-root and surrenders its setgid permission, a path name ar‐
        gument may accompany the r function.
 
-       When  available,  the  u function tells lsof to attempt to read and use
-       the device cache file.  If it can't read the file, or if it  finds  the
-       contents  of  the  file incorrect or outdated, it will read information
-       from the kernel, and attempt to write an updated version of the  device
-       cache  file,  but  only  to a path it considers legitimate for the lsof
+       When available, the u function tells lsof to attempt to  read  and  use
+       the  device  cache file.  If it can't read the file, or if it finds the
+       contents of the file incorrect or outdated, it  will  read  information
+       from  the kernel, and attempt to write an updated version of the device
+       cache file, but only to a path it considers  legitimate  for  the  lsof
        process effective and real UIDs.
 
 DEVICE CACHE PATH FROM AN ENVIRONMENT VARIABLE
-       Lsof's second choice for the device cache file is the contents  of  the
-       LSOFDEVCACHE  environment  variable.  It avoids this choice if the lsof
+       Lsof's  second  choice for the device cache file is the contents of the
+       LSOFDEVCACHE environment variable.  It avoids this choice if  the  lsof
        process is setuid-root, or the real UID of the process is root.
 
-       A further restriction applies to a device cache file  path  taken  from
-       the  LSOFDEVCACHE  environment  variable:  lsof will not write a device
+       A  further  restriction  applies to a device cache file path taken from
+       the LSOFDEVCACHE environment variable: lsof will  not  write  a  device
        cache file to the path if the lsof process doesn't surrender its setgid
        permission.   (See  the  LSOF PERMISSIONS THAT AFFECT DEVICE CACHE FILE
        ACCESS section for information on implementations that don't  surrender
@@ -2565,65 +2604,65 @@ DEVICE CACHE PATH FROM AN ENVIRONMENT VARIABLE
 SYSTEM-WIDE DEVICE CACHE PATH
        The  local system administrator may choose to have a system-wide device
        cache file when building lsof.  That file will generally be constructed
-       by  a special system administration procedure when the system is booted
-       or when the contents of /dev or /devices) changes.  If defined,  it  is
+       by a special system administration procedure when the system is  booted
+       or  when  the contents of /dev or /devices) changes.  If defined, it is
        lsof's third device cache file path choice.
 
        You can tell that a system-wide device cache file is in effect for your
        local installation by examining the lsof help option output - i.e., the
        output from the -h or -?  option.
 
-       Lsof  will never write to the system-wide device cache file path by de‐
-       fault.  It must be explicitly named with a -D function in a  root-owned
-       procedure.   Once  the file has been written, the procedure must change
-       its permission modes to 0644 (owner-read and  owner-write,  group-read,
+       Lsof will never write to the system-wide device cache file path by  de‐
+       fault.   It must be explicitly named with a -D function in a root-owned
+       procedure.  Once the file has been written, the procedure  must  change
+       its  permission  modes to 0644 (owner-read and owner-write, group-read,
        and other-read).
 
 PERSONAL DEVICE CACHE PATH (DEFAULT)
-       The  default  device  cache  file  path of the lsof distribution is one
-       recorded in the home directory of the  real  UID  that  executes  lsof.
-       Added  to  the  home  directory  is a second path component of the form
+       The default device cache file path of  the  lsof  distribution  is  one
+       recorded  in  the  home  directory  of the real UID that executes lsof.
+       Added to the home directory is a second  path  component  of  the  form
        .lsof_hostname.
 
        This is lsof's fourth device cache file path choice, and is usually the
        default.  If a system-wide device cache file path was defined when lsof
-       was built, this fourth choice will be applied when lsof can't find  the
-       system-wide  device  cache  file.   This is the only time lsof uses two
+       was  built, this fourth choice will be applied when lsof can't find the
+       system-wide device cache file.  This is the only  time  lsof  uses  two
        paths when reading the device cache file.
 
-       The hostname part of the second component is the base name of the  exe‐
-       cuting  host,  as returned by gethostname(2).  The base name is defined
-       to be the characters preceding the first  `.'   in  the  gethostname(2)
+       The  hostname part of the second component is the base name of the exe‐
+       cuting host, as returned by gethostname(2).  The base name  is  defined
+       to  be  the  characters  preceding the first `.'  in the gethostname(2)
        output, or all the gethostname(2) output if it contains no `.'.
 
-       The  device  cache  file  belongs  to  the  user ID and is readable and
-       writable by the user ID alone - i.e., its modes are  0600.   Each  dis‐
-       tinct  real  user  ID on a given host that executes lsof has a distinct
-       device cache file.  The hostname part of the path distinguishes  device
-       cache  files  in  an NFS-mounted home directory into which device cache
+       The device cache file belongs to  the  user  ID  and  is  readable  and
+       writable  by  the  user ID alone - i.e., its modes are 0600.  Each dis‐
+       tinct real user ID on a given host that executes lsof  has  a  distinct
+       device  cache file.  The hostname part of the path distinguishes device
+       cache files in an NFS-mounted home directory into  which  device  cache
        files are written from several different hosts.
 
-       The personal device cache file path formed by this method represents  a
-       device  cache  file that lsof will attempt to read, and will attempt to
-       write should it not exist or should its contents be incorrect  or  out‐
+       The  personal device cache file path formed by this method represents a
+       device cache file that lsof will attempt to read, and will  attempt  to
+       write  should  it not exist or should its contents be incorrect or out‐
        dated.
 
        The -Dr option without a path name argument will inhibit the writing of
        a new device cache file.
 
        The -D?  option will list the format specification for constructing the
-       personal  device cache file.  The conversions used in the format speci‐
+       personal device cache file.  The conversions used in the format  speci‐
        fication are described in the 00DCACHE file of the lsof distribution.
 
 MODIFIED PERSONAL DEVICE CACHE PATH
-       If this option is defined by the local system administrator  when  lsof
-       is  built, the LSOFPERSDCPATH environment variable contents may be used
+       If  this  option is defined by the local system administrator when lsof
+       is built, the LSOFPERSDCPATH environment variable contents may be  used
        to add a component of the personal device cache file path.
 
-       The LSOFPERSDCPATH variable contents are inserted in the  path  at  the
-       place  marked by the local system administrator with the ``%p'' conver‐
-       sion in the HASPERSDC format specification of the  dialect's  machine.h
-       header  file.   (It's  placed right after the home directory in the de‐
+       The  LSOFPERSDCPATH  variable  contents are inserted in the path at the
+       place marked by the local system administrator with the ``%p''  conver‐
+       sion  in  the HASPERSDC format specification of the dialect's machine.h
+       header file.  (It's placed right after the home directory  in  the  de‐
        fault lsof distribution.)
 
        Thus, for example, if LSOFPERSDCPATH contains ``LSOF'', the home direc‐
@@ -2651,7 +2690,7 @@ MODIFIED PERSONAL DEVICE CACHE PATH
        built; change the name of the environment variable from  LSOFPERSDCPATH
        to  something else; change the HASPERSDC format to include the personal
        path component in another place; or exclude the personal path component
-       entirely.   Consult  the  output of the -D?  option for the environment
+       entirely.  Consult the output of the -D?  option  for  the  environment
        variable's name and the HASPERSDC format specification.
 
 DIAGNOSTICS
@@ -2709,22 +2748,22 @@ EXAMPLES
 
               lsof -Q -i 4 -a -p 1234
 
-       Presuming  the  UNIX dialect supports IPv6, to list only open IPv6 net‐
+       Presuming the UNIX dialect supports IPv6, to list only open  IPv6  net‐
        work files, use:
 
               lsof -i 6
 
-       To list all files using any protocol on ports 513, 514, or 515 of  host
+       To  list all files using any protocol on ports 513, 514, or 515 of host
        wonderland.cc.purdue.edu, use:
 
               lsof -i @wonderland.cc.purdue.edu:513-515
 
-       To  list all files using any protocol on any port of mace.cc.purdue.edu
+       To list all files using any protocol on any port of  mace.cc.purdue.edu
        (cc.purdue.edu is the default domain), use:
 
               lsof -i @mace
 
-       To list all open files for login name ``abe'',  or  user  ID  1234,  or
+       To  list  all  open  files  for login name ``abe'', or user ID 1234, or
        process 456, or process 123, or process 789, use:
 
               lsof -p 456,123,789 -u 1234,abe
@@ -2733,7 +2772,7 @@ EXAMPLES
 
               lsof /dev/hd4
 
-       To  find the process that has /u/abe/foo open without worrying if there
+       To find the process that has /u/abe/foo open without worrying if  there
        are none, use:
 
               lsof -Q /u/abe/foo
@@ -2746,12 +2785,12 @@ EXAMPLES
 
               kill -HUP `lsof -t /u/abe/bar`
 
-       To find any open file, including an open UNIX domain socket file,  with
+       To  find any open file, including an open UNIX domain socket file, with
        the name /dev/log, use:
 
               lsof /dev/log
 
-       To  find  processes  with  open  files  on  the  NFS  file system named
+       To find processes  with  open  files  on  the  NFS  file  system  named
        /nfs/mount/point whose server is inaccessible, and presuming your mount
        table supplies the device number for /nfs/mount/point, use:
 
@@ -2782,17 +2821,17 @@ EXAMPLES
 
               lsof -c /^..o.$/i -a -d cwd
 
-       To find an IP version 4 socket file by its associated numeric  dot-form
+       To  find an IP version 4 socket file by its associated numeric dot-form
        address, use:
 
               lsof -i@128.210.15.17
 
-       To  find  an  IP  version 6 socket file (when the UNIX dialect supports
+       To find an IP version 6 socket file (when  the  UNIX  dialect  supports
        IPv6) by its associated numeric colon-form address, use:
 
               lsof -i@[0:1:2:3:4:5:6:7]
 
-       To find an IP version 6 socket file (when  the  UNIX  dialect  supports
+       To  find  an  IP  version 6 socket file (when the UNIX dialect supports
        IPv6) by an associated numeric colon-form address that has a run of ze‐
        roes in it - e.g., the loop-back address - use:
 
@@ -2826,15 +2865,15 @@ BUGS
        tion address in the raw socket's protocol control block, some do not.
 
        Lsof can't always represent Solaris device numbers in the same way that
-       ls(1)  does.   For example, the major and minor device numbers that the
+       ls(1) does.  For example, the major and minor device numbers  that  the
        lstat(2) and stat(2) functions report for the directory on which CD-ROM
        files  are mounted (typically /cdrom) are not the same as the ones that
        it reports for the device on which CD-ROM files are mounted  (typically
        /dev/sr0).  (Lsof reports the directory numbers.)
 
        The  support for /proc file systems is available only for BSD and Tru64
-       UNIX dialects, Linux, and dialects derived from SYSV R4 -  e.g.,  Free‐
-       BSD, NetBSD, OpenBSD, Solaris, UnixWare.
+       UNIX dialects, Linux,  and  dialects  derived  from  SYSV  R4  -  e.g.,
+       FreeBSD, NetBSD, OpenBSD, Solaris, UnixWare.
 
        Some  /proc  file  items - device number, inode number, and file size -
        are unavailable in some dialects.  Searching for files in a /proc  file
@@ -2848,14 +2887,14 @@ BUGS
        kernel implementation of lstat(2) returns an improper device number for
        a named pipe.
 
-       Lsof  can't  report  fully or correctly on HP-UX 9.01, 10.20, and 11.00
-       locks because of insufficient access to kernel data or  errors  in  the
-       kernel  data.   See  the lsof FAQ (The FAQ section gives its location.)
+       Lsof can't report fully or correctly on HP-UX 9.01,  10.20,  and  11.00
+       locks  because  of  insufficient access to kernel data or errors in the
+       kernel data.  See the lsof FAQ (The FAQ section  gives  its  location.)
        for details.
 
-       The AIX SMT file type is a fabrication.  It's made up for  file  struc‐
-       tures  whose type (15) isn't defined in the AIX /usr/include/sys/file.h
-       header file.  One way to create  such  file  structures  is  to  run  X
+       The  AIX  SMT file type is a fabrication.  It's made up for file struc‐
+       tures whose type (15) isn't defined in the AIX  /usr/include/sys/file.h
+       header  file.   One  way  to  create  such  file structures is to run X
        clients with the DISPLAY variable set to ``:0.0''.
 
        The +|-f[cfn] option is not supported under /proc-based Linux lsof, be‐
@@ -2915,5 +2954,5 @@ SEE ALSO
        load(8),  mount(8),  netstat(1),  ofiles(8L),  open(2), perl(1), ps(1),
        readlink(2), setlocale(3), stat(2), strftime(3), time(2), uname(1).
 
-                                Revision-4.99.0                        LSOF(8)
+                                Revision-4.99.7                        LSOF(8)
 ```
