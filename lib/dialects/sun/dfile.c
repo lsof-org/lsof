@@ -344,7 +344,7 @@ int is_file_named(struct lsof_context *ctx, /* context */
     /*
      * Check for a character or block device match.
      */
-    if (!f && HbyFrdCt && ((vt = VCHR) || (vt = VBLK)) && Lf->dev_def &&
+    if (!f && HbyFrdCt && ((vt == VCHR) || (vt == VBLK)) && Lf->dev_def &&
         (Lf->dev == DevDev) && Lf->rdev_def &&
         (Lf->inp_ty == 1 || Lf->inp_ty == 3)) {
         for (sh = &HbyFrd[SFHASHRDEVI(
