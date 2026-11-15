@@ -13,19 +13,30 @@ if ! command -v python3 >/dev/null 2>&1; then
 fi
 
 host=$(hostname)
+# Resolving a .local host name through mDNS can block for a long time on some
+# machines, so cap the lookup and treat a timeout as "no addresses".
 naddr=$(python3 - "$host" <<'PY'
+import os
 import socket
 import sys
+import threading
 
 host = sys.argv[1]
-count = 0
-for family in (socket.AF_INET, socket.AF_INET6):
-    try:
-        infos = socket.getaddrinfo(host, None, family, socket.SOCK_STREAM)
-    except OSError:
-        continue
-    count = max(count, len({info[4][0] for info in infos}))
-print(count)
+count = [0]
+
+def resolve():
+    for family in (socket.AF_INET, socket.AF_INET6):
+        try:
+            infos = socket.getaddrinfo(host, None, family, socket.SOCK_STREAM)
+        except OSError:
+            continue
+        count[0] = max(count[0], len({info[4][0] for info in infos}))
+
+resolver = threading.Thread(target=resolve, daemon=True)
+resolver.start()
+resolver.join(5)
+print(count[0], flush=True)
+os._exit(0)
 PY
 )
 

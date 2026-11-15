@@ -31,7 +31,7 @@ jobs:
     steps:
     - uses: actions/checkout@v3
     - name: install dependencies
-      run: brew install pkg-config libtool autoconf automake groff
+      run: brew install libtool autoconf automake
     - name: configure
       run: LSOF_INCLUDE=/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include ./Configure -n darwin
     - name: make
@@ -42,10 +42,9 @@ jobs:
       run: |
         git clean -fdx .
         autoreconf -vif
-        ./configure
+        ./configure --disable-manpages
         make
         DESTDIR=$PWD/prefix make install
-        make check
     - name: dist build and test
       run: |
         make dist
@@ -53,7 +52,7 @@ jobs:
         cd temp
         tar xvf ../lsof-*.tar.gz
         cd lsof-*
-        ./configure
+        ./configure --disable-manpages
         make
         DESTDIR=$PWD/prefix make install
         make check
