@@ -46,10 +46,6 @@ static char copyright[] = "@(#) Copyright 2005-2007 Apple Inc. and Purdue "
 #define PIDS_INCR (sizeof(int) * 32) /* PID space increment */
 #define VIPS_INCR 16                 /* Vips space increment */
 
-#if DARWINV >= 900
-#    define THREADS_INCR (sizeof(uint64_t) * 32) /* Threads space increment */
-#endif                                           /* DARWINV>=900 */
-
 #if defined(PROC_PIDLISTFILEPORTS)
 #    define FILEPORTS_INCR                                                     \
         (sizeof(struct proc_fileportinfo) * 32) /* Fileports space increment   \
@@ -692,30 +688,24 @@ static void process_threads(struct lsof_context *ctx, /* context */
                             int pid,                  /* PID */
                             uint32_t n)               /* number of threads */
 {
-    int i, nb, nt;
+    int i, nb, need, nt;
     /*
      * Make sure a thread buffer has been allocated.
      */
-    n = (n + 10) * sizeof(uint64_t);
-    if (n > NbThreads) {
-        while (n > NbThreads) {
-            NbThreads += THREADS_INCR;
-        }
-        if (!Threads)
-            Threads = (uint64_t *)malloc((MALLOC_S)NbThreads);
-        else
-            Threads =
-                (uint64_t *)realloc((MALLOC_P *)Threads, (MALLOC_S)NbThreads);
-        if (!Threads) {
+    need = (int)n + 10;
+    if (need > NThreads) {
+        if (grow_array((void **)&Threads, &NThreads, sizeof(uint64_t),
+                       need - NThreads)) {
             (void)fprintf(stderr, "%s: can't allocate space for %d Threads\n",
-                          Pn, (int)(NbThreads / sizeof(int *)));
+                          Pn, need);
             Error(ctx);
         }
     }
     /*
      * Get thread information for the process.
      */
-    nb = proc_pidinfo(pid, PROC_PIDLISTTHREADS, 0, Threads, NbThreads);
+    nb = proc_pidinfo(pid, PROC_PIDLISTTHREADS, 0, Threads,
+                      (int)(NThreads * sizeof(uint64_t)));
     if (nb <= 0) {
         if (errno == ESRCH) {
 
