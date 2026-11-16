@@ -54,6 +54,7 @@ int main(int argc, char **argv) {
     int fd;
     int pipefd[2], pipes_found, pipes_seen;
     int round;
+    int status = 0;
     int exec_found; /* executable found in result */
     int cwd_found;  /* cwd found in result */
     int fd_found;   /* opened fd found in result */
@@ -181,12 +182,11 @@ int main(int argc, char **argv) {
         }
         if (!(exec_found && cwd_found && fd_found &&
               (!pipes_seen || pipes_found == pipes_seen))) {
-            close(pipefd[0]);
-            close(pipefd[1]);
-            return 1;
+            status = 1;
+            break;
         }
     }
     close(pipefd[0]);
     close(pipefd[1]);
-    return 0;
+    return status;
 }
