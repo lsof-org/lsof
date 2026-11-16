@@ -136,7 +136,7 @@ struct lsof_context_dialect {
     int nb_fds;              /* bytes allocated to FDs */
 
 #    if DARWINV >= 900
-    int nb_threads;    /* Threads bytes allocated */
+    int n_threads;     /* Threads entries allocated */
     uint64_t *threads; /* Thread buffer */
 #    endif             /* DARWINV>=900 */
 
@@ -161,7 +161,7 @@ struct lsof_context_dialect {
 
 #    if DARWINV >= 900
 #        define Threads (ctx->dialect.threads)
-#        define NbThreads (ctx->dialect.nb_threads)
+#        define NThreads (ctx->dialect.n_threads)
 #    endif /* DARWINV>=900 */
 
 #    if defined(PROC_PIDLISTFILEPORTS)
