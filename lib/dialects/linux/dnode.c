@@ -44,8 +44,10 @@
     ((off_t)0x7fffffff) /* this is defined in                                  \
                          * .../src/fs/locks.c and not                          \
                          * in a header file */
-#define HASHPID(pid) (((int)((pid * 31415) >> 3)) & (PIDBUCKS - 1))
-#define HASHPINFO(ino) (((int)((ino * 31415) >> 3)) & (PINFOBUCKS - 1))
+#define HASHPID(pid)                                                           \
+    (((int)(((unsigned int)(pid) * 31415u) >> 3)) & (PIDBUCKS - 1))
+#define HASHPINFO(ino)                                                         \
+    (((int)(((unsigned int)(ino) * 31415u) >> 3)) & (PINFOBUCKS - 1))
 
 /*
  * Local structure definitions
