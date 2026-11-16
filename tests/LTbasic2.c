@@ -58,6 +58,11 @@ int main(int argc, char **argv) {
     int cwd_found;  /* cwd found in result */
     int fd_found;   /* opened fd found in result */
 
+    if (pipe(pipefd)) {
+        perror("pipe");
+        return 1;
+    }
+
     for (round = 0; round < 3; round++) {
         printf("Testing round %d\n", round);
 
@@ -67,10 +72,6 @@ int main(int argc, char **argv) {
         fd = -1;
         pipes_found = 0;
         pipes_seen = 0;
-        if (pipe(pipefd)) {
-            perror("pipe");
-            return 1;
-        }
         if (stat(argv[0], &exec_stat)) {
             fprintf(stderr, "Cannot stat %s, skipping executable check\n",
                     argv[0]);
@@ -178,12 +179,14 @@ int main(int argc, char **argv) {
             close(fd);
             unlink("LTbasic2-tmp");
         }
-        close(pipefd[0]);
-        close(pipefd[1]);
         if (!(exec_found && cwd_found && fd_found &&
               (!pipes_seen || pipes_found == pipes_seen))) {
+            close(pipefd[0]);
+            close(pipefd[1]);
             return 1;
         }
     }
+    close(pipefd[0]);
+    close(pipefd[1]);
     return 0;
 }
