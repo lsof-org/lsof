@@ -411,6 +411,7 @@ static void process_fds(struct lsof_context *ctx, /* context */
 {
     int i, isock, nb, nf;
     struct proc_fdinfo *fdp;
+retry:
     /*
      * Make sure an FD buffer has been allocated.
      */
@@ -452,6 +453,11 @@ static void process_fds(struct lsof_context *ctx, /* context */
         if (Lf->sf)
             link_lfile(ctx);
         return;
+    }
+    /* A full buffer may omit descriptors opened since the task-info query. */
+    if (nb + sizeof(struct proc_fdinfo) > NbFds) {
+        n = NbFds / sizeof(struct proc_fdinfo) + 32;
+        goto retry;
     }
     nf = (int)(nb / sizeof(struct proc_fdinfo));
     /*
