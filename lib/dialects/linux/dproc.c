@@ -48,6 +48,7 @@
 
 #define FDINFO_PID 0x10 /* pidfd pid available */
 #define FDINFO_TFD 0x20 /* fd monitored by eventpoll fd */
+#define FDINFO_LOCK 0x40 /* descriptor lock available */
 
 #define FDINFO_BASE (FDINFO_FLAGS | FDINFO_POS)
 #if defined(HASEPTOPTS)
@@ -82,6 +83,7 @@
 struct l_fdinfo {
     int flags; /* flags: line value */
     off_t pos; /* pos: line value */
+    enum lsof_lock_mode lock; /* lock: line value */
 
 #if defined(HASEPTOPTS)
     int eventfd_id;
@@ -457,7 +459,7 @@ static int get_fdinfo(struct lsof_context *ctx, /* context */
 {
     char buf[MAXPATHLEN + 1], *ep, **fp;
     FILE *fs;
-    int rv = 0;
+    int nf, rv = 0;
     unsigned long ul;
     unsigned long long ull;
     /*
@@ -475,6 +477,7 @@ static int get_fdinfo(struct lsof_context *ctx, /* context */
 #endif     /* defined(HASEPTOPTS) */
     fi->pid = -1;
     fi->tfd_count = 0;
+    fi->lock = LSOF_LOCK_NONE;
 
     if (!p || !*p || !(fs = fopen(p, "r")))
         return (0);
@@ -483,7 +486,7 @@ static int get_fdinfo(struct lsof_context *ctx, /* context */
      */
     while (fgets(buf, sizeof(buf), fs)) {
         int opt_flg = 0;
-        if (get_fields(ctx, buf, (char *)NULL, &fp, (int *)NULL, 0) < 2)
+        if ((nf = get_fields(ctx, buf, (char *)NULL, &fp, (int *)NULL, 0)) < 2)
             continue;
         if (!fp[0] || !*fp[0] || !fp[1] || !*fp[1])
             continue;
@@ -510,6 +513,31 @@ static int get_fdinfo(struct lsof_context *ctx, /* context */
             if ((rv |= FDINFO_POS) == msk)
                 break;
 
+        } else if ((msk & FDINFO_LOCK) && !strcmp(fp[0], "lock:") && nf == 9) {
+            unsigned long long end;
+            int full;
+
+            if ((strcmp(fp[2], "POSIX") && strcmp(fp[2], "FLOCK") &&
+                 strcmp(fp[2], "OFDLCK")) ||
+                (strcmp(fp[4], "READ") && strcmp(fp[4], "WRITE")))
+                continue;
+            ull = strtoull(fp[7], &ep, 0);
+            if (ull == ULLONG_MAX || !ep || *ep)
+                continue;
+            if (!strcmp(fp[8], "EOF"))
+                end = (unsigned long long)LLONG_MAX;
+            else {
+                end = strtoull(fp[8], &ep, 0);
+                if (end == ULLONG_MAX || !ep || *ep)
+                    continue;
+            }
+            full = !ull && end == (unsigned long long)LLONG_MAX;
+            if (!strcmp(fp[4], "WRITE"))
+                fi->lock = full ? LSOF_LOCK_WRITE_FULL : LSOF_LOCK_WRITE_PARTIAL;
+            else
+                fi->lock = full ? LSOF_LOCK_READ_FULL : LSOF_LOCK_READ_PARTIAL;
+            if ((rv |= FDINFO_LOCK) == msk)
+                break;
         } else if (((msk & FDINFO_PID) && !strcmp(fp[0], "Pid:") &&
                     ((opt_flg = FDINFO_PID))) ||
                    ((msk & FDINFO_TFD) && !strcmp(fp[0], "tfd:") &&
@@ -1240,9 +1268,10 @@ static int process_id(struct lsof_context *ctx, /* context */
             fi.eventfd_id = -1;
             fi.pid = -1;
             fi.tfd_count = -1;
+            fi.lock = LSOF_LOCK_NONE;
 
             if (oty) {
-                int fdinfo_mask = FDINFO_BASE;
+                int fdinfo_mask = FDINFO_BASE | FDINFO_LOCK;
                 (void)make_proc_path(ctx, Ipath, j, &Pathi, &Pathil,
                                      fp->d_name);
 
@@ -1296,6 +1325,10 @@ static int process_id(struct lsof_context *ctx, /* context */
             if (pn) {
                 process_proc_node(ctx, lnk ? pbuf : Path, Path, &sb, ss, &lsb,
                                   ls);
+                /* Btrfs stat() and /proc/locks device numbers can differ.
+                 * fdinfo locks belong to this descriptor, so need no match. */
+                if (Lf->lock == LSOF_LOCK_NONE)
+                    Lf->lock = fi.lock;
                 if (Lf->ntype == N_ANON_INODE) {
                     if (rest && *rest) {
 #if defined(HASEPTOPTS)

@@ -368,6 +368,12 @@ int main(int argc,     /* argument count */
     }
 #    endif /* defined(USE_FCNTL) */
 
+    /* Unlock the entire file, including any byte lock, and check for no lock. */
+    if ((em = unlkfile(FULL_SH_LOCK)))
+        (void)PrtMsgX(em, Pn, cleanup, 1);
+    if ((em = tstwlsof("-w", " ")))
+        (void)PrtMsgX(em, Pn, cleanup, 1);
+
     /*
      * Compute exit value and exit.
      */
