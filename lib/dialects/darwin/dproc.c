@@ -269,13 +269,13 @@ void gather_proc_info(struct lsof_context *ctx) {
             continue;
         }
         tai.pbsd.pbi_comm[sizeof(tai.pbsd.pbi_comm) - 1] = '\0';
-        if (is_cmd_excl(ctx, tai.pbsd.pbi_comm, &pss, &sf))
-            continue;
         if (tai.pbsd.pbi_name[0]) {
             tai.pbsd.pbi_name[sizeof(tai.pbsd.pbi_name) - 1] = '\0';
-            if (is_cmd_excl(ctx, tai.pbsd.pbi_name, &pss, &sf))
-                continue;
         }
+        if (is_cmd_excl(ctx, tai.pbsd.pbi_name[0] ? tai.pbsd.pbi_name
+                                               : tai.pbsd.pbi_comm,
+                        &pss, &sf))
+            continue;
         if (cckreg) {
 
             /*
