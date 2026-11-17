@@ -79,10 +79,10 @@
 
 #define TCPUDP6_IPC_ADDR_INT32(a, n) (((a)->s6_addr32[n]))
 #define TCPUDP6_IPC_ADDR_MK_INT(a)                                             \
-    ((int)TCPUDP6_IPC_ADDR_INT32(a, 0x0) * 0x123 +                             \
-     (int)TCPUDP6_IPC_ADDR_INT32(a, 0x1) * 0x111 +                             \
-     (int)TCPUDP6_IPC_ADDR_INT32(a, 0x2) * 0x149 +                             \
-     (int)TCPUDP6_IPC_ADDR_INT32(a, 0x3) * 0x185)
+    ((unsigned int)TCPUDP6_IPC_ADDR_INT32(a, 0x0) * 0x123 +                    \
+     (unsigned int)TCPUDP6_IPC_ADDR_INT32(a, 0x1) * 0x111 +                    \
+     (unsigned int)TCPUDP6_IPC_ADDR_INT32(a, 0x2) * 0x149 +                    \
+     (unsigned int)TCPUDP6_IPC_ADDR_INT32(a, 0x3) * 0x185)
 
 #define TCPUDP6_IPC_HASH(tp)                                                   \
     ((int)((((TCPUDP6_IPC_ADDR_MK_INT(&(tp)->faddr) +                          \

@@ -52,8 +52,10 @@
  * minor device, and inode, modulo mod
  * (mod must be a power of 2) */
 #define SFHASHDEVINO(maj, min, ino, mod)                                       \
-    ((int)(((int)((((int)(maj + 1)) * ((int)((min + 1)))) + ino) * 31415) &    \
-           (mod - 1)))
+    ((int)(((((unsigned int)(maj) + 1u) * ((unsigned int)(min) + 1u) +         \
+             (unsigned int)(ino)) *                                            \
+            31415u) &                                                          \
+           ((mod) - 1)))
 #define SFRDHASH                                                               \
     1024 /* Sfile hash by raw device number                                    \
           * bucket count (power of 2!) */
@@ -62,10 +64,11 @@
  * minor raw device, and inode, modulo
  * mod (mod must be a power of 2) */
 #define SFHASHRDEVI(maj, min, rmaj, rmin, ino, mod)                            \
-    ((int)(((int)((((int)(maj + 1)) * ((int)((min + 1)))) +                    \
-                  ((int)(rmaj + 1) * (int)(rmin + 1)) + ino) *                 \
-            31415) &                                                           \
-           (mod - 1)))
+    ((int)(((((unsigned int)(maj) + 1u) * ((unsigned int)(min) + 1u) +         \
+             ((unsigned int)(rmaj) + 1u) * ((unsigned int)(rmin) + 1u) +       \
+             (unsigned int)(ino)) *                                            \
+            31415u) &                                                          \
+           ((mod) - 1)))
 #define SFNMHASH                                                               \
     4096 /* Sfile hash by name bucket count                                    \
           * (must be a power of 2!) */
