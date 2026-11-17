@@ -3719,7 +3719,7 @@ void process_node(struct lsof_context *ctx, /* context */
      */
 
 #if defined(HASPROCFS)
-    if (Ntype == N_PROC) {
+    if (Ntype == N_PROC && (Procsrch || Procfsid)) {
         if (Procsrch) {
             Procfind = 1;
             Lf->sf |= SELNM;
