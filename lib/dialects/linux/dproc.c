@@ -965,7 +965,7 @@ static int process_id(struct lsof_context *ctx, /* context */
                 pn = 0;
             } else {
                 ss = SB_ALL;
-                if (HasNFS) {
+                if (HasNFS || Fblock) {
                     if ((sv = statsafely(ctx, Path, &sb)))
                         sv = statEx(ctx, pbuf, &sb, &ss);
                 } else
@@ -1012,7 +1012,7 @@ static int process_id(struct lsof_context *ctx, /* context */
                 pn = 0;
             else {
                 ss = SB_ALL;
-                if (HasNFS) {
+                if (HasNFS || Fblock) {
                     if ((sv = statsafely(ctx, Path, &sb)))
                         sv = statEx(ctx, pbuf, &sb, &ss);
                 } else
@@ -1061,7 +1061,7 @@ static int process_id(struct lsof_context *ctx, /* context */
                 pn = 0;
             else {
                 ss = SB_ALL;
-                if (HasNFS) {
+                if (HasNFS || Fblock) {
                     if ((sv = statsafely(ctx, Path, &sb))) {
                         sv = statEx(ctx, pbuf, &sb, &ss);
                         if (!sv && (ss & SB_DEV) && (ss & SB_INO))
@@ -1191,7 +1191,7 @@ static int process_id(struct lsof_context *ctx, /* context */
                 efs = 1;
                 pn = 0;
             } else {
-                if (HasNFS) {
+                if (HasNFS || Fblock) {
                     if (lstatsafely(ctx, Path, &lsb)) {
                         enls_fd = errno;
                         (void)statEx(ctx, pbuf, &lsb, &ls);
@@ -1225,6 +1225,20 @@ static int process_id(struct lsof_context *ctx, /* context */
                                strerror(enss));
                     nmabuf[sizeof(nmabuf) - 1] = '\0';
                     (void)add_nma(ctx, nmabuf, strlen(nmabuf));
+                }
+                /* Proc socket links already identify the inode; keep network
+                 * selection usable with -b without following the link. */
+                if (Fblock && !strcmp(pbuf, "socket") && rest && *rest == '[') {
+                    char *ep;
+                    unsigned long long ino = strtoull(rest + 1, &ep, 10);
+
+                    if (ino != ULLONG_MAX && ep > rest + 1 && *ep == ']' &&
+                        !ep[1]) {
+                        zeromem((char *)&sb, sizeof(sb));
+                        sb.st_mode = S_IFSOCK;
+                        sb.st_ino = (ino_t)ino;
+                        ss = SB_MODE | SB_INO;
+                    }
                 }
                 if (Ckscko) {
                     if ((ss & SB_MODE) && ((sb.st_mode & S_IFMT) == S_IFSOCK)) {
@@ -1555,7 +1569,7 @@ process_proc_map(struct lsof_context *ctx, /* context */
                 goto stat_directly;
 
             if (!efs) {
-                if (HasNFS)
+                if (HasNFS || Fblock)
                     sv = statsafely(ctx, path, &sb);
                 else
                     sv = stat(path, &sb);
@@ -1563,7 +1577,7 @@ process_proc_map(struct lsof_context *ctx, /* context */
         } else {
         stat_directly:
             if (!efs) {
-                if (HasNFS)
+                if (HasNFS || Fblock)
                     sv = statsafely(ctx, fp[6], &sb);
                 else
                     sv = stat(fp[6], &sb);
