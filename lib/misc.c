@@ -165,7 +165,7 @@ void childx(struct lsof_context *ctx) {
                 (void)kill(Cpid, CtSigs[sx]);
             (void)signal(SIGALRM, handleint);
             (void)alarm(at);
-            wpid = (pid_t)wait(NULL);
+            wpid = waitpid(Cpid, NULL, 0);
             (void)alarm(0);
             (void)signal(SIGALRM, SIG_DFL);
             if (wpid == Cpid)
