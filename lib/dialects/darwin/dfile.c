@@ -137,8 +137,6 @@ void enter_vnode_info(
      * Save device number and path
      */
     switch (Ntype) {
-    case N_FIFO:
-        break;
     case N_CHR:
     case N_BLK:
         Lf->rdev = vip->vip_vi.vi_stat.vst_rdev;
