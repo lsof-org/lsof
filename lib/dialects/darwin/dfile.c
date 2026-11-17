@@ -324,6 +324,7 @@ static void process_pipe_common(struct lsof_context *ctx,
     size_t sz;
 
     Lf->type = LSOF_FILE_PIPE;
+    enter_file_info(ctx, &pi->pfi);
     /*
      * Enter the pipe handle as the device.
      */
