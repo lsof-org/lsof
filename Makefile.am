@@ -151,6 +151,7 @@ check_PROGRAMS =
 # Linux
 LINUX_TESTS = lib/dialects/linux/tests/case-10-mqueue.bash \
 	lib/dialects/linux/tests/case-10-ux-socket-state.bash \
+	lib/dialects/linux/tests/case-20-avoid-blocking.bash \
 	lib/dialects/linux/tests/case-20-epoll.bash \
 	lib/dialects/linux/tests/case-20-eventfd-endpoint.bash \
 	lib/dialects/linux/tests/case-20-inet6-ffffffff-handling.bash \
