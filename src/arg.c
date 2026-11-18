@@ -1160,12 +1160,12 @@ int enter_id(struct lsof_context *ctx, /* context */
     /*
      * Convert and store the ID.
      */
-    for (cp = p, err = 0; *cp;) {
+    for (cp = p, err = ni = 0; *cp;) {
 
         /*
          * Assemble ID.
          */
-        for (i = id = x = 0; *cp && *cp != ','; cp++) {
+        for (i = id = n = x = 0; *cp && *cp != ','; cp++) {
             if (!i) {
                 i = 1;
                 if (*cp == '^') {
@@ -1187,9 +1187,19 @@ int enter_id(struct lsof_context *ctx, /* context */
                 return (1);
             }
             id = (id * 10) + *cp - '0';
+            n++;
         }
         if (*cp)
             cp++;
+        if (!n) {
+
+            /*
+             * Ignore an empty entry (e.g. from ",123" or "^"); it would
+             * otherwise be taken as ID 0.
+             */
+            continue;
+        }
+        ni++;
         if (ty == PGID) {
             if (lsof_select_pgid(ctx, id, x)) {
                 err = 1;
@@ -1199,6 +1209,15 @@ int enter_id(struct lsof_context *ctx, /* context */
                 err = 1;
             }
         }
+    }
+    if (ty == PID && !ni) {
+
+        /*
+         * -p needs at least one ID.  A PGID list with no ID is the same as -g
+         * with no list, which only enables the PGID display.
+         */
+        (void)fprintf(stderr, "%s: no process ID specified\n", Pn);
+        return (1);
     }
     return (err);
 }
