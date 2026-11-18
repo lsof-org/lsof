@@ -1152,11 +1152,7 @@ int enter_id(struct lsof_context *ctx, /* context */
     int err, i, id, j, mx, n, ni, nx, x;
     struct int_lst *s;
 
-    /*
-     * An empty PGID list is the same as -g with no list, which only enables
-     * the PGID display.
-     */
-    if (!p || (ty == PID && !*p)) {
+    if (!p) {
         (void)fprintf(stderr, "%s: no process%s ID specified\n", Pn,
                       (ty == PGID) ? " group" : "");
         return (1);
@@ -1164,7 +1160,7 @@ int enter_id(struct lsof_context *ctx, /* context */
     /*
      * Convert and store the ID.
      */
-    for (cp = p, err = 0; *cp;) {
+    for (cp = p, err = ni = 0; *cp;) {
 
         /*
          * Assemble ID.
@@ -1193,19 +1189,17 @@ int enter_id(struct lsof_context *ctx, /* context */
             id = (id * 10) + *cp - '0';
             n++;
         }
+        if (*cp)
+            cp++;
         if (!n) {
 
             /*
-             * An empty entry (e.g. from ",123" or "^") would otherwise be
-             * taken as ID 0.
+             * Ignore an empty entry (e.g. from ",123" or "^"); it would
+             * otherwise be taken as ID 0.
              */
-            (void)fprintf(stderr, "%s: empty process%s ID: ", Pn,
-                          (ty == PGID) ? " group" : "");
-            safestrprt(p, stderr, 1);
-            return (1);
+            continue;
         }
-        if (*cp)
-            cp++;
+        ni++;
         if (ty == PGID) {
             if (lsof_select_pgid(ctx, id, x)) {
                 err = 1;
@@ -1215,6 +1209,15 @@ int enter_id(struct lsof_context *ctx, /* context */
                 err = 1;
             }
         }
+    }
+    if (ty == PID && !ni) {
+
+        /*
+         * -p needs at least one ID.  A PGID list with no ID is the same as -g
+         * with no list, which only enables the PGID display.
+         */
+        (void)fprintf(stderr, "%s: no process ID specified\n", Pn);
+        return (1);
     }
     return (err);
 }
