@@ -65,9 +65,11 @@ If you are interested in maintaining a dialect, let us know via the issue
 tracker of GitHub (https://github.com/lsof-org/lsof/issues). If we cannot find a
 volunteer for a dialect, we will remove the dialect.
 
-Many texts in the source tree still refers purdue.edu as the home of lsof
-development. It should be https://github.com/lsof-org/lsof, the new home. The
-updating is in progress.
+The current source and contributions are at https://github.com/lsof-org/lsof.
+Report issues and ask project questions at https://github.com/lsof-org/lsof/issues;
+releases are at https://github.com/lsof-org/lsof/releases.  Historical documents
+and release notes retain references to the former Purdue project site and to
+Vic Abell's original contact details for historical context.
 
 We ran another repository, lsof-org/"lsof-linux" derived from lsof-4.91 that was
 also released by Vic. The repository is no more used; all the changes made in

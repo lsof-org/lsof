@@ -1,6 +1,11 @@
 	    Notes for the distribution of lsof version 4
 
 ********************************************************************
+
+Historical note: the release notes and contributor acknowledgments in
+this file preserve original dates, addresses, and references.  For current
+source and contributions see https://github.com/lsof-org/lsof; for issues
+and project contact see https://github.com/lsof-org/lsof/issues.
 | The latest release of lsof is always available from
 | https://github.com/lsof-org/lsof/releases
 |
@@ -152,12 +157,11 @@ been tested on:
 	FreeBSD 10.3, 11.0, 12.0 and 13.0 for AMD64-based systems
 	Solaris 9
 
-(The pub/tools/unix/lsof/contrib directory on lsof.itap.purdue.edu
-contains information on other ports.)
+For current source and contributions, see https://github.com/lsof-org/lsof.
 
 If your favorite Unix dialect is not in the list, or if your version
 of it is more recent than the ones listed, please file a new issue at
-https://github.com/lsof-org/lsof.
+https://github.com/lsof-org/lsof/issues.
 
 Version 3 of lsof was tested on:
 
@@ -444,27 +448,21 @@ necessary servicing, repair, or correction.
 Bug Reports
 ===========
 
-Now that the obligatory disclaimer is out of the way, let me hasten
-to add that I accept lsof bug reports and try hard to respond to
-them.  I will also consider and discuss requests for new features,
-ports to new dialects, or ports to new OS versions.
+Report lsof bugs and discuss requests for new features or ports at
+https://github.com/lsof-org/lsof/issues.
 
 PLEASE DON'T SEND A BUG REPORT ABOUT LSOF TO THE UNIX DIALECT
 VENDOR.
 
-At worst such a bug report will confuse the vendor; at best, the
-vendor will forward the bug report to me.
-
-Please send all bug reports, requests, etc. to https://github.com/lsof-org/lsof.
+Please send bug reports and requests to https://github.com/lsof-org/lsof/issues.
 
 
 The lsof-l Mailing List
 =======================
 
-Information about lsof, including notices about the availability
-of new revisions, may be found in mailings of the lsof-l listserv.
-For more information about it, including instructions on how to
-subscribe, read the 00LSOF-L file of the lsof distribution.
+For current project questions and reports, use
+https://github.com/lsof-org/lsof/issues.  The 00LSOF-L file preserves
+historical information about the lsof-l mailing list.
 
 
 Version 3 Release Notes

@@ -1,6 +1,12 @@
 		    lsof (LiSt Open Files) version 4
 			    (revision 4.92)
 
+Historical release document: the instructions and addresses below describe
+the original 4.92 distribution.  For current source and contributions, see
+https://github.com/lsof-org/lsof; for releases, see
+https://github.com/lsof-org/lsof/releases; and for issues and project contact,
+see https://github.com/lsof-org/lsof/issues.
+
 
     ********************************************************************
     | The latest release of lsof is always available via anonymous ftp |

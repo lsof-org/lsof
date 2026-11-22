@@ -1,6 +1,12 @@
 
 		    The Lsof Mailing List, lsof-l
 
+Historical document: the instructions below describe Vic Abell's lsof-l
+mailing list and may no longer be current.  For project questions and bug
+reports, use https://github.com/lsof-org/lsof/issues.  Source and releases
+are at https://github.com/lsof-org/lsof and
+https://github.com/lsof-org/lsof/releases respectively.
+
 Information on lsof is available via a GNU Mailman mailing list, named
 lsof-l.  The server is located on the host lists.purdue.edu.
 
