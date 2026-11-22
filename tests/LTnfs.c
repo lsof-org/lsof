@@ -310,7 +310,8 @@ static char *FindNFSfile(int *ff,     /* file-found response receptor */
      */
     if ((cem = ConvStatDev(&sb.st_dev, &stdc)))
         PrtMsgX(cem, Pn, cleanup, 1);
-    (void)snprintf(ibuf, sizeof(ibuf) - 1, "%u", (unsigned int)sb.st_ino);
+    (void)snprintf(ibuf, sizeof(ibuf) - 1, LT_INODE_FORMAT,
+                   LT_INODE_VALUE(sb.st_ino));
     ibuf[sizeof(ibuf) - 1] = '\0';
     (void)snprintf(nlkbuf, sizeof(nlkbuf) - 1, "%d", (int)sb.st_nlink);
     nlkbuf[sizeof(nlkbuf) - 1] = '\0';

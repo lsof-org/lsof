@@ -170,7 +170,8 @@ int main(int argc,     /* argument count */
     }
     if ((em = ConvStatDev(&sb.st_dev, &cwddc)))
         PrtMsgX(em, Pn, cleanup, 1);
-    (void)snprintf(ibuf, sizeof(ibuf) - 1, "%" PRIu64, (uint64_t)sb.st_ino);
+    (void)snprintf(ibuf, sizeof(ibuf) - 1, LT_INODE_FORMAT,
+                   LT_INODE_VALUE(sb.st_ino));
     ibuf[sizeof(ibuf) - 1] = '\0';
     /*
      * Loop ATTEMPT_CT times.
