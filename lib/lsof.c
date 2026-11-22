@@ -733,6 +733,7 @@ void lsof_destroy(struct lsof_context *ctx) {
     if (!ctx) {
         return;
     }
+    childx(ctx);
     /* Free parameters */
     for (str_lst = Cmdl; str_lst; str_lst = str_lst_next) {
         str_lst_next = str_lst->next;
