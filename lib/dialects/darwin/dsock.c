@@ -199,7 +199,7 @@ static void process_socket_common(struct lsof_context *ctx,
             /*
              * Enter IPv6 address information
              */
-            int v4mapped = 0;
+            int vflag;
 
             if (si->psi.soi_kind == SOCKINFO_TCP) {
 
@@ -212,9 +212,7 @@ static void process_socket_common(struct lsof_context *ctx,
                 fa = (unsigned char *)&si->psi.soi_proto.pri_tcp.tcpsi_ini
                          .insi_faddr.ina_6;
                 fp = (int)ntohs(si->psi.soi_proto.pri_tcp.tcpsi_ini.insi_fport);
-                if ((si->psi.soi_proto.pri_tcp.tcpsi_ini.insi_vflag &
-                     INI_IPV4) != 0)
-                    v4mapped = 1;
+                vflag = si->psi.soi_proto.pri_tcp.tcpsi_ini.insi_vflag;
             } else {
 
                 /*
@@ -226,14 +224,19 @@ static void process_socket_common(struct lsof_context *ctx,
                 fa =
                     (unsigned char *)&si->psi.soi_proto.pri_in.insi_faddr.ina_6;
                 fp = (int)ntohs(si->psi.soi_proto.pri_in.insi_fport);
-                if ((si->psi.soi_proto.pri_in.insi_vflag & INI_IPV4) != 0)
-                    v4mapped = 1;
+                vflag = si->psi.soi_proto.pri_in.insi_vflag;
             }
             if (IN6_IS_ADDR_UNSPECIFIED((struct in6_addr *)fa) && !fp) {
                 fa = (unsigned char *)NULL;
                 fp = 0;
             }
-            if (v4mapped) {
+            /* Match dual-stack sockets as IPv6 before converting to IPv4. */
+            if ((vflag & (INI_IPV4 | INI_IPV6)) == (INI_IPV4 | INI_IPV6) &&
+                (Selflags & SELNA) && Nwad &&
+                ((la && is_nw_addr(ctx, la, lp, AF_INET6)) |
+                 (fa && is_nw_addr(ctx, fa, fp, AF_INET6))))
+                Lf->sf |= SELNA;
+            if (vflag & INI_IPV4) {
 
                 /*
                  * Adjust IPv4 addresses mapped in IPv6 addresses.
