@@ -577,9 +577,9 @@ static void process_fileports(struct lsof_context *ctx, /* context */
             /*
              * The fileport buffer must be enlarged.
              */
-            while (nb > NbFps) {
+            do {
                 NbFps += FILEPORTS_INCR;
-            }
+            } while (nb + sizeof(struct proc_fileportinfo) >= NbFps);
             if (!Fps)
                 Fps = (struct proc_fileportinfo *)malloc((MALLOC_S)NbFps);
             else
