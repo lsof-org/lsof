@@ -643,10 +643,10 @@ static void process_text(struct lsof_context *ctx, /* context */
                          int pid)                  /* PID */
 {
     uint64_t a;
-    int i, n, nb;
+    int n, nb;
     struct proc_regionwithpathinfo rwpi;
 
-    for (a = (uint64_t)0, i = n = 0; i < 10000; i++) {
+    for (a = (uint64_t)0, n = 0;;) {
         nb = proc_pidinfo(pid, PROC_PIDREGIONPATHINFO, a, &rwpi, sizeof(rwpi));
         if (nb <= 0) {
             if ((errno == ESRCH) || (errno == EINVAL)) {
@@ -679,6 +679,8 @@ static void process_text(struct lsof_context *ctx, /* context */
         }
         if (rwpi.prp_vip.vip_path[0])
             enter_vn_text(ctx, &rwpi.prp_vip, &n);
+        if (rwpi.prp_prinfo.pri_address + rwpi.prp_prinfo.pri_size <= a)
+            return;
         a = rwpi.prp_prinfo.pri_address + rwpi.prp_prinfo.pri_size;
     }
 }
