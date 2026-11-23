@@ -1627,7 +1627,8 @@ int main(int argc, char *argv[]) {
             }
             (void)fflush(stdout);
             (void)childx(ctx);
-            (void)sleep(RptTm);
+            if (!RptMaxCount || pr_count + 1 < RptMaxCount)
+                (void)sleep(RptTm);
             Hdr = Nlproc = 0;
             CkPasswd = 1;
         }
