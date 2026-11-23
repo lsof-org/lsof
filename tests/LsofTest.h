@@ -59,6 +59,9 @@
 #    include <signal.h>
 #    include <inttypes.h>
 
+#    define LT_INODE_FORMAT "%" PRIu64
+#    define LT_INODE_VALUE(ino) ((uint64_t)(ino))
+
 #    include <sys/types.h>
 
 #    if defined(LT_DIAL_linux) && LT_VERS >= 414014

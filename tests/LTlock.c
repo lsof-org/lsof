@@ -650,7 +650,8 @@ static char *tstwlsof(char *opt, /* extra lsof options */
             if ((stdc.maj != lsofdc.maj) || (stdc.min != lsofdc.min) ||
                 (stdc.unit != lsofdc.unit))
                 break;
-            (void)snprintf(buf, sizeof(buf) - 1, "%u", (unsigned int)sb.st_ino);
+            (void)snprintf(buf, sizeof(buf) - 1, LT_INODE_FORMAT,
+                           LT_INODE_VALUE(sb.st_ino));
             buf[sizeof(buf) - 1] = '\0';
             if (strcmp(inop->v, buf))
                 break;

@@ -336,7 +336,8 @@ static char *testlsof(int tt,     /* test type -- TYTST_* symbol */
      */
     if ((cem = ConvStatDev(&sb.st_dev, &stdc)))
         PrtMsgX(buf, Pn, cleanup, 1);
-    (void)snprintf(ibuf, sizeof(ibuf) - 1, "%" PRIu64, (uint64_t)sb.st_ino);
+    (void)snprintf(ibuf, sizeof(ibuf) - 1, LT_INODE_FORMAT,
+                   LT_INODE_VALUE(sb.st_ino));
     ibuf[sizeof(ibuf) - 1] = '\0';
     /*
      * Complete the option vector and start lsof execution.

@@ -86,6 +86,10 @@ int main(int argc,     /* argument count */
         (void)PrtMsg("usage: [-h]", Pn);
         PrtMsgX("       -h       print help (this panel)", Pn, cleanup, xv);
     }
+    (void)snprintf(buf, sizeof(buf), LT_INODE_FORMAT,
+                   LT_INODE_VALUE(UINT64_C(4294967296)));
+    if (strcmp(buf, "4294967296"))
+        PrtMsgX("ERROR!!!  large inode formatting failed", Pn, cleanup, 1);
     /*
      * See if lsof can be executed and can access kernel memory.
      */
@@ -342,8 +346,8 @@ static char *tstlsof(char **texec, /* result of the executable test */
                     pem = cem;
                     break;
                 }
-                (void)snprintf(ibuf, sizeof(ibuf) - 1, "%" PRIu64,
-                               (uint64_t)cwdsb.st_ino);
+                (void)snprintf(ibuf, sizeof(ibuf) - 1, LT_INODE_FORMAT,
+                               LT_INODE_VALUE(cwdsb.st_ino));
                 ibuf[sizeof(ibuf) - 1] = '\0';
                 if ((tmpdc.maj == cwddc.maj) && (tmpdc.min == cwddc.min) &&
                     (tmpdc.unit == cwddc.unit) && !strcmp(inop->v, ibuf)) {
@@ -369,8 +373,8 @@ static char *tstlsof(char **texec, /* result of the executable test */
                     pem = cem;
                     break;
                 }
-                (void)snprintf(ibuf, sizeof(ibuf) - 1, "%" PRIu64,
-                               (uint64_t)kmemsb.st_ino);
+                (void)snprintf(ibuf, sizeof(ibuf) - 1, LT_INODE_FORMAT,
+                               LT_INODE_VALUE(kmemsb.st_ino));
                 ibuf[sizeof(ibuf) - 1] = '\0';
                 if ((tmpdc.maj == kmemdc.maj) && (tmpdc.min == kmemdc.min) &&
                     (tmpdc.unit == kmemdc.unit) && !strcmp(inop->v, ibuf)) {
@@ -394,8 +398,8 @@ static char *tstlsof(char **texec, /* result of the executable test */
                     pem = cem;
                     break;
                 }
-                (void)snprintf(ibuf, sizeof(ibuf) - 1, "%" PRIu64,
-                               (uint64_t)lsofsb.st_ino);
+                (void)snprintf(ibuf, sizeof(ibuf) - 1, LT_INODE_FORMAT,
+                               LT_INODE_VALUE(lsofsb.st_ino));
                 ibuf[sizeof(ibuf) - 1] = '\0';
                 if ((tmpdc.maj == lsofdc.maj) && (tmpdc.min == lsofdc.min) &&
                     (tmpdc.unit == lsofdc.unit) && !strcmp(inop->v, ibuf)) {
