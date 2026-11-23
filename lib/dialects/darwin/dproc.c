@@ -621,7 +621,7 @@ static void process_fileports(struct lsof_context *ctx, /* context */
             break;
         default:
             (void)snpf(Namech, Namechl - 1, "unknown file type: %d",
-                       fpi->proc_fileport);
+                       fpi->proc_fdtype);
             Namech[Namechl - 1] = '\0';
             (void)enter_nm(ctx, Namech);
             break;
