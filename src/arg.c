@@ -1391,16 +1391,20 @@ int enter_network_address(struct lsof_context *ctx, /* context */
             if (!ae)
                 goto unacc_address;
             if (IN6_IS_ADDR_V4MAPPED((struct in6_addr *)&n.a[0])) {
-                if (ft == 6) {
+                if (ft == 4) {
                     (void)fprintf(stderr,
-                                  "%s: IPv4 addresses are prohibited: -i ", Pn);
+                                  "%s: IPv6 addresses are prohibited: -i ", Pn);
                     safestrprt(na, stderr, 1);
                     goto nwad_exit;
                 }
-                for (i = 0; i < 4; i++) {
-                    n.a[i] = n.a[i + 12];
+                if (ft == 6) {
+                    n.af = AF_INET6;
+                } else {
+                    for (i = 0; i < 4; i++) {
+                        n.a[i] = n.a[i + 12];
+                    }
+                    n.af = AF_INET;
                 }
-                n.af = AF_INET;
             } else
                 n.af = AF_INET6;
             wa = cp + 1;
