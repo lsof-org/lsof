@@ -35,16 +35,6 @@ static char copyright[] =
 
 #include "common.h"
 
-#if defined(HASIPv6)
-
-/*
- * IPv6_2_IPv4()  -- macro to define the address of an IPv4 address contained
- *		     in an IPv6 address
- */
-
-#    define IPv6_2_IPv4(v6) (((uint8_t *)((struct in6_addr *)v6)->s6_addr) + 12)
-#endif /* defined(HASIPv6) */
-
 /*
  * process_socket() - process socket
  */
@@ -292,22 +282,6 @@ void process_socket(struct lsof_context *ctx, /* context */
             }
 #endif /* defined(HASIPv6) && defined(HASINRIAIPv6) */
         }
-
-#if defined(HASIPv6)
-        if ((fam == AF_INET6) &&
-            ((la && IN6_IS_ADDR_V4MAPPED((struct in6_addr *)la)) ||
-             ((fa && IN6_IS_ADDR_V4MAPPED((struct in6_addr *)fa))))) {
-
-            /*
-             * Adjust for IPv4 addresses mapped in IPv6 addresses.
-             */
-            if (la)
-                la = (unsigned char *)IPv6_2_IPv4(la);
-            if (fa)
-                fa = (unsigned char *)IPv6_2_IPv4(fa);
-            fam = AF_INET;
-        }
-#endif /* defined(HASIPv6) */
 
         /*
          * Enter local and remote addresses by address family.

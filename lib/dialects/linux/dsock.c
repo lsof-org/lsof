@@ -3941,15 +3941,7 @@ void process_proc_sock(struct lsof_context *ctx, /* context */
             la = (unsigned char *)&tp6->laddr;
         else
             la = (unsigned char *)NULL;
-        if ((fa && IN6_IS_ADDR_V4MAPPED(&tp6->faddr)) ||
-            (la && IN6_IS_ADDR_V4MAPPED(&tp6->laddr))) {
-            af = AF_INET;
-            if (fa)
-                fa += 12;
-            if (la)
-                la += 12;
-        }
-        ent_inaddr(ctx, la, tp6->lport, fa, tp6->fport, af);
+        ent_inaddr(ctx, la, tp6->lport, fa, tp6->fport, AF_INET6);
         Lf->lts.type = tp6->proto;
         Lf->lts.state.i = tp6->state;
 

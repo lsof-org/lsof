@@ -38,13 +38,6 @@ static char copyright[] =
 
 #if defined(HASIPv6)
 
-/*
- * IPv6_2_IPv4()  -- macro to define the address of an IPv4 address contained
- *		     in an IPv6 address
- */
-
-#    define IPv6_2_IPv4(v6) (((uint8_t *)((struct in6_addr *)v6)->s6_addr) + 12)
-
 #    if defined(HAS_NO_6PORT)
 /*
  * If the in_pcb structure no longer has the KAME accommodations of
@@ -529,20 +522,6 @@ void process_socket(struct lsof_context *ctx, struct kinfo_file *kf,
                 fp = (int)ntohs(foreign_addr->sin_port);
                 fa = (unsigned char *)&foreign_addr->sin_addr;
             }
-        }
-
-        if ((fam == AF_INET6) &&
-            ((la && IN6_IS_ADDR_V4MAPPED((struct in6_addr *)la)) ||
-             ((fa && IN6_IS_ADDR_V4MAPPED((struct in6_addr *)fa))))) {
-
-            /*
-             * Adjust for IPv4 addresses mapped in IPv6 addresses.
-             */
-            if (la)
-                la = (unsigned char *)IPv6_2_IPv4(la);
-            if (fa)
-                fa = (unsigned char *)IPv6_2_IPv4(fa);
-            fam = AF_INET;
         }
 
         /*
