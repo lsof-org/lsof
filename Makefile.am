@@ -137,6 +137,7 @@ DIALECT_NEUTRAL_TESTS = tests/case-00-hello.bash \
 	tests/case-21-exit-Q-status.bash \
 	tests/case-22-empty-process-name.bash \
 	tests/case-23-multi-address-hostname.bash \
+	tests/case-24-dual-stack-socket.bash \
 	tests/case-30-json-output.bash \
 	tests/case-31-jsonl-output.bash
 TESTS = $(DIALECT_NEUTRAL_TESTS)
