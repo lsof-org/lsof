@@ -1082,9 +1082,17 @@ is limited to IPv6 with
 IPv6 host names and addresses may not be specified if network file selection
 is limited to IPv4 with
 .BR \-i " 4."
-When an open IPv4 network file's address is mapped in an IPv6 address,
-the open file's type will be IPv6, not IPv4, and its display will be
-selected by '6', not '4'.
+When an open IPv4 network file's address is represented as an
+IPv4-mapped IPv6 address, the open file's type will be IPv6, not IPv4.
+When a numeric address is displayed, the IPv4-mapped IPv6 address is
+shown in IPv4 form, but that does not make it an IPv4 file: `-i 6'
+selects it and `-i 4' does not, including when a service/port is also
+specified.  Address specifications remain subject to the IPv4/IPv6
+rules above.  An IPv4-mapped IPv6 address written in bracketed IPv6
+form is an IPv6 address for this rule: it may be specified with `-i 6'
+and selects an IPv6 file, while `-i 4' rejects it.  A dual-stack IPv6
+socket that accepts an IPv4 connection is such an IPv6 file; the
+separate IPv4 client socket is an IPv4 file.
 .IP
 At least one address component \-
 .BR 4,
