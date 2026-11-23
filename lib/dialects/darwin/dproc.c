@@ -569,6 +569,8 @@ static void process_fileports(struct lsof_context *ctx, /* context */
         } else {
             if (Fps && ((nb = proc_pidinfo(pid, PROC_PIDLISTFILEPORTS, 0, NULL,
                                            0)) <= 0)) {
+                if (nb == 0 || errno == ESRCH)
+                    return;
                 (void)fprintf(stderr, "%s: can't get fileport byte count: %s\n",
                               Pn, strerror(errno));
                 Error(ctx);
