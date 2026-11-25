@@ -625,9 +625,11 @@ OPTIONS
                 selects it and `-i 4' does not, including when a service/port
                 is also specified.  Address specifications remain subject to
                 the IPv4/IPv6 rules above.  An IPv4-mapped IPv6 address written
-                in bracketed IPv6 form is an IPv6 address for this rule: it may
-                be specified with `-i 6' and selects an IPv6 file, while `-i 4'
-                rejects it.  A dual-stack IPv6 socket that accepts an IPv4
+                in bracketed IPv6 form is an IPv6 address for this rule, even
+                without an explicit `6' qualifier: it selects an IPv6 file,
+                while `-i 4' rejects it.  A dotted IPv4 address selects an IPv4
+                file, not an IPv6 file whose mapped address is displayed in
+                IPv4 form.  A dual-stack IPv6 socket that accepts an IPv4
                 connection is such an IPv6 file; the separate IPv4 client
                 socket is an IPv4 file.
 

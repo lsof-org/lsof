@@ -90,18 +90,19 @@ def fail(msg):
     sys.exit(1)
 
 
-def query(opt):
+def query(opt, expected_status):
     result = run(opt)
     if result is None:
         sys.exit(1)
     status, stderr, files = result
-    if status not in (0, 1):
-        fail(f"lsof {opt} exited with status {status}: {stderr}")
+    if status != expected_status:
+        fail(f"lsof {opt} exited with status {status}, "
+             f"expected {expected_status}: {stderr}")
     return files
 
 
 def expect(opt, expected, label):
-    files = query(opt)
+    files = query(opt, 0 if expected else 1)
     if set(files) != set(expected):
         fail(f"{label}: lsof {opt} selected fds {sorted(files)}, "
              f"expected {sorted(expected)}")
@@ -115,46 +116,57 @@ def expect_type(files, fd, typ, label):
 
 
 # Dual-stack listener and the accepted IPv4 connection are both IPv6.
-ipv6 = expect(f"-i6:{port}", {fd_listener, fd_accepted},
+ipv6 = expect(f"-i6TCP:{port}", {fd_listener, fd_accepted},
               "IPv6 port filter")
 expect_type(ipv6, fd_listener, "IPv6", "listener")
 expect_type(ipv6, fd_accepted, "IPv6", "accepted IPv4 connection")
 
 # The AF_INET client socket is the only IPv4 file in that connection.
-ipv4 = expect(f"-i4:{port}", {fd_client}, "IPv4 port filter")
+ipv4 = expect(f"-i4TCP:{port}", {fd_client}, "IPv4 port filter")
 expect_type(ipv4, fd_client, "IPv4", "IPv4 client")
 
 # IPv4-mapped address filters, with and without a port.
-mapped = expect(f"-i6@[::ffff:127.0.0.1]:{port}", {fd_accepted},
+mapped = expect(f"-i6TCP@[::ffff:127.0.0.1]:{port}", {fd_accepted},
                 "mapped IPv6 address/port filter")
 expect_type(mapped, fd_accepted, "IPv6", "mapped accepted connection")
-mapped_no_port = expect("-i6@[::ffff:127.0.0.1]", {fd_accepted},
+mapped_no_port = expect("-i6TCP@[::ffff:127.0.0.1]", {fd_accepted},
                         "mapped IPv6 address filter")
 expect_type(mapped_no_port, fd_accepted, "IPv6", "mapped no-port filter")
 
+# Bracketed mapped addresses remain IPv6 without an explicit family qualifier.
+expect(f"-iTCP@[::ffff:127.0.0.1]:{port}", {fd_accepted},
+       "unqualified mapped IPv6 address/port filter")
+expect("-iTCP@[::ffff:127.0.0.1]", {fd_accepted},
+       "unqualified mapped IPv6 address filter")
+expect("-i@[::ffff:127.0.0.1]", {fd_accepted},
+       "unqualified mapped IPv6 address without protocol")
+expect("-i@[::ffff:7f00:1]", {fd_accepted},
+       "hexadecimal mapped IPv6 address filter")
+expect("-iTCP@127.0.0.1", {fd_client}, "unqualified IPv4 address filter")
+
 # IPv4 address filters select the client, never the AF_INET6 accepted end.
-ipv4_addr = expect(f"-i4@127.0.0.1:{port}", {fd_client},
+ipv4_addr = expect(f"-i4TCP@127.0.0.1:{port}", {fd_client},
                    "IPv4 address/port filter")
 if f":{port}" not in ipv4_addr[fd_client]["name"]:
     fail(f"IPv4 client name does not contain port: "
          f"{ipv4_addr[fd_client]['name']!r}")
-expect(f"-i4@127.0.0.1", {fd_client}, "IPv4 address filter")
-expect(f"-i4@127.0.0.1:{native_port}", set(), "IPv4 address at IPv6 port")
+expect(f"-i4TCP@127.0.0.1", {fd_client}, "IPv4 address filter")
+expect(f"-i4TCP@127.0.0.1:{native_port}", set(), "IPv4 address at IPv6 port")
 
 # Native IPv6 listener.
-native_files = expect(f"-i6@[::1]:{native_port}", {fd_native},
+native_files = expect(f"-i6TCP@[::1]:{native_port}", {fd_native},
                       "native IPv6 address/port filter")
 expect_type(native_files, fd_native, "IPv6", "native IPv6 listener")
 if f"[::1]:{native_port}" not in native_files[fd_native]["name"]:
     fail(f"native IPv6 listener name is not native IPv6: "
          f"{native_files[fd_native]['name']!r}")
-expect("-i6@[::1]", {fd_native}, "native IPv6 address filter")
-expect(f"-i6@[::1]:{port}", set(), "native IPv6 address at other port")
+expect("-i6TCP@[::1]", {fd_native}, "native IPv6 address filter")
+expect(f"-i6TCP@[::1]:{port}", set(), "native IPv6 address at other port")
 
 # UDP dual-stack socket.
-udp_files = expect(f"-i6:{udp_port}", {fd_udp}, "IPv6 UDP port filter")
+udp_files = expect(f"-i6UDP:{udp_port}", {fd_udp}, "IPv6 UDP port filter")
 expect_type(udp_files, fd_udp, "IPv6", "IPv6 UDP socket")
-expect(f"-i4:{udp_port}", set(), "IPv4 filter on IPv6 UDP socket")
+expect(f"-i4UDP:{udp_port}", set(), "IPv4 filter on IPv6 UDP socket")
 if f":{udp_port}" not in udp_files[fd_udp]["name"]:
     fail(f"IPv6 UDP name does not contain port: "
          f"{udp_files[fd_udp]['name']!r}")
@@ -167,7 +179,7 @@ for fd in (fd_listener, fd_accepted, fd_native, fd_udp):
 expect("-i4", {fd_client}, "bare IPv4 filter")
 
 # A different mapped address must not match.
-expect(f"-i6@[::ffff:127.0.0.2]:{port}", set(),
+expect(f"-i6TCP@[::ffff:127.0.0.2]:{port}", set(),
        "non-matching mapped IPv6 address")
 
 # IPv6 address syntax under -i4 is rejected by the option parser.
@@ -186,7 +198,27 @@ if "[::" in ipv6[fd_accepted]["name"] or "::ffff:" in ipv6[fd_accepted]["name"]:
     fail(f"accepted name is not dotted IPv4: "
          f"{ipv6[fd_accepted]['name']!r}")
 
-print(f"PASS: covered TCP listener/client/accepted, native IPv6, UDP, "
+# A connected dual-stack UDP socket also retains its IPv6 selection family.
+udp_peer = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+udp_peer.bind(("127.0.0.1", 0))
+udp_peer_port = udp_peer.getsockname()[1]
+udp.connect(("::ffff:127.0.0.1", udp_peer_port))
+udp.send(b"dual-stack")
+udp_peer.settimeout(5)
+udp_peer.recvfrom(64)
+fd_udp_peer = str(udp_peer.fileno())
+for opt in (f"-i6UDP:{udp_peer_port}",
+            f"-i6UDP@[::ffff:127.0.0.1]:{udp_peer_port}",
+            f"-iUDP@[::ffff:127.0.0.1]:{udp_peer_port}"):
+    connected_udp = expect(opt, {fd_udp}, "connected mapped UDP filter")
+    expect_type(connected_udp, fd_udp, "IPv6", "connected mapped UDP socket")
+    if connected_udp[fd_udp]["name"] != (
+            f"127.0.0.1:{udp_port}->127.0.0.1:{udp_peer_port}"):
+        fail(f"connected UDP name is not IPv4-form: "
+             f"{connected_udp[fd_udp]['name']!r}")
+expect(f"-i4UDP:{udp_peer_port}", {fd_udp_peer}, "IPv4 UDP peer filter")
+
+print(f"PASS: covered TCP listener/client/accepted, native IPv6, connected UDP, "
       f"bare/port/address filters, and mapped-address rejection")
 sys.exit(0)
 PY
