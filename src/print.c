@@ -92,7 +92,7 @@ static void fill_porttab(struct lsof_context *ctx);
 static char *lkup_port(struct lsof_context *ctx, int p, int pr, int src);
 static char *lkup_svcnam(struct lsof_context *ctx, int h, int p, int pr,
                          int ss);
-static int printinaddr(struct lsof_context *ctx);
+static int formatinaddr(struct lsof_context *ctx);
 static int human_readable_size(SZOFFTYPE sz, int print, int col);
 
 /*
@@ -1191,10 +1191,10 @@ void print_file(struct lsof_context *ctx) {
 }
 
 /*
- * printinaddr() - print Internet addresses
+ * formatinaddr() - format Internet addresses in Namech
  */
 
-static int printinaddr(struct lsof_context *ctx) {
+static int formatinaddr(struct lsof_context *ctx) {
     int i, len, src;
     char *host, *port;
     int nl = Namechl - 1;
@@ -1333,11 +1333,7 @@ static int printinaddr(struct lsof_context *ctx) {
             nl -= len + 1;
         }
     }
-    if (Namech[0]) {
-        safestrprt(Namech, stdout, 0);
-        return (1);
-    }
-    return (0);
+    return (Namech[0] != '\0');
 }
 
 /*
@@ -1441,8 +1437,10 @@ void printname(struct lsof_context *ctx, int nl) /* NL status */
         /*
          * If the file has Internet addresses, print them.
          */
-        if (printinaddr(ctx))
+        if (formatinaddr(ctx)) {
+            safestrprt(Namech, stdout, 0);
             ps++;
+        }
         goto print_nma;
     }
     if (((Lf->ntype == N_BLK) || (Lf->ntype == N_CHR)) && Lf->dev_def &&
@@ -1988,7 +1986,10 @@ static void json_print_file(struct lsof_context *ctx, int *sep) {
     }
 #endif /* defined(HASFSTRUCT) */
 
-    if (FieldSel[LSOF_FIX_NAME].st && Lf->nm) {
+    if (FieldSel[LSOF_FIX_NAME].st && (Lf->li[0].af || Lf->li[1].af) &&
+        formatinaddr(ctx)) {
+        json_print_str(sep, "name", Namech);
+    } else if (FieldSel[LSOF_FIX_NAME].st && Lf->nm) {
         json_print_str(sep, "name", Lf->nm);
     }
 
