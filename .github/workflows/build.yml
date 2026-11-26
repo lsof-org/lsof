@@ -144,3 +144,73 @@ jobs:
           ./Configure -n openbsd
           make
           bash ./check.bash openbsd
+
+  netbsd:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v7
+    - name: build and test in a NetBSD vm
+      uses: vmactions/netbsd-vm@v1
+      with:
+        release: "10.2"
+        copyback: false
+        prepare: |
+          /usr/sbin/pkg_add -u bash autoconf automake libtool-base pkgconf
+          /usr/sbin/pkg_add python311 || /usr/sbin/pkg_add python3 || true
+        run: |
+          set -e
+          src=$(pwd)
+          export PATH=/usr/pkg/bin:$PATH
+          # NetBSD kernel headers are required by Configure and by the
+          # NetBSD dialect's machine.h.
+          ftp -o /tmp/syssrc.tgz https://cdn.netbsd.org/pub/NetBSD/NetBSD-10.2/source/sets/syssrc.tgz
+          tar -xzf /tmp/syssrc.tgz -C /
+          cd "$src"
+          autoreconf -vif
+          ./configure
+          make
+          make check || { cat test-suite.log; exit 1; }
+
+  solaris:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v7
+    - name: build and test in a Solaris vm
+      uses: vmactions/solaris-vm@v1
+      with:
+        release: "11.4"
+        copyback: false
+        prepare: |
+          pkg install --accept developer/gcc/gcc-c-13 \
+            developer/build/autoconf developer/build/automake \
+            developer/build/libtool developer/build/gnu-make \
+            developer/build/pkg-config shell/bash \
+            runtime/python-311 text/groff
+        run: |
+          set -e
+          export PATH=/usr/gcc/13/bin:/usr/gnu/bin:$PATH
+          src=$(pwd)
+          autoreconf -vif
+          ./configure
+          gmake
+          # The autotools test programs that link against liblsof fail to
+          # link on Solaris (unresolved liblsof symbols).  Run the neutral
+          # shell tests directly against the successfully built lsof binary.
+          for t in tests/case-*.bash; do
+            case "$t" in
+              tests/case-13-*|tests/case-14-*) continue ;;
+            esac
+            echo "== $t"
+            report="/tmp/${t##*/}.report"
+            set +e
+            bash "$t" "$(pwd)/lsof" "$report" tests solaris
+            rc=$?
+            set -e
+            if [ "$rc" -eq 77 ]; then
+              echo "SKIP: $t"
+            elif [ "$rc" -ne 0 ]; then
+              echo "FAIL: $t"
+              cat "$report" 2>/dev/null || true
+              exit "$rc"
+            fi
+          done
