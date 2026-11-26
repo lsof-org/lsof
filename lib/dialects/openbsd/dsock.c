@@ -109,6 +109,11 @@ void process_socket(struct lsof_context *ctx, struct kinfo_file *file) {
         /* Fill internet address info */
         lport = ntohs(file->inp_lport);
         fport = ntohs(file->inp_fport);
+        /*
+         * Keep the socket family for selection.  ent_inaddr() applies the
+         * IPv4 display conversion for IPv4-mapped addresses only after the
+         * file has been matched as an IPv6 file.
+         */
         if (file->inp_fport) {
             ent_inaddr(ctx, (unsigned char *)file->inp_laddru, lport,
                        (unsigned char *)file->inp_faddru, fport,

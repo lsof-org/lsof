@@ -39,12 +39,30 @@ static char copyright[] = "@(#) Copyright 2005 Apple Computer, Inc. and Purdue "
 
 #include "common.h"
 
+#if defined(HASIPv6)
 /*
- * IPv6_2_IPv4()  -- macro to define the address of an IPv4 address contained
- *                 in an IPv6 address
+ * normalize_v4compat() - convert IPv4-compatible `::a.b.c.d' addresses to
+ * the standard IPv4-mapped `::ffff:a.b.c.d' form.  Darwin reports accepted
+ * IPv4 connections in the former form, while lsof's common selection and
+ * display logic uses the latter.
  */
+static void normalize_v4compat(unsigned char *a) {
+    unsigned char v4[4];
+    int i;
 
-#define IPv6_2_IPv4(v6) (((uint8_t *)((struct in6_addr *)v6)->s6_addr) + 12)
+    for (i = 0; i < 12; i++) {
+        if (a[i])
+            return;
+    }
+    /* Exclude :: and ::1; both have IPv6 meanings. */
+    if (!(a[12] || a[13] || a[14] || a[15] > 1))
+        return;
+    (void)memcpy(v4, a + 12, sizeof(v4));
+    (void)memset(a, 0, 10);
+    a[10] = a[11] = 0xff;
+    (void)memcpy(a + 12, v4, sizeof(v4));
+}
+#endif /* defined(HASIPv6) */
 
 /*
  * process_socket() -- process socket file
@@ -55,6 +73,9 @@ static void process_socket_common(struct lsof_context *ctx,
     unsigned char *fa = (unsigned char *)NULL;
     int fam, fp, lp, unl;
     unsigned char *la = (unsigned char *)NULL;
+#if defined(HASIPv6)
+    struct in6_addr la6, fa6;
+#endif /* defined(HASIPv6) */
 
     /*
      * Enter basic socket values.
@@ -197,10 +218,10 @@ static void process_socket_common(struct lsof_context *ctx,
         } else {
 
             /*
-             * Enter IPv6 address information
+             * Enter IPv6 address information.  Leave IPv4-mapped addresses
+             * in their IPv6 form: Lsof.8 specifies that such a file is IPv6
+             * and is selected by '6', not '4'.
              */
-            int v4mapped = 0;
-
             if (si->psi.soi_kind == SOCKINFO_TCP) {
 
                 /*
@@ -212,9 +233,6 @@ static void process_socket_common(struct lsof_context *ctx,
                 fa = (unsigned char *)&si->psi.soi_proto.pri_tcp.tcpsi_ini
                          .insi_faddr.ina_6;
                 fp = (int)ntohs(si->psi.soi_proto.pri_tcp.tcpsi_ini.insi_fport);
-                if ((si->psi.soi_proto.pri_tcp.tcpsi_ini.insi_vflag &
-                     INI_IPV4) != 0)
-                    v4mapped = 1;
             } else {
 
                 /*
@@ -226,24 +244,27 @@ static void process_socket_common(struct lsof_context *ctx,
                 fa =
                     (unsigned char *)&si->psi.soi_proto.pri_in.insi_faddr.ina_6;
                 fp = (int)ntohs(si->psi.soi_proto.pri_in.insi_fport);
-                if ((si->psi.soi_proto.pri_in.insi_vflag & INI_IPV4) != 0)
-                    v4mapped = 1;
             }
             if (IN6_IS_ADDR_UNSPECIFIED((struct in6_addr *)fa) && !fp) {
                 fa = (unsigned char *)NULL;
                 fp = 0;
             }
-            if (v4mapped) {
-
-                /*
-                 * Adjust IPv4 addresses mapped in IPv6 addresses.
-                 */
-                fam = AF_INET;
-                if (la)
-                    la = (unsigned char *)IPv6_2_IPv4(la);
-                if (fa)
-                    fa = (unsigned char *)IPv6_2_IPv4(fa);
+#if defined(HASIPv6)
+            /*
+             * Normalize Darwin's IPv4-compatible form to the standard
+             * IPv4-mapped form before selection and display.
+             */
+            if (la) {
+                la6 = *(struct in6_addr *)la;
+                normalize_v4compat((unsigned char *)&la6);
+                la = (unsigned char *)&la6;
             }
+            if (fa) {
+                fa6 = *(struct in6_addr *)fa;
+                normalize_v4compat((unsigned char *)&fa6);
+                fa = (unsigned char *)&fa6;
+            }
+#endif /* defined(HASIPv6) */
         }
         /*
          * Enter local and remote addresses by address family.

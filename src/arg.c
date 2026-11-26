@@ -55,6 +55,9 @@ static int enter_nwad(struct lsof_context *ctx, struct nwad *n, int sp, int ep,
                       char *s, struct hostent *he);
 static struct hostent *lkup_hostnm(char *hn, struct nwad *n);
 static char *isIPv4addr(char *hn, unsigned char *a, int al);
+#if defined(HASIPv6)
+static int nwad_has_explicit_family(struct lsof_context *ctx, int af);
+#endif /* defined(HASIPv6) */
 
 /*
  * ckfd_range() - check fd range
@@ -1203,6 +1206,35 @@ int enter_id(struct lsof_context *ctx, /* context */
     return (err);
 }
 
+#if defined(HASIPv6)
+/*
+ * nwad_has_explicit_family() - does any explicit address use this family?
+ *
+ * Host names without an explicit IP version may legitimately contribute
+ * addresses from both families.  Only literal addresses and address
+ * specifications that already carry an IP version constrain a later -i4/-i6.
+ */
+static int nwad_has_explicit_family(struct lsof_context *ctx, int af) {
+    struct nwad *np;
+    int i, address;
+
+    for (np = Nwad; np; np = np->next) {
+        if (!np->af_explicit || np->af != af)
+            continue;
+        /* Protocol-only and port-only filters have no address. */
+        for (address = i = 0; i < MAX_AF_ADDR; i++) {
+            if (np->a[i]) {
+                address = 1;
+                break;
+            }
+        }
+        if (address)
+            return (1);
+    }
+    return (0);
+}
+#endif /* defined(HASIPv6) */
+
 /*
  * enter_network_address() - enter Internet address for searching
  */
@@ -1272,10 +1304,25 @@ int enter_network_address(struct lsof_context *ctx, /* context */
                 } else
                     FnetTy = ft;
             }
+#if defined(HASIPv6)
+            if (FnetTy == 4 && nwad_has_explicit_family(ctx, AF_INET6)) {
+                (void)fprintf(stderr,
+                              "%s: IPv6 addresses are prohibited: -i ", Pn);
+                safestrprt(na, stderr, 1);
+                return (1);
+            }
+            if (FnetTy == 6 && nwad_has_explicit_family(ctx, AF_INET)) {
+                (void)fprintf(stderr,
+                              "%s: IPv4 addresses are prohibited: -i ", Pn);
+                safestrprt(na, stderr, 1);
+                return (1);
+            }
+#endif /* defined(HASIPv6) */
             return (0);
         }
     } else if (Fnet)
         ft = FnetTy;
+    n.af_explicit = (ft != 0);
     /*
      * If an IP version has been specified, use it to set the address family.
      */
@@ -1364,6 +1411,7 @@ int enter_network_address(struct lsof_context *ctx, /* context */
             }
             wa = p;
             n.af = AF_INET;
+            n.af_explicit = 1;
         } else if (*wa == '[') {
 
 #if defined(HASIPv6)
@@ -1390,19 +1438,8 @@ int enter_network_address(struct lsof_context *ctx, /* context */
             }
             if (!ae)
                 goto unacc_address;
-            if (IN6_IS_ADDR_V4MAPPED((struct in6_addr *)&n.a[0])) {
-                if (ft == 6) {
-                    (void)fprintf(stderr,
-                                  "%s: IPv4 addresses are prohibited: -i ", Pn);
-                    safestrprt(na, stderr, 1);
-                    goto nwad_exit;
-                }
-                for (i = 0; i < 4; i++) {
-                    n.a[i] = n.a[i + 12];
-                }
-                n.af = AF_INET;
-            } else
-                n.af = AF_INET6;
+            n.af = AF_INET6;
+            n.af_explicit = 1;
             wa = cp + 1;
 #else  /* !defined(HASIPv6) */
             (void)fprintf(stderr, "%s: unsupported IPv6 address in: -i ", Pn);

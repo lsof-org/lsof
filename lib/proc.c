@@ -421,6 +421,28 @@ void ent_inaddr(struct lsof_context *ctx,
         if (m)
             Lf->sf |= SELNA;
     }
+#if defined(HASIPv6)
+    /*
+     * Selection above uses the socket's original address family.  For
+     * display, preserve lsof's historical IPv4 notation for IPv4-mapped
+     * IPv6 addresses.  This conversion must happen after selection: the
+     * file remains IPv6 for -i4/-i6 even though its address looks IPv4.
+     */
+    if (af == AF_INET6) {
+        int i;
+        for (i = 0; i < 2; i++) {
+            if (Lf->li[i].af == AF_INET6 &&
+                IN6_IS_ADDR_V4MAPPED(&Lf->li[i].ia.a6)) {
+                struct in_addr a4;
+                (void)memcpy(&a4,
+                             ((unsigned char *)&Lf->li[i].ia.a6) + 12,
+                             sizeof(a4));
+                Lf->li[i].ia.a4 = a4;
+                Lf->li[i].af = AF_INET;
+            }
+        }
+    }
+#endif /* defined(HASIPv6) */
 }
 
 /*
