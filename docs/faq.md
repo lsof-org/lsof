@@ -1,6 +1,10 @@
 # Frequently Asked Questions
 
-Caveat: most of the FAQ comes from the original lsof, which may be outdated.
+Caveat: most of the FAQ comes from the original lsof and may be outdated.
+For current source code and contributions, see the [repository](https://github.com/lsof-org/lsof);
+for releases, see [GitHub Releases](https://github.com/lsof-org/lsof/releases);
+and for support and reports, use [GitHub issues](https://github.com/lsof-org/lsof/issues).
+Historical first-person accounts and attribution to Vic Abell are retained.
 
 ## When Lsof Seems to Hang
 
@@ -187,7 +191,7 @@ man page: [https://lsof.readthedocs.io/en/latest/manpage](https://lsof.readthedo
 ### How do I report an lsof bug?
 
 If you believe you have discovered a bug in lsof, you can report it to
-https://github.com/lsof-org/lsof.  Do NOT report lsof bugs to the UNIX
+https://github.com/lsof-org/lsof/issues.  Do NOT report lsof bugs to the UNIX
 dialect vendor.
 
 Before you send a bug report, please read the "Bug Reports" section of
@@ -459,35 +463,22 @@ on them, so I can't claim lsof works on them. If your dialect
 isn't in the list, you should try building lsof on it anyway.
 
 Lsof version 4 predecessors, versions 2 and 3, may support older
-version of some dialects.  Contact me via e-mail at <abe@purdue.edu>
-if you're interested in their distributions.  Make sure "lsof"
-appears in the "Subject:" line so my e-mail filter won't classify
-your letter as Spam.
+versions of some dialects.  For questions about historical distributions,
+use [GitHub issues](https://github.com/lsof-org/lsof/issues).
 
 ### What about a new port?
 
-The 00PORTING file in the distribution gives hints on doing
-a port.  I will consider doing a port in exchange for
-permanent access to a test host.  I require permanent access
-so I can test new lsof revisions, because I will not offer
-distributions of dialect ports I cannot upgrade and test.
+The 00PORTING file in the distribution gives hints on doing a port.
+Discuss proposed ports and test systems in the
+[issue tracker](https://github.com/lsof-org/lsof/issues), and submit
+contributions through the [repository](https://github.com/lsof-org/lsof).
 
 #### User-contributed Ports
 
-Sometimes I receive contributions of ports of lsof to
-systems where I can't test future revisions of lsof.  Hence,
-I don't incorporate these contributions into my lsof
-distribution.
-
-However, I do make descriptions of these contributions
-available.  You can find them in the 00INDEX and README
-files at:
-
-	ftp://lsof.itap.purdue.edu/pub/tools/unix/lsof/contrib
-
-Consult the 00INDEX file in the contrib/ directory for a
-list of the available contributions and consult README
-there for information on how to obtain them.
+Historically, descriptions of some user-contributed ports were distributed
+separately.  For current contributions and questions about those ports,
+see the [repository](https://github.com/lsof-org/lsof) and
+[issue tracker](https://github.com/lsof-org/lsof/issues).
 
 ### Why isn't there an AT&T SVR4 port?
 
@@ -687,7 +678,7 @@ vendor header files installed on the system  -- e.g., the
 Solaris pkgchk tool can be used to check the header files
 that were installed from the SUNWhea package.
 
-For other header file problems contact me at <abe@purdue.edu>.
+For other header file problems, use https://github.com/lsof-org/lsof/issues.
 Please follow the reporting guidelines in the "How do I
 report an lsof bug?" section of this FAQ.
 
@@ -1471,9 +1462,8 @@ the problem:
 My interpretation of that comment is that there is a different
 RPC interface to the portmap when IPv6 is enabled.  However, I
 can't find any documentation on it in the RPC man pages.  If
-anyone has information on it, please send it to me at
-<abe@purdue> and put "lsof Solaris portmap" in the subject
-line.
+anyone has information on it, please share it at
+https://github.com/lsof-org/lsof/issues.
 
 A work-around may be to move the ucp6 and tcp6 lines after the
 udp and tcxp lines in netconfig.  I don't know if that change
@@ -1544,8 +1534,8 @@ pseudo-terminal devices are used.
 
 When in doubt about the behavior of lsof in reporting file
 offset information, do some carefully measured experiments,
-consult the lsof sources, or contact me at <abe@purdue.edu>
-to discuss the matter.  Please follow the reporting guidelines
+consult the lsof sources, or discuss the matter at
+https://github.com/lsof-org/lsof/issues.  Please follow the reporting guidelines
 in the "How do I report an lsof bug?" section of this FAQ.
 
 #### What does lsof report for size when the file doesn't really have one?
@@ -1841,13 +1831,9 @@ type -- e.g., in a file system specific to the UNIX dialect
 -- and I haven't used a system where the file appeared
 during my testing.
 
-If you encounter such a situation, send me e-mail at
-<abe@purdue.edu> and we may be able to devise an addition to
-lsof that will report on the file in question.  Please follow
-the reporting guidelines in the "How do I report an lsof bug?"
-section of this FAQ.  Make sure "lsof" appears in the
-"Subject:" line so my e-mail filter won't classify your letter
-as Spam.
+If you encounter such a situation, report it at
+https://github.com/lsof-org/lsof/issues.  Please follow the reporting
+guidelines in the "How do I report an lsof bug?" section of this FAQ.
 
 ### Why do I get a complaint when I execute lsof that some library file can't be found?
 
@@ -2230,14 +2216,13 @@ has a man page that names its library.  If the latter is
 true, please let me know, because that is an lsof problem
 I need to fix.
 
-If none of these solutions work for you, send me some
-documentation via e-mail at <abe@purdue.edu>.  Include `uname
+If none of these solutions work for you, open an issue at
+https://github.com/lsof-org/lsof/issues.  Include `uname
 -a` output, the output of the lsof `Configure ...` and `make`
 steps, and the contents of the environment in force when the
 `make` step was executed -- e.g., `env` or `printenv` output.
 If you've located the libraries lsof names, send me that
-information, too.  Make sure "lsof" appears in the "Subject:"
-line so my e-mail filter won't classify your letter as Spam.
+information, too.
 
 ### Command Regular Expressions (REs)
 
@@ -2662,10 +2647,8 @@ lsof source files and Configure script.  If large file
 support isn't defined there, it isn't defined in the LTbigf
 test.
 
-If you think that's wrong for a particular dialect, contact me
-via e-mail at <abe@purdue.edu>.  Make sure "lsof" appears in the
-"Subject:" line so my e-mail filter won't classify your letter
-as Spam.
+If you think that's wrong for a particular dialect, open an issue at
+https://github.com/lsof-org/lsof/issues.
 
 ##### Why does LTbigf complain about operations on its config.LTbigf*
 	file?

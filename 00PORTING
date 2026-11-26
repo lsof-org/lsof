@@ -2,9 +2,9 @@
 		Guide to Porting lsof 4 to Unix OS Dialects
 
 **********************************************************************
-| The latest release of lsof is always available via anonymous ftp   |
-| from lsof.itap.purdue.edu.  Look in pub/lsof.README for its        |
-| location.                                                          |
+| Source and contributions: https://github.com/lsof-org/lsof         |
+| Releases: https://github.com/lsof-org/lsof/releases                |
+| Issues and contact: https://github.com/lsof-org/lsof/issues        |
 **********************************************************************
 
 			    Contents

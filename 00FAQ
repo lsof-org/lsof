@@ -2,15 +2,17 @@
 		Frequently Asked Questions about lsof
 
 **********************************************************************
-| The latest release of lsof is always available via anonymous ftp   |
-| from lsof.itap.purdue.edu.  Look in pub/lsof.README for its        |
-| location.                                                          |
+| Source and contributions: https://github.com/lsof-org/lsof         |
+| Releases: https://github.com/lsof-org/lsof/releases                |
+| Issues and contact: https://github.com/lsof-org/lsof/issues        |
 **********************************************************************
 
 ______________________________________________________________________
 
 This file contains frequently asked questions about lsof and answers
-to them.
+to them.  Much of this historical FAQ was written by Vic Abell; old
+Purdue addresses and first-person contact instructions below are retained
+for context.  Use the GitHub links above for current project information.
 
 Vic Abell <abe@purdue.edu>
 October 13, 2014
@@ -521,18 +523,14 @@ ______________________________________________________________________
 
 1.2	Where do I get lsof?
 
-	Lsof is available via anonymous ftp from lsof.itap.purdue.edu.
-	Look in the pub/tools/unix/lsof sub-directory.
-
-	    ftp://lsof.itap.purdue.edu/pub/tools/unix/lsof
-
-	Bzip2'd, compressed and gzip'd tar files with GPG certificates
-	are available.
+	Source code is available at https://github.com/lsof-org/lsof.
+	Releases are available at https://github.com/lsof-org/lsof/releases.
 
 1.2.1	Are there mirror sites?
 
-	On March 21, 2013 these sites appeared to have the latest
-	lsof revision:
+	The following is a historical list from March 21, 2013.  These
+	mirrors are not guaranteed to be available or current.  Use the
+	GitHub releases page above for current releases.
 
 	ftp://ftp.fu-berlin.de/pub/unix/tools/lsof
 	ftp://sunsite.ualberta.ca/pub/Mirror/lsof
@@ -542,9 +540,9 @@ ______________________________________________________________________
 
 1.2.2	Are lsof executables available?
 
-	Some lsof executables are available in the subdirectory
-	tree pub/tools/unix/lsof/binaries  These are neither guaranteed
-	to be current nor cover every dialect and machine architecture.
+	Historically, executables were available in the
+	pub/tools/unix/lsof/binaries tree.  For current packages, consult
+	your operating system's package provider.
 
 	I don't recommend you use pre-compiled lsof binaries; I
 	recommend you obtain the sources and build your own binary.
@@ -567,6 +565,10 @@ ______________________________________________________________________
 	    have the same patches and feature support.
 
 1.2.3	How do I check the validity of an lsof distribution?
+
+	The instructions below describe historical distributions.  For a
+	current release, consult its release notes and any verification
+	information supplied at https://github.com/lsof-org/lsof/releases.
 
 	There are two ways to check the validity of an lsof
 	distribution:
@@ -621,12 +623,12 @@ ______________________________________________________________________
 	about ten years ago and is still acceptable to PGP versions
 	2.6.2 through 6.5.2.
 
-	Lsof revisions 4.70 and above are signed with a copy of my PGP
+	Historical lsof revisions starting with 4.70 were signed with a copy of my PGP
 	key that has been made acceptable for use with GPG by importing
 	it under GPG's "--allow-non-selfsigned-uid" option.
 
-	You can find my GPG compatible key in lsof revisions 4.70 and
-	above and at:
+	The GPG compatible key was included in historical releases and was
+	also published at the following former address:
 
 	    ftp://lsof.itap.purdue.edu/pub/Victor_A_Abell.gpg
 
@@ -652,14 +654,14 @@ ______________________________________________________________________
 	Two URLs provide some documentation that appears in the
 	lsof distribution:
 
-	FAQ: ftp://lsof.itap.purdue.edu/pub/tools/unix/lsof/FAQ
+	FAQ: https://github.com/lsof-org/lsof/blob/master/00FAQ
 
-	man page: ftp://lsof.itap.purdue.edu/pub/tools/unix/lsof/lsof_man
+	man page: https://github.com/lsof-org/lsof/blob/master/Lsof.8
 
 1.4	How do I report an lsof bug?
 
 	If you believe you have discovered a bug in lsof, you can report it to
-	https://github.com/lsof-org/lsof.  Do NOT report lsof bugs to the UNIX
+	https://github.com/lsof-org/lsof/issues.  Do NOT report lsof bugs to the UNIX
 	dialect vendor.
 
 	Before you send a bug report, please read the "Bug Reports" section of
@@ -671,19 +673,12 @@ ______________________________________________________________________
 	This lsof FAQ is available in the file 00FAQ in the lsof
 	distribution and at the URL:
 
-	    ftp://lsof.itap.purdue.edu/pub/tools/unix/lsof/FAQ
+	    https://github.com/lsof-org/lsof/blob/master/00FAQ
 
 1.5.1	How timely is the on-line FAQ?
 
-	The on-line FAQ is sometimes too timely.  :-)
-
-	I update it as soon as new information is available.   That may
-	include information about support that won't appear in the lsof
-	source distribution until the next revision.  If you encounter
-	something like that, please send me e-mail at <abe@purdue.edu>.  I
-	may be able to point you at a pre-release distribution that contains
-	the support of interest.  Make sure "lsof" appears in the "Subject:"
-	line so my e-mail filter won't classify your letter as Spam.
+	The repository contains the current version.  To report outdated
+	information, open an issue at https://github.com/lsof-org/lsof/issues.
 
 1.6	Is there a test suite?
 
@@ -933,35 +928,21 @@ ______________________________________________________________________
 	isn't in the list, you should try building lsof on it anyway.
 
 	Lsof version 4 predecessors, versions 2 and 3, may support older
-	version of some dialects.  Contact me via e-mail at <abe@purdue.edu>
-	if you're interested in their distributions.  Make sure "lsof"
-	appears in the "Subject:" line so my e-mail filter won't classify
-	your letter as Spam.
+	versions of some dialects.  For questions about historical
+	distributions, use https://github.com/lsof-org/lsof/issues.
 
 2.2	What about a new port?
 
-	The 00PORTING file in the distribution gives hints on doing
-	a port.  I will consider doing a port in exchange for
-	permanent access to a test host.  I require permanent access
-	so I can test new lsof revisions, because I will not offer
-	distributions of dialect ports I cannot upgrade and test.
+	The 00PORTING file in the distribution gives hints on doing a port.
+	Discuss proposed ports and test systems at
+	https://github.com/lsof-org/lsof/issues, and submit contributions
+	through https://github.com/lsof-org/lsof.
 
 2.2.1	User-contributed Ports
 
-	Sometimes I receive contributions of ports of lsof to
-	systems where I can't test future revisions of lsof.  Hence,
-	I don't incorporate these contributions into my lsof
-	distribution.
-
-	However, I do make descriptions of these contributions
-	available.  You can find them in the 00INDEX and README
-	files at:
-
-	    ftp://lsof.itap.purdue.edu/pub/tools/unix/lsof/contrib
-
-	Consult the 00INDEX file in the contrib/ directory for a
-	list of the available contributions and consult README
-	there for information on how to obtain them.
+	Historically, descriptions of some user-contributed ports were
+	distributed separately.  For current contributions and questions,
+	see https://github.com/lsof-org/lsof and its issue tracker.
 
 2.3	Why isn't there an AT&T SVR4 port?
 
@@ -1028,10 +1009,8 @@ ______________________________________________________________________
 	run the test suite.  (See the answer to the "Is there a test
 	suite?  question for information on the test suite.)
 
-	If you have problems with an unsupported dialect or version,
-	contact me via e-mail at <abe@purdue.edu> and I may be able to help.
-	Make sure "lsof" appears in the "Subject:" line so my e-mail filter
-	won't classify your letter as Spam.
+	For problems with an unsupported dialect or version, open an issue at
+	https://github.com/lsof-org/lsof/issues.
 
 
 3.0	Lsof Problems
@@ -1163,7 +1142,7 @@ ______________________________________________________________________
 	Solaris pkgchk tool can be used to check the header files
 	that were installed from the SUNWhea package.
 
-	For other header file problems contact me at <abe@purdue.edu>.
+	For other header file problems, use https://github.com/lsof-org/lsof/issues.
 	Please follow the reporting guidelines in the "How do I
 	report an lsof bug?" section of this FAQ.
 
@@ -2021,8 +2000,8 @@ ______________________________________________________________________
 
 	When in doubt about the behavior of lsof in reporting file
 	offset information, do some carefully measured experiments,
-	consult the lsof sources, or contact me at <abe@purdue.edu>
-	to discuss the matter.  Please follow the reporting guidelines
+	consult the lsof sources, or discuss the matter at
+	https://github.com/lsof-org/lsof/issues.  Please follow the reporting guidelines
 	in the "How do I report an lsof bug?" section of this FAQ.
 
 3.20.1	What does lsof report for size when the file doesn't really have
@@ -2320,13 +2299,9 @@ ______________________________________________________________________
 	-- and I haven't used a system where the file appeared
 	during my testing.
 
-	If you encounter such a situation, send me e-mail at
-	<abe@purdue.edu> and we may be able to devise an addition to
-	lsof that will report on the file in question.  Please follow
-	the reporting guidelines in the "How do I report an lsof bug?"
-	section of this FAQ.  Make sure "lsof" appears in the
-	"Subject:" line so my e-mail filter won't classify your letter
-	as Spam.
+	If you encounter such a situation, report it at
+	https://github.com/lsof-org/lsof/issues.  Please follow the reporting
+	guidelines in the "How do I report an lsof bug?" section of this FAQ.
 
 3.24	Why do I get a complaint when I execute lsof that some library
 	file can't be found?
@@ -2714,14 +2689,12 @@ ______________________________________________________________________
 	true, please let me know, because that is an lsof problem
 	I need to fix.
 
-	If none of these solutions work for you, send me some
-	documentation via e-mail at <abe@purdue.edu>.  Include `uname
+	If none of these solutions work for you, open an issue at
+	https://github.com/lsof-org/lsof/issues.  Include `uname
 	-a` output, the output of the lsof `Configure ...` and `make`
 	steps, and the contents of the environment in force when the
 	`make` step was executed -- e.g., `env` or `printenv` output.
-	If you've located the libraries lsof names, send me that
-	information, too.  Make sure "lsof" appears in the "Subject:"
-	line so my e-mail filter won't classify your letter as Spam.
+	If you've located the libraries lsof names, include that information, too.
 
 3.37	Command Regular Expressions (REs)
 
@@ -3151,10 +3124,8 @@ ______________________________________________________________________
 	support isn't defined there, it isn't defined in the LTbigf
 	test.
 
-	If you think that's wrong for a particular dialect, contact me
-	via e-mail at <abe@purdue.edu>.  Make sure "lsof" appears in the
-	"Subject:" line so my e-mail filter won't classify your letter
-	as Spam.
+	If you think that's wrong for a particular dialect, open an issue at
+	https://github.com/lsof-org/lsof/issues.
 
 3.43.2.2 Why does LTbigf complain about operations on its config.LTbigf*
 	 file?
@@ -4166,10 +4137,8 @@ ______________________________________________________________________
 	does Configure ask for a path to the Darwin XNU kernel
 	header files?"
 
-	If Configure still can't find Darwin XNU kernel header
-	files, contact me via e-mail at <abe@purdue.edu> for help.
-	Make sure "lsof" appears in the "Subject:" line so my e-mail
-	filter won't classify your letter as Spam.
+	If Configure still can't find Darwin XNU kernel header files, report
+	the problem at https://github.com/lsof-org/lsof/issues.
 
 5.2.2	Why doesn't Apple Darwin lsof report text file information?
 
@@ -4264,10 +4233,8 @@ ______________________________________________________________________
 	version was released and access to kmem test systems has
 	prevented patching the bug.
 
-	If you are using the kmem version and would like a fix for this
-	problem, please send e-mail to me <abe@purdue.edu>.  Make sure
-	"lsof" appears in the "Subject:" line so my e-mail filter won't
-	classify your letter as Spam.
+	If you are using the kmem version and encounter this problem, report
+	it at https://github.com/lsof-org/lsof/issues.
 
 5.3	Libproc-based Apple Darwin Questions
 
@@ -4334,9 +4301,7 @@ ______________________________________________________________________
 	work on an earlier RELEASE version of the current leading edge
 	version.
 
-	When that happens, please send e-mail to me <abe@purdue.edu>.
-	Make sure "lsof" appears in the "Subject:" line so my e-mail
-	filter won't classify your letter as Spam.
+	When that happens, report it at https://github.com/lsof-org/lsof/issues.
 
 8.4	Why does kvm_open() complain it can't find some file?
 
@@ -4828,10 +4793,8 @@ ______________________________________________________________________
 	Bonds for that information.)
 
 	Finally, if you find that lsof isn't complaining about VxFS
-	when it complains about an unknown file system type, send
-	e-mail to me <abe@purdue.edu> for further assistance.  Make
-	sure "lsof" appears in the "Subject:" line so my e-mail filter
-	won't classify your letter as Spam.
+	when it complains about an unknown file system type, report it at
+	https://github.com/lsof-org/lsof/issues.
 
 9.2.10	Why does the ANSI-C compiler complain about comments in HP-UX
 	11 header files?
@@ -4866,10 +4829,8 @@ ______________________________________________________________________
 	Sometimes it is missing from /usr/include/sys/fs.
 
 	<sys/fs/vx_inode.h> is a header file that must be obtained from
-	Veritas.  If that proves impossible, please contact me via
-	e-mail at <abe@purdue.edu>.  Make sure "lsof" appears in the
-	"Subject:" line so my e-mail filter won't classify your letter
-	as Spam.
+	Veritas.  If that proves impossible, ask for help at
+	https://github.com/lsof-org/lsof/issues.
 
 
 9.3	PSTAT-based HP-UX lsof Questions
@@ -5157,10 +5118,8 @@ ______________________________________________________________________
 	it can't report file offsets (positions).
 
 	After revision 4.52 the /dev/kmem-based Linux sources for
-	lsof are no longer distributed.  Information about them
-	may be found in the 00INDEX and README files at:
-
-	    ftp://lsof.itap.purdue.edu/pub/tools/unix/lsof/OLD/src
+	lsof were no longer distributed.  For questions about historical
+	sources, use https://github.com/lsof-org/lsof/issues.
 
 10.2	/proc-based Linux lsof Questions
 
@@ -5224,11 +5183,8 @@ ______________________________________________________________________
 	information.
 
 	If you find a matching node number in a /proc/net file that is
-	not currently being processed by lsof, contact me via e-mail at
-	<abe@purdue.edu>.  I'll discuss adding support to /proc-based
-	lsof for the protocol of the /proc/net file with you.  Make
-	sure "lsof" appears in the "Subject:" line so my e-mail filter
-	won't classify your letter as Spam.
+	not currently being processed by lsof, discuss protocol support at
+	https://github.com/lsof-org/lsof/issues.
 
 	The code that matches node numbers of open IPX protocol
 	socket files to those in /proc/net/ipx requires Jonathan
@@ -5254,10 +5210,9 @@ ______________________________________________________________________
 	any NAME column information (e.g., local and remote addresses)
 	for socket files bound to the indicated network protocol.
 
-	If you get this warning, please send me e-mail at <abe@purdue.edu>.
-	Include the contents of the file lsof claims has an unsupported
-	format.  Make sure "lsof" appears in the "Subject:" line so my
-	e-mail filter won't classify your letter as Spam.
+	If you get this warning, open an issue at
+	https://github.com/lsof-org/lsof/issues and include the contents of
+	the file lsof claims has an unsupported format.
 
 10.2.4   Why does /proc-based lsof report "(deleted)" after a path name?
 
@@ -6101,10 +6056,8 @@ ______________________________________________________________________
 	If your dialect doesn't have the support and you want it added,
 	you will have to provide me Internet access to a test host, where
 	I can compile lsof and have the credentials to test the changes
-	the support requires.  If that's possible for you, please contact
-	me via e-mail at <abe@purdue.edu>.  Make sure "lsof" appears in
-	the "Subject:" line so my e-mail filter won't classify your letter
-	as Spam.
+	the support requires.  If that's possible for you, discuss it at
+	https://github.com/lsof-org/lsof/issues.
 
 
 15.0	Pyramid Version Problems
@@ -6112,10 +6065,8 @@ ______________________________________________________________________
 15.0.5	Statement of deprecation
 
 	As of lsof revision 4.52 support for all Pyramid versions has
-	been dropped.  Contact me via e-mail at <abe@purdue.edu> if you
-	are interested in obtaining the last lsof Pyramid distribution.
-	Make sure "lsof" appears in the "Subject:" line so my e-mail
-	filter won't classify your letter as Spam.
+	been dropped.  For questions about the last Pyramid distribution,
+	use https://github.com/lsof-org/lsof/issues.
 
 
 16.0	SCO Problems
@@ -6206,16 +6157,11 @@ ______________________________________________________________________
 	cluster system to be able to develop changes to lsof that
 	would make it compile and work there.
 
-	If you have a non-stop cluster UnixWare 7.1.1 system, want lsof
-	for it, and can offer me a test account on the system, please
-	contact me via e-mail at <abe@purdue.edu>.  Make sure "lsof"
-	appears in the "Subject:" line so my e-mail filter won't
-	classify your letter as Spam.
+	If you have a non-stop cluster UnixWare 7.1.1 system and can offer
+	a test account, discuss it at https://github.com/lsof-org/lsof/issues.
 
-	If you have a system with nsc_cfs and can offer me a test
-	account on it, please contact me via e-mail at <abe@purdue.edu>.
-	Make sure "lsof" appears in the "Subject:" line so my e-mail
-	filter won't classify your letter as Spam.
+	If you have a system with nsc_cfs and can offer a test account,
+	discuss it at https://github.com/lsof-org/lsof/issues.
 
 16.2.2  Why does lsof complain about node_self() on my UnixWare
 	7.1.1 or above system?
@@ -6366,10 +6312,8 @@ ______________________________________________________________________
 	Lsof needs those header files for its compilation.  Contact
 	SCO|Caldera to get copies of those header files.
 
-	If you can't get the header files from SCO|Caldera, please
-	contact me via e-mail at <abe@purdue.edu>.  Make sure "lsof"
-	appears in the "Subject:" line so my e-mail filter won't
-	classify your letter as Spam.
+	If you can't get the header files from SCO|Caldera, ask at
+	https://github.com/lsof-org/lsof/issues.
 
 
 17.0	Sun Problems
@@ -6377,9 +6321,8 @@ ______________________________________________________________________
 17.0.5	Statement of deprecation
 
 	Lsof support for SunOS 4.1.x was last tested at revision 4.51.
-	Contact me via e-mail at <abe@purdue.edu> if you're interested in
-	obtaining it.  Make sure "lsof" appears in the "Subject:" line so
-	my e-mail filter won't classify your letter as Spam.
+	For questions about obtaining it, use
+	https://github.com/lsof-org/lsof/issues.
 
 17.1	My Sun gcc-compiled lsof doesn't work -- why?
 
@@ -7269,10 +7212,10 @@ ______________________________________________________________________
 	the filtering isn't perfect, since a filtered address might
 	become invalid after lsof has filtered it but before lsof
 	has delivered it to /dev/kmem.  That filtering work is
-	described in .../dialects/sun/solaris_kaddr_filters, also
+	described in lib/dialects/sun/solaris_kaddr_filters, also
 	available at:
 
-	ftp://lsof.itap.purdue.edu/pub/tools/unix/lsof/solaris_kaddr_filters
+	https://github.com/lsof-org/lsof/blob/master/lib/dialects/sun/solaris_kaddr_filters
 
 	The best and safest work-around is to upgrade to Solaris
 	9 or install an appropriate patch or its equivalent from
@@ -7325,11 +7268,8 @@ ______________________________________________________________________
 	name for all files it finds on SAM-FS file systems.
 
 	That's because no more information is known about the
-	composition of the nodes that follow SAM-FS vnodes.  If
-	you can provide that information, please contact me via
-	e-mail at <abe@purdue.edu>.  Make sure "lsof" appears in the
-	"Subject:" line so my e-mail filter won't classify your letter
-	as Spam.
+	composition of the nodes that follow SAM-FS vnodes.  If you can
+	provide that information, use https://github.com/lsof-org/lsof/issues.
 
 17.23.2	Why can't lsof locate named SAM-GS files?
 

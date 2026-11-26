@@ -1,6 +1,10 @@
 #!/bin/ksh
 #
 # GPGDistrib -- make lsof 4.x GPG distribution files
+# Historical release tooling.  For current releases and project contact see
+# https://github.com/lsof-org/lsof/releases and
+# https://github.com/lsof-org/lsof/issues.  Original key and author details
+# below are retained for verifying and understanding historical distributions.
 
 # Define DEBUG to 1 in the environment to skip to the README file construction.
 #

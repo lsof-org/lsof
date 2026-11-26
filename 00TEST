@@ -76,7 +76,7 @@ for the lsof test suite.  FAQs on the lsof test suite will be found
 in the one and only lsof FAQ in file 00FAQ of the lsof distribution,
 or on-line at:
 
-    ftp://lsof.itap.purdue.edu/pub/tools/unix/lsof/FAQ
+    https://github.com/lsof-org/lsof/blob/master/00FAQ
 
 A.3. Where have the tests been tested?
 ======================================
@@ -1000,16 +1000,13 @@ base, footprints, and the scripts that support them.
 		  7.1.3, cc
 		  7.1.4, cc
 
-If you are able to run the test suite on dialect versions other
-than the ones listed above, please send e-mail to <abe@purdue.edu>,
-indicating the dialect version where you were able to run the test
-suite.  Please send me the footprint formed by CkTestDB, or run
-the Add2TestDB script and send me the footprint it reports.
+If you run the test suite on another dialect version, report the dialect
+version and the CkTestDB or Add2TestDB footprint at:
+https://github.com/lsof-org/lsof/issues
 
-If you encounter problems compiling the tests or running them on
-a dialect version listed above, please send e-mail to <abe@purdue.edu>,
-naming the dialect version and providing the output from the lsof
-Configure script and make operation.
+If you encounter problems compiling or running the tests, open an issue at
+https://github.com/lsof-org/lsof/issues with the dialect version and the
+output from the lsof configuration and build steps.
 
 1) John Dzubera did the HP-UX 10.20 gcc testing and provided its
    footprint.

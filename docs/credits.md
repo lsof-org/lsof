@@ -1,5 +1,11 @@
 ## Credits
 
+Lsof was originally developed and maintained by Vic Abell.  The following
+acknowledgments preserve his account of contributions to the project.
+For contributions to the current repository, see its
+[contributors](https://github.com/lsof-org/lsof/graphs/contributors) and
+[contribution history](https://github.com/lsof-org/lsof/commits/master/).
+
 I owe an enormous debt to the users of lsof who have contributed
 to its steady growth.  The size of the list of people who have
 helped me, while it has grown too large to include in the lsof man

@@ -2,9 +2,14 @@
 			Making and Installing lsof 4
 
 ********************************************************************
-| The latest release of lsof is always available via anonymous ftp |
-| from lsof.itap.purdue.edu.  Look in pub/tools/unix/lsof.         |
+| Source and contributions: https://github.com/lsof-org/lsof       |
+| Releases: https://github.com/lsof-org/lsof/releases              |
+| Issues and contact: https://github.com/lsof-org/lsof/issues      |
 ********************************************************************
+
+Historical note: much of this document was written by Vic Abell.  Old
+Purdue addresses, release instructions, and first-person contact requests
+are retained for context; use the GitHub links above for current information.
 
 				Contents
 
@@ -667,37 +672,25 @@ year in or format of the notice may vary slightly.)
 Bug Reports
 ===========
 
-Now that the obligatory disclaimer is out of the way, let me hasten to
-add that I accept lsof bug reports and try hard to respond to them.  I
-will also consider and discuss requests for new features, ports to new
-dialects, or ports to new OS versions.
+Report lsof bugs and discuss requests for new features or ports at
+https://github.com/lsof-org/lsof/issues.
 
 PLEASE DON'T SEND BUG REPORTS ABOUT LSOF TO THE UNIX DIALECT OR DIALECT
 OPTION VENDOR.
 
-At worst such bug reports will confuse the vendor; at best, the vendor
-will forward the bug report to me.
+For issues specific to a binary supplied by a third party, also consult
+the distributor of that binary.
 
-PLEASE DON'T SEND BUG REPORTS ABOUT LSOF BINARIES BUILT OR DISTRIBUTED
-BY SOMEONE ELSE, BECAUSE I CAN'T SUPPORT THEM.
-
-Before you send me a bug report, please do these things:
+Before you submit a bug report, please do these things:
 
     *  Make sure you try the latest lsof revision.
 
        +  Download the latest revision from:
 
-	    ftp://lsof.itap.purdue.edu/pub/tools/unix/lsof
+	    https://github.com/lsof-org/lsof/releases
 
-       +  Verify the signatures of what you have downloaded;
-
-       +  While connected to lsof.itap.purdue.edu, check for patches:
-
-	    ftp://lsof.itap.purdue.edu/pub/tools/unix/lsof/patches
-
-       +  If patches exist, install them in the latest revision
-	  you just downloaded.  Then build the latest revision and
-	  see if it fixes your bug.
+       +  Check the release information for available verification details,
+          then build the latest revision and see if it fixes your bug.
 
     *  If you're having trouble compiling lsof with gcc, try the
        UNIX dialect vendor's compiler.  I don't have access to gcc on
@@ -736,9 +729,8 @@ system); and compiler identification (e.g., gcc -v output).
 Either set of output will help me understand how lsof was configured
 and what UNIX dialect and lsof revision is involved.
 
-Please send all bug reports, requests, etc. to me via e-mail at
-<abe@purdue.edu>.  Make sure "lsof" appears in the "Subject:" line so
-my e-mail filter won't classify your letter as Spam.
+Please submit bug reports and requests at:
+https://github.com/lsof-org/lsof/issues
 
 
 The 00FAQ File
@@ -754,10 +746,9 @@ fixed text from an lsof error message.
 The lsof-l Mailing List
 =======================
 
-Information about lsof, including notices about the availability
-of new revisions, may be found in mailings of the lsof-l listserv.
-For more information about it, including instructions on how to
-subscribe, read the 00LSOF-L file of the lsof distribution.
+For current project questions and reports, use
+https://github.com/lsof-org/lsof/issues.  The 00LSOF-L file preserves
+historical information about the lsof-l mailing list.
 
 
 Field Output Example Scripts
@@ -964,8 +955,8 @@ BSDI BSD/OS
 ===========
 
 As of lsof revision 4.77 support for BSDI BSD/OS has been
-discontinued.  Lsof revision 4.76 with BSDI BSD/OS support may be found
-on lsof.itap.purdue.edu in pub/tools/unix/lsof/src.
+discontinued.  For questions about revision 4.76, use
+https://github.com/lsof-org/lsof/issues.
 
 
 FreeBSD
@@ -1092,8 +1083,8 @@ Pyramid DC/OSx and Reliant UNIX
 ===============================
 
 As of lsof revision 4.52 support for all Pyramid dialects has been
-discontinued.  Lsof revision 4.51 with Pyramid support may be
-obtained upon request.  Send the request to abe@purdue.edu.
+discontinued.  For questions about revision 4.51, use
+https://github.com/lsof-org/lsof/issues.
 
 These two UNIX dialects are very similar and share dialect-specific
 source files from the pyramid sub-directory.
@@ -1120,9 +1111,8 @@ Robert Lipe supplied changes to lsof for OpenUNIX 8.0.1.  Those
 changes were also incorporated in UnixWare 7.1.3 when it became
 the release name for OpenUNIX 8.0.1.
 
-Support for lsof on OpenUNIX ended at lsof revision 4.74.  The last
-lsof revision, 4.74, tested on OpenUNIX, may be found at the lsof
-"home" ftp site, lsof.itap.purdue.edu, in pub/tools/unix/lsof/OLD/src.
+Support for lsof on OpenUNIX ended at lsof revision 4.74.  For questions
+about that historical revision, use https://github.com/lsof-org/lsof/issues.
 
 
 SCO OpenServer
@@ -1154,11 +1144,8 @@ sources so lsof would compile and work without those optional
 packages.
 
 If you have an OpenServer system configured without the TCP/IP and
-NFS packages, and want to tackle the job of building lsof for it,
-contact me via e-mail at <abe@purdue.edu>.  I'll identify the
-Configure script, header file, and source file changes you will
-need to make.  (Caution: this is not a simple task, or I would have
-already done it.)
+NFS packages and want to build lsof for it, discuss the required
+changes at https://github.com/lsof-org/lsof/issues.
 
 The optional osrgcc and scogcc Configure abbreviations construct
 Makefiles for compiling lsof with gcc.
@@ -1273,12 +1260,9 @@ systems.
 User-contributed Dialect Support
 ================================
 
-There are some user-contributed dialect versions of lsof; more
-information on them can be found at:
-
-	ftp://lsof.itap.purdue.edu/pub/tools/unix/lsof/contrib
-
-Check the 00INDEX file there for details.
+Some user-contributed dialect versions were distributed separately.
+For current contributions and questions about historical ports, see
+https://github.com/lsof-org/lsof and its issue tracker.
 
 
 ============================
@@ -1300,10 +1284,8 @@ are no longer supported by lsof:
 	Ultrix
 	UnixWare below 7.0
 
-Remnants of the support lsof once provided for these dialects may
-be found in:
-
-	ftp://lsof.itap.purdue.edu/pub/tools/unix/lsof/OLD/dialects
+Support for these dialects was formerly archived separately.  For
+questions about historical sources, use the project's issue tracker.
 
 
 ===============
@@ -1416,14 +1398,9 @@ grant read permission to the kernel memory devices.
 Porting lsof 4 to a New UNIX Dialect
 ====================================
 
-If you're brave enough to consider this, look at the 00PORTING
-file.  Please contact me before you start.  I might be able to help
-you or even do the port myself.
-
-Don't overlook the contrib/ directory in pub/tools/unix/lsof on my
-ftp server, lsof.itap.purdue.edu.  It contains user-contributed ports
-of lsof to dialects I don't distribute, because I can't test new
-revisions of lsof on them.
+If you're considering this, look at the 00PORTING file and discuss the
+port at https://github.com/lsof-org/lsof/issues.  Submit contributions
+through https://github.com/lsof-org/lsof.
 
 
 =========================

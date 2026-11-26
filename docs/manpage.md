@@ -2948,7 +2948,9 @@ FILES
 AUTHORS
        Lsof  was  written by Victor A.Abell <abe@purdue.edu> of Purdue Univer‐
        sity.  Since version 4.93.0, the  lsof-org  team  at  GitHub  maintains
-       lsof.   Many  others  have  contributed to lsof.  They're listed in the
+       lsof. Source and contributions: https://github.com/lsof-org/lsof. Report
+       issues or contact the project at https://github.com/lsof-org/lsof/issues.
+       Many others have contributed to lsof. They're listed in the
        00CREDITS file of the lsof distribution.
 
 DISTRIBUTION

@@ -14,6 +14,8 @@
 
 lsof was originally developed and maintained by Vic Abell since 1994. The [lsof-org team at GitHub](https://github.com/lsof-org/lsof) takes over the maintainership of lsof. You can find the latest release at [GitHub Release](https://github.com/lsof-org/lsof/releases).
 
+For source code and contributions, visit the [repository](https://github.com/lsof-org/lsof). Report bugs, request features, or contact the maintainers through [GitHub issues](https://github.com/lsof-org/lsof/issues). Historical references to the former Purdue site and Vic Abell's contact details are retained for context.
+
 ## OS Support
 
 Actively maintained and supported:
