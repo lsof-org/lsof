@@ -67,5 +67,64 @@ assert d['processes'] == [], 'empty result should have empty processes array'
     fi
     echo "PASS: -J -t mutual exclusivity" >> $report
 
+    # Network names must include the same endpoints as -Fn, in both JSON modes.
+    python3 - "$lsof" <<'PY' || exit 1
+import json
+import os
+import socket
+import subprocess
+import sys
+
+listener = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+listener.bind(("127.0.0.1", 0))
+listener.listen(1)
+client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+client.connect(listener.getsockname())
+accepted, _ = listener.accept()
+udp = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+udp.bind(("0.0.0.0", 0))
+sockets = [listener, client, accepted, udp]
+ipv6 = None
+try:
+    ipv6 = socket.socket(socket.AF_INET6, socket.SOCK_STREAM)
+    ipv6.bind(("::1", 0))
+    ipv6.listen(1)
+except OSError as e:
+    if ipv6 is not None:
+        ipv6.close()
+    print(f"SKIP: IPv6 endpoint coverage unavailable: {e}")
+else:
+    sockets.append(ipv6)
+base = [sys.argv[1], "-nP", "-a", "-p", str(os.getpid()), "-i"]
+
+def run(options):
+    result = subprocess.run(base + options, capture_output=True, text=True,
+                            timeout=10)
+    assert result.returncode == 0, result.stderr
+    return result.stdout
+
+names = {}
+for line in run(["-Ffn"]).splitlines():
+    if line.startswith("f"):
+        fd = line[1:]
+    elif line.startswith("n"):
+        names[fd] = line[1:]
+assert set(names) == {str(s.fileno()) for s in sockets}, names
+assert names[str(listener.fileno())] == f"127.0.0.1:{listener.getsockname()[1]}"
+assert names[str(udp.fileno())] == f"*:{udp.getsockname()[1]}"
+for mode in ("-J", "-j"):
+    for fields in ([], ["-Ffn"]):
+        output = run([mode] + fields)
+        files = (json.loads(output)["processes"][0]["files"] if mode == "-J"
+                 else [json.loads(line) for line in output.splitlines()])
+        actual = {f["fd"]: f.get("name") for f in files}
+        assert actual == names, (mode, fields, actual, names)
+    output = run([mode, "-Ff"])
+    files = (json.loads(output)["processes"][0]["files"] if mode == "-J"
+             else [json.loads(line) for line in output.splitlines()])
+    assert all("name" not in f for f in files), (mode, files)
+print("PASS: JSON/JSONL socket endpoints match -Fn and honor field selection")
+PY
+
     exit 0
 } > $report 2>&1
