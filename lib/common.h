@@ -970,6 +970,8 @@ struct nwad {
     char *proto;                  /* protocol */
     int af;                       /* address family -- e.g.,
                                    * AF_INET, AF_INET6 */
+    int af_explicit;              /* address family was explicitly
+                                   * specified in this argument */
     unsigned char a[MAX_AF_ADDR]; /* address */
     int sport;                    /* starting port */
     int eport;                    /* ending port */

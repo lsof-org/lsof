@@ -65,12 +65,12 @@ fd_udp = str(udp.fileno())
 base = [lsof, "-w", "-nP", "-a", "-p", pid, "-Fpftn"]
 
 
-def run(opt):
+def run_args(args):
     try:
-        result = subprocess.run(base + [opt], capture_output=True, text=True,
+        result = subprocess.run(base + args, capture_output=True, text=True,
                                 timeout=10)
     except (OSError, subprocess.TimeoutExpired) as e:
-        print(f"FAIL: lsof {opt}: {e}")
+        print(f"FAIL: lsof {' '.join(args)}: {e}")
         return None
     files = {}
     fd = None
@@ -83,6 +83,10 @@ def run(opt):
         elif fd is not None and line.startswith("n"):
             files[fd]["name"] = line[1:]
     return result.returncode, result.stderr, files
+
+
+def run(opt):
+    return run_args([opt])
 
 
 def fail(msg):
@@ -190,6 +194,21 @@ status, stderr, files = result
 if status != 1 or "IPv6 addresses are prohibited" not in stderr:
     fail(f"-i4@[::ffff:127.0.0.1] was not rejected: status {status}, "
          f"stderr {stderr!r}, stdout fds {sorted(files)}")
+
+# Family restrictions must be enforced regardless of option order.
+for args, message in (
+    (["-i4", "-i@[::ffff:127.0.0.1]"], "IPv6 addresses are prohibited"),
+    (["-i@[::ffff:127.0.0.1]", "-i4"], "IPv6 addresses are prohibited"),
+    (["-i6", "-i@127.0.0.1"], "IPv4 addresses are prohibited"),
+    (["-i@127.0.0.1", "-i6"], "IPv4 addresses are prohibited"),
+):
+    result = run_args(args)
+    if result is None:
+        sys.exit(1)
+    status, stderr, files = result
+    if status != 1 or message not in stderr:
+        fail(f"{' '.join(args)} was not rejected: status {status}, "
+             f"stderr {stderr!r}, stdout fds {sorted(files)}")
 
 # Accepted embedded IPv4 address is displayed in IPv4 form, not ::-form.
 if f"127.0.0.1:{port}" not in ipv6[fd_accepted]["name"]:
