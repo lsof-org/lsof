@@ -382,7 +382,6 @@ extern int nlist(const char *, struct nlist *);
 #        define AFSAPATHDEF "/usr/vice/etc/modload/libafs"
 #    endif /* defined(HAS_AFS) && !defined(AFSAPATHDEF) */
 
-#    define ALLKMEM "/dev/allkmem"
 #    define COMP_P const void
 #    define CWDLEN (MAXPATHLEN + 1)
 #    define DEVINCR 1024 /* device table malloc() increment */
@@ -528,9 +527,7 @@ typedef struct CTF_request {
 
 extern char **Fsinfo;
 extern int Fsinfomax;
-extern int HasALLKMEM;
 extern int HaveCloneMaj;
-extern kvm_t *Kd;
 
 struct l_ino {
     unsigned char dev_def;  /* dev member is defined */

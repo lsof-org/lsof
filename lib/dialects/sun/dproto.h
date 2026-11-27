@@ -51,8 +51,6 @@ extern int CTF_memCB(const char *name, ctf_id_t id, ulong_t offset, void *arg);
 
 extern int is_file_named(struct lsof_context *ctx, char *p, int nt,
                          enum vtype vt, int ps);
-extern struct l_vfs *readvfs(struct lsof_context *ctx, KA_T ka, struct vfs *la,
-                             struct vnode *lv);
 extern int vop2ty(struct lsof_context *ctx, struct vnode *vp, int fx);
 
 #if defined(HAS_AFS)

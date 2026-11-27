@@ -362,7 +362,7 @@ AC_CHECK_DECLS([doadump], [], [], [[#define _KERNEL 1
 
 # Detect struct vnode definition for HAS_KVM_VNODE
 # Linking libkvm is not required in AIX
-AS_IF([test x$LSOF_DIALECT_DIR != xaix], [
+AS_IF([test x$LSOF_DIALECT_DIR != xaix && test x$LSOF_DIALECT_DIR != xsun], [
 	AC_EGREP_CPP([struct vnode], [#define _KVM_VNODE 1
 			#include <sys/vnode.h>], [AC_DEFINE([HAVE_KVM_VNODE], [1], ["Define to 1 if struct vnode exists"])
 			LIBS="$LIBS -lkvm"])

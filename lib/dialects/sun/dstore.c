@@ -184,11 +184,9 @@ struct drive_Nl Drive_Nl[] = {{"afsops", "afs_ops"},
 
 char **Fsinfo = NULL;             /* file system information */
 int Fsinfomax = 0;                /* maximum file system type */
-int HasALLKMEM = 0;               /* has ALLKMEM device */
 int HaveCloneMaj = 0;             /* clone major device number has
                                    * been identified and is in
                                    * CloneMaj */
-kvm_t *Kd = NULL;                 /* kvm descriptor */
 struct l_vfs *Lvfs = NULL;        /* local vfs structure table */
 struct netclone *Netclone = NULL; /* net clone devices from
                                    * /devices/pseudo */
