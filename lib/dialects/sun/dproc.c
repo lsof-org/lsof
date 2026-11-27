@@ -46,6 +46,15 @@ static int nm2id(char *nm, int *id) {
 #define PSINFO_EUID 28
 #define PSINFO_FNAME 136
 
+/* Old (non-structured) prpsinfo_t used by some illumos/Solaris systems. */
+#define PSINFO_OLD_SIZE 328
+#define PSINFO_OLD_PID 16
+#define PSINFO_OLD_PPID 20
+#define PSINFO_OLD_PGID 24
+#define PSINFO_OLD_UID 8
+#define PSINFO_OLD_EUID 288
+#define PSINFO_OLD_FNAME 120
+
 /*
  * /proc/<pid>/fdinfo/nn is a variable-length prfdinfo_t followed by
  * self-describing pr_misc entries.  The layout is from Solaris/illumos
@@ -372,14 +381,17 @@ static void process_fdinfo(struct lsof_context *ctx, int pid, int fd,
         link_lfile(ctx);
 }
 
-static int read_psinfo(const char *p, unsigned char *ps) {
+static int read_psinfo(const char *p, unsigned char *ps, int *len) {
     int fd, n;
 
     if ((fd = open(p, O_RDONLY)) < 0)
         return (1);
     n = (int)read(fd, ps, PSINFO_SIZE);
     (void)close(fd);
-    return (n == PSINFO_SIZE) ? 0 : 1;
+    *len = n;
+    if (n >= PSINFO_SIZE)
+        return (0);
+    return (n == PSINFO_OLD_SIZE) ? 0 : 1;
 }
 
 static void enter_path(struct lsof_context *ctx, enum lsof_fd_type fdt,
@@ -501,18 +513,25 @@ void gather_proc_info(struct lsof_context *ctx) {
         if (nm2id(dp->d_name, &pid))
             continue;
         (void)snpf(pspath, sizeof(pspath), "%s/%d/psinfo", PROC_BASE, pid);
-        if (read_psinfo(pspath, ps))
+        int pslen;
+        if (read_psinfo(pspath, ps, &pslen))
             continue;
         {
+            int pidoff = (pslen == PSINFO_OLD_SIZE) ? PSINFO_OLD_PID : PSINFO_PID;
+            int ppidoff = (pslen == PSINFO_OLD_SIZE) ? PSINFO_OLD_PPID : PSINFO_PPID;
+            int pgidoff = (pslen == PSINFO_OLD_SIZE) ? PSINFO_OLD_PGID : PSINFO_PGID;
+            int uidoff = (pslen == PSINFO_OLD_SIZE) ? PSINFO_OLD_UID : PSINFO_UID;
+            int euidoff = (pslen == PSINFO_OLD_SIZE) ? PSINFO_OLD_EUID : PSINFO_EUID;
+            int fnameoff = (pslen == PSINFO_OLD_SIZE) ? PSINFO_OLD_FNAME : PSINFO_FNAME;
             pid_t ps_pid, ps_ppid, ps_pgid;
             uid_t ps_uid, ps_euid;
 
-            memcpy(&ps_pid, &ps[PSINFO_PID], sizeof(ps_pid));
-            memcpy(&ps_ppid, &ps[PSINFO_PPID], sizeof(ps_ppid));
-            memcpy(&ps_pgid, &ps[PSINFO_PGID], sizeof(ps_pgid));
-            memcpy(&ps_uid, &ps[PSINFO_UID], sizeof(ps_uid));
-            memcpy(&ps_euid, &ps[PSINFO_EUID], sizeof(ps_euid));
-            (void)memcpy(cmd, &ps[PSINFO_FNAME], sizeof(cmd) - 1);
+            memcpy(&ps_pid, &ps[pidoff], sizeof(ps_pid));
+            memcpy(&ps_ppid, &ps[ppidoff], sizeof(ps_ppid));
+            memcpy(&ps_pgid, &ps[pgidoff], sizeof(ps_pgid));
+            memcpy(&ps_uid, &ps[uidoff], sizeof(ps_uid));
+            memcpy(&ps_euid, &ps[euidoff], sizeof(ps_euid));
+            (void)memcpy(cmd, &ps[fnameoff], sizeof(cmd) - 1);
             cmd[sizeof(cmd) - 1] = '\0';
             if (ps_pid != pid)
                 continue;
