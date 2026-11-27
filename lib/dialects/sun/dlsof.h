@@ -38,334 +38,159 @@
 #    include <fcntl.h>
 #    include <sys/mntent.h>
 #    include <sys/mnttab.h>
-
-#    if solaris < 20600
-#        define _KMEMUSER 1
-#    else /* solaris>=20600 */
-#        include <stddef.h>
-#    endif /* solaris<20600 */
-
+#    include <sys/param.h>
+#    include <sys/stat.h>
+#    include <sys/types.h>
+#    include <sys/sysmacros.h>
+#    include <stddef.h>
+#    include <stdint.h>
 #    include <stdlib.h>
 #    include <dirent.h>
-
-#    if defined(HASZONES)
-#        define _KERNEL
-#        include <sys/zone.h>
-#        undef _KERNEL
-#    endif /* defined(HASZONES) */
-
-#    include <kvm.h>
-#    include <nlist.h>
+#    include <errno.h>
 #    include <signal.h>
 #    include <setjmp.h>
 #    include <string.h>
 #    include <unistd.h>
 #    include <arpa/inet.h>
-#    include <rpc/types.h>
-#    include <sys/protosw.h>
+#    include <netdb.h>
+#    include <pwd.h>
+#    include <grp.h>
+#    include <time.h>
 #    include <sys/socket.h>
 #    include <sys/un.h>
 #    include <sys/wait.h>
-
-#    if solaris >= 110000
-#        define _KERNEL
-#    endif /* solaris>=110000 */
-
 #    include <netinet/in.h>
+#    include <rpc/rpc.h>
+#    include <rpc/clnt.h>
+#    include <rpc/pmap_prot.h>
+#    include <rpc/rpcent.h>
 
-#    if solaris >= 110000
-#        undef _KERNEL
-#    endif /* solaris>=110000 */
-
-#    if solaris >= 70000
-#        include <sys/conf.h>
-#        include <sys/systeminfo.h>
-#    endif /* solaris>=70000 */
-
-#    define _KERNEL
-#    define MI_HRTIMING
-#    include <inet/led.h>
-
-#    if solaris < 20600
-#        undef staticf
-#    endif /* solaris<20600 */
-
-#    include <inet/common.h>
-
-#    if solaris >= 70000
-#        include <sys/stropts.h>
-#    endif /* solaris>=70000 */
-
-#    if solaris < 20600
-#        include <inet/mi.h>
-#    endif /* solaris<20600 */
-
-#    if solaris >= 80000
-#        include <netinet/igmp.h>
-#        include <netinet/ip6.h>
-#    endif /* solaris>=80000 */
-
-#    if defined(HAS_IPCLASSIFIER_H)
-#        define ffs __kernel_ffs
-#        define inet_ntop __inet_ntop
-#        define inet_pton __inet_pton
-#        define longjmp __kernel_longjmp
-#        define setjmp __kernel_setjmp
-#        if solaris >= 110000
-#            define printf __kernel_printf
-#            define snprintf __kernel_snprintf
-#            define sprintf __kernel_sprintf
-#            define strsignal __kernel_strsignal
-#            define swab __kernel_swab
-#            define vprintf __kernel_vprintf
-#            define vsprintf __kernel_vsprintf
-#            define vsnprintf __kernel_vsnprintf
-#            define fls __kernel_fls
-#            define exit __kernel_exit
-#        endif /* solaris>=110000 */
-#        include <inet/ipclassifier.h>
-#        undef ffs
-#        undef inet_ntop
-#        undef inet_pton
-#        undef longjmp
-#        undef setjmp
-#        if solaris >= 110000
-#            undef printf
-#            undef snprintf
-#            undef sprintf
-#            undef strsignal
-#            undef swab
-#            undef vprintf
-#            undef vsprintf
-#            undef vsnprintf
-#            undef fls
-#            undef exit
-#        endif /* solaris>=110000 */
-#    endif     /* defined(HAS_IPCLASSIFIER_H) */
-
-#    include <inet/ip.h>
-#    undef _KERNEL
-#    undef MI_HRTIMING
-#    define exit kernel_exit
-#    define rval_t char
-#    define strsignal kernel_strsignal
-#    include <sys/strsubr.h>
-
-#    if defined(HAS_SOCKET_PROTO_H)
-#        define _KERNEL 1 /* DEBUG */
-#    endif                /* HAS_SOCKET_PROTO_H */
-
-#    include <sys/socketvar.h>
-
-#    if defined(HAS_SOCKET_PROTO_H)
-#        undef _KERNEL /* DEBUG */
-#    endif             /* HAS_SOCKET_PROTO_H */
-
-#    undef exit
-#    undef rval_t
-#    undef strsignal
-
-#    if solaris >= 80000
-#        define _KERNEL 1
-#    endif /* solaris>=80000 */
-
-#    include <inet/tcp.h>
-
-#    if solaris >= 80000
-#        undef _KERNEL
-#    endif /* solaris>=80000 */
-
-#    include <net/route.h>
-#    include <netinet/in_pcb.h>
-#    include <sys/stream.h>
-
-#    if solaris < 20600
-#        undef MAX
-#        undef MIN
-#    endif /* solaris<20600 */
-
-#    include <sys/sysmacros.h>
-#    include <sys/vfs.h>
-#    include <sys/vnode.h>
-#    include <sys/fs/hsfs_spec.h>
-#    include <sys/fs/hsfs_node.h>
-#    include <sys/fs/lofs_node.h>
-
-#    if solaris >= 20600
-#        define _KERNEL
-#    endif /* solaris>=20600 */
-
-#    include <sys/fs/namenode.h>
-
-#    if solaris >= 20600
-#        undef _KERNEL
-#    endif /* solaris>=20600 */
-
-#    include <sys/tihdr.h>
-
-#    if solaris >= 20500
-#        include <sys/tiuser.h>
-#        if solaris >= 110000
-#            define _KERNEL
-#            if defined(HAS_SYS_RGM_H)
-#                include <sys/rgm.h>
-#            endif /* defined(HAS_SYS_RGM_H) */
-#            if defined(HAS_RPC_RPC_TAGS_H)
-#                include <rpc/rpc_tags.h>
-#            endif /* defined(HAS_RPC_RPC_TAGS_H) */
-#            undef _KERNEL
-#        endif /* solaris>=110000 */
-#        include <rpc/auth.h>
-#        include <rpc/clnt.h>
-
-#        if solaris >= 110000
-#            define _KERNEL
-#            include <rpc/rpc.h>
-#            undef _KERNEL
-#        endif /* solaris>=110000 */
-
-#        include <rpc/clnt_soc.h>
-#        include <rpc/pmap_prot.h>
-#        define _KERNEL
-#        include <sys/fs/autofs.h>
-
-#        if solaris >= 100000
-#            define printf lsof_printf
-#            define snprintf lsof_snprintf
-#            define sprintf lsof_sprintf
-#            define swab lsof_swab
-#            define vprintf lsof_vprintf
-#            define vsnprintf lsof_vsnprintf
-#            define vsprintf lsof_vsprintf
-#            include <sys/fs/dv_node.h>
-#            undef printf
-#            undef snprintf
-#            undef sprintf
-#            undef swab
-#            undef vprintf
-#            undef vsnprintf
-#            undef vsprintf
-#            include <sys/contract_impl.h>
-#            include <sys/ctfs_impl.h>
-#            include <sys/port_impl.h>
-#        endif /* solaris>=100000 */
-
-#        include <sys/door.h>
-#        undef _KERNEL
-#    endif /* solaris>=20500 */
-
-#    if !defined(_NETDB_H_)
-#        include <rpc/rpcent.h>
-#    endif /* !defined(_NETDB_H_) */
-
-#    include <sys/t_lock.h>
-#    include <sys/flock.h>
-
-#    if solaris >= 20300
-#        if solaris < 20400
 /*
- * The lock_descriptor structure definition is missing from Solaris 2.3.
+ * The procfs backend has no kernel structures.  Define the small set of
+ * types and node/vnode constants that common lsof code still references.
  */
+typedef uintptr_t KA_T;
+typedef uint32_t major_t;
+typedef uint32_t minor_t;
 
-struct lock_descriptor {
-    struct lock_descriptor *prev;
-    struct lock_descriptor *next;
-    struct vnode *vnode;
-    struct owner {
-        pid_t pid;
-        long sysid;
-    } owner;
-    int flags;
-    short type;
-    off_t start;
-    off_t end;
-    struct lock_info {
-        struct active_lock_info {
-            struct lock_descriptor *ali_stack;
-        } li_active;
-        struct sleep_lock_info {
-            struct flock sli_flock;
-            /* Ignore the rest. */
-        } li_sleep;
-    } info;
+#    if !defined(MAXPATHLEN)
+#        define MAXPATHLEN 1024
+#    endif
+#    if !defined(MAXCOMLEN)
+#        define MAXCOMLEN 16
+#    endif
+
+#    define GET_MAJ_DEV(d) ((major_t)((d) >> L_BITSMINOR & L_MAXMAJ))
+#    define GET_MIN_DEV(d) ((minor_t)((d) & L_MAXMIN))
+
+/* TCP/TPI state values from the Solaris networking headers. */
+#    define TCPS_CLOSED 0
+#    define TCPS_IDLE 1
+#    define TCPS_BOUND 2
+#    define TCPS_LISTEN 3
+#    define TCPS_SYN_SENT 4
+#    define TCPS_SYN_RCVD 5
+#    define TCPS_ESTABLISHED 6
+#    define TCPS_CLOSE_WAIT 7
+#    define TCPS_FIN_WAIT_1 8
+#    define TCPS_CLOSING 9
+#    define TCPS_LAST_ACK 10
+#    define TCPS_FIN_WAIT_2 11
+#    define TCPS_TIME_WAIT 12
+
+#    define TS_UNBND 0
+#    define TS_WACK_BREQ 1
+#    define TS_WACK_UREQ 2
+#    define TS_IDLE 3
+#    define TS_WACK_OPTREQ 4
+#    define TS_WACK_CREQ 5
+#    define TS_WCON_CREQ 6
+#    define TS_WRES_CIND 7
+#    define TS_WACK_CRES 8
+#    define TS_DATA_XFER 9
+#    define TS_WIND_ORDREL 10
+#    define TS_WREQ_ORDREL 11
+#    define TS_WACK_DREQ6 12
+#    define TS_WACK_DREQ7 13
+#    define TS_WACK_DREQ9 14
+#    define TS_WACK_DREQ10 15
+#    define TS_WACK_DREQ11 16
+
+enum vtype {
+    VNON,
+    VREG,
+    VDIR,
+    VBLK,
+    VCHR,
+    VLNK,
+    VSOCK,
+    VFIFO,
+    VBAD,
+    VDOOR,
+    VPORT,
+    VMPC,
+    VV_ROOT
 };
-#            define ACTIVE_LOCK 0x008 /* lock is active */
-#        else                         /* solaris>=20400 */
-#            include <sys/flock_impl.h>
-#        endif /* solaris<20400 */
-#    endif     /* solaris>=20300 */
 
-#    include <sys/fstyp.h>
-#    include <sys/dditypes.h>
-#    include <sys/ddidmareq.h>
-#    include <sys/ddi_impldefs.h>
-#    include <sys/mkdev.h>
-
-#    if defined(HASCACHEFS)
-#        include <sys/fs/cachefs_fs.h>
-#    endif /* defined(HACACHEFS) */
-
-#    include <sys/fs/fifonode.h>
-#    include <sys/fs/pc_fs.h>
-#    include <sys/fs/pc_dir.h>
-#    include <sys/fs/pc_label.h>
-#    include <sys/fs/pc_node.h>
-
-#    if solaris >= 20600
-#        undef SLOCKED
-#    endif /* solaris>=20600 */
-
-#    include <sys/fs/snode.h>
-#    include <sys/fs/tmpnode.h>
-
-#    if solaris >= 110000
-#        define _KERNEL
-#    endif /* solaris>=110000 */
-
-#    include <nfs/nfs.h>
-
-#    if solaris >= 110000
-#        undef _KERNEL
-#    endif /* solaris>=110000 */
-
-#    if solaris >= 100000
-#        define _KERNEL
-#    endif /* solaris >= 100000 */
-
-#    include <nfs/rnode.h>
-
-#    if solaris >= 100000
-#        include <nfs/mount.h>
-#        include <nfs/nfs4.h>
-#        define xvattr_t vattr_t
-#        include <nfs/rnode4.h>
-#        undef xvattr_t
-#    endif /* solaris>=100000 */
-
-#    if solaris >= 100000
-#        undef _KERNEL
-#    endif /* solaris >= 100000 */
-
-#    include <sys/proc.h>
-#    include <sys/user.h>
-
-#    if defined(HASPROCFS)
-#        include <sys/proc/prdata.h>
-#    endif /* defined(HASPROCFS) */
-
-#    include <sys/file.h>
-#    include <vm/hat.h>
-#    include <vm/as.h>
-#    include <vm/seg.h>
-#    include <vm/seg_dev.h>
-#    include <vm/seg_map.h>
-#    include <vm/seg_vn.h>
-#    include <sys/tiuser.h>
-#    include <sys/t_kuser.h>
-
-#    if solaris < 100000
-#        include <sys/sockmod.h>
-#    endif /* solaris<100000 */
+enum node_type {
+    N_UNKN,
+    N_REGLR,
+    N_BLK,
+    N_CHR,
+    N_FIFO,
+    N_SOCK,
+    N_STREAM,
+    N_COM,
+    N_MNT,
+    N_FD,
+    N_PROC,
+    N_SPEC,
+    N_PIPE,
+    N_DOOR,
+    N_PORT,
+    N_DEV,
+    N_NM,
+    N_OBJF,
+    N_PSEU,
+    N_SHARED,
+    N_AFPFS,
+    N_AFS,
+    N_ANON_INODE,
+    N_AUSX,
+    N_AUTO,
+    N_CACHE,
+    N_CDFS,
+    N_CFS,
+    N_CTFSADIR,
+    N_CTFSBUND,
+    N_CTFSCDIR,
+    N_CTFSCTL,
+    N_CTFSEVT,
+    N_CTFSLATE,
+    N_CTFSROOT,
+    N_CTFSSTAT,
+    N_CTFSSYM,
+    N_CTFSTDIR,
+    N_CTFSTMPL,
+    N_HSFS,
+    N_KERN,
+    N_LOFS,
+    N_MPC,
+    N_MQUEUE,
+    N_MVFS,
+    N_NFS,
+    N_NFS4,
+    N_PCFS,
+    N_SAMFS,
+    N_SANFS,
+    N_SDEV,
+    N_TMP,
+    N_UFS,
+    N_UNIX,
+    N_VXFS,
+    N_XFS,
+    N_ZFS
+};
 
 /*
  * Structure for Atria's MVFS nodes
@@ -376,28 +201,11 @@ struct mvfsnode {
     unsigned long m_ino; /* node number */
 };
 
-extern int nlist(const char *, struct nlist *);
-
-#    if defined(HAS_AFS) && !defined(AFSAPATHDEF)
-#        define AFSAPATHDEF "/usr/vice/etc/modload/libafs"
-#    endif /* defined(HAS_AFS) && !defined(AFSAPATHDEF) */
-
 #    define COMP_P const void
 #    define CWDLEN (MAXPATHLEN + 1)
 #    define DEVINCR 1024 /* device table malloc() increment */
 #    define DINAMEL 32
 #    define DIRTYPE dirent
-
-#    if solaris >= 100000
-#        define GET_MAJ_DEV(d) ((major_t)(d >> L_BITSMINOR & L_MAXMAJ))
-#        define GET_MIN_DEV(d) ((minor_t)(d & L_MAXMIN))
-#    endif /* solaris >= 100000 */
-
-#    if solaris >= 70000
-typedef uintptr_t KA_T;
-#    else  /* solaris<70000 */
-typedef void *KA_T;
-#    endif /* solaris>=70000 */
 
 #    if solaris >= 70000
 #        define KA_T_FMT_X "0x%p"
@@ -420,7 +228,6 @@ typedef void *KA_T;
 #    define MAXSEGS 100          /* maximum text segments */
 #    define MAXSYSCMDL MAXCOMLEN /* max system command name length */
 #    define NETCLNML 8
-#    define N_UNIX "/dev/ksyms"
 #    define PROCMIN 5 /* processes that make a "good" scan */
 
 #    if defined(HASPROCFS)
@@ -430,7 +237,6 @@ typedef void *KA_T;
 #    define PROCDFLT                                                           \
         256 /* default size for local proc table --                            \
              * MUST BE > 4!!!  */
-#    define PROCSIZE sizeof(struct proc)
 #    define PROCTRYLM 5 /* times to try to read proc table */
 #    define QSORT_P char
 #    define READLEN_T int
@@ -456,25 +262,11 @@ typedef void *KA_T;
                   * modifier */
 #    endif       /* solaris>=20501 */
 
-#    define U_SIZE sizeof(struct user)
 
 /*
  * Global storage definitions (including their structure definitions)
  */
 
-#    if defined(HAS_AFS)
-
-#        if defined(HASAOPT)
-extern char *AFSApath; /* alternate AFS name list path
-                        * (from -a) */
-#        endif         /* defined(HASAOPT) */
-
-extern dev_t AFSdev;   /* AFS file system device number */
-extern int AFSdevStat; /* AFS file system device number
-                        * status: 0 = unknown; 1 = known */
-extern int AFSfstype;  /* AFS file system type index */
-extern KA_T AFSVfsp;   /* AFS struct vfs kernel pointer */
-#    endif             /* defined(HAS_AFS) */
 
 struct clone {
     struct l_dev cd;    /* device, inode, name, and verify */

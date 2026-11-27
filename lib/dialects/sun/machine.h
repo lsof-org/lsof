@@ -35,96 +35,6 @@
 #if !defined(LSOF_MACHINE_H)
 #    define LSOF_MACHINE_H 1
 
-/* v_path and kernel DNLC are not available through procfs. */
-#    undef HAS_V_PATH
-
-#    if defined(HAS_LGRP_ROOT_CONFLICT)
-/*
- * <sys/lgrp.h> must be #include'd early on some older Solaris systems at
- * version 9 and Solaris 10 before _KMEMUSER or _KERNEL are defined to avoid
- * a conflict with the use of lgrp_root as an external symbol in <sys/lgrp.h>
- * and a macro in <sys/lgrp_user.h>.
- */
-
-#        include <sys/lgrp.h>
-#    endif /* defined(HAS_LGRP_ROOT_CONFLICT) */
-
-#    if solaris >= 100000
-#        if !defined(HAS_AIO_REQ_STRUCT)
-/*
- * When <sys.aio_req.h> lacks one, define a dummy aio_req structure for
- * Solaris >= 10 systems.
- *
- * If this definition causes compilation errors for <sys/vnode.h>, especially
- * with Solaris 11, it may be necessary to comment out the following structure
- * definition.  I don't know a test that will determine the possibility of
- * compilation errors.
- */
-
-typedef struct aio_req {
-    int dummy;
-} aio_req_t;
-
-#        endif /* !defined(HAS_AIO_REQ_STRUCT) */
-
-/*
- * Include <sys/utsname.h> so it won't be corrupted for 32 bit compilations
- * when _KERNEL is defined for some include files in dlsof.h.
- *
- * Daniel Trinkle identified this requirement.
- */
-
-#        include <sys/utsname.h>
-#    endif /* solaris>=100000 */
-
-#    if solaris >= 20600
-/*
- * <sys/poll.h> must be #include'd for Solaris >= 2.6 while _KMEMUSER is
- * defined.  Since <netdb.h> also #include's <sys/poll.h> and <netdb.h>
- * is #include'd from lsof.h, we must perform some early #include magic
- * here to set things up properly.
- */
-
-#        define _KMEMUSER 1
-#        define __BIT_TYPES_DEFINED__                                          \
-            1 /* work around to keep the BIND                                  \
-               * <sys/bitypes.h> from colliding with                           \
-               * the Solaris <sys/int_types.h> */
-
-#        if defined(HAS_PAD_MUTEX)
-/*
- * Some versions of Solaris 11 need to have the pad_mutex_t typedef defined.
- * However, it is only defined by <sys/mutex.h> when _KERNEL is defined, and
- * doing that causes other difficulties.
- *
- * So <sys/mutex.h> is included here, followed by a copy of its pad_mutex_t
- * typedef, all outside the _KERNEL definition.
- *
- * This brute force work-around was supplied by Carson Gaspar.
- */
-
-#            include <sys/mutex.h>
-typedef struct pad_mutex {
-    kmutex_t pad_mutex;
-#            if defined(_LP64)
-    char pad_pad[64 - sizeof(kmutex_t)];
-#            endif /* defined(_LP64) */
-} pad_mutex_t;
-#        endif /* defined(HAS_PAD_MUTEX) */
-
-#        include <sys/poll.h>
-
-#        if solaris >= 80000
-#            include <sys/wait.h>
-#            include <sys/types32.h>
-#            define _KERNEL 1
-#            include <netinet/in.h>
-#            undef _KERNEL
-#            define ipa_32 s6_ipaddr.ipa_32
-#        endif /* solaris>=80000 */
-
-#    endif /* solaris>=20600 */
-
 /*
  * CAN_USE_CLNT_CREATE is defined for those dialects where RPC clnt_create()
  * can be used to obtain a CLIENT handle in lieu of clnttcp_create().
@@ -160,7 +70,6 @@ typedef struct pad_mutex {
  * supplied with the -A <path> option.
  */
 
-#    define HASAOPT 1
 
 /*
  * HASBLKDEV is defined for those dialects that want block device information
@@ -216,7 +125,6 @@ typedef struct pad_mutex {
  * HASFIFONODE is defined for those dialects that have FIFO nodes.
  */
 
-#    define HASFIFONODE 1
 
 /*
  * HASFSINO is defined for those dialects that have the file system
@@ -241,7 +149,6 @@ typedef struct pad_mutex {
  *   HASNOFSNADDR -- has no file structure node address
  */
 
-#    define HASFSTRUCT 1
 /* #define	FSV_DEFAULT	FSV_? | FSV_? | FSV_? */
 /* #define	HASNOFSADDR	1	has no file structure address */
 /* #define	HASNOFSFLAGS	1	has no file structure flags */
@@ -258,7 +165,6 @@ typedef struct pad_mutex {
  * HASHSNODE is defined for those dialects that have High Sierra nodes.
  */
 
-#    define HASHSNODE 1
 
 /*
  * HASINODE is defined for those dialects that have inodes and wish to
@@ -286,7 +192,6 @@ typedef struct pad_mutex {
  * reading the kernel's name list from an optional file.
  */
 
-#    define HASKOPT 1
 
 /*
  * HASLFILEADD is defined for those dialects that need additional elements
@@ -306,20 +211,12 @@ typedef struct pad_mutex {
  * private lfile elements are used.
  */
 
-#    if solaris >= 10000 && defined(HAS_V_PATH)
-#        define HASLFILEADD KA_T V_path;
-#        define CLRLFILEADD(lf) (lf)->V_path = (KA_T)NULL;
-#        define SETLFILEADD Lf->V_path = (KA_T)NULL;
-#    endif /* solaris>=10000 && defined(HAS_V_PATH) */
 
 /*
  * HASMNTSTAT indicates the dialect supports the mount stat(2) result option
  * in its l_vfs and mounts structures.
  */
 
-#    if solaris >= 10000 && defined(HAS_V_PATH)
-#        define HASMNTSTAT 1
-#    endif /* solaris>=10000 && defined(HAS_V_PATH) */
 
 /*
  * HASMNTSUP is defined for those dialects that support the mount supplement
@@ -333,34 +230,12 @@ typedef struct pad_mutex {
  * kernel memory from an alternate file.
  */
 
-#    define HASMOPT 1
-
-/*
- * HASNCACHE is defined for those dialects that have a kernel name cache
- * that lsof can search.  A value of 1 directs printname() to prefix the
- * cache value with the file system directory name; 2, avoid the prefix.
- *
- * NCACHELDPFX is a set of C commands to execute before calling ncache_load().
- *
- * NCACHELDSFX is a set of C commands to execute after calling ncache_load().
- */
-
-#    if solaris >= 10000 && defined(HAS_V_PATH)
-/* #define	HASNCACHE	1	*/
-#    else /* solaris<10 || !defined(HAS_V_PATH) */
-#        /* HASNCACHE 1 -- kernel DNLC requires kmem, not used here. */
-#    endif /* solaris>=10000 && defined(HAS_V_PATH) */
-
-#    /* NCACHELDPFX is intentionally empty: this backend has no kvm. */
-
-/* #define	NCACHELDSFX	??? */
 
 /*
  * HASNLIST is defined for those dialects that use nlist() to access
  * kernel symbols.
  */
 
-#    define HASNLIST 1
 
 /*
  * HASPIPEFN is defined for those dialects that have a special function to
@@ -428,15 +303,6 @@ typedef struct pad_mutex {
  * returns non-zero if it prints a name to stdout.
  */
 
-#    if solaris >= 10000 && defined(HAS_V_PATH)
-#        define HASPRIVNMCACHE print_v_path
-#    else /* solaris<10 || !defined(HAS_V_PATH) */
-#        if defined(HASVXFSRNL)
-#            define HASPRIVNMCACHE print_vxfs_rnl_path
-#        else  /* !defined(HASVXFSRNL) */
-/* #define	HASPRIVNMCACHE	<function name>	*/
-#        endif /* defined(HASVXFSRNL) */
-#    endif     /* solaris>=10000 && defined(HAS_V_PATH) */
 
 /*
  * HASPRIVPRIPP is defined for dialects that have a private function for
@@ -478,7 +344,6 @@ typedef struct pad_mutex {
  * HASRNODE is defined for those dialects that have rnodes.
  */
 
-#    define HASRNODE 1
 
 /*
  * Define HASSECURITY to restrict the listing of all open files to the
@@ -521,7 +386,6 @@ typedef struct pad_mutex {
  * HASSNODE is defined for those dialects that have snodes.
  */
 
-#    define HASSNODE 1
 
 /*
  * HASTASKS is defined for those dialects that have task reporting support.
@@ -562,7 +426,6 @@ typedef struct pad_mutex {
  * HASSTREAMS is defined for those dialects that support streams.
  */
 
-#    define HASSTREAMS 1
 
 /*
  * HASTCPTPIQ is defined for dialects where it is possible to report the
@@ -594,7 +457,6 @@ typedef struct pad_mutex {
  * HASTMPNODE is defined for those dialects that have tmpnodes.
  */
 
-#    define HASTMPNODE 1
 
 /*
  * HASVNODE is defined for those dialects that use the Sun virtual file system
@@ -602,7 +464,6 @@ typedef struct pad_mutex {
  * R4 usually don't.
  */
 
-#    define HASVNODE 1
 
 /*
  * HASXOPT is defined for those dialects that have an X option.  It
@@ -610,10 +471,6 @@ typedef struct pad_mutex {
  * option's default binary value -- 0 or 1.
  */
 
-#    if solaris >= 10000 && defined(HAS_V_PATH)
-#        define HASXOPT "report deleted paths"
-#        define HASXOPT_VALUE 0
-#    endif /* solaris>=10000 && defined(HAS_V_PATH) */
 
 /*
  * INODETYPE and INODEPSPEC define the internal node number type and its

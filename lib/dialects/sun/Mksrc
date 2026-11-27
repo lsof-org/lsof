@@ -22,7 +22,7 @@ mksrc() {
 }
 
 D=lib/dialects/sun
-L="ddev.c dfile.c dlsof.h dmnt.c dnode.c dproc.c dproto.h dpsinfo.c dpsinfo.h dstore.c machine.h"
+L="ddev.c dfile.c dlsof.h dmnt.c dnode.c dproc.c dproto.h dstore.c machine.h"
 
 mksrc
 

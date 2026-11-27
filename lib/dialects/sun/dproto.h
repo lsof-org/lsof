@@ -34,9 +34,6 @@
  * $Id: dproto.h,v 1.21 2010/01/18 19:03:54 abe Exp $
  */
 
-#if defined(HASVXFSUTIL)
-extern int access_vxfs_ioffsets(void);
-#endif /* defined(HASVXFSUTIL) */
 
 extern void completevfs(struct lsof_context *ctx, struct l_vfs *vfs,
                         dev_t *dev);
@@ -45,12 +42,6 @@ extern void completevfs(struct lsof_context *ctx, struct l_vfs *vfs,
 extern int is_file_named(struct lsof_context *ctx, char *p, int nt,
                          enum vtype vt, int ps);
 
-#if defined(HAS_AFS)
-extern struct vnode *alloc_vcache(void);
-extern void ckAFSsym(struct nlist *nl);
-extern int hasAFS(struct vnode *vp);
-extern int readafsnode(KA_T va, struct vnode *v, struct afsnode *an);
-#endif /* defined(HAS_AFS) */
 
 #if defined(HASDCACHE)
 extern int rw_clone_sect(struct lsof_context *ctx, int m);
@@ -63,18 +54,7 @@ extern struct hostent *gethostbyname2(const char *nm, int proto);
 #endif /* defined(HASIPv6) */
 
 
-#if defined(HASVXFS)
-extern int read_vxnode(struct lsof_context *ctx, KA_T va, struct vnode *v,
-                       struct l_vfs *vfs, int fx, struct l_ino *li,
-                       KA_T *vnops);
-#    if defined(HASVXFSRNL)
-extern int print_vxfs_rnl_path(struct lfile *lf);
-#    endif /* defined(HASVXFSRNL) */
-#endif     /* defined(HASVXFS) */
 
-#if defined(HASZONES)
-extern int enter_zone_arg(struct lsof_context *ctx, char *zn);
-#endif /* defined(HASZONES) */
 
 extern void read_clone(struct lsof_context *ctx);
 

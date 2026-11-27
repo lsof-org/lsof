@@ -241,6 +241,9 @@ typedef int pid_t;
  * Solaris-specific items
  */
 
+/* The procfs backend has no kernel DNLC, so -C is not available. */
+#        undef USE_LSOF_C_OPT
+
 #        include <fcntl.h>
 #        include <stdlib.h>
 #        include <strings.h>

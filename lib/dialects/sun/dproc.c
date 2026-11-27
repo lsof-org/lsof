@@ -32,6 +32,9 @@
  */
 
 
+#define _STRUCTURED_PROC 1
+#include <sys/procfs.h>
+
 #include "common.h"
 
 #include <limits.h>
@@ -45,9 +48,18 @@
 #include <sys/sysmacros.h>
 #include <sys/stat.h>
 
-#include "dpsinfo.h"
 
 #define PROC_BASE "/proc"
+
+static int read_psinfo(const char *path, psinfo_t *ps) {
+    int fd, n;
+
+    if ((fd = open(path, O_RDONLY)) < 0)
+        return (1);
+    n = (int)read(fd, ps, sizeof(*ps));
+    (void)close(fd);
+    return (n == (int)sizeof(*ps)) ? 0 : 1;
+}
 
 static int nm2id(char *nm, int *id) {
     char *ep;
@@ -489,7 +501,7 @@ static void process_path(struct lsof_context *ctx, int pid,
 void gather_proc_info(struct lsof_context *ctx) {
     DIR *pd, *fdd;
     struct dirent *dp, *fdp;
-    struct sun_psinfo ps;
+    psinfo_t ps;
     char path[MAXPATHLEN + 1];
     char fdpath[MAXPATHLEN + 1];
     char pspath[MAXPATHLEN + 1];
@@ -507,15 +519,15 @@ void gather_proc_info(struct lsof_context *ctx) {
         if (nm2id(dp->d_name, &pid))
             continue;
         (void)snpf(pspath, sizeof(pspath), "%s/%d/psinfo", PROC_BASE, pid);
-        if (read_sun_psinfo(pspath, &ps))
+        if (read_psinfo(pspath, &ps))
             continue;
-        if (is_proc_excl(ctx, pid, (int)ps.pgid, (UID_ARG)ps.uid, &pss,
+        if (is_proc_excl(ctx, pid, (int)ps.pr_pgid, (UID_ARG)ps.pr_uid, &pss,
                          &sf) ||
-            is_cmd_excl(ctx, ps.fname, &pss, &sf))
+            is_cmd_excl(ctx, ps.pr_fname, &pss, &sf))
             continue;
 
-        alloc_lproc(ctx, pid, (int)ps.pgid, (int)ps.ppid, (UID_ARG)ps.euid,
-                    ps.fname, (int)pss, (int)sf);
+        alloc_lproc(ctx, pid, (int)ps.pr_pgid, (int)ps.pr_ppid,
+                    (UID_ARG)ps.pr_euid, ps.pr_fname, (int)pss, (int)sf);
         Plf = (struct lfile *)NULL;
 
         (void)snpf(path, sizeof(path), "%s/%d/cwd", PROC_BASE, pid);

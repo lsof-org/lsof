@@ -17,11 +17,11 @@ CFLAGS=	${CDEFS} ${INCL} ${DEBUG}
 
 HDR=    lsof.h lsof_fields.h dlsof.h machine.h proto.h dproto.h
 
-SRC=    ddev.c dfile.c dmnt.c dnode.c dproc.c dpsinfo.c \
+SRC=    ddev.c dfile.c dmnt.c dnode.c dproc.c \
 	dstore.c dprint.c \
 	arg.c main.c misc.c node.c print.c proc.c store.c usage.c util.c
 
-OBJ=	ddev.o dfile.o dmnt.o dnode.o dproc.o dpsinfo.o \
+OBJ=	ddev.o dfile.o dmnt.o dnode.o dproc.o \
 	dstore.o dprint.o \
 	arg.o main.o misc.o node.o print.o proc.o store.o usage.o util.o
 
@@ -129,8 +129,6 @@ dmnt.o:		${HDR} dmnt.c
 dnode.o:	${HDR} dnode.c
 
 dproc.o:	${HDR} kernelbase.h dproc.c
-
-dpsinfo.o:	${HDR} dpsinfo.c
 
 dstore.o:	${HDR} dstore.c
 

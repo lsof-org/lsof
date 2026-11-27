@@ -524,46 +524,6 @@ AS_IF([test "x$ac_cv_sizeof_dev_t" = x8], [
 	LSOF_TEST_CFLAGS="$LSOF_TEST_CFLAGS -DLT_DEV64"
 ])
 
-# Detect inet/ipclassifier.h header for HAS_IPCLASSIFIER_H
-AC_CHECK_HEADERS([inet/ipclassifier.h], [], [], [#define _KERNEL
-	#include <inet/ip.h>])
-
-# Detect struct conn_s.conn_ixa header for HAS_CONN_NEW
-AC_CHECK_MEMBERS([struct conn_s.conn_ixa], [], [], [#define _KERNEL
-	#include <inet/ip.h>
-	#include <inet/ipclassifier.h>])
-
-# Detect sys/zone.h header for HASZONES
-AC_CHECK_HEADERS([sys/zone.h])
-
-# Detect pad_mutex_t for HAS_PAD_MUTEX
-AC_CHECK_TYPES([pad_mutex_t], [], [], [#define _KERNEL
-	#include <sys/mutex.h>])
-
-# Detect pc_direntpersec macro for HAS_PC_DIRENTPERSEC
-AC_CHECK_DECLS([pc_direntpersec((struct pcfs *)NULL)], [], [], [#include <sys/fs/pc_fs.h>])
-
-# Detect sys/cred_impl.h header for HAS_CRED_IMPL_H
-AC_CHECK_HEADERS([sys/cred_impl.h])
-
-# Detect struct vnode.v_path for HAS_V_PATH
-AC_CHECK_MEMBERS([struct vnode.v_path], [
-	LSOF_TEST_CFLAGS="$LSOF_TEST_CFLAGS -DLT_VPATH"
-], [], [#include <sys/vnode.h>])
-
-# Detect VSOCK for HAS_VSOCK
-AC_CHECK_DECLS([VSOCK], [], [], [#include <sys/vnode.h>])
-
-# Detect struct aio_req for HAS_AIO_REQ_STRUCT
-AC_CHECK_TYPES([struct aio_req], [], [], [#define _KERNEL
-	#include <sys/aio_req.h>])
-
-# Detect sys/rgm.h header for HAS_SYS_RGM_H
-AC_CHECK_HEADERS([sys/rgm.h])
-
-# Detect rpc/rpc_tags.h header for HAS_RPC_RPC_TAGS_H
-AC_CHECK_HEADERS([rpc/rpc_tags.h])
-
 # Generate Makefile from Makefile.in/am
 AC_CONFIG_FILES([Makefile])
 

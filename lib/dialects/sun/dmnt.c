@@ -101,11 +101,6 @@ struct mounts *readmnt(struct lsof_context *ctx) {
 #endif /* defined(HASPROCFS) */
 
     unsigned char stat;
-    char *zopt;
-
-#if defined(HASZONES)
-    int zwarn = 0;
-#endif /* definesd(HASZONES) */
 
     if (Lmi || Lmist)
         return (Lmi);
@@ -207,14 +202,7 @@ struct mounts *readmnt(struct lsof_context *ctx) {
                 dopte = (char *)NULL;
             if (!Fwarn) {
 
-#if defined(HASZONES)
-                if ((zopt = hasmntopt(mp, "zone")) && dopte)
-                    zwarn++;
-#else  /* !defined(HASZONES) */
-                zopt = (char *)NULL;
-#endif /* defined(HASZONES) */
-
-                if (!zopt || !dopte) {
+                if (!dopte) {
                     (void)fprintf(stderr, "%s: WARNING: can't stat() ", Pn);
                     safestrprt(mp->mnt_fstype, stderr, 0);
                     (void)fprintf(stderr, " file system ");
@@ -295,30 +283,9 @@ struct mounts *readmnt(struct lsof_context *ctx) {
         mtp->fs_mode = sb.st_mode;
         Lmi = mtp;
 
-#if defined(HAS_AFS)
-        /*
-         * If an AFS device number hasn't yet been defined, look for it.
-         */
-        if (!AFSdevStat && mtp->dir && strcmp(mtp->dir, "/afs") == 0 &&
-            mtp->fsname && strcmp(mtp->fsname, "AFS") == 0) {
-            AFSdev = mtp->dev;
-            AFSdevStat = 1;
-        }
-#endif /* defined(HAS_AFS) && solaris>=20600 */
     }
     (void)fclose(mfp);
 
-#if defined(HASZONES)
-    /*
-     * If some zone file systems were encountered, issue a warning.
-     */
-    if (!Fwarn && zwarn) {
-        (void)fprintf(stderr, "%s: WARNING: can't stat() %d zone file system%s",
-                      Pn, zwarn, (zwarn == 1) ? "" : "s");
-        (void)fprintf(stderr, "; using dev= option%s\n",
-                      (zwarn == 1) ? "" : "s");
-    }
-#endif /* defined(HASZONES) */
 
     /*
      * Clean up and return local mount info table address.
