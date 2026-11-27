@@ -74,9 +74,11 @@ LIBLSOF_SOURCES += lib/dialects/sun/ddev.c \
 		lib/dialects/sun/dmnt.c \
 		lib/dialects/sun/dnode.c \
 		lib/dialects/sun/dproc.c \
+		lib/dialects/sun/dpsinfo.c \
 		lib/dialects/sun/dstore.c \
 		lib/dialects/sun/dlsof.h \
 		lib/dialects/sun/dproto.h \
+		lib/dialects/sun/dpsinfo.h \
 		lib/dialects/sun/machine.h
 endif
 

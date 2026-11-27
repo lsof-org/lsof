@@ -45,6 +45,8 @@
 #include <sys/sysmacros.h>
 #include <sys/stat.h>
 
+#include "dpsinfo.h"
+
 #define PROC_BASE "/proc"
 
 static int nm2id(char *nm, int *id) {
@@ -59,28 +61,6 @@ static int nm2id(char *nm, int *id) {
     *id = (int)v;
     return (0);
 }
-
-/*
- * Solaris /proc/<pid>/psinfo is the structured 440-byte psinfo_t.  Access
- * the fields we need at their fixed offsets so this backend does not need
- * to define _STRUCTURED_PROC before the kernel headers in dlsof.h.
- */
-#define PSINFO_SIZE 440
-#define PSINFO_PID 8
-#define PSINFO_PPID 12
-#define PSINFO_PGID 16
-#define PSINFO_UID 24
-#define PSINFO_EUID 28
-#define PSINFO_FNAME 136
-
-/* Old (non-structured) prpsinfo_t used by some illumos/Solaris systems. */
-#define PSINFO_OLD_SIZE 328
-#define PSINFO_OLD_PID 16
-#define PSINFO_OLD_PPID 20
-#define PSINFO_OLD_PGID 24
-#define PSINFO_OLD_UID 8
-#define PSINFO_OLD_EUID 288
-#define PSINFO_OLD_FNAME 120
 
 /*
  * /proc/<pid>/fdinfo/nn is a variable-length prfdinfo_t followed by
@@ -408,18 +388,6 @@ static void process_fdinfo(struct lsof_context *ctx, int pid, int fd,
         link_lfile(ctx);
 }
 
-static int read_psinfo(const char *p, unsigned char *ps, int *len) {
-    int fd, n;
-
-    if ((fd = open(p, O_RDONLY)) < 0)
-        return (1);
-    n = (int)read(fd, ps, PSINFO_SIZE);
-    (void)close(fd);
-    *len = n;
-    if (n >= 400)
-        return (0);
-    return (n == PSINFO_OLD_SIZE) ? 0 : 1;
-}
 
 static void enter_path(struct lsof_context *ctx, enum lsof_fd_type fdt,
                        int fd, const char *path, const struct stat *st) {
@@ -521,8 +489,7 @@ static void process_path(struct lsof_context *ctx, int pid,
 void gather_proc_info(struct lsof_context *ctx) {
     DIR *pd, *fdd;
     struct dirent *dp, *fdp;
-    unsigned char ps[PSINFO_SIZE];
-    char cmd[256];
+    struct sun_psinfo ps;
     char path[MAXPATHLEN + 1];
     char fdpath[MAXPATHLEN + 1];
     char pspath[MAXPATHLEN + 1];
@@ -540,37 +507,15 @@ void gather_proc_info(struct lsof_context *ctx) {
         if (nm2id(dp->d_name, &pid))
             continue;
         (void)snpf(pspath, sizeof(pspath), "%s/%d/psinfo", PROC_BASE, pid);
-        int pslen;
-        if (read_psinfo(pspath, ps, &pslen))
+        if (read_sun_psinfo(pspath, &ps))
             continue;
-        {
-            int pidoff = (pslen == PSINFO_OLD_SIZE) ? PSINFO_OLD_PID : PSINFO_PID;
-            int ppidoff = (pslen == PSINFO_OLD_SIZE) ? PSINFO_OLD_PPID : PSINFO_PPID;
-            int pgidoff = (pslen == PSINFO_OLD_SIZE) ? PSINFO_OLD_PGID : PSINFO_PGID;
-            int uidoff = (pslen == PSINFO_OLD_SIZE) ? PSINFO_OLD_UID : PSINFO_UID;
-            int euidoff = (pslen == PSINFO_OLD_SIZE) ? PSINFO_OLD_EUID : PSINFO_EUID;
-            int fnameoff = (pslen == PSINFO_OLD_SIZE) ? PSINFO_OLD_FNAME : PSINFO_FNAME;
-            pid_t ps_pid, ps_ppid, ps_pgid;
-            uid_t ps_uid, ps_euid;
+        if (is_proc_excl(ctx, pid, (int)ps.pgid, (UID_ARG)ps.uid, &pss,
+                         &sf) ||
+            is_cmd_excl(ctx, ps.fname, &pss, &sf))
+            continue;
 
-            memcpy(&ps_pid, &ps[pidoff], sizeof(ps_pid));
-            memcpy(&ps_ppid, &ps[ppidoff], sizeof(ps_ppid));
-            memcpy(&ps_pgid, &ps[pgidoff], sizeof(ps_pgid));
-            memcpy(&ps_uid, &ps[uidoff], sizeof(ps_uid));
-            memcpy(&ps_euid, &ps[euidoff], sizeof(ps_euid));
-            (void)memcpy(cmd, &ps[fnameoff], sizeof(cmd) - 1);
-            cmd[sizeof(cmd) - 1] = '\0';
-            /* Use the /proc directory PID as the authoritative PID. */
-            if (ps_pid != pid)
-                ps_pid = pid;
-            if (is_proc_excl(ctx, pid, (int)ps_pgid, (UID_ARG)ps_uid, &pss,
-                             &sf) ||
-                is_cmd_excl(ctx, cmd, &pss, &sf))
-                continue;
-
-            alloc_lproc(ctx, pid, (int)ps_pgid, (int)ps_ppid, (UID_ARG)ps_euid,
-                        cmd, (int)pss, (int)sf);
-        }
+        alloc_lproc(ctx, pid, (int)ps.pgid, (int)ps.ppid, (UID_ARG)ps.euid,
+                    ps.fname, (int)pss, (int)sf);
         Plf = (struct lfile *)NULL;
 
         (void)snpf(path, sizeof(path), "%s/%d/cwd", PROC_BASE, pid);
