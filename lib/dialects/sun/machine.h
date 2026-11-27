@@ -35,6 +35,9 @@
 #if !defined(LSOF_MACHINE_H)
 #    define LSOF_MACHINE_H 1
 
+/* v_path and kernel DNLC are not available through procfs. */
+#    undef HAS_V_PATH
+
 #    if defined(HAS_LGRP_ROOT_CONFLICT)
 /*
  * <sys/lgrp.h> must be #include'd early on some older Solaris systems at

@@ -101,14 +101,3 @@ void build_IPstates(struct lsof_context *ctx) {
         (void)enter_IPstate(ctx, "UDP", (char *)NULL, 0);
     }
 }
-
-/*
- * v_path lives in the vnode and is unavailable without kmem.  The path is
- * obtained from /proc/<pid>/path instead.
- */
-void read_v_path(struct lsof_context *ctx, KA_T ka, char *rb, size_t rbl) {
-    (void)ctx;
-    (void)ka;
-    if (rb && rbl)
-        rb[0] = '\0';
-}

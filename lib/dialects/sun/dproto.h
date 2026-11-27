@@ -41,13 +41,6 @@ extern int access_vxfs_ioffsets(void);
 extern void completevfs(struct lsof_context *ctx, struct l_vfs *vfs,
                         dev_t *dev);
 
-#if defined(HAS_LIBCTF)
-extern int CTF_getmem(struct lsof_context *ctx, ctf_file_t *f, const char *mod,
-                      const char *ty, CTF_member_t *mem);
-extern void CTF_init(struct lsof_context *ctx, int *i, char *t,
-                     CTF_request_t *r);
-extern int CTF_memCB(const char *name, ctf_id_t id, ulong_t offset, void *arg);
-#endif /* defined(HAS_LIBCTF) */
 
 extern int is_file_named(struct lsof_context *ctx, char *p, int nt,
                          enum vtype vt, int ps);
@@ -69,11 +62,6 @@ extern int rw_pseudo_sect(struct lsof_context *ctx, int m);
 extern struct hostent *gethostbyname2(const char *nm, int proto);
 #endif /* defined(HASIPv6) */
 
-#if defined(HAS_V_PATH)
-extern int print_v_path(struct lsof_context *ctx, struct lfile *lf);
-extern void read_v_path(struct lsof_context *ctx, KA_T ka, char *rb,
-                        size_t rbl);
-#endif /* defined(HAS_V_PATH) */
 
 #if defined(HASVXFS)
 extern int read_vxnode(struct lsof_context *ctx, KA_T va, struct vnode *v,
@@ -87,13 +75,6 @@ extern int print_vxfs_rnl_path(struct lfile *lf);
 #if defined(HASZONES)
 extern int enter_zone_arg(struct lsof_context *ctx, char *zn);
 #endif /* defined(HASZONES) */
-
-extern void process_socket(struct lsof_context *ctx, KA_T sa, char *ty);
-
-#if solaris >= 110000
-extern int process_VSOCK(struct lsof_context *ctx, KA_T va, struct vnode *v,
-                         struct sonode *so);
-#endif /* solaris>=11000 */
 
 extern void read_clone(struct lsof_context *ctx);
 

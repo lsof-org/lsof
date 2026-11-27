@@ -194,7 +194,7 @@ AS_CASE([${host_os}],
 	CFLAGS="$CFLAGS -Dsolaris=$LSOF_VERS"
 
 	# Link system libraries
-	LIBS="$LIBS -lelf -lsocket -lnsl"
+	LIBS="$LIBS -lsocket -lnsl"
 
 	# Handle missing header
 	mkdir -p ./solaris11/sys
@@ -540,14 +540,8 @@ AC_CHECK_HEADERS([sys/zone.h])
 AC_CHECK_TYPES([pad_mutex_t], [], [], [#define _KERNEL
 	#include <sys/mutex.h>])
 
-# Detect libctf.h header for HAS_LIBCTF
-AC_CHECK_HEADERS([libctf.h], [LIBS="$LIBS -lctf"])
-
 # Detect pc_direntpersec macro for HAS_PC_DIRENTPERSEC
 AC_CHECK_DECLS([pc_direntpersec((struct pcfs *)NULL)], [], [], [#include <sys/fs/pc_fs.h>])
-
-# Detect sys/fs/zfs.h header for HAS_ZFS
-AC_CHECK_HEADERS([sys/fs/zfs.h])
 
 # Detect sys/cred_impl.h header for HAS_CRED_IMPL_H
 AC_CHECK_HEADERS([sys/cred_impl.h])

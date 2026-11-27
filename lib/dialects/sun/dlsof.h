@@ -485,45 +485,6 @@ extern struct clone *Clone;
 
 extern major_t CloneMaj;
 
-#    if defined(HAS_LIBCTF)
-/*
- * Definitions for using the CTF library, libctf.
- */
-
-#        include <libctf.h>
-
-#        define CTF_MEMBER_UNDEF ~0UL /* undefined member type */
-                                      /* CTF_member_t element definition */
-
-/*
- * Member structure definition, initialized by CTF_MEMBER() macro calls
- */
-
-typedef struct CTF_member {
-    char *m_name;     /* Member name. */
-    ulong_t m_offset; /* Member offset, initially in bits,
-                       * later bytes */
-} CTF_member_t;
-
-/*
- * CTF request structure
- */
-
-typedef struct CTF_request {
-    char *name;        /* structure name */
-    CTF_member_t *mem; /* member table */
-} CTF_request_t;
-
-/*
- * CTF macroes
- */
-
-#        define CTF_MEMBER(name)                                               \
-            { #name, CTF_MEMBER_UNDEF }
-#        define CTF_MEMBER_READ(ka, s, members, member)                        \
-            kread(ctx, (KA_T)(ka) + members[MX_##member].m_offset,                  \
-                  (char *)&s->member, sizeof(s->member))
-#    endif /* defined(HAS_LIBCTF) */
 
 extern char **Fsinfo;
 extern int Fsinfomax;
@@ -679,17 +640,6 @@ extern int Unof; /* u_nofiles value */
  * Definitions for rnch.c
  */
 
-#    if defined(HASNCACHE)
-#        include <sys/dnlc.h>
-
-#        if !defined(NC_NAMLEN)
-#            define HASDNLCPTR 1
-#        endif /* !defined(NC_NAMLEN) */
-
-#        if solaris >= 80000
-#            define NCACHE_NEGVN "negative_cache_vnode"
-#        endif /* solaris>=80000 */
-#    endif     /* defined(HASNCACHE) */
 
 struct lsof_context_dialect {};
 
