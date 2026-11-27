@@ -73,7 +73,8 @@ jobs:
         usesh: true
         copyback: false
         prepare: |
-          pkg install -y bash git autoconf automake libtool groff pkgconf
+          pkg install -y bash git autoconf automake libtool groff pkgconf python311
+          ln -sf /usr/local/bin/python3.11 /usr/local/bin/python3
         run: |
           set -e
           src=$(pwd)
@@ -157,6 +158,12 @@ jobs:
         prepare: |
           /usr/sbin/pkg_add -u bash autoconf automake libtool-base pkgconf
           /usr/sbin/pkg_add python311 || /usr/sbin/pkg_add python3 || true
+          for p in /usr/pkg/bin/python3.11 /usr/pkg/bin/python3.12 /usr/pkg/bin/python3.13; do
+            if [ -x "$p" ]; then
+              ln -sf "$p" /usr/pkg/bin/python3
+              break
+            fi
+          done
         run: |
           set -e
           src=$(pwd)

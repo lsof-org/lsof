@@ -376,7 +376,7 @@ struct mvfsnode {
     unsigned long m_ino; /* node number */
 };
 
-extern int nlist();
+extern int nlist(const char *, struct nlist *);
 
 #    if defined(HAS_AFS) && !defined(AFSAPATHDEF)
 #        define AFSAPATHDEF "/usr/vice/etc/modload/libafs"
