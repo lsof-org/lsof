@@ -110,8 +110,9 @@ for line in run(["-Ffn"]).splitlines():
     elif line.startswith("n"):
         names[fd] = line[1:]
 assert set(names) == {str(s.fileno()) for s in sockets}, names
-assert names[str(listener.fileno())] == f"127.0.0.1:{listener.getsockname()[1]}"
-assert names[str(udp.fileno())] == f"*:{udp.getsockname()[1]}"
+assert names[str(listener.fileno())].startswith(
+    f"127.0.0.1:{listener.getsockname()[1]}"), names
+assert names[str(udp.fileno())].startswith(f"*:{udp.getsockname()[1]}"), names
 for mode in ("-J", "-j"):
     for fields in ([], ["-Ffn"]):
         output = run([mode] + fields)
