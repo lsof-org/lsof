@@ -345,10 +345,10 @@ typedef struct pad_mutex {
 #    if solaris >= 10000 && defined(HAS_V_PATH)
 /* #define	HASNCACHE	1	*/
 #    else /* solaris<10 || !defined(HAS_V_PATH) */
-#        define HASNCACHE 1
+#        /* HASNCACHE 1 -- kernel DNLC requires kmem, not used here. */
 #    endif /* solaris>=10000 && defined(HAS_V_PATH) */
 
-#    define NCACHELDPFX open_kvm(); /* do before calling ncache_load() */
+#    /* NCACHELDPFX is intentionally empty: this backend has no kvm. */
 
 /* #define	NCACHELDSFX	??? */
 

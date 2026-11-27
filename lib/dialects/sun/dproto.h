@@ -51,7 +51,6 @@ extern int CTF_memCB(const char *name, ctf_id_t id, ulong_t offset, void *arg);
 
 extern int is_file_named(struct lsof_context *ctx, char *p, int nt,
                          enum vtype vt, int ps);
-extern int vop2ty(struct lsof_context *ctx, struct vnode *vp, int fx);
 
 #if defined(HAS_AFS)
 extern struct vnode *alloc_vcache(void);
@@ -89,8 +88,6 @@ extern int print_vxfs_rnl_path(struct lfile *lf);
 extern int enter_zone_arg(struct lsof_context *ctx, char *zn);
 #endif /* defined(HASZONES) */
 
-extern void close_kvm(struct lsof_context *ctx);
-extern void open_kvm(struct lsof_context *ctx);
 extern void process_socket(struct lsof_context *ctx, KA_T sa, char *ty);
 
 #if solaris >= 110000
