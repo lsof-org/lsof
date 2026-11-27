@@ -533,8 +533,9 @@ void gather_proc_info(struct lsof_context *ctx) {
             memcpy(&ps_euid, &ps[euidoff], sizeof(ps_euid));
             (void)memcpy(cmd, &ps[fnameoff], sizeof(cmd) - 1);
             cmd[sizeof(cmd) - 1] = '\0';
+            /* Use the /proc directory PID as the authoritative PID. */
             if (ps_pid != pid)
-                continue;
+                ps_pid = pid;
             if (is_proc_excl(ctx, pid, (int)ps_pgid, (UID_ARG)ps_uid, &pss,
                              &sf) ||
                 is_cmd_excl(ctx, cmd, &pss, &sf))
