@@ -142,10 +142,12 @@ int main(int argc, char **argv) {
                     /* check if fd matches */
                     if (f->fd_num == fd && f->inode == tmp_stat.st_ino &&
                         f->dev == tmp_stat.st_dev) {
-#if defined(LT_DIAL_netbsd) || defined(LT_DIAL_openbsd)
+#if defined(LT_DIAL_netbsd) || defined(LT_DIAL_openbsd) || \
+    defined(LT_DIAL_solaris)
                         /* OpenBSD cannot report regular-file paths; NetBSD
-                         * may not report paths for newly created files.
-                         * Descriptor, inode, and device must still match. */
+                         * and Solaris/illumos may not report paths for newly
+                         * created files.  Descriptor, inode, and device must
+                         * still match. */
                         fd_found = 1;
 #else
                         if (f->name && strstr(f->name, "LTbasic2-tmp")) {

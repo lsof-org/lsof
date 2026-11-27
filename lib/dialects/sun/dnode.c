@@ -142,6 +142,7 @@ static CTF_request_t Sockfs_requests[] = {
  * Sockfs function prototypes
  */
 
+static char *printsockty(int ty);
 static int read_nsti(struct lsof_context *ctx, struct sonode *so,
                      sotpi_info_t *stpi);
 #endif /* solaris>=110000 && defined(HAS_LIBCTF) */
@@ -853,15 +854,24 @@ void CTF_init(struct lsof_context *ctx, /* context */
     if ((f = ctf_open(kmp, &err)) == NULL) {
         (void)fprintf(stderr, "%s: ctf_open: %s: %s\n", Pn, kmp,
                       ctf_errmsg(err));
-        Error(ctx);
+        /*
+         * CTF data may be missing from a kernel module (for example in a
+         * Solaris CBE image whose ZFS module has no CTF section).  Treat
+         * that as unavailable rather than terminating lsof: callers must
+         * check the state before using the member offsets.
+         */
+        *i = -1;
+        return;
     }
     for (err = 0; r->name; r++) {
         if (CTF_getmem(ctx, f, kmp, r->name, r->mem))
             err = 1;
     }
     (void)ctf_close(f);
-    if (err)
-        Error(ctx);
+    if (err) {
+        *i = -1;
+        return;
+    }
     *i = 1;
 }
 
@@ -4742,6 +4752,47 @@ static int read_nsn(struct lsof_context *ctx, /* context */
 
 #if solaris >= 110000
 /*
+ * printsockty() - format a socket type without using lsof CLI state
+ */
+static char *printsockty(int ty) {
+    static char buf[64];
+    char *cp;
+
+    switch (ty) {
+#if defined(SOCK_STREAM)
+    case SOCK_STREAM:
+        cp = "STREAM";
+        break;
+#endif
+#if defined(SOCK_DGRAM)
+    case SOCK_DGRAM:
+        cp = "DGRAM";
+        break;
+#endif
+#if defined(SOCK_RAW)
+    case SOCK_RAW:
+        cp = "RAW";
+        break;
+#endif
+#if defined(SOCK_RDM)
+    case SOCK_RDM:
+        cp = "RDM";
+        break;
+#endif
+#if defined(SOCK_SEQPACKET)
+    case SOCK_SEQPACKET:
+        cp = "SEQPACKET";
+        break;
+#endif
+    default:
+        (void)snpf(buf, sizeof(buf), "SOCK_%#x", ty);
+        return (buf);
+    }
+    (void)snpf(buf, sizeof(buf), "SOCK_%s", cp);
+    return (buf);
+}
+
+/*
  * read_nsti() - read socket node's info
  */
 
@@ -4752,6 +4803,12 @@ static int read_nsti(struct lsof_context *ctx, /* context */
     char tbuf[32];
 
     (void)CTF_init(ctx, &Sockfs_ctfs, SOCKFS_MOD_FORMAT, Sockfs_requests);
+    if (Sockfs_ctfs < 0) {
+        (void)snpf(Namech, Namechl - 1, "sonode: CTF information unavailable");
+        Namech[Namechl - 1] = '\0';
+        enter_nm(ctx, Namech);
+        return (1);
+    }
     if (!so || !so->so_priv ||
         CTF_MEMBER_READ(so->so_priv, stpi, sotpi_info_members, sti_dev) ||
         CTF_MEMBER_READ(so->so_priv, stpi, sotpi_info_members, sti_laddr) ||
@@ -4842,6 +4899,87 @@ static int read_nvn(struct lsof_context *ctx, /* context */
 }
 
 #if defined(HAS_ZFS)
+#if solaris >= 110000
+/*
+ * Solaris 11.4 CBE ZFS has no znode/zfsvfs CTF types.  The offsets below
+ * come from the kernel's own mdb type information:
+ *
+ *   znode_t:  z_zfsvfs=0x00, z_vnode=0x08, z_id=0x10,
+ *             z_size=0xc0, z_links=0x118 (z_phys is absent)
+ *   zfsvfs_t: z_vfs=0x00
+ */
+#    define ZFS114_OFF_Z_ZFSVFS 0x00
+#    define ZFS114_OFF_Z_VNODE 0x08
+#    define ZFS114_OFF_Z_ID 0x10
+#    define ZFS114_OFF_Z_SIZE 0xc0
+#    define ZFS114_OFF_Z_LINKS 0x118
+#    define ZFS114_OFF_ZVFS_Z_VFS 0x00
+
+static int read_znode114(struct lsof_context *ctx, KA_T na, KA_T nza,
+                         znode_t *zn) {
+    char tbuf[32];
+
+    if (!nza) {
+        (void)snpf(Namech, Namechl - 1, "node at %s: no znode: %s",
+                   print_kptr(na, tbuf, sizeof(tbuf)),
+                   print_kptr(nza, (char *)NULL, 0));
+        Namech[Namechl - 1] = '\0';
+        enter_nm(ctx, Namech);
+        return (1);
+    }
+    if (kread(ctx, nza + ZFS114_OFF_Z_ZFSVFS, (char *)&zn->z_zfsvfs,
+              sizeof(zn->z_zfsvfs)) ||
+        kread(ctx, nza + ZFS114_OFF_Z_VNODE, (char *)&zn->z_vnode,
+              sizeof(zn->z_vnode)) ||
+        kread(ctx, nza + ZFS114_OFF_Z_ID, (char *)&zn->z_id,
+              sizeof(zn->z_id)) ||
+        kread(ctx, nza + ZFS114_OFF_Z_SIZE, (char *)&zn->z_size,
+              sizeof(zn->z_size)) ||
+        kread(ctx, nza + ZFS114_OFF_Z_LINKS, (char *)&zn->z_links,
+              sizeof(zn->z_links))) {
+        (void)snpf(Namech, Namechl - 1, "node at %s: can't read znode: %s",
+                   print_kptr(na, tbuf, sizeof(tbuf)),
+                   print_kptr(nza, (char *)NULL, 0));
+        Namech[Namechl - 1] = '\0';
+        enter_nm(ctx, Namech);
+        return (1);
+    }
+    /*
+     * A wrong znode_t layout would make the offsets above read unrelated
+     * kernel memory.  The vnode back-pointer is a cheap validity check: on
+     * every supported layout z_vnode points at the vnode being processed.
+     * If it does not, report the unsupported layout instead of producing
+     * bogus file information.
+     */
+    if ((KA_T)zn->z_vnode != na) {
+        (void)snpf(Namech, Namechl - 1,
+                   "node at %s: unsupported znode layout: %s",
+                   print_kptr(na, tbuf, sizeof(tbuf)),
+                   print_kptr((KA_T)zn->z_vnode, (char *)NULL, 0));
+        Namech[Namechl - 1] = '\0';
+        enter_nm(ctx, Namech);
+        return (1);
+    }
+    zn->z_phys = (znode_phys_t *)NULL;
+    return (0);
+}
+
+static int read_zvfs114(struct lsof_context *ctx, KA_T nza, KA_T nzva,
+                        zfsvfs_t *zv) {
+    char tbuf[32];
+
+    if (!nzva || kread(ctx, nzva + ZFS114_OFF_ZVFS_Z_VFS,
+                       (char *)&zv->z_vfs, sizeof(zv->z_vfs))) {
+        (void)snpf(Namech, Namechl - 1, "znode at %s: can't read zfsvfs: %s",
+                   print_kptr(nza, tbuf, sizeof(tbuf)),
+                   print_kptr(nzva, (char *)NULL, 0));
+        Namech[Namechl - 1] = '\0';
+        enter_nm(ctx, Namech);
+        return (1);
+    }
+    return (0);
+}
+#endif /* solaris >= 110000 */
 /*
  * read_nzn() - read node's ZFS node
  */
@@ -4857,6 +4995,10 @@ static int read_nzn(struct lsof_context *ctx, /* context */
     znode_phys_t zp;  /* physical znode */
 
     (void)CTF_init(ctx, &ZFS_ctfs, ZFS_MOD_FORMAT, ZFS_requests);
+#if solaris >= 110000
+    if (ZFS_ctfs < 0)
+        return read_znode114(ctx, na, nza, zn);
+#endif /* solaris >= 110000 */
     if (!nza || CTF_MEMBER_READ(nza, zn, znode_members, z_zfsvfs) ||
         CTF_MEMBER_READ(nza, zn, znode_members, z_vnode) ||
         CTF_MEMBER_READ(nza, zn, znode_members, z_id) ||
@@ -4918,6 +5060,14 @@ static int read_nznp(struct lsof_context *ctx, /* context */
     char tbuf[32];
 
     (void)CTF_init(ctx, &ZFS_ctfs, ZFS_MOD_FORMAT, ZFS_requests);
+    if (ZFS_ctfs < 0) {
+        (void)snpf(Namech, Namechl - 1,
+                   "znode at %s: CTF information unavailable",
+                   print_kptr(nza, tbuf, sizeof(tbuf)));
+        Namech[Namechl - 1] = '\0';
+        enter_nm(ctx, Namech);
+        return (1);
+    }
     if (!nzpa || CTF_MEMBER_READ(nzpa, zp, znode_phys_members, zp_size) ||
         CTF_MEMBER_READ(nzpa, zp, znode_phys_members, zp_links)) {
         (void)snpf(Namech, Namechl - 1,
@@ -4944,6 +5094,10 @@ static int read_nzvfs(struct lsof_context *ctx, /* context */
     char tbuf[32];
 
     (void)CTF_init(ctx, &ZFS_ctfs, ZFS_MOD_FORMAT, ZFS_requests);
+#if solaris >= 110000
+    if (ZFS_ctfs < 0)
+        return read_zvfs114(ctx, nza, nzva, zv);
+#endif /* solaris >= 110000 */
     if (!nzva || CTF_MEMBER_READ(nzva, zv, zfsvfs_members, z_vfs)) {
         (void)snpf(Namech, Namechl - 1, "znode at %s: can't read zfsvfs: %s",
                    print_kptr(nza, tbuf, sizeof(tbuf)),

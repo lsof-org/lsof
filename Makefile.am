@@ -115,6 +115,9 @@ endif
 if DARWIN
 lsof_SOURCES += src/dialects/darwin/dprint.c
 endif
+if SOLARIS
+lsof_SOURCES += src/dialects/sun/dprint.c
+endif
 # TODO: link to dynamic library instead after internal functions are no longer used
 lsof_SOURCES += $(LIBLSOF_SOURCES)
 #lsof_LDADD = liblsof.la
@@ -141,6 +144,7 @@ DIALECT_NEUTRAL_TESTS = tests/case-00-hello.bash \
 	tests/case-30-json-output.bash \
 	tests/case-31-jsonl-output.bash
 TESTS = $(DIALECT_NEUTRAL_TESTS)
+
 EXTRA_DIST += $(DIALECT_NEUTRAL_TESTS) \
 	tests/case-13-classic.bash \
 	tests/case-14-classic-opt.bash \

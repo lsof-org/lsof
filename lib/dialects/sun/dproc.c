@@ -35,6 +35,7 @@ static char copyright[] =
 
 #include "common.h"
 
+
 #if solaris < 20500
 #    include "kernelbase.h"
 #endif /* solaris<20500 */
@@ -321,10 +322,7 @@ void gather_proc_info(struct lsof_context *ctx) {
          * Get the process ID.
          */
 
-        if (Fpgid)
-            pgid = Pgid[px];
-        else
-            pgid = 0;
+        pgid = Pgid[px];
         pid = Pid[px];
 
 #if solaris < 20500
@@ -348,14 +346,12 @@ void gather_proc_info(struct lsof_context *ctx) {
         /*
          * If the -z (zone) option was specified, get the zone name.
          */
-        if (Fzone) {
-            zn[0] = zn[sizeof(zn) - 1] = '\0';
-            if (p->p_zone &&
-                !kread(ctx, (KA_T)p->p_zone, (char *)&z, sizeof(z))) {
-                if (!z.zone_name ||
-                    kread(ctx, (KA_T)z.zone_name, (char *)&zn, sizeof(zn) - 1))
-                    zn[0] = '\0';
-            }
+        zn[0] = zn[sizeof(zn) - 1] = '\0';
+        if (p->p_zone &&
+            !kread(ctx, (KA_T)p->p_zone, (char *)&z, sizeof(z))) {
+            if (!z.zone_name ||
+                kread(ctx, (KA_T)z.zone_name, (char *)&zn, sizeof(zn) - 1))
+                zn[0] = '\0';
         }
 #endif /* defined(HASZONES) */
 
@@ -389,7 +385,7 @@ void gather_proc_info(struct lsof_context *ctx) {
          *	o Skip processes excluded by zone name.
          *	o Save zone name.
          */
-        if (Fzone && zn[0]) {
+        if (zn[0]) {
             zh = hash_zn(zn);
             if (ZoneArg) {
 
@@ -1395,15 +1391,13 @@ static void read_proc(struct lsof_context *ctx) {
              * Pre-allocate PGID and PID number space.
              */
             len = (MALLOC_S)(n * sizeof(int));
-            if (Fpgid) {
-                if (Pgid)
-                    Pgid = (int *)realloc((MALLOC_P *)Pgid, len);
-                else
-                    Pgid = (int *)malloc(len);
-                if (!Pgid) {
-                    (void)fprintf(stderr, "%s: no PGID table space\n", Pn);
-                    Error(ctx);
-                }
+            if (Pgid)
+                Pgid = (int *)realloc((MALLOC_P *)Pgid, len);
+            else
+                Pgid = (int *)malloc(len);
+            if (!Pgid) {
+                (void)fprintf(stderr, "%s: no PGID table space\n", Pn);
+                Error(ctx);
             }
             if (Pid)
                 Pid = (int *)realloc((MALLOC_P *)Pid, len);
@@ -1462,12 +1456,10 @@ static void read_proc(struct lsof_context *ctx) {
                  * Expand the PGID and PID tables.
                  */
                 len = (MALLOC_S)(Npa * sizeof(int));
-                if (Fpgid) {
-                    if (!(Pgid = (int *)realloc((MALLOC_P *)Pgid, len))) {
-                        (void)fprintf(stderr, "%s: no more (%d) PGID space\n",
-                                      Pn, Npa);
-                        Error(ctx);
-                    }
+                if (!(Pgid = (int *)realloc((MALLOC_P *)Pgid, len))) {
+                    (void)fprintf(stderr, "%s: no more (%d) PGID space\n", Pn,
+                                  Npa);
+                    Error(ctx);
                 }
                 if (!(Pid = (int *)realloc((MALLOC_P *)Pid, len))) {
                     (void)fprintf(stderr, "%s: no more (%d) PID space\n", Pn,
@@ -1523,19 +1515,16 @@ static void read_proc(struct lsof_context *ctx) {
             /*
              * Read Solaris PGID and PID numbers.
              */
-            if (Fpgid) {
-                if (!p->p_pgidp ||
-                    kread(ctx, (KA_T)p->p_pgidp, (char *)&pg, sizeof(pg)))
-                    continue;
-            }
+            if (!p->p_pgidp ||
+                kread(ctx, (KA_T)p->p_pgidp, (char *)&pg, sizeof(pg)))
+                continue;
             if (!p->p_pidp ||
                 kread(ctx, (KA_T)p->p_pidp, (char *)&pids, sizeof(pids)))
                 continue;
             /*
              * Save the PGID and PID numbers in local tables.
              */
-            if (Fpgid)
-                Pgid[Np] = (int)pg.pid_id;
+            Pgid[Np] = (int)pg.pid_id;
             Pid[Np] = (int)pids.pid_id;
             /*
              * If the proc structure came from kvm_getproc(), save it in the
@@ -1583,12 +1572,10 @@ static void read_proc(struct lsof_context *ctx) {
          * not in repeat mode.
          */
         len = (MALLOC_S)(Np * sizeof(int));
-        if (Fpgid) {
-            if (!(Pgid = (int *)realloc((MALLOC_P *)Pgid, len))) {
-                (void)fprintf(stderr, "%s: can't reduce PGID table to %d\n", Pn,
-                              Np);
-                Error(ctx);
-            }
+        if (!(Pgid = (int *)realloc((MALLOC_P *)Pgid, len))) {
+            (void)fprintf(stderr, "%s: can't reduce PGID table to %d\n", Pn,
+                          Np);
+            Error(ctx);
         }
         if (!(Pid = (int *)realloc((MALLOC_P *)Pid, len))) {
             (void)fprintf(stderr, "%s: can't reduce PID table to %d\n", Pn, Np);

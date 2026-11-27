@@ -73,8 +73,7 @@ jobs:
         usesh: true
         copyback: false
         prepare: |
-          pkg install -y bash git autoconf automake libtool groff pkgconf python311
-          ln -sf /usr/local/bin/python3.11 /usr/local/bin/python3
+          pkg install -y bash git autoconf automake libtool groff pkgconf python3
         run: |
           set -e
           src=$(pwd)
@@ -157,13 +156,7 @@ jobs:
         copyback: false
         prepare: |
           /usr/sbin/pkg_add -u bash autoconf automake libtool-base pkgconf
-          /usr/sbin/pkg_add python311 || /usr/sbin/pkg_add python3 || true
-          for p in /usr/pkg/bin/python3.11 /usr/pkg/bin/python3.12 /usr/pkg/bin/python3.13; do
-            if [ -x "$p" ]; then
-              ln -sf "$p" /usr/pkg/bin/python3
-              break
-            fi
-          done
+          /usr/sbin/pkg_add python3 || true
         run: |
           set -e
           src=$(pwd)
@@ -191,36 +184,15 @@ jobs:
           pkg install --accept developer/gcc/gcc-c-13 \
             developer/build/autoconf developer/build/automake \
             developer/build/libtool developer/build/gnu-make \
-            developer/build/pkg-config shell/bash \
-            runtime/python-311 text/groff
+            developer/build/pkg-config shell/bash text/groff
         run: |
           set -e
           export PATH=/usr/gcc/13/bin:/usr/gnu/bin:$PATH
-          src=$(pwd)
           autoreconf -vif
-          ./configure
+          ./configure --disable-shared --enable-static
           gmake
-          # The autotools test programs that link against liblsof fail to
-          # link on Solaris (unresolved liblsof symbols).  Run the neutral
-          # shell tests directly against the successfully built lsof binary.
-          for t in tests/case-*.bash; do
-            case "$t" in
-              tests/case-13-*|tests/case-14-*) continue ;;
-            esac
-            echo "== $t"
-            report="/tmp/${t##*/}.report"
-            set +e
-            bash "$t" "$(pwd)/lsof" "$report" tests solaris
-            rc=$?
-            set -e
-            if [ "$rc" -eq 77 ]; then
-              echo "SKIP: $t"
-            elif [ "$rc" -ne 0 ]; then
-              echo "FAIL: $t"
-              cat "$report" 2>/dev/null || true
-              exit "$rc"
-            fi
-          done
+          gmake check || { cat test-suite.log; exit 1; }
+
   openindiana:
     runs-on: ubuntu-latest
     steps:
@@ -236,26 +208,6 @@ jobs:
           set -e
           export PATH=/usr/gnu/bin:$PATH
           autoreconf -vif
-          ./configure
+          CFLAGS="-std=gnu17" ./configure --disable-shared --enable-static
           gmake
-          # The autotools test programs that link against liblsof need the
-          # same Solaris-linker workaround as the Solaris job.  Run the
-          # neutral shell tests directly against the lsof binary instead.
-          for t in tests/case-*.bash; do
-            case "$t" in
-              tests/case-13-*|tests/case-14-*) continue ;;
-            esac
-            echo "== $t"
-            report="/tmp/${t##*/}.report"
-            set +e
-            bash "$t" "$(pwd)/lsof" "$report" tests solaris
-            rc=$?
-            set -e
-            if [ "$rc" -eq 77 ]; then
-              echo "SKIP: $t"
-            elif [ "$rc" -ne 0 ]; then
-              echo "FAIL: $t"
-              cat "$report" 2>/dev/null || true
-              exit "$rc"
-            fi
-          done
+          gmake check || { cat test-suite.log; exit 1; }
