@@ -100,7 +100,6 @@ struct mounts *readmnt(struct lsof_context *ctx) {
     int procfs = 0;
 #endif /* defined(HASPROCFS) */
 
-    unsigned char stat;
 
     if (Lmi || Lmist)
         return (Lmi);
@@ -185,7 +184,6 @@ struct mounts *readmnt(struct lsof_context *ctx) {
 
                                              )))
                 continue;
-            stat = 1;
         } else if (statsafely(ctx, dn, &sb)) {
             if (dopt) {
                 if (!(dopte = getmntdev(ctx, dopt, devl, &sb,
@@ -219,9 +217,7 @@ struct mounts *readmnt(struct lsof_context *ctx) {
             }
             if (!dopt)
                 continue;
-            stat = 1;
-        } else
-            stat = 0;
+        }
         /*
          * Allocate and fill a local mount structure.
          */
@@ -245,10 +241,6 @@ struct mounts *readmnt(struct lsof_context *ctx) {
         mtp->nlink = sb.st_nlink;
         mtp->size = sb.st_size;
 #endif /* solaris>=80000 */
-
-#if defined(HASMNTSTAT)
-        mtp->stat = stat;
-#endif /* defined(HASMNTSTAT) */
 
 #if defined(HASPROCFS)
         if (strcmp(sb.st_fstype, HASPROCFS) == 0) {

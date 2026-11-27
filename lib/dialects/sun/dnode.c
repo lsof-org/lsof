@@ -1,9 +1,8 @@
 /*
- * dnode.c - Solaris /proc node compatibility shims.
+ * dnode.c - Solaris procfs initialization and IP state tables.
  *
- * The procfs backend fills lfile entries directly from /proc.  These
- * functions remain only for the mount-table and file-selection support
- * code; they never read kernel memory.
+ * File data comes directly from /proc; these functions only provide the
+ * lsof core hooks and the TCP/UDP state tables.  No kernel memory is read.
  */
 
 /*
@@ -40,12 +39,6 @@ void initialize(struct lsof_context *ctx) {
     (void)ctx;
 }
 
-/* Zone-name filtering is not available in the procfs backend. */
-int enter_zone_arg(struct lsof_context *ctx, char *zn) {
-    (void)ctx;
-    (void)zn;
-    return (1);
-}
 
 /*
  * build_IPstates() - build the TCP and UDP state tables

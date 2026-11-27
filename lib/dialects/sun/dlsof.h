@@ -123,14 +123,8 @@ enum vtype {
     VDIR,
     VBLK,
     VCHR,
-    VLNK,
     VSOCK,
-    VFIFO,
-    VBAD,
-    VDOOR,
-    VPORT,
-    VMPC,
-    VV_ROOT
+    VFIFO
 };
 
 enum node_type {
@@ -139,58 +133,8 @@ enum node_type {
     N_BLK,
     N_CHR,
     N_FIFO,
-    N_SOCK,
     N_STREAM,
-    N_COM,
-    N_MNT,
-    N_FD,
-    N_PROC,
-    N_SPEC,
-    N_PIPE,
-    N_DOOR,
-    N_PORT,
-    N_DEV,
-    N_NM,
-    N_OBJF,
-    N_PSEU,
-    N_SHARED,
-    N_AFPFS,
-    N_AFS,
-    N_ANON_INODE,
-    N_AUSX,
-    N_AUTO,
-    N_CACHE,
-    N_CDFS,
-    N_CFS,
-    N_CTFSADIR,
-    N_CTFSBUND,
-    N_CTFSCDIR,
-    N_CTFSCTL,
-    N_CTFSEVT,
-    N_CTFSLATE,
-    N_CTFSROOT,
-    N_CTFSSTAT,
-    N_CTFSSYM,
-    N_CTFSTDIR,
-    N_CTFSTMPL,
-    N_HSFS,
-    N_KERN,
-    N_LOFS,
-    N_MPC,
-    N_MQUEUE,
-    N_MVFS,
-    N_NFS,
-    N_NFS4,
-    N_PCFS,
-    N_SAMFS,
-    N_SANFS,
-    N_SDEV,
-    N_TMP,
-    N_UFS,
-    N_UNIX,
-    N_VXFS,
-    N_XFS,
-    N_ZFS
+    N_ANON_INODE
 };
 
 /*
@@ -203,9 +147,7 @@ struct mvfsnode {
 };
 
 #    define COMP_P const void
-#    define CWDLEN (MAXPATHLEN + 1)
 #    define DEVINCR 1024 /* device table malloc() increment */
-#    define DINAMEL 32
 #    define DIRTYPE dirent
 
 #    if solaris >= 20501
@@ -222,19 +164,12 @@ struct mvfsnode {
 #        define MAXEND 0x7fffffff
 #    endif /* !defined(MAXEND) */
 
-#    define MAXSEGS 100          /* maximum text segments */
 #    define MAXSYSCMDL MAXCOMLEN /* max system command name length */
-#    define NETCLNML 8
-#    define PROCMIN 5 /* processes that make a "good" scan */
 
 #    if defined(HASPROCFS)
 #        define PR_ROOTINO 2 /* root inode for proc file system */
 #    endif                   /* defined(HASPROCFS) */
 
-#    define PROCDFLT                                                           \
-        256 /* default size for local proc table --                            \
-             * MUST BE > 4!!!  */
-#    define PROCTRYLM 5 /* times to try to read proc table */
 #    define QSORT_P char
 #    define STRNCPY_L int
 #    define STRNML 32 /* stream name length (maximum) */
@@ -243,12 +178,6 @@ struct mvfsnode {
 /*
  * Enable large file support.
  */
-
-#        if solaris >= 20600
-#            define fstat fstat64
-#            define lstat lstat64
-#            define stat stat64
-#        endif /* solaris>=20600 */
 
 #        define SZOFFTYPE unsigned long long
 /* size and offset internal storage
@@ -274,8 +203,6 @@ extern struct clone *Clone;
 extern major_t CloneMaj;
 
 
-extern char **Fsinfo;
-extern int Fsinfomax;
 extern int HaveCloneMaj;
 
 struct l_ino {
@@ -300,12 +227,6 @@ struct l_vfs {
     INODETYPE fs_ino; /* file system inode number */
 #    endif            /* defined(HASFSINO) */
 
-#    if defined(HASMNTSTAT)
-    unsigned char mnt_stat; /* mount point stat() status:
-                             *     0 = succeeded
-                             *     1 = failed */
-#    endif                  /* defined(HASMNTSTAT) */
-
 #    if solaris >= 80000
     nlink_t nlink; /* directory link count */
     off_t size;    /* directory size */
@@ -313,7 +234,6 @@ struct l_vfs {
 
     struct l_vfs *next; /* forward link */
 };
-extern struct l_vfs *Lvfs;
 
 struct mounts {
     char *dir;           /* directory (mounted on) */
@@ -337,11 +257,6 @@ struct mounts {
     off_t size;    /* directory st_size */
 #    endif         /* solaris>=80000 */
 
-#    if defined(HASMNTSTAT)
-    unsigned char stat; /* mount point stat() status:
-                         *     0 = succeeded
-                         *     1 = failed */
-#    endif              /* defined(HASMNTSTAT) */
 };
 
 struct pseudo {
@@ -350,15 +265,7 @@ struct pseudo {
 };
 extern struct pseudo *Pseudo;
 
-/*
- * Solaris 11 sdev definitions
- */
 
-#    define SDVOP_IP 0  /* Sdev[] devipnet_vnodeops index */
-#    define SDVOP_NET 1 /* Sdev[] devnet_vnodeops index */
-#    define SDVOP_PTS 2 /* Sdev[] devpts_vnodeops index */
-#    define SDVOP_VT 3  /* Sdev[] devvt_vnodeops index */
-#    define SDVOP_NUM 4 /* number of Sdev[] entries */
 
 struct sfile {
     char *aname;        /* file name argument */
@@ -373,18 +280,8 @@ struct sfile {
     int f;              /* file found flag */
     struct sfile *next; /* forward link */
 };
-extern int Unof; /* u_nofiles value */
 
-/*
- * VxFS definitions
- */
 
-#    define VXVOP_FCL 0   /* Vvops[] vx_fcl_vnodeops_p index */
-#    define VXVOP_FDD 1   /* Vvops[] fdd_vnops index */
-#    define VXVOP_FDDCH 2 /* Vvops[] fdd_chain_vnops index */
-#    define VXVOP_REG 3   /* Vvops[] vx_vnodeops index */
-#    define VXVOP_REG_P 4 /* Vvops[] vx_vnodeops_p index */
-#    define VXVOP_NUM 5   /* number of Vvops[] entries */
 
 /*
  * Kernel name list definitions

@@ -77,17 +77,6 @@ static char copyright[] =
  * mod (mod must be a power of 2) */
 
 #if solaris < 20500
-/*
- * get_max_fd() - get maximum file descriptor plus one
- */
-
-int get_max_fd() {
-    struct rlimit r;
-
-    if (getrlimit(RLIMIT_NOFILE, &r))
-        return (-1);
-    return (r.rlim_cur);
-}
 #endif /* solaris<20500 */
 
 /*
@@ -186,7 +175,7 @@ void hashSfile(struct lsof_context *ctx) {
                 } else
                     continue;
             } else {
-                if (!hvc || (GET_MAJ_DEV(s->rdev) != cmaj))
+                if (!hvc || ((major_t)GET_MAJ_DEV(s->rdev) != (major_t)cmaj))
                     continue;
                 sh = &HbyCd[SFHASHDEVINO(0, GET_MIN_DEV(s->rdev), 0, SFCDHASH)];
                 HbyCdCt++;

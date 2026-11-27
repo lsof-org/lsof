@@ -258,7 +258,8 @@ static void set_lock_from_proc(const char *path, struct lfile *lf,
     fl.l_start = 0;
     fl.l_len = 0;
     if (fcntl(fd, F_GETLK, &fl) == 0 && fl.l_type != F_UNLCK) {
-        int full = (fl.l_start == 0 && (fl.l_len == 0 || fl.l_len >= size));
+        int full = (fl.l_start == 0 &&
+                    (fl.l_len == 0 || fl.l_len >= (off_t)size));
         if (fl.l_type == F_RDLCK)
             lf->lock = full ? LSOF_LOCK_READ_FULL : LSOF_LOCK_READ_PARTIAL;
         else if (fl.l_type == F_WRLCK)
@@ -503,7 +504,7 @@ void gather_proc_info(struct lsof_context *ctx) {
     struct dirent *dp, *fdp;
     psinfo_t ps;
     char path[MAXPATHLEN + 1];
-    char fdpath[MAXPATHLEN + 1];
+    char fdpath[MAXPATHLEN + 64];
     char pspath[MAXPATHLEN + 1];
     int pid;
 

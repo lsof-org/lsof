@@ -56,15 +56,6 @@
 #    endif /* solaris<100000 */
 
 /*
- * GET_MAX_FD is defined for those dialects that provide a function other than
- * getdtablesize() to obtain the maximum file descriptor number plus one.
- */
-
-#    if solaris < 20500
-#        define GET_MAX_FD get_max_fd
-#    endif /* solaris<20500 */
-
-/*
  * HASAOPT is defined for those dialects that have AFS support; it specifies
  * that the default path to an alternate AFS kernel name list file may be
  * supplied with the -A <path> option.
@@ -179,13 +170,6 @@
  */
 
 /* #define	HASINTSIGNAL	1 */
-
-/*
- * HASKERNIDCK is defined for those dialects that support the comparison of
- * the build to running kernel identity.
- */
-
-#    define HASKERNIDCK 1
 
 /*
  * HASKOPT is defined for those dialects that support the -k option of
@@ -538,14 +522,6 @@
  */
 
 /* #define	WARNINGSTATE	1	warnings are enabled by default */
-
-/*
- * WILLDROPGID is defined for those dialects whose lsof executable runs
- * setgid(not_real_GID) and whose setgid power can be relinquished after
- * the dialect's initialize() function has been executed.
- */
-
-#    define WILLDROPGID 1
 
 /*
  * zeromem is a macro that uses bzero or memset.

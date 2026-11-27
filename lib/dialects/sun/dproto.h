@@ -57,11 +57,3 @@ extern struct hostent *gethostbyname2(const char *nm, int proto);
 
 
 extern void read_clone(struct lsof_context *ctx);
-
-#if solaris < 20500
-extern int get_max_fd(void);
-#endif /* solaris<20500 */
-
-#if defined(WILLDROPGID)
-extern void restoregid(struct lsof_context *ctx);
-#endif /* defined(WILLDROPGID) */
