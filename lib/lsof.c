@@ -973,7 +973,7 @@ enum lsof_error lsof_select_process_regex(struct lsof_context *ctx, char *x) {
     char *xp = (char *)NULL;
     enum lsof_error ret = LSOF_SUCCESS;
 
-    if (!ctx || ctx->frozen) {
+    if (!ctx || !x || ctx->frozen) {
         return LSOF_ERROR_INVALID_ARGUMENT;
     }
 

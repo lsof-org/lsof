@@ -27,10 +27,13 @@ int main(void) {
         return 1;
     }
     failed |= expect_invalid("gather(ctx, NULL)", lsof_gather(ctx, NULL));
+    failed |= expect_invalid("select_process_regex(ctx, NULL)",
+                             lsof_select_process_regex(ctx, NULL));
     /* Rejected arguments must not freeze or otherwise invalidate the context. */
     if (lsof_select_pid(ctx, 1, 0) != LSOF_SUCCESS ||
-        lsof_select_pgid(ctx, 1, 0) != LSOF_SUCCESS) {
-        fprintf(stderr, "context is unusable after rejected gather\n");
+        lsof_select_pgid(ctx, 1, 0) != LSOF_SUCCESS ||
+        lsof_select_process_regex(ctx, "/test/") != LSOF_SUCCESS) {
+        fprintf(stderr, "context is unusable after rejected arguments\n");
         failed = 1;
     }
     lsof_destroy(ctx);

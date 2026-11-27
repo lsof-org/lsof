@@ -499,8 +499,8 @@ enum lsof_error lsof_select_process(struct lsof_context *ctx, char *command,
  *
  * You can call this function multiple times to add more search conditions.
  *
- * \return LSOF_ERROR_INVALID_ARGUMENT if ctx is NULL or frozen, or the regular
- * expression or its modifiers are invalid
+ * \return LSOF_ERROR_INVALID_ARGUMENT if ctx is NULL or frozen, regex is NULL,
+ * or the regular expression or its modifiers are invalid
  *
  * \since API version 1
  */
