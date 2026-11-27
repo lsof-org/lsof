@@ -30,6 +30,7 @@
 
 #include "common.h"
 
+#if !defined(LSOF_NO_KA_T)
 /*
  * print_kptr() - print kernel pointer
  */
@@ -43,6 +44,7 @@ char *print_kptr(KA_T kp,     /* kernel pointer address */
     (void)snpf(buf ? buf : dbuf, buf ? bufl : sizeof(dbuf), KA_T_FMT_X, kp);
     return (buf ? buf : dbuf);
 }
+#endif /* !defined(LSOF_NO_KA_T) */
 
 #if defined(HASCDRNODE)
 /*

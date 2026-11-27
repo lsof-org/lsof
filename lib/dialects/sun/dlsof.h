@@ -69,7 +69,8 @@
  * The procfs backend has no kernel structures.  Define the small set of
  * types and node/vnode constants that common lsof code still references.
  */
-typedef uintptr_t KA_T;
+#    define LSOF_NO_KA_T 1
+
 typedef uint32_t major_t;
 typedef uint32_t minor_t;
 
@@ -207,10 +208,6 @@ struct mvfsnode {
 #    define DINAMEL 32
 #    define DIRTYPE dirent
 
-#    if solaris >= 70000
-#        define KA_T_FMT_X "0x%p"
-#    endif /* solaris>=70000 */
-
 #    if solaris >= 20501
 #        define KMEM "/dev/mem"
 #    else /* solaris<20501 */
@@ -239,7 +236,6 @@ struct mvfsnode {
              * MUST BE > 4!!!  */
 #    define PROCTRYLM 5 /* times to try to read proc table */
 #    define QSORT_P char
-#    define READLEN_T int
 #    define STRNCPY_L int
 #    define STRNML 32 /* stream name length (maximum) */
 

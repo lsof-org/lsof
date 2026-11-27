@@ -172,7 +172,9 @@ extern int is_proc_excl(struct lsof_context *ctx, int pid, int pgid,
 #    endif /* defined(HASTASKS) */
 
 extern int is_readable(struct lsof_context *ctx, char *path, int msg);
+#    if !defined(LSOF_NO_KA_T)
 extern int kread(struct lsof_context *ctx, KA_T addr, char *buf, READLEN_T len);
+#    endif /* !defined(LSOF_NO_KA_T) */
 extern void link_lfile(struct lsof_context *ctx);
 extern struct l_dev *lkupdev(struct lsof_context *ctx, dev_t *dev, dev_t *rdev,
                              int i, int r);
@@ -186,7 +188,9 @@ extern int printdevname(struct lsof_context *ctx, dev_t *dev, dev_t *rdev,
 extern void print_file(struct lsof_context *ctx);
 extern void print_init(struct lsof_context *ctx);
 extern void printname(struct lsof_context *ctx, int nl);
+#    if !defined(LSOF_NO_KA_T)
 extern char *print_kptr(KA_T kp, char *buf, size_t bufl);
+#    endif /* !defined(LSOF_NO_KA_T) */
 extern int print_proc(struct lsof_context *ctx);
 extern void json_open_envelope(void);
 extern void json_close_envelope(void);
@@ -200,8 +204,10 @@ extern char lock_to_char(enum lsof_lock_mode access);
 extern void file_type_to_string(enum lsof_file_type type,
                                 uint32_t unknown_file_type_number, char *buf,
                                 size_t buf_len);
+#    if !defined(LSOF_NO_KA_T)
 extern void process_file(struct lsof_context *ctx, KA_T fp);
 extern void process_node(struct lsof_context *ctx, KA_T f);
+#    endif /* !defined(LSOF_NO_KA_T) */
 extern char *Readlink(struct lsof_context *ctx, char *arg);
 extern void readdev(struct lsof_context *ctx, int skip);
 extern struct mounts *readmnt(struct lsof_context *ctx);
