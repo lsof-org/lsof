@@ -25,3 +25,8 @@ D=lib/dialects/sun
 L="ddev.c dfile.c dlsof.h dmnt.c dnode.c dnode1.c dnode2.c dproc.c dproto.h dsock.c dstore.c machine.h"
 
 mksrc
+
+D=src/dialects/sun
+L="dprint.c"
+
+mksrc
