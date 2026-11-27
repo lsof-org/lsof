@@ -389,7 +389,7 @@ static int read_psinfo(const char *p, unsigned char *ps, int *len) {
     n = (int)read(fd, ps, PSINFO_SIZE);
     (void)close(fd);
     *len = n;
-    if (n >= PSINFO_SIZE)
+    if (n >= 400)
         return (0);
     return (n == PSINFO_OLD_SIZE) ? 0 : 1;
 }
