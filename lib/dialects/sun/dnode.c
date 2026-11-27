@@ -4944,6 +4944,22 @@ static int read_znode114(struct lsof_context *ctx, KA_T na, KA_T nza,
         enter_nm(ctx, Namech);
         return (1);
     }
+    /*
+     * A wrong znode_t layout would make the offsets above read unrelated
+     * kernel memory.  The vnode back-pointer is a cheap validity check: on
+     * every supported layout z_vnode points at the vnode being processed.
+     * If it does not, report the unsupported layout instead of producing
+     * bogus file information.
+     */
+    if ((KA_T)zn->z_vnode != na) {
+        (void)snpf(Namech, Namechl - 1,
+                   "node at %s: unsupported znode layout: %s",
+                   print_kptr(na, tbuf, sizeof(tbuf)),
+                   print_kptr((KA_T)zn->z_vnode, (char *)NULL, 0));
+        Namech[Namechl - 1] = '\0';
+        enter_nm(ctx, Namech);
+        return (1);
+    }
     zn->z_phys = (znode_phys_t *)NULL;
     return (0);
 }
