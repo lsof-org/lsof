@@ -296,7 +296,6 @@ struct l_ino {
 };
 
 struct l_vfs {
-    KA_T addr;    /* kernel address */
     char *dir;    /* mounted directory */
     char *fsname; /* file system name */
     dev_t dev;    /* device */

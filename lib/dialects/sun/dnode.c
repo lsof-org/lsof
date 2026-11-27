@@ -35,18 +35,6 @@
 
 #include "common.h"
 
-/*
- * Common stream/AFS code still references kread.  The procfs backend has no
- * kernel memory source, so those optional paths simply fail.
- */
-int kread(struct lsof_context *ctx, KA_T addr, char *buf, READLEN_T len) {
-    (void)ctx;
-    (void)addr;
-    (void)buf;
-    (void)len;
-    return (1);
-}
-
 /* Required by the lsof core; procfs needs no one-time kernel setup. */
 void initialize(struct lsof_context *ctx) {
     (void)ctx;
