@@ -214,3 +214,21 @@ jobs:
               exit "$rc"
             fi
           done
+  openindiana:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v7
+    - name: build and test in an OpenIndiana vm
+      uses: vmactions/openindiana-vm@v1
+      with:
+        release: "202610-build"
+        copyback: false
+        prepare: |
+          pkg install --accept runtime/python-311 shell/bash
+        run: |
+          set -e
+          export PATH=/usr/gnu/bin:$PATH
+          autoreconf -vif
+          ./configure
+          gmake
+          gmake check || { cat test-suite.log; exit 1; }
