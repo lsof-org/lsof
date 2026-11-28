@@ -48,7 +48,8 @@ void print_tcptpi(struct lsof_context *ctx, /* context */
         case 0: /* TCP */
             if (!TcpSt)
                 (void)build_IPstates(ctx);
-            if ((i = Lf->lts.state.i + TcpStOff) < 0 || i >= TcpNstates) {
+            if (Lf->lts.state.i < 0 ||
+                (i = Lf->lts.state.i + TcpStOff) >= TcpNstates) {
                 (void)snpf(sbuf, sizeof(sbuf), "UNKNOWN_TCP_STATE_%d",
                            Lf->lts.state.i);
                 cp = sbuf;
@@ -59,7 +60,8 @@ void print_tcptpi(struct lsof_context *ctx, /* context */
             if (!UdpSt)
                 (void)build_IPstates(ctx);
             u = Lf->lts.state.ui + UdpStOff;
-            if (u >= (unsigned)UdpNstates) {
+            if (Lf->lts.state.ui == (unsigned)-1 ||
+                u >= (unsigned)UdpNstates) {
                 (void)snpf(sbuf, sizeof(sbuf), "UNKNOWN_UDP_STATE_%u",
                            Lf->lts.state.ui);
                 cp = sbuf;
@@ -76,10 +78,6 @@ void print_tcptpi(struct lsof_context *ctx, /* context */
             ps++;
         }
     }
-
-
-
-
 
     if (Ftcptpi && !Ffield && ps)
         putchar(')');

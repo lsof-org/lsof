@@ -74,42 +74,6 @@ static int nm2id(char *nm, int *id) {
     return (0);
 }
 
-/*
- * /proc/<pid>/fdinfo/nn is a variable-length prfdinfo_t followed by
- * self-describing pr_misc entries.  The layout is from Solaris/illumos
- * procfs; it is userland ABI and does not require kernel memory.
- */
-#define SUN_FDINFO_HDR 200
-#define SUN_FDINFO_CORE 196
-#define SUN_MISC_PATHNAME 0
-#define SUN_MISC_SOCKETNAME 1
-#define SUN_MISC_PEERSOCKNAME 2
-#define SUN_MISC_SOCKOPT_TYPE 10
-#define SUN_MISC_TCP_CONGESTION 11
-
-struct sun_fdinfo {
-    int pr_fd;
-    mode_t pr_mode;
-    uint64_t pr_ino;
-    int64_t pr_size;
-    int64_t pr_offset;
-    uid_t pr_uid;
-    gid_t pr_gid;
-    uint32_t pr_major;
-    uint32_t pr_minor;
-    uint32_t pr_rmajor;
-    uint32_t pr_rminor;
-    int pr_fileflags;
-    int pr_fdflags;
-    short pr_locktype;
-    pid_t pr_lockpid;
-    int pr_locksysid;
-    pid_t pr_peerpid;
-    int pr_filler[25];
-    char pr_peername[16];
-    int sock_type;
-};
-
 static void enter_path(struct lsof_context *ctx, enum lsof_fd_type fdt,
                        int fd, const char *path, const struct stat *st);
 
@@ -166,87 +130,9 @@ static void set_sockaddr(struct lfile *lf, int which, const void *p, size_t n,
     }
 }
 
-static int read_fdinfo(const char *p, struct sun_fdinfo *fi, char *path,
-                       size_t pathlen, unsigned char *sn, size_t *snl,
-                       unsigned char *pn, size_t *pnl) {
-    unsigned char buf[8192];
-    int fd, n;
-    size_t off;
-
-    *snl = *pnl = 0;
-    path[0] = '\0';
-    if ((fd = open(p, O_RDONLY)) < 0)
-        return (1);
-    n = (int)read(fd, buf, sizeof(buf));
-    (void)close(fd);
-    if (n < SUN_FDINFO_HDR)
-        return (1);
-    memcpy(fi, buf, SUN_FDINFO_CORE);
-    fi->sock_type = -1;
-    /*
-     * The fixed core is 196 bytes.  Some Solaris fdinfo records have four
-     * bytes of alignment before the misc array; detect which by validating
-     * the first misc header.
-     */
-    off = SUN_FDINFO_CORE;
-    if (off + 8 <= (size_t)n) {
-        uint32_t sz, ty;
-        memcpy(&sz, &buf[off], sizeof(sz));
-        memcpy(&ty, &buf[off + 4], sizeof(ty));
-        if (sz < 8 || ty > SUN_MISC_PEERSOCKNAME)
-            off = SUN_FDINFO_HDR;
-    }
-    while (off + 8 <= (size_t)n) {
-        uint32_t sz, ty;
-        unsigned char *data;
-        size_t dlen, adv;
-
-        memcpy(&sz, &buf[off], sizeof(sz));
-        memcpy(&ty, &buf[off + 4], sizeof(ty));
-        if (sz < 8 || off + sz > (size_t)n)
-            break;
-        data = &buf[off + 8];
-        dlen = sz - 8;
-        switch (ty) {
-        case SUN_MISC_PATHNAME:
-            if (dlen && pathlen) {
-                size_t l = dlen < pathlen - 1 ? dlen : pathlen - 1;
-                memcpy(path, data, l);
-                path[l] = '\0';
-            }
-            break;
-        case SUN_MISC_SOCKETNAME:
-            if (dlen <= 256) {
-                memcpy(sn, data, dlen);
-                *snl = dlen;
-            }
-            break;
-        case SUN_MISC_PEERSOCKNAME:
-            if (dlen <= 256) {
-                memcpy(pn, data, dlen);
-                *pnl = dlen;
-            }
-            break;
-        case SUN_MISC_SOCKOPT_TYPE:
-            if (dlen >= sizeof(uint_t)) {
-                uint_t st;
-                memcpy(&st, data, sizeof(st));
-                fi->sock_type = (int)st;
-            }
-            break;
-        case SUN_MISC_TCP_CONGESTION:
-            fi->sock_type = SOCK_STREAM;
-            break;
-        default:
-            break;
-        }
-        adv = (sz + 3) & ~3U;
-        if (adv < sz || off + adv > (size_t)n)
-            break;
-        off += adv;
-    }
-    return (0);
-}
+#if !defined(PR_FDINFO_LEN_MAX)
+#    define PR_FDINFO_LEN_MAX (sizeof(prfdinfo_t) + 4 * MAXPATHLEN + 8192)
+#endif
 
 static void set_lock_from_proc(const char *path, struct lfile *lf,
                                int locktype, SZOFFTYPE size) {
@@ -277,6 +163,79 @@ static void set_lock_from_proc(const char *path, struct lfile *lf,
     (void)close(fd);
 }
 
+static int read_fdinfo(const char *p, prfdinfo_t *fi, int *socktype,
+                       char *path, size_t pathlen, unsigned char *sn,
+                       size_t *snl, unsigned char *pn, size_t *pnl) {
+    int fd, n;
+    size_t off;
+
+    *snl = *pnl = 0;
+    path[0] = '\0';
+    if ((fd = open(p, O_RDONLY)) < 0)
+        return (1);
+    n = (int)read(fd, fi, PR_FDINFO_LEN_MAX);
+    (void)close(fd);
+    if (n < (int)offsetof(prfdinfo_t, pr_misc))
+        return (1);
+    *socktype = -1;
+    /*
+     * prfdinfo_t ends with a variable array of pr_misc_header_t records.
+     * Use the system layout and misc types instead of hard-coded offsets.
+     */
+    off = offsetof(prfdinfo_t, pr_misc);
+    while (off + sizeof(pr_misc_header_t) <= (size_t)n) {
+        pr_misc_header_t mh;
+        unsigned char *data;
+        size_t dlen, adv;
+
+        memcpy(&mh, &fi->pr_misc[off - offsetof(prfdinfo_t, pr_misc)],
+               sizeof(mh));
+        if (mh.pr_misc_size < sizeof(mh) || off + mh.pr_misc_size > (size_t)n)
+            break;
+        data = &fi->pr_misc[off - offsetof(prfdinfo_t, pr_misc)] +
+               sizeof(mh);
+        dlen = mh.pr_misc_size - sizeof(mh);
+        switch (mh.pr_misc_type) {
+        case PR_PATHNAME:
+            if (dlen && pathlen) {
+                size_t l = dlen < pathlen - 1 ? dlen : pathlen - 1;
+                memcpy(path, data, l);
+                path[l] = '\0';
+            }
+            break;
+        case PR_SOCKETNAME:
+            if (dlen <= 256) {
+                memcpy(sn, data, dlen);
+                *snl = dlen;
+            }
+            break;
+        case PR_PEERSOCKNAME:
+            if (dlen <= 256) {
+                memcpy(pn, data, dlen);
+                *pnl = dlen;
+            }
+            break;
+        case PR_SOCKOPT_TYPE:
+            if (dlen >= sizeof(uint_t)) {
+                uint_t st;
+                memcpy(&st, data, sizeof(st));
+                *socktype = (int)st;
+            }
+            break;
+        case PR_SOCKOPT_TCP_CONGESTION:
+            *socktype = SOCK_STREAM;
+            break;
+        default:
+            break;
+        }
+        adv = (mh.pr_misc_size + 3) & ~3U;
+        if (adv < mh.pr_misc_size || off + adv > (size_t)n)
+            break;
+        off += adv;
+    }
+    return (0);
+}
+
 static void process_fdinfo(struct lsof_context *ctx, int pid, int fd,
                            const char *fdpath, const char *fipath,
                            const char *pathpath) {
@@ -284,24 +243,27 @@ static void process_fdinfo(struct lsof_context *ctx, int pid, int fd,
     char unixpath[MAXPATHLEN + 1];
     unsigned char sock[256], peer[256];
     size_t sl, pl;
-    struct sun_fdinfo fi;
+    unsigned char fbuf[PR_FDINFO_LEN_MAX];
+    prfdinfo_t *fi = (prfdinfo_t *)fbuf;
     struct stat st;
     ssize_t r;
     int has_sock, has_peer;
+    int sock_type;
 
-    if (read_fdinfo(fipath, &fi, path, sizeof(path), sock, &sl, peer, &pl))
+    if (read_fdinfo(fipath, fi, &sock_type, path, sizeof(path), sock, &sl,
+                    peer, &pl))
         return;
     has_sock = has_peer = 0;
     unixpath[0] = '\0';
 
     if (stat(fdpath, &st) != 0) {
         memset(&st, 0, sizeof(st));
-        st.st_mode = fi.pr_mode;
-        st.st_ino = (ino_t)fi.pr_ino;
-        st.st_size = (off_t)fi.pr_size;
+        st.st_mode = fi->pr_mode;
+        st.st_ino = (ino_t)fi->pr_ino;
+        st.st_size = (off_t)fi->pr_size;
         st.st_nlink = 1;
-        st.st_dev = (dev_t)(((uint64_t)fi.pr_major << 18) | fi.pr_minor);
-        st.st_rdev = (dev_t)(((uint64_t)fi.pr_rmajor << 18) | fi.pr_rminor);
+        st.st_dev = (dev_t)(((uint64_t)fi->pr_major << 18) | fi->pr_minor);
+        st.st_rdev = (dev_t)(((uint64_t)fi->pr_rmajor << 18) | fi->pr_rminor);
     }
 
     if (path[0])
@@ -317,11 +279,11 @@ static void process_fdinfo(struct lsof_context *ctx, int pid, int fd,
     if (!Lf)
         return;
 
-    if (fi.pr_offset >= 0) {
-        Lf->off = (SZOFFTYPE)fi.pr_offset;
+    if (fi->pr_offset >= 0) {
+        Lf->off = (SZOFFTYPE)fi->pr_offset;
         Lf->off_def = 1;
     }
-    switch (fi.pr_fileflags & O_ACCMODE) {
+    switch (fi->pr_fileflags & O_ACCMODE) {
     case O_RDONLY:
         Lf->access = LSOF_FILE_ACCESS_READ;
         break;
@@ -333,12 +295,12 @@ static void process_fdinfo(struct lsof_context *ctx, int pid, int fd,
         break;
     }
 
-    if (fi.pr_locktype != F_UNLCK)
-        set_lock_from_proc(nm[0] ? nm : fdpath, Lf, fi.pr_locktype,
+    if (fi->pr_locktype != F_UNLCK)
+        set_lock_from_proc(nm[0] ? nm : fdpath, Lf, fi->pr_locktype,
                            (SZOFFTYPE)st.st_size);
 
 
-    if ((fi.pr_mode & S_IFMT) == S_IFSOCK) {
+    if ((fi->pr_mode & S_IFMT) == S_IFSOCK) {
         if (sl) {
             (void)set_sockaddr(Lf, 0, sock, sl, unixpath, sizeof(unixpath));
             has_sock = 1;
@@ -370,14 +332,14 @@ static void process_fdinfo(struct lsof_context *ctx, int pid, int fd,
                 break;
             }
             if ((Lf->li[0].af == AF_INET || Lf->li[0].af == AF_INET6) &&
-                fi.sock_type == SOCK_STREAM) {
+                sock_type == SOCK_STREAM) {
                 (void)strncpy(Lf->iproto, "TCP", sizeof(Lf->iproto) - 1);
                 Lf->iproto[sizeof(Lf->iproto) - 1] = '\0';
                 Lf->inp_ty = 2;
                 Lf->lts.type = 0;
             } else if ((Lf->li[0].af == AF_INET ||
                         Lf->li[0].af == AF_INET6) &&
-                       fi.sock_type == SOCK_DGRAM) {
+                       sock_type == SOCK_DGRAM) {
                 (void)strncpy(Lf->iproto, "UDP", sizeof(Lf->iproto) - 1);
                 Lf->iproto[sizeof(Lf->iproto) - 1] = '\0';
                 Lf->inp_ty = 2;
@@ -390,6 +352,9 @@ static void process_fdinfo(struct lsof_context *ctx, int pid, int fd,
                 Lf->lts.type = 1;
             } else
                 Lf->lts.type = 1;
+            /* procfs does not expose TCP/UDP state. */
+            Lf->lts.state.i = -1;
+            Lf->lts.state.ui = (unsigned)-1;
             if (Selflags & SELNET) {
                 int family_ok = !FnetTy ||
                                 (FnetTy == 4 && Lf->li[0].af == AF_INET) ||
