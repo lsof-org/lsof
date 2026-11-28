@@ -764,6 +764,11 @@ process_overlaid_node:
 
 #if defined(HASKERNFS)
     case KERNFSNODE:
+#endif /* defined(HASKERNFS) */
+#if defined(HASPROCFS)
+    case PFSNODE:
+#endif /* defined(HASPROCFS) */
+#if defined(HASKERNFS) || defined(HASPROCFS)
         if (vfs) {
 
 #    if defined(HASSTATVFS)
@@ -775,7 +780,7 @@ process_overlaid_node:
             devs = 1;
         }
         break;
-#endif /* defined(HASKERNFS) */
+#endif /* defined(HASKERNFS) || defined(HASPROCFS) */
 
 #if defined(HAS9660FS)
     case CDFSNODE:
@@ -1227,7 +1232,7 @@ process_overlaid_node:
 
 #if defined(HASPROCFS)
     else if (nty == PFSNODE) {
-        Lf->dev_def = Lf->rdev_def = 0;
+        Lf->rdev_def = 0;
         (void)snpf(Namech, Namechl, "/%s", HASPROCFS);
         switch (p.pfs_type) {
         case Proot:
@@ -1357,7 +1362,7 @@ process_overlaid_node:
      */
 
 #if defined(HASPROCFS)
-    if (Ntype == N_PROC) {
+    if (Ntype == N_PROC && (Procsrch || Procfsid)) {
         if (Procsrch) {
             Procfind = 1;
             Lf->sf |= SELNM;
