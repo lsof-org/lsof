@@ -64,6 +64,12 @@
 #    define HASBLKDEV 1
 
 /*
+ * Solaris zones are available through psinfo_t.pr_zoneid.
+ */
+
+#    define HASZONES 1
+
+/*
  * HASDCACHE is defined for those dialects that support a device cache
  * file.
  *

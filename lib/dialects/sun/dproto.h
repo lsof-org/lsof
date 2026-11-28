@@ -55,6 +55,10 @@ extern int rw_pseudo_sect(struct lsof_context *ctx, int m);
 
 extern void read_clone(struct lsof_context *ctx);
 
+#if defined(HASZONES)
+extern int enter_zone_arg(struct lsof_context *ctx, char *zn);
+#endif /* defined(HASZONES) */
+
 #if defined(HASIPv6)
 extern struct hostent *gethostbyname2(const char *nm, int proto);
 #endif /* defined(HASIPv6) */

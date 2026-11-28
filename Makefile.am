@@ -141,7 +141,8 @@ DIALECT_NEUTRAL_TESTS = tests/case-00-hello.bash \
 	tests/case-23-multi-address-hostname.bash \
 	tests/case-24-dual-stack-socket.bash \
 	tests/case-30-json-output.bash \
-	tests/case-31-jsonl-output.bash
+	tests/case-31-jsonl-output.bash \
+	tests/case-32-solaris-zone.bash
 TESTS = $(DIALECT_NEUTRAL_TESTS)
 
 EXTRA_DIST += $(DIALECT_NEUTRAL_TESTS) \

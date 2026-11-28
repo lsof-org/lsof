@@ -65,6 +65,10 @@
 #    include <rpc/pmap_prot.h>
 #    include <rpc/rpcent.h>
 
+#    if defined(HASZONES)
+#        include <zone.h>
+#    endif /* defined(HASZONES) */
+
 /*
  * The procfs backend has no kernel structures.  Define the small set of
  * types and node/vnode constants that common lsof code still references.

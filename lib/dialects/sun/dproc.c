@@ -482,6 +482,58 @@ static void process_path(struct lsof_context *ctx, int pid,
         link_lfile(ctx);
 }
 
+#if defined(HASZONES)
+#    if !defined(ZONENAME_MAX)
+#        define ZONENAME_MAX 64
+#    endif
+
+static int hash_zn(char *zn) {
+    size_t i, l;
+    int h;
+
+    if (!zn || !(l = strlen(zn)))
+        return (0);
+    if (l == 1)
+        return ((int)*zn & (HASHZONE - 1));
+    for (i = h = 0; i < l - 1; i++)
+        h ^= ((int)zn[i] * (int)zn[i + 1]) << ((i * 3) % 13);
+    return (h & (HASHZONE - 1));
+}
+
+int enter_zone_arg(struct lsof_context *ctx, char *zn) {
+    int zh;
+    znhash_t *zp, *zpn;
+
+    if (!zn || !*zn)
+        return (1);
+    if (!ZoneArg) {
+        if (!(ZoneArg = (znhash_t **)calloc(HASHZONE, sizeof(znhash_t *)))) {
+            (void)fprintf(stderr, "%s: no space for zone arg hash\n", Pn);
+            Error(ctx);
+        }
+    }
+    zh = hash_zn(zn);
+    for (zp = ZoneArg[zh]; zp; zp = zp->next) {
+        if (!strcmp(zp->zn, zn))
+            break;
+    }
+    if (zp) {
+        if (!Fwarn)
+            (void)fprintf(stderr, "%s: duplicate zone name: %s\n", Pn, zn);
+        return (1);
+    }
+    if (!(zpn = (znhash_t *)malloc(sizeof(znhash_t)))) {
+        (void)fprintf(stderr, "%s: no space for zone: %s\n", Pn, zn);
+        Error(ctx);
+    }
+    zpn->zn = zn;
+    zpn->f = 0;
+    zpn->next = ZoneArg[zh];
+    ZoneArg[zh] = zpn;
+    return (0);
+}
+#endif /* defined(HASZONES) */
+
 void gather_proc_info(struct lsof_context *ctx) {
     DIR *pd, *fdd;
 
@@ -501,6 +553,12 @@ void gather_proc_info(struct lsof_context *ctx) {
     char fdpath[MAXPATHLEN + 64];
     char pspath[MAXPATHLEN + 1];
     int pid;
+#if defined(HASZONES)
+    char znbuf[ZONENAME_MAX + 1];
+    char *zn;
+    int zh;
+    znhash_t *zp;
+#endif
 
     if (!(pd = opendir(PROC_BASE))) {
         (void)fprintf(stderr, "%s: can't open %s: %s\n", Pn, PROC_BASE,
@@ -516,6 +574,29 @@ void gather_proc_info(struct lsof_context *ctx) {
         (void)snpf(pspath, sizeof(pspath), "%s/%d/psinfo", PROC_BASE, pid);
         if (read_psinfo(pspath, &ps))
             continue;
+
+#if defined(HASZONES)
+        zn = (char *)NULL;
+        znbuf[0] = '\0';
+        {
+            int zl = getzonenamebyid(ps.pr_zoneid, znbuf, sizeof(znbuf));
+            if (zl > 0 && (size_t)zl < sizeof(znbuf))
+                zn = znbuf;
+        }
+        if (ZoneArg) {
+            if (!zn)
+                continue;
+            zh = hash_zn(zn);
+            for (zp = ZoneArg[zh]; zp; zp = zp->next) {
+                if (!strcmp(zn, zp->zn))
+                    break;
+            }
+            if (!zp)
+                continue;
+            zp->f = 1;
+        }
+#endif
+
         if (is_proc_excl(ctx, pid, (int)ps.pr_pgid, (UID_ARG)ps.pr_uid, &pss,
                          &sf) ||
             is_cmd_excl(ctx, ps.pr_fname, &pss, &sf))
@@ -523,6 +604,15 @@ void gather_proc_info(struct lsof_context *ctx) {
 
         alloc_lproc(ctx, pid, (int)ps.pr_pgid, (int)ps.pr_ppid,
                     (UID_ARG)ps.pr_euid, ps.pr_fname, (int)pss, (int)sf);
+#if defined(HASZONES)
+        if (zn) {
+            Lp->zn = mkstrcpy(zn, (MALLOC_S *)NULL);
+            if (ZoneArg) {
+                Lp->pss |= PS_PRI;
+                Lp->sf |= SELZONE;
+            }
+        }
+#endif
         Plf = (struct lfile *)NULL;
 
         (void)snpf(path, sizeof(path), "%s/%d/cwd", PROC_BASE, pid);
