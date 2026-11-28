@@ -271,11 +271,7 @@ void read_clone(struct lsof_context *ctx) {
             Error(ctx);
         }
 
-#if defined(USE_STAT)
-        if (stat(fp, &sb) != 0)
-#else  /* !defined(USE_STAT) */
         if (lstat(fp, &sb) != 0)
-#endif /* defined(USE_STAT) */
 
         {
             if (!Fwarn) {
@@ -482,11 +478,7 @@ void readdev(struct lsof_context *ctx, /* context */
                 Error(ctx);
             }
 
-#if defined(USE_STAT)
-            if (stat(fp, &sb) != 0)
-#else  /* !defined(USE_STAT) */
             if (lstat(fp, &sb) != 0)
-#endif /* defined(USE_STAT) */
 
             {
                 if (errno == ENOENT) /* symbolic link to nowhere? */
@@ -998,11 +990,7 @@ int vfy_dev(struct lsof_context *ctx, /* context */
     if (!DCunsafe || dp->v)
         return (1);
 
-#    if defined(USE_STAT)
-    if (stat(dp->name, &sb) != 0
-#    else  /* !defined(USE_STAT) */
     if (lstat(dp->name, &sb) != 0
-#    endif /* defined(USE_STAT) */
 
         || dp->rdev != sb.st_rdev || dp->inode != (INODETYPE)sb.st_ino) {
         (void)rereaddev(ctx);

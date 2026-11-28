@@ -372,8 +372,6 @@ int is_file_named(struct lsof_context *ctx, /* context */
     return (0);
 }
 
-
-
 #if defined(HASIPv6)
 /*
  * gethostbyname2() -- an RFC2133-compatible get-host-by-name-two function

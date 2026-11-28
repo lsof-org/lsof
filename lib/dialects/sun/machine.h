@@ -374,9 +374,6 @@
  * options.
  */
 
-#    define HASSOOPT 1 /* has socket option information */
-/* #define	HASSOSTATE	1	has socket state information */
-#    define HASTCPOPT 1 /* has TCP options or flags */
 
 /*
  * Define HASSPECDEVD to be the name of a function that handles the results
@@ -405,14 +402,12 @@
  * TCP/TPI Recv-Q and Send-Q values produced by netstat.
  */
 
-#    define HASTCPTPIQ 1
 
 /*
  * HASTCPTPIW is defined for dialects where it is possible to report the
  * TCP/TPI send and receive window sizes produced by netstat.
  */
 
-#    define HASTCPTPIW 1
 
 /*
  * HASTCPUDPSTATE is defined for dialects that have TCP and UDP state

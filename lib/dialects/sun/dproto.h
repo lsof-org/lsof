@@ -49,11 +49,12 @@ extern void clr_sect(struct lsof_context *ctx);
 extern int rw_pseudo_sect(struct lsof_context *ctx, int m);
 #endif /* defined(HASDCACHE) */
 
-#if defined(HASIPv6)
-extern struct hostent *gethostbyname2(const char *nm, int proto);
-#endif /* defined(HASIPv6) */
 
 
 
 
 extern void read_clone(struct lsof_context *ctx);
+
+#if defined(HASIPv6)
+extern struct hostent *gethostbyname2(const char *nm, int proto);
+#endif /* defined(HASIPv6) */

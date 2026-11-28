@@ -134,7 +134,6 @@ static void set_sockaddr(struct lfile *lf, int which, const void *p, size_t n,
         lf->li[which].ia.a4 = sin->sin_addr;
         break;
     }
-#if defined(AF_INET6)
     case AF_INET6: {
         const struct sockaddr_in6 *sin6 = (const struct sockaddr_in6 *)p;
         if (n < sizeof(*sin6))
@@ -144,8 +143,6 @@ static void set_sockaddr(struct lfile *lf, int which, const void *p, size_t n,
         lf->li[which].ia.a6 = sin6->sin6_addr;
         break;
     }
-#endif
-#if defined(AF_UNIX)
     case AF_UNIX: {
         const struct sun_sockaddr_un *unp = (const struct sun_sockaddr_un *)p;
         size_t l;
@@ -164,7 +161,6 @@ static void set_sockaddr(struct lfile *lf, int which, const void *p, size_t n,
         }
         break;
     }
-#endif
     default:
         break;
     }
@@ -253,8 +249,7 @@ static int read_fdinfo(const char *p, struct sun_fdinfo *fi, char *path,
 }
 
 static void set_lock_from_proc(const char *path, struct lfile *lf,
-                             int locktype, SZOFFTYPE size) {
-#if defined(F_GETLK)
+                               int locktype, SZOFFTYPE size) {
     struct flock fl;
     int fd;
 
@@ -280,12 +275,6 @@ static void set_lock_from_proc(const char *path, struct lfile *lf,
             lf->lock = full ? LSOF_LOCK_WRITE_FULL : LSOF_LOCK_WRITE_PARTIAL;
     }
     (void)close(fd);
-#else
-    (void)path;
-    (void)lf;
-    (void)locktype;
-    (void)size;
-#endif
 }
 
 static void process_fdinfo(struct lsof_context *ctx, int pid, int fd,
@@ -370,16 +359,12 @@ static void process_fdinfo(struct lsof_context *ctx, int pid, int fd,
             case AF_INET:
                 Lf->type = LSOF_FILE_IPV4;
                 break;
-#if defined(AF_INET6)
             case AF_INET6:
                 Lf->type = LSOF_FILE_IPV6;
                 break;
-#endif
-#if defined(AF_UNIX)
             case AF_UNIX:
                 Lf->type = LSOF_FILE_UNIX;
                 break;
-#endif
             default:
                 Lf->type = LSOF_FILE_SOCKET;
                 break;
@@ -414,26 +399,20 @@ static void process_fdinfo(struct lsof_context *ctx, int pid, int fd,
             }
             if (Selflags & SELUNX)
                 Lf->sf |= SELUNX;
-#if defined(SELNA)
             if ((Selflags & SELNA) && Nwad) {
                 unsigned char *la = (unsigned char *)NULL;
                 unsigned char *fa = (unsigned char *)NULL;
                 if (Lf->li[0].af == AF_INET)
                     la = (unsigned char *)&Lf->li[0].ia.a4;
-#if defined(AF_INET6)
                 else if (Lf->li[0].af == AF_INET6)
                     la = (unsigned char *)&Lf->li[0].ia.a6;
-#endif
                 if (Lf->li[1].af == AF_INET)
                     fa = (unsigned char *)&Lf->li[1].ia.a4;
-#if defined(AF_INET6)
                 else if (Lf->li[1].af == AF_INET6)
                     fa = (unsigned char *)&Lf->li[1].ia.a6;
-#endif
                 ent_inaddr(ctx, la, Lf->li[0].p, fa, Lf->li[1].p,
                            Lf->li[0].af ? Lf->li[0].af : Lf->li[1].af);
             }
-#endif
         }
     }
     if (Lf && Lf->sf)
