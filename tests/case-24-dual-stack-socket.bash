@@ -9,9 +9,9 @@
 source tests/common.bash
 
 case "${dialect:-}" in
-    linux|darwin|freebsd|netbsd|openbsd) ;;
+    linux|darwin|freebsd|netbsd|openbsd|solaris) ;;
     *)
-        echo "SKIP: dual-stack socket test is only for the BSD and Linux dialects" \
+        echo "SKIP: dual-stack socket test is only for the supported Unix dialects" \
             >> "$report"
         exit 77
         ;;

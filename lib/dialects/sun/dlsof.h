@@ -150,12 +150,6 @@ struct mvfsnode {
 #    define DEVINCR 1024 /* device table malloc() increment */
 #    define DIRTYPE dirent
 
-#    if solaris >= 20501
-#        define KMEM "/dev/mem"
-#    else /* solaris<20501 */
-#        define KMEM "/dev/kmem"
-#    endif /* solaris>=20501 */
-
 #    define MALLOC_P char
 #    define FREE_P MALLOC_P
 #    define MALLOC_S unsigned
@@ -174,18 +168,12 @@ struct mvfsnode {
 #    define STRNCPY_L int
 #    define STRNML 32 /* stream name length (maximum) */
 
-#    if solaris >= 20501
 /*
- * Enable large file support.
+ * Large file support.
  */
-
-#        define SZOFFTYPE unsigned long long
-/* size and offset internal storage
- * type */
-#        define SZOFFPSPEC                                                     \
-            "ll" /* SZOFFTYPE printf specification                             \
-                  * modifier */
-#    endif       /* solaris>=20501 */
+#    define SZOFFTYPE unsigned long long
+/* size and offset internal storage type */
+#    define SZOFFPSPEC "ll" /* SZOFFTYPE printf specification modifier */
 
 
 /*
@@ -227,10 +215,8 @@ struct l_vfs {
     INODETYPE fs_ino; /* file system inode number */
 #    endif            /* defined(HASFSINO) */
 
-#    if solaris >= 80000
     nlink_t nlink; /* directory link count */
     off_t size;    /* directory size */
-#    endif         /* solaris>=80000 */
 
     struct l_vfs *next; /* forward link */
 };
@@ -252,10 +238,8 @@ struct mounts {
     char *fstype; /* file system type */
 #    endif        /* defined(HASFSTYPE) */
 
-#    if solaris >= 80000
     nlink_t nlink; /* directory st_nlink */
     off_t size;    /* directory st_size */
-#    endif         /* solaris>=80000 */
 
 };
 
@@ -315,10 +299,8 @@ struct sfile {
 
 #    define CVFS_DEVSAVE 1
 
-#    if solaris >= 80000
-#        define CVFS_NLKSAVE 1
-#        define CVFS_SZSAVE 1
-#    endif /* solaris>=80000 */
+#    define CVFS_NLKSAVE 1
+#    define CVFS_SZSAVE 1
 
 /*
  * Definitions for rnch.c

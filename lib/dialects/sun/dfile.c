@@ -76,9 +76,6 @@ static char copyright[] =
  * minor raw device, and inode, modulo
  * mod (mod must be a power of 2) */
 
-#if solaris < 20500
-#endif /* solaris<20500 */
-
 /*
  * hashSfile() - hash Sfile entries for use in is_file_named() searches
  */
@@ -375,36 +372,6 @@ int is_file_named(struct lsof_context *ctx, /* context */
     return (0);
 }
 
-#if defined(HASPRINTDEV)
-/*
- * print_dev() - print device
- */
-
-char *print_dev(struct lfile *lf, /* file whose device is to be printed */
-                dev_t *dev)       /* device to be printed */
-{
-    static char buf[128];
-    /*
-     * Avoid the Solaris major() and minor() functions from makedev(3C) to get
-     * printable major/minor numbers.
-     *
-     * We would like to use the L_MAXMAJ definition from <sys/sysmacros.h> all
-     * the time, but it's not always correct in all versions of Solaris.
-     */
-    (void)snpf(buf, sizeof(buf), "%d,%d",
-               (int)((*dev >> L_BITSMINOR) &
-
-#    if solaris >= 20501
-                     L_MAXMAJ
-#    else  /* solaris<20501 */
-                     0x3fff
-#    endif /* solaris>=20501 */
-
-                     ),
-               (int)(*dev & L_MAXMIN));
-    return (buf);
-}
-#endif /* defined(HASPRINTDEV) */
 
 
 #if defined(HASIPv6)

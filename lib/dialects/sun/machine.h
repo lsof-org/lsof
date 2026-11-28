@@ -40,20 +40,14 @@
  * can be used to obtain a CLIENT handle in lieu of clnttcp_create().
  */
 
-#    if solaris >= 20501
-#        define CAN_USE_CLNT_CREATE 1
-#    endif /* solaris>=20501 */
+#    define CAN_USE_CLNT_CREATE 1
 
 /*
  * DEVDEV_PATH defines the path to the directory that contains device
  * nodes.
  */
 
-#    if solaris < 100000
-#        define DEVDEV_PATH "/dev"
-#    else /* solaris>=100000 */
-#        define DEVDEV_PATH "/devices"
-#    endif /* solaris<100000 */
+#    define DEVDEV_PATH "/devices"
 
 /*
  * HASAOPT is defined for those dialects that have AFS support; it specifies
@@ -258,9 +252,6 @@
  * called from print_file().
  */
 
-#    if solaris < 100000
-#        define HASPRINTDEV print_dev
-#    endif /* solaris<100000 */
 
 /* #define	HASPRINTINO	print_ino?	*/
 /* #define	HASPRINTNM	print_nm?	*/
@@ -383,11 +374,9 @@
  * options.
  */
 
-#    if solaris >= 20600
-#        define HASSOOPT 1 /* has socket option information */
+#    define HASSOOPT 1 /* has socket option information */
 /* #define	HASSOSTATE	1	has socket state information */
-#        define HASTCPOPT 1 /* has TCP options or flags */
-#    endif                  /* solaris>=20600 */
+#    define HASTCPOPT 1 /* has TCP options or flags */
 
 /*
  * Define HASSPECDEVD to be the name of a function that handles the results
@@ -416,18 +405,14 @@
  * TCP/TPI Recv-Q and Send-Q values produced by netstat.
  */
 
-#    if solaris == 20300 || solaris >= 20500
-#        define HASTCPTPIQ 1
-#    endif /* solaris==20300 || solaris>=20500 */
+#    define HASTCPTPIQ 1
 
 /*
  * HASTCPTPIW is defined for dialects where it is possible to report the
  * TCP/TPI send and receive window sizes produced by netstat.
  */
 
-#    if solaris == 20300 || solaris >= 20500
-#        define HASTCPTPIW 1
-#    endif /* solaris==20300 || solaris>=20500 */
+#    define HASTCPTPIW 1
 
 /*
  * HASTCPUDPSTATE is defined for dialects that have TCP and UDP state
@@ -464,13 +449,9 @@
  * These are defined here, because they must be used in dlsof.h.
  */
 
-#    if solaris >= 20501
-#        define INODETYPE unsigned long long
+#    define INODETYPE unsigned long long
 /* inode number internal storage type */
-#        define INODEPSPEC                                                     \
-            "ll" /* INODETYPE printf specification                             \
-                  * modifier */
-#    endif       /* solaris>=20501 */
+#    define INODEPSPEC "ll" /* INODETYPE printf specification modifier */
 
 /*
  * UID_ARG defines the size of a User ID number when it is passed
@@ -500,9 +481,6 @@
 /* #define	USE_LIB_READMNT			1	   rmnt.c */
 /* #define	USE_LIB_RNAM			1	   rnam.c */
 
-#    if solaris < 90000
-#        define USE_LIB_RNCH 1 /* rnch.c */
-#    endif                     /* solaris<90000 */
 
 /* #define	USE_LIB_RNMH			1	   rnmh.c */
 /* #define	USE_LIB_SNPF			1	   snpf.c */

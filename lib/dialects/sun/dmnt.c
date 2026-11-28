@@ -59,14 +59,14 @@ static char *getmntdev(struct lsof_context *ctx, /* context */
     if (!(opte = x2dev(o + l + 1, &s->st_dev)))
         return ((char *)NULL);
 
-#if solaris >= 70000 && L_BITSMAJOR != L_BITSMAJOR32
+#if L_BITSMAJOR != L_BITSMAJOR32
     /*
      * If this is a Solaris 7 system with a 64 bit kernel, convert the 32 bit
      * device number to a 64 bit device number.
      */
     s->st_dev = (((s->st_dev >> L_BITSMINOR32) & L_MAXMAJ32) << L_BITSMINOR) |
                 (s->st_dev & L_MAXMIN32);
-#endif /* solaris>=70000 && L_BITSMAJOR!=L_BITSMAJOR32 */
+#endif /* L_BITSMAJOR != L_BITSMAJOR32 */
 
     s->st_mode = S_IFDIR | 0777;
 
@@ -237,10 +237,8 @@ struct mounts *readmnt(struct lsof_context *ctx) {
         mtp->inode = (INODETYPE)sb.st_ino;
         mtp->mode = sb.st_mode;
 
-#if solaris >= 80000
         mtp->nlink = sb.st_nlink;
         mtp->size = sb.st_size;
-#endif /* solaris>=80000 */
 
 #if defined(HASPROCFS)
         if (strcmp(sb.st_fstype, HASPROCFS) == 0) {

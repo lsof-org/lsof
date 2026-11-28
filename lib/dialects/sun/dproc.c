@@ -84,6 +84,7 @@ static int nm2id(char *nm, int *id) {
 #define SUN_MISC_PATHNAME 0
 #define SUN_MISC_SOCKETNAME 1
 #define SUN_MISC_PEERSOCKNAME 2
+#define SUN_MISC_SOCKOPT_TYPE 10
 
 struct sun_fdinfo {
     int pr_fd;
@@ -105,6 +106,7 @@ struct sun_fdinfo {
     pid_t pr_peerpid;
     int pr_filler[25];
     char pr_peername[16];
+    int sock_type;
 };
 
 static void enter_path(struct lsof_context *ctx, enum lsof_fd_type fdt,
@@ -182,7 +184,8 @@ static int read_fdinfo(const char *p, struct sun_fdinfo *fi, char *path,
     (void)close(fd);
     if (n < SUN_FDINFO_HDR)
         return (1);
-    memcpy(fi, buf, sizeof(*fi));
+    memcpy(fi, buf, SUN_FDINFO_CORE);
+    fi->sock_type = -1;
     /*
      * The fixed core is 196 bytes.  Some Solaris fdinfo records have four
      * bytes of alignment before the misc array; detect which by validating
@@ -225,6 +228,13 @@ static int read_fdinfo(const char *p, struct sun_fdinfo *fi, char *path,
             if (dlen <= 256) {
                 memcpy(pn, data, dlen);
                 *pnl = dlen;
+            }
+            break;
+        case SUN_MISC_SOCKOPT_TYPE:
+            if (dlen >= sizeof(uint_t)) {
+                uint_t st;
+                memcpy(&st, data, sizeof(st));
+                fi->sock_type = (int)st;
             }
             break;
         default:
@@ -370,9 +380,28 @@ static void process_fdinfo(struct lsof_context *ctx, int pid, int fd,
                 Lf->type = LSOF_FILE_SOCKET;
                 break;
             }
-            Lf->lts.type = 1;
-            if (Selflags & SELNET)
-                Lf->sf |= SELNET;
+            if ((Lf->li[0].af == AF_INET || Lf->li[0].af == AF_INET6) &&
+                fi.sock_type == SOCK_STREAM) {
+                (void)strncpy(Lf->iproto, "TCP", sizeof(Lf->iproto) - 1);
+                Lf->iproto[sizeof(Lf->iproto) - 1] = '\0';
+                Lf->inp_ty = 2;
+                Lf->lts.type = 0;
+            } else if ((Lf->li[0].af == AF_INET ||
+                        Lf->li[0].af == AF_INET6) &&
+                       fi.sock_type == SOCK_DGRAM) {
+                (void)strncpy(Lf->iproto, "UDP", sizeof(Lf->iproto) - 1);
+                Lf->iproto[sizeof(Lf->iproto) - 1] = '\0';
+                Lf->inp_ty = 2;
+                Lf->lts.type = 1;
+            } else
+                Lf->lts.type = 1;
+            if (Selflags & SELNET) {
+                int family_ok = !FnetTy ||
+                                (FnetTy == 4 && Lf->li[0].af == AF_INET) ||
+                                (FnetTy == 6 && Lf->li[0].af == AF_INET6);
+                if (family_ok)
+                    Lf->sf |= SELNET;
+            }
             if (Selflags & SELUNX)
                 Lf->sf |= SELUNX;
 #if defined(SELNA)
