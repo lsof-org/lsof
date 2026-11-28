@@ -85,6 +85,7 @@ static int nm2id(char *nm, int *id) {
 #define SUN_MISC_SOCKETNAME 1
 #define SUN_MISC_PEERSOCKNAME 2
 #define SUN_MISC_SOCKOPT_TYPE 10
+#define SUN_MISC_TCP_CONGESTION 11
 
 struct sun_fdinfo {
     int pr_fd;
@@ -236,6 +237,9 @@ static int read_fdinfo(const char *p, struct sun_fdinfo *fi, char *path,
                 memcpy(&st, data, sizeof(st));
                 fi->sock_type = (int)st;
             }
+            break;
+        case SUN_MISC_TCP_CONGESTION:
+            fi->sock_type = SOCK_STREAM;
             break;
         default:
             break;
@@ -389,6 +393,12 @@ static void process_fdinfo(struct lsof_context *ctx, int pid, int fd,
             } else if ((Lf->li[0].af == AF_INET ||
                         Lf->li[0].af == AF_INET6) &&
                        fi.sock_type == SOCK_DGRAM) {
+                (void)strncpy(Lf->iproto, "UDP", sizeof(Lf->iproto) - 1);
+                Lf->iproto[sizeof(Lf->iproto) - 1] = '\0';
+                Lf->inp_ty = 2;
+                Lf->lts.type = 1;
+            } else if (Lf->li[0].af == AF_INET ||
+                       Lf->li[0].af == AF_INET6) {
                 (void)strncpy(Lf->iproto, "UDP", sizeof(Lf->iproto) - 1);
                 Lf->iproto[sizeof(Lf->iproto) - 1] = '\0';
                 Lf->inp_ty = 2;
