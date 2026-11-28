@@ -484,6 +484,17 @@ static void process_path(struct lsof_context *ctx, int pid,
 
 void gather_proc_info(struct lsof_context *ctx) {
     DIR *pd, *fdd;
+
+#if defined(HASTCPUDPSTATE)
+    if (TcpStIn || UdpStIn || TcpStXn || UdpStXn) {
+        (void)fprintf(stderr,
+                      "%s: -s TCP/UDP state selection is unavailable with "
+                      "the Solaris procfs backend\n",
+                      Pn);
+        Error(ctx);
+    }
+#endif
+
     struct dirent *dp, *fdp;
     psinfo_t ps;
     char path[MAXPATHLEN + 1];
