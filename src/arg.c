@@ -1259,6 +1259,7 @@ int enter_network_address(struct lsof_context *ctx, /* context */
 
 #if defined(HASIPv6)
     char *cp;
+    int host_af = 0;
 #endif /* defined(HASIPv6) */
 
     if (!na) {
@@ -1478,6 +1479,7 @@ int enter_network_address(struct lsof_context *ctx, /* context */
                     n.af = AF_INET;
                     he = lkup_hostnm(hn, &n);
                 }
+                host_af = n.af;
 #else  /* !defined(HASIPv6) */
                 if (!ft)
                     n.af = AF_INET;
@@ -1636,6 +1638,15 @@ int enter_network_address(struct lsof_context *ctx, /* context */
          */
 
     nwad_enter:
+
+#if defined(HASIPv6)
+        /* Restore the first hostname family after the previous port's lookup. */
+        if (hn && n.af != host_af) {
+            n.af = host_af;
+            if (!(he = lkup_hostnm(hn, &n)))
+                goto unacc_address;
+        }
+#endif /* defined(HASIPv6) */
 
         for (i = 1; i;) {
             if (enter_nwad(ctx, &n, sp, ep, na, he))
